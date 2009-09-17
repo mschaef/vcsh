@@ -61,6 +61,7 @@
            *read-syntax*
            *readsharp-syntax*
            *repl-abbreviations-enabled*
+           *repl-pre-read-hook*
            *repl-post-hook*
            *repl-pre-print-value-hook*
            *shutdown-hook*

@@ -198,6 +198,7 @@
         (values-bind (time (eval form env)) results
           results)))))
 
+(define *repl-pre-read-hook* ())
 (define *repl-pre-print-value-hook* ())
 (define *repl-post-hook* ())
 
@@ -225,6 +226,8 @@
       (let loop ()
         (catch 'read-failed
           (repl-prompt *repl-level*)
+          (flush-whitespace)
+          (invoke-hook '*repl-pre-read-hook*)
           (let ((form (repl-read *repl-abbreviations*)))
             (unless (eof-object? form)
               (let ((results (repl-eval form env)))
