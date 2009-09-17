@@ -1,0 +1,35 @@
+
+1) Get the compiler working for individual functions.  
+
+   a) Implement meaning-*
+   b) Implement a flattener to LAP code
+   c) Implement very basic byte-vector and compiled-function internal types
+   d) LAP code assembler->compiled function object
+   e) compiled-function interpreter
+   f) FASL serialization of byte-vector and compiled-function
+
+2) Start working on file-compiler. This will be a derivative of
+fasl-compiler, replacing the expander with the bytecode compiler.
+
+   a) Implement rename/delete package 
+
+   b) Remove global environment manip. code 
+
+   c) All native code functions go into a 'system' package 
+
+   d) Add a compile option that renames packages *->host-*, this will be
+   used to compile the compoiler
+
+
+   e) Verify that the fasl-loader writes symbols with the *package*, and
+   not symbol-package, as long as they exported from a package used by
+   *package*. (Important to ensurue that native code fns are written in a
+   way that's protable if their definitions are moved to lisp code)
+
+3) Cutover the system build to the bytecode compiler.
+
+4) Remove the internal C s-expr evaluator
+
+... 
+
+n) Profit! ;-)

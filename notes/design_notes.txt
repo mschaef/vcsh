@@ -1,0 +1,195 @@
+Design Notes
+----------------------------------------------------------------
+
+DN-1: Access to non-CF_TEXT clipboard data
+----------------------------------------------------------------
+
+As-Is:
+
+   (copy-text-to-clipboard <string>)
+   (get-text-from-clipboard <string>)
+
+To-Be:
+
+   (set-clipboard-data! <format-1> <string-1> ...)
+   (get-clipboard-data <format>) -> #f/(<format> . <string>)
+   (get-clipboard-formats) -> (<format-1> ... )
+
+DN-2: Missing Basic Features
+----------------------------------------------------------------
+
+This is a list of a set of minimal calculator features that vCalc
+does not currently support:
+
+Basics:
+- Detailed help text for each command
+- Clickable User Interface
+- Hourglass cursor support
+- Multi-line object display
+- Detailed error messages
+- Function Catalog
+- Out of memory handling
+- Mathmatical test suite
+
+Scientific;
+- Control flow in programs
+- Complex trig.
+- Hyperbolic trig.
+- Combinations and Permutations
+- Infix expressions
+- Function Plot
+- Workinng Gamma
+- Numeric Solver
+- Numeric Integration
+
+Business:
+- Date arithmetic
+- TVM
+- IRR
+- NPV
+- Depreciation
+- Bond Math
+- Red letter negative numbers
+
+Core enhancements needed to support the above:
+- Support for multiple cursors
+- Lisp definable menus
+- Multi color text logic
+- multi line text logic
+- Generic functions
+- Bitmap Graphics
+
+DN-3: Bitmap Graphics API and Graphics API changes
+----------------------------------------------------------------
+
+This design note covers three design changes:
+
+a. The alteration of graphics API calls to use a globally specified 
+   drawing surface with an optional override. This will optimimze
+   for the common case and bring the graphics calls to logical
+   parity with the standard I/O calls.
+
+b. A small set of API's for creating and manipulating bitmap
+   graphics.
+
+c. A mechanism I/O ports can use to intercept objects being
+   written or displayed and substitute their own special
+   rendering. For example, this might be useful in the 
+   console I/O port to display graphics as graphics, rather
+   than some useless textual notion.
+
+d. The notion of a bitmap will be split from the notion of
+   a drawing surface.
+
+3a. ----------------------------
+
+The default graphics surface is stored in a hidden global and
+accessible with the following commands:
+
+(with-open-drawing-surface <surf> . ..)
+(with-drawing-surface <surf> . ..)
+
+All drawing commands take an optional last argument that overrides
+the default drawing surface.
+
+3b. ----------------------------
+
+There will be one call for drawing surface creation...
+
+(make-drawing-surface <x> <y>)
+
+A special form will also exist to automate the process of creating and drawing
+into a drawing surface.
+
+(with-new-drawing-surface <x> <y> 
+  <code>)
+
+(drawing-surface-size <surf>?) => ( <x> . <y> )
+
+(dotimes (n 10)
+	 (let ((s (with-new-drawing-surface 10 10
+		    (set-color! (rgb-color (/ n 10) 0 0))
+		    (draw-rectangle 0 0 9 9))))
+	   (write s) 
+	   (newline)))
+
+3c. -----------------------------
+
+Ports have been extended with  _rich_write method. The Lisp
+writer calls this method, if present, on every object written
+to the port. This method then can implement unique display
+styles for particular objects.
+
+3d. ----------------------------
+
+The bitmap API will look like this:
+
+(bitmap <w> <h>)
+(measure-bitmap <w> <h>)
+(draw-bitmap <surface> <source-bitmap> [<x> <y>]? [<w> <h>]?)
+
+The drawing surface API will look like this:
+
+(bitmap-drawing-surface <bitmap>)
+(close-bitmap-drawing-surface <surface>)
+
+Bitmaps will retain cache pointers to their corresponsing drawing surfaces.
+Attemps to open multiple drawing surfaces on the same bitmap will
+result in an error.
+
+Operations like draw-bitmap, operations that internally require
+source-bitmap to have a Win32 Device Context, will use the internally
+cached drawing surface, if availale.
+
+DN-4: Resigal
+ ----------------------------------------------------------------
+
+Add two functions, resignal and eresignal, that allow signal handlers
+to restart the process of handling a signalled condition. What
+saying resignal effectively means is: "signal this new condition using
+the signal handlers that were active when the original condition was
+signalled."
+
+DN-5: Filename routines
+----------------------------------------------------------------
+
+(filename-basename <filename>)
+
+(filename-extension <filename>)
+
+(filename-path <filename>)
+
+(filename-split <filename>)
+
+(is-directory-name? <filename>)
+
+(filename <pathname> .. <filename>)
+
+DB-6: Object semantics
+----------------------------------------------------------------
+
+Here are a few notes on how the object semantics might work.
+
+
+(clone-instance <instance>)
+
+  - Creates a copy of <instance>. The new instance contains a
+    new and seperate copy of all of the bindings in <instance>.
+    Possibly some sort of map structure is shared between the
+    two instances to gain efficiency. The map is copy-on-write.
+
+    Sends :clone to the new instance, which defaults to delegating
+    to :new.
+
+(new-instance <proto> <parent>)
+
+   - Creates a new instance with the specified proto and parent
+     and no local slot definitions.
+
+     Sends :new to the new instance.
+
+(slot-set! <instance> <slot> <value>)
+(slot-set! <slot> <value>)
+
+    - Sets or creates the value of <slot> in <instance>. If <instance>
+      is unspecified, defaults to self.

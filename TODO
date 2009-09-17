@@ -1,0 +1,92 @@
+To-Do For Release 2.0
+
+Strategic Plan
+------------------------------------------------
+
+* Windows pathname varients
+* Bytecode compiler
+* Complete complex arithmetic
+* FFI (SIOD-FFI?)
+* Date/Time
+
+
+Tactical Plan
+------------------------------------------------
+
+
+Deferred to v1.2:
+----------------------------------------------------------------
+* Deferred rendering of clipboard contents (set-clipboard-data takes a closure...)
+* Load global state command
+* Statisics that pass statistical reference data sets
+* List ops (nth, length,  map, for-each, every?, any?, sum, group-by, product, member, cons)
+* poly-line
+* set-graphics-clip
+* rename multiple-eval to repeat
+* Data set macro apply
+* dataset nth/mth column extract
+* Quick Register
+* find, assoc, filter, remove
+* Romberg Integration
+* Secant/Bisection Solver
+* Normal Distribution/Erf
+* (visit ...) in lisp
+* Flow-based text layout
+* Periodic Table of the Elements
+* TVM
+* IRR
+* NPV
+* Keymap refinements - Layered Modes
+* Custom menus
+* Decorationless window
+* 'Linger' message (sent if mouse stays put)
+* Bond Calculations
+* Depreciation
+* GCD/LCM/IsPrime/Factor
+* binary number bit width
+* Retarget default save file
+* Provide a way to update the display from Scheme code, guard for reentrancy
+* char-ci=?, etc. has _terrible_ memory characteristics (70-80 conses per call)
+* Switch to one scalable banner image
+* Add/Test fast-write/fast-read
+* Incorporate some kind of regex library
+
+Blue Sky:
+----------------------------------------------------------------
+* needs to be a break facility to interrupt long calculations/evaluations
+* Interface freezes during long macro execution
+* Tip of the day defaults to off
+* Look into abandoning MFC. We just don't get enough value out of it to
+  warrant either the complexity or the added .exe size.
+* cord/rope implementation of strings
+* Read only symbol scoped bindings
+* Move evaluation code into leval
+* O(1) lexical binding lookup
+* Emacs bundles subr metadata with the subr itself, this is a _good_ idea
+* Start defining the interface to Scan more cleanly
+* get-window-image, get-desktop-image
+* Keyhelp window doesn't autoslide
+* interactive stack
+* Progress dialog box
+* Switch to Unicode character encoding
+* Add Unicode translation modes to character streams
+* Grid-dataset editor
+* Hyperbolic trig
+* >2 columns/dataset
+* named dataset columns
+* computed datset columns
+* dataset query/join
+* dataset XML export/import
+* infix expresion parser
+* tip of the day in main window
+* tool tips
+* Ensure structures use vectors as storage for auto slots
+* Replace class graph with above network of symbol refs
+* add define/global set! hook to invalidate generic fn caches on class graph changes
+* do we really need all the ass*/let* special forms?
+* define instead of define-method trashes the entire generic fn. Not too user-friendly. (define rollback history)
+* should list-all-packages really be all-packages ?
+* lisp-name->c-name and vice-versa (see: dotty.scm)
+* conditional trace
+* refers to needs to descend into macro transformers and closures
+* convert %with-disabled-interrupts to functional form

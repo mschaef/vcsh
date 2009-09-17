@@ -1,0 +1,2 @@
+C:\Program Files\Microsoft Visual Studio .NET\Vc7\bin;C:\Program Files\Microsoft Visual Studio .NET\Common7\Tools\bin\prerelease;C:\Program Files\Microsoft Visual Studio .NET\Common7\Tools\bin;C:\Program Files\Microsoft Visual Studio .NET\Common7\tools;C:\Program Files\Microsoft Visual Studio .NET\Common7\ide;C:\Program Files\HTML Help Workshop\;C:\Program Files\Microsoft Visual Studio .NET\FrameworkSDK\bin;C:\WINDOWS\Microsoft.NET\Framework\v1.0.3705;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\Common Files\Adaptec Shared\System 
+Mike Schaeffer 

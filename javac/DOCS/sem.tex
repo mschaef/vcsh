@@ -1,0 +1,164 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\documentclass{article}[1994/05/24]
+
+\title{sem: A Semantic Analyzer for Java}
+
+\author{Michael Schaeffer}
+\date{November 11, 1996}
+
+\begin{document}
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+	The \verb|sem| phase of this compiler is the final step the
+compiler takes towards extracting information from the source
+file. Unlike the other phases, where the analysis was entirely
+directed by the physical description of the language, in semantic
+analysis, the actual meaning behind the structure is taken into 
+consideration. As a result, the \verb|sem| phase has to not only be
+able to access the entire data carried in the source file (through
+the ast), but also be able to resolve any ambiguities contained
+therein.
+
+\section{Differences from the Java Specification}
+
+	Unlike the lex and syn phases, the \verb|sem| phase makes
+no attempt at covering the entire scope of the language.  The 
+subset decisions made while developing this phase drastically 
+alter the language. The good news is that the \verb|sem| phase
+does fully support atomic types, expressions, function calls,
+classes, arrays, and inheritance. It easily supports the
+intersection between java and C, and goes beyond that to
+support a simple form of OOP. \verb|sem|'s main shortcoming is that
+it  doesn't support importing other package files.  As a result,
+many of the basic classes needed to support more advanced
+features like strings, threads, and exceptions are not available.
+\verb|sem| also lacks support for type modifiers and initialized
+variables.
+
+\section{Theory of Operation}
+
+	\verb|sem|'s modus operandi is the tree transformation. All of
+the significant computations performed by \verb|sem| are done by
+walking up and down the ast, destructively modfying the structure to
+transform it to be more representitive of the program.  These tree
+transformations are administered by a function \verb|traverse-ast|.
+\verb|traverse-ast| takes an ast node and an operation code as input
+paramaters.  It then looks up the appropriate operation to take for
+the given node type and action code.  In this manner, \verb|traverse-ast| 
+is both paramater and data directed.
+
+	To fully process an ast, \verb|sem| runs three seperate
+transformations: normalize, parent-scope, and type-check, in that
+sequence.  The normalize traversal's responsibility is to massage the
+ast from \verb|syn| into a more managable form.  It moves declarations
+into thier own attribute, it simplifies the representation of types in 
+the ast, and it allocates unique numbers for variable declarations.  The
+parent-scope phase, executed next, is by far the simplest traversal.  It
+traverses the tree, and sets up links from child nodes to parent nodes.
+This will be used in the type-check phase to help resolve symbol names.
+
+	The final, and most complicated traversal, is the type checker.
+The type checker's main responsibility is to bind variable declarations
+to variable instances, and then to propagate type data up the tree.
+The type checker tries to resolve inconsistancies in the ast by
+inserting type coercion nodes according to what is allowed by the
+type system. Any type inconsistancies that cannot be resolved through
+automatic coercion are reported to the user as an error and processing 
+stops. The type checker also maintains relationships between classes
+and base classes
+
+\section{The AST, the Symbol Table, and the Type Table}
+
+	\verb|sem| contains no explicit symbol table.  Instead, the
+symbol table is interwoven with the ast, with symbol data stored
+in the \verb|'SYMBOLS| attribute of each appropriate node.  For functions,
+the symbol definition includes the function body.  In this manner, there
+are symbol tables within symbol tables. To resolve a name, the
+function \verb|retrieve-symbol| walks up the tree, following the
+parent link, until it finds the first instantce of a symbol. This allows
+each level in the parse tree to have its own scope level. Inheritance
+is handled by linking the base class' symbol table onto the end of
+the sub class.
+
+\section{Interpreting Lisp dumps of the ast}
+
+Like the output from \verb|syn|, each node in the ast has the following
+form:
+
+\begin{verbatim}
+(<node-type> ((<attr-name> . <attr-value> ...) <node-child> ...))
+\end{verbatim}
+
+However, unlike the \verb|syn| ast, in \verb|sem|, much data is stored
+in attributes.  Some common attrubute names are:
+
+\begin{description}
+
+\item[name] The name of the object being definied
+
+\item[code] The code of the object being defined
+
+\item[type] The resultant type of the ast node's operation
+
+\item[usage] The usage of the node's result (l-value, r-value, or lr-value)
+
+\item[parent] A pointer to the parent node
+
+\item[symbols] The symbol table of a given ast node.
+
+\item[unique] A pointer to the \verb|gensym| attached to a declaration
+
+\end{description}
+
+Since the ast is now a circular structure, the Lisp print routine
+takes precautions to avoid being stuck in an infinite recursion. 
+Anytime there is a pointer to something that has already been printed,
+the printer prints out something of the form \verb|#n#|.  This means
+to substitute the definition \verb|#n=<defn>| in its place.  This is
+particularly evident when looking at the unique numbers for variable
+instances.  Instead of printing out the actual gensym, Lisp will print
+out a link back to the gensym declared in the objects declaration node.
+The net effect is the same, however.
+
+\section{Interpreting type expressions}
+
+The currency of the type checker are type expressions.  Type expressions
+are standard Lisp s-exprs with a special format.  Atomic Java types
+are represented as atoms, with composite types being lists of the 
+following forms:
+
+\begin{verbatim}
+(CLASS <class-name>)
+(FUNCTION <return-type> <param-type-1> ...)
+(ARRAY <element-type>)
+\end{verbatim}
+So, as an example, the declaration:
+\begin{verbatim}
+String greatest_string(String[] str_array, int array_size)
+\end{verbatim}
+would have the following type signature:
+\begin{verbatim}
+(FUNCTION (CLASS ``String'') (ARRAY (CLASS ``String'') INT)
+\end{verbatim}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+
+
+
+
+
+
+

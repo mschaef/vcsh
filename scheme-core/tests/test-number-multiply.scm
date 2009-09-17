@@ -1,0 +1,37 @@
+(use-package! "unit-test")
+
+(define-test number-multiply
+  (test-case (runtime-error? (* :non-number 12)))
+  (test-case (runtime-error? (* 12 :non-number)))
+  (test-case (runtime-error? (* :non-number)))
+
+  (test-case (= (* 1) 1))
+  (test-case (inexact-= (* 1.0) 1.0))
+  (test-case (inexact-= (* 1.0) 1))
+  (test-case (inexact-= (* 1) 1.0))
+  (test-case (exact? (* 1)))
+  (test-case (inexact? (* 1.0)))
+
+  (test-case (= (* 1 2) 2))
+  (test-case (inexact-= (* 21.7 90.2) 1957.34))
+  (test-case (inexact-= (* 1.0 7) 7.0))
+  (test-case (inexact-= (* 1 9.8) 9.8))
+  (test-case (exact? (* 1 2)))
+  (test-case (inexact? (* 1.0 2)))
+  (test-case (inexact? (* 1 2.0)))
+  (test-case (inexact? (* 1.0 2.0)))
+
+  (test-case (= (* 1 2 3) 6))
+  (test-case (inexact-= (* 21.7 90.2 34.2) 66941.028))
+  (test-case (inexact-= (* 1.0 7 1) 7.0))
+  (test-case (inexact-= (* 1 9.8 11) 107.8))
+  (test-case (exact? (* 1 2 1)))
+  (test-case (inexact? (* 1.0 2 1)))
+  (test-case (inexact? (* 1 2.0 2)))
+  (test-case (inexact? (* 1 2 2.0)))
+  (test-case (inexact? (* 1.0 2.0 4.0)))
+
+  (test-case (= 3628800 (* 10 9 8 7 6 5 4 3 2 1))	)
+  (test-case (exact? (* 10 9 8 7 6 5 4 3 2 1)))
+  (test-case (inexact? (* 10 9 8 7 6 5.1 4 3 2 1)))
+  (test-case (inexact-= (* 10 9 8 7 6 5.1 4 3 2 1) 3701376)))

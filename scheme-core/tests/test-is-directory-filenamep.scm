@@ -1,0 +1,33 @@
+(use-package! "unit-test")
+
+(define-test is-directory-filename?
+  (test-case (is-directory-filename? ""))
+  (test-case (is-directory-filename? "foo/"))
+  (test-case (is-directory-filename? "/"))
+  (test-case (is-directory-filename? "."))
+  (test-case (is-directory-filename? ".."))
+  (test-case (is-directory-filename? "./"))
+  (test-case (is-directory-filename? "../"))
+
+  (test-case (is-directory-filename? "/foo/"))
+
+  (test-case (is-directory-filename? "./../"))
+  (test-case (is-directory-filename? "./../"))
+  (test-case (is-directory-filename? "./foo/"))
+  (test-case (is-directory-filename? "./../foo/"))
+  (test-case (not (is-directory-filename? "./../foo")))
+  (test-case (not (is-directory-filename? "./../*")))
+  (test-case (not (is-directory-filename? "./../*.*")))
+  (test-case (is-directory-filename? "./../**/"))
+  (test-case (not (is-directory-filename? "./../**")))
+
+  (test-case (is-directory-filename? "../"))
+  (test-case (is-directory-filename? "../"))
+  (test-case (is-directory-filename? "foo/"))
+  (test-case (is-directory-filename? "../foo/"))
+  (test-case (not (is-directory-filename? "../foo")))
+  (test-case (not (is-directory-filename? "../*")))
+  (test-case (not (is-directory-filename? "../*.*")))
+  (test-case (is-directory-filename? "../**/"))
+  (test-case (not (is-directory-filename? "../**")))
+  )

@@ -1,0 +1,23 @@
+
+;; The closure containing value is shared down the proto chain, so this amounts
+;; to a class slot, rather than an instance slot. The other way to accomplish
+;; this would be to have defslot call slot-set!/ref on a slot in inst, rather
+;; than on self.
+;;
+;; (define (defslot inst name :optional (value #f))
+;;   (check instance? inst)
+;;   (check symbol? name)
+;;   (slot-set! inst (make-composite-symbol (symbol-package name) "set-" name "!")
+;;              (mlambda (new-value) (set! value new-value) self))
+;;   (slot-set! inst (make-composite-symbol (symbol-package name) name "-ref")
+;;              (mlambda () value)))
+
+(define (defslot* inst name :optional (value #f))
+  (check instance? inst)
+  (check symbol? name)
+  (slot-set! inst name value)
+  (slot-set! inst (make-composite-symbol (symbol-package name) "set-" name "!")
+             (mlambda (new-value) (slot-set! self name new-value) self))
+  (slot-set! inst (make-composite-symbol (symbol-package name) name "-ref")
+             (mlambda () (slot-ref self name))))
+

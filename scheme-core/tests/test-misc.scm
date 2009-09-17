@@ -1,0 +1,18 @@
+(use-package! "unit-test")
+
+(define-test misc
+  (test-case (can-read/write-round-trip? #t))
+  (test-case (can-read/write-round-trip? #f))
+  (test-case (boolean? (> 1 2)))
+  (test-case (boolean? (> 2 1)))
+  (test-case (boolean? (not #t)))
+  (test-case (boolean? (not #f)))
+  (test-case (runtime-error? (= #t #t)))
+  (test-case (eq? #t #t))
+  (test-case (eqv? #t #t))
+  (test-case (equal? #t #t))
+  (test-case (not (eq? #t #f)))
+  (test-case (not (eqv? #t #f)))
+  (test-case (not (equal? #t #f)))
+  (test-case #t)
+  (test-case (not #f)))

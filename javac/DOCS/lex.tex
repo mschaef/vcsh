@@ -1,0 +1,126 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\documentclass{article}[1994/05/24]
+
+\title{lex: A Lexical Analyzer for Java}
+
+\author{Michael Schaeffer}
+\date{September 26, 1996}
+
+\begin{document}
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+	This programming assignment has resulted in a program
+that will scan a *.java source file, break it down into individual
+lexemes, and produce a stream of tokens.  Since I haven't had any
+experience developing compilers, I've chosen to develop mine in
+Lisp. Lisp has long been a good language for exploratory
+programming, and experimenting with different design choices. This
+fact, and the fact that this compiler is a class project has
+resulted in some design decisions that need to be clarified.
+
+\section{The Lexeme Dictionary}
+
+	My lexical analyzer maintains a `lexeme dictionary', or a
+table that contains an entry for every lexeme scanned. Each entry
+in the dictionary can also contain a binding to an arbitrary Lisp
+object. Currently, the lexical analyzer binds each lexeme to a
+symbol describing what it is.  For example, the string
+\verb|"Hello World"| would have \verb|'STRING-LITERAL| as a
+binding. In later phases of the compiler, this table can be reused
+to help build the constant pools.  I anticipate that the lexeme
+dictionary will be eventually be extended to contain information
+on how to access literals. Since some lexemes have predefined
+meanings (reserved words, and identifiers) they are placed in the
+lexeme table, with unique bindings, at the start of the run.
+
+\section{Tokens}
+
+	The centeral data structure returned by the lexical
+analyzer is the token.  The tokens in this implementation of lex
+are simple Lisp cons cells.  The car of each token is the type of
+the token, and the cdr is a place to stick useful information.
+Currently the cdr is just a pointer to a string representation of
+the lexeme.
+
+	The primary call for creating a token is
+\verb|make-token-from-lexeme|.  This function call takes both a
+lexeme string and a lexeme type.  For new lexemes, it creates a
+new lexeme binding containing the lexeme-type.  For existing
+tokens, it uses the binding stored in the lexeme dictionary. I
+plan to add a check to see that the parsed type of the lexeme is
+the same as any pre-existing binding.
+
+\section{Lexical Analysis}
+
+	Since Java is a well-behaved language, the code for the
+lexical analyzer is simple, but somewhat involned.  Basically, the
+first letter of each token is used to determine the type of the
+token, and dispatch to an appropriate routine for parsing that
+type of token. An array describing character classes (uppercase,
+lowercase, numeric, etc.) is used to assist in the process.
+
+	The only unique case in the lexical analyzer is contained
+in \verb|get-special-token|. Since the lexemes for beginning
+comments (\verb|//| and \verb|/*|) are composed of symbols,
+\verb|get-special-token| contains special-case code for dealing
+with these two lexemed. These lexemes are also placed in the
+lexeme dictionary, despite the fact that they aren't really
+lexemes.
+
+\section{Error Handling}
+
+
+	This lexical analyzer is truly a trooper when it comes to
+error handling.  As an example, this segment of code:
+
+\begin{verbatim}
+	/* id1 */ id 2 */
+\end{verbatim}
+
+Returns the following lexeme stream:
+
+\begin{verbatim}
+(IDENTIFIER "id2")
+(SLASH "/")
+(STAR "*")
+\end{verbatim}
+
+Despite the fact that it is clearly not valid java code.  The
+reason behind this is that the lexical analyzer as no way of
+knowing that the second \verb|*/| should have been the real end of
+comment. Errors such as this will be handled in the parser.
+
+
+\section{Planned Improvements}
+
+\begin{description}
+
+\item[Speed things up] There are several instances of code that is
+clearly inefficient. These can be fairly easily be cleaned up.
+
+\item[Convert to lazy list] One common Lisp idiom is the lazy
+list.  This seems like a natural way to represent a stream of
+tokens, and is something I plan on changing.
+
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+
+
+
+
+
+
+

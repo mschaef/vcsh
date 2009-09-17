@@ -1,0 +1,17 @@
+# build-settings
+#
+# Settings for configuring the type of build to produce.
+
+# DEBUG or RELEASE
+BUILD_TYPE=DEBUG
+
+# unix (gcc), windows (msvc)
+PLATFORM=windows
+
+# on or off
+COVERAGE_TEST=off
+
+# on or off
+PROFILE=off
+
+include ../config.${PLATFORM}

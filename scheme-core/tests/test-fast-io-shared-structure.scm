@@ -1,0 +1,52 @@
+(use-package! "unit-test")
+
+
+(define (nested-circular-lists count depth)
+  (let ((sublists ()))
+    (repeat count
+       (push! (if (= depth 0) () (nested-circular-lists count (- depth 1)))
+              sublists))
+    (set-cdr! (last-pair sublists) sublists)
+    sublists)) 
+
+(define-test fast-io-shared-structure
+  (test-case (can-fast-io-round-trip? '(s1 s1)))
+  (test-case (can-fast-io-round-trip? '(s1 . s1)))
+  (test-case (can-fast-io-round-trip? '(s1 s1 s1)))
+  (test-case (can-fast-io-round-trip? '(s1 s1 . s1)))
+  (test-case (can-fast-io-round-trip? '((s1 . s1) . s1)))
+  (test-case (can-fast-io-round-trip? '(((s1 . s1) . s1) . s1)))
+  (test-case (can-fast-io-round-trip? '(s1 s1 s2 s2)))
+  (test-case (can-fast-io-round-trip? '(s1 s2 s1 s1)))
+  (test-case (can-fast-io-round-trip? '(s2 s1 s1 s2)))
+  (test-case (can-fast-io-round-trip? (make-list 300 's1)))
+  (test-case (can-fast-io-round-trip? (let ((a '(s1 s2 s3))) (cons a a))))
+  (test-case (can-fast-io-round-trip? (let ((a '(s1 s2 s3))) (list a a))))
+  (test-case (can-fast-io-round-trip? (let ((a '(s1 s2 s3))) (cons a (cons a a)))))
+  (test-case (can-fast-io-round-trip? (let ((a '(s1 s2 s3))) (cons a (cons a (cdr a))))))
+  
+
+  (let ((s1 '(1 . 1))
+	(s2 '(2 . 2))
+	(s3 '(3 . 3)))
+    (test-case (can-fast-io-round-trip? `(,s1 ,s1)))
+    (test-case (can-fast-io-round-trip? `(,s1 . ,s1)))
+    (test-case (can-fast-io-round-trip? `(,s1 ,s1 ,s1)))
+    (test-case (can-fast-io-round-trip? `(,s1 ,s1 . ,s1)))
+    (test-case (can-fast-io-round-trip? `((,s1 . ,s1) . ,s1)))
+    (test-case (can-fast-io-round-trip? `(((,s1 . ,s1) . ,s1) . ,s1)))
+    (test-case (can-fast-io-round-trip? `(,s1 ,s1 ,s2 ,s2)))
+    (test-case (can-fast-io-round-trip? `(,s1 ,s2 ,s1 ,s1)))
+    (test-case (can-fast-io-round-trip? `(,s2 ,s1 ,s1 ,s2)))
+    (test-case (can-fast-io-round-trip? (make-list 300 s1)))
+    (test-case (can-fast-io-round-trip? (let ((a `(,s1 ,s2 ,s3))) (cons a a))))
+    (test-case (can-fast-io-round-trip? (let ((a `(,s1 ,s2 ,s3))) (list a a))))
+    (test-case (can-fast-io-round-trip? (let ((a `(,s1 ,s2 ,s3))) (cons a (cons a a)))))
+    (test-case (can-fast-io-round-trip? (let ((a `(,s1 ,s2 ,s3))) (cons a (cons a (cdr a)))))))
+  (let* ((xs (iota 260 0 1))
+	 (ys (map (lambda (x) (list x x)) xs)))
+    (test-case (can-fast-io-round-trip? (append xs xs)))
+    (test-case (can-fast-io-round-trip? (append ys ys))))
+
+  ;; (test-case (can-fast-io-round-trip? (nested-circular-lists 3 9))) TODO: Fix this... see fasl.cpp for why this will throw an assertation error.
+  )

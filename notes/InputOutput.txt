@@ -1,0 +1,41 @@
+Notes on I/O.
+----------------------------------------------------------------
+
+This is an attempt to capture some thoughts on how I/O should work, inpresence of the following complicating factors:
+
+1. Binary/Text I/O
+2. Multiple standards for eoln markers (CR, LF, CR+LF)
+3. Multiple disk character representations (ASCII, UTF-8, UCS-16, etc...)
+4. String I/O
+5. Interactive use of the reader
+6. builds with 8 and 16 bit character representations
+
+---- 
+
+Issues 1-3 are text translation issues:
+1. binary streams mean no text translation and bytewise access;
+2. Read and write needs to map port EOLN to a consistant internal standard
+3. Read and write needs to map from _TCHAR<->PORT_CHAR
+
+Issue 4 means a special kind of port, a string port:
+- PORT_CHAR is fixed to _TCHAR for string ports
+- Binary I/O to a string should be disallowed
+
+Issue 5 impacts buffering:
+- Ports used for interactive console work can't buffer reads.
+
+Issue 6 impacts the string port PORT_CHAR.
+
+----
+
+Here are the design guidelines:
+
+- All ports are binary at the core. Port Classes implement the following:
+	- raw_read - read objects from the port
+	- raw_write - write objects to the port
+	- open - open a new port
+	- close - close an existing port
+	- flush - flush any delayed writes
+- The text translation layer is built on this infrastucture
+	- write_text and read_text do text xlation and hand off to write_raw and read_raw
+- All Scheme operations are built on these terms

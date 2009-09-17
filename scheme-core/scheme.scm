@@ -1,0 +1,36 @@
+;;;; scheme.scm
+;;;;
+;;;; The main file defining the standard scheme image.
+;;;;
+;;;; Compile with: ..\vcsh -c scheme.scm --cross-compile --initial-package:scheme --output:scheme.scf
+
+(include "subrs.scm")
+(include "character.scm")
+(include "class-graph.scm")
+(include "control-flow.scm")
+(include "higher-order.scm")
+(include "EQUAL.scm")
+(include "error-handling.scm")
+(include "hash.scm")
+(include "io.scm")
+(include "list.scm")
+(include "memoize.scm")
+(include "number.scm")
+(include "package.scm")
+(include "procedure.scm")
+(include "printer.scm")
+(include "quasiquote.scm")
+(include "string.scm")
+(include "system.scm")
+(include "structure.scm")
+(include "iterate.scm")
+(include "reader.scm")
+(include "fasl-write.scm")
+(include "fast-op.scm")
+(include "date-time.scm")
+(include "exports.scm")
+(include "deferred-execution.scm")
+(include "repl.scm")
+(include "tools.scm")
+(include "inspect.scm")
+(include "main.scm")

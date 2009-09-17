@@ -1,0 +1,152 @@
+> gcl
+GCL (GNU Common Lisp)  Version(2.1) Sun Aug 13 18:51:58 CDT 1995
+Licensed under GNU Public Library License
+Contains Enhancements by W. Schelter
+
+>(load "jcompile.lisp")
+Loading jcompile.lisp
+Loading utility.lisp
+Finished loading utility.lisp
+Loading lex.lisp
+Finished loading lex.lisp
+Loading syn.lisp
+Finished loading syn.lisp
+Loading sem.lisp
+Finished loading sem.lisp
+Loading int.lisp
+Finished loading int.lisp
+Loading gen.lisp
+Finished loading gen.lisp
+Finished loading jcompile.lisp
+T
+
+>(do-tests)
+
+Testing file a.java:
+------------------------------
+public class program {
+
+  int x, y;
+
+  int fib(int x) {
+    if ( x == 0 || x == 1)
+      return 0;
+    else
+      return fib(x - 1) + fib(x - 2);
+  };
+
+  int sum(int x) {
+    int i, sum;
+
+    for(i = x; i >= 0; i = i + 1)
+      sum = sum + i;
+
+    return sum;
+  };
+
+  int sqrt(double x, double error) {
+    double approx, slope;
+
+    approx = x / 2;
+
+    while ((approx * approx) > (x - error) ||
+	   (approx * approx) < (x + error)) {
+      slope = -(2 * approx);
+      approx = approx + approx * slope;
+    };
+
+    return approx;
+  };
+
+}
+
+Compiling class: program
+
+("program" (8 0 7 112 114 111 103 114 97 109) (7 0 1)
+ (8 0 4 115 113 114 116) (8 0 6 40 68 44 68 41 73) (7 0 4) (12 0 3 0 5)
+ (REF 0 2 0 6) (8 0 3 115 117 109) (8 0 4 40 73 41 73) (7 0 9)
+ (12 0 8 0 10) (REF 0 2 0 11) (8 0 3 102 105 98) (8 0 4 40 73 41 73)
+ (7 0 14) (12 0 13 0 15) (REF 0 2 0 16) (8 0 1 121) (8 0 1 73) (7 0 19)
+ (12 0 18 0 20) (REF 0 2 0 21) (8 0 1 120) (8 0 1 73) (7 0 24)
+ (12 0 23 0 25) (REF 0 2 0 26) (3 0 0 0 1) (3 0 0 0 0) (3 0 0 0 2)
+ (8 0 5 115 108 111 112 101) (8 0 1 68) (7 0 32)
+ (8 0 6 97 112 112 114 111 120) (8 0 1 68) (7 0 35) (8 0 1 120)
+ (8 0 1 68) (7 0 38) (8 0 5 101 114 114 111 114) (8 0 1 68) (7 0 41)
+ (8 0 3 115 117 109) (8 0 1 73) (7 0 44) (8 0 1 105) (8 0 1 73)
+ (7 0 47) (8 0 1 120) (8 0 1 73) (7 0 50) (8 0 1 120) (8 0 1 73)
+ (7 0 53) (0 0) (0 2) (0 0) (0 0) (0 2) (0 0 0 18 0 20 0 0)
+ (0 0 0 23 0 25 0 0) (0 3)
+ (0 0 0 3 0 5 0 1 (LOAD) (CONSTANT) (135) (NIL) (STORE) (167 0 32)
+  (CONSTANT) (135) (LOAD) (NIL) (NIL) (STORE) (LOAD) (LOAD) (LOAD)
+  (NIL) (NIL) (STORE) (LOAD) (LOAD) (NIL) (LOAD) (LOAD) (NIL) (COMPARE)
+  (157 0 52) (CONSTANT) (167 0 55) (CONSTANT) (NOP) (CONSTANT)
+  (159 0 68) (CONSTANT) (167 0 71) (CONSTANT) (NOP) (CONSTANT)
+  (159 0 12) (LOAD) (RETURN))
+ (0 0 0 8 0 10 0 1 (LOAD) (STORE) (167 0 22) (LOAD) (LOAD) (NIL)
+  (STORE) (LOAD) (CONSTANT) (NIL) (STORE) (LOAD) (CONSTANT) (162 0 36)
+  (CONSTANT) (167 0 39) (CONSTANT) (NOP) (CONSTANT) (159 0 7) (LOAD)
+  (RETURN))
+ (0 0 0 13 0 15 0 1 (LOAD) (CONSTANT) (159 0 14) (CONSTANT) (167 0 17)
+  (CONSTANT) (NOP) (CONSTANT) (159 0 30) (CONSTANT) (167 0 33)
+  (CONSTANT) (NOP) (CONSTANT) (159 0 47) (CONSTANT) (RETURN) (167 0 71)
+  (LOAD) (LOAD) (CONSTANT) (NIL) (INVOKE-VIRTUAL) (LOAD) (LOAD)
+  (CONSTANT) (NIL) (INVOKE-VIRTUAL) (NIL) (RETURN) (NOP))
+ (0 0)) 
+------------------------------
+
+
+Testing file b.java:
+------------------------------
+public class program {
+
+  long x;
+
+  int t() {
+    int i;
+    char c;
+
+    i = 123;
+    c = 'a';
+  };
+
+
+}
+
+Compiling class: program
+
+("program" (8 0 7 112 114 111 103 114 97 109) (7 0 1) (8 0 1 116)
+ (8 0 3 40 41 73) (7 0 4) (12 0 3 0 5) (REF 0 2 0 6) (8 0 1 120)
+ (8 0 0) (7 0 9) (12 0 8 0 10) (REF 0 2 0 11) (3 0 0 0 123)
+ (3 0 0 0 97) (8 0 1 105) (8 0 1 73) (7 0 16) (8 0 1 99) (8 0 1 67)
+ (7 0 19) (0 0) (0 2) (0 0) (0 0) (0 1) (0 0 0 8 0 10 0 0) (0 1)
+ (0 0 0 3 0 5 0 1 (CONSTANT) (STORE) (CONSTANT) (STORE)) (0 0)) 
+------------------------------
+
+
+Testing file c.java:
+------------------------------
+public class program {
+
+  void t() {
+    double d;
+    int i;
+
+    d = i;
+  };
+}
+
+Compiling class: program
+
+("program" (8 0 7 112 114 111 103 114 97 109) (7 0 1) (8 0 1 116)
+ (8 0 3 40 41 118) (7 0 4) (12 0 3 0 5) (REF 0 2 0 6) (8 0 1 100)
+ (8 0 1 68) (7 0 9) (8 0 1 105) (8 0 1 73) (7 0 12) (0 0) (0 2) (0 0)
+ (0 0) (0 0) (0 1) (0 0 0 3 0 5 0 1 (LOAD) (135) (STORE)) (0 0)) 
+------------------------------
+
+("a.java" "b.java" "c.java")
+
+>(bye)
+> exit
+> exit
+
+Process shell finished

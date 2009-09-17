@@ -1,0 +1,16 @@
+(use-package! "unit-test")
+
+(define-test is-directory-basename?
+  (test-case (is-directory-basename? "foo/"))
+  (test-case (is-directory-basename? :back))
+  (test-case (is-directory-basename? :same-dir))
+  (test-case (is-directory-basename? :any-dirs))
+  (test-case (is-directory-basename? :absolute))
+  (test-case (is-directory-basename? :delim))
+  (test-case (is-directory-basename? "/"))
+  (test-case (is-directory-basename? "."))
+  (test-case (is-directory-basename? ".."))
+  (test-case (is-directory-basename? "./"))
+  (test-case (is-directory-basename? "../"))
+  (test-case (is-directory-basename? "/../"))
+  (test-case (is-directory-basename? "/../")))

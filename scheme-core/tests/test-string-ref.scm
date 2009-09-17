@@ -1,0 +1,26 @@
+(use-package! "unit-test")
+
+(define ts10a "0123456789")
+(define ts20a "01234567890123456789")
+(define ts40a "0123456789012345678901234567890123456789")
+(define ts10b "0123456789")
+(define ts20b "01234567890123456789")
+(define ts40b "0123456789012345678901234567890123456789")
+
+(define-test string-ref
+  (test-case (runtime-error? (string-ref 123 123)))
+  (test-case (runtime-error? (string-ref ts10a 'non-a-number)))
+  (test-case (runtime-error? (string-ref ts10a 10.0)))
+  (test-case (runtime-error? (string-ref ts10a -10)))
+  (test-case (runtime-error? (string-ref ts10a 100)))
+   
+  (test-case (eq? (string-ref ts10a 0) #\0))
+  (test-case (eq? (string-ref ts10a 1) #\1))
+  (test-case (eq? (string-ref ts10a 2) #\2))
+  (test-case (eq? (string-ref ts10a 3) #\3))
+  (test-case (eq? (string-ref ts10a 4) #\4))
+  (test-case (eq? (string-ref ts10a 5) #\5))
+  (test-case (eq? (string-ref ts10a 6) #\6))
+  (test-case (eq? (string-ref ts10a 7) #\7))
+  (test-case (eq? (string-ref ts10a 8) #\8))
+  (test-case (eq? (string-ref ts10a 9) #\9)))

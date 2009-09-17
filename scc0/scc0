@@ -1,0 +1,14 @@
+#!/bin/sh
+
+SCC0_BASE=`dirname $0`
+
+# Fixup the SCANPATH to point to the build hierarchies scheme directory. This
+# catches a some of the packages that are 'required' by scheme before the
+# scansh0 command line parser loads them.
+SCANPATH=${SCC0_BASE}/../scheme:${SCANPATH}
+
+${SCC0_BASE}/../vm/scansh0 ${SCC0_BASE}/scheme.scf \
+                           ${SCC0_BASE}/fasl-compiler.scf \
+                           ${SCC0_BASE}/fasl-compiler-run.scf \
+                           ${SCC0_BASE}/fasl-compiler0.scf \
+                           $@

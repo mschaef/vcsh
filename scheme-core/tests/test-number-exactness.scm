@@ -1,0 +1,45 @@
+(use-package! "unit-test")
+
+(define-test number-exactness
+  (test-case (exact? 1))
+  (test-case (exact? 100))
+  (test-case (exact? -100))
+  (test-case (inexact? 1.0))
+  (test-case (inexact? 100.0))
+  (test-case (inexact? -100.0))
+  (test-case (inexact? 1e1))
+  (test-case (inexact? 100e1))
+  (test-case (inexact? -100e1))
+  (test-case (not (inexact? 1)))
+  (test-case (not (inexact? 100)))
+  (test-case (not (inexact? -100)))
+  (test-case (not (exact? 1.0)))
+  (test-case (not (exact? 100.0)))
+  (test-case (not (exact? -100.0)))
+  (test-case (not (exact? 1e1)))
+  (test-case (not (exact? 100e1)))
+  (test-case (not (exact? -100e1)))
+
+  (test-case (runtime-error? (exact->inexact :non-numeric)))
+  (test-case (not (exact? (exact->inexact 1))))
+  (test-case (not (exact? (exact->inexact 100))))
+  (test-case (not (exact? (exact->inexact -100))))
+
+  (test-case (equal? 1.0 (exact->inexact 1)))
+  (test-case (equal? 100.0 (exact->inexact 100)))
+  (test-case (equal? -100.0 (exact->inexact -100))) 
+  
+  (test-case (runtime-error? (inexact->exact :non-numeric)))
+  (test-case (not (inexact? (inexact->exact 1.0))))
+  (test-case (not (inexact? (inexact->exact 100.0))))
+  (test-case (not (inexact? (inexact->exact -100.0))))
+
+  (test-case (equal? 1 (inexact->exact 1)))
+  (test-case (equal? 1 (inexact->exact 1.0)))
+  (test-case (equal? 100 (inexact->exact 100.0)))
+  (test-case (equal? -100 (inexact->exact -100.0)))
+
+  (test-case (not (inexact->exact 1e30)))
+  (test-case (not (inexact->exact -1e30)))
+  
+  )

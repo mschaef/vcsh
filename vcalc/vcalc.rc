@@ -1,0 +1,371 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\vcalc.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""util-resource.rc""\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_VCALC_DIALOG DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | 
+    WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "vcalc"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDITOR,0,188,319,12,ES_AUTOHSCROLL | NOT WS_VISIBLE | 
+                    WS_DISABLED
+END
+
+IDD_LISP_CONSOLE DIALOGEX 0, 0, 631, 261
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | 
+    WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "vCalc Lisp Console"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_OUTPUT_PANE,"RichEdit20A",ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_BORDER | WS_VSCROLL,0,0,631,261
+END
+
+IDD_CONFIG_DIALOG DIALOGEX 0, 0, 235, 116
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "vCalc Configuration Options"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    COMBOBOX        IDC_DEFAULTBASE,76,7,152,49,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_ANGLEMODE,76,21,152,36,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_INTERESTMODE,76,35,152,36,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_NUMBERSTYLE,76,58,88,36,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_NUMBERDIGITS,173,58,47,12,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_SEPERATORSTYLE,76,72,144,36,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Registration...",IDREGISTER,7,95,103,14
+    PUSHBUTTON      "Cancel",IDCANCEL,124,95,50,14
+    DEFPUSHBUTTON   "OK",IDOK,178,95,50,14
+    LTEXT           "Default Base:",IDC_STATIC,22,9,46,8
+    LTEXT           "Angle Mode:",IDC_STATIC,26,23,42,8
+    LTEXT           "Style/Digits:",IDC_STATIC,28,60,40,8
+    GROUPBOX        "Number Format: ",IDC_STATIC,7,49,221,39
+    LTEXT           "Seperator Style:",IDC_STATIC,13,74,55,8
+    LTEXT           "Interest Mode:",IDC_STATIC,19,37,49,8,WS_DISABLED
+END
+
+IDD_CHOOSEBOX DIALOGEX 0, 0, 329, 156
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU
+CAPTION "Choose"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LISTBOX         IDC_CHOOSELIST,7,17,315,114,LBS_SORT | 
+                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Cancel",IDCANCEL,218,135,50,14
+    DEFPUSHBUTTON   "OK",IDOK,272,135,50,14
+    LTEXT           "Static",IDC_CHOOSEDESC,7,7,315,10
+END
+
+IDD_TIPWINDOW DIALOGEX 0, 0, 244, 104
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "vCalc Tip of the Day"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "Do not automatically display any more of these tips.",
+                    IDC_NOAUTOTIPDISPLAY,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,5,68,232,10
+    PUSHBUTTON      "Previous Tip",IDPREVIOUSTIP,107,81,50,16,NOT WS_VISIBLE | 
+                    WS_DISABLED
+    PUSHBUTTON      "Next Tip",IDNEXTTIP,5,81,97,16
+    DEFPUSHBUTTON   "OK",IDOK,187,81,50,16
+    LTEXT           "Test control",IDC_TIPTEXT,0,0,244,64,SS_SUNKEN
+END
+
+IDD_VCALC_EDITOR DIALOGEX 0, 0, 346, 167
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Ok",IDOK,235,145,50,17
+    PUSHBUTTON      "Cancel",IDCANCEL,289,145,50,17
+    CONTROL         "",IDC_EDITOR,"RichEdit20A",ES_MULTILINE | 
+                    ES_AUTOHSCROLL | ES_WANTRETURN | ES_NUMBER | WS_BORDER | 
+                    WS_VSCROLL | WS_HSCROLL | WS_TABSTOP,0,0,346,141
+    PUSHBUTTON      "Reformat and Check Syntax",
+                    IDC_REFORMAT_AND_CHECK_SYNTAX,0,145,130,17
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "East Coast Toolworks, LLC"
+            VALUE "FileDescription", "vCalc"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "vcalc.exe"
+            VALUE "LegalCopyright", "(c) 2002-2003 All rights reserved."
+            VALUE "OriginalFilename", "vcalc.exe"
+            VALUE "ProductName", "vCalc 1.0"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RT_MANIFEST
+//
+
+IDR_MANIFEST            RT_MANIFEST             "res\\vcalc.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINMENU MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...",                    CMD_LOAD_STATE
+        MENUITEM "&Save Global State",          CMD_SAVE_STATE
+        MENUITEM "Save &As...",                 CMD_SAVE_STATE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       CMD_QUIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Last Stack",                 CMD_LASTSTACK
+        MENUITEM "&Redo Stack",                 CMD_REDOSTACK
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t",                        CMD_CUT
+        MENUITEM "&Copy",                       CMD_COPY
+        MENUITEM "&Paste",                      CMD_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "&Options...",                 CMD_SHOW_OPTIONS
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Toggle Keyboard Command Display", 
+                                                CMD_TOGGLE_KEYBOARD_COMMANDS
+        MENUITEM "&Show the Tip of the Day...", CMD_SHOWTIP
+        MENUITEM SEPARATOR
+        MENUITEM "&Register vCalc...",          CMD_REGISTER_VCALC
+        MENUITEM SEPARATOR
+        MENUITEM "&About vCalc...",             CMD_ABOUT_VCALC
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_SPLASH_IMAGE        BITMAP                  "res\\vclogo_final.bmp"
+IDB_SPLASH_IMAGE_SMALL  BITMAP                  "res\\bitmap1.bmp"
+IDB_BACKGROUND          BITMAP                  "res\\background.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_MAIN                ICON                    "res\\vcalc10.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_APPNAME             "vCalc 1.0"
+    IDS_ABOUTBOX            "&About vcalc..."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_BASE10              "Decimal (Base 10)"
+    IDS_BASE16              "Hexidecimal (Base 16)"
+    IDS_BASE8               "Octal (Base 8)"
+    IDS_BASE2               "Binary (Base 2)"
+    IDS_BEGIN               "Beginning of Term"
+    IDS_END                 "End of Term"
+    IDS_USGROUP             ", Grouping"
+    IDS_EUROGROUP           ". Grouping"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_NOGROUP             "No Grouping"
+    IDS_DEGREES             "Degrees"
+    IDS_RADIANS             "Radians"
+    IDS_GRADIANS            "Gradians"
+    IDS_FIXED               "Fixed Precision"
+    IDS_SCIENTIFIC          "Scientific Notation"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_ERR_NUMDIGITS_RANGE "The number of digits must be between 0 and 15"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CHOOSE_FILE_FILTER  "vCalc Save Files (*.vcx)|*.vcx|All Files (*.*)|*.*||"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_PURCHASE_URL        "http://www.icegiant.com/cgi-bin/purchase.cgi?sn=%1!s!"
+    IDS_CONTACT_URL         "mailto:info@icegiant.com?subject=vCalc%%20Support%%20Inquiry%%20%1!s!"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CORRUPT_BINARY_TITLE "vCalc: Corrupt Binary File!"
+    IDS_CORRUPT_BINARY_CONTENTS 
+                            "Your copy of vCalc is corrupt, please download a replacement from www.icegiant.com."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_TIP0                "Pressing Control-Z will undo the last change made to the stack."
+    5001                    "Pressing the '#' key will initiate the entry of a binary number."
+    5002                    "Lists can be appended to each other by using the addition command."
+    5003                    "As you set options in the options dialog, the stack window will display a preview of what the new option setting will look like."
+    5004                    "vCalc now has one key commands for accessing certain registers:\n\nShift+Fn stores a value into register n\nFn evaluates register n\nControl+Fn recalls register n without evaluating it."
+    5005                    "To edit the top value on the stack, press Control+E."
+    5006                    "The end-list command does not need to have a list beginning marked on the stack.  If there is no list beginning on the stack, it makes a list of all items on the stack."
+    5007                    "Lists on the stack are displayed in a reduced form to save space.  Only the first five elements are displayed, along with a count of the remaining list elements."
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "vCalc"
+    IDS_VERSION             "Version 1.1 Development, December 20th, 2003"
+END
+
+STRINGTABLE 
+BEGIN
+    5008                    "To see every element of a list, type Control+E to open the list in an editor."
+    5009                    "Macros are displayed on the stack surrounded by curly braces."
+    5010                    "To record a macro, type Control+K, [. To stop recording a macro, type Control+K,]."
+    5011                    "If a macro is stored in a register, evaluating the contents of the register will evaluate the macro. (Try storing a macro into register 2 and pressing F2)."
+    5012                    "To save space on the screen, vCalc will automatically hide the keyhelp window when vCalc is not the currently selected window."
+    5013                    "To access the new constant library, type k, k."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\vcalc.rc2"  // non-Microsoft Visual C++ edited resources
+#include "util-resource.rc"
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,19 @@
+Notes on vcsh, taken from javac development
+
+* promises and streams would be useful for lex.
+
+* vcsh really suffers from the lack of a pretty printer. Some of the structure
+  dumps from syn are 7K characters long on one line of text!
+
+  * Dotty visualization might be a reasonble interim solution.
+
+* An automatic reloader would streamline development work. It would work
+  like this:
+
+  * Hook into 'load' and make a note of each file as it is loaded, along
+    with the file's timestamp. This includes implicit loads arising from
+    used packages. 
+
+  * Prior to each REPL evaluate (pre-read would be better), iterate over
+    the list of loaded files. If a file on disk is newer than a file
+    in memory, 

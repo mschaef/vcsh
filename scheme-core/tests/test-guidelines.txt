@@ -1,0 +1,13 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Guidelines to ensure test case coverage
+;
+; Make sure all the following alternatives are test-caseed:
+; 1. All valid combinations of argument types
+; 2. An invalidly typed argument in each argument position.
+; 3. The type and value of the return value for each valid call
+; 4. For variable size arguments: sizes of 0, 1, 2, and n.
+; 5. For ranged numeric arguments, range test-caseing: min-n, min-1, min,
+;    max, max+1, max+n
+; 6. All logical errors
+; 7. Non-local escapes from closures called by the function.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

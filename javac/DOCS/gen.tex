@@ -1,0 +1,190 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\documentclass{article}[1994/05/24]
+
+\title{gen: A Final Code Generator for Java}
+
+\author{Michael Schaeffer}
+\date{December 5, 1996}
+
+\begin{document}
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+	In this compiler, the gen phase is responsible for taking
+the output of the previous four phases, and producing a set of
+appropriate class files.  Unlike the other phases of the compiler,
+the gen phase does not produce a parse tree, or generate any significant
+data.  However, it has the same design characteristics as the previous
+phases of the compiler.
+
+\section{Theory of Operation}
+
+	Like all of the other phases of the compiler that work with
+a parse tree, the gen phase has a data-driven architecture.  As
+the gen phase traverses the tree, the functions it calls are selected
+both by the type of the tree node, and the type of traversal being
+performed.  Also, like other phases of the compiler, this phase works
+through a series of AST transformations.  Each pass over the tree
+transforms it into a format that much closer to the final class file.
+
+	The first step of the gen phase is to create a list of classes.
+The resulting class objects contain what is needed to generate the final
+class file for that class. Secondly, the gen phase linearizes the class data
+structure.  Consoloditing nested symbol tables into one, linear symbol
+table.  This symbol table also contains special entries for other elements
+of the file.  It is does not just represent the constant pool.
+
+	The next transformation applied to the new, linear, symbol
+table is to expand each node into composite nodes.  For example, a
+class declaration expands into constant pool nodes for the class
+name, and a constant class node.  Other elements in the constant pool
+expand into the field and method tables. The result of this phase is a
+list of entities that appear in the class file, in the order in which
+they appear.
+
+	To make references easier to resolve, each node is next assigned
+a sequential number.  For the constant pool. this number corresponds
+to the constant pool entry.  Since other nodes in the tree that
+reference constant pool entries point to these list nodes, they can
+easily determine the index of the constant pool entries.  Since all 
+offsets can be assigned in one pass, a two pass traversal of the list
+can eliminate the need to backpatch offsets.
+
+	The list resulting from this sequence of traversals, is a
+list of elements that belong in the parse tree.  The only thing yet to
+be done is to generate the contents of each node.  To do this, 
+another `assembly' traversal is generated, that generates a sequence
+of byte values for each list node.  To generate the byte sequence for
+the method tables, bytecode for each method is assembled by a two pass
+bytecode assembler.
+
+	To finally generate the byte code, the BYTES attributes
+from each list node are aggregated into one list.  The resulting
+list of fixnums is then written out byte by byte into a binary
+output file.
+
+\section{Test Plan}
+
+	The test plan for this phase of the compiler is simple:
+run some code segments through the compiler, and see if they generate
+correct code.  The two code segments used, contain recursion, static
+member functions, looping constructs, and simple expressions.  While
+not a comprehensive proof of correctness, they are suitable for verifying
+the operation of the different phases of the compiler, and its ability
+to generate a vaild class file.
+
+\section{The Result}
+
+	The result of all this effort has been a compiler that doesn't
+produce a vaild class file.  The primary reason for this is a lack
+of time.  The compiler itself is correct, to the extent that it is 
+implemented.  However, the byte code assembler is not completely
+functional, and the reference constant pool nodes don't contain the
+correct signature.  As I write this, there are only a very few 
+structural changes that need to be made. The first of which is that
+class data for all of the defined classes, need to be written in the
+constant pool of each class.  This is to make it possible to actually use
+other classes from within a class.  The second change that needs to be
+made is the addition of the \verb|new| operator. This will entail minor
+changes all the way back to the syn phase, but these should be easy
+modifications.
+
+\section{Future Directions}
+
+	As with every project, I have a number of ideas about where
+this project should go.
+
+\begin{description}
+
+\item[Generic Type Algebra] 
+
+	The current type checker has a couple of significant limitations.
+The first of which is that it doesn't correctly handle static types. This
+could be fixed by defining a new \verb|(STATIC <type>)| element as 
+a type specifier for a static type.  The type matching code could be fairly
+easily extended to support these new types.
+
+	The second limitation of the type checker is the style in which
+it is written.  Each type of list node has a fairly large and redundant
+function that specifiy a set of type operations and constraints.  It
+would be better to have one, generic type checking function that
+would take a type specification as a paramater.  As an example the plus
+operator would have a type signature like:
+
+\begin{verbatim}
+(+ (plus &x &y) 
+   => (least-specific-type &x &y)
+   if (and (numeric-typ &x) (numeric-type &x)))
+\end{verbatim}
+
+\item[Generic Scanner/Parser engine]
+
+	Like the type checker, the scanner and parser have a fairly
+redundant set of operations.  They could be more easily understood
+and extended if they were implemted as some form of generic function
+with a simple syntax for specifying lexemes and parses.
+
+\item[Class browser interface]
+
+	Pretty much a no brainer, this would entail dumping the parse
+tree in a format readable by an external class browser.
+
+\item[Better Error Messages]
+
+\item[Optimizer]
+
+	A fairly powerful set of optimizations could be implenented
+as a pattern matching and replacement system.  This could support
+dead code elimination, and peephole optimization, among others.
+
+\item[Multiple Language Support]
+
+	A new lex and syn phase could be grafted onto this compiler
+to parse a new language into a fairly generic AST. In this fashion, other
+languages could possibly be compliled into Java bytecode.
+
+\end{description}
+
+
+\section{Final Thoughts}
+
+	When I started writing this compiler, I made one really 
+significant decision.  I decided to code in Lisp.  My main reason
+for doing this was to gain a better working knowledge of the 
+language (which I have done). However, when I decided to code in
+Lisp, I did so with great trepidation.  By using Lisp, I was giving
+up tools like lex and yacc, and switching to a language style I
+wasn't really familar with. These fears were totally unfounded.
+Lisp has given me the capability to develop using an amazingly short
+compile-edit-link cycle.  I've been able to `link' in new functions
+in the matter of seconds. In C++ this would have required a large
+compile and link operation that would have taken significantly
+longer.  Secondly Lisp has given me a flexibility that would have
+been virtually impossible to duplicate in C++.  Had I been forced
+to constrain my AST structure to the C++ notion of classes, I couldn't
+have resused nearly as much code and effort as my requirements changed.
+
+	My other concern was that I would end up with really
+terrible code. However, this really hasn't happened. The code in
+this compiler isn't great, but it has a decent overall design and,
+I believe, a fair amount of future potential. I plan to continue
+working on this compiler, and extend it to new domains.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+
+
+
+
+
+
+

@@ -1,0 +1,263 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\documentclass{article}[1994/05/24]
+
+\title{syn: A Syntactic Analyzer for Java}
+
+\author{Michael Schaeffer}
+\date{October 17, 1996}
+
+\begin{document}
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+	The net result of this programming project has been
+to develop a recursive-descent parser for a language that is
+loosely a subset of Java (it also adds a few features). The
+role of the syntactic analyzer is to take a linear stream of
+tokens, and apply a structure representitve of the structure
+of the program.  In this process, extraneous details, like
+punctuation are eliminated.  The net result is the semantics
+of the program distilled down to almost a pure representation.
+
+\section{Differences from the Java Specification}
+
+	One of the design decisions I regret is having opted 
+to use a recursive descent parser, as opposed to one of the 
+common LALR(1) parser generators.  With a LALR(1) generator
+it would have been possible to input the Java grammar from the
+specification, and end up with a complete parser for the Java
+language.  Implementation in recursive descent forced much
+of this translation to be done manually.  The modifications
+of the language mainly stem from a lack of sufficient time
+to translate the entire grammar.  Of course, as the compiler
+evolved, the parser will be extended as necessary.
+
+	Many of the differences from the Java specification
+arise from the fact that my parser is not as specific as the
+spec desires. One such example is the syntax for function
+and variable declarations.  Since they bear a close resemblence
+to expressions, both are implemented in the expression parser.
+Furthermore, function definitions are merely extensions of
+variable declarations.  This has two major consequences.  The
+first, minor consequence is that \verb|void x;| is considered
+to be a syntactically valid declaration of a variable with
+a void type.  Of course, such a variable has no real meaning,
+and will be detected in the sem phase. The second, more
+major consequence is that the following code segment is also
+syntactically legal.
+
+\begin{verbatim}
+void foo() {
+    int inc(int x) { return x + 1; },
+        dec(int x) { return x - 1; };
+};
+\end{verbatim}
+
+	From a Java standpoint, this is illegal for two reasons.
+The first is that functions cannot be declared within other functions.
+This will be initially handled in the sem phase. I also plan on
+eventually using this syntax for experimenting with nested functions.
+The second reason is that the second function declaration \verb|dec|
+is malformed.  While not especially useful, I see no reason to 
+exclude this style declaration from my grammar.
+
+	One other syntax I plan on adopting from g++ and SLang
+is that of the statement block as expression element. The rationale
+behind this extension is that it should be easy to implement, and
+lend itself to some interesting experimentation.
+
+	In addition to these two modifications, there are two areas
+where the language was explicitly subsetted.  The first is that
+\verb|import| statements are not handled.   And secondly, due to 
+the way my grammar is written, compound type names in declarations
+(\verb|java.awt.button|) are not supported. Since we aren't supporting 
+\verb|import| anyway, this shouldn't be too big of a problem.
+
+\section{Parsing Details}
+
+	Most of the parser is a fairly straight forward recursive
+descent implementation.  Each major production has a \verb|parse-*|
+function that reads in a set of tokens corresponding to the structure
+of the production and builds a AST node containing the information.
+Three functions are used by these parse routines to navigate the
+input stream.  \verb|peek-token| is used to non-destructively read in
+the first token.  \verb|expect-token| is used to guarantee that a token
+is present on the input stream. And finally, \verb|next-token| advances the
+token pointer.
+
+
+	The one really interesting piece of grammatical work
+has to do with the semicolons seperating each statement.  
+My initial thought was to have productions set up as follows:
+
+\begin{verbatim}
+statement ::= simple-statement; | 
+              { simple-statement* }
+
+simple-statement ::= if ( expression ) statement 
+                        [ else statement ]
+\end{verbatim}
+
+The problem here is that each statement, nested or not, was forced
+to be terminated with a semicolon.  This resulted in if statements
+that looked like:
+
+\begin{verbatim}
+if (A) if (B) print("Hello World") ; ; ;
+\end{verbatim}
+
+	Obviously, there are too many trailing semicolons.  The
+solution I adopted in this grammar was to introduce the idea of
+a `complete statement', or a statement that does not need
+explicit termination. Since if statements are terminated by the terminator
+in the final clause, the if statement is one such complete statement.
+The final grammar looks something like this.
+
+\begin{verbatim}
+complete-statement ::= single-statement; | 
+                       compound-statement |
+                       if {expression} statement 
+                          [ else statement]
+
+compound-statement ::= { simple-statement* }
+
+simple-statement ::= break | return | ...
+\end{verbatim}
+
+
+\section{The Final AST}
+
+	Being written in Lisp, the AST returned by the syn phase
+is represented in Lisp list structure. Each node in the tree has
+the following syntax:
+
+\begin{verbatim}
+(<node-type> <attribute-list> . <info-list>)
+\end{verbatim}
+
+For example, an if statement would become:
+
+\begin{verbatim}
+(IF nil <then-clause> <else-clause>>)
+\end{verbatim}
+
+Here is a more detailed example of the kinds of transformations 
+performed:
+
+\begin{verbatim}
+class Doc_Sample {
+  public void function(int x) {
+    system.print.output(3);
+
+    return x;
+  }
+}
+\end{verbatim}
+
+will yield the following AST:
+
+\begin{verbatim}
+(FILE NIL
+      ((CLASS-DECL NIL (ID NIL "Doc_Sample") 
+                   (TYPE-PREFIX NIL)
+           (((DECL-LIST NIL
+                 ((FUNCTION-DECL NIL
+                      (TYPE 10
+                            (VOID "void" 
+                             (TYPE-PREFIX NIL PUBLIC)
+                              NIL))
+                      (IDENTIFIER 4 
+                            ("function"))
+                      ((PARAMATER NIL
+                           (TYPE 10 
+                                 (INT "int" 
+                                  (TYPE-PREFIX NIL)
+                                    NIL))
+                           (ID NIL "x") NIL))
+                      NIL
+                      (BLOCK ()
+                        (FUNCALL NIL
+                                 ((ID NIL "output")
+                                  (ID NIL "print")
+                                  (ID NIL "system"))
+                                 ((NUMERIC-LITERAL NIL "3")))
+                        (RETURN NIL (VARIABLE-REF NIL (ID NIL "x"
+))))))))))))
+\end{verbatim}
+
+This example can be used to illustrate a few germane points 
+about the AST I'm generating.  The first such point is that 
+compound names like \verb|system.print.output| are translated
+into reverse order.  This will eventually simplify the process
+of name resolution.  Secondly, declarations are composed of multiple
+elements.  Each declaration has a type specifier, a identifier name,
+and in the case of functions an exception thrown list and a function
+body.  Type specifiers, in turn, hold the name and type of the type,
+and the prefixes bound to it.  Prefix modifiers for functions are
+stored as the prefix of the return type.
+
+\section{Planned Improvements}
+
+\begin{description}
+
+\item[Compound statements as expression elements]
+
+( This one is actually represented in my parser )
+
+	This is an effort to gain some of the flexibility in
+code organization offered by functional programming languages. This
+would allow a syntax like this to be used as an expression:
+
+\begin{verbatim}
+i = { 
+  for(int j = 1, int sum = 0; j < x; j++)
+    sum += j; return j;
+};
+\end{verbatim}
+
+	This completes the relationship between statements and expressions
+by allowing either one to be embedded in the other. Similar functionality
+is provided as a g++ extension to c++. I feel that the idea is worth playing
+with, if nothing else.
+
+\item[Casts/Compound Operators]
+
+	Like I mentioned above, the Java parsed by this compiler is missing
+a few features that might be nice.  I plan on implementing these later on.
+
+\item[Better Error Handling]
+
+	Currently, error handling in syn is mainly provided by the
+\verb|expect-token| call. A typical error message is that a semicolon
+was expected while an identifier was actually found.  I plan on eventually
+extending the \verb|expect-token| call to accept a possible explanation
+as a paramater.  In this fashion, I expect to get more useful error
+messages.
+
+	The second error handling improvement in the works is to assign
+a line number to each AST node.  Since errors will be detected in the
+sem phase of the compiler, some way of telling the user where the error
+was detected is necessary.  Without line numbers in the AST, it will be
+difficult for sem to provide decent error messages.
+
+\end{description}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+
+
+
+
+
+
+

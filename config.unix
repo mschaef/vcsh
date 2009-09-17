@@ -1,0 +1,84 @@
+# config.unix
+#
+# Makefile configuration paramaters for Unix host.
+
+DEFINES=
+LIBS=
+
+CC=g++
+AR_RS=ar rs
+AR_RCS=ar rcs
+RANLIB=ranlib
+RM_F=rm -f
+
+DEFFL=-D
+NAMOBJFL=-o
+COMPILEFL=-c
+DEBUG_OPTFL=-O
+OPTFL=-O
+DEBUGFL=-g
+AROUTFL=
+AROUTFL_RS=
+CCFLAGS=-Wall -I. -funsigned-char -g
+LDFLAGS=
+OBJ_EXT=.o
+EXE_EXT=
+LIB_EXT=.a
+DEFINES+=${DEFFL}SCAN_UNIX
+
+
+LDFLAGS+=${DEBUGFL}
+
+ifeq (${BUILD_TYPE}, DEBUG)
+  CCFLAGS+=${DEFFL}_DEBUG ${DEBUGFL} ${DEBUG_OPTFL}
+else
+  ifeq (${BUILD_TYPE}, RELEASE)
+    CCFLAGS+=${OPTFL}
+  else
+   $(error Unknown build type: $(BUILD_TYPE))
+  endif
+endif
+
+ifeq (${COVERAGE_TEST}, on)
+   CCFLAGS+=-fprofile-arcs -ftest-coverage
+   LDFLAGS+=-fprofile-arcs -lgcov
+endif
+
+ifeq (${PROFILE}, on)
+   CCFLAGS+=-pg
+   LDFLAGS+=-pg
+endif
+
+
+# -H tells gcc to print the name of each loaded include file.
+# CCFLAGS+=-H
+
+# --save-temps tells gcc to save temporary files used during compilation (namely, the
+# preprocessed source)
+# CCFLAGS+=-save-temps
+
+.PHONY: todo clean-cov clean TAGS all
+
+all: ${TARGETS}
+
+todo:
+	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n XXX) || true
+	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n TODO) || true
+	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n TESTTHIS) || true
+	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n REVISIT) || true
+
+
+clean-cov:
+	${RM_F} *.gcda *.gcov
+
+clean: clean-cov
+	${RM_F} *.pdb *.ilk
+	${RM_F} *.o *.obj *.scf TAGS *~ *.ii *.exe *.s ${TARGETS}
+	${RM_F} scheme/*~ gmon${OBJ_EXT}ut *.gcno
+
+TAGS:
+	etags *.[ch] *.cpp
+
+%${OBJ_EXT}: %.cpp Makefile scan.h
+	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
+

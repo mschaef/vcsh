@@ -1,0 +1,38 @@
+June 23rd, 2005
+
+These numbers were the result of bench.scm, with the eval stack frame
+code commented out. On average, interpreter performance went up
+by 200-500%.
+
+(name cpu-ms net-ms cpu-normal net-normal)
+(calc-1000-primes 76.99 73.83 1.9939 2.0424)
+(calc-dot-product 0.6118 0.5666 1.7188 1.7801)
+(calc-savage 0.01068 0.01002 1.7328 1.7803)
+(exec-choose-case 0.01989 0.01857 2.0338 2.1061)
+(exec-choose-cond 0.06036 0.05685 2.2246 2.2984)
+(exec-let 0.00302 0.00271 2.1559 2.2955)
+(exec-loop-repeat 10.219 10.219 5.815 5.815)
+(exec-loop-tail 534.7 498.83 1.9304 1.9957)
+(exec-var-lookup-deep 0.00272 0.00258 1.7043 1.7403)
+(exec-var-lookup-shallow 0.00214 0.00199 1.8681 1.9306)
+(funcall-global 0.00259 0.00237 1.9541 2.0383)
+(funcall-global-args 0.00381 0.00326 2.5992 2.8642)
+(funcall-inline 0.00351 0.00308 1.7344 1.8869)
+(funcall-inline-args 0.00461 0.00389 2.3470 2.6357)
+(funcall-local 0.00423 0.00368 1.8965 2.0574)
+(funcall-local-args 0.00546 0.00464 2.3578 2.6053)
+(hash-ref-eq 1.0537 0.9620 1.7931 1.8726)
+(hash-ref-equal 1.2801 1.1935 1.6053 1.6507)
+(hash-set!-eq 1.3771 1.2645 1.9355 2.0150)
+(hash-set!-equal 1.5870 1.4741 2.1858 2.2614)
+(heap-010ele-vectors 0.14386 0.00905 1.0552 1.6214)
+(heap-100ele-vectors 0.14809 0.01058 1.0629 1.5546)
+(heap-10cons 0.01685 0.01543 2.3751 2.5062)
+(heap-fsck-lots-of-cells 558.6 517.5 2.2694 2.3907)
+(lambda-eval 0.00283 0.00253 1.8001 1.9265)
+(list-cross-product 24.841 21.675 1.7717 1.8811)
+(output-fixnum 0.8808 0.8808 1.0110 1.0110)
+(output-flonum 9.237 9.237 1.0059 1.0059)
+(output-nested-lists 590.6 590.6 1.0076 1.0076)
+(output-string 811.6 811.6 1.0103 1.0103)
+(output-symbol 0.42805 0.42805 1.0281 1.0281)

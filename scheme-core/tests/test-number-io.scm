@@ -1,0 +1,15 @@
+(use-package! "unit-test")
+
+(define-test number-io
+  (test-case (can-read/write-round-trip? #iposinf))
+  (test-case (can-read/write-round-trip? #ineginf))
+  (test-case (can-read/write-round-trip? #inan))
+  (test-case (can-read/write-round-trip? 1))
+  (test-case (can-read/write-round-trip? 100))
+  (test-case (can-read/write-round-trip? -100))
+  (test-case (can-read/write-round-trip? 1.0))
+  (test-case (can-read/write-round-trip? 100.0))
+  (test-case (can-read/write-round-trip? -100.0))
+  (test-case (can-read/write-round-trip? 1e1))
+  (test-case (can-read/write-round-trip? 100e1))
+  (test-case (can-read/write-round-trip? -100e1)))

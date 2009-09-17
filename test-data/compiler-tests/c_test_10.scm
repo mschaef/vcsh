@@ -1,0 +1,1 @@
+(defmacro (add . xs) `(+ ,@xs))

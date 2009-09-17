@@ -1,0 +1,61 @@
+ Volume in drive C has no label.
+ Volume Serial Number is 2CA2-BF55
+
+ Directory of C:\Documents and Settings\Mike Schaeffer\work\ectworks\vcalc
+
+12/18/2003  05:40 PM    <DIR>          .
+12/18/2003  05:40 PM    <DIR>          ..
+12/02/2003  01:37 PM               247 .log
+07/22/2003  10:25 AM             2,255 a.txt
+07/22/2003  10:25 AM             2,153 b.txt
+06/04/2003  03:21 PM               805 cmd_exp.awk
+06/04/2003  03:21 PM               126 cmd_exp.cmd
+12/16/2003  10:53 AM               686 cmd_keys.i
+12/16/2003  10:53 AM    <DIR>          Debug
+08/01/2003  06:51 PM             2,897 EnterNotifyEdit.cpp
+06/23/2003  08:26 PM               545 EnterNotifyEdit.h
+05/24/2003  04:12 PM               802 ids_exp.awk
+05/24/2003  03:17 PM               126 ids_exp.cmd
+07/12/2003  09:16 AM             1,626 keyinfo.txt
+05/13/2003  12:27 AM            12,790 keynames.i
+07/11/2003  06:33 PM             4,138 license.bak
+07/23/2003  01:12 PM             4,413 license.tx2
+11/13/2003  03:45 PM             4,472 license.txt
+10/27/2003  12:11 PM             4,402 license.txt_validate
+12/16/2003  11:01 AM            27,016 license_txt.cpp
+10/21/2003  04:22 PM             7,394 LispConsole.cpp
+06/05/2003  05:51 PM               980 LispConsole.h
+07/23/2003  01:23 PM               583 path.txt
+12/16/2003  11:02 AM    <DIR>          Release
+10/27/2003  04:29 PM    <DIR>          res
+11/14/2003  04:42 PM             4,685 resource.h
+11/14/2003  04:42 PM             4,685 resource_backup.h
+06/04/2003  03:57 PM               242 res_exp.cmd
+04/29/2003  06:41 PM             2,397 scratch.scm
+03/05/2003  05:31 PM               205 stdafx.cpp
+03/05/2003  05:31 PM             1,809 stdafx.h
+12/16/2003  10:53 AM             1,372 str_keys.i
+07/21/2003  10:15 PM    <DIR>          test
+11/14/2003  04:52 PM             2,836 TipWindow.cpp
+11/14/2003  04:42 PM             1,043 TipWindow.h
+11/14/2003  04:42 PM           398,740 vcalc.aps
+12/18/2003  05:40 PM             6,812 vcalc.cpp
+07/22/2003  04:09 PM         1,948,830 vcalc.dmp
+10/27/2003  01:41 PM             1,809 vcalc.h
+11/14/2003  04:42 PM            16,607 vcalc.rc
+11/14/2003  04:49 PM             9,527 vcalc.vcproj
+12/16/2003  10:51 AM            18,066 VCalcGraphics.cpp
+10/03/2003  12:10 AM             1,906 VCalcGraphics.h
+07/11/2003  03:51 PM             2,976 VCChooseBox.cpp
+06/23/2003  08:26 PM               865 VCChooseBox.h
+10/17/2003  11:11 AM             8,649 VCConfigDialog.cpp
+07/24/2003  11:41 PM             1,208 VCConfigDialog.h
+11/14/2003  04:55 PM            93,373 vcinit.scm
+10/27/2003  11:47 AM            92,931 vcinit.scm~
+12/16/2003  11:01 AM           560,386 vcinit_scm.cpp
+12/16/2003  10:51 AM            23,663 VCSiodWindow.cpp
+10/10/2003  12:55 AM             1,979 VCSiodWindow.h
+12/11/2003  04:35 PM             8,730 VCSystem.cpp
+06/23/2003  08:26 PM               229 VCSystem.h
+              48 File(s)      3,295,016 bytes
+               6 Dir(s)   7,472,324,608 bytes free

@@ -1,0 +1,6 @@
+vCalc is an advanced scientific calculator based on the Reverse Polish notation used on well-known handheld calculators. Its keyboard driven interface has been thoughtfully designed to be both easy to learn and fast to use. vCalc supports a complete set of scientific operations, binary math in hexadecimal and octal, and has a sophisticated statistics engine that mean-centers data before computation for high numerical accuracy with difficult datasets. vCalc also supports 100 memory registers, has a 10-level "undo" feature, and has the ability to save and load data to disk.
+
+<a href="vcalc.shtml">more...<br>
+                  </a><br>
+
+You may freely download this utility and use it for evaluation purposes for 21 days. After 21 days, most scientific and statistical functions are disabled until a license key is purchased.

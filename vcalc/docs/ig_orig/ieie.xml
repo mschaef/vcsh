@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+<XML_DIZ_INFO>
+	<MASTER_PAD_VERSION_INFO>
+		<MASTER_PAD_VERSION>1.15</MASTER_PAD_VERSION>
+		<MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to dissemminate information to anyone interested in their software products.  To find out more go to http://www.asp-shareware.org/pad</MASTER_PAD_INFO>
+	</MASTER_PAD_VERSION_INFO>
+	<Company_Info>
+		<Company_Name>Icegiant Software</Company_Name>
+		<Address_1>10704 Seven Oaks</Address_1>
+		<Address_2></Address_2>
+		<City_Town>Austin</City_Town>
+		<State_Province>Texas</State_Province>
+		<Zip_Postal_Code>78759</Zip_Postal_Code>
+		<Country>USA</Country>
+		<Company_WebSite_URL>http://www.icegiant.com</Company_WebSite_URL>
+		<Contact_Info>
+			<Author_First_Name>Robert </Author_First_Name>
+			<Author_Last_Name>Gretta</Author_Last_Name>
+			<Author_Email>info@icegiant.com</Author_Email>
+			<Contact_First_Name>Robert </Contact_First_Name>
+			<Contact_Last_Name>Gretta</Contact_Last_Name>
+			<Contact_Email>info@icegiant.com</Contact_Email>
+		</Contact_Info>
+		<Support_Info>
+			<Sales_Email>info@icegiant.com</Sales_Email>
+			<Support_Email>info@icegiant.com</Support_Email>
+			<General_Email>info@icegiant.com</General_Email>
+			<Sales_Phone></Sales_Phone>
+			<Support_Phone></Support_Phone>
+			<General_Phone></General_Phone>
+			<Fax_Phone></Fax_Phone>
+		</Support_Info>
+	</Company_Info>
+	<Program_Info>
+		<Program_Name>ImageExtractor</Program_Name>
+		<Program_Version>2003</Program_Version>
+		<Program_Release_Month>4</Program_Release_Month>
+		<Program_Release_Day>1</Program_Release_Day>
+		<Program_Release_Year>2003</Program_Release_Year>
+		<Program_Cost_Dollars>10</Program_Cost_Dollars>
+		<Program_Cost_Other_Code></Program_Cost_Other_Code>
+		<Program_Cost_Other></Program_Cost_Other>
+		<Program_Type>Shareware</Program_Type>
+		<Program_Release_Status>Major Update</Program_Release_Status>
+		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
+		<Program_OS_Support>Win95,Win98,WinME,WinXP,WinNT3.x,WinNT4.x,Windows2000</Program_OS_Support>
+		<Program_Language>English</Program_Language>
+		<Program_Change_Info></Program_Change_Info>
+		<Program_System_Requirements>Internet Explorer 5.0-6.0</Program_System_Requirements>
+		<Program_Specific_Category>Internet</Program_Specific_Category>
+		<Program_Categories>Browsing, Searching, Imaging</Program_Categories>
+		<File_Info>
+			<Filename_Versioned>ImageExtractor</Filename_Versioned>
+			<Filename_Previous>ImageExtractor</Filename_Previous>
+			<Filename_Generic>ImageExtractor</Filename_Generic>
+			<Filename_Long>imageExInstall.exe</Filename_Long>
+			<File_Size_Bytes>1800000</File_Size_Bytes>
+			<File_Size_K>1800</File_Size_K>
+			<File_Size_MB>1.8</File_Size_MB>
+		</File_Info>
+		<Expire_Info>
+			<Has_Expire_Info>N</Has_Expire_Info>
+			<Expire_Count></Expire_Count>
+			<Expire_Based_On>Days</Expire_Based_On>
+			<Expire_Other_Info></Expire_Other_Info>
+			<Expire_Month></Expire_Month>
+			<Expire_Day></Expire_Day>
+			<Expire_Year></Expire_Year>
+		</Expire_Info>
+		<Includes_VB_Runtime>N</Includes_VB_Runtime>
+		<Includes_JAVA_VM>N</Includes_JAVA_VM>
+		<Includes_DirectX>N</Includes_DirectX>
+	</Program_Info>
+	<Program_Descriptions>
+		<English>
+			<Keywords>ImageExtractor Internet Image Search Utility</Keywords>
+			<Char_Desc_45>ImageExtractor Internet Image Search Utility</Char_Desc_45>
+			<Char_Desc_80>ImageExtractor Internet Image Search Utility</Char_Desc_80>
+			<Char_Desc_250>
+ImageExtractor is an Internet Explorer plugin tool that searches a website from your computer for images that meet your defined criteria. The extractor quickly downloads the images and generates a variety of views.
+
+If you are tired of unnecessary text getting in the way of your image viewing then this is the tool for you.
+
+This tool integrates seamlessly into internet explorer so you do not have to run a separate program to find out which site you wish to view. While browsing you simply click the extract button and ImageExtractor does the rest.
+
+</Char_Desc_250>
+			<Char_Desc_450>
+
+ImageExtractor is an Internet Explorer plugin tool that searches a website from your computer for images that meet your defined criteria. The extractor quickly downloads the images and generates a variety of views.
+
+If you are tired of unnecessary text getting in the way of your image viewing then this is the tool for you.
+
+This tool integrates seamlessly into internet explorer so you do not have to run a separate program to find out which site you wish to view. While browsing you simply click the extract button and ImageExtractor does the rest.
+
+</Char_Desc_450>
+			<Char_Desc_2000>
+
+ImageExtractor is an Internet Explorer plugin tool that searches a website from your computer for images that meet your defined criteria. The extractor quickly downloads the images and generates a variety of views.
+
+If you are tired of unnecessary text getting in the way of your image viewing then this is the tool for you.
+
+This tool integrates seamlessly into internet explorer so you do not have to run a separate program to find out which site you wish to view. While browsing you simply click the extract button and ImageExtractor does the rest.
+
+</Char_Desc_2000>
+		</English>
+	</Program_Descriptions>
+	<Web_Info>
+		<Application_URLs>
+			<Application_Info_URL>http://www.icegiant.com</Application_Info_URL>
+			<Application_Order_URL>http://www.icegiant.com</Application_Order_URL>
+			<Application_Screenshot_URL>http://www.icegiant.com/images/screenShot2.jpg</Application_Screenshot_URL>
+			<Application_Icon_URL>http://www.icegiant.com/images/ieieicon.gif</Application_Icon_URL>
+			<Application_XML_File_URL>http://www.icegiant.com/pads/ieie.xml</Application_XML_File_URL>
+		</Application_URLs>
+		<Download_URLs>
+			<Primary_Download_URL>http://www.icegiant.com/downloads/imageExInstall.exe</Primary_Download_URL>
+			<Secondary_Download_URL>http://www.icegiant.com/downloads/imageExInstall.exe</Secondary_Download_URL>
+			<Additional_Download_URL_1></Additional_Download_URL_1>
+			<Additional_Download_URL_2></Additional_Download_URL_2>
+		</Download_URLs>
+	</Web_Info>
+	<Permissions>
+		<Distribution_Permissions>Distribute Freely</Distribution_Permissions>
+		<EULA>
+User License Agreement
+
+Icegiant Software - Software License Agreement
+
+Copyright (c) 2003, Icegiant Software. All rights reserved.
+
+DEFINITIONS
+
+As used in this agreement, the following terms have the following meanings:
+
+1.	IG - Icegiant Software
+2.	Reseller - Distributor of Software
+3.	You - Means you the individual using the software as well as your employer 
+	if you are using the software within the scope of your employment.
+4.	Software - The computer programs from IG provided with this agreement, 
+	which are being installed with accompanying documentation.
+
+GRANT OF LICENSE
+
+In consideration of purchase of this software from Reseller or IG, IG is willing 
+to provide you with a limited, non-exclusive right to use the software, but only 
+pursuant to the terms and conditions of this Agreement. 
+
+If you have purchased this software legally, you have acquired a single seat 
+license. You may install and use one copy of the software on a single computer 
+in your workplace. All of the software must be installed and used on the same 
+computer. You are not authorized under the single seat license to install or 
+use any of the software on multiple computers, a network storage device, or 
+other storage device.
+
+RESTRICTIONS
+You may not reverse engineer or decompile the software. You may not sell, rent,
+lease or re-license the software.
+
+SOFTWARE KEY
+The software requires a software key code.   You acknowledge that the software 
+will not function without a certain, unique software key code. You agree that 
+such software key code is to be used solely with the software for which it is provided.
+
+COPYRIGHT
+The software is owned by IG and is protected by applicable copyright laws and 
+international treaty provisions.
+
+LIMITED WARRANTY
+IG warrants that the physical media (if any) and physical documentation (if any) 
+are free of defects in workmanship and materials for a period of thirty (30) days 
+from the date of purchase. If the disks or documentation are found to be defective 
+within the warranty period IG or Reseller will replace the defective items at no 
+cost to you. The entire liability of this warranty is limited to replacement and 
+shall not, under any circumstances, encompass any other damages.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, 
+INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+FITNESS FOR A PARTICULAR PURPOSE.  IG SPECIFICALLY DISCLAIMS ALL OTHER WARRANTIES, 
+EXPRESSED OR IMPLIED.
+
+GOVERNING LAW
+This license and limited warranty shall be construed, interpreted, and governed 
+by the laws of the State of Texas, and any action hereunder shall be brought 
+only in Travis County, Austin, Texas. If any provision is found invalid or unenforceable, 
+the balance of this license and limited warranty shall remain valid and enforceable. 
+All rights not specifically granted herein are reserved by IG.
+
+END OF Icegiant Software - Software License Agreement
+
+ACKNOWLEDGMENT
+This Product uses some features of "FreeImage" freeware from 6ixsoft.</EULA>
+	</Permissions>
+	<ASP>
+		<ASP_Member></ASP_Member>
+		<ASP_Member_Number></ASP_Member_Number>
+	</ASP>
+</XML_DIZ_INFO>

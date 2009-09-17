@@ -1,0 +1,1 @@
+This directory contains files used by compiler0, the boostrap compiler.
