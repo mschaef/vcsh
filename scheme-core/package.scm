@@ -10,7 +10,7 @@
 ;; REVISIT: This is just a specific sympton of the general problem
 ;; that the s-core load order is poorly defined. This should be
 ;; fixed.
-(define *post-load-hook* ())
+(define *finalize-load-hook* ())
 
 (define (list-all-packages)
   (list-copy system::*package-list*))
@@ -102,7 +102,7 @@
 (define (provide-package-on-successful-load! package-spec)
   "Arrange by <package-spec> to be provided by provide-package! if the current
    load terminates successfully."
-  (add-hook-function! '*post-load-hook* #L0(provide-package! package-spec)))
+  (add-hook-function! '*finalize-load-hook* #L0(provide-package! package-spec)))
 
 ;; By default, the scheme package is provided...
 (push! (find-package "scheme") *provided-packages*)

@@ -138,26 +138,34 @@
         (#t
          (error "Bad filename or port in load: ~s" source))))
 
+;; There are three kinds of load hooks:
+;;
+;; 1) *pre-load-hook*
+;;
+;;     Invoked immediately before starting to load a file
+;;
+;; 2) *finalize-load-hook*/*post-load-hook*
+;;
+;;    Both are invoked immediately after successfully loading
+;;    a file. The difference is that finalize-load hook functions
+;;    are restricted in scope to the currently loading file. They
+;;    must be installed during a file load to be run only once: at
+;;    the end of that particular file's load.
 
-(define (finalize-load)
-  "Finalize the current load, by invoking the *post-load-hook*."
-  (invoke-hook '*post-load-hook*)
-  (set! *post-load-hook* ()))
 
-(define (call-as-loader fn)
-  "Call the thunk <fn> in a way that honors the invarients required of
-   a loader: *package* is preserved and the load is finalized on success
-   with finalize-load."
+(define *pre-load-hook* ())
+(define *post-load-hook* ())
+
+(define (do-load load-fn source)
+  "Load the input <source> using the loader function <load-fn>. <source> must
+   be a suitable argument for <load-fn>."
   (dynamic-let ((*package* *package*)
-                (*post-load-hook* ()))
+                (*finalize-load-hook* ()))
     (begin-1
-     (fn)
-     (finalize-load))))
-
-(define (do-load fn source)
-  "Load the input <source> using the loader function <fn>. <source> must
-   be a suitable argument for <fn>."
-  (call-as-loader #L0(fn source)))
+     (invoke-hook '*pre-load-hook* source)
+     (load-fn source)
+     (invoke-hook '*finalize-load-hook* source)
+     (invoke-hook '*post-load-hook* source))))
 
 (define (load-file filename)
   "Loads the file specified by <filename> and returns <filename>. Signals

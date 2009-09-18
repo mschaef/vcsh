@@ -51,6 +51,8 @@
            *number-of-characters*
            *precision*
            *pretty-print-syntax*
+           *pre-load-hook*
+           *post-load-hook*
            *print-addresses*
            *print-depth*
            *print-length*
