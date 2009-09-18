@@ -701,8 +701,8 @@
     (let ( (jdays (- (tm%encode-julian-day-number day month year)
 		     tm%tai-epoch-in-jd)) )
       (make-time :type       :time-utc
-                 :nanoseond  nanosecond
-                 :second     (+ (* (- jdays 1/2) 24 60 60)
+                 :nanosecond nanosecond
+                 :second     (+ (* (- jdays (/ 1 2)) 24 60 60)
                                 (* hour 60 60)
                                 (* minute 60)
                                 second
@@ -803,14 +803,14 @@
 	 (year (date-year date))
 	 (offset (date-zone-offset date)) )
     (+ (tm%encode-julian-day-number day month year)
-       (- 0.5)
+       (- (/ 1 2))
        (+ (/ (/ (+ (* hour 60 60)
                    (* minute 60) second (/ nanosecond tm%nano)) tm%sid)
              (- offset))))))
 
 (define (date->modified-julian-day date) ;; SRFI-19
   (- (date->julian-day date)
-     4800001/2))
+     (/ 4800001 2)))
 
 
 (define (time-utc->julian-day time) ;; SRFI-19
@@ -822,7 +822,7 @@
 
 (define (time-utc->modified-julian-day time) ;; SRFI-19
   (- (time-utc->julian-day time)
-     4800001/2))
+     (/ 4800001 2)))
 
 (define (time-tai->julian-day time) ;; SRFI-19
   (if (not (eq? (time-type time) :time-tai))
@@ -835,7 +835,7 @@
 
 (define (time-tai->modified-julian-day time) ;; SRFI-19
   (- (time-tai->julian-day time)
-     4800001/2))
+     (/ 4800001 2)))
 
 ;; this is the same as time-tai->julian-day
 (define (time-monotonic->julian-day time) ;; SRFI-19
@@ -850,7 +850,7 @@
 
 (define (time-monotonic->modified-julian-day time) ;; SRFI-19
   (- (time-monotonic->julian-day time)
-     4800001/2))
+     (/ 4800001 2)))
 
 
 (define (julian-day->time-utc jdn) ;; SRFI-19
@@ -869,7 +869,7 @@
   (time-utc->date (julian-day->time-utc jdn) tz-offset))
 
 (define (modified-julian-day->date jdn :optional (tz-offset (tm%local-tz-offset))) ;; SRFI-19
-  (julian-day->date (+ jdn 4800001/2) tz-offset))
+  (julian-day->date (+ jdn (/ 4800001 2)) tz-offset))
 
 (define (modified-julian-day->time-utc jdn) ;; SRFI-19
   (julian-day->time-utc (+ jdn (/ 4800001 2))))
