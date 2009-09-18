@@ -161,11 +161,12 @@
    be a suitable argument for <load-fn>."
   (dynamic-let ((*package* *package*)
                 (*finalize-load-hook* ()))
-    (begin-1
-     (invoke-hook '*pre-load-hook* source)
-     (load-fn source)
-     (invoke-hook '*finalize-load-hook* source)
-     (invoke-hook '*post-load-hook* source))))
+    (catch 'end-load
+      (begin-1
+       (invoke-hook '*pre-load-hook* source)
+       (load-fn source)
+       (invoke-hook '*finalize-load-hook* source)
+       (invoke-hook '*post-load-hook* source)))))
 
 (define (load-file filename)
   "Loads the file specified by <filename> and returns <filename>. Signals
