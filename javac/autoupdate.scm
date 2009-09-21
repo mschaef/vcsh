@@ -1,9 +1,9 @@
-;;;; autoload.scm
+;;;; autoupdate.scm
 ;;;;
 ;;;; This package keeps a record of all loaded files and reloads
 ;;;; them when the file changes on disk.
 
-(define-package "autoload"
+(define-package "autoupdate"
   (:uses "scheme"))
 
 ;; The order in which files were initially loaded into the interpreter.
