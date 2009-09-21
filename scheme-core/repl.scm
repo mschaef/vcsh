@@ -171,12 +171,13 @@
            (throw 'read-failed))))
   (flush-port (current-error-port))
   (flush-port (current-output-port))
-  (let* ((first-char (flush-whitespace))
-         (input-form (with-default-read-error-handling (read))))
-    (if (and (keyword? input-form) *repl-abbreviations-enabled*)
-        (repl-abbreviated-form (cons input-form
-                                     (with-default-read-error-handling (read-abbreviated-list))))
-        input-form)))
+  (let ((first-char (flush-whitespace)))
+    (invoke-hook '*repl-pre-read-hook*)
+    (let ((input-form (with-default-read-error-handling (read))))
+      (if (and (keyword? input-form) *repl-abbreviations-enabled*)
+          (repl-abbreviated-form (cons input-form
+                                       (with-default-read-error-handling (read-abbreviated-list))))
+          input-form))))
 
 (define (repl-eval form :optional (env ()))
   "Evaluates <form> in environment <env>, suppressing errors and returning
@@ -226,8 +227,6 @@
       (let loop ()
         (catch 'read-failed
           (repl-prompt *repl-level*)
-          (flush-whitespace)
-          (invoke-hook '*repl-pre-read-hook*)
           (let ((form (repl-read *repl-abbreviations*)))
             (unless (eof-object? form)
               (let ((results (repl-eval form env)))
