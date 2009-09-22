@@ -420,6 +420,7 @@ namespace scan {
 
     size_t      gc_heap_segment_size;
     size_t      gc_max_heap_segments;
+    size_t      gc_current_heap_segments;
     LRef       *gc_heap_segments;
 
     sys_critical_section_t *thread_table_crit_sec;

@@ -359,6 +359,7 @@ namespace scan {
 
     lhash_set(obj, keyword_intern(_T("size-of-lobject")), fixcons(sizeof(LObject)));
     lhash_set(obj, keyword_intern(_T("heap-segment-size")), fixcons(interp.gc_heap_segment_size * sizeof(LObject)));
+    lhash_set(obj, keyword_intern(_T("current-heap-segments")), fixcons(interp.gc_current_heap_segments));
     lhash_set(obj, keyword_intern(_T("maximum-heap-segments")), fixcons(interp.gc_max_heap_segments));
     lhash_set(obj, keyword_intern(_T("argument-buffer-len")), fixcons(ARG_BUF_LEN));
     lhash_set(obj, keyword_intern(_T("most-postive-character")), charcons(_TCHAR_MAX));

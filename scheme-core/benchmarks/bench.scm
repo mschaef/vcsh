@@ -10,9 +10,7 @@
 ;; To prevent timing inconsistancies caused by run-time heap
 ;; expansion, expand the heap ahead of time.
 
-(dynamic-let ((*info* #f))
-  (format #t "Expanding heap...\n")
-  (repeat 64 (enlarge-heap)))
+(enlarge-heap 64)
 
 ;; Turn the stack limit off.
 (scheme::%set-stack-limit #f)

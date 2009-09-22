@@ -122,37 +122,9 @@ namespace scan {
    * starts out with one subheap, and will allocate up to as many as HEAP_SEGMENT_LIMIT
    * heaps, on an as-needed basis.
    */
-  static bool enlarge_heap()
+
+  static void gc_init_heap_segment(LRef seg_base)
   {
-    bool succeeded = false;
-
-    sys_enter_critical_section(interp.gc_heap_freelist_crit_sec);
-
-    dscwritef(DF_SHOW_GC_DETAILS, ";;; attempting to enlarge heap\n");
-
-    int new_seg_index = -1;
-
-    for (size_t seg_index = 0; seg_index < interp.gc_max_heap_segments; seg_index++)
-      {
-        if (interp.gc_heap_segments[seg_index] == NULL)
-          {
-            new_seg_index = seg_index;
-            break;
-          }
-      }
-
-    if (new_seg_index == -1)
-      goto exit_enlarge_heap;
-
-    LRef seg_base = (LRef)safe_malloc(sizeof (LObject) * interp.gc_heap_segment_size);
-
-    if (seg_base == NULL)
-      goto exit_enlarge_heap;
-
-    interp.c_bytes_gc_threshold += (sizeof(LObject) * interp.gc_heap_segment_size);
-
-    interp.gc_heap_segments[new_seg_index] = seg_base;
-
     LRef current_sub_freelist = NIL;
     size_t current_sub_freelist_size = 0;
 
@@ -178,10 +150,35 @@ namespace scan {
 
     if (!NULLP(current_sub_freelist))
       interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
+  }
 
-    succeeded = true;
+  static bool enlarge_heap()
+  {
+    bool succeeded = false;
 
-  exit_enlarge_heap:
+    sys_enter_critical_section(interp.gc_heap_freelist_crit_sec);
+
+    dscwritef(DF_SHOW_GC_DETAILS, ";;; attempting to enlarge heap\n");
+
+    if (interp.gc_current_heap_segments < interp.gc_max_heap_segments)
+      {
+        LRef seg_base = (LRef)safe_malloc(sizeof (LObject) * interp.gc_heap_segment_size);
+
+        if (seg_base != NULL)
+          {
+            size_t seg_idx = interp.gc_current_heap_segments;
+
+            interp.gc_current_heap_segments++;
+
+            interp.c_bytes_gc_threshold += (sizeof(LObject) * interp.gc_heap_segment_size);
+
+            interp.gc_heap_segments[seg_idx] = seg_base;
+
+            gc_init_heap_segment(seg_base);
+
+            succeeded = true;
+          }
+      }
 
     sys_leave_critical_section(interp.gc_heap_freelist_crit_sec);
 
@@ -198,11 +195,10 @@ namespace scan {
     if (!NULLP(c)) {
       fixnum_t r = get_c_fixnum(c);
 
-      // TODO: HEAP_SEGMENT_LIMIT and heap segment size should be reported in system-info
-      if ((r < 0) || (r >= interp.gc_max_heap_segments))
+      if ((r < 1) || (r >= interp.gc_max_heap_segments))
         return vmerror("Number of requested heaps out of range.", c);
 
-      requested = (size_t)r;
+      requested = (size_t)r - interp.gc_current_heap_segments;
     }
 
     for(created = 0; created < requested; created++)
@@ -214,11 +210,7 @@ namespace scan {
                created, created > 1 ? "s" : "",
                requested);
 
-
-    if (created > 0)
-      return fixcons(created);
-    else
-      return boolcons(false);
+    return fixcons(interp.gc_current_heap_segments);
   }
 
   /*** The Mark-and-Sweep garbage collection algorithm ***/

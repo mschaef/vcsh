@@ -854,6 +854,7 @@ namespace scan {
 
     interp.gc_heap_segment_size                    = DEFAULT_HEAP_SEGMENT_SIZE;
     interp.gc_max_heap_segments                    = DEFAULT_MAX_HEAP_SEGMENTS;
+    interp.gc_current_heap_segments                = 0;
     interp.gc_heap_segments                        = NULL;
 
     interp.gc_status_flag                          = 0;
