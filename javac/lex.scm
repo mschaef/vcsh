@@ -1,22 +1,7 @@
 ;;;; lex.lisp - The lexical analyzer for the CS375 java->classfile
 ;;;; compiler.
 ;;;;
-;;;; Michael Schaeffer (CS375, Hartmann)
-
-;;;; Modifications
-; rev 1 - Initial Release
-;
-; rev 2 - Modifications for syn release
-;  * Moved common code out to utility.lisp
-;  * Changed to phase-specific error handlers
-;  * Eliminated test case code
-;  * fixed typographical error involving close-parems :)
-;
-; rev 3 - Modifications for sem release
-;  * Added code to distinguish between integer and float lexemes
-;
-; rev 4 - Final 375 Release
-;  * Added code to generate literal ast list
+;;;; Michael Schaeffer
 
 ;;; A handler for lexical errors
 

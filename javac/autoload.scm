@@ -1,9 +1,9 @@
-;;;; autoupdate.scm
+;;;; autoload.scm
 ;;;;
 ;;;; This package keeps a record of all loaded files and reloads
 ;;;; them when the file changes on disk.
 
-(define-package "autoupdate"
+(define-package "autoload"
   (:uses "scheme"))
 
 ;; The order in which files were initially loaded into the interpreter.
@@ -17,10 +17,15 @@
 (define *updated-files* #f)
 
 (define (file-update-time filename)
-  (check file-exists? filename)
-  (hash-ref (file-details filename) :write-time))
+  "Determines the last time the file named by <filenam> was updated.
+   If there is no file named <filename>, returns #f."
+  (if (file-exists? filename)
+      (hash-ref (file-details filename) :write-time)
+      #f))
 
 (define (notice-load filename)
+  "If <filename> refers to a file that exists, make a record of the
+   the fact that it is to be loaded."
   (when (file-exists? filename)
     (when *updated-files*
       (push! filename *updated-files*))
@@ -47,14 +52,24 @@
            (more-recent-date? (file-update-time filename)
                               (hash-ref *loaded-file-times* filename)))))
 
+(define *automatic-load-enabled* #t)
+
 (define (update-loaded-files :optional (force? #f))
   "Scan the list of currently loaded files, reloading any that
    have been updated on disk. If <force?> is true, files are
    always reloaded."
   (dynamic-let ((*updated-files* ()))
     (dolist (filename *loaded-file-order*)
-      (when (and (or force? (update-necessary? filename))
-                 ;; If we've already updated the file, skip it.
+      (when (and (or force?
+                     ;; We always load if the user has requested a forced
+                     ;; load. Otherwise, we only update automatically if
+                     ;; the file has been updated on disk and automatic loads
+                     ;; are are enabled.
+                     (and *automatic-load-enabled*
+                          (update-necessary? filename)))
+                 ;; If we've already updated the file, skip it. This avoids
+                 ;; reloading files that are loaded by explicit loads in
+                 ;; source files.
                  (or (not *updated-files*)
                      (not (member filename *updated-files*))))
         (info "Reloading file: ~a" filename)

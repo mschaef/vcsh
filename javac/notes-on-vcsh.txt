@@ -7,30 +7,6 @@ Notes on vcsh, taken from javac development
 
   * Dotty visualization might be a reasonble interim solution.
 
-* An automatic reloader would streamline development work. It would work
-  like this:
-
-  * Hook into 'load' and make a note of each file as it is loaded, along
-    with the file's timestamp. This includes implicit loads arising from
-    used packages. (This list is maintained in the order of initial load.)
-
-  * Prior to each REPL evaluate (pre-read would be better), iterate over
-    the list of loaded files. If a file on disk is newer than a file
-    in memory, reload it and update the in-memory timestamp.
-
-  * Provide an explicit command to reload everything.
-
-  * Provide an explicit command to list loaded files, with timestamps.
-
-  * If a file fails to reload correctly, it is not reloaded until
-    updated on-disk.
-
-  * Provide a 'full-reload' mode that reloads all loaded files
-    after the first out of date file.
-
-  * There needs to be a way to disable the automatic reload, and manually
-    invoke it.
-
 * The quality of debugging back traces leaves something to be desired, since
   we do not show much detail about the currently evaluating form. Tail
   call elimination implies we don't show many intermediate forms either, so
