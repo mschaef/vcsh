@@ -270,6 +270,9 @@ namespace scan {
     if (!STRINGP(print_name) || !PACKAGEP(package))
       return NIL;
 
+    if (STRING_DIM(print_name) <= 0)
+      return NIL;
+
     LRef sym_rec = find_direct_symbol_record(print_name, package);
 
     if (!NULLP(sym_rec))
@@ -375,8 +378,11 @@ namespace scan {
 
   LRef lstring2uninterned_symbol(LRef str)
   {
-    if (!STRINGP (str))
+    if (!STRINGP(str))
       vmerror_wrong_type(1, str);
+
+    if (STRING_DIM(str) <= 0)
+      vmerror("Symbol names must have a length >0.", str);
 
     _TCHAR *sname = get_c_string(str);
 
