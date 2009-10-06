@@ -223,6 +223,7 @@
            cddr
            cdr
            ceiling
+           ceval
            char->integer
            char-alphabetic?
            char-alphanumeric?

@@ -6,8 +6,17 @@
 
 ;;; Eval
 
+;; Need this to support forward reference to fasl-compiler::compile-form
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (ensure-package! "fasl-compiler"))
+
 (define (eval form :optional (environment ()))
   (%eval form environment))
+
+(define (ceval form :optional (environment ()))
+  (unless (null? environment)
+    (error "non-null environments are not currently supported with compiler evaluation. form: ~s env: ~s" form environment))
+  (apply (fasl-compiler::compile-form `(lambda () ,form))))
 
 ;;; Constructor for Common Lisp style non-hygenic macros:
 
