@@ -1646,7 +1646,6 @@ namespace scan {
   LRef lmacroexpand_1(LRef params, LRef env);
   LRef lmacroexpandn(LRef params, LRef env);
   LRef lmacroexpand_1n(LRef params, LRef env);
-  LRef lold_apply(LRef function, LRef l);
   LRef lapply_macro(LRef macro, LRef form);
   LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
   LRef lmake_package(LRef name);

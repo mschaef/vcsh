@@ -918,45 +918,6 @@ namespace scan {
     return retval;
   }
 
-
- LRef lold_apply(LRef function, LRef l)
- {
-   size_t argc = 0;
-   LRef argv[ARG_BUF_LEN];
-
-   LRef args = l;
-   while(CONSP(args))
-     {
-       if (argc >= ARG_BUF_LEN)
-         {
-           vmerror("too many arguments in call to apply: ~s", lcons(function, l));
-           break;
-         }
-
-       argv[argc] = CAR(args);
-
-       args = CDR(args);
-       argc++;
-     }
-
-   if (!NULLP(args))
-     vmerror("bad argument list in call to apply: ~s", lcons(function, l));
-
-
-
-   LRef retval = NIL;
-
-   STACK_CHECK (&args);
-
-   LRef env = NIL;
-   LRef next_form = apply(function, argc, argv, &env, &retval);
-
-   if (NULLP(next_form))
-     return retval;
-   else
-     return leval(next_form, env);
- }
-
   // REVISIT: lapply should be tail recursive
   LRef lapply(size_t argc, LRef argv[])
   {
@@ -1154,7 +1115,7 @@ namespace scan {
   }
 
 
-  void check_global_environment_size()
+  static void check_global_environment_size()
   {
     if (interp.last_global_env_entry >= VECTOR_DIM(interp.global_env))
       interp.global_env =
@@ -1163,7 +1124,7 @@ namespace scan {
                                    UNBOUND_MARKER);
   }
 
-  void extend_global_environment(LRef sym)
+  static void extend_global_environment(LRef sym)
   {
     assert(SYMBOLP(sym));
     assert(SYMBOL_INDEX(sym) == 0);
