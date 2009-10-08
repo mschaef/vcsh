@@ -965,17 +965,16 @@ namespace scan {
   {
     LRef retval = NIL;
 
-    ENTER_GUARD()
-      {
-        retval = leval(lcons(simple_intern(_T("%run0"), interp.scheme_package), NIL), NIL);
-      }
-    ON_ERROR()
-      {
-        assert(SYMBOLP(interp.sym_errobj));
+    LRef run0_proc = lisymbol_value(simple_intern(_T("%run0"), interp.scheme_package), NIL);
 
-        scwritef("\nError during interpreter launch.\n", DEFAULT_PORT);
-      }
-    LEAVE_GUARD();
+    if (NULLP(run0_proc))
+      panic("No bootstrap procedure found in scheme::%run0.");
+
+    if (!PROCEDUREP(run0_proc))
+      panic("Invalid bootstrap procedure found in scheme::%run0. (failed PROCEDUREP).");
+
+    if(call_lisp_procedure(run0_proc, &retval, NULL, 0))
+      panic("Failure during interprer launch.");
 
     return retval;
   }
