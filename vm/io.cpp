@@ -2201,13 +2201,13 @@ namespace scan {
 
   void init_stdio_ports()
   {
-    lidefine_global(interp.sym_port_current_in, fileportcons(&stdin_port_class, PORT_INPUT, NIL));
-    lidefine_global(interp.sym_port_current_out, fileportcons(&stdout_port_class, PORT_OUTPUT, NIL));
+    lidefine_global(interp.sym_port_current_in, fileportcons(&stdin_port_class, PORT_INPUT, NIL), NIL);
+    lidefine_global(interp.sym_port_current_out, fileportcons(&stdout_port_class, PORT_OUTPUT, NIL), NIL);
 
     LRef stderr_port = fileportcons(&stderr_port_class, PORT_OUTPUT, NIL);
 
-    lidefine_global(interp.sym_port_current_err, stderr_port);
-    lidefine_global(interp.sym_port_debug, stderr_port);
+    lidefine_global(interp.sym_port_current_err, stderr_port, NIL);
+    lidefine_global(interp.sym_port_debug, stderr_port, NIL);
   }
 
 } // end namespace scan

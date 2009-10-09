@@ -583,7 +583,7 @@ namespace scan {
       default: assert(false && "invalid opcode in fast_read_loader_definition"); break;
       }
 
-    lidefine_global(symbol_to_define, definition);
+    lidefine_global(symbol_to_define, definition, NIL);
   }
 
   void fast_read_loader_application(LRef port)

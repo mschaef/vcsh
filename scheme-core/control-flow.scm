@@ -188,7 +188,7 @@
     new-global-bindings))
 
 
-(defmacro (locally-capture vars . code)
+(defmacro (locally-capture vars . code) ;; TODO: Remove This
   "Evaluates <code> with the current bindings of <vars> captured in new
    local variables of the same name."
   (check scheme::valid-variable-list? vars)
@@ -199,7 +199,7 @@
    global bindings are restored after the code returns."
   `(%call-with-global-environment (lambda () ,@code) ,bindings))
 
-(define (capture-global-environment fn)
+(define (capture-global-environment fn) ;; TODO: Remove this
   "Returns a closure of <fn> over the current global environment."
   (locally-capture (%call-with-global-environment apply)
                    (let ((genv (%current-global-environment)))

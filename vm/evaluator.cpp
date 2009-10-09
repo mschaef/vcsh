@@ -979,16 +979,20 @@ namespace scan {
     return NIL;
   }
 
-  LRef lsetvar (LRef var, LRef val, LRef env)
+  LRef lsetvar (LRef var, LRef val, LRef lenv, LRef genv)
   {
     LRef tmp;
 
     if (!SYMBOLP (var))
       vmerror_wrong_type(1, var);
 
-    tmp = lenvlookup (var, env);
+    tmp = lenvlookup (var, lenv);
 
     if (NULLP(tmp)) {
+      LRef old_genv = interp.global_env;
+
+      if (TRUEP(genv) && !NULLP(genv))
+        set_global_env(genv);
 
       if (UNBOUND_MARKER_P(SYMBOL_VCELL(var)))
         vmerror("undefined symbol: ~s", var);
@@ -997,6 +1001,9 @@ namespace scan {
         vmerror("Cannot rebind keywords: ~s", var);
 
       SET_SYMBOL_VCELL(var, val);
+
+      interp.global_env = old_genv;
+
       return val;
     }
 
@@ -1106,7 +1113,7 @@ namespace scan {
 
         LRef val = leval(lcar(lcdr(args)), env);
 
-        retval = lsetvar(var, val, env);
+        retval = lsetvar(var, val, env, NIL);
 
         args = lcdr(lcdr(args));
       };
@@ -1136,15 +1143,19 @@ namespace scan {
     SET_SYMBOL_INDEX(sym, interp.last_global_env_entry);
   }
 
-  LRef lidefine_global(LRef var, LRef val)
+  LRef lidefine_global(LRef var, LRef val, LRef genv)
   {
     assert(SYMBOLP(var));
+
+    LRef old_genv = interp.global_env;
+
+    if (TRUEP(genv) && !NULLP(genv))
+      set_global_env(genv);
 
     dscwritef(DF_SHOW_GLOBAL_DEFINES,
               _T("; DEBUG: globally defining ~a in ~c& ~s\n"),
               var, interp.global_env,
               VECTOR_ELEM(interp.global_env, 0));
-
 
     if (SYMBOL_INDEX(var) == 0)
       extend_global_environment(var);
@@ -1160,6 +1171,8 @@ namespace scan {
         if(call_lisp_procedure(CURRENT_GLOBAL_DEFINE_HOOK, NULL, NULL, 2, var, val))
           panic(_T("Error in *global-define-hook*"));
       }
+
+    interp.global_env = old_genv;
 
     return val;
   }
@@ -1186,7 +1199,7 @@ namespace scan {
 
     // If we don't have a lexical environment, define the variable globally.
     if (NULLP (env))
-      return lidefine_global(var, val);
+      return lidefine_global(var, val, NIL);
 
     dscwritef(DF_SHOW_LOCAL_DEFINES, _T("; DEBUG: locally defining ~a\n"), var);
 
@@ -1982,6 +1995,16 @@ namespace scan {
   LRef lcurrent_global_environment()
   {
     return interp.global_env;
+  }
+
+
+  void set_global_env(LRef genv)
+  {
+    if (!VECTORP(genv))
+      vmerror_wrong_type(genv);
+
+    interp.global_env = genv;
+    check_global_environment_size();
   }
 
   LRef lcall_with_global_environment(LRef fn, LRef new_global_env)

@@ -13,8 +13,8 @@ namespace scan {
 
   void init1()
   {
-    lidefine_global(interp.sym_args, SYMBOL_VCELL(interp.sym_args0));
-    lidefine_global(interp.sym_args0, NIL);
+    lidefine_global(interp.sym_args, SYMBOL_VCELL(interp.sym_args0), NIL);
+    lidefine_global(interp.sym_args0, NIL, NIL);
 
     /* Load and evaluate the .scm initialization code */
 

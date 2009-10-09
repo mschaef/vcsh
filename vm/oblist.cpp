@@ -216,7 +216,7 @@ namespace scan {
     lhash_set(PACKAGE_BINDINGS(package), SYMBOL_PNAME(symbol), symbol_record);
 
     if (is_keyword)
-      lidefine_global(symbol, symbol);
+      lidefine_global(symbol, symbol, NIL);
 
     return NIL;
   }
@@ -320,17 +320,26 @@ namespace scan {
     return sym;
   }
 
-  LRef lsymbol_boundp (LRef x, LRef env)
+  LRef lsymbol_boundp (LRef x, LRef lenv, LRef genv)
   {
     if (!SYMBOLP (x))
       vmerror_wrong_type(1, x);
 
-    LRef tmp = lenvlookup (x, env);
+    LRef tmp = lenvlookup(x, lenv);
 
     if (!NULLP (tmp))
       return x;
 
-    if (UNBOUND_MARKER_P(SYMBOL_VCELL(x)))
+    LRef old_genv = interp.global_env;
+
+    if (TRUEP(genv) && !NULLP(genv))
+      set_global_env(genv);
+
+    bool unboundp = UNBOUND_MARKER_P(SYMBOL_VCELL(x));
+
+    interp.global_env = old_genv;
+
+    if (unboundp)
       return boolcons(false);
     else
       return x;
@@ -341,26 +350,33 @@ namespace scan {
     return UNBOUND_MARKER;
   }
 
-  LRef lisymbol_value(LRef symbol, LRef env)
+  LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv)
   {
     if (!SYMBOLP(symbol))
       vmerror_wrong_type(1, symbol);
 
-    LRef binding_cell = lenvlookup(symbol, env);
-
-    LRef value = NIL;
+    LRef binding_cell = lenvlookup(symbol, lenv);
 
     if (!NULLP(binding_cell))
-      value = CAR(binding_cell);
-    else
-      value = SYMBOL_VCELL(symbol);
+      return CAR(binding_cell);
+
+    /* local lookup failed, try global. */
+
+    LRef old_genv = interp.global_env;
+
+    if (TRUEP(genv) && !NULLP(genv))
+      set_global_env(genv);
+
+    LRef value = SYMBOL_VCELL(symbol);
+
+    interp.global_env = old_genv;
 
     return value;
   }
 
-  LRef lsymbol_value(LRef symbol, LRef env)
+  LRef lsymbol_value(LRef symbol, LRef lenv, LRef genv)
   {
-    LRef value = lisymbol_value(symbol, env);
+    LRef value = lisymbol_value(symbol, lenv, genv);
 
     if (UNBOUND_MARKER_P(value))
       vmerror_unbound(symbol);
@@ -403,11 +419,12 @@ namespace scan {
 
     gc_protect_sym(&interp.sym_package_list, "*package-list*", interp.system_package);
     lidefine_global(interp.sym_package_list, lcons(interp.scheme_package,
-                                                   lcons(interp.system_package, NIL)));
+                                                   lcons(interp.system_package, NIL))
+                    , NIL);
 
     /* The *package* symbol needs to be created in the scheme namespace. */
     gc_protect_sym(&interp.sym_current_package, "*package*", interp.system_package);
-    lidefine_global(interp.sym_current_package, NIL);
+    lidefine_global(interp.sym_current_package, NIL, NIL);
 
     /* From here on out, we assume that we're working in the scheme package
      * This call will have the net effect of storing the package into

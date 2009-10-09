@@ -1551,7 +1551,7 @@ namespace scan {
   bool call_lisp_procedurev(LRef closure, LRef *out_retval, LRef *out_escape_tag, LRef leading_args, size_t n, va_list args);
   bool call_lisp_procedure(LRef closure, LRef *out_retval, LRef *out_escape_tag, size_t n, ...);
 
-  LRef lidefine_global(LRef var, LRef val);
+  LRef lidefine_global(LRef var, LRef val, LRef genv);
 
   /****** Error handling and control */
 
@@ -1582,6 +1582,8 @@ namespace scan {
   void safe_free(void *block);
 
   sys_thread_t interp_create_thread(thread_entry_t entry, void *arglist);
+
+  void set_global_env(LRef genv);
 
   /****** Time */
   flonum_t time_since_launch();
@@ -1665,10 +1667,10 @@ namespace scan {
   LRef lset_symbol_package(LRef sym, LRef package);
   LRef lsymbol_name(LRef sym);
   LRef lsymbol_name(LRef sym);
-  LRef lsetvar(LRef var, LRef val, LRef env);
-  LRef lisymbol_value(LRef symbol, LRef env);
-  LRef lsymbol_value(LRef x, LRef env);
-  LRef lsymbol_boundp(LRef x, LRef env);
+  LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv);
+  LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
+  LRef lsymbol_value(LRef x, LRef lenv, LRef genv);
+  LRef lsymbol_boundp(LRef x, LRef lenv, LRef genv);
   LRef lunbound_marker();
   LRef lmake_eof();
   LRef leof_objectp(LRef obj);

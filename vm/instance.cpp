@@ -236,7 +236,7 @@ namespace scan {
         break;
 
       if (SYMBOLP(inst))
-        inst = lsymbol_value(inst, NIL);
+        inst = lsymbol_value(inst, NIL, NIL);
 
       /* If our prototype is not an instance, we abort the search and
        * don't find the slot, rather than fail with an error. This is to
@@ -287,7 +287,7 @@ namespace scan {
         break;
 
       if (SYMBOLP(inst))
-        inst = lsymbol_value(inst, NIL);
+        inst = lsymbol_value(inst, NIL, NIL);
 
       /* If our prototype is not an instance, we abort the search and
        * don't find the slot, rather than fail with an error. This is to

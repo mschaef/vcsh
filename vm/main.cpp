@@ -357,7 +357,7 @@ namespace scan {
       }
     }
 
-    lidefine_global(interp.sym_args0, arg_list);
+    lidefine_global(interp.sym_args0, arg_list, NIL);
   }
 
   const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
@@ -409,81 +409,81 @@ namespace scan {
 
     // !! These package paramaters should be explicit
     LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
-    lidefine_global(nil_sym, NIL);
+    lidefine_global(nil_sym, NIL, NIL);
 
     gc_protect_sym(&interp.sym_after_gc, _T("*after-gc*"), interp.system_package);
-    lidefine_global(interp.sym_after_gc, NIL);
+    lidefine_global(interp.sym_after_gc, NIL, NIL);
 
     gc_protect_sym(&interp.sym_msglvl_info, _T("*info*"), interp.system_package);
     // Info messages are too slow when we're GC'ing with every new_cell
-    lidefine_global(interp.sym_msglvl_info, boolcons(!ALWAYS_GC));
+    lidefine_global(interp.sym_msglvl_info, boolcons(!ALWAYS_GC), NIL);
 
     gc_protect_sym(&interp.sym_msglvl_errors, _T("*error*"), interp.system_package);
-    lidefine_global(interp.sym_msglvl_errors, boolcons(true));
+    lidefine_global(interp.sym_msglvl_errors, boolcons(true), NIL);
 
     gc_protect_sym(&interp.sym_args0, _T("*args0*"), interp.system_package);
     gc_protect_sym(&interp.sym_args, _T("*args*"), interp.system_package);
 
     gc_protect_sym(&interp.sym_port_current_in, _T("*current-input-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_current_in, NIL);
+    lidefine_global(interp.sym_port_current_in, NIL, NIL);
 
     gc_protect_sym(&interp.sym_port_current_out, _T("*current-output-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_current_out, NIL);
+    lidefine_global(interp.sym_port_current_out, NIL, NIL);
 
     gc_protect_sym(&interp.sym_port_current_err, _T("*current-error-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_current_err, NIL);
+    lidefine_global(interp.sym_port_current_err, NIL, NIL);
 
     gc_protect_sym(&interp.sym_port_debug, _T("*current-debug-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_debug, NIL);
+    lidefine_global(interp.sym_port_debug, NIL, NIL);
 
     gc_protect_sym(&interp.sym_declare, _T("declare"), interp.system_package);
-    lidefine_global(interp.sym_declare, NIL);
+    lidefine_global(interp.sym_declare, NIL, NIL);
 
     gc_protect_sym(&interp.sym_name, _T("name"), interp.system_package);
-    lidefine_global(interp.sym_name, NIL);
+    lidefine_global(interp.sym_name, NIL, NIL);
 
     gc_protect_sym(&interp.sym_documentation, _T("documentation"), interp.system_package);
-    lidefine_global(interp.sym_documentation, NIL);
+    lidefine_global(interp.sym_documentation, NIL, NIL);
 
     gc_protect(_T("sym-do-not-understand"), &interp.sym_do_not_understand, 1);
     interp.sym_do_not_understand = keyword_intern(_T("do-not-understand"));
 
     gc_protect_sym (&interp.sym_errobj, _T("errobj"), interp.system_package);
-    lidefine_global(interp.sym_errobj, NIL);
+    lidefine_global(interp.sym_errobj, NIL, NIL);
 
     gc_protect_sym(&interp.sym_global_bad_apply_handler, _T("*global-bad-apply-handler*"), interp.system_package);
-    lidefine_global(interp.sym_global_bad_apply_handler, NIL);
+    lidefine_global(interp.sym_global_bad_apply_handler, NIL, NIL);
 
     gc_protect_sym(&interp.sym_uncompiled_function_handler, _T("*uncompiled-function-handler*"), interp.system_package);
-    lidefine_global(interp.sym_uncompiled_function_handler, NIL);
+    lidefine_global(interp.sym_uncompiled_function_handler, NIL, NIL);
 
     gc_protect_sym(&interp.sym_global_define_hook, _T("*global-define-hook*"), interp.system_package);
-    lidefine_global(interp.sym_global_define_hook, NIL);
+    lidefine_global(interp.sym_global_define_hook, NIL, NIL);
 
     gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
-    lidefine_global(interp.sym_internal_files, NIL);
+    lidefine_global(interp.sym_internal_files, NIL, NIL);
 
     gc_protect_sym(&interp.sym_vm_runtime_error_handler, _T("*vm-runtime-error-handler*"), interp.system_package);
-    lidefine_global(interp.sym_vm_runtime_error_handler, NIL);
+    lidefine_global(interp.sym_vm_runtime_error_handler, NIL, NIL);
 
     gc_protect_sym(&interp.sym_vm_signal_handler, _T("*vm-signal-handler*"), interp.system_package);
-    lidefine_global(interp.sym_vm_signal_handler, NIL);
+    lidefine_global(interp.sym_vm_signal_handler, NIL, NIL);
 
     gc_protect_sym(&interp.sym_stack_overflow, _T("stack-overflow-escape"), interp.system_package);
 
     gc_protect_sym(&interp.sym_timer_event_handler, _T("*timer-event-handler*"), interp.system_package);
-    lidefine_global(interp.sym_timer_event_handler, NIL);
+    lidefine_global(interp.sym_timer_event_handler, NIL, NIL);
 
     gc_protect_sym(&interp.sym_user_break_handler, _T("*user-break-handler*"), interp.system_package);
-    lidefine_global(interp.sym_user_break_handler, NIL);
+    lidefine_global(interp.sym_user_break_handler, NIL, NIL);
 
     gc_protect_sym(&interp.sym_subr_table, _T("*subr-table*"), interp.system_package);
-    lidefine_global(interp.sym_subr_table, hashcons(false));
+    lidefine_global(interp.sym_subr_table, hashcons(false), NIL);
 
     LRef temp_sym;
 
     temp_sym = simple_intern(_T("*pi*"), interp.system_package);
-    lidefine_global(temp_sym, flocons (atan (1.0) * 4));
+    lidefine_global(temp_sym, flocons (atan (1.0) * 4), NIL);
 
     gc_protect_sym (&interp.sym_progn, _T("begin"), interp.system_package);
   }
@@ -500,7 +500,7 @@ namespace scan {
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%define"),                          SUBR_F,     (void*)lidefine                            );
-    register_subr(_T("%define-global"),                   SUBR_2,     (void*)lidefine_global                     );
+    register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
     register_subr(_T("%extend-env"),                      SUBR_MACRO, (void*)lextend_env                         );
@@ -550,7 +550,7 @@ namespace scan {
     register_subr(_T("%structure-set!"),                  SUBR_3,     (void*)lstructure_set                      );
     register_subr(_T("%structure?"),                      SUBR_2,     (void*)lstructurep                         );
     register_subr(_T("%structurecons"),                   SUBR_2,     (void*)lstructurecons                      );
-    register_subr(_T("%symbol-value"),                    SUBR_2,     (void*)lisymbol_value                      );
+    register_subr(_T("%symbol-value"),                    SUBR_3,     (void*)lisymbol_value                      );
     register_subr(_T("%sysob"),                           SUBR_1,     (void*)lsysob                              );
     register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
@@ -753,7 +753,7 @@ namespace scan {
     register_subr(_T("set-environment-variable!"),        SUBR_2,     (void*)lset_environment_variable           );
     register_subr(_T("set-port-translate-mode!"),         SUBR_2,     (void*)lport_set_translate_mode            );
     register_subr(_T("set-random-seed!"),                 SUBR_1,     (void*)lset_random_seed                    );
-    register_subr(_T("set-symbol-value!"),                SUBR_3,     (void*)lsetvar                             );
+    register_subr(_T("set-symbol-value!"),                SUBR_4,     (void*)lsetvar                             );
     register_subr(_T("sin"),                              SUBR_1,     (void*)lsin                                );
     register_subr(_T("%slot-ref"),                        SUBR_2,     (void*)lislot_ref                          );
     register_subr(_T("%slot-set!"),                       SUBR_3,     (void*)lislot_set                          );
@@ -780,11 +780,11 @@ namespace scan {
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );
-    register_subr(_T("symbol-bound?"),                    SUBR_2,     (void*)lsymbol_boundp                      );
+    register_subr(_T("symbol-bound?"),                    SUBR_3,     (void*)lsymbol_boundp                      );
     register_subr(_T("symbol-name"),                      SUBR_1,     (void*)lsymbol_name                        );
     register_subr(_T("symbol-package"),                   SUBR_1,     (void*)lsymbol_package                     );
     register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
-    register_subr(_T("symbol-value"),                     SUBR_2,     (void*)lsymbol_value                       );
+    register_subr(_T("symbol-value"),                     SUBR_3,     (void*)lsymbol_value                       );
     register_subr(_T("symbol?"),                          SUBR_1,     (void*)lsymbolp                            );
     register_subr(_T("system"),                           SUBR_ARGC,  (void*)lsystem                             );
     register_subr(_T("system-info"),                      SUBR_0,     (void*)lsystem_info                        );
@@ -965,7 +965,7 @@ namespace scan {
   {
     LRef retval = NIL;
 
-    LRef run0_proc = lisymbol_value(simple_intern(_T("%run0"), interp.scheme_package), NIL);
+    LRef run0_proc = lisymbol_value(simple_intern(_T("%run0"), interp.scheme_package), NIL, NIL);
 
     if (NULLP(run0_proc))
       panic("No bootstrap procedure found in scheme::%run0.");

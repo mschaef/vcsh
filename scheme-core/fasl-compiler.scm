@@ -58,19 +58,6 @@
 
 ;;;; Compiler environment
 
-(define (compiler-evaluate form)
-  "Evaluates <form> with *compiler-target-bindings*, signaling a compiler-error in
-   the event of a failure."
-  (catch 'end-compiler-evaluate
-    (trace-message *show-actions* "==> COMPILER-EVALUATE: ~s\n" form)
-    (handler-bind  ((runtime-error
-                     (if *debug*
-                         handle-runtime-error
-                         (lambda args
-                           (compile-error form "Runtime error while evaluating toplevel form: ~s" args)
-                           (throw 'end-compiler-evaluate)))))
-      (with-global-environment *compiler-target-bindings*
-        (eval form)))))
 
 (define *show-expansions* #f)
 (define *show-meanings* #f)
@@ -82,14 +69,24 @@
 (define *compiler-target-bindings* (scheme::%current-global-environment))
 ;; (define *compiler-target-bindings* #f)
 
+(define (compiler-evaluate form)
+  "Evaluates <form> with *compiler-target-bindings*, signaling a compiler-error in
+   the event of a failure."
+  (catch 'end-compiler-evaluate
+    (trace-message *show-actions* "==> COMPILER-EVALUATE: ~s\n" form)
+    (handler-bind  ((runtime-error
+                     (if *debug*
+                         handle-runtime-error
+                         (lambda args
+                           (compile-error form "Runtime error while evaluating toplevel form: ~s" args)
+                           (throw 'end-compiler-evaluate)))))
+      (eval form () *compiler-target-bindings*))))
+
 (define (symbol-value-with-bindings symbol bindings :optional (unbound-value #f))
   (check symbol? symbol)
-  (locally-capture (symbol-value symbol-bound?)
-      (with-global-environment bindings
-          (if (not (symbol-bound? symbol))
-              unbound-value
-              (symbol-value symbol)))))
-
+  (if (symbol-bound? symbol () bindings)
+      (symbol-value symbol () bindings)
+      unbound-value))
 
 ;;;; Ways to signal compilation events
 
@@ -101,7 +98,6 @@
 
 (define (compile-fatal-error context-form message . message-args)
   (signal 'compile-error context-form #t message message-args))
-
 
 ;;;; The expander
 ;;;;
@@ -460,8 +456,7 @@
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
       (dynamic-let ((*location-mapping* *compiler-location-map*)
-                    (*package* (with-global-environment *compiler-target-bindings*
-                                 *package*)))
+                    (*package* (symbol-value '*package* () *compiler-target-bindings*)))
         (trace-message *show-actions* "* READ in ~s\n" *package*)
         (*compiler-reader* port #f)))))
 
@@ -469,9 +464,7 @@
 
 (define (compiler-define var val)
   (trace-message *show-actions* "==> COMPILER-DEFINE: ~s := ~s\n" var val)
-  (locally-capture (scheme::%define-global)
-      (with-global-environment *compiler-target-bindings*
-          (scheme::%define-global var val))))
+  (scheme::%define-global var val *compiler-target-bindings*))
 
 ;;; The main loop
 
@@ -618,16 +611,14 @@
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
-  (let ((original-package (with-global-environment *compiler-target-bindings*
-                            *package*)))
+  (let ((original-package (symbol-value '*package* () *compiler-target-bindings*)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message *verbose* "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
-         (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) *output-stream*)
-         (expand-port-forms input-port *output-stream*)
-         (fasl-write-op scheme::FASL-OP-END-LOAD-UNIT (list filename) *output-stream*)))
-    (with-global-environment *compiler-target-bindings*
-      (set! *package* original-package))))
+          (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) *output-stream*)
+          (expand-port-forms input-port *output-stream*)
+          (fasl-write-op scheme::FASL-OP-END-LOAD-UNIT (list filename) *output-stream*)))
+    (set-symbol-value! '*package* original-package () *compiler-target-bindings*)))
 
 (define (compile-file/checked filename)
   (let ((compile-error-count 0))

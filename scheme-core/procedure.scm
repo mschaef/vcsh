@@ -10,13 +10,18 @@
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (ensure-package! "fasl-compiler"))
 
-(define (eval form :optional (environment ()))
-  (%eval form environment))
+(define (eval form :optional (local-env ()) (global-env #f))
+  (if global-env
+      (with-global-environment global-env
+        (%eval form local-env))
+      (%eval form local-env)))
 
-(define (ceval form :optional (environment ()))
-  (unless (null? environment)
-    (error "non-null environments are not currently supported with compiler evaluation. form: ~s env: ~s" form environment))
-  (apply (fasl-compiler::compile-form `(lambda () ,form))))
+(define (ceval form :optional (local-env ()) (global-env #f))
+  (unless (null? local-env)
+    (error "non-null local-envs are not currently supported with compiler evaluation. form: ~s env: ~s" form local-env))
+  (if global-env
+      (error "non-null global-envs are not currently supported by the compiler. form: ~a" form)
+      (apply (fasl-compiler::compile-form `(lambda () ,form)))))
 
 ;;; Constructor for Common Lisp style non-hygenic macros:
 
