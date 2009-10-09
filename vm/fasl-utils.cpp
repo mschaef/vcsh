@@ -51,7 +51,6 @@ const _TCHAR *fasl_opcode_name(FaslOpcode opcode)
     case FASL_OP_LOADER_DEFINEQ:    return _T("FASL_OP_LOADER_DEFINEQ");    break;
     case FASL_OP_LOADER_DEFINEA0:   return _T("FASL_OP_LOADER_DEFINEA0");   break;
     case FASL_OP_LOADER_APPLY0:     return _T("FASL_OP_LOADER_APPLY0");     break;
-    case FASL_OP_LOADER_DEFINE:     return _T("FASL_OP_LOADER_DEFINE");     break;
     case FASL_OP_BEGIN_LOAD_UNIT:   return _T("FASL_OP_BEGIN_LOAD_UNIT");   break;
     case FASL_OP_END_LOAD_UNIT:     return _T("FASL_OP_END_LOAD_UNIT");     break;
     case FASL_OP_EOF:               return _T("FASL_OP_EOF");               break;

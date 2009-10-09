@@ -1551,8 +1551,6 @@ namespace scan {
   bool call_lisp_procedurev(LRef closure, LRef *out_retval, LRef *out_escape_tag, LRef leading_args, size_t n, va_list args);
   bool call_lisp_procedure(LRef closure, LRef *out_retval, LRef *out_escape_tag, size_t n, ...);
 
-  LRef leval_from_port(LRef port);
-
   LRef lidefine_global(LRef var, LRef val);
 
   /****** Error handling and control */
@@ -1848,7 +1846,6 @@ namespace scan {
   LRef lset_property_list(LRef exp, LRef property_list);
   LRef lprocedurep(LRef exp);
   LRef leval(LRef x, LRef env);
-  LRef leval_from_string(LRef str);
   LRef lapply(size_t argc, LRef argv[]);
   LRef lthrow(LRef tag,LRef value);
   LRef lunbind_symbol(LRef var);

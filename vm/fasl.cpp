@@ -579,8 +579,8 @@ namespace scan {
     switch (opcode)
       {
       case FASL_OP_LOADER_DEFINEQ:  /* quoted definition, do nothing. */ break;
-      case FASL_OP_LOADER_DEFINE:   definition = leval(definition, NIL); break;
       case FASL_OP_LOADER_DEFINEA0: definition = napply(definition, 0);  break;
+      default: assert(false && "invalid opcode in fast_read_loader_definition"); break;
       }
 
     lidefine_global(symbol_to_define, definition);
@@ -722,7 +722,6 @@ namespace scan {
 
 
           case FASL_OP_LOADER_DEFINEQ:
-          case FASL_OP_LOADER_DEFINE:
           case FASL_OP_LOADER_DEFINEA0:
             if (!allow_loader_ops)
               fast_read_error(_T("loader definitions not allowed outside loader"), port, lport_location(port));
