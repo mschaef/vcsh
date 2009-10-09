@@ -49,10 +49,13 @@ void show_opcode(size_t offset, FaslOpcode opcode, const _TCHAR *desc)
 
   newline();
 
-  if (opcode == FASL_OP_LOADER_DEFINE) {
-    last_definition_offset = offset;
-    newline();
-  }
+  if ((opcode == FASL_OP_LOADER_DEFINE)
+      || (opcode == FASL_OP_LOADER_DEFINEQ)
+      || (opcode == FASL_OP_LOADER_DEFINEA0))
+    {
+      last_definition_offset = offset;
+      newline();
+    }
 
   printf(" 0x%08x (D+0x%08x) ", offset, offset - last_definition_offset);
   indent();
@@ -586,6 +589,7 @@ static FaslOpcode dump_next_object(const _TCHAR *desc /* = NULL*/,
 
     case FASL_OP_LOADER_DEFINE:
     case FASL_OP_LOADER_DEFINEQ:
+    case FASL_OP_LOADER_DEFINEA0:
       dump_loader_definition();
       current_read_complete = false;
       break;

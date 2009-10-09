@@ -560,7 +560,7 @@ namespace scan {
     return FIXNM(index);
   }
 
-  void fast_read_loader_definition(LRef port, bool quotedp)
+  void fast_read_loader_definition(LRef port, FaslOpcode opcode)
   {
     LRef symbol_to_define;
 
@@ -576,8 +576,12 @@ namespace scan {
               _T("; DEBUG: FASL defining ~s = ~s\n"),
               symbol_to_define, definition);
 
-    if (!quotedp)
-      definition = leval(definition, NIL);
+    switch (opcode)
+      {
+      case FASL_OP_LOADER_DEFINEQ:  /* quoted definition, do nothing. */ break;
+      case FASL_OP_LOADER_DEFINE:   definition = leval(definition, NIL); break;
+      case FASL_OP_LOADER_DEFINEA0: definition = napply(definition, 0);  break;
+      }
 
     lidefine_global(symbol_to_define, definition);
   }
@@ -716,23 +720,16 @@ namespace scan {
 
           case FASL_OP_EOF:           *retval = lmake_eof();                  break;
 
+
           case FASL_OP_LOADER_DEFINEQ:
-            if (!allow_loader_ops)
-              fast_read_error(_T("loader definitions not allowed outside loader"), port, lport_location(port));
-
-            fast_read_loader_definition(port, true);
-            current_read_complete = false;
-            break;
-
-
           case FASL_OP_LOADER_DEFINE:
+          case FASL_OP_LOADER_DEFINEA0:
             if (!allow_loader_ops)
               fast_read_error(_T("loader definitions not allowed outside loader"), port, lport_location(port));
 
-            fast_read_loader_definition(port, false);
+            fast_read_loader_definition(port, opcode);
             current_read_complete = false;
             break;
-
 
           case FASL_OP_LOADER_APPLY0:
             if (!allow_loader_ops)

@@ -52,6 +52,7 @@ enum FaslOpcode { // see fasl-write.scm for details about opcode assignment
   FASL_OP_READER_REFERENCE               = 194,
   FASL_OP_LOADER_DEFINEQ                 = 208,
   FASL_OP_LOADER_DEFINE                  = 209,
+  FASL_OP_LOADER_DEFINEA0                = 210,
   FASL_OP_LOADER_APPLY0                  = 216,
 
   FASL_OP_BEGIN_LOAD_UNIT                = 224,

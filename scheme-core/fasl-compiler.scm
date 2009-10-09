@@ -559,15 +559,28 @@
 
 ;;; FASL file generaiton
 
+(define (form->compiled-procedure form)
+  "Compute a compiled procedure that evaluates <form> and returns the
+   result of that evaluation."
+  (compile-form `(lambda () ,form)))
+
 (define (emit-action form *output-stream*)
-  (let ((form-closure (compile-form `(lambda () ,form))))
-    (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-    (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list form-closure) *output-stream*)))
+  (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
+  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form)) *output-stream*))
+
+(define (evaluated-object? obj)
+  "Returns true if <obj> is an object that has specific handling in the scheme
+   evaluator. If <obj> evaluates to itself, returns #f."
+  (or (scheme::fast-op? obj)
+      (symbol? obj)
+      (pair? obj)))
 
 (define (emit-definition var val)
   (trace-message *show-actions*"==> EMIT-DEFINITION: ~s := ~s\n" var val)
   (trace-message *verbose* "; defining ~a\n" var)
-  (fasl-write-op scheme::FASL-OP-LOADER-DEFINE (list var val) *output-stream*))
+  (if (evaluated-object? val)
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (form->compiled-procedure val)) *output-stream*)
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) *output-stream*)))
 
 ;;; Error reporting
 
