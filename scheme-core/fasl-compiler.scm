@@ -69,7 +69,7 @@
 (define *compiler-target-bindings* #f)
 ;; (define *compiler-target-bindings* #f)
 
-(define (compiler-evaluate form)
+(define (compiler-evaluate form genv)
   "Evaluates <form> with *compiler-target-bindings*, signaling a compiler-error in
    the event of a failure."
   (catch 'end-compiler-evaluate
@@ -80,7 +80,7 @@
                          (lambda args
                            (compile-error form "Runtime error while evaluating toplevel form: ~s" args)
                            (throw 'end-compiler-evaluate)))))
-      (eval form () *compiler-target-bindings*))))
+      (eval form () *compiler-target-bindings* genv))))
 
 (define (symbol-value-with-bindings symbol bindings :optional (unbound-value #f))
   (check symbol? symbol)
@@ -481,19 +481,19 @@
 
 (define *output-stream* #f)
 
-(define (process-toplevel-eval-when form load-time-eval? compile-time-eval?)
+(define (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv)
   (values-bind (parse-eval-when form) (situations forms)
     (let ((load-time-eval? (and load-time-eval? (member :load-toplevel situations)))
           (compile-time-eval? (or (member :compile-toplevel situations)
                                   (and compile-time-eval?
                                        (member :execute-toplevel situations)))))
       (when (or load-time-eval? compile-time-eval?)
-        (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval?)))))
+        (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? genv)))))
 
 
 
 
-(define (process-toplevel-include form)
+(define (process-toplevel-include form genv)
   (unless (and (list? form) (length=2? form) (string? (second form)))
     (compile-error #f "Invalid include form: ~s" form))
   (let ((file-spec (second form)))
@@ -507,10 +507,10 @@
                                     (when (currently-compiling-file? filename)
                                       (compile-fatal-error #f "Recursive include of ~s while compiling ~s"
                                                            filename *files-currently-compiling*))
-                                    (compile-file/simple filename))
+                                    (compile-file/simple filename genv))
         filename))))
 
-(define (process-toplevel-form form load-time-eval? compile-time-eval?)
+(define (process-toplevel-form form load-time-eval? compile-time-eval? genv)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
                  (if compile-time-eval? " [compile-time]" "")
@@ -522,44 +522,43 @@
                   (val (compile-form (third form))))
 
             ;; error checking here???
-            (compiler-define var (compiler-evaluate val))
-            (emit-definition var val)))
+            (compiler-define var (compiler-evaluate val genv))
+            (emit-definition var val genv)))
            ((begin)
-            (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval?))
+            (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? genv))
            ((include)
-            (process-toplevel-include form))
+            (process-toplevel-include form genv))
            ((eval-when)
-            (process-toplevel-eval-when form load-time-eval? compile-time-eval?))
+            (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv))
            (#t
             (values-bind (maybe-expand-user-macro form) (expanded? expanded-form)
               (cond (expanded?
-                     (process-toplevel-form expanded-form load-time-eval? compile-time-eval?))
+                     (process-toplevel-form expanded-form load-time-eval? compile-time-eval? genv))
                     (#t
                      (when compile-time-eval?
-                       (compiler-evaluate form))
+                       (compiler-evaluate form genv))
                      (when load-time-eval?
-                       (emit-action form *output-stream*))))))))))
+                       (emit-action form *output-stream* genv))))))))))
 
-(define (process-toplevel-forms reader load-time-eval? compile-time-eval?)
+(define (process-toplevel-forms reader load-time-eval? compile-time-eval? genv)
   (let loop ((next-form (reader)))
     (unless (eof-object? next-form)
-      (process-toplevel-form next-form load-time-eval? compile-time-eval?)
+      (process-toplevel-form next-form load-time-eval? compile-time-eval? genv)
       (loop (reader)))))
 
 (define (expand-port-forms ip *output-stream* :optional (genv #f))
-  (dynamic-let ((*compiler-target-bindings* genv))
-    (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f)))
+  (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f genv))
 
 ;;; FASL file generaiton
 
-(define (form->compiled-procedure form)
+(define (form->compiled-procedure form genv)
   "Compute a compiled procedure that evaluates <form> and returns the
    result of that evaluation."
-  (compile-form `(lambda () ,form)))
+  (compile-form `(lambda () ,form) genv))
 
-(define (emit-action form *output-stream*)
+(define (emit-action form *output-stream* genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form)) *output-stream*))
+  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form gen)) *output-stream*))
 
 (define (evaluated-object? obj)
   "Returns true if <obj> is an object that has specific handling in the scheme
@@ -568,11 +567,11 @@
       (symbol? obj)
       (pair? obj)))
 
-(define (emit-definition var val)
+(define (emit-definition var val genv)
   (trace-message *show-actions*"==> EMIT-DEFINITION: ~s := ~s\n" var val)
   (trace-message *verbose* "; defining ~a\n" var)
   (if (evaluated-object? val)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (form->compiled-procedure val)) *output-stream*)
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (form->compiled-procedure val genv)) *output-stream*)
       (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) *output-stream*)))
 
 ;;; Error reporting
