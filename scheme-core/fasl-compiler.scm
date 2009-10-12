@@ -558,7 +558,7 @@
 
 (define (emit-action form *output-stream* genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form gen)) *output-stream*))
+  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form genv)) *output-stream*))
 
 (define (evaluated-object? obj)
   "Returns true if <obj> is an object that has specific handling in the scheme
