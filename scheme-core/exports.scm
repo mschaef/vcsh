@@ -202,7 +202,6 @@
            call-with-values
            cancel-scheduled-events
            canonicalize-filename
-           capture-global-environment
            car
            case
            catch
@@ -529,7 +528,6 @@
            load-path
            local-package-symbols
            local-package-variables
-           locally-capture
            log
            log10
            macro?
