@@ -66,7 +66,7 @@
 (define *verbose* #f)
 (define *initial-package* "user")
 
-(define *compiler-target-bindings* (scheme::%current-global-environment))
+(define *compiler-target-bindings* #f)
 ;; (define *compiler-target-bindings* #f)
 
 (define (compiler-evaluate form)
@@ -449,16 +449,16 @@
        (port-location-string (car it) (cdr it))
        "(...)"))
 
-(define (compiler-read port)
+(define (compiler-read port :optional (genv #f))
   (let ((loc (begin
                (flush-whitespace port #t)
                (port-location port))))
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
       (dynamic-let ((*location-mapping* *compiler-location-map*)
-                    (*package* (symbol-value '*package* () *compiler-target-bindings*)))
+                    (*package* (symbol-value '*package* () genv)))
         (trace-message *show-actions* "* READ in ~s\n" *package*)
-        (*compiler-reader* port #f)))))
+        (*compiler-reader* port #f))))) ; REVISIT #. eval/read forms are not evaluated in genv
 
 ;;; The evaluator
 
@@ -546,9 +546,9 @@
       (process-toplevel-form next-form load-time-eval? compile-time-eval?)
       (loop (reader)))))
 
-(define (expand-port-forms ip *output-stream*)
-  (process-toplevel-forms (lambda () (compiler-read ip)) #t #f))
-
+(define (expand-port-forms ip *output-stream* :optional (genv #f))
+  (dynamic-let ((*compiler-target-bindings* genv))
+    (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f)))
 
 ;;; FASL file generaiton
 
@@ -607,20 +607,20 @@
 
 ;; TODO: dynamic-let in a specific global environment
 
-(define (compile-file/simple filename)
+(define (compile-file/simple filename :optional (genv #f))
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
-  (let ((original-package (symbol-value '*package* () *compiler-target-bindings*)))
+  (let ((original-package (symbol-value '*package* () genv)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message *verbose* "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
           (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) *output-stream*)
           (expand-port-forms input-port *output-stream*)
           (fasl-write-op scheme::FASL-OP-END-LOAD-UNIT (list filename) *output-stream*)))
-    (set-symbol-value! '*package* original-package () *compiler-target-bindings*)))
+    (set-symbol-value! '*package* original-package () genv)))
 
-(define (compile-file/checked filename)
+(define (compile-file/checked filename :optional (genv #f))
   (let ((compile-error-count 0))
     (handler-bind ((compile-read-error
                     (lambda (message port port-location)
@@ -635,7 +635,7 @@
                    (compile-warning
                     (lambda (context-form message args)
                       (compiler-message/form context-form :warning message args))))
-      (compile-file/simple filename *output-stream*)
+      (compile-file/simple filename genv)
       compile-error-count)))
 
 (defmacro (with-compiler-output-stream os filename . code)
@@ -645,17 +645,17 @@
          (dynamic-let ((*output-stream* ,os))
            ,@code)))))
 
-(define (compile-files filenames output-file-name)
+(define (compile-files filenames output-file-name :optional (genv #f))
   (with-compiler-output-stream output-fasl-stream  output-file-name
-    (let next-file ((filenames filenames) (error-count 0))
-      (cond ((not (null? filenames))
-             (next-file (cdr filenames)
-                        (+ error-count (compile-file/checked (car filenames)))))
-            ((> error-count 0)
-             (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
-             (end-compile-abnormally 2 output-fasl-stream))
-            (#t
-             ())))))
+     (let next-file ((filenames filenames) (error-count 0))
+       (cond ((not (null? filenames))
+              (next-file (cdr filenames)
+                         (+ error-count (compile-file/checked (car filenames) genv))))
+             ((> error-count 0)
+              (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
+              (end-compile-abnormally 2 output-fasl-stream))
+             (#t
+              ())))))
 
 (define (input-file-name->output-file-name input-filename)
   (cond ((list? input-filename)
@@ -685,7 +685,7 @@
                                     message args)
                             (throw 'end-compile-now 127)))))
 
-        (compile-files filenames output-file-name)
+        (compile-files filenames output-file-name (scheme::%current-global-environment))
 
         (format *compiler-output-port* "; Compile completed successfully.\n"))
       0)))
