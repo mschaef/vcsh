@@ -333,7 +333,8 @@ namespace scan {
       DF_SHOW_VMERRORS            = 0x00000800,
 
       DF_SHOW_THREADS             = 0x00001000,
-      DF_SHOW_GC_DETAILS          = 0x00002000,
+      DF_SHOW_GC                  = 0x00002000,
+      DF_SHOW_GC_DETAILS          = 0x00004000,
 
       DF_PRINT_SYMBOL_PACKAGES    = 0x00010000,
       DF_PRINT_FOR_DIFF           = 0x00020000,

@@ -205,10 +205,9 @@ namespace scan {
       if (!enlarge_heap())
         break;
 
-    if (interp.gc_status_flag && infop())
-      scwritef(_T("; Allocated ~cd heap~cs of ~cd requested.\n"), CURRENT_DEBUG_PORT,
-               created, created > 1 ? "s" : "",
-               requested);
+    dscwritef(DF_SHOW_GC, _T("; Allocated ~cd heap~cs of ~cd requested.\n"), CURRENT_DEBUG_PORT,
+              created, created > 1 ? "s" : "",
+              requested);
 
     return fixcons(interp.gc_current_heap_segments);
   }
@@ -596,17 +595,16 @@ namespace scan {
     interp.gc_count++;
     interp.gc_cells_collected = 0;
 
-    if (interp.gc_status_flag && infop())
+    if (DEBUG_FLAG(DF_SHOW_GC))
       {
         unsigned long bytes_alloced = (unsigned long)(malloc_bytes - interp.malloc_bytes_at_last_gc);
         unsigned long blocks_alloced = (unsigned long)(malloc_blocks - interp.malloc_blocks_at_last_gc);
 
         if ((bytes_alloced > 0) || (blocks_alloced > 0))
-            scwritef(_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"), CURRENT_DEBUG_PORT,
-                     bytes_alloced, blocks_alloced);
+            dscwritef(_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"), CURRENT_DEBUG_PORT,
+                      bytes_alloced, blocks_alloced);
 
-        scwritef(_T("; GC (th:~c&) @ T+~cf:"), CURRENT_DEBUG_PORT,
-                 sys_current_thread(), time_since_launch());
+        dscwritef(_T("; GC (th:~c&) @ T+~cf:"), sys_current_thread(), time_since_launch());
       }
   }
 
@@ -615,10 +613,8 @@ namespace scan {
     interp.gc_run_time = sys_runtime () - interp.gc_run_time;
     interp.gc_total_run_time += interp.gc_run_time;
 
-    if (interp.gc_status_flag && infop())
-      scwritef(" ~cfs., ~cd cells freed\n", CURRENT_DEBUG_PORT,
-               interp.gc_run_time,
-               interp.gc_cells_collected);
+    if (DEBUG_FLAG(DF_SHOW_GC))
+      dscwritef(" ~cfs., ~cd cells freed\n", interp.gc_run_time, interp.gc_cells_collected);
 
     interp.malloc_bytes_at_last_gc    = malloc_bytes;
     interp.malloc_blocks_at_last_gc   = malloc_blocks;

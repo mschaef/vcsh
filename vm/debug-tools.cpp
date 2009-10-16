@@ -383,6 +383,7 @@ namespace scan {
     { "show-vmsignals"       , DF_SHOW_VMSIGNALS        },
     { "show-vmerrors"        , DF_SHOW_VMERRORS         },
     { "show-threads"         , DF_SHOW_THREADS          },
+    { "show-gc"              , DF_SHOW_GC               },
     { "show-gc-details"      , DF_SHOW_GC_DETAILS       },
     { "print-for-diff"       , DF_PRINT_FOR_DIFF        },
     { "print-closure-code"   , DF_PRINT_CLOSURE_CODE    },
@@ -438,7 +439,7 @@ namespace scan {
       for(size_t ii = 0; debug_flag_env_names[ii].df_env_name; ii++)
         {
           if (strncasecmp(str, debug_flag_env_names[ii].df_env_name,
-                          envtokend - str - 1) == 0)
+                          envtokend - str) == 0)
             {
               found = true;
 
