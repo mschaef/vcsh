@@ -618,7 +618,7 @@
   ;; relates to the way we do cross-compilation.
   (let ((original-package (symbol-value '*package* () genv)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
-      (trace-message *verbose* "; Compiling file: ~a\n" filename)
+      (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
           (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) *output-stream*)
           (expand-port-forms input-port *output-stream* genv)
