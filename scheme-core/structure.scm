@@ -41,7 +41,7 @@
   (let* ((name-text (symbol-name structure-name))
          (impl? (and (char=? #\% (string-ref name-text 0))
                      (> (length name-text) 1))))
-    (values *package*
+    (values (symbol-package structure-name)
             (if impl? (substring name-text 1) name-text)
             impl?)))
 
