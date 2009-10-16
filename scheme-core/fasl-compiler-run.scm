@@ -49,8 +49,6 @@
   "Sets the initial value of *package* at the beginning of compilation."
   (set! *initial-package* package-name))
 
-(define *cross-compile* #f)
-
 (define-command-argument ("cross-compile" cross-compiler-mode)
   "Enables support for 'cross compiling' code that might redefine
    core parts of the runtime as it is compiled. The two supported
@@ -58,7 +56,9 @@
   (let ((mode (if (= 0 (length cross-compiler-mode))
                   :environment
                   (intern-keyword! cross-compiler-mode))))
-    (unless (memq mode '(:environment :package-renaming))
+    (unless (memq mode '(:environment 
+                         ;:package-renaming
+                         ))
        (bad-command-argument-value 'cross-compiler-mode
                                    "Bad cross compiler mode, valid options are \"environment\" and \"package-renaming\"." mode))
     (set! *cross-compile* mode)))
@@ -95,41 +95,6 @@
     (format #t "~&Load files                : ~a" *compiler-load-files*)
     (newline)))
 
-(define (setup-cross-compiler/global-environment)
-  "Setup for cross compiling using a separate global environment. "
-  (set! *compiler-target-bindings* (copy-global-environment :compiler-target-binding))
-  (when *debug*
-    (format #t "~&; Global Bindings = ~@ ~s"
-            (scheme::%current-global-environment)
-            (vector-ref (scheme::%current-global-environment) 0))
-    (format #t "~&; Compiler Target Bindings = ~@ ~s"
-            *compiler-target-bindings* (vector-ref *compiler-target-bindings* 0))))
-
-(define (setup-cross-compiler/package-renaming)
-  "Setup for cross compiling using renamed packages."
-  (format #t "; Configuring for cross compile by renaming packages.\n")
-  (let ((excluded-packages (map find-package '("system" "keyword"))))
-    (dolist (p (list-all-packages))
-      (unless (memq p excluded-packages)
-        (rename-package! p (string-append "host-" (package-name p))))))
-  (make-package! "scheme")
-  (make-package! "user")
-  (use-package! "system" "scheme")
-  (use-package! "scheme" "user")
-  (in-package! "scheme")
-  (load-internal "s-core")
-  (set! fasl-compiler::*compiler-reader*
-        (symbol-value (intern! "read" (find-package "scheme")))))
-
-
-(define (maybe-enable-cross-compile)
-  (when *cross-compile*
-    (case *cross-compile*
-      ((:environment)      (setup-cross-compiler/global-environment))
-      ((:package-renaming) (setup-cross-compiler/package-renaming))
-      ((#f) #f) ; default case, no cross compile
-      (#t                  (error "Invalid cross compile mode: ~s" *cross-compile*)))))
-
 (define (load-compiler-load-files)
   (dolist (file *compiler-load-files*)
     (format #t "; Loading compiler load file: ~s\n" file)
@@ -147,7 +112,6 @@
      (unless pkg
         (error "Initial package not found: ~s" pkg))
      (dynamic-let ((*package* pkg))
-       (maybe-enable-cross-compile) ; REVISIT: this might not interact well with *initial-package*
        ;; Play nice with batch files launching the compiler...
        ;; we never want to be interactive.
        (load-compiler-load-files)

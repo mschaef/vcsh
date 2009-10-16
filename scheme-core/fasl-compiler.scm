@@ -15,7 +15,11 @@
             "*show-actions*"
             "*files-to-compile*"
             "*initial-package*"
-            "*compiler-target-bindings*"))
+            "*cross-compile*"
+            ))
+
+
+(define *cross-compile* #f)
 
 ;;;; Compiler diagnostics
 
@@ -66,21 +70,21 @@
 (define *verbose* #f)
 (define *initial-package* "user")
 
-(define *compiler-target-bindings* #f)
-;; (define *compiler-target-bindings* #f)
 
 (define (compiler-evaluate form genv)
-  "Evaluates <form> with *compiler-target-bindings*, signaling a compiler-error in
+  "Evaluates <form> in global environment <genv>, signaling a compiler-error in
    the event of a failure."
   (catch 'end-compiler-evaluate
-    (trace-message *show-actions* "==> COMPILER-EVALUATE: ~s\n" form)
+    (trace-message *show-actions* "==> COMPILER-EVALUATE: ~s genv=~@\n" form genv)
     (handler-bind  ((runtime-error
                      (if *debug*
                          handle-runtime-error
                          (lambda args
                            (compile-error form "Runtime error while evaluating toplevel form: ~s" args)
                            (throw 'end-compiler-evaluate)))))
-      (eval form () *compiler-target-bindings* genv))))
+      (eval form () genv))))
+
+
 
 (define (symbol-value-with-bindings symbol bindings :optional (unbound-value #f))
   (check symbol? symbol)
@@ -104,19 +108,16 @@
 ;;;; This is the the initial phase of compilation. It takes raw source s-exprs
 ;;;; and expands any user macros or special forms into the base language.
 
-(define (apply-expander expander form :optional (bindings #f))
-  (call-with-compiler-tracing (and *show-expansions* (pair? form)) '("EXPAND" "INTO")
-    (lambda (form)
-      (if bindings
-          (with-global-environment bindings
-            (expander form))
-          (expander form)))
+(define (apply-expander expander form genv)
+  (call-with-compiler-tracing (and *show-expansions* (pair? form)) 
+      '("EXPAND" "INTO")
+      (lambda (form) (expander form genv))
     form))
 
-(define (maybe-expand-user-macro form)
+(define (maybe-expand-user-macro form genv)
   (aif (and (pair? form)
             (symbol? (car form))
-            (macro? (symbol-value-with-bindings (car form) *compiler-target-bindings*)))
+            (macro? (symbol-value-with-bindings (car form) genv)))
        (catch 'end-compiler-macroexpand
               (handler-bind
                   ((runtime-error
@@ -125,19 +126,23 @@
                         (lambda (message args . rest)
                           (compile-error form (format #f "Macro signaled error: ~I" message args) args)
                           (throw 'end-compiler-macroexpand (values #f ()))))))
-                (values #t (apply-expander (lambda (form)
-                                             ((scheme::%macro-transformer it) form ()))
-                                           form
-                                           *compiler-target-bindings*))))
+                (values #t
+                        (apply-expander (lambda (form genv) 
+                                          (if genv 
+                                              (with-global-environment genv
+                                                ((scheme::%macro-transformer it) form ()))
+                                              ((scheme::%macro-transformer it) form ())))
+                                        form genv))))
        (values #f form)))
 
-(define (fully-expand-user-macros form)
-  (values-bind (maybe-expand-user-macro form) (expanded? expanded-form)
+(define (fully-expand-user-macros form genv)
+  (values-bind (maybe-expand-user-macro form genv) (expanded? expanded-form)
     (if expanded?
-        (fully-expand-user-macros expanded-form)
+        (fully-expand-user-macros expanded-form genv)
         form)))
 
-(define (translate-form-sequence forms allow-definitions?)
+
+(define (translate-form-sequence forms allow-definitions? genv)
   "Translates a sequence of forms into another sequence of forms by removing
    any nested begins or defines."
   ;; Note that this would be an expansion step, were it not for the fact
@@ -150,10 +155,10 @@
   (let expand-next-form ((remaining-forms forms)
                          (local-definitions ())
                          (body-forms ()))
-    (let ((next-form (fully-expand-user-macros (car remaining-forms))))
+    (let ((next-form (fully-expand-user-macros (car remaining-forms) genv)))
       (cond
        ((begin-block? next-form)
-        (expand-next-form (append (cdr next-form) (cdr remaining-forms) )
+        (expand-next-form (append (cdr next-form) (cdr remaining-forms))
                           local-definitions
                           body-forms))
        ((define? next-form)
@@ -166,23 +171,24 @@
                           body-forms))
        ((null? remaining-forms)
         (if (null? local-definitions)
-            `(,@(map expand-form body-forms))
+            `(,@(map #L(expand-form _ genv) body-forms))
             (expand-form
              `((letrec ,local-definitions
-                 ,@body-forms)))))
+                 ,@body-forms))
+             genv)))
        (#t
         (expand-next-form (cdr remaining-forms)
                           local-definitions
                           (append body-forms (cons next-form))))))))
 
 
-(define (expand-if form)
+(define (expand-if form genv)
   (unless (or (length=3? form) (length=4? form))
     (compile-error form "Invalid if, bad length."))
-  (map expand-form form))
+  (map #L(expand-form _ genv) form))
 
-(define (expand-begin form)
-  `(begin ,@(translate-form-sequence (cdr form) #f)))
+(define (expand-begin form genv)
+  `(begin ,@(translate-form-sequence (cdr form) #f genv)))
 
 (define (valid-lambda-list? lambda-list)
   (or (symbol? lambda-list)
@@ -197,30 +203,30 @@
            (symbol? (car vars))
            (valid-variable-list? (cdr vars)))))
 
-(define (expand-%lambda form)
+(define (expand-%lambda form genv)
   (unless (or (list? (cadr form)) (null? (cadr form)))
     (compile-error form "Invalid %lambda, expected property list"))
   (unless (valid-lambda-list? (caddr form))
     (compile-error form "Invalid %lambda, bad lambda list"))
   `(scheme::%lambda ,(cadr form) ,(caddr form)
-      ,@(translate-form-sequence (cdddr form) #t)))
+      ,@(translate-form-sequence (cdddr form) #t genv)))
 
-(define (expand-set! form)
+(define (expand-set! form genv)
   (unless (length=3? form)
     (compile-error "Invalid set!, bad length." form))
-  `(set! ,(cadr form) ,(expand-form (caddr form))))
+  `(set! ,(cadr form) ,(expand-form (caddr form) genv)))
 
-(define (expand-%extend-env form)
+(define (expand-%extend-env form genv)
   (unless (>= (length form) 3)
     (compile-error form "Invalid %extend-env, bad length."))
   (unless (valid-variable-list? (cadr form))
     (compile-error form "Invalid %extend-env, bad variable list."))
   (unless (= (length (cadr form) (caddr form)))
     (compile-error form "Invalid %extend-env, number of variables must equal number of bindings."))
-  `(scheme::%extend-env ,(cadr form) ,(map expand-form (caddr form))
-        ,@(map expand-form (cdddr form))))
+  `(scheme::%extend-env ,(cadr form) ,(map #L(expand-form _ genv) (caddr form))
+                        ,@(map #L(expand-form _ genv) (cdddr form))))
 
-(define (expand-list-let form)
+(define (expand-list-let form genv)
   (define (varlist-valid? varlist)
     (cond ((null? varlist) #t)
           ((symbol? varlist) #t)
@@ -230,8 +236,8 @@
     (compile-error form "Invalid list-let, bad length."))
   (unless (varlist-valid? (cadr form))
     (compile-error form "Invalid list-let, bad variable list."))
-  `(list-let ,(cadr form) ,(expand-form (caddr form))
-     ,@(translate-form-sequence (cdddr form) #t)))
+  `(list-let ,(cadr form) ,(expand-form (caddr form) genv)
+     ,@(translate-form-sequence (cdddr form) #t genv)))
 
 (define (parse-eval-when form)
   (unless (> (length form) 2)
@@ -243,13 +249,13 @@
       (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute."))
     (values situations forms)))
 
-(define (expand-eval-when form)
+(define (expand-eval-when form genv)
   (values-bind (parse-eval-when form) (situations forms)
     (if (member :load-toplevel situations)
-        `(begin ,@forms)
+        `(begin ,@forms) ; REVISIT: Is this correct? It's not a full expansion, so where does the full expansion happen?
         #f)))
 
-(define (expand-case form)
+(define (expand-case form genv)
   (unless (>= (length form) 3)
     (compile-error form "Invalid case, bad length."))
   (unless (every? (lambda (case-clause)
@@ -262,10 +268,10 @@
 
   `(case ,(cadr form)
      ,@(map (lambda (case-clause)
-              `(,(car case-clause) ,@(map expand-form (cdr case-clause))))
+              `(,(car case-clause) ,@(map #L(expand-form _ genv) (cdr case-clause))))
             (cddr form))))
 
-(define (expand-cond form)
+(define (expand-cond form genv)
   (unless (>= (length form) 2)
     (compile-error form "Invalid cond, bad length."))
   (unless (every? (lambda (cond-clause)
@@ -275,43 +281,43 @@
                   (cdr form))
     (compile-error form "Invalid cond, bad clause."))
 
-  `(cond ,@(map (lambda (cond-clause) (map expand-form cond-clause)) (cdr form))))
+  `(cond ,@(map (lambda (cond-clause) (map #L(expand-form _ genv) cond-clause)) (cdr form))))
 
 
-(define (expand-and/or form)
-  `(,(car form) ,@(map expand-form (cdr form))))
+(define (expand-and/or form genv)
+  `(,(car form) ,@(map #L(expand-form _ genv) (cdr form))))
 
 
-(define (form-expander form)
+(define (form-expander form genv)
   (cond ((null? form)
          ())
         ((list? form)
          (case (car form)
            ((quote)               form)
-           ((or and)              (expand-and/or form))
-           ((case)                (expand-case form))
-           ((cond)                (expand-cond form))
-           ((if)                  (expand-if form))
-           ((scheme::%lambda)     (expand-%lambda form))
-           ((set!)                (expand-set! form))
-           ((begin)               (expand-begin form))
-           ((%extend-env) (expand-%extend-env form))
-           ((list-let)            (expand-list-let form))
-           ((eval-when)           (expand-eval-when form))
+           ((or and)              (expand-and/or form genv))
+           ((case)                (expand-case form genv))
+           ((cond)                (expand-cond form genv))
+           ((if)                  (expand-if form genv))
+           ((scheme::%lambda)     (expand-%lambda form genv))
+           ((set!)                (expand-set! form genv))
+           ((begin)               (expand-begin form genv))
+           ((%extend-env) (expand-%extend-env form genv))
+           ((list-let)            (expand-list-let form genv))
+           ((eval-when)           (expand-eval-when form genv))
            (#t
-            (values-bind (maybe-expand-user-macro form) (expanded? expanded-form)
+            (values-bind (maybe-expand-user-macro form genv) (expanded? expanded-form)
               (cond (expanded?
-                     (expand-form expanded-form))
+                     (expand-form expanded-form genv))
                     ((atom? expanded-form)
-                     (expand-form expanded-form))
+                     (expand-form expanded-form genv))
                     (#t
-                     (map expand-form form)))))))
+                     (map #L(expand-form _ genv) form)))))))
         ((symbol? form) form)
         ((atom? form)   form)
         (#t             (error "Don't know how to expand this form: ~s" form))))
 
-(define (expand-form form)
-  (apply-expander form-expander form))
+(define (expand-form form genv)
+  (apply-expander form-expander form genv))
 
 ;;;; Form Semantic Analysis
 
@@ -423,8 +429,8 @@
 
 ;;;; Form Compiler
 
-(define (compile-form form)
-  (form-meaning (expand-form form)))
+(define (compile-form form :optional (genv #f))
+  (form-meaning (expand-form form genv)))
 
 ;;;; File Compiler
 
@@ -449,7 +455,7 @@
        (port-location-string (car it) (cdr it))
        "(...)"))
 
-(define (compiler-read port :optional (genv #f))
+(define (compiler-read port genv)
   (let ((loc (begin
                (flush-whitespace port #t)
                (port-location port))))
@@ -457,14 +463,14 @@
                                  (compile-read-error message port loc))))
       (dynamic-let ((*location-mapping* *compiler-location-map*)
                     (*package* (symbol-value '*package* () genv)))
-        (trace-message *show-actions* "* READ in ~s\n" *package*)
+        (trace-message *show-actions* "* READ in ~s genv=~@\n" *package* genv)
         (*compiler-reader* port #f))))) ; REVISIT #. eval/read forms are not evaluated in genv
 
 ;;; The evaluator
 
-(define (compiler-define var val)
-  (trace-message *show-actions* "==> COMPILER-DEFINE: ~s := ~s\n" var val)
-  (scheme::%define-global var val *compiler-target-bindings*))
+(define (compiler-define var val genv)
+  (trace-message *show-actions* "==> COMPILER-DEFINE: ~s := ~s genv=~@\n" var val genv)
+  (scheme::%define-global var val genv))
 
 ;;; The main loop
 
@@ -519,10 +525,10 @@
          (case (car form)
            ((scheme::%define)
             (let ((var (second form))
-                  (val (compile-form (third form))))
+                  (val (compile-form (third form) genv)))
 
             ;; error checking here???
-            (compiler-define var (compiler-evaluate val genv))
+            (compiler-define var (compiler-evaluate val genv) genv)
             (emit-definition var val genv)))
            ((begin)
             (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? genv))
@@ -531,7 +537,7 @@
            ((eval-when)
             (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv))
            (#t
-            (values-bind (maybe-expand-user-macro form) (expanded? expanded-form)
+            (values-bind (maybe-expand-user-macro form genv) (expanded? expanded-form)
               (cond (expanded?
                      (process-toplevel-form expanded-form load-time-eval? compile-time-eval? genv))
                     (#t
@@ -546,7 +552,7 @@
       (process-toplevel-form next-form load-time-eval? compile-time-eval? genv)
       (loop (reader)))))
 
-(define (expand-port-forms ip *output-stream* :optional (genv #f))
+(define (expand-port-forms ip *output-stream* genv)
   (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f genv))
 
 ;;; FASL file generaiton
@@ -606,7 +612,7 @@
 
 ;; TODO: dynamic-let in a specific global environment
 
-(define (compile-file/simple filename :optional (genv #f))
+(define (compile-file/simple filename genv)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
@@ -615,11 +621,11 @@
       (trace-message *verbose* "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
           (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) *output-stream*)
-          (expand-port-forms input-port *output-stream*)
+          (expand-port-forms input-port *output-stream* genv)
           (fasl-write-op scheme::FASL-OP-END-LOAD-UNIT (list filename) *output-stream*)))
     (set-symbol-value! '*package* original-package () genv)))
 
-(define (compile-file/checked filename :optional (genv #f))
+(define (compile-file/checked filename genv)
   (let ((compile-error-count 0))
     (handler-bind ((compile-read-error
                     (lambda (message port port-location)
@@ -666,6 +672,23 @@
         (#t
          (error "Invalid input filename: ~s" input-filename))))
 
+;; This is an example of how another form of cross compilation might work
+;;
+;; (define (setup-cross-compiler/package-renaming)
+;;   "Setup for cross compiling using renamed packages."
+;;   (format #t "; Configuring for cross compile by renaming packages.\n")
+;;   (let ((excluded-packages (map find-package '("system" "keyword"))))
+;;     (dolist (p (list-all-packages))
+;;       (unless (memq p excluded-packages)
+;;         (rename-package! p (string-append "host-" (package-name p))))))
+;;   (make-package! "scheme")
+;;   (make-package! "user")
+;;   (use-package! "system" "scheme")
+;;   (use-package! "scheme" "user")
+;;   (in-package! "scheme")
+;;   (load-internal "s-core")
+;;   (set! fasl-compiler::*compiler-reader*
+;;         (symbol-value (intern! "read" (find-package "scheme")))))
 
 (define (compile-file filename :optional (output-file-name #f))
   (let ((output-file-name (cond ((string? output-file-name) output-file-name)
@@ -684,8 +707,15 @@
                                     message args)
                             (throw 'end-compile-now 127)))))
 
-        (compile-files filenames output-file-name (scheme::%current-global-environment))
+        (let* ((compiler-genv (scheme::%current-global-environment))
+               (target-genv (if *cross-compile*
+                                (copy-global-environment :compiler-target-bindings)
+                                compiler-genv)))
+
+          (trace-message *verbose* "; global-genv=~@, target-genv=~@\n"
+                         compiler-genv target-genv)
+  
+          (compile-files filenames output-file-name target-genv))
 
         (format *compiler-output-port* "; Compile completed successfully.\n"))
       0)))
-
