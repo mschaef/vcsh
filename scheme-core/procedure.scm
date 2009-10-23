@@ -13,9 +13,10 @@
 (define (eval form :optional (lenv ()) (genv #f))
   (unless (null? lenv)
     (error "non-null lenvs are not currently supported with compiler evaluation. form: ~s env: ~s" form lenv))
-  (let ((form-fn (fasl-compiler::compile-form `(lambda () ,form) genv)))
+  ;; TODO: trap compile errors
+  (let ((form-fn (fasl-compiler::compile-toplevel-form `(scheme::%tlambda ,form) genv)))
     (locally-capture (apply)
-      (if genv
+      (if (pair? genv)
           (with-global-environment genv
              (apply form-fn))
           (apply form-fn)))))

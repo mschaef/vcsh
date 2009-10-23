@@ -870,18 +870,6 @@ namespace scan {
           }
         else if (type == TC_CONS)
           {
-            // Handle the function slot, and do any macro expansions.
-            //
-            // Note that the environment is passed in as NIL. This implies that
-            // there are no locally scoped macros and that globally scoped macros
-            // will shadow local symbols.
-            form = macroexpand(form, NIL, true, true);
-
-            // Some macroexpansions produce atoms. These can't be handled
-            // by the cons case, so we restart the evaluation.
-            if (TYPE(form) != TC_CONS)
-              goto loop;
-
             // Split up the form into function and arguments
             function = leval(CAR(form), env);
             args = CDR(form);
@@ -1183,7 +1171,7 @@ namespace scan {
 
     var = lcar(args);
 
-    if (!SYMBOLP (var))
+    if (!SYMBOLP(var))
       vmerror_wrong_type(var);
 
     val = leval(lcar(lcdr(args)), env);
@@ -1209,6 +1197,8 @@ namespace scan {
     lsetcdr(tmp, lcons(val, lcdr(tmp)));
 
     return (val);
+
+    //return lidefine_global(var, val, NIL);
   }
 
   LRef ldeclare(LRef args, LRef env)
