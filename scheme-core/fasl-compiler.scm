@@ -108,13 +108,15 @@
 ;;;; This is the the initial phase of compilation. It takes raw source s-exprs
 ;;;; and expands any user macros or special forms into the base language.
 
-(define (apply-expander expander form genv)
+(define (apply-expander expander form genv at-toplevel?)
   (call-with-compiler-tracing (and *show-expansions* (pair? form)) 
-      '("EXPAND" "INTO")
-      (lambda (form) (expander form genv))
+      (if at-toplevel?
+          '("EXPAND-TOPLEVEL" "INTO-TOPLEVEL")
+          '("EXPAND" "INTO"))
+      (lambda (form) (expander form genv at-toplevel?))
     form))
 
-(define (maybe-expand-user-macro form genv)
+(define (maybe-expand-user-macro form genv at-toplevel?)
   (aif (and (pair? form)
             (symbol? (car form))
             (macro? (symbol-value-with-bindings (car form) genv)))
@@ -132,17 +134,17 @@
                                               (with-global-environment genv
                                                 ((scheme::%macro-transformer it) form ()))
                                               ((scheme::%macro-transformer it) form ())))
-                                        form genv))))
+                                        form genv at-toplevel?))))
        (values #f form)))
 
-(define (fully-expand-user-macros form genv)
-  (values-bind (maybe-expand-user-macro form genv) (expanded? expanded-form)
+(define (fully-expand-user-macros form genv at-toplevel?)
+  (values-bind (maybe-expand-user-macro form genv at-toplevel?) (expanded? expanded-form)
     (if expanded?
-        (fully-expand-user-macros expanded-form genv)
+        (fully-expand-user-macros expanded-form genv at-toplevel?)
         form)))
 
 
-(define (translate-form-sequence forms allow-definitions? genv)
+(define (translate-form-sequence forms allow-definitions? genv at-toplevel?)
   "Translates a sequence of forms into another sequence of forms by removing
    any nested begins or defines."
   ;; Note that this would be an expansion step, were it not for the fact
@@ -155,7 +157,7 @@
   (let expand-next-form ((remaining-forms forms)
                          (local-definitions ())
                          (body-forms ()))
-    (let ((next-form (fully-expand-user-macros (car remaining-forms) genv)))
+    (let ((next-form (fully-expand-user-macros (car remaining-forms) genv at-toplevel?)))
       (cond
        ((begin-block? next-form)
         (expand-next-form (append (cdr next-form) (cdr remaining-forms))
@@ -163,32 +165,39 @@
                           body-forms))
        ((define? next-form)
         (unless allow-definitions?
-          (compile-error next-form "Definitions not allowed here."))
+         (compile-error next-form "Definitions not allowed here."))
         (unless (null? body-forms)
           (compile-error next-form "Local defines must be the first forms in a block."))
-        (expand-next-form (cdr remaining-forms)
-                          (cons (define-binding-pair next-form) local-definitions)
-                          body-forms))
+
+        (if at-toplevel?
+            (expand-next-form (cdr remaining-forms)
+                              local-definitions
+                              (append body-forms (cons next-form)))
+            (expand-next-form (cdr remaining-forms)
+                              (cons (define-binding-pair next-form) local-definitions)
+                              body-forms)))
+
        ((null? remaining-forms)
         (if (null? local-definitions)
-            `(,@(map #L(expand-form _ genv) body-forms))
+            `(,@(map #L(expand-form _ genv at-toplevel?) body-forms))
             (expand-form
              `((letrec ,local-definitions
                  ,@body-forms))
-             genv)))
+             genv
+             at-toplevel?)))
        (#t
         (expand-next-form (cdr remaining-forms)
                           local-definitions
                           (append body-forms (cons next-form))))))))
 
 
-(define (expand-if form genv)
+(define (expand/if form genv at-toplevel?)
   (unless (or (length=3? form) (length=4? form))
     (compile-error form "Invalid if, bad length."))
-  (map #L(expand-form _ genv) form))
+  (map #L(expand-form _ genv at-toplevel?) form))
 
-(define (expand-begin form genv)
-  `(begin ,@(translate-form-sequence (cdr form) #f genv)))
+(define (expand/begin form genv at-toplevel?)
+  `(begin ,@(translate-form-sequence (cdr form) #f genv at-toplevel?)))
 
 (define (valid-lambda-list? lambda-list)
   (or (symbol? lambda-list)
@@ -203,30 +212,33 @@
            (symbol? (car vars))
            (valid-variable-list? (cdr vars)))))
 
-(define (expand-%lambda form genv)
+(define (expand/%lambda form genv at-toplevel?)
   (unless (or (list? (cadr form)) (null? (cadr form)))
     (compile-error form "Invalid %lambda, expected property list"))
   (unless (valid-lambda-list? (caddr form))
     (compile-error form "Invalid %lambda, bad lambda list"))
   `(scheme::%lambda ,(cadr form) ,(caddr form)
-      ,@(translate-form-sequence (cdddr form) #t genv)))
+      ,@(translate-form-sequence (cdddr form) #t genv at-toplevel?)))
 
-(define (expand-set! form genv)
+(define (expand/%tlambda form genv at-toplevel?)
+  `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t genv #t)))
+
+(define (expand/set! form genv at-toplevel?)
   (unless (length=3? form)
     (compile-error "Invalid set!, bad length." form))
-  `(set! ,(cadr form) ,(expand-form (caddr form) genv)))
+  `(set! ,(cadr form) ,(expand-form (caddr form) genv at-toplevel?)))
 
-(define (expand-%extend-env form genv)
+(define (expand/%extend-env form genv at-toplevel?)
   (unless (>= (length form) 3)
     (compile-error form "Invalid %extend-env, bad length."))
   (unless (valid-variable-list? (cadr form))
     (compile-error form "Invalid %extend-env, bad variable list."))
   (unless (= (length (cadr form) (caddr form)))
     (compile-error form "Invalid %extend-env, number of variables must equal number of bindings."))
-  `(scheme::%extend-env ,(cadr form) ,(map #L(expand-form _ genv) (caddr form))
-                        ,@(map #L(expand-form _ genv) (cdddr form))))
+  `(scheme::%extend-env ,(cadr form) ,(map #L(expand-form _ genv at-toplevel?) (caddr form))
+                        ,@(map #L(expand-form _ genv at-toplevel?) (cdddr form))))
 
-(define (expand-list-let form genv)
+(define (expand/list-let form genv at-toplevel?)
   (define (varlist-valid? varlist)
     (cond ((null? varlist) #t)
           ((symbol? varlist) #t)
@@ -236,8 +248,8 @@
     (compile-error form "Invalid list-let, bad length."))
   (unless (varlist-valid? (cadr form))
     (compile-error form "Invalid list-let, bad variable list."))
-  `(list-let ,(cadr form) ,(expand-form (caddr form) genv)
-     ,@(translate-form-sequence (cdddr form) #t genv)))
+  `(list-let ,(cadr form) ,(expand-form (caddr form) genv at-toplevel?)
+     ,@(translate-form-sequence (cdddr form) #t genv at-toplevel?)))
 
 (define (parse-eval-when form)
   (unless (> (length form) 2)
@@ -249,13 +261,13 @@
       (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute."))
     (values situations forms)))
 
-(define (expand-eval-when form genv)
+(define (expand/eval-when form genv at-toplevel?)
   (values-bind (parse-eval-when form) (situations forms)
     (if (member :load-toplevel situations)
-        `(begin ,@forms) ; REVISIT: Is this correct? It's not a full expansion, so where does the full expansion happen?
+        `(begin ,@(translate-form-sequence forms #t genv at-toplevel?))
         #f)))
 
-(define (expand-case form genv)
+(define (expand/case form genv at-toplevel?)
   (unless (>= (length form) 3)
     (compile-error form "Invalid case, bad length."))
   (unless (every? (lambda (case-clause)
@@ -268,10 +280,10 @@
 
   `(case ,(cadr form)
      ,@(map (lambda (case-clause)
-              `(,(car case-clause) ,@(map #L(expand-form _ genv) (cdr case-clause))))
+              `(,(car case-clause) ,@(map #L(expand-form _ genv at-toplevel?) (cdr case-clause))))
             (cddr form))))
 
-(define (expand-cond form genv)
+(define (expand/cond form genv at-toplevel?)
   (unless (>= (length form) 2)
     (compile-error form "Invalid cond, bad length."))
   (unless (every? (lambda (cond-clause)
@@ -281,43 +293,44 @@
                   (cdr form))
     (compile-error form "Invalid cond, bad clause."))
 
-  `(cond ,@(map (lambda (cond-clause) (map #L(expand-form _ genv) cond-clause)) (cdr form))))
+  `(cond ,@(map (lambda (cond-clause) (map #L(expand-form _ genv at-toplevel?) cond-clause)) (cdr form))))
 
 
-(define (expand-and/or form genv)
-  `(,(car form) ,@(map #L(expand-form _ genv) (cdr form))))
+(define (expand/logical form genv at-toplevel?)
+  `(,(car form) ,@(map #L(expand-form _ genv at-toplevel?) (cdr form))))
 
 
-(define (form-expander form genv)
+(define (form-expander form genv at-toplevel?)
   (cond ((null? form)
          ())
         ((list? form)
          (case (car form)
            ((quote)               form)
-           ((or and)              (expand-and/or form genv))
-           ((case)                (expand-case form genv))
-           ((cond)                (expand-cond form genv))
-           ((if)                  (expand-if form genv))
-           ((scheme::%lambda)     (expand-%lambda form genv))
-           ((set!)                (expand-set! form genv))
-           ((begin)               (expand-begin form genv))
-           ((%extend-env) (expand-%extend-env form genv))
-           ((list-let)            (expand-list-let form genv))
-           ((eval-when)           (expand-eval-when form genv))
+           ((or and)              (expand/logical     form genv at-toplevel?))
+           ((case)                (expand/case        form genv at-toplevel?))
+           ((cond)                (expand/cond        form genv at-toplevel?))
+           ((if)                  (expand/if          form genv at-toplevel?))
+           ((scheme::%lambda)     (expand/%lambda     form genv at-toplevel?))
+           ((scheme::%tlambda)    (expand/%tlambda    form genv at-toplevel?))
+           ((set!)                (expand/set!        form genv at-toplevel?))
+           ((begin)               (expand/begin       form genv at-toplevel?))
+           ((%extend-env)         (expand/%extend-env form genv at-toplevel?))
+           ((list-let)            (expand/list-let    form genv at-toplevel?))
+           ((eval-when)           (expand/eval-when   form genv at-toplevel?))
            (#t
-            (values-bind (maybe-expand-user-macro form genv) (expanded? expanded-form)
+            (values-bind (maybe-expand-user-macro form genv at-toplevel?) (expanded? expanded-form)
               (cond (expanded?
-                     (expand-form expanded-form genv))
+                     (expand-form expanded-form genv at-toplevel?))
                     ((atom? expanded-form)
-                     (expand-form expanded-form genv))
+                     (expand-form expanded-form genv at-toplevel?))
                     (#t
-                     (map #L(expand-form _ genv) form)))))))
+                     (map #L(expand-form _ genv at-toplevel?) form)))))))
         ((symbol? form) form)
         ((atom? form)   form)
         (#t             (error "Don't know how to expand this form: ~s" form))))
 
-(define (expand-form form genv)
-  (apply-expander form-expander form genv))
+(define (expand-form form genv at-toplevel?)
+  (apply-expander form-expander form genv at-toplevel?))
 
 ;;;; Form Semantic Analysis
 
@@ -341,10 +354,10 @@
                  #t
                  (loop (cdr rest))))))))
 
-(define (meaning-macro-definition defn cenv)
-  `(scheme::%macro ,(form-meaning (second defn))))
+(define (meaning/%macro defn cenv genv at-toplevel?)
+  `(scheme::%macro ,(form-meaning (second defn) () genv at-toplevel?)))
 
-(define (meaning-function-definition defn cenv)
+(define (meaning/%lambda defn cenv genv at-toplevel?)
 
   (define (code-body-form body-forms)
     "Return a single form that is semantically equivalent to <body-forms>."
@@ -357,7 +370,9 @@
     (error "Invalid function syntax: ~s" defn))
   (list-let (fn-pos p-list l-list . body) defn
     (let ((body-form (form-meaning (code-body-form body)
-                                   (extend-cenv l-list cenv))))
+                                   (extend-cenv l-list cenv)
+                                   genv
+                                   at-toplevel?)))
       (if (null? cenv)
           (scheme::%closure () (cons l-list body-form) p-list)
           ;; The compiler does not reify closures if they are defined in
@@ -366,46 +381,46 @@
           ;; environment.
           `(scheme::%lambda ,p-list ,l-list ,body-form)))))
 
-(define (meaning-function-application form cenv)
-  (map #L(form-meaning _ cenv) form))
+(define (meaning/application form cenv genv at-toplevel?)
+  (map #L(form-meaning _ cenv genv at-toplevel?) form))
 
-(define (meaning-selective-evaluation form cenv)
-  (cons (car form) (map #L(form-meaning _ cenv) (cdr form))))
+(define (meaning/sequence form cenv genv at-toplevel?)
+  (cons (car form) (map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
-(define (meaning-set! form cenv)
+(define (meaning/set! form cenv genv at-toplevel?)
   (list-let (fn-pos var val-form) form
     (if (bound-in-cenv? var cenv)
         form ;; local set handled by interpreter
-        (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv)))))
+        (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?)))))
 
-(define (meaning-cond form cenv)
+(define (meaning/cond form cenv genv at-toplevel?)
   `(cond ,(cadr form)
      ,@(map (lambda (cond-clause)
-              `(,(form-meaning (car cond-clause) cenv)
-                ,@(map #L(form-meaning _ cenv) (cdr cond-clause))))
+              `(,(form-meaning (car cond-clause) cenv genv at-toplevel?)
+                ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr cond-clause))))
             (cddr form))))
 
-(define (meaning-case form cenv)
+(define (meaning/case form cenv genv at-toplevel?)
   `(case ,(cadr form)
      ,@(map (lambda (case-clause)
               `(,(car case-clause)
-                ,@(map #L(form-meaning _ cenv) (cdr case-clause))))
+                ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr case-clause))))
             (cddr form))))
 
-(define (meaning-list-let form cenv)
+(define (meaning/list-let form cenv genv at-toplevel?)
   (list-let (fn-pos vars val-form . body) form
-    `(list-let ,vars ,(form-meaning val-form cenv)
-       ,@(map #L(form-meaning _ (extend-cenv vars cenv)) body))))
+    `(list-let ,vars ,(form-meaning val-form cenv genv at-toplevel?)
+       ,@(map #L(form-meaning _ (extend-cenv vars cenv) genv at-toplevel?) body))))
 
-(define (meaning-%extend-env form cenv)
-  `(scheme::%extend-env ,(cadr form) ,(map #L(form-meaning _ cenv) (caddr form))
-    ,@(map #L(form-meaning _ cenv) (cdddr form))))
+(define (meaning/%extend-env form cenv genv at-toplevel?)
+  `(scheme::%extend-env ,(cadr form) ,(map #L(form-meaning _ cenv genv at-toplevel?) (caddr form))
+    ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdddr form))))
 
-(define (meaning-%define form cenv)
+(define (meaning/%define form cenv genv at-toplevel?)
   (list-let (fn-pos name defn) form
-    `(scheme::%define ,name ,(form-meaning defn cenv))))
+    `(scheme::%define-global ',name ,(form-meaning defn cenv genv at-toplevel?) ',genv)))
 
-(define (form-meaning form :optional (cenv ()))
+(define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
       (cond ((and (symbol? form) (not (bound-in-cenv? form cenv)))
@@ -414,23 +429,26 @@
              form)
             (#t
              (case (car form)
-               ((scheme::%macro)  (meaning-macro-definition form cenv))
-               ((scheme::%lambda) (meaning-function-definition form cenv))
-               ((or and if begin) (meaning-selective-evaluation form cenv))
-               ((cond)            (meaning-cond form cenv))
-               ((case)            (meaning-case form cenv))
-               ((set!)            (meaning-set! form cenv))
-               ((list-let)        (meaning-list-let form cenv))
-               ((%extend-env)     (meaning-%extend-env form cenv))
-               ((scheme::%define) (meaning-%define form cenv))
-               ((quote)           form)
-               (#t                (meaning-function-application form cenv))))))
+               ((scheme::%macro)   (meaning/%macro      form cenv genv at-toplevel?))
+               ((scheme::%lambda)  (meaning/%lambda     form cenv genv at-toplevel?))
+               ((or and if begin)  (meaning/sequence    form cenv genv at-toplevel?))
+               ((cond)             (meaning/cond        form cenv genv at-toplevel?))
+               ((case)             (meaning/case        form cenv genv at-toplevel?))
+               ((set!)             (meaning/set!        form cenv genv at-toplevel?))
+               ((list-let)         (meaning/list-let    form cenv genv at-toplevel?))
+               ((%extend-env)      (meaning/%extend-env form cenv genv at-toplevel?))
+               ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
+               ((quote)            form)
+               (#t                 (meaning/application form cenv genv at-toplevel?))))))
     form))
 
 ;;;; Form Compiler
 
 (define (compile-form form :optional (genv #f))
-  (form-meaning (expand-form form genv)))
+  (form-meaning (expand-form form genv #f) () genv #f))
+
+(define (compile-toplevel-form form :optional (genv #f))
+  (form-meaning (expand-form form genv #t) () genv #t))
 
 ;;;; File Compiler
 
@@ -537,7 +555,7 @@
            ((eval-when)
             (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv))
            (#t
-            (values-bind (maybe-expand-user-macro form genv) (expanded? expanded-form)
+            (values-bind (maybe-expand-user-macro form genv #t) (expanded? expanded-form)
               (cond (expanded?
                      (process-toplevel-form expanded-form load-time-eval? compile-time-eval? genv))
                     (#t
@@ -719,3 +737,4 @@
 
         (format *compiler-output-port* "; Compile completed successfully.\n"))
       0)))
+
