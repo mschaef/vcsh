@@ -122,10 +122,11 @@
             (macro? (symbol-value-with-bindings (car form) genv)))
        (values #t
                (apply-expander (lambda (form genv)
-                                 (if genv
-                                     (with-global-environment genv
-                                       ((scheme::%macro-transformer it) form ()))
-                                     ((scheme::%macro-transformer it) form ())))
+                                 (let ((transformer (scheme::%macro-transformer it)))
+                                   (if genv
+                                       (with-global-environment genv
+                                         (transformer form ()))
+                                       (transformer form ()))))
                                form genv at-toplevel?))
        (values #f form)))
 

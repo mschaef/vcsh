@@ -23,6 +23,7 @@
 (include "string.scm")
 (include "system.scm")
 (include "structure.scm")
+(include "macro.scm")
 (include "iterate.scm")
 (include "reader.scm")
 (include "fasl-write.scm")
