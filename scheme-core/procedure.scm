@@ -16,7 +16,7 @@
   ;; TODO: trap compile errors
   (let ((form-fn (fasl-compiler::compile-toplevel-form `(scheme::%tlambda ,form) genv)))
     (locally-capture (apply)
-      (if (pair? genv)
+      (if (vector? genv) ;; TODO: vector? -> global-environment?.
           (with-global-environment genv
              (apply form-fn))
           (apply form-fn)))))
