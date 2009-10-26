@@ -26,9 +26,9 @@ LIB_SRCS:= $(LIB_OBJS:${OBJ_EXT}=.cpp)
 vcsh${EXE_EXT}: scanlib${LIB_EXT} $(VCSH_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh${EXE_EXT} vcsh${OBJ_EXT} scanlib${LIB_EXT}
 
-scanlib${LIB_EXT}: $(LIB_OBJS) scheme${OBJ_EXT} fasl-compiler${OBJ_EXT} fasl-compiler-run${OBJ_EXT} ../vm/scan-vm${LIB_EXT}
+scanlib${LIB_EXT}: $(LIB_OBJS) scheme${OBJ_EXT} fasl-compiler-run${OBJ_EXT} ../vm/scan-vm${LIB_EXT}
 	cp ../vm/scan-vm${LIB_EXT} scanlib${LIB_EXT}
-	${AR_RS} ${AROUTFL_RS}scanlib${LIB_EXT} $(LIB_OBJS) scheme${OBJ_EXT} fasl-compiler${OBJ_EXT} fasl-compiler-run${OBJ_EXT}
+	${AR_RS} ${AROUTFL_RS}scanlib${LIB_EXT} $(LIB_OBJS) scheme${OBJ_EXT} fasl-compiler-run${OBJ_EXT}
 ifdef ${RANLIB}
 	${RANLIB} scanlib${LIB_EXT}
 endif
@@ -40,13 +40,6 @@ scheme${OBJ_EXT}: scheme.scf
 scheme.scf:
 	$(SCC0) scheme.scm --cross-compile --initial-package:scheme
 
-fasl-compiler${OBJ_EXT}: fasl-compiler.scf
-	../util/to-c-source fasl-compiler.scf scmFaslCompiler > fasl-compiler.cpp
-	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}fasl-compiler${OBJ_EXT} fasl-compiler.cpp
-
-fasl-compiler.scf: fasl-compiler.scm
-	$(SCC0) fasl-compiler.scm  --cross-compile --initial-package:scheme
-
 fasl-compiler-run${OBJ_EXT}: fasl-compiler-run.scf
 	../util/to-c-source fasl-compiler-run.scf scmFaslCompilerRun > fasl-compiler-run.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}fasl-compiler-run${OBJ_EXT} fasl-compiler-run.cpp
@@ -55,10 +48,9 @@ fasl-compiler-run.scf: fasl-compiler-run.scm
 	$(SCC0) fasl-compiler-run.scm  --cross-compile --initial-package:scheme
 
 clean-scheme:
-	${RM_F} scheme${OBJ_EXT} fasl-compiler${OBJ_EXT} fasl-compiler-run${OBJ_EXT}
+	${RM_F} scheme${OBJ_EXT} fasl-compiler-run${OBJ_EXT}
 	${RM_F} scheme.cpp scheme.scf
 	${RM_F} fasl-compiler-run.cpp fasl-compiler-run.scf
-	${RM_F} fasl-compiler.cpp fasl-compiler.scf
 	${RM_F} scanlib.a scanlib.lib
 
 %${OBJ_EXT}: %.cpp Makefile

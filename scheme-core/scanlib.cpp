@@ -18,9 +18,6 @@ namespace scan {
 
     /* Load and evaluate the .scm initialization code */
 
-    register_internal_file(_T("fasl-compiler"), true, 
-                           scmFaslCompiler, scmFaslCompiler_bytes);
-
     register_internal_file(_T("fasl-compiler-run"), true, 
                            scmFaslCompilerRun, scmFaslCompilerRun_bytes);
 

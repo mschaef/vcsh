@@ -8,7 +8,6 @@ SCC0_BASE=`dirname $0`
 SCANPATH=${SCC0_BASE}/../scheme:${SCANPATH}
 
 ${SCC0_BASE}/../vm/scansh0 ${SCC0_BASE}/scheme.scf \
-                           ${SCC0_BASE}/fasl-compiler.scf \
                            ${SCC0_BASE}/fasl-compiler-run.scf \
                            ${SCC0_BASE}/fasl-compiler0.scf \
                            $@
