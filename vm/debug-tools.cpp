@@ -390,7 +390,6 @@ namespace scan {
     { "print-symbol-packages", DF_PRINT_SYMBOL_PACKAGES },
     { "print-addresses"      , DF_PRINT_ADDRESSES       },
     { "debugger-to-ods"      , DF_DEBUGGER_TO_ODS       },
-    { "show-vm-macroexpands" , DF_SHOW_VM_MACROEXPANDS  },
     { "fasl-show-opcodes"    , DF_FASL_SHOW_OPCODES     },
     { "show-fast-load-forms" , DF_SHOW_FAST_LOAD_FORMS  },
     { "show-fast-load-units" , DF_SHOW_FAST_LOAD_UNITS  },

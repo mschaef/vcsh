@@ -116,33 +116,46 @@
       (lambda (form) (expander form genv at-toplevel?))
     form))
 
-(define (maybe-expand-user-macro form genv at-toplevel?)
+(define (compiler-macroexpand-1 form genv at-toplevel?)
   (aif (and (pair? form)
             (symbol? (car form))
             (macro? (symbol-value-with-bindings (car form) genv)))
-       (catch 'end-compiler-macroexpand
-              (handler-bind
-                  ((runtime-error
-                    (if *debug*
-                        handle-runtime-error
-                        (lambda (message args . rest)
-                          (compile-error form (format #f "Macro signaled error: ~I" message args) args)
-                          (throw 'end-compiler-macroexpand (values #f ()))))))
-                (values #t
-                        (apply-expander (lambda (form genv) 
-                                          (if genv 
-                                              (with-global-environment genv
-                                                ((scheme::%macro-transformer it) form ()))
-                                              ((scheme::%macro-transformer it) form ())))
-                                        form genv at-toplevel?))))
+       (values #t
+               (apply-expander (lambda (form genv)
+                                 (if genv
+                                     (with-global-environment genv
+                                       ((scheme::%macro-transformer it) form ()))
+                                     ((scheme::%macro-transformer it) form ())))
+                               form genv at-toplevel?))
        (values #f form)))
 
-(define (fully-expand-user-macros form genv at-toplevel?)
-  (values-bind (maybe-expand-user-macro form genv at-toplevel?) (expanded? expanded-form)
+(define (compiler-macroexpand form genv at-toplevel?)
+  (values-bind (compiler-macroexpand-1 form genv at-toplevel?) (expanded? expanded-form)
     (if expanded?
-        (fully-expand-user-macros expanded-form genv at-toplevel?)
+        (compiler-macroexpand expanded-form genv at-toplevel?)
         form)))
 
+(define (scheme::macroexpand-1 form)
+  "Apply the macro expansion pass of the compiler to <form>, but only for one
+   time. Two values are returned: the first is a boolean indicating if a
+   a macro was expanded and the second is the result of that expansion."
+  (compiler-macroexpand-1 form #f #f))
+
+(define (scheme::macroexpand form)
+  "Apply the macro expansion pass of the compiler to <form>, and repeat until
+   no more macros apply. The return value is the result of this full expansion."
+  (compiler-macroexpand form #f #f))
+
+(define (maybe-expand-user-macro form genv at-toplevel?)
+  (catch 'end-compiler-macroexpand
+    (handler-bind
+        ((runtime-error
+          (if *debug*
+              handle-runtime-error
+              (lambda (message args . rest)
+                (compile-error form (format #f "Macro signaled error: ~I" message args) args)
+                (throw 'end-compiler-macroexpand (values #f ()))))))
+      (compiler-macroexpand-1 form genv at-toplevel?))))
 
 (define (translate-form-sequence forms allow-definitions? genv at-toplevel?)
   "Translates a sequence of forms into another sequence of forms by removing
@@ -157,7 +170,7 @@
   (let expand-next-form ((remaining-forms forms)
                          (local-definitions ())
                          (body-forms ()))
-    (let ((next-form (fully-expand-user-macros (car remaining-forms) genv at-toplevel?)))
+    (let ((next-form (compiler-macroexpand (car remaining-forms) genv at-toplevel?)))
       (cond
        ((begin-block? next-form)
         (expand-next-form (append (cdr next-form) (cdr remaining-forms))

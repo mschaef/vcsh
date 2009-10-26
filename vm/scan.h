@@ -341,8 +341,6 @@ namespace scan {
       DF_PRINT_CLOSURE_CODE       = 0x00040000,
       DF_PRINT_ADDRESSES          = 0x00080000,
 
-      DF_SHOW_VM_MACROEXPANDS     = 0x00100000,
-
       DF_DEBUGGER_TO_ODS          = 0x08000000,
 
       DF_SHOW_LOAD_FORMS          = 0x10000010,
@@ -1643,11 +1641,6 @@ namespace scan {
   LRef liload(LRef fname);
   LRef limacro(LRef t);
   LRef lmacro_transformer(LRef mac);
-  LRef lmacroexpand(LRef params, LRef env);
-  LRef lmacroexpand_1(LRef params, LRef env);
-  LRef lmacroexpandn(LRef params, LRef env);
-  LRef lmacroexpand_1n(LRef params, LRef env);
-  LRef lapply_macro(LRef macro, LRef form);
   LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
   LRef lmake_package(LRef name);
   LRef lfind_package(LRef obj);
@@ -2090,8 +2083,6 @@ void gc_mark (LRef obj);
 
 LRef extend_env(LRef actuals,LRef formals,LRef env);
 
-LRef apply_macro(LRef macro, LRef form);
-LRef macroexpand(LRef form, LRef env, bool rewrite_form, bool more_than_once);
 
 void create_initial_packages();
 void create_gc_heap();

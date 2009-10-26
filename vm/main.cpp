@@ -574,7 +574,6 @@ namespace scan {
     register_subr(_T("append!"),                          SUBR_ARGC,  (void*)lappendd                            );
     register_subr(_T("append"),                           SUBR_ARGC,  (void*)lappend                             );
     register_subr(_T("apply"),                            SUBR_ARGC,  (void*)lapply                              );
-    register_subr(_T("apply-macro"),                      SUBR_2,     (void*)lapply_macro                        );
     register_subr(_T("asin"),                             SUBR_1,     (void*)lasin                               );
     register_subr(_T("ass"),                              SUBR_3,     (void*)lass                                );
     register_subr(_T("assoc"),                            SUBR_2,     (void*)lassoc                              );
@@ -684,10 +683,6 @@ namespace scan {
     register_subr(_T("list-let"),                         SUBR_MACRO, (void*)llist_let                           );
     register_subr(_T("log"),                              SUBR_1,     (void*)llog                                );
     register_subr(_T("macro?"),                           SUBR_1,     (void*)lmacrop                             );
-    register_subr(_T("macroexpand!"),                     SUBR_2,     (void*)lmacroexpandn                       );
-    register_subr(_T("macroexpand"),                      SUBR_2,     (void*)lmacroexpand                        );
-    register_subr(_T("macroexpand-1!"),                   SUBR_2,     (void*)lmacroexpand_1n                     );
-    register_subr(_T("macroexpand-1"),                    SUBR_2,     (void*)lmacroexpand_1                      );
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
     register_subr(_T("make-hash"),                        SUBR_1,     (void*)lmake_hash                          );
     register_subr(_T("make-instance"),                    SUBR_N,     (void*)lmake_instance                      );
