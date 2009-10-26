@@ -4,17 +4,17 @@
 ;;;
 ;;; Macro support
 
-(define-structure %cmacro
-  transformer)
+;; (define-structure %cmacro
+;;   transformer)
 
-(define (is-macro? m)
-  (or (%cmacro? m)
-      (macro? m)))
+;; (define (is-macro? m)
+;;   (or (%cmacro? m)
+;;       (macro? m)))
 
-(define (macro-transformer m)
-  (cond ((%cmacro? m) (%cmacro-transformer m))
-        ((macro? m) (scheme::%macro-transformer m))
-        (#t (error "Invalid macro: ~s" m))))
+;; (define (macro-transformer m)
+;;   (cond ((%cmacro? m) (%cmacro-transformer m))
+;;         ((macro? m) (scheme::%macro-transformer m))
+;;         (#t (error "Invalid macro: ~s" m))))
 
 ;;; Constructor for Common Lisp style non-hygenic macros:
 

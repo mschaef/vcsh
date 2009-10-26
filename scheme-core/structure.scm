@@ -150,6 +150,7 @@
          (cdr it)
          #f)))
 
+
 (define (%register-structure-type! structure-type-name meta)
   "Registers a new structure type, <name>, with metadata <meta>. This includes
    de-registering any older type of the same name, and orphaning any existing
