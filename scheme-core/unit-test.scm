@@ -21,6 +21,8 @@
             "write-to-string"
             "type-of-tests"
             "load-tests"
+            "values-eq?"
+            "values-equal?"
             "dtu-lambda-list"))
 
 ;; TODO: unit tests over ranged x (ie: this should apply from all x in [0,255]
@@ -320,6 +322,24 @@
   `(begin
      (test-case (eq? (type-of ,form)               ,type))
      (test-case (is-a?        ,form                ,type))))
+
+(define (shallow-list=? xs ys :optional (test eq?))
+  (let loop ((xs xs) (ys ys))
+    (cond ((and (null? xs) (null? ys))
+           #t)
+          ((and (pair? xs) (pair? ys))
+           (and (test (car xs) (car ys))
+                (loop (cdr xs) (cdr ys))))
+          (#t
+           (test xs ys)))))
+
+(define (values-eq? actual-values . expecteds)
+  (let ((values (values-bind actual-values xs xs)))
+    (shallow-list=? values expecteds eq?)))
+
+(define (values-equal? actual-values . expecteds)
+  (let ((values (values-bind actual-values xs xs)))
+    (shallow-list=? values expecteds equal?)))
 
 (define (dtu-lambda-list procedure)
   (values-bind (procedure-lambda-list procedure) (real-ll source-ll)
