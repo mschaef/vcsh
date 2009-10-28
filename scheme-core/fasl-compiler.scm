@@ -171,6 +171,7 @@
   (let expand-next-form ((remaining-forms forms)
                          (local-definitions ())
                          (body-forms ()))
+
     (let ((next-form (compiler-macroexpand (car remaining-forms) genv at-toplevel?)))
       (cond
        ((begin-block? next-form)
@@ -180,16 +181,19 @@
        ((define? next-form)
         (unless allow-definitions?
          (compile-error next-form "Definitions not allowed here."))
-        (unless (null? body-forms)
-          (compile-error next-form "Local defines must be the first forms in a block."))
 
-        (if at-toplevel?
-            (expand-next-form (cdr remaining-forms)
-                              local-definitions
-                              (append body-forms (cons next-form)))
-            (expand-next-form (cdr remaining-forms)
-                              (cons (define-binding-pair next-form) local-definitions)
-                              body-forms)))
+        (cond (at-toplevel?
+               ;; We allow definitions anywhere in a toplevel form, because they
+               ;; are not transformed into a letrec.
+               (expand-next-form (cdr remaining-forms)
+                                 local-definitions
+                                 (append body-forms (cons next-form))))
+              (#t
+               (unless (null? body-forms)
+                 (compile-error next-form "Local defines must be the first forms in a block."))
+               (expand-next-form (cdr remaining-forms)
+                                 (cons (define-binding-pair next-form) local-definitions)
+                                 body-forms))))
 
        ((null? remaining-forms)
         (if (null? local-definitions)
@@ -232,7 +236,7 @@
   (unless (valid-lambda-list? (caddr form))
     (compile-error form "Invalid %lambda, bad lambda list"))
   `(scheme::%lambda ,(cadr form) ,(caddr form)
-      ,@(translate-form-sequence (cdddr form) #t genv at-toplevel?)))
+      ,@(translate-form-sequence (cdddr form) #t genv #f)))
 
 (define (expand/%tlambda form genv at-toplevel?)
   `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t genv #t)))
