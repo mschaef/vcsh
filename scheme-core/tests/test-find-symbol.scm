@@ -44,7 +44,7 @@
       (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
       (test-case (values-eq? (find-symbol s1-name p2) s2 :internal))
 
-      (test-case (eq? (intern! s1-name p2) s1))
+      (test-case (eq? (intern! s1-name p2) s2))
 
       (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
       (test-case (values-eq? (find-symbol s1-name p2) s2 :internal)))))

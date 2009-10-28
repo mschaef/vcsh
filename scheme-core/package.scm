@@ -373,13 +373,14 @@
    an indicator that describes how that symbol is visible in the
    package (:internal, :external, or :inherited). If the symbol
    is not found, both values are returned as #f."
-  (values-bind (find-symbol-record name (->package package)) (srec spkg)
-    (cond ((not srec)
-           (values #f #f))
-          ((not (eq? spkg package))
-           (values (car srec) :inherited))
-          (#t
-           (values (car srec) (if (cdr srec) :external :internal))))))
+  (let ((package (->package package)))
+    (values-bind (find-symbol-record name package) (srec spkg)
+      (cond ((not srec)
+             (values #f #f))
+            ((not (eq? spkg package))
+             (values (car srec) :inherited))
+            (#t
+             (values (car srec) (if (cdr srec) :external :internal)))))))
 
 (define (intern! name :optional (package *package*))
   (let ((package (->package package #L(error "Target package for intern! not found: ~a" _))))
@@ -422,14 +423,19 @@
 (define (import! sym-or-syms :optional (package *package*))
   (let ((package (->package package #L(error "Target package for import! not found: ~a" _))))
     (define (do-import sym)
-      (aif (find-direct-symbol-record sym package #f)
+      ;; This find is done on the name, rather than the symbol itself,
+      ;; since what we're trying to detect is if the symbol in the
+      ;; package under that name is the same as the symbol being
+      ;; imported. (If not, we signal an error.)
+      (aif (find-direct-symbol-record (symbol-name sym) package #f)
            (unless (eq? (car it) sym)
              (error "Symbol name conflict in import: ~s" sym))
-            (add-symbol-to-package sym package)))
+           (add-symbol-to-package sym package)))
     (if (list? sym-or-syms)
         (dolist (sym sym-or-syms)
           (do-import sym))
-        (do-import sym-or-syms))))
+        (do-import sym-or-syms))
+    (values)))
 
 (define (exported? symbol)
   "Returns #t if <symbol> is exported from its home package, #f otherwise.

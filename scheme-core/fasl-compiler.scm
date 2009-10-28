@@ -309,10 +309,8 @@
 
   `(cond ,@(map (lambda (cond-clause) (map #L(expand-form _ genv at-toplevel?) cond-clause)) (cdr form))))
 
-
 (define (expand/logical form genv at-toplevel?)
   `(,(car form) ,@(map #L(expand-form _ genv at-toplevel?) (cdr form))))
-
 
 (define (form-expander form genv at-toplevel?)
   (cond ((null? form)
@@ -751,4 +749,3 @@
 
         (format *compiler-output-port* "; Compile completed successfully.\n"))
       0)))
-
