@@ -26,9 +26,6 @@
   (test-case (runtime-error? (quotient :non-number 12)))
   (test-case (runtime-error? (quotient 12 :non-number)))
 
-  (test-case (runtime-error? (quotient 12.0 12)))
-  (test-case (runtime-error? (quotient 12 12.0)))
-
   (test-case (runtime-error? (quotient 12i 12)))
   (test-case (runtime-error? (quotient 12 12i)))
   
@@ -66,9 +63,6 @@
 (define-test remainder
   (test-case (runtime-error? (remainder :non-number 12)))
   (test-case (runtime-error? (remainder 12 :non-number)))
-
-  (test-case (runtime-error? (remainder 12.0 12)))
-  (test-case (runtime-error? (remainder 12 12.0)))
 
   (test-case (runtime-error? (remainder 12i 12)))
   (test-case (runtime-error? (remainder 12 12i)))
