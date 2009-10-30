@@ -159,7 +159,7 @@
 
 (define-test properties-macro
   (let* ((test-transformer (lambda (x) (+ x 1)))
-         (test-macro (scheme::%macro test-transformer)))
+         (test-macro (scheme::%macrocons test-transformer)))
 
     ;; clear out the default properties created by the runtime
     (scheme::%set-property-list! test-transformer ())

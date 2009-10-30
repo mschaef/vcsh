@@ -1639,7 +1639,7 @@ namespace scan {
   LRef lqsort(LRef l, LRef f, LRef g);
   LRef liimmediate_p(LRef obj);
   LRef liload(LRef fname);
-  LRef limacro(LRef t);
+  LRef limacrocons(LRef t);
   LRef lmacro_transformer(LRef mac);
   LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
   LRef lmake_package(LRef name);

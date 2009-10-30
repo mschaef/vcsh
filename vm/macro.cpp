@@ -20,7 +20,7 @@ namespace scan {
     return (z);
   }
 
-  LRef limacro(LRef t)
+  LRef limacrocons(LRef t)
   {
     if (!CLOSUREP(t))
       vmerror_wrong_type(1, t);

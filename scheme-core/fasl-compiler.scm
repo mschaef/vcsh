@@ -371,7 +371,7 @@
                  (loop (cdr rest))))))))
 
 (define (meaning/%macro defn cenv genv at-toplevel?)
-  `(scheme::%macro ,(form-meaning (second defn) () genv at-toplevel?)))
+  `(scheme::%macrocons ,(form-meaning (second defn) () genv at-toplevel?)))
 
 (define (meaning/%lambda defn cenv genv at-toplevel?)
 
