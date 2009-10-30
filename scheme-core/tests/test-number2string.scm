@@ -1,8 +1,6 @@
 (use-package! "unit-test")
 
 (define-test number->string
-  (test-case (runtime-error? (number->string -1.2 8)))
-
   (test-case (equal? "0" (number->string 0 10)))
   (test-case (equal? "12" (number->string 12 10)))
   

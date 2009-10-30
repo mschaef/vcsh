@@ -577,7 +577,7 @@ namespace scan {
 
 
 
-  LRef lnumber2string(LRef x, LRef r, LRef s)
+  LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
   {
     _TCHAR buffer[STACK_STRBUF_LEN];
     fixnum_t radix = 10;
@@ -585,38 +585,37 @@ namespace scan {
 
     if (!NULLP(r))
       {
-	if (FIXNUMP(r))
-	  radix = get_c_fixnum(r);
-	else
-	  vmerror_wrong_type(2, r);
+        if (FIXNUMP(r))
+          radix = get_c_fixnum(r);
+        else
+          vmerror_wrong_type(2, r);
       }
 
     if (!NULLP(s))
       {
-	if (BOOLP(s))
-	  signedp = BOOLV(s);
-	else
-	  vmerror_wrong_type(3, s);
+        if (BOOLP(s))
+          signedp = BOOLV(s);
+        else
+          vmerror_wrong_type(3, s);
+      }
+
+    int digits = DEBUG_FLONUM_PRINT_PRECISION;
+
+    if (!NULLP(p))
+      {
+        if (!FIXNUMP(p))
+          vmerror(_T("exact number expected for precision"), p);
+
+        digits = (int)get_c_fixnum(p);
+
+        if ((digits < 0) || (digits > 16))
+          vmerror(_T("print precision out of range [0, 16]"), p);
       }
 
     if (FLONUMP(x))
       {
-        /*
-	if (radix != 10)
-	  vmerror("inexact numbers require a radix of 10 in number->string", r);
-
-         LRef flo_prec = SYMBOL_VCELL(interp.sym_flonum_print_precision);
-
-        if (!NUMBERP(flo_prec))
-          vmerror(_T("number expected for *flonum-print-precision*"), flo_prec);
-
-        int digits = (int)get_c_fixnum(flo_prec);
-
-        if ((digits < 0) || (digits > 16))
-          vmerror(_T("*flonum-print-precision* out of range [0, 16]"), flo_prec);
-        */
-
-        int digits = DEBUG_FLONUM_PRINT_PRECISION; // TODO: find a way to expose this via Lisp
+        if (radix != 10)
+          vmerror("inexact numbers require a radix of 10 in number->string", r);
 
         /* Nothing is as easy as it seems...
          *

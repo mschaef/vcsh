@@ -1811,7 +1811,7 @@ namespace scan {
   LRef lsend(LRef args);
   LRef lstring_append(size_t argc, LRef argv[]);
   LRef lstring_length(LRef string);
-  LRef lnumber2string(LRef x, LRef r, LRef s);
+  LRef lnumber2string(LRef x, LRef r, LRef s, LRef p);
   LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s);
   LRef lstring2number(LRef,LRef);
   LRef lsubstring(LRef,LRef,LRef);

@@ -284,7 +284,7 @@
 
 (define-method (print-object (obj flonum) port machine-readable? shared-structure-map)
   (cond ((not (infinite? obj))
-         (write-strings port (number->string obj 10 #t)))
+         (write-strings port (number->string obj 10 #t *flonum-print-precision*)))
         ((> obj 0.0)
          (write-strings port "#iposinf"))
         ((< obj 0.0)
