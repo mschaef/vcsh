@@ -581,7 +581,7 @@ namespace scan {
     register_subr(_T("assv"),                             SUBR_2,     (void*)lassv                               );
     register_subr(_T("atan"),                             SUBR_2,     (void*)latan                               );
     register_subr(_T("add-symbol-to-package"),            SUBR_2,     (void*)ladd_symbol_to_package              );
-    register_subr(_T("begin"),                            SUBR_MACRO, (void*)lprogn                              );
+    register_subr(_T("begin"),                            SUBR_F,     (void*)lprogn                              );
     register_subr(_T("binary-port?"),                     SUBR_1,     (void*)lbinary_portp                       );
     register_subr(_T("bitwise-and"),                      SUBR_2N,    (void*)lbitwise_and                        );
     register_subr(_T("bitwise-arithmatic-shift-right"),   SUBR_2,     (void*)lbitwise_ashr                       );
@@ -721,7 +721,6 @@ namespace scan {
     register_subr(_T("primitive?"),                       SUBR_1,     (void*)lprimitivep                         );
     register_subr(_T("print-external-details"),           SUBR_2,     (void*)lprint_external_details             );
     register_subr(_T("procedure?"),                       SUBR_1,     (void*)lprocedurep                         );
-    register_subr(_T("prog1"),                            SUBR_F,     (void*)lprog1                              );
     register_subr(_T("quote"),                            SUBR_F,     (void*)lquote                              );
     register_subr(_T("quotient"),                         SUBR_2,     (void*)lquotient                           );
     register_subr(_T("random"),                           SUBR_1,     (void*)lrandom                             );

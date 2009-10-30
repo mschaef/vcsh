@@ -637,7 +637,6 @@
            procedure-lambda-list
            procedure-name
            procedure?
-           prog1
            properties
            provide-package!
            push!

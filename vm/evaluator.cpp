@@ -846,27 +846,15 @@ namespace scan {
           }
         else if (type == TC_SYMBOL)
           {
-            LRef local_binding;
-            LRef global_binding;
+            LRef local_binding = lenvlookup(form, env);
 
-            local_binding = lenvlookup(form, env);
-
-            if (!NULLP(local_binding))
-              {
-                retval = CAR(local_binding);
-
-                if (UNBOUND_MARKER_P(retval))
-                  vmerror_unbound(form);
-              }
+            if(NULLP(local_binding))
+              retval = SYMBOL_VCELL(form);
             else
-              {
-                global_binding = SYMBOL_VCELL(form);
+              retval = CAR(local_binding);
 
-                if (UNBOUND_MARKER_P(global_binding))
-                  vmerror_unbound (form);
-
-                retval = global_binding;
-              }
+            if (UNBOUND_MARKER_P(retval))
+              vmerror_unbound(form);
           }
         else if (type == TC_CONS)
           {
@@ -1276,24 +1264,6 @@ namespace scan {
     return new_closure;
   }
 
-  LRef lprogn (LRef * pform, LRef * penv)
-  {
-    LRef env, l, next;
-
-    env = *penv;
-    l = lcdr(*pform);
-    next = lcdr(l);
-    while (!NULLP (next))
-      {
-        leval(lcar(l), env);
-        l = next;
-        next = lcdr(next);
-      }
-    *pform = lcar(l);
-    return boolcons(true);
-  }
-
-
   LRef lor (LRef * pform, LRef * penv)
   {
     LRef val;
@@ -1422,20 +1392,17 @@ namespace scan {
     return (NIL);
   }
 
-
-  LRef lprog1 (LRef args, LRef env)
+  LRef lprogn (LRef args, LRef env)
   {
-    LRef retval,l;
+    LRef retval = NIL;
 
-    retval = leval(lcar(args), env);
-
-    for (l = lcdr(args); !NULLP(l); l = lcdr(l))
-      leval(lcar(l), env);
+    for (LRef l = args; !NULLP(l); l = lcdr(l))
+      retval = leval(lcar(l), env);
 
     return retval;
   }
 
-  LRef ltime (LRef args, LRef env)
+  LRef ltime (LRef args, LRef form)
   {
     fixnum_t cells      = interp.gc_total_cells_allocated;
     fixnum_t env_cells  = interp.gc_total_environment_cells_allocated;
@@ -1445,10 +1412,8 @@ namespace scan {
     flonum_t gc_t       = interp.gc_total_run_time;
     size_t forms        = interp.forms_evaluated;
 
-    LRef rc = lprog1(args, env);
-
     LRef argv[8];
-    argv[0] = rc;
+    argv[0] = lprogn(args, form);
     argv[1] = flocons(sys_runtime() - t);
     argv[2] = flocons(interp.gc_total_run_time - gc_t);
     argv[3] = fixcons(interp.gc_total_cells_allocated - cells);

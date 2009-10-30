@@ -1857,7 +1857,7 @@ namespace scan {
   LRef lextend_env (LRef * pform, LRef * penv);
   LRef lcond (LRef * pform, LRef * penv);
   LRef lcase (LRef * pform, LRef * penv);
-  LRef lprogn (LRef * pform, LRef * penv);
+  LRef lprogn (LRef args, LRef env);
   LRef lset_handler_frames(LRef new_frames);
   LRef lhandler_frames();
   LRef lcatch (LRef args, LRef env);
@@ -1869,7 +1869,6 @@ namespace scan {
   LRef lsetq (LRef args, LRef env);
   LRef lquote (LRef args, LRef env);
   LRef lthe_environment (LRef args, LRef env);
-  LRef lprog1 (LRef args, LRef env);
   LRef ltime (LRef args, LRef env);
   LRef lpanic(LRef msg);
   LRef lexternal_data(LRef x);

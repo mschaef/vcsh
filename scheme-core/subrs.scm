@@ -228,7 +228,6 @@
 (define primitive? #.(scheme::%subr-by-name "primitive?"))
 (define print-external-details #.(scheme::%subr-by-name "print-external-details"))
 (define procedure? #.(scheme::%subr-by-name "procedure?"))
-(define prog1 #.(scheme::%subr-by-name "prog1"))
 (define quote #.(scheme::%subr-by-name "quote"))
 (define quotient #.(scheme::%subr-by-name "quotient"))
 (define random #.(scheme::%subr-by-name "random"))
