@@ -4,8 +4,12 @@
 ;;; A simple set of benchmarks to evaluate interpreter performance
 ;;;
 
-
-(require-package! "csv")
+(define-package "bench"
+  (:uses "scheme" "csv")
+  (:exports "test-benchmarks"
+            "bench"
+            "hash-bench"
+            "fast-bench"))
 
 ;; To prevent timing inconsistancies caused by run-time heap
 ;; expansion, expand the heap ahead of time.
@@ -75,7 +79,6 @@
                              ,@code
                              ,benchmark-time-sym)))))
 
-(export! 'defbench)
 
 (define *last-benchmark-result-set* '())
 
@@ -226,28 +229,30 @@
 
 
 (define (bench . tests)
-  (when (null? tests)
-    (set! tests *benchmarks*))
-
   (define (run-named-benchmark bench-name)
     (dynamic-let ((*info* #f))
       (gc)
       (format #t "\n~a: " bench-name)
       ((symbol-value bench-name))))
 
-  (let ((results (map (lambda (test)
-                        (make-benchmark-result :test-name test
-                                               :seq (next-benchmark-sequence)
-                                               :timings  (run-named-benchmark test)
-                                               :system (benchmark-system-info)))
-                      tests)))
+  (define (sort-benchmark-names names)
+    (qsort names #L2(< (strcmp _0 _1) 0) symbol-name))
+
+  (let* ((tests (if (null? tests) *benchmarks* tests))
+         (results (map (lambda (test)
+                           (make-benchmark-result :test-name test
+                                                  :seq (next-benchmark-sequence)
+                                                  :timings  (run-named-benchmark test)
+                                                  :system (benchmark-system-info)))
+                       (sort-benchmark-names tests))))
+
     (set! *last-benchmark-result-set* results)
 
     (display-benchmark-results results)
     (format #t "\nEvaluate (promote-benchmark-results) to make these results the standard for ~s\n"
             (benchmark-system-info))
     (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n")
-    ()))
+    (values)))
 
 (define (compare-benchmark-results)
   (let ((from (select-benchmark-result))
@@ -262,9 +267,16 @@
 	(list-from-by-1 (+ b inc) (- elems 1) (cons b accum))))
   (list-from-by-1 b elems '()))
 
+
+(define *repeat-only-once* #f)
+
+(defmacro (bench-repeat n . code)
+  `(repeat (if *repeat-only-once* 1 ,n)
+     ,@code))
+
 (defbench exec-loop-repeat
   (account
-   (repeat 100000 1)))
+   (bench-repeat 100000 1)))
 
 (defbench exec-loop-tail
   (account
@@ -593,10 +605,10 @@
   (let ((test-filename (temporary-file-name "sct")))
     (account
      (with-port p (open-output-file test-filename :binary)
-       (repeat 1048576
+       (bench-repeat 1048576
 	 (write-binary-fixnum 12345 4 #f p)))
      (with-port p (open-input-file test-filename :binary)
-       (repeat 1048576
+       (bench-repeat 1048576
 	 (read-binary-fixnum 4 #f p))))
     (delete-file test-filename)))
 
@@ -606,12 +618,12 @@
       (handler-bind ((test-signal (lambda args #f)))
 	(handler-bind ((test-signal (lambda args #f)))
 	  (account
-	   (repeat 10000
+	   (bench-repeat 10000
 	     (signal 'test-signal))))))))
 
 (defbench handler-establishment
   (account
-   (repeat 10000
+   (bench-repeat 10000
      (handler-bind ((test-signal (lambda args #f)))
        (handler-bind ((test-signal (lambda args #f)))
 	 (handler-bind ((test-signal (lambda args #f)))
@@ -625,7 +637,7 @@
   (+ x y))
 
 (defbench generic-function-call
-  (account (repeat 5000
+  (account (bench-repeat 5000
 	     (generic/+ 2 3))))
 
 (define-generic-function (generic/inheritance x)
@@ -638,13 +650,13 @@
   (call-next-method))
 
 (defbench inherited-generic-function-call
-  (account (repeat 2000
+  (account (bench-repeat 2000
 	     (generic/inheritance 2))))
 
 (define (hash-performance list-size iterations)
   (let ((xs (list-from-by 0 1 list-size)))
     (gc)
-    (vector-ref (scheme::%time (repeat iterations (hash-key xs))) 1)))
+    (vector-ref (scheme::%time (bench-repeat iterations (hash-key xs))) 1)))
 
 (define (cross xs ys)
   (append-map (lambda (x)
@@ -954,14 +966,14 @@
 (defbench fast-queue
   (account
    (let ((q (scheme::%make-q)))
-     (repeat 100000
+     (bench-repeat 100000
              (scheme::%q-enqueue! 1 q))
      (scheme::%q-items q))))
 
 (defbench slow-queue
   (account
    (let ((q (make-queue)))
-     (repeat 100000
+     (bench-repeat 100000
              (q-enqueue! 1 q))
      (q-items q))))
 
@@ -978,17 +990,17 @@
 
 (defbench structure/make-0-args
   (account
-   (repeat 100000
+   (bench-repeat 100000
            (make-benchmark-structure))))
 
 (defbench structure/make-1-args
   (account
-   (repeat 100000
+   (bench-repeat 100000
            (make-benchmark-structure :f1 1))))
 
 (defbench structure/make-3-args
   (account
-   (repeat 100000
+   (bench-repeat 100000
            (make-benchmark-structure :f1 1 :f2 2 :f3 3))))
 
 
@@ -1010,27 +1022,27 @@
 
 (defbench structure/read
   (account
-   (repeat 10000
+   (bench-repeat 10000
            (read-from-string "#S(benchmark-structure :f1 1 :f2 2 :f3 3)"))))
 
 (defbench structure/write
   (let ((op (open-null-port)))
     (account
-     (repeat 100000
+     (bench-repeat 100000
              (write #S(benchmark-structure :f1 1 :f2 2 :f3 3) op)))))
 
 (defbench structure/fasl-write
   (let ((test-filename (temporary-file-name "sct")))
     (with-fasl-file os test-filename
       (account
-       (repeat 65536
+       (bench-repeat 65536
          (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os))))
     (delete-file test-filename)))
 
 (defbench structure/fasl-read
   (let ((test-filename (temporary-file-name "sct")))
     (with-fasl-file os test-filename
-      (repeat 65536
+      (bench-repeat 65536
         (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os)))
     (account (fasl-load test-filename))
     (delete-file test-filename)))
@@ -1062,17 +1074,17 @@
 
 (defbench proto/make-0-args
   (account
-   (repeat 100000
+   (bench-repeat 100000
            (make-instance 'benchmark-proto))))
 
 (defbench proto/make-1-args
   (account
-   (repeat 100000
+   (bench-repeat 100000
            (make-instance 'benchmark-proto 'f1 1))))
 
 (defbench proto/make-3-args
   (account
-   (repeat 100000
+   (bench-repeat 100000
            (make-instance 'benchmark-proto 'f1 1 'f2 2 'f3 3))))
 
 (defbench proto/ref
@@ -1095,33 +1107,33 @@
 
 (defbench proto/read
   (account
-   (repeat 100000
+   (bench-repeat 100000
            (read-from-string "#I(benchmark-proto f1 1 f2 2 f3 3)"))))
 
 (defbench proto/write
   (let ((op (open-null-port)))
     (account
-     (repeat 100000
+     (bench-repeat 100000
              (write  #I(benchmark-proto f1 1 f2 2 f3 3) op)))))
 
 
 (defbench formatted-io/simple
   (let ((np (open-null-port)))
     (account
-     (repeat 10000
+     (bench-repeat 10000
              (format np "Hello World")))))
 
 
 (defbench formatted-io/printer
   (let ((np (open-null-port)))
     (account
-     (repeat 10000
+     (bench-repeat 10000
              (format np "~a~s~a" 'foo "bar" "baz")))))
 
 (defbench printer/basic
   (let ((np (open-null-port)))
     (account
-     (repeat 10000
+     (bench-repeat 10000
              (write '('foo "bar" :keyword 1 1.0 1.0-2.0i
                            (1 2 3 . 4)
                            #(1 2 3 #(4 5 6)))
@@ -1130,72 +1142,76 @@
 (defbench opening-input-string
   (let ((text (make-string 1024 "01234567")))
     (account
-      (repeat 4096 (open-input-string text)))))
+      (bench-repeat 4096 (open-input-string text)))))
 
 (defbench read-char-from-string
   (let ((text (make-string 32768 "*")))
     (account
      (let ((ip (open-input-string text)))
-       (repeat 32768 (read-char ip))))))
+       (bench-repeat 32768 (read-char ip))))))
 
 (defbench write-char-to-string
   (account
    (let ((op (open-output-string)))
-     (repeat 131072
+     (bench-repeat 131072
        (write-char #\* op)))))
 
 (defbench write-strings-to-string
   (account
    (let ((op (open-output-string)))
-     (repeat 32768
+     (bench-repeat 32768
        (write-strings op "****")))))
 
 (defbench read/boolean
   (let ((text (string-append "(" (make-string 8192 "#f #t ") ")")))
     (account
-     (repeat 16
+     (bench-repeat 16
              (read-from-string text)))))
 
 (defbench read/character
   (let ((text (string-append "(" (make-string 4096 "#\\l #\\i #\\s #\\p ") ")")))
     (account
-     (repeat 16
+     (bench-repeat 16
              (read-from-string text)))))
 
 
 (defbench read/string
   (let ((text (string-append "(" (make-string 256 " \"hello world, this is a test\" ") ")")))
     (account
-     (repeat 256
+     (bench-repeat 256
              (read-from-string text)))))
 
 (defbench read/float
   (let ((text (string-append "(" (make-string 8192 " 3.14159 265.234 ") ")")))
     (account
-     (repeat 16
+     (bench-repeat 16
              (read-from-string text)))))
 
 (defbench read/complex
   (let ((text (string-append "(" (make-string 8192 " 3.14159+265.234i ") ")")))
     (account
-     (repeat 16
+     (bench-repeat 16
              (read-from-string text)))))
 
 (defbench read/symbol
   (let ((text (string-append "(" (make-string 2000 " hello :world this is a test ") ")")))
     (account
-     (repeat 16
+     (bench-repeat 16
              (read-from-string text)))))
 
 
 (defbench read/vector
   (let ((text (string-append "(" (make-string 2000 " #(1) ") ")")))
     (account
-     (repeat 64
+     (bench-repeat 64
              (read-from-string text)))))
 
-
-
+(define (test-benchmarks)
+  "Run through all benchmarks as quickly as possible to check for runtime
+   errors."
+  (dynamic-let ((*estimate-min-test-duration* 0.001)
+                (*repeat-only-once* #t))
+    (bench)))
 
 (define (fast-bench)
   "Generate some quick and dirty benchmarks for the purpose of testing the
