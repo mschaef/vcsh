@@ -23,7 +23,8 @@
   seq
   system
   test-name
-  timings)
+  timings
+  (run-time :default #f))
 
 (define (benchmark-result-cpu-time benchmark-result)
   (if (not (benchmark-result? benchmark-result))
@@ -157,11 +158,16 @@
 
 (define *benchmark-results-filename* "benchmark_results.scm")
 
-(push! '(pbr promote-benchmark-results
-             "Promotes the current benchmark results to 'official' status")
+
+
+(push! '(:bench bench "Runs the benchmark suite")
        scheme::*repl-abbreviations*)
 
-(push! '(cbr compare-benchmark-results
+(push! '(:pbr promote-benchmark-results
+              "Promotes the current benchmark results to 'official' status")
+       scheme::*repl-abbreviations*)
+
+(push! '(:cbr compare-benchmark-results
              "Compares two sets of benchmark results.")
        scheme::*repl-abbreviations*)
 
@@ -243,7 +249,8 @@
                            (make-benchmark-result :test-name test
                                                   :seq (next-benchmark-sequence)
                                                   :timings  (run-named-benchmark test)
-                                                  :system (benchmark-system-info)))
+                                                  :system (benchmark-system-info)
+                                                  :run-time (current-date)))
                        (sort-benchmark-names tests))))
 
     (set! *last-benchmark-result-set* results)
