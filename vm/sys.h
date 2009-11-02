@@ -40,7 +40,7 @@ namespace scan {
 
   enum
   {
-      THREAD_DEFAULT_STACK_SIZE  = 1024 * 1024, // The default stack size for a newly created thread
+      THREAD_DEFAULT_STACK_SIZE  = 512 * 1024, // The default stack size for a newly created thread
   };
 
   typedef time_t sys_time_t;
