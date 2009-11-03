@@ -17,7 +17,7 @@
 (enlarge-heap 64)
 
 ;; Turn the stack limit off.
-(scheme::%set-stack-limit #f)
+;(scheme::%set-stack-limit #f)
 
 (define-structure benchmark-result
   seq
@@ -448,8 +448,8 @@
 		cdddr or modulo char-lower-case?))
 
 
-(defbench csv-file-reader
-  (account (read-csv-file "big_csv_file.csv")))
+;; (defbench csv-file-reader
+;;   (account (read-csv-file "big_csv_file.csv")))
 
 (defbench s-expression-file-reader
   (account (begin (with-port p (open-input-file "big_csv_file.sxp") (read p)) '())))
