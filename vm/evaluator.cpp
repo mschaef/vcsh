@@ -1392,17 +1392,24 @@ namespace scan {
     return (NIL);
   }
 
-  LRef lprogn (LRef args, LRef env)
+  LRef lprogn (LRef * pform, LRef * penv)
   {
-    LRef retval = NIL;
+    LRef env, l, next;
 
-    for (LRef l = args; !NULLP(l); l = lcdr(l))
-      retval = leval(lcar(l), env);
-
-    return retval;
+    env = *penv;
+    l = lcdr(*pform);
+    next = lcdr(l);
+    while (!NULLP (next))
+      {
+        leval(lcar(l), env);
+        l = next;
+        next = lcdr(next);
+      }
+    *pform = lcar(l);
+    return boolcons(true);
   }
 
-  LRef ltime (LRef args, LRef form)
+  LRef ltime (LRef args, LRef env)
   {
     fixnum_t cells      = interp.gc_total_cells_allocated;
     fixnum_t env_cells  = interp.gc_total_environment_cells_allocated;
@@ -1412,8 +1419,14 @@ namespace scan {
     flonum_t gc_t       = interp.gc_total_run_time;
     size_t forms        = interp.forms_evaluated;
 
+
+    LRef retval = NIL;
+    for (LRef l = args; !NULLP(l); l = lcdr(l))
+      retval = leval(lcar(l), env);
+
     LRef argv[8];
-    argv[0] = lprogn(args, form);
+
+    argv[0] = retval;
     argv[1] = flocons(sys_runtime() - t);
     argv[2] = flocons(interp.gc_total_run_time - gc_t);
     argv[3] = fixcons(interp.gc_total_cells_allocated - cells);

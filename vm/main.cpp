@@ -581,7 +581,7 @@ namespace scan {
     register_subr(_T("assv"),                             SUBR_2,     (void*)lassv                               );
     register_subr(_T("atan"),                             SUBR_2,     (void*)latan                               );
     register_subr(_T("add-symbol-to-package"),            SUBR_2,     (void*)ladd_symbol_to_package              );
-    register_subr(_T("begin"),                            SUBR_F,     (void*)lprogn                              );
+    register_subr(_T("begin"),                            SUBR_MACRO, (void*)lprogn                              );
     register_subr(_T("binary-port?"),                     SUBR_1,     (void*)lbinary_portp                       );
     register_subr(_T("bitwise-and"),                      SUBR_2N,    (void*)lbitwise_and                        );
     register_subr(_T("bitwise-arithmatic-shift-right"),   SUBR_2,     (void*)lbitwise_ashr                       );

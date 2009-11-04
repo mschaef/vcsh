@@ -1857,7 +1857,7 @@ namespace scan {
   LRef lextend_env (LRef * pform, LRef * penv);
   LRef lcond (LRef * pform, LRef * penv);
   LRef lcase (LRef * pform, LRef * penv);
-  LRef lprogn (LRef args, LRef env);
+  LRef lprogn (LRef * pform, LRef * penv);
   LRef lset_handler_frames(LRef new_frames);
   LRef lhandler_frames();
   LRef lcatch (LRef args, LRef env);
