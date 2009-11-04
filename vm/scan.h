@@ -1854,7 +1854,6 @@ namespace scan {
   LRef lif (LRef * pform, LRef * penv);
   LRef lor (LRef * pform, LRef * penv);
   LRef land (LRef * pform, LRef * penv);
-  LRef lextend_env (LRef * pform, LRef * penv);
   LRef lcond (LRef * pform, LRef * penv);
   LRef lcase (LRef * pform, LRef * penv);
   LRef lprogn (LRef * pform, LRef * penv);
@@ -2079,9 +2078,6 @@ bool fast_op_equal(LRef a, LRef b);
 
 void collect_garbage();
 void gc_mark (LRef obj);
-
-LRef extend_env(LRef actuals,LRef formals,LRef env);
-
 
 void create_initial_packages();
 void create_gc_heap();

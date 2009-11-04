@@ -5,7 +5,6 @@
 ;;; Lisp references to native SUBRs.
 
 ;; special forms
-(define %extend-env #.(scheme::%subr-by-name "%extend-env"))
 (define and #.(scheme::%subr-by-name "and"))
 (define or #.(scheme::%subr-by-name "or"))
 (define begin #.(scheme::%subr-by-name "begin"))

@@ -475,7 +475,7 @@ namespace scan {
     return arg_list_from_buffer(argc, argv);
   }
 
-  LRef extend_env (LRef actuals, LRef formals, LRef env)
+  static LRef extend_env (LRef actuals, LRef formals, LRef env)
   {
     if (SYMBOLP (formals))
       {
@@ -1318,32 +1318,6 @@ namespace scan {
         next = lcdr(next);
       }
     *pform = lcar(l);
-    return boolcons(true);
-  }
-
-  LRef lextend_env (LRef * pform, LRef * penv)
-  {
-    LRef env, l, next;
-
-    l = lcdr(*pform);
-
-    env = *penv;
-
-    *penv = extend_env (evaluate_arguments(lcar(lcdr(l)), env),
-                        lcar(l),
-                        env);
-
-    l = lcdr(lcdr(l));
-    next = lcdr(l);
-
-    while (!NULLP (next))
-      {
-        leval(lcar(l), *penv);
-        l = next;
-        next = lcdr(next);
-      }
-    *pform = lcar(l);
-
     return boolcons(true);
   }
 

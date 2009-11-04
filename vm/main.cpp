@@ -503,7 +503,6 @@ namespace scan {
     register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
-    register_subr(_T("%extend-env"),                      SUBR_MACRO, (void*)lextend_env                         );
     register_subr(_T("%fast-op-cons"),                    SUBR_3,     (void*)lfast_op                            );
     register_subr(_T("%fast-op"),                         SUBR_3,     (void*)lfast_op                            );
 

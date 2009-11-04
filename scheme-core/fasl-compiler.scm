@@ -246,15 +246,6 @@
     (compile-error "Invalid set!, bad length." form))
   `(set! ,(cadr form) ,(expand-form (caddr form) genv at-toplevel?)))
 
-(define (expand/%extend-env form genv at-toplevel?)
-  (unless (>= (length form) 3)
-    (compile-error form "Invalid %extend-env, bad length."))
-  (unless (valid-variable-list? (cadr form))
-    (compile-error form "Invalid %extend-env, bad variable list."))
-  (unless (= (length (cadr form) (caddr form)))
-    (compile-error form "Invalid %extend-env, number of variables must equal number of bindings."))
-  `(scheme::%extend-env ,(cadr form) ,(map #L(expand-form _ genv at-toplevel?) (caddr form))
-                        ,@(map #L(expand-form _ genv at-toplevel?) (cdddr form))))
 
 (define (expand/list-let form genv at-toplevel?)
   (define (varlist-valid? varlist)
@@ -330,7 +321,6 @@
            ((scheme::%tlambda)    (expand/%tlambda    form genv at-toplevel?))
            ((set!)                (expand/set!        form genv at-toplevel?))
            ((begin)               (expand/begin       form genv at-toplevel?))
-           ((%extend-env)         (expand/%extend-env form genv at-toplevel?))
            ((list-let)            (expand/list-let    form genv at-toplevel?))
            ((eval-when)           (expand/eval-when   form genv at-toplevel?))
            (#t
@@ -428,10 +418,6 @@
     `(list-let ,vars ,(form-meaning val-form cenv genv at-toplevel?)
        ,@(map #L(form-meaning _ (extend-cenv vars cenv) genv at-toplevel?) body))))
 
-(define (meaning/%extend-env form cenv genv at-toplevel?)
-  `(scheme::%extend-env ,(cadr form) ,(map #L(form-meaning _ cenv genv at-toplevel?) (caddr form))
-    ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdddr form))))
-
 (define (meaning/%define form cenv genv at-toplevel?)
   (list-let (fn-pos name defn) form
     `(scheme::%define-global ',name ,(form-meaning defn cenv genv at-toplevel?) ',genv)))
@@ -452,7 +438,6 @@
                ((case)             (meaning/case        form cenv genv at-toplevel?))
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
                ((list-let)         (meaning/list-let    form cenv genv at-toplevel?))
-               ((%extend-env)      (meaning/%extend-env form cenv genv at-toplevel?))
                ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
                ((quote)            form)
                (#t                 (meaning/application form cenv genv at-toplevel?))))))
