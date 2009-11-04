@@ -405,7 +405,7 @@
 (define (meaning/set! form cenv genv at-toplevel?)
   (list-let (fn-pos var val-form) form
     (if (bound-in-cenv? var cenv)
-        form ;; local set handled by interpreter
+        `(set! ,var ,(form-meaning val-form cenv genv at-toplevel?))
         (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?)))))
 
 (define (meaning/cond form cenv genv at-toplevel?)
