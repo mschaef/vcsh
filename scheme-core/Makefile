@@ -57,7 +57,7 @@ clean-scheme:
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
 
 depend: vcsh${EXE_EXT} grovel-dependancies.scm scheme.scm
-	vcsh grovel-dependancies.scm scheme.scm 1> .depend
+	./vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 ifneq ($(wildcard .depend),)
 include .depend
