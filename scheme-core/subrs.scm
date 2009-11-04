@@ -13,6 +13,14 @@
 (define if #.(scheme::%subr-by-name "if"))
 (define list-let #.(scheme::%subr-by-name "list-let"))
 
+(define system::%%and #.(scheme::%subr-by-name "and"))
+(define system::%%or #.(scheme::%subr-by-name "or"))
+(define system::%%begin #.(scheme::%subr-by-name "begin"))
+(define system::%%case #.(scheme::%subr-by-name "case"))
+(define system::%%cond #.(scheme::%subr-by-name "cond"))
+(define system::%%if #.(scheme::%subr-by-name "if"))
+(define system::%%list-let #.(scheme::%subr-by-name "list-let"))
+
 ;; primitive functions
 (define %call-with-global-environment #.(scheme::%subr-by-name "%call-with-global-environment"))
 (define %closure #.(scheme::%subr-by-name "%closure"))

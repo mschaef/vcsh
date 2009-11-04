@@ -390,8 +390,17 @@
 (define (meaning/application form cenv genv at-toplevel?)
   (map #L(form-meaning _ cenv genv at-toplevel?) form))
 
-(define (meaning/sequence form cenv genv at-toplevel?)
-  (cons (car form) (map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+(define (meaning/begin form cenv genv at-toplevel?)
+  `(system::%%begin ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+
+(define (meaning/or form cenv genv at-toplevel?)
+  `(system::%%or ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+
+(define (meaning/and form cenv genv at-toplevel?)
+  `(system::%%and ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+
+(define (meaning/if form cenv genv at-toplevel?)
+  `(system::%%if ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
 (define (meaning/set! form cenv genv at-toplevel?)
   (list-let (fn-pos var val-form) form
@@ -400,14 +409,14 @@
         (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?)))))
 
 (define (meaning/cond form cenv genv at-toplevel?)
-  `(cond ,(cadr form)
+  `(system::%%cond ,(cadr form)
      ,@(map (lambda (cond-clause)
               `(,(form-meaning (car cond-clause) cenv genv at-toplevel?)
                 ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr cond-clause))))
             (cddr form))))
 
 (define (meaning/case form cenv genv at-toplevel?)
-  `(case ,(cadr form)
+  `(system::%%case ,(cadr form)
      ,@(map (lambda (case-clause)
               `(,(car case-clause)
                 ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr case-clause))))
@@ -415,7 +424,7 @@
 
 (define (meaning/list-let form cenv genv at-toplevel?)
   (list-let (fn-pos vars val-form . body) form
-    `(list-let ,vars ,(form-meaning val-form cenv genv at-toplevel?)
+    `(system::%%list-let ,vars ,(form-meaning val-form cenv genv at-toplevel?)
        ,@(map #L(form-meaning _ (extend-cenv vars cenv) genv at-toplevel?) body))))
 
 (define (meaning/%define form cenv genv at-toplevel?)
@@ -433,7 +442,10 @@
              (case (car form)
                ((scheme::%macro)   (meaning/%macro      form cenv genv at-toplevel?))
                ((scheme::%lambda)  (meaning/%lambda     form cenv genv at-toplevel?))
-               ((or and if begin)  (meaning/sequence    form cenv genv at-toplevel?))
+               ((begin)            (meaning/begin       form cenv genv at-toplevel?))
+               ((or)               (meaning/or          form cenv genv at-toplevel?))
+               ((and)              (meaning/and         form cenv genv at-toplevel?))
+               ((if)               (meaning/if          form cenv genv at-toplevel?))
                ((cond)             (meaning/cond        form cenv genv at-toplevel?))
                ((case)             (meaning/case        form cenv genv at-toplevel?))
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
