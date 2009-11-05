@@ -491,6 +491,25 @@ namespace scan {
 
   static void register_main_subrs()
   {
+    register_subr(_T("%define"),                          SUBR_F,     (void*)lidefine                            );
+    register_subr(_T("%lambda"),                          SUBR_F,     (void*)lilambda                            );
+    register_subr(_T("%time"),                            SUBR_F,     (void*)ltime                               );
+    register_subr(_T("catch"),                            SUBR_F,     (void*)lcatch                              );
+    register_subr(_T("declare"),                          SUBR_F,     (void*)ldeclare                            );
+    register_subr(_T("quote"),                            SUBR_F,     (void*)lquote                              );
+    register_subr(_T("repeat"),                           SUBR_F,     (void*)lrepeat                             );
+    register_subr(_T("set!"),                             SUBR_F,     (void*)lsetq                               );
+    register_subr(_T("the-environment"),                  SUBR_F,     (void*)lthe_environment                    );
+    register_subr(_T("while"),                            SUBR_F,     (void*)lwhile                              );
+
+    register_subr(_T("and"),                              SUBR_MACRO, (void*)land                                );
+    register_subr(_T("begin"),                            SUBR_MACRO, (void*)lprogn                              );
+    register_subr(_T("case"),                             SUBR_MACRO, (void*)lcase                               );
+    register_subr(_T("cond"),                             SUBR_MACRO, (void*)lcond                               );
+    register_subr(_T("if"),                               SUBR_MACRO, (void*)lif                                 );
+    register_subr(_T("list-let"),                         SUBR_MACRO, (void*)llist_let                           );
+    register_subr(_T("or"),                               SUBR_MACRO, (void*)lor                                 );
+
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
@@ -499,7 +518,6 @@ namespace scan {
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
-    register_subr(_T("%define"),                          SUBR_F,     (void*)lidefine                            );
     register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
@@ -513,7 +531,6 @@ namespace scan {
     register_subr(_T("%instance-map"),                    SUBR_1,     (void*)liinstance_map                      );
     register_subr(_T("%instance-proto"),                  SUBR_1,     (void*)liinstance_proto                    );
     register_subr(_T("%instance-slots"),                  SUBR_1,     (void*)liinstance_slots                    );
-    register_subr(_T("%lambda"),                          SUBR_F,     (void*)lilambda                            );
     register_subr(_T("%macro-transformer"),               SUBR_1,     (void*)lmacro_transformer                  );
     register_subr(_T("%make-eof"),                        SUBR_0,     (void*)lmake_eof                           );
     register_subr(_T("%macrocons"),                       SUBR_1,     (void*)limacrocons                         );
@@ -555,7 +572,6 @@ namespace scan {
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%arm-gc-trip-wires"),               SUBR_1,     (void*)liarm_gc_trip_wires                 );
 
-    register_subr(_T("%time"),                            SUBR_F,     (void*)ltime                               );
     register_subr(_T("%unbound-marker"),                  SUBR_0,     (void*)lunbound_marker                     );
     register_subr(_T("*"),                                SUBR_2N,    (void*)lmultiply                           );
     register_subr(_T("+"),                                SUBR_2N,    (void*)ladd                                );
@@ -568,7 +584,6 @@ namespace scan {
     register_subr(_T(">"),                                SUBR_ARGC,  (void*)lnum_gt                             );
     register_subr(_T(">="),                               SUBR_ARGC,  (void*)lnum_ge                             );
     register_subr(_T("acos"),                             SUBR_1,     (void*)lacos                               );
-    register_subr(_T("and"),                              SUBR_MACRO, (void*)land                                );
     register_subr(_T("angle"),                            SUBR_1,     (void*)langle                              );
     register_subr(_T("append!"),                          SUBR_ARGC,  (void*)lappendd                            );
     register_subr(_T("append"),                           SUBR_ARGC,  (void*)lappend                             );
@@ -580,7 +595,6 @@ namespace scan {
     register_subr(_T("assv"),                             SUBR_2,     (void*)lassv                               );
     register_subr(_T("atan"),                             SUBR_2,     (void*)latan                               );
     register_subr(_T("add-symbol-to-package"),            SUBR_2,     (void*)ladd_symbol_to_package              );
-    register_subr(_T("begin"),                            SUBR_MACRO, (void*)lprogn                              );
     register_subr(_T("binary-port?"),                     SUBR_1,     (void*)lbinary_portp                       );
     register_subr(_T("bitwise-and"),                      SUBR_2N,    (void*)lbitwise_and                        );
     register_subr(_T("bitwise-arithmatic-shift-right"),   SUBR_2,     (void*)lbitwise_ashr                       );
@@ -597,8 +611,6 @@ namespace scan {
     register_subr(_T("external?"),                        SUBR_1,     (void*)lexternalp                          );
     register_subr(_T("external-type-name"),               SUBR_1,     (void*)lexternal_type_name                 );
     register_subr(_T("car"),                              SUBR_1,     (void*)lcar                                );
-    register_subr(_T("case"),                             SUBR_MACRO, (void*)lcase                               );
-    register_subr(_T("catch"),                            SUBR_F,     (void*)lcatch                              );
     register_subr(_T("cdr"),                              SUBR_1,     (void*)lcdr                                );
     register_subr(_T("ceiling"),                          SUBR_1,     (void*)lceiling                            );
     register_subr(_T("char->integer"),                    SUBR_1,     (void*)lchar2integer                       );
@@ -611,12 +623,10 @@ namespace scan {
     register_subr(_T("closure?"),                         SUBR_1,     (void*)lclosurep                           );
     register_subr(_T("compiled-closure?"),                SUBR_1,     (void*)lcompiled_closurep                  );
     register_subr(_T("complex?"),                         SUBR_1,     (void*)lcomplexp                           );
-    register_subr(_T("cond"),                             SUBR_MACRO, (void*)lcond                               );
     register_subr(_T("cons"),                             SUBR_2,     (void*)lcons                               );
     register_subr(_T("cos"),                              SUBR_1,     (void*)lcos                                );
     register_subr(_T("debug-backtrace"),                  SUBR_0,     (void*)ldebug_backtrace                    );
     register_subr(_T("debug-write"),                      SUBR_1,     (void*)ldebug_write                        );
-    register_subr(_T("declare"),                          SUBR_F,     (void*)ldeclare                            );
     register_subr(_T("delete-file"),                      SUBR_1,     (void*)ldelete_file                        );
     register_subr(_T("delq"),                             SUBR_2,     (void*)ldelq                               );
     register_subr(_T("enlarge-heap"),                     SUBR_1,     (void*)lenlarge_heap                       );
@@ -663,7 +673,6 @@ namespace scan {
     register_subr(_T("hash-type"),                        SUBR_1,     (void*)lhash_type                          );
     register_subr(_T("hash?"),                            SUBR_1,     (void*)lhashp                              );
     register_subr(_T("ieee-754-bits->"),                  SUBR_1,     (void*)lieee754_bits_to                    );
-    register_subr(_T("if"),                               SUBR_MACRO, (void*)lif                                 );
     register_subr(_T("imag-part"),                        SUBR_1,     (void*)limag_part                          );
     register_subr(_T("inexact->display-string"),          SUBR_4,     (void*)linexact2display_string             );
     register_subr(_T("inexact->exact"),                   SUBR_1,     (void*)linexact2exact                      );
@@ -679,7 +688,6 @@ namespace scan {
     register_subr(_T("list->hash"),                       SUBR_1,     (void*)llist2hash                          );
     register_subr(_T("list->vector"),                     SUBR_1,     (void*)llist2vector                        );
     register_subr(_T("list-copy"),                        SUBR_1,     (void*)llist_copy                          );
-    register_subr(_T("list-let"),                         SUBR_MACRO, (void*)llist_let                           );
     register_subr(_T("log"),                              SUBR_1,     (void*)llog                                );
     register_subr(_T("macro?"),                           SUBR_1,     (void*)lmacrop                             );
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
@@ -706,7 +714,6 @@ namespace scan {
     register_subr(_T("open-null-port"),                   SUBR_0,     (void*)lopen_null_port                     );
     register_subr(_T("open-output-file"),                 SUBR_2,     (void*)lopen_output_file                   );
     register_subr(_T("open-output-string"),               SUBR_0,     (void*)lopen_output_string                 );
-    register_subr(_T("or"),                               SUBR_MACRO, (void*)lor                                 );
     register_subr(_T("output-port?"),                     SUBR_1,     (void*)loutput_portp                       );
     register_subr(_T("package-name"),                     SUBR_1,     (void*)lpackage_name                       );
     register_subr(_T("package?"),                         SUBR_1,     (void*)lpackagep                           );
@@ -720,7 +727,6 @@ namespace scan {
     register_subr(_T("primitive?"),                       SUBR_1,     (void*)lprimitivep                         );
     register_subr(_T("print-external-details"),           SUBR_2,     (void*)lprint_external_details             );
     register_subr(_T("procedure?"),                       SUBR_1,     (void*)lprocedurep                         );
-    register_subr(_T("quote"),                            SUBR_F,     (void*)lquote                              );
     register_subr(_T("quotient"),                         SUBR_2,     (void*)lquotient                           );
     register_subr(_T("random"),                           SUBR_1,     (void*)lrandom                             );
     register_subr(_T("rational?"),                        SUBR_1,     (void*)lrationalp                          );
@@ -734,13 +740,11 @@ namespace scan {
     register_subr(_T("realtime"),                         SUBR_0,     (void*)lrealtime                           );
     register_subr(_T("realtime-time-zone-offset"),        SUBR_0,     (void*)lrealtime_time_zone_offset          );
     register_subr(_T("remainder"),                        SUBR_2,     (void*)lremainder                          );
-    register_subr(_T("repeat"),                           SUBR_F,     (void*)lrepeat                             );
     register_subr(_T("rich-write"),                       SUBR_3,     (void*)lrich_write                         );
     register_subr(_T("round"),                            SUBR_1,     (void*)lround                              );
     register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
     register_subr(_T("runtime"),                          SUBR_0,     (void*)lruntime                            );
     register_subr(_T("send"),                             SUBR_N,     (void*)lsend                               );
-    register_subr(_T("set!"),                             SUBR_F,     (void*)lsetq                               );
     register_subr(_T("set-car!"),                         SUBR_2,     (void*)lsetcar                             );
     register_subr(_T("set-cdr!"),                         SUBR_2,     (void*)lsetcdr                             );
     register_subr(_T("set-environment-variable!"),        SUBR_2,     (void*)lset_environment_variable           );
@@ -768,7 +772,7 @@ namespace scan {
     register_subr(_T("string-set!"),                      SUBR_3,     (void*)lstring_set                         );
     register_subr(_T("string-trim"),                      SUBR_2,     (void*)lstring_trim                        );
     register_subr(_T("string-trim-left"),                 SUBR_2,     (void*)lstring_trim_left                   );
-    register_subr(_T("string-trim-right"),                SUBR_2,     (void*)lstring_trim_right                  );
+    register_subr(_T("string-trim-right"),                SUBR_2,     (void*)lfasl-cstring_trim_right                  );
     register_subr(_T("string-upcase!"),                   SUBR_1,     (void*)lstring_upcased                     );
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );
@@ -783,7 +787,6 @@ namespace scan {
     register_subr(_T("system-info"),                      SUBR_0,     (void*)lsystem_info                        );
     register_subr(_T("tan"),                              SUBR_1,     (void*)ltan                                );
     register_subr(_T("temporary-file-name"),              SUBR_1,     (void*)ltemporary_file_name                );
-    register_subr(_T("the-environment"),                  SUBR_F,     (void*)lthe_environment                    );
     register_subr(_T("throw"),                            SUBR_2,     (void*)lthrow                              );
     register_subr(_T("truncate"),                         SUBR_1,     (void*)ltruncate                           );
     register_subr(_T("unbind-symbol!"),                   SUBR_1,     (void*)lunbind_symbol                      );
@@ -801,8 +804,6 @@ namespace scan {
     register_subr(_T("vector-resize"),                    SUBR_3,     (void*)lvector_resize                      );
     register_subr(_T("vector-set!"),                      SUBR_3,     (void*)lvector_set                         );
     register_subr(_T("vector?"),                          SUBR_1,     (void*)lvectorp                            );
-    register_subr(_T("while"),                            SUBR_F,     (void*)lwhile                              );
-    register_subr(_T("while"),                            SUBR_F,     (void*)lwhile                              );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
     register_subr(_T("write-binary-fixnum"),              SUBR_4,     (void*)lwrite_binary_fixnum                );
     register_subr(_T("write-binary-flonum"),              SUBR_2,     (void*)lbinary_write_flonum                );

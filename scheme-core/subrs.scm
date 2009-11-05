@@ -4,7 +4,7 @@
 ;;;
 ;;; Lisp references to native SUBRs.
 
-;; special forms
+;; special forms - subr_macro
 (define and #.(scheme::%subr-by-name "and"))
 (define or #.(scheme::%subr-by-name "or"))
 (define begin #.(scheme::%subr-by-name "begin"))
@@ -21,6 +21,29 @@
 (define system::%%if #.(scheme::%subr-by-name "if"))
 (define system::%%list-let #.(scheme::%subr-by-name "list-let"))
 
+;; special forms - subr_f
+(define %define #.(scheme::%subr-by-name "%define"))
+(define %lambda #.(scheme::%subr-by-name "%lambda"))
+(define %time #.(scheme::%subr-by-name "%time"))
+(define catch #.(scheme::%subr-by-name "catch"))
+(define declare #.(scheme::%subr-by-name "declare"))
+(define quote #.(scheme::%subr-by-name "quote"))
+(define the-environment #.(scheme::%subr-by-name "the-environment"))
+(define while #.(scheme::%subr-by-name "while"))
+(define repeat #.(scheme::%subr-by-name "repeat"))
+(define set! #.(scheme::%subr-by-name "set!"))
+
+(define system::%%define #.(scheme::%subr-by-name "%define"))
+(define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
+(define system::%%time #.(scheme::%subr-by-name "%time"))
+(define system::%%catch #.(scheme::%subr-by-name "catch"))
+(define system::%%declare #.(scheme::%subr-by-name "declare"))
+(define system::%%quote #.(scheme::%subr-by-name "quote"))
+(define system::%%the-environment #.(scheme::%subr-by-name "the-environment"))
+(define system::%%while #.(scheme::%subr-by-name "while"))
+(define system::%%repeat #.(scheme::%subr-by-name "repeat"))
+(define system::%%set! #.(scheme::%subr-by-name "set!"))
+
 ;; primitive functions
 (define %call-with-global-environment #.(scheme::%subr-by-name "%call-with-global-environment"))
 (define %closure #.(scheme::%subr-by-name "%closure"))
@@ -30,7 +53,6 @@
 (define %copy-structure #.(scheme::%subr-by-name "%copy-structure"))
 (define %current-global-environment #.(scheme::%subr-by-name "%current-global-environment"))
 (define %debug-flags #.(scheme::%subr-by-name "%debug-flags"))
-(define %define #.(scheme::%subr-by-name "%define"))
 (define %define-global #.(scheme::%subr-by-name "%define-global"))
 (define %directory #.(scheme::%subr-by-name "%directory"))
 (define %dump-heap-state #.(scheme::%subr-by-name "%dump-heap-state"))
@@ -42,7 +64,6 @@
 (define %instance-map #.(scheme::%subr-by-name "%instance-map"))
 (define %instance-proto #.(scheme::%subr-by-name "%instance-proto"))
 (define %instance-slots #.(scheme::%subr-by-name "%instance-slots"))
-(define %lambda #.(scheme::%subr-by-name "%lambda"))
 (define %macro-transformer #.(scheme::%subr-by-name "%macro-transformer"))
 (define %make-eof #.(scheme::%subr-by-name "%make-eof"))
 (define %macro #.(scheme::%subr-by-name "%macrocons"))
@@ -82,7 +103,6 @@
 (define %test-blocking-input #.(scheme::%subr-by-name "%test-blocking-input"))
 
 
-(define %time #.(scheme::%subr-by-name "%time"))
 (define %unbound-marker #.(scheme::%subr-by-name "%unbound-marker"))
 (define * #.(scheme::%subr-by-name "*"))
 (define + #.(scheme::%subr-by-name "+"))
@@ -122,7 +142,6 @@
 (define external? #.(scheme::%subr-by-name "external?"))
 (define external-type-name #.(scheme::%subr-by-name "external-type-name"))
 (define car #.(scheme::%subr-by-name "car"))
-(define catch #.(scheme::%subr-by-name "catch"))
 (define cdr #.(scheme::%subr-by-name "cdr"))
 (define ceiling #.(scheme::%subr-by-name "ceiling"))
 (define char->integer #.(scheme::%subr-by-name "char->integer"))
@@ -139,7 +158,6 @@
 (define cos #.(scheme::%subr-by-name "cos"))
 (define debug-backtrace #.(scheme::%subr-by-name "debug-backtrace"))
 (define debug-write #.(scheme::%subr-by-name "debug-write"))
-(define declare #.(scheme::%subr-by-name "declare"))
 (define delete-file #.(scheme::%subr-by-name "delete-file"))
 (define delq #.(scheme::%subr-by-name "delq"))
 (define enlarge-heap #.(scheme::%subr-by-name "enlarge-heap"))
@@ -237,7 +255,6 @@
 (define primitive? #.(scheme::%subr-by-name "primitive?"))
 (define print-external-details #.(scheme::%subr-by-name "print-external-details"))
 (define procedure? #.(scheme::%subr-by-name "procedure?"))
-(define quote #.(scheme::%subr-by-name "quote"))
 (define quotient #.(scheme::%subr-by-name "quotient"))
 (define random #.(scheme::%subr-by-name "random"))
 (define rational? #.(scheme::%subr-by-name "rational?"))
@@ -251,13 +268,11 @@
 (define realtime #.(scheme::%subr-by-name "realtime"))
 (define realtime-time-zone-offset #.(scheme::%subr-by-name "realtime-time-zone-offset"))
 (define remainder #.(scheme::%subr-by-name "remainder"))
-(define repeat #.(scheme::%subr-by-name "repeat"))
 (define rich-write #.(scheme::%subr-by-name "rich-write"))
 (define round #.(scheme::%subr-by-name "round"))
 (define sleep #.(scheme::%subr-by-name "sleep"))
 (define runtime #.(scheme::%subr-by-name "runtime"))
 (define send #.(scheme::%subr-by-name "send"))
-(define set! #.(scheme::%subr-by-name "set!"))
 (define set-car! #.(scheme::%subr-by-name "set-car!"))
 (define set-cdr! #.(scheme::%subr-by-name "set-cdr!"))
 (define set-environment-variable! #.(scheme::%subr-by-name "set-environment-variable!"))
@@ -301,7 +316,6 @@
 (define system-info #.(scheme::%subr-by-name "system-info")) ;; REVISIT: deprecated
 (define tan #.(scheme::%subr-by-name "tan"))
 (define temporary-file-name #.(scheme::%subr-by-name "temporary-file-name"))
-(define the-environment #.(scheme::%subr-by-name "the-environment"))
 (define throw #.(scheme::%subr-by-name "throw"))
 (define truncate #.(scheme::%subr-by-name "truncate"))
 (define unbind-symbol! #.(scheme::%subr-by-name "unbind-symbol!"))
@@ -319,8 +333,6 @@
 (define vector-resize! #.(scheme::%subr-by-name "vector-resize!"))
 (define vector-set! #.(scheme::%subr-by-name "vector-set!"))
 (define vector? #.(scheme::%subr-by-name "vector?"))
-(define while #.(scheme::%subr-by-name "while"))
-(define while #.(scheme::%subr-by-name "while"))
 (define %debug-printer #.(scheme::%subr-by-name "%debug-printer"))
 (define write-binary-fixnum #.(scheme::%subr-by-name "write-binary-fixnum"))
 (define write-binary-flonum #.(scheme::%subr-by-name "write-binary-flonum"))
