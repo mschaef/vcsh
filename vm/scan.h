@@ -1860,7 +1860,6 @@ namespace scan {
   LRef lset_handler_frames(LRef new_frames);
   LRef lhandler_frames();
   LRef lcatch (LRef args, LRef env);
-  LRef lidefine (LRef args, LRef env);
   LRef ldeclare(LRef args, LRef env);
   LRef lilambda (LRef args, LRef env);
   LRef lwhile (LRef form, LRef env);

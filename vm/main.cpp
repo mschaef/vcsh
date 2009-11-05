@@ -491,7 +491,6 @@ namespace scan {
 
   static void register_main_subrs()
   {
-    register_subr(_T("%define"),                          SUBR_F,     (void*)lidefine                            );
     register_subr(_T("%lambda"),                          SUBR_F,     (void*)lilambda                            );
     register_subr(_T("%time"),                            SUBR_F,     (void*)ltime                               );
     register_subr(_T("catch"),                            SUBR_F,     (void*)lcatch                              );
@@ -772,7 +771,7 @@ namespace scan {
     register_subr(_T("string-set!"),                      SUBR_3,     (void*)lstring_set                         );
     register_subr(_T("string-trim"),                      SUBR_2,     (void*)lstring_trim                        );
     register_subr(_T("string-trim-left"),                 SUBR_2,     (void*)lstring_trim_left                   );
-    register_subr(_T("string-trim-right"),                SUBR_2,     (void*)lfasl-cstring_trim_right                  );
+    register_subr(_T("string-trim-right"),                SUBR_2,     (void*)lstring_trim_right                  );
     register_subr(_T("string-upcase!"),                   SUBR_1,     (void*)lstring_upcased                     );
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );

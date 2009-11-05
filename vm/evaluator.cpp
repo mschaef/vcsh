@@ -1153,42 +1153,6 @@ namespace scan {
     return val;
   }
 
-  LRef lidefine(LRef args, LRef env)
-  {
-    LRef tmp, var, val;
-
-    var = lcar(args);
-
-    if (!SYMBOLP(var))
-      vmerror_wrong_type(var);
-
-    val = leval(lcar(lcdr(args)), env);
-
-    // Overwrite the variable, if defined in the lexical environment
-    tmp = lenvlookup (var, env);
-
-    if (!NULLP(tmp))
-      {
-        SET_CAR(tmp, val);
-        return val;
-      }
-
-    // If we don't have a lexical environment, define the variable globally.
-    if (NULLP (env))
-      return lidefine_global(var, val, NIL);
-
-    dscwritef(DF_SHOW_LOCAL_DEFINES, _T("; DEBUG: locally defining ~a\n"), var);
-
-    // If we do have a lexical environment add a new binding.
-    tmp = lcar(env);
-    lsetcar(tmp, lcons(var, lcar(tmp)));
-    lsetcdr(tmp, lcons(val, lcdr(tmp)));
-
-    return (val);
-
-    //return lidefine_global(var, val, NIL);
-  }
-
   LRef ldeclare(LRef args, LRef env)
   {
     LRef procedure_name = lcar(args);

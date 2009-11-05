@@ -22,7 +22,6 @@
 (define system::%%list-let #.(scheme::%subr-by-name "list-let"))
 
 ;; special forms - subr_f
-(define %define #.(scheme::%subr-by-name "%define"))
 (define %lambda #.(scheme::%subr-by-name "%lambda"))
 (define %time #.(scheme::%subr-by-name "%time"))
 (define catch #.(scheme::%subr-by-name "catch"))
@@ -33,7 +32,6 @@
 (define repeat #.(scheme::%subr-by-name "repeat"))
 (define set! #.(scheme::%subr-by-name "set!"))
 
-(define system::%%define #.(scheme::%subr-by-name "%define"))
 (define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
 (define system::%%time #.(scheme::%subr-by-name "%time"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
