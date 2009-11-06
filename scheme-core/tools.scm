@@ -9,13 +9,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Performance Analysis Utilities
 
-
+(define *time-flonum-print-precision* 5)
 (define (call-with-time-output fn)
+
   "Times the execution of a call to the paramaterless function <fn>, printing out a
    message to stdout with timing information."
   (let ((result (%time (fn))))
     (dynamic-let ((*print-addresses* #f)
-                  (*flonum-print-precision* 2))
+                  (*flonum-print-precision* *time-flonum-print-precision*))
       (format #t  "~&; time = ~a ms (~a gc), ~a cons work (~a env.)\n; ~a forms work\n"
               (* 1000.0 (vector-ref result 1))
               (* 1000.0 (vector-ref result 2))
