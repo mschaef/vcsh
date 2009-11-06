@@ -68,6 +68,7 @@
            *repl-pre-print-value-hook*
            *shutdown-hook*
            *silent*
+           *time-flonum-print-precision*
            *use-debug-printer*
            +
            -
@@ -156,6 +157,7 @@
            awhile
            bad-command-argument-value
            basename-type
+           begin
            begin-1
            begin-2
            binary-port?
