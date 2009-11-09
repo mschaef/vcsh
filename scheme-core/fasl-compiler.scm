@@ -385,7 +385,7 @@
           ;; the context of local variables. The interpreter must reify at
           ;; runtime to capture the correct variable bindings in the closure's
           ;; environment.
-          `(scheme::%lambda ,p-list ,l-list ,body-form)))))
+          `(system::%%lambda ,p-list ,l-list ,body-form)))))
 
 (define (meaning/application form cenv genv at-toplevel?)
   (map #L(form-meaning _ cenv genv at-toplevel?) form))
@@ -431,6 +431,9 @@
   (list-let (fn-pos name defn) form
     `(scheme::%define-global ',name ,(form-meaning defn cenv genv at-toplevel?) ',genv)))
 
+(define (meaning/quote form cenv genv at-toplevel?)
+  `(system::%%quote ,(cadr form)))
+
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
@@ -451,7 +454,7 @@
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
                ((list-let)         (meaning/list-let    form cenv genv at-toplevel?))
                ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
-               ((quote)            form)
+               ((quote)            (meaning/quote       form cenv genv at-toplevel?))
                (#t                 (meaning/application form cenv genv at-toplevel?))))))
     form))
 
