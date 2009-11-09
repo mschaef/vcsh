@@ -432,7 +432,7 @@
     `(scheme::%define-global ',name ,(form-meaning defn cenv genv at-toplevel?) ',genv)))
 
 (define (meaning/quote form cenv genv at-toplevel?)
-  `(system::%%quote ,(cadr form)))
+  `(quote ,(cadr form)))
 
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")

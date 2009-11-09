@@ -36,7 +36,6 @@
 (define system::%%time #.(scheme::%subr-by-name "%time"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
 (define system::%%declare #.(scheme::%subr-by-name "declare"))
-(define system::%%quote #.(scheme::%subr-by-name "quote"))
 (define system::%%the-environment #.(scheme::%subr-by-name "the-environment"))
 (define system::%%while #.(scheme::%subr-by-name "while"))
 (define system::%%repeat #.(scheme::%subr-by-name "repeat"))
