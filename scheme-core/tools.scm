@@ -48,16 +48,6 @@
 
 ;;; Documentation access
 
-(define (procedure-decl? c prop)
-  (define (next-decl props)
-    (cond ((null? props) #f)
-          ((and (symbol? (car props)) (eq? (car props) prop)) #t)
-          ((and (pair? (car props)) (eq? (caar props) prop)) (cdar props))
-          (#t (next-decl (cdr props)))))
-  (check procedure? c)
-  (aif (assq 'declare (%property-list c))
-       (next-decl (cdr it))
-       #f))
 
 (define (documentation obj) ;; REVISIT: Should be a generic function
   "Return the documentation string associated with the object <obj>.

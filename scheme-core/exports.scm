@@ -19,7 +19,7 @@
            "stack-overflow-escape"
 
            ;; Procedure rewrite symbols
-           "begin"  "declare" "documentation"
+           "begin" "documentation"
 
            ;; Type names
            "boolean" "byte-vector" "external" "character" "closure"

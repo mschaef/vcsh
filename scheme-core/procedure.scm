@@ -53,9 +53,6 @@
     (when (and (string? (car code)) (not (null? (cdr code))))
       (set! doc-string (car code))
       (pop! code))
-    (when (and (list? (car code)) (eq? 'declare (caar code)))
-      (set! declarations (car code))
-      (pop! code))
     (values doc-string declarations code)))
 
 
@@ -214,8 +211,6 @@
         (values-bind (parse-code-body code) (doc-string decls code)
           (when doc-string
             (push! `(documentation . ,doc-string) p-list))
-          (when decls
-            (push! `(declare . ,decls) p-list))
 
         (if (not special?)
             `(%lambda ,p-list ,l-list ,@(canonicalize-code-body code))
