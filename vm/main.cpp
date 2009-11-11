@@ -436,9 +436,6 @@ namespace scan {
     gc_protect_sym(&interp.sym_port_debug, _T("*current-debug-port*"), interp.system_package);
     lidefine_global(interp.sym_port_debug, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_declare, _T("declare"), interp.system_package);
-    lidefine_global(interp.sym_declare, NIL, NIL);
-
     gc_protect_sym(&interp.sym_name, _T("name"), interp.system_package);
     lidefine_global(interp.sym_name, NIL, NIL);
 
@@ -494,7 +491,6 @@ namespace scan {
     register_subr(_T("%lambda"),                          SUBR_F,     (void*)lilambda                            );
     register_subr(_T("%time"),                            SUBR_F,     (void*)ltime                               );
     register_subr(_T("catch"),                            SUBR_F,     (void*)lcatch                              );
-    register_subr(_T("declare"),                          SUBR_F,     (void*)ldeclare                            );
     register_subr(_T("quote"),                            SUBR_F,     (void*)lquote                              );
     register_subr(_T("repeat"),                           SUBR_F,     (void*)lrepeat                             );
     register_subr(_T("set!"),                             SUBR_F,     (void*)lsetq                               );

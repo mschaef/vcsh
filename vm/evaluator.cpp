@@ -1153,41 +1153,6 @@ namespace scan {
     return val;
   }
 
-  LRef ldeclare(LRef args, LRef env)
-  {
-    LRef procedure_name = lcar(args);
-    args = lcdr(args);
-
-    LRef procedure = NIL;
-
-    if (SYMBOLP(procedure_name))
-      {
-        LRef env_frame = lenvlookup(procedure_name, env);
-
-        if (NULLP(env_frame))
-          procedure = SYMBOL_VCELL(procedure_name);
-        else
-          {
-            if (UNBOUND_MARKER_P(CAR(env_frame)))
-              vmerror_unbound(procedure_name);
-
-            procedure = lcar(env_frame);
-          }
-      }
-    else
-      procedure = procedure_name;
-
-    if (!CLOSUREP(procedure) && !SUBRP(procedure))
-      vmerror(_T("Argument 1 of a declaration must be a symbol naming a procedure or a procedure."), procedure_name);
-
-
-    lset_property_list(procedure,
-                       lcons(lcons(interp.sym_declare, args),
-                             lproperty_list(procedure)));
-
-    return boolcons(false);
-  }
-
   LRef lif (LRef * pform, LRef * penv)
   {
     LRef args, env;

@@ -452,7 +452,6 @@ namespace scan {
     LRef        sym_current_package;
     LRef        sym_progn;
     LRef        sym_errobj;
-    LRef        sym_declare;
     LRef        sym_documentation;
     LRef        sym_name;
     LRef        sym_do_not_understand;
@@ -1860,7 +1859,6 @@ namespace scan {
   LRef lset_handler_frames(LRef new_frames);
   LRef lhandler_frames();
   LRef lcatch (LRef args, LRef env);
-  LRef ldeclare(LRef args, LRef env);
   LRef lilambda (LRef args, LRef env);
   LRef lwhile (LRef form, LRef env);
   LRef lrepeat (LRef form, LRef env);
