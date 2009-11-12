@@ -24,29 +24,6 @@
   (test-case (equal? '(1) (duplicates (append (iseq 1 1000) (cons 1)))))
   )
 
-(define-test list-duplicates
-  (test-case (runtime-error? (duplicates? :not-a-list)))
-  (test-case (runtime-error? (duplicates? '(1 . :minimal-improper-list))))
-  (test-case (runtime-error? (duplicates? '(1 2 3 4 5 . :longer-improper-list))))
-
-  (test-case (equal? #f (duplicates? '())))
-  (test-case (equal? #f (duplicates? '(0))))
-  (test-case (equal? #f (duplicates? '(0 1))))
-
-  (test-case (equal? '(1) (duplicates? '(0 1 1))))
-
-  (test-case (equal? '(1) (duplicates? '(0 1 1 1))))
-
-  (test-case (equal? '(1) (duplicates? '(1 0 1 1 1 2 3 4 1))))
-
-  (test-case (equal? '(y z) (duplicates? '(x y z z y))))
-
-  (test-case (equal? #f (duplicates? (iseq 1 1000))))
-
-  (test-case (equal? '(1) (duplicates? (cons 1 (iseq 1 1000)))))
-
-  (test-case (equal? '(1) (duplicates? (append (iseq 1 1000) (cons 1)))))
-  )
 
 ;; (define-test delete-duplicates
 ;;   (test-case (runtime-error? (delete-duplicates :not-a-list)))
