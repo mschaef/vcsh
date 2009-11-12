@@ -405,15 +405,15 @@
 (define (meaning/set! form cenv genv at-toplevel?)
   (list-let (fn-pos var val-form) form
     (if (bound-in-cenv? var cenv)
-        `(set! ,var ,(form-meaning val-form cenv genv at-toplevel?))
+        `(system::%%set! ,var ,(form-meaning val-form cenv genv at-toplevel?))
         (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?)))))
 
 (define (meaning/cond form cenv genv at-toplevel?)
-  `(system::%%cond ,(cadr form)
+  `(system::%%cond
      ,@(map (lambda (cond-clause)
               `(,(form-meaning (car cond-clause) cenv genv at-toplevel?)
                 ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr cond-clause))))
-            (cddr form))))
+            (cdr form))))
 
 (define (meaning/case form cenv genv at-toplevel?)
   `(system::%%case ,(cadr form)

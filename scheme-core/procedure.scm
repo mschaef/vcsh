@@ -28,8 +28,6 @@
                 (apply form-fn))
               (apply form-fn)))))))
 
-
-
 (define (valid-lambda-list? lambda-list)
   (or (symbol? lambda-list)
       (null? lambda-list)
@@ -43,7 +41,6 @@
            (symbol? (car vars))
            (valid-variable-list? (cdr vars)))))
 
-
 (define (parse-code-body code)
   "Parses the code body <code> into a tuple of documentation, declarations, and code. If
    there is no documentation or no declarations, then those are returned as #f."
@@ -54,8 +51,6 @@
       (set! doc-string (car code))
       (pop! code))
     (values doc-string declarations code)))
-
-
 
 (define (parse-lambda-list l-list)
   "Parse the lambda list <l-list>, returning four values: the list
@@ -76,7 +71,6 @@
            o-arg)
           (#t
            (error "Invalid optional argument ~s in lambda list: ~s" o-arg l-list))))
-
 
   (define (parse-keyword k-arg)
     "Validates keyword binding <k-arg>, and normalizes it into the
@@ -151,7 +145,6 @@
                ()
                arg-list))
 
-
 (defmacro (%lambda/mutable-rest p-list l-list . code)
   (let ((n-args (take-until-dot l-list))
         (r-arg (if (atom? l-list) l-list (cdr (last-pair l-list)))))
@@ -165,7 +158,6 @@
                 (let ((,r-arg ,immutable-rest))
                   ,@code)))))))
 
-
 (define (canonicalize-code-body code-forms)
   "Ensures that the code body consists of precisely one form."
 
@@ -176,11 +168,7 @@
 ;;     (#t `((begin ,@code-forms)))))
     (#t code-forms)))
 
-
-
-
 (defmacro (named-lambda name l-list . code)
-
 
   (let ((p-list (list (cons 'lambda-list l-list))))
     (unless (or (eq? name #f) (null? name))
