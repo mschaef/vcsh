@@ -33,5 +33,5 @@
                                                 (macro-name . ,macro-name)
                                                 (macro-formals . ,macro-formals))
                                                (form env)
-                                               (list-let ,macro-formals (cdr form)
-                                                         ,@macro-body))))))
+                                               (dbind ,macro-formals (cdr form)
+                                                      ,@macro-body))))))

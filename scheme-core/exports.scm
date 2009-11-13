@@ -294,6 +294,7 @@
            date-week-day
            date-week-number
            date-year-day
+           dbind
            debug-write
            defalias
            defer-until-idle

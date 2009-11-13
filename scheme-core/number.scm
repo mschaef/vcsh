@@ -117,7 +117,7 @@
   (let ((mean (list-mean pts)))
     (map (lambda (x) (- x mean)) pts)))
 
-(define (list-stat-sums pts) ; REVISIT: return multiple values?
+(define (list-stat-sums pts) ; TODO: return multiple values instead of a list.
   "Retuns a list of sums over <pts> typically used in cumulative statistics. (count x-sum x2-sum y-sum y2-sum xy-sum)"
   (let sum-next ((pts pts) (x-sum 0.0) (x2-sum 0.0) (y-sum 0.0) (y2-sum 0.0) (xy-sum 0.0) (count 0))
     (cond ((null? pts) (list count x-sum x2-sum y-sum y2-sum xy-sum))
@@ -140,33 +140,32 @@
    components of a complex number."
   (define (sdev su2 n) (sqrt (* (/ 1 (- n 1)) su2)))
   (check stats-list? pts)
-  (list-let (count x-sum x2-sum y-sum y2-sum xy-sum)
-            (list-stat-sums (list-mean-center pts))
-
-            (if (list-2d? pts)
-                (make-rectangular
-                 (sdev x2-sum count)
-                 (sdev y2-sum count))
-                (sdev x2-sum count))))
+  (dbind (count x-sum x2-sum y-sum y2-sum xy-sum)
+         (list-stat-sums (list-mean-center pts))
+         (if (list-2d? pts)
+             (make-rectangular
+              (sdev x2-sum count)
+              (sdev y2-sum count))
+             (sdev x2-sum count))))
 
 (define (list-lr pts)
   (check stats-list? pts)
-  (list-let (x-mean y-mean) (rectangular->list (list-mean pts))
-            (list-let (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
-                      (let ((b (/ xy-sum x2-sum)))
-                        (vector b (- y-mean (* b x-mean)))))))
+  (dbind (x-mean y-mean) (rectangular->list (list-mean pts))
+         (dbind (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
+                (let ((b (/ xy-sum x2-sum)))
+                  (vector b (- y-mean (* b x-mean)))))))
 
 (define (list-cov pts population?)
   (check stats-list? pts)
-  (list-let (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
-            (* (/ 1 (- count (if population? 0 1.0)))
-               xy-sum)))
+  (dbind (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
+         (* (/ 1 (- count (if population? 0 1.0)))
+            xy-sum)))
 
 (define (list-corr pts)
   (check stats-list? pts)
-  (list-let (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
-            (/ xy-sum
-               (sqrt (* x2-sum y2-sum)))))
+  (dbind (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
+         (/ xy-sum
+            (sqrt (* x2-sum y2-sum)))))
 
 (defmacro (incr! var . value)
   "Increments <var> by <value>, where value defaults to 1"

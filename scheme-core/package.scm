@@ -507,10 +507,12 @@
         ;; scoped to the set of all gensyms.
         (number->string count))))))
 
-(defmacro (with-gensyms syms . code)
-  `(let ,(map (lambda (sym)
-                `(,sym (gensym ,(symbol-name sym))))
-              syms) ,@code))
+(defmacro (with-gensyms gensym-names . code)
+  (check list? gensym-names)
+  `(let ,(map (lambda (gensym-name)
+                (check symbol? gensym-name)
+                `(,gensym-name (gensym ,(symbol-name gensym-name))))
+              gensym-names) ,@code))
 
 (define (build-symbol prefix sym suffix)
   "Builds a symbol by adding a prefix and a suffix. The result symbol
