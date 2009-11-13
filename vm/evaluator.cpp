@@ -821,14 +821,24 @@ namespace scan {
 
             switch (FAST_OP_OPCODE(form))
               {
+              case FOP_LITERAL:
+                retval = FAST_OP_ARG1(form);
+                break;
+
               case FOP_GLOBAL_REF:
                 assert(SYMBOLP(sym));
-                global_binding = SYMBOL_VCELL(sym);
 
-                if (UNBOUND_MARKER_P(global_binding))
-                  vmerror_unbound(sym);
+                if (SYMBOL_HOME(sym) == interp.keyword_package)
+                  retval = sym;
+                else
+                  {
+                    global_binding = SYMBOL_VCELL(sym);
 
-                retval = global_binding;
+                    if (UNBOUND_MARKER_P(global_binding))
+                      vmerror_unbound(sym);
+
+                    retval = global_binding;
+                  }
                 break;
 
               case FOP_GLOBAL_SET:
@@ -846,15 +856,20 @@ namespace scan {
           }
         else if (type == TC_SYMBOL)
           {
-            LRef local_binding = lenvlookup(form, env);
-
-            if(NULLP(local_binding))
-              retval = SYMBOL_VCELL(form);
+            if (SYMBOL_HOME(form) == interp.keyword_package)
+              retval = form;
             else
-              retval = CAR(local_binding);
+              {
+                LRef local_binding = lenvlookup(form, env);
 
-            if (UNBOUND_MARKER_P(retval))
-              vmerror_unbound(form);
+                if(NULLP(local_binding))
+                  retval = SYMBOL_VCELL(form);
+                else
+                  retval = CAR(local_binding);
+                
+                if (UNBOUND_MARKER_P(retval))
+                  vmerror_unbound(form);
+              }
           }
         else if (type == TC_CONS)
           {
