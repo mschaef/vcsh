@@ -24,6 +24,7 @@
   `(eval-when (:load-toplevel :compile-toplevel :execute)
      (extend-fast-op-names! ,op-name ,op-code ,arity)))
 
+(define-fast-op :literal 8 1)
 (define-fast-op :global-ref 16 1)
 (define-fast-op :global-set! 17 2)
 

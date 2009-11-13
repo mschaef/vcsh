@@ -866,7 +866,7 @@ namespace scan {
                   retval = SYMBOL_VCELL(form);
                 else
                   retval = CAR(local_binding);
-                
+
                 if (UNBOUND_MARKER_P(retval))
                   vmerror_unbound(form);
               }
