@@ -415,11 +415,17 @@
 (define (meaning/quote form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :literal (cadr form)))
 
+(define (meaning/symbol form cenv genv at-toplevel?)
+  (if (bound-in-cenv? form cenv)
+      form
+      (scheme::assemble-fast-op :global-ref form)))
+
+
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
-      (cond ((and (symbol? form) (not (bound-in-cenv? form cenv)))
-             (scheme::assemble-fast-op :global-ref form))
+      (cond ((symbol? form)
+             (meaning/symbol form cenv genv at-toplevel?))
             ((atom? form)
              form)
             (#t
