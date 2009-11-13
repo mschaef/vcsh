@@ -23,7 +23,6 @@
 (define %lambda #.(scheme::%subr-by-name "%lambda"))
 (define %time #.(scheme::%subr-by-name "%time"))
 (define catch #.(scheme::%subr-by-name "catch"))
-(define quote #.(scheme::%subr-by-name "quote"))
 (define the-environment #.(scheme::%subr-by-name "the-environment"))
 (define while #.(scheme::%subr-by-name "while"))
 (define repeat #.(scheme::%subr-by-name "repeat"))

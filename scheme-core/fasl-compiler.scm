@@ -402,7 +402,7 @@
             (cdr form))))
 
 (define (meaning/case form cenv genv at-toplevel?)
-  `(system::%%case ,(cadr form)
+  `(system::%%case ,(form-meaning (cadr form) cenv genv at-toplevel?)
      ,@(map (lambda (case-clause)
               `(,(car case-clause)
                 ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr case-clause))))
@@ -410,7 +410,9 @@
 
 (define (meaning/%define form cenv genv at-toplevel?)
   (dbind (fn-pos name defn) form
-    `(scheme::%define-global ',name ,(form-meaning defn cenv genv at-toplevel?) ',genv)))
+    `(scheme::%define-global ,(scheme::assemble-fast-op :literal name)
+                             ,(form-meaning defn cenv genv at-toplevel?)
+                             ,(scheme::assemble-fast-op :literal genv))))
 
 (define (meaning/quote form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :literal (cadr form)))
@@ -419,7 +421,6 @@
   (if (bound-in-cenv? form cenv)
       form
       (scheme::assemble-fast-op :global-ref form)))
-
 
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
