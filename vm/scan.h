@@ -1848,7 +1848,6 @@ namespace scan {
   LRef lrepresentation_of(LRef obj);
   LRef get_current_frames(fixnum_t skip_count, LRef dump_to_port_while_gathering);
   LRef lget_current_frames(LRef skip_count);
-  LRef llist_let (LRef *pform, LRef *penv);
   LRef lmacrop(LRef obj);
   LRef lif (LRef * pform, LRef * penv);
   LRef lor (LRef * pform, LRef * penv);

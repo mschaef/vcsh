@@ -1504,37 +1504,6 @@ namespace scan {
       }
   }
 
-  /* list-let
-   *
-   * (list_let <vars> <values>
-   *       <forms>)
-   *
-   * Macro function that binds <values> to <vars> on a 1:1 basis
-   */
-  LRef llist_let (LRef *pform, LRef *penv)
-  {
-    LRef l      = lcdr(*pform);
-    LRef vars   = lcar(l);
-    LRef values = lcar(lcdr(l));
-    LRef forms  = lcdr(lcdr((l)));
-    LRef next;
-
-    values = leval(values, *penv);
-
-    *penv = extend_env(values, vars, *penv);
-
-    next = lcdr(forms);
-    while (!NULLP (next))
-      {
-        leval(lcar(forms), *penv);
-        forms = next;
-        next = lcdr(next);
-      }
-    *pform = lcar(forms);
-
-    return boolcons(true);
-  }
-
 
   /**************************************************************
    * Handler Bindings

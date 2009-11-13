@@ -502,7 +502,6 @@ namespace scan {
     register_subr(_T("case"),                             SUBR_MACRO, (void*)lcase                               );
     register_subr(_T("cond"),                             SUBR_MACRO, (void*)lcond                               );
     register_subr(_T("if"),                               SUBR_MACRO, (void*)lif                                 );
-    register_subr(_T("list-let"),                         SUBR_MACRO, (void*)llist_let                           );
     register_subr(_T("or"),                               SUBR_MACRO, (void*)lor                                 );
 
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
