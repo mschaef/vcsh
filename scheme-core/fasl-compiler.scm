@@ -247,19 +247,6 @@
   `(set! ,(cadr form) ,(expand-form (caddr form) genv at-toplevel?)))
 
 
-(define (expand/list-let form genv at-toplevel?)
-  (define (varlist-valid? varlist)
-    (cond ((null? varlist) #t)
-          ((symbol? varlist) #t)
-          ((and (pair? varlist) (symbol? (car varlist))) (varlist-valid? (cdr varlist)))
-          (#t #f)))
-  (unless (>= (length form) 3)
-    (compile-error form "Invalid list-let, bad length."))
-  (unless (varlist-valid? (cadr form))
-    (compile-error form "Invalid list-let, bad variable list."))
-  `(list-let ,(cadr form) ,(expand-form (caddr form) genv at-toplevel?)
-     ,@(translate-form-sequence (cdddr form) #t genv at-toplevel?)))
-
 (define (parse-eval-when form)
   (unless (> (length form) 2)
     (compile-error form "Incomplete eval-when."))
@@ -321,7 +308,6 @@
            ((scheme::%tlambda)    (expand/%tlambda    form genv at-toplevel?))
            ((set!)                (expand/set!        form genv at-toplevel?))
            ((begin)               (expand/begin       form genv at-toplevel?))
-           ((list-let)            (expand/list-let    form genv at-toplevel?))
            ((eval-when)           (expand/eval-when   form genv at-toplevel?))
            (#t
             (values-bind (maybe-expand-user-macro form genv at-toplevel?) (expanded? expanded-form)
@@ -374,7 +360,7 @@
 
   (unless (and (list? defn) (>= (length defn) 3))
     (error "Invalid function syntax: ~s" defn))
-  (list-let (fn-pos p-list l-list . body) defn
+  (dbind (fn-pos p-list l-list . body) defn
     (let ((body-form (form-meaning (code-body-form body)
                                    (extend-cenv l-list cenv)
                                    genv
@@ -403,7 +389,7 @@
   `(system::%%if ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
 (define (meaning/set! form cenv genv at-toplevel?)
-  (list-let (fn-pos var val-form) form
+  (dbind (fn-pos var val-form) form
     (if (bound-in-cenv? var cenv)
         `(system::%%set! ,var ,(form-meaning val-form cenv genv at-toplevel?))
         (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?)))))
@@ -422,13 +408,8 @@
                 ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr case-clause))))
             (cddr form))))
 
-(define (meaning/list-let form cenv genv at-toplevel?)
-  (list-let (fn-pos vars val-form . body) form
-    `(system::%%list-let ,vars ,(form-meaning val-form cenv genv at-toplevel?)
-       ,@(map #L(form-meaning _ (extend-cenv vars cenv) genv at-toplevel?) body))))
-
 (define (meaning/%define form cenv genv at-toplevel?)
-  (list-let (fn-pos name defn) form
+  (dbind (fn-pos name defn) form
     `(scheme::%define-global ',name ,(form-meaning defn cenv genv at-toplevel?) ',genv)))
 
 (define (meaning/quote form cenv genv at-toplevel?)
@@ -452,7 +433,6 @@
                ((cond)             (meaning/cond        form cenv genv at-toplevel?))
                ((case)             (meaning/case        form cenv genv at-toplevel?))
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
-               ((list-let)         (meaning/list-let    form cenv genv at-toplevel?))
                ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
                ((quote)            (meaning/quote       form cenv genv at-toplevel?))
                (#t                 (meaning/application form cenv genv at-toplevel?))))))

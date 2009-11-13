@@ -18,7 +18,6 @@
 (define system::%%case #.(scheme::%subr-by-name "case"))
 (define system::%%cond #.(scheme::%subr-by-name "cond"))
 (define system::%%if #.(scheme::%subr-by-name "if"))
-(define system::%%list-let #.(scheme::%subr-by-name "list-let"))
 
 ;; special forms - subr_f
 (define %lambda #.(scheme::%subr-by-name "%lambda"))
@@ -28,7 +27,6 @@
 (define the-environment #.(scheme::%subr-by-name "the-environment"))
 (define while #.(scheme::%subr-by-name "while"))
 (define repeat #.(scheme::%subr-by-name "repeat"))
-;;(define set! #.(scheme::%subr-by-name "set!"))
 
 (define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
 (define system::%%time #.(scheme::%subr-by-name "%time"))
