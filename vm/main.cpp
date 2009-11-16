@@ -491,7 +491,6 @@ namespace scan {
     register_subr(_T("%lambda"),                          SUBR_F,     (void*)lilambda                            );
     register_subr(_T("%time"),                            SUBR_F,     (void*)ltime                               );
     register_subr(_T("catch"),                            SUBR_F,     (void*)lcatch                              );
-    register_subr(_T("quote"),                            SUBR_F,     (void*)lquote                              );
     register_subr(_T("repeat"),                           SUBR_F,     (void*)lrepeat                             );
     register_subr(_T("set!"),                             SUBR_F,     (void*)lsetq                               );
     register_subr(_T("the-environment"),                  SUBR_F,     (void*)lthe_environment                    );

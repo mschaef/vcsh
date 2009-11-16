@@ -422,7 +422,7 @@
 
 (define (meaning/symbol form cenv genv at-toplevel?)
   (cond ((keyword? form)
-         (scheme::assemble-fast-op :literal form)) 
+         (scheme::assemble-fast-op :literal form))
         ((bound-in-cenv? form cenv)
          form)
         (#t

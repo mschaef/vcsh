@@ -1863,8 +1863,7 @@ namespace scan {
   LRef lwhile (LRef form, LRef env);
   LRef lrepeat (LRef form, LRef env);
   LRef lsetq (LRef args, LRef env);
-  LRef lquote (LRef args, LRef env);
-  LRef lthe_environment (LRef args, LRef env);
+    LRef lthe_environment (LRef args, LRef env);
   LRef ltime (LRef args, LRef env);
   LRef lpanic(LRef msg);
   LRef lexternal_data(LRef x);

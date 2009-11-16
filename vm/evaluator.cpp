@@ -1265,14 +1265,7 @@ namespace scan {
     return boolcons(true);
   }
 
-  LRef lquote (LRef args, LRef env)
-  {
-    UNREFERENCED(env);
-
-    return lcar(args);
-  }
-
-  LRef lthe_environment (LRef args, LRef env)
+    LRef lthe_environment (LRef args, LRef env)
   {
     UNREFERENCED(args);
 
