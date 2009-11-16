@@ -390,9 +390,12 @@
 
 (define (meaning/set! form cenv genv at-toplevel?)
   (dbind (fn-pos var val-form) form
-    (if (bound-in-cenv? var cenv)
-        `(system::%%set! ,var ,(form-meaning val-form cenv genv at-toplevel?))
-        (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?)))))
+    (cond ((keyword? var)
+           (compile-error form "Cannot rebind a keyword: ~s" var))
+          ((bound-in-cenv? var cenv)
+           `(system::%%set! ,var ,(form-meaning val-form cenv genv at-toplevel?)))
+          (#t
+           (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?))))))
 
 (define (meaning/cond form cenv genv at-toplevel?)
   `(system::%%cond
@@ -418,9 +421,12 @@
   (scheme::assemble-fast-op :literal (cadr form)))
 
 (define (meaning/symbol form cenv genv at-toplevel?)
-  (if (bound-in-cenv? form cenv)
-      form
-      (scheme::assemble-fast-op :global-ref form)))
+  (cond ((keyword? form)
+         (scheme::assemble-fast-op :literal form)) 
+        ((bound-in-cenv? form cenv)
+         form)
+        (#t
+         (scheme::assemble-fast-op :global-ref form))))
 
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
