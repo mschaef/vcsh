@@ -1853,7 +1853,6 @@ namespace scan {
   LRef lif (LRef * pform, LRef * penv);
   LRef lor (LRef * pform, LRef * penv);
   LRef land (LRef * pform, LRef * penv);
-  LRef lcond (LRef * pform, LRef * penv);
   LRef lcase (LRef * pform, LRef * penv);
   LRef lprogn (LRef * pform, LRef * penv);
   LRef lset_handler_frames(LRef new_frames);
