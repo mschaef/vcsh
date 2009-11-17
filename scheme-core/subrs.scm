@@ -9,14 +9,12 @@
 (define or #.(scheme::%subr-by-name "or"))
 (define begin #.(scheme::%subr-by-name "begin"))
 (define case #.(scheme::%subr-by-name "case"))
-(define cond #.(scheme::%subr-by-name "cond"))
 (define if #.(scheme::%subr-by-name "if"))
 
 (define system::%%and #.(scheme::%subr-by-name "and"))
 (define system::%%or #.(scheme::%subr-by-name "or"))
 (define system::%%begin #.(scheme::%subr-by-name "begin"))
 (define system::%%case #.(scheme::%subr-by-name "case"))
-(define system::%%cond #.(scheme::%subr-by-name "cond"))
 (define system::%%if #.(scheme::%subr-by-name "if"))
 
 ;; special forms - subr_f

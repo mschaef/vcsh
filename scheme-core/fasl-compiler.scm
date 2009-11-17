@@ -279,18 +279,6 @@
               `(,(car case-clause) ,@(map #L(expand-form _ genv at-toplevel?) (cdr case-clause))))
             (cddr form))))
 
-(define (expand/cond form genv at-toplevel?)
-  (unless (>= (length form) 2)
-    (compile-error form "Invalid cond, bad length."))
-  (unless (every? (lambda (cond-clause)
-                    (or (eq? cond-clause #t)
-                        (eq? cond-clause 'else)
-                        (list? cond-clause)))
-                  (cdr form))
-    (compile-error form "Invalid cond, bad clause."))
-
-  `(cond ,@(map (lambda (cond-clause) (map #L(expand-form _ genv at-toplevel?) cond-clause)) (cdr form))))
-
 (define (expand/logical form genv at-toplevel?)
   `(,(car form) ,@(map #L(expand-form _ genv at-toplevel?) (cdr form))))
 
@@ -302,7 +290,6 @@
            ((quote)               form)
            ((or and)              (expand/logical     form genv at-toplevel?))
            ((case)                (expand/case        form genv at-toplevel?))
-           ((cond)                (expand/cond        form genv at-toplevel?))
            ((if)                  (expand/if          form genv at-toplevel?))
            ((scheme::%lambda)     (expand/%lambda     form genv at-toplevel?))
            ((scheme::%tlambda)    (expand/%tlambda    form genv at-toplevel?))
@@ -397,13 +384,6 @@
           (#t
            (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?))))))
 
-(define (meaning/cond form cenv genv at-toplevel?)
-  `(system::%%cond
-     ,@(map (lambda (cond-clause)
-              `(,(form-meaning (car cond-clause) cenv genv at-toplevel?)
-                ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr cond-clause))))
-            (cdr form))))
-
 (define (meaning/case form cenv genv at-toplevel?)
   `(system::%%case ,(form-meaning (cadr form) cenv genv at-toplevel?)
      ,@(map (lambda (case-clause)
@@ -443,7 +423,6 @@
                ((or)               (meaning/or          form cenv genv at-toplevel?))
                ((and)              (meaning/and         form cenv genv at-toplevel?))
                ((if)               (meaning/if          form cenv genv at-toplevel?))
-               ((cond)             (meaning/cond        form cenv genv at-toplevel?))
                ((case)             (meaning/case        form cenv genv at-toplevel?))
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
                ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
@@ -548,30 +527,31 @@
                  (if load-time-eval? " [load-time]" "")
                  (if compile-time-eval? " [compile-time]" "")
                  form)
-  (cond ((pair? form)
-         (case (car form)
-           ((scheme::%define)
-            (let ((var (second form))
-                  (val (compile-form (third form) genv)))
-
-            ;; error checking here???
-            (compiler-define var (compiler-evaluate val genv) genv)
-            (emit-definition var val genv)))
-           ((begin)
-            (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? genv))
-           ((include)
-            (process-toplevel-include form genv))
-           ((eval-when)
-            (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv))
-           (#t
-            (values-bind (maybe-expand-user-macro form genv #t) (expanded? expanded-form)
-              (cond (expanded?
-                     (process-toplevel-form expanded-form load-time-eval? compile-time-eval? genv))
-                    (#t
-                     (when compile-time-eval?
-                       (compiler-evaluate form genv))
-                     (when load-time-eval?
-                       (emit-action form *output-stream* genv))))))))))
+  ;; Forms that aren't lists evaluate to themselves and can be ignored
+  (when (pair? form) 
+    (case (car form)
+      ((scheme::%define)
+       (let ((var (second form))
+             (val (compile-form (third form) genv)))
+         
+         ;; error checking here???
+         (compiler-define var (compiler-evaluate val genv) genv)
+         (emit-definition var val genv)))
+      ((begin)
+       (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? genv))
+      ((include)
+       (process-toplevel-include form genv))
+      ((eval-when)
+       (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv))
+      (#t
+       (values-bind (maybe-expand-user-macro form genv #t) (expanded? expanded-form)
+         (cond (expanded?
+                (process-toplevel-form expanded-form load-time-eval? compile-time-eval? genv))
+               (#t
+                (when compile-time-eval?
+                  (compiler-evaluate form genv))
+                (when load-time-eval?
+                  (emit-action form *output-stream* genv)))))))))
 
 (define (process-toplevel-forms reader load-time-eval? compile-time-eval? genv)
   (let loop ((next-form (reader)))

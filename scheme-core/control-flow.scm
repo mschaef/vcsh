@@ -1,3 +1,4 @@
+
 ;;;; control-flow.scm
 ;;;; October 19th, 2007
 ;;;; Mike Schaeffer
@@ -94,11 +95,10 @@
        (for-each (lambda (,var) ,@body) ,list-form)
        ,result-form)))
 
-(defmacro (*cond . clauses) ; TODO: make this the default implementation of cond
+(defmacro (cond . clauses)
 
   (define (parse-cond-clause clause)
     (check list? clause "Invalid cond clause.")
-    (check (or (eq? #t) list?) (car clause) "Invalid cond guard.")
     (values (car clause) (cdr clause)))
 
   (define (clause-body-statement code)
@@ -107,13 +107,13 @@
   (if (null? clauses)
       '(values)
       (values-bind (parse-cond-clause (car clauses)) (guard body)
-        (if (eq? guard #t)
+        (if (eq? guard #t) ;; TODO: All non-false atoms get the #t handling
             ;; In this case, clauses after an 'always' clause will
             ;; always get ignored. Does this warrant a warning?
             (clause-body-statement body)
             `(if ,guard
                  ,(clause-body-statement body)
-                 (*cond ,@(cdr clauses)))))))
+                 (cond ,@(cdr clauses)))))))
 
 ;;; Anaphoric macros
 
