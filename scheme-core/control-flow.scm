@@ -95,6 +95,20 @@
        (for-each (lambda (,var) ,@body) ,list-form)
        ,result-form)))
 
+(define (provably-always-true? form)
+  "Determine if <form> can be proved to be always true when evaluated."
+  (or (and (atom? form)
+           (not (eq? form #f))
+           (not (symbol? form)))
+      (and (list? form)
+           (eq? (car form) 'quote)
+           (not (eq? (cadr form) #f)))))
+
+(define (provably-always-false? form)
+  "Determine if <form> can be proved to be always false when evaluated. This
+   is only the case for #f."
+  (eq? form #f))
+
 (defmacro (cond . clauses)
 
   (define (parse-cond-clause clause)
@@ -107,13 +121,17 @@
   (if (null? clauses)
       '(values)
       (values-bind (parse-cond-clause (car clauses)) (guard body)
-        (if (eq? guard #t) ;; TODO: All non-false atoms get the #t handling
-            ;; In this case, clauses after an 'always' clause will
-            ;; always get ignored. Does this warrant a warning?
-            (clause-body-statement body)
-            `(if ,guard
-                 ,(clause-body-statement body)
-                 (cond ,@(cdr clauses)))))))
+        (cond ((provably-always-true? guard)
+               ;; In this case, clauses after an 'always' clause will
+               ;; always get ignored. Does this warrant a warning?
+               (clause-body-statement body))
+              ((provably-always-false? guard)
+               ;; In this case, this clause is never evaluated
+               `(cond ,@(cdr clauses)))
+              (#t
+               `(if ,guard
+                    ,(clause-body-statement body)
+                    (cond ,@(cdr clauses))))))))
 
 ;;; Anaphoric macros
 
