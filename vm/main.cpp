@@ -498,7 +498,6 @@ namespace scan {
 
     register_subr(_T("and"),                              SUBR_MACRO, (void*)land                                );
     register_subr(_T("begin"),                            SUBR_MACRO, (void*)lprogn                              );
-    register_subr(_T("case"),                             SUBR_MACRO, (void*)lcase                               );
     register_subr(_T("if"),                               SUBR_MACRO, (void*)lif                                 );
     register_subr(_T("or"),                               SUBR_MACRO, (void*)lor                                 );
 
