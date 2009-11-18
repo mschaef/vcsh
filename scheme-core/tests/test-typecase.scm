@@ -13,10 +13,6 @@
   (test-case (not (runtime-error? (typecase 'symbol
                                     ((fixnum) 12)))))
   
-  (test-case (equal? () (typecase 'symbol
-                          ((fixnum) :foo)
-                          ((character) :bar)
-                          ((flonum) :xyzzy))))
 
   (test-case (equal? :xyzzy (typecase 'symbol
                               ((fixnum) :foo)

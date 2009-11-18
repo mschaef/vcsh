@@ -263,21 +263,6 @@
         `(begin ,@(translate-form-sequence forms #t genv at-toplevel?))
         #f)))
 
-(define (expand/case form genv at-toplevel?)
-  (unless (>= (length form) 3)
-    (compile-error form "Invalid case, bad length."))
-  (unless (every? (lambda (case-clause)
-                    (or (eq? case-clause #t)
-                        (eq? case-clause 'else)
-                        (and (list? case-clause) (> (length case-clause) 1))))
-                  (cddr form))
-    ;; REVISIT: a body-less case clause throws a compile error, and it's inscrutible
-    (compile-error form "Invalid case, bad clause"))
-
-  `(case ,(cadr form)
-     ,@(map (lambda (case-clause)
-              `(,(car case-clause) ,@(map #L(expand-form _ genv at-toplevel?) (cdr case-clause))))
-            (cddr form))))
 
 (define (expand/logical form genv at-toplevel?)
   `(,(car form) ,@(map #L(expand-form _ genv at-toplevel?) (cdr form))))
@@ -289,7 +274,6 @@
          (case (car form)
            ((quote)               form)
            ((or and)              (expand/logical     form genv at-toplevel?))
-           ((case)                (expand/case        form genv at-toplevel?))
            ((if)                  (expand/if          form genv at-toplevel?))
            ((scheme::%lambda)     (expand/%lambda     form genv at-toplevel?))
            ((scheme::%tlambda)    (expand/%tlambda    form genv at-toplevel?))
@@ -384,13 +368,6 @@
           (#t
            (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?))))))
 
-(define (meaning/case form cenv genv at-toplevel?)
-  `(system::%%case ,(form-meaning (cadr form) cenv genv at-toplevel?)
-     ,@(map (lambda (case-clause)
-              `(,(car case-clause)
-                ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr case-clause))))
-            (cddr form))))
-
 (define (meaning/%define form cenv genv at-toplevel?)
   (dbind (fn-pos name defn) form
     `(scheme::%define-global ,(scheme::assemble-fast-op :literal name)
@@ -423,7 +400,6 @@
                ((or)               (meaning/or          form cenv genv at-toplevel?))
                ((and)              (meaning/and         form cenv genv at-toplevel?))
                ((if)               (meaning/if          form cenv genv at-toplevel?))
-               ((case)             (meaning/case        form cenv genv at-toplevel?))
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
                ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
                ((quote)            (meaning/quote       form cenv genv at-toplevel?))
