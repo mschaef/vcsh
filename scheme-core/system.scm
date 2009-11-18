@@ -56,7 +56,7 @@
   ignored. On Linux, #\\\\ is a quoting character. There is no such
   character on Windows."
   (platform-case ((:win32) #f)
-                 (#t (char=? ch #\\))))
+                 ((:linux) (char=? ch #\\))))
 
 (define (path-delimiter-char? ch)
   "Returns <ch> if it is a path delimiting character in pathnames on the

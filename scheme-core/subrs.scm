@@ -8,7 +8,6 @@
 (define and #.(scheme::%subr-by-name "and"))
 (define or #.(scheme::%subr-by-name "or"))
 (define begin #.(scheme::%subr-by-name "begin"))
-(define case #.(scheme::%subr-by-name "case"))
 (define if #.(scheme::%subr-by-name "if"))
 
 (define system::%%and #.(scheme::%subr-by-name "and"))

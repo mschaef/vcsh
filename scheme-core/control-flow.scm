@@ -133,6 +133,50 @@
                     ,(clause-body-statement body)
                     (cond ,@(cdr clauses))))))))
 
+
+
+(defmacro (case value-form . clauses)
+
+  (define (check-case-clause clause)
+    (check list? clause "Invalid case clause.")
+    (check (or (eq? #t) list?) (first clause) "Invalid case guard."))
+
+  (define (clause-guard-predicate-form val-sym clause-guard)
+    (cond ((eq? clause-guard #t)
+           #t)
+          ((length=1? clause-guard)
+           `(eq? ,val-sym ',(car clause-guard)))
+          (#t
+           `(or ,@(map (lambda (guard-val)`(eq? ,val-sym ',guard-val)) clause-guard)))))
+
+  (define (find-clause-guard-values clauses)
+    (fold (lambda (guard-value all-guard-values)
+            (when (memq guard-value all-guard-values)
+              (error "Duplicate case guard value: ~s" guard-value))
+            (cons guard-value all-guard-values))
+          ()
+          (append-map (lambda (clause)
+                        (check-case-clause clauses)
+                        (if (pair? (car clause))
+                            (car clause)
+                            ()))
+                      clauses)))
+  ;; Check validity of all case clauses
+  ;; (TODO: the return value is ignored, but it could be used as an input to optimizations.)
+  (find-clause-guard-values clauses)
+
+  ;; Verify that any default clause is the last clause
+  (let ((default-tail (find-tail #L(eq? (car _) #t) clauses)))
+    (unless (or (null? default-tail) (null? (cdr default-tail)))
+      (error "The default clause of a case must be the last clause.")))
+
+  ;; Emit a let/cond form that provides the case semantics
+  (with-gensyms (val-sym)
+    `(let ((,val-sym ,value-form))
+       (cond ,@(map (lambda (clause)
+                      `(,(clause-guard-predicate-form val-sym (car clause)) ,@(cdr clause)))
+                    clauses)))))
+
 ;;; Anaphoric macros
 
 (defmacro (awhen condition . code)

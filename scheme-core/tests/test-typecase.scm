@@ -8,7 +8,6 @@
 
   (test-case (equal? :foo (typecase 1
                             ((fixnum) :foo)
-                            ((fixnum) :bar)
                             ((flonum) :xyzzy))))
 
   (test-case (not (runtime-error? (typecase 'symbol
@@ -54,7 +53,6 @@
 
   (test-case (equal? :foo (etypecase 1
                             ((fixnum) :foo)
-                            ((fixnum) :bar)
                             ((flonum) :xyzzy))))
 
   (test-case (runtime-error? (etypecase 'symbol
