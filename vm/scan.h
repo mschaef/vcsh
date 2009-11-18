@@ -221,8 +221,9 @@ namespace scan {
 #pragma pack(push, 4)
   struct LObject {
     struct {
-      typecode_t type    : 16;
-      int gc_mark : 1; // REVISIT: multiple bits, for shallow/weak refs
+      typecode_t type : 8;
+      int opcode      : 8;
+      int gc_mark     : 1; // REVISIT: multiple bits, for shallow/weak refs
     } header;
 
     union {
@@ -242,7 +243,7 @@ namespace scan {
       struct { void *data; LRef desc; external_meta_t *meta;   } external;
       struct { void *p1; void *p2; void *p3;                   } misc;
       struct { LRef _values;                                   } values_tuple;
-      struct { int opcode; LRef arg1; LRef arg2;               } fast_op;
+      struct { LRef arg1; LRef arg2; LRef arg3;                } fast_op;
 
       struct {
         size_t _mask;
@@ -1479,13 +1480,13 @@ namespace scan {
   INLINE int FAST_OP_OPCODE(LRef fo)
   {
     checked_assert(FAST_OP_P(fo));
-    return ((*fo).storage_as.fast_op.opcode);
+    return ((*fo).header.opcode);
   }
 
   INLINE void SET_FAST_OP_OPCODE(LRef fo, int opcode)
   {
     checked_assert(FAST_OP_P(fo));
-    ((*fo).storage_as.fast_op.opcode) = opcode;
+    ((*fo).header.opcode) = opcode;
   }
 
   INLINE LRef FAST_OP_ARG1(LRef fo)
@@ -1510,6 +1511,18 @@ namespace scan {
   {
     checked_assert(FAST_OP_P(fo));
     ((*fo).storage_as.fast_op.arg2) = arg2;
+  }
+
+  INLINE LRef FAST_OP_ARG3(LRef fo)
+  {
+    checked_assert(FAST_OP_P(fo));
+    return ((*fo).storage_as.fast_op.arg3);
+  }
+
+  INLINE void SET_FAST_OP_ARG3(LRef fo, LRef arg3)
+  {
+    checked_assert(FAST_OP_P(fo));
+    ((*fo).storage_as.fast_op.arg3) = arg3;
   }
 
   LRef fast_op(int opcode, LRef arg1, LRef arg2);
@@ -1861,7 +1874,7 @@ namespace scan {
   LRef lwhile (LRef form, LRef env);
   LRef lrepeat (LRef form, LRef env);
   LRef lsetq (LRef args, LRef env);
-    LRef lthe_environment (LRef args, LRef env);
+  LRef lthe_environment (LRef args, LRef env);
   LRef ltime (LRef args, LRef env);
   LRef lpanic(LRef msg);
   LRef lexternal_data(LRef x);
