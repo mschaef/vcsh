@@ -13,7 +13,6 @@
 (define system::%%and #.(scheme::%subr-by-name "and"))
 (define system::%%or #.(scheme::%subr-by-name "or"))
 (define system::%%begin #.(scheme::%subr-by-name "begin"))
-(define system::%%case #.(scheme::%subr-by-name "case"))
 (define system::%%if #.(scheme::%subr-by-name "if"))
 
 ;; special forms - subr_f
