@@ -498,7 +498,6 @@ namespace scan {
 
     register_subr(_T("and"),                              SUBR_MACRO, (void*)land                                );
     register_subr(_T("begin"),                            SUBR_MACRO, (void*)lprogn                              );
-    register_subr(_T("if"),                               SUBR_MACRO, (void*)lif                                 );
     register_subr(_T("or"),                               SUBR_MACRO, (void*)lor                                 );
 
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );

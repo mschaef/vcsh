@@ -1177,20 +1177,6 @@ namespace scan {
     return val;
   }
 
-  LRef lif (LRef * pform, LRef * penv)
-  {
-    LRef args, env;
-    args = lcdr(*pform);
-    env = *penv;
-
-    if (TRUEP(leval(lcar(args), env)))
-      *pform = lcar(lcdr (args));
-    else
-      *pform = lcar(lcdr(lcdr(args)));
-
-    return boolcons(true);
-  }
-
   LRef lilambda(LRef args, LRef env)
   {
     LRef properties = lcar(args);
