@@ -357,7 +357,10 @@
   `(system::%%and ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
 (define (meaning/if form cenv genv at-toplevel?)
-  `(system::%%if ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+  (scheme::assemble-fast-op :if-true
+                            (form-meaning (second form) cenv genv at-toplevel?)
+                            (form-meaning (third form) cenv genv at-toplevel?)
+                            (form-meaning (fourth form) cenv genv at-toplevel?)))
 
 (define (meaning/set! form cenv genv at-toplevel?)
   (dbind (fn-pos var val-form) form

@@ -1534,7 +1534,9 @@ namespace scan {
   {
     FOP_LITERAL    = 8,
     FOP_GLOBAL_REF = 16,
-    FOP_GLOBAL_SET = 17
+    FOP_GLOBAL_SET = 17,
+
+    FOP_IF_TRUE    = 32,
   };
 
   /****************************************************************

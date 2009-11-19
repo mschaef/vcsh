@@ -8,12 +8,10 @@
 (define and #.(scheme::%subr-by-name "and"))
 (define or #.(scheme::%subr-by-name "or"))
 (define begin #.(scheme::%subr-by-name "begin"))
-(define if #.(scheme::%subr-by-name "if"))
 
 (define system::%%and #.(scheme::%subr-by-name "and"))
 (define system::%%or #.(scheme::%subr-by-name "or"))
 (define system::%%begin #.(scheme::%subr-by-name "begin"))
-(define system::%%if #.(scheme::%subr-by-name "if"))
 
 ;; special forms - subr_f
 (define %lambda #.(scheme::%subr-by-name "%lambda"))

@@ -28,6 +28,8 @@
 (define-fast-op :global-ref 16 1)
 (define-fast-op :global-set! 17 2)
 
+(define-fast-op :if-true 32 3)
+
 (define (parse-fast-op fast-op :optional (parse-opcode? #t))
   (let ((opcode (%fast-op-opcode fast-op))
         (args (%fast-op-args fast-op)))

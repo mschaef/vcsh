@@ -851,6 +851,15 @@ namespace scan {
                 retval = val;
                 break;
 
+              case FOP_IF_TRUE:
+                val = leval(sym, env);
+
+                if (TRUEP(val))
+                  form = FAST_OP_ARG2(form);
+                else
+                  form = FAST_OP_ARG3(form);
+                goto loop;
+
               default: vmerror("Unsupported fast-op: ~s", form);
               }
           }
