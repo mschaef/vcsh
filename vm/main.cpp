@@ -512,8 +512,10 @@ namespace scan {
     register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
-    register_subr(_T("%fast-op-cons"),                    SUBR_3,     (void*)lfast_op                            );
-    register_subr(_T("%fast-op"),                         SUBR_3,     (void*)lfast_op                            );
+
+    // TODO: one of these is not necessary
+    register_subr(_T("%fast-op-cons"),                    SUBR_4,     (void*)lfast_op                            );
+    register_subr(_T("%fast-op"),                         SUBR_4,     (void*)lfast_op                            );
 
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%handler-frames"),                  SUBR_0,     (void*)lhandler_frames                     );

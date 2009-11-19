@@ -351,7 +351,8 @@ namespace scan {
 
           case TC_FAST_OP:
             gc_mark(FAST_OP_ARG1(obj));
-            obj = FAST_OP_ARG2(obj);
+            gc_mark(FAST_OP_ARG2(obj));
+            obj = FAST_OP_ARG3(obj);
           }
       }
   }

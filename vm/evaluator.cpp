@@ -1714,23 +1714,24 @@ namespace scan {
     return retval;
   }
 
-  LRef fast_op(int opcode, LRef arg1, LRef arg2)
+  LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3)
   {
     LRef z = new_cell(TC_FAST_OP);
 
     SET_FAST_OP_OPCODE(z, opcode);
     SET_FAST_OP_ARG1(z, arg1);
     SET_FAST_OP_ARG2(z, arg2);
+    SET_FAST_OP_ARG3(z, arg3);
 
     return (z);
   }
 
-  LRef lfast_op(LRef opcode, LRef arg1, LRef arg2)
+  LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3)
   {
     if (!FIXNUMP(opcode))
       vmerror_wrong_type(1, opcode);
 
-    return fast_op(FIXNM(opcode), arg1, arg2);
+    return fast_op(FIXNM(opcode), arg1, arg2, arg3);
   }
 
   LRef lfast_op_opcode(LRef fastop)
@@ -1746,7 +1747,7 @@ namespace scan {
     if (!FAST_OP_P(fastop))
       vmerror_wrong_type(1, fastop);
 
-    return listn(2, FAST_OP_ARG1(fastop), FAST_OP_ARG2(fastop));
+    return listn(3, FAST_OP_ARG1(fastop), FAST_OP_ARG2(fastop), FAST_OP_ARG3(fastop));
   }
 
   bool fast_op_equal(LRef a, LRef b)
@@ -1761,6 +1762,9 @@ namespace scan {
       return false;
 
     if (FAST_OP_ARG2(a) != FAST_OP_ARG2(b))
+      return false;
+
+    if (FAST_OP_ARG3(a) != FAST_OP_ARG3(b))
       return false;
 
     return true;

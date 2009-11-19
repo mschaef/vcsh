@@ -44,6 +44,7 @@ enum FaslOpcode { // see fasl-write.scm for details about opcode assignment
   FASL_OP_FAST_OP_0                      = 64,
   FASL_OP_FAST_OP_1                      = 65,
   FASL_OP_FAST_OP_2                      = 66,
+  FASL_OP_FAST_OP_3                      = 67,
 
   FASL_OP_INSTANCE_MAP                   = 96,
 

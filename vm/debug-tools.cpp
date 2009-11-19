@@ -864,7 +864,8 @@ namespace scan {
       scwritef("~u opcode:~cd arg1:~s arg2:~s", port, (LRef)obj,
                FAST_OP_OPCODE(obj),
                FAST_OP_ARG1(obj),
-               FAST_OP_ARG2(obj));
+               FAST_OP_ARG2(obj),
+               FAST_OP_ARG3(obj));
       break;
 
     case TC_UNBOUND_MARKER:

@@ -323,7 +323,7 @@ namespace scan {
 
   static void fast_read_fast_op(int fast_op_arity, LRef port, LRef *fop)
   {
-    assert((fast_op_arity >= 0) && (fast_op_arity <= 2));
+    assert((fast_op_arity >= 0) && (fast_op_arity <= 3));
 
     LRef opcode_obj;
     fast_read(port, &opcode_obj);
@@ -331,7 +331,7 @@ namespace scan {
     if (!FIXNUMP(opcode_obj))
       fast_read_error("Expected fixnum for opcode.", port, opcode_obj);
 
-    *fop = fast_op((int)FIXNM(opcode_obj), NIL, NIL);
+    *fop = fast_op((int)FIXNM(opcode_obj), NIL, NIL, NIL);
 
     LRef op_arg;
 
@@ -345,6 +345,12 @@ namespace scan {
       {
         fast_read(port, &op_arg);
         SET_FAST_OP_ARG2(*fop, op_arg);
+      }
+
+    if (fast_op_arity > 2)
+      {
+        fast_read(port, &op_arg);
+        SET_FAST_OP_ARG3(*fop, op_arg);
       }
   }
 
@@ -679,6 +685,7 @@ namespace scan {
           case FASL_OP_FAST_OP_0:     fast_read_fast_op(0, port, retval);      break;
           case FASL_OP_FAST_OP_1:     fast_read_fast_op(1, port, retval);      break;
           case FASL_OP_FAST_OP_2:     fast_read_fast_op(2, port, retval);      break;
+          case FASL_OP_FAST_OP_3:     fast_read_fast_op(3, port, retval);      break;
 
           case FASL_OP_NOP_1:
           case FASL_OP_NOP_2:

@@ -44,6 +44,7 @@ const _TCHAR *fasl_opcode_name(FaslOpcode opcode)
     case FASL_OP_FAST_OP_0:         return _T("FASL_OP_FAST_OP_0");         break;
     case FASL_OP_FAST_OP_1:         return _T("FASL_OP_FAST_OP_1");         break;
     case FASL_OP_FAST_OP_2:         return _T("FASL_OP_FAST_OP_2");         break;
+    case FASL_OP_FAST_OP_3:         return _T("FASL_OP_FAST_OP_3");         break;
     case FASL_OP_INSTANCE_MAP:      return _T("FASL_OP_INSTANCE_MAP");      break;
     case FASL_OP_RESET_READER_DEFS: return _T("FASL_OP_RESET_READER_DEFS"); break;
     case FASL_OP_READER_DEFINITION: return _T("FASL_OP_READER_DEFINITION"); break;

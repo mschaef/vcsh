@@ -221,9 +221,9 @@ namespace scan {
 #pragma pack(push, 4)
   struct LObject {
     struct {
-      typecode_t type : 8;
-      int opcode      : 8;
-      int gc_mark     : 1; // REVISIT: multiple bits, for shallow/weak refs
+      typecode_t type      : 8;
+      unsigned int opcode  : 8;
+      unsigned int gc_mark : 1; // REVISIT: multiple bits, for shallow/weak refs
     } header;
 
     union {
@@ -237,8 +237,8 @@ namespace scan {
       struct { size_t _dim; u8 *_data;                         } bytevec;
       struct { size_t _dim; size_t _ofs; _TCHAR *_data;        } string;
       struct { size_t dim; LRef *data; LRef layout;            } vector;
-      struct { LRef _map; size_t _dim; LRef *_data;            } instance
-;
+      struct { LRef _map; size_t _dim; LRef *_data;            } instance;
+
       struct { port_class_t *_class; port_info_t *_pinf;       } port;
       struct { void *data; LRef desc; external_meta_t *meta;   } external;
       struct { void *p1; void *p2; void *p3;                   } misc;
@@ -1525,8 +1525,8 @@ namespace scan {
     ((*fo).storage_as.fast_op.arg3) = arg3;
   }
 
-  LRef fast_op(int opcode, LRef arg1, LRef arg2);
-  LRef lfast_op(LRef opcode, LRef arg1, LRef arg2);
+  LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3);
+  LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3);
   LRef lfast_op_opcode(LRef fastop);
   LRef lfast_op_args(LRef fastop);
 
