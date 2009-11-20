@@ -1278,35 +1278,6 @@ namespace scan {
     return boolcons(true);
   }
 
-  LRef ltime (LRef args, LRef env)
-  {
-    fixnum_t cells      = interp.gc_total_cells_allocated;
-    fixnum_t env_cells  = interp.gc_total_environment_cells_allocated;
-    fixnum_t c_blocks   = malloc_blocks;
-    fixnum_t c_bytes    = malloc_bytes;
-    flonum_t t          = sys_runtime();
-    flonum_t gc_t       = interp.gc_total_run_time;
-    size_t forms        = interp.forms_evaluated;
-
-
-    LRef retval = NIL;
-    for (LRef l = args; !NULLP(l); l = lcdr(l))
-      retval = leval(lcar(l), env);
-
-    LRef argv[8];
-
-    argv[0] = retval;
-    argv[1] = flocons(sys_runtime() - t);
-    argv[2] = flocons(interp.gc_total_run_time - gc_t);
-    argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
-    argv[4] = fixcons(interp.gc_total_environment_cells_allocated - env_cells);
-    argv[5] = fixcons(malloc_blocks - c_blocks);
-    argv[6] = fixcons(malloc_bytes - c_bytes);
-    argv[7] = fixcons(interp.forms_evaluated - forms);
-
-    return lvector(8, argv);
-  }
-
   LRef ltime_apply0(LRef fn)
   {
     if (!PROCEDUREP(fn))

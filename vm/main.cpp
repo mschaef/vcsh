@@ -489,7 +489,6 @@ namespace scan {
   static void register_main_subrs()
   {
     register_subr(_T("%lambda"),                          SUBR_F,     (void*)lilambda                            );
-    register_subr(_T("%time"),                            SUBR_F,     (void*)ltime                               );
     register_subr(_T("catch"),                            SUBR_F,     (void*)lcatch                              );
     register_subr(_T("repeat"),                           SUBR_F,     (void*)lrepeat                             );
     register_subr(_T("set!"),                             SUBR_F,     (void*)lsetq                               );
