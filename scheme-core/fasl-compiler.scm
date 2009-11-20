@@ -353,8 +353,22 @@
 (define (meaning/or form cenv genv at-toplevel?)
   `(system::%%or ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
+(define (meaning/or form cenv genv at-toplevel?)
+  (let recur ((args (cdr form)))
+    (cond ((null? args)     (scheme::assemble-fast-op :literal #f))
+          ((length=1? args) (form-meaning (car args) cenv genv at-toplevel?))
+          (#t (scheme::assemble-fast-op :or/2
+                                        (form-meaning (car args) cenv genv at-toplevel?)
+                                        (recur (cdr args)))))))
+
+
 (define (meaning/and form cenv genv at-toplevel?)
-  `(system::%%and ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+  (let recur ((args (cdr form)))
+    (cond ((null? args)     (scheme::assemble-fast-op :literal #t))
+          ((length=1? args) (form-meaning (car args) cenv genv at-toplevel?))
+          (#t (scheme::assemble-fast-op :and/2
+                                        (form-meaning (car args) cenv genv at-toplevel?)
+                                        (recur (cdr args)))))))
 
 (define (meaning/if form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :if-true
