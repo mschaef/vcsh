@@ -5,12 +5,8 @@
 ;;; Lisp references to native SUBRs.
 
 ;; special forms - subr_macro
-(define and #.(scheme::%subr-by-name "and"))
-(define or #.(scheme::%subr-by-name "or"))
 (define begin #.(scheme::%subr-by-name "begin"))
 
-(define system::%%and #.(scheme::%subr-by-name "and"))
-(define system::%%or #.(scheme::%subr-by-name "or"))
 (define system::%%begin #.(scheme::%subr-by-name "begin"))
 
 ;; special forms - subr_f

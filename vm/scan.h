@@ -1868,8 +1868,6 @@ namespace scan {
   LRef get_current_frames(fixnum_t skip_count, LRef dump_to_port_while_gathering);
   LRef lget_current_frames(LRef skip_count);
   LRef lmacrop(LRef obj);
-  LRef lor (LRef * pform, LRef * penv);
-  LRef land (LRef * pform, LRef * penv);
   LRef lprogn (LRef * pform, LRef * penv);
   LRef lset_handler_frames(LRef new_frames);
   LRef lhandler_frames();

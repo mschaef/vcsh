@@ -1223,63 +1223,6 @@ namespace scan {
     return new_closure;
   }
 
-  LRef lor (LRef * pform, LRef * penv)
-  {
-    LRef val;
-
-    LRef env = *penv;
-    LRef l = lcdr(*pform);
-    LRef next = lcdr(l);
-
-
-    if (NULLP(l))
-      {
-        *pform = boolcons(false);
-        return (NIL);
-      }
-
-    while (!NULLP (next))
-      {
-        val = leval(lcar(l), env);
-        if (TRUEP (val))
-          {
-            *pform = val;
-            return NIL;
-          }
-        l = next;
-        next = lcdr(next);
-      }
-
-    *pform = lcar(l);
-    return boolcons(true);
-  }
-
-  LRef land (LRef * pform, LRef * penv)
-  {
-    LRef env, l, next;
-
-    env = *penv;
-    l = lcdr(*pform);
-    if (NULLP (l))
-      {
-        *pform = boolcons(true);
-        return (NIL);
-      }
-    next = lcdr(l);
-    while (!NULLP (next))
-      {
-        if (!TRUEP(leval(lcar (l), env)))
-          {
-            *pform = boolcons(false);
-            return (NIL);
-          }
-        l = next;
-        next = lcdr(next);
-      }
-    *pform = lcar(l);
-    return boolcons(true);
-  }
-
     LRef lthe_environment (LRef args, LRef env)
   {
     UNREFERENCED(args);
