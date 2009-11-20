@@ -544,6 +544,7 @@ namespace scan {
     register_subr(_T("%set-property-list!"),              SUBR_2,     (void*)lset_property_list                  );
     register_subr(_T("%set-stack-limit"),                 SUBR_1,     (void*)lset_stack_limit                    );
     register_subr(_T("%show-type-stats"),                 SUBR_0,     (void*)lshow_type_stats                    );
+    register_subr(_T("%time-apply0"),                     SUBR_1,     (void*)ltime_apply0                        );
     register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
     register_subr(_T("%stress-c-heap"),                   SUBR_2,     (void*)lstress_c_heap                      );

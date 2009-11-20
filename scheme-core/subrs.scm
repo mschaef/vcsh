@@ -11,14 +11,12 @@
 
 ;; special forms - subr_f
 (define %lambda #.(scheme::%subr-by-name "%lambda"))
-(define %time #.(scheme::%subr-by-name "%time"))
 (define catch #.(scheme::%subr-by-name "catch"))
 (define the-environment #.(scheme::%subr-by-name "the-environment"))
 (define while #.(scheme::%subr-by-name "while"))
 (define repeat #.(scheme::%subr-by-name "repeat"))
 
 (define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
-(define system::%%time #.(scheme::%subr-by-name "%time"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
 (define system::%%the-environment #.(scheme::%subr-by-name "the-environment"))
 (define system::%%while #.(scheme::%subr-by-name "while"))
@@ -82,6 +80,7 @@
 (define %symbol-value #.(scheme::%subr-by-name "%symbol-value"))
 (define %sysob #.(scheme::%subr-by-name "%sysob"))
 (define %test-blocking-input #.(scheme::%subr-by-name "%test-blocking-input"))
+(define %time-apply0 #.(scheme::%subr-by-name "%time-apply0"))
 
 
 (define %unbound-marker #.(scheme::%subr-by-name "%unbound-marker"))
