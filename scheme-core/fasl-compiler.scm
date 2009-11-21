@@ -407,6 +407,9 @@
         (#t
          (scheme::assemble-fast-op :global-ref form))))
 
+(define (meaning/the-environment form cenv genv at-toplevel?)
+  (scheme::assemble-fast-op :get-env))
+
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
@@ -416,16 +419,17 @@
              form)
             (#t
              (case (car form)
-               ((scheme::%macro)   (meaning/%macro      form cenv genv at-toplevel?))
-               ((scheme::%lambda)  (meaning/%lambda     form cenv genv at-toplevel?))
-               ((begin)            (meaning/begin       form cenv genv at-toplevel?))
-               ((or)               (meaning/or          form cenv genv at-toplevel?))
-               ((and)              (meaning/and         form cenv genv at-toplevel?))
-               ((if)               (meaning/if          form cenv genv at-toplevel?))
-               ((set!)             (meaning/set!        form cenv genv at-toplevel?))
-               ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
-               ((quote)            (meaning/quote       form cenv genv at-toplevel?))
-               (#t                 (meaning/application form cenv genv at-toplevel?))))))
+               ((scheme::%macro)   (meaning/%macro          form cenv genv at-toplevel?))
+               ((scheme::%lambda)  (meaning/%lambda         form cenv genv at-toplevel?))
+               ((begin)            (meaning/begin           form cenv genv at-toplevel?))
+               ((or)               (meaning/or              form cenv genv at-toplevel?))
+               ((and)              (meaning/and             form cenv genv at-toplevel?))
+               ((if)               (meaning/if              form cenv genv at-toplevel?))
+               ((set!)             (meaning/set!            form cenv genv at-toplevel?))
+               ((scheme::%define)  (meaning/%define         form cenv genv at-toplevel?))
+               ((quote)            (meaning/quote           form cenv genv at-toplevel?))
+               ((the-environment)  (meaning/the-environment form cenv genv at-toplevel?))
+               (#t                 (meaning/application     form cenv genv at-toplevel?))))))
     form))
 
 ;;;; Form Compiler
