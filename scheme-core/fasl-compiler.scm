@@ -407,12 +407,6 @@
         (#t
          (scheme::assemble-fast-op :global-ref form))))
 
-(define (meaning/while form cenv genv at-toplevel?)
-  `(system::%%while ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
-
-(define (meaning/repeat form cenv genv at-toplevel?)
-  `(system::%%repeat ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
-
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
@@ -431,10 +425,6 @@
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
                ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
                ((quote)            (meaning/quote       form cenv genv at-toplevel?))
-
-               ((while)            (meaning/while       form cenv genv at-toplevel?))
-               ((repeat)           (meaning/repeat      form cenv genv at-toplevel?))
-
                (#t                 (meaning/application form cenv genv at-toplevel?))))))
     form))
 

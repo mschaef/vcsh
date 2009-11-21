@@ -12,8 +12,6 @@
 (define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
 (define system::%%the-environment #.(scheme::%subr-by-name "the-environment"))
-(define system::%%while #.(scheme::%subr-by-name "while"))
-(define system::%%repeat #.(scheme::%subr-by-name "repeat"))
 (define system::%%set! #.(scheme::%subr-by-name "set!"))
 
 ;; primitive functions
