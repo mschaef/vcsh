@@ -1156,28 +1156,6 @@ namespace scan {
    * These implement particular special forms within the evaluator
    */
 
-  LRef lsetq (LRef args, LRef env)
-  {
-    LRef retval = NIL;
-
-    while (!NULLP(args))
-      {
-        LRef var = lcar(args);
-
-        if (NULLP(lcdr(args)))
-          vmerror("Missing value form", args);
-
-        LRef val = leval(lcar(lcdr(args)), env);
-
-        retval = lsetvar(var, val, env, NIL);
-
-        args = lcdr(lcdr(args));
-      };
-
-    return retval;
-  }
-
-
   static void check_global_environment_size()
   {
     if (interp.last_global_env_entry >= VECTOR_DIM(interp.global_env))

@@ -1878,7 +1878,6 @@ namespace scan {
   LRef lhandler_frames();
   LRef lcatch (LRef args, LRef env);
   LRef lilambda (LRef args, LRef env);
-  LRef lsetq (LRef args, LRef env);
   LRef ltime_apply0(LRef fn);
   LRef lpanic(LRef msg);
   LRef lexternal_data(LRef x);
