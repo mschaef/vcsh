@@ -495,8 +495,6 @@ namespace scan {
     register_subr(_T("the-environment"),                  SUBR_F,     (void*)lthe_environment                    );
     register_subr(_T("while"),                            SUBR_F,     (void*)lwhile                              );
 
-    register_subr(_T("begin"),                            SUBR_MACRO, (void*)lprogn                              );
-
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );

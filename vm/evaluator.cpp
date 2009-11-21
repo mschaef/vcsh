@@ -1267,23 +1267,6 @@ namespace scan {
     return (NIL);
   }
 
-  LRef lprogn (LRef * pform, LRef * penv)
-  {
-    LRef env, l, next;
-
-    env = *penv;
-    l = lcdr(*pform);
-    next = lcdr(l);
-    while (!NULLP (next))
-      {
-        leval(lcar(l), env);
-        l = next;
-        next = lcdr(next);
-      }
-    *pform = lcar(l);
-    return boolcons(true);
-  }
-
   LRef ltime_apply0(LRef fn)
   {
     if (!PROCEDUREP(fn))
