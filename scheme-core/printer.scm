@@ -345,12 +345,12 @@
   (unreadable (write-strings port "#<UNBOUND-MARKER>")))
 
 (define-method (print-object (obj fast-op) port machine-readable? shared-structure-map)
-  ;; TODO: this fails with an invalid op... should print some kind of 'invalid op' msg
   (values-bind (parse-fast-op obj) (op-name args)
      (print-unreadable-object obj port
        (print op-name port machine-readable? shared-structure-map)
-       (write-strings port " ")
-       (print args port machine-readable? shared-structure-map))))
+       (dolist (arg args)
+         (write-strings port " ")
+         (print arg port machine-readable? shared-structure-map)))))
 
 (define-method  (print-object (obj port) port machine-readable? shared-structure-map)
   (print-unreadable-object obj port

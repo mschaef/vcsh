@@ -60,10 +60,9 @@
         (cons "use-list" (%package-use-list obj))))
 
 (define-method (inspect-analyze-object (obj fast-op))
-  (list-let (opcode arg1 arg2) (%split-fast-op obj)
-      (list (cons "opcode" opcode)
-            (cons "arg1" arg1)
-            (cons "arg2" arg2))))
+  (values-bind (parse-fast-op obj)  (opcode args)
+    (cons (cons "opcode" opcode)
+          (map #L(cons "[]" _) args))))
 
 (define-method (inspect-analyze-object (obj structure))
   (map (lambda (slot-name)
