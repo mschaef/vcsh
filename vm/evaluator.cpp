@@ -716,25 +716,6 @@ namespace scan {
     LRef c_code = CLOSURE_CODE(function);
     LRef c_env  = CLOSURE_ENV(function);
 
-
-    if (NULLP(c_code)) // true for uncompiled functions
-      {
-        if (!CLOSUREP(CURRENT_UNCOMPILED_FUNCTION_HANDLER))
-          vmerror("Cannot evaluate function, bad *uncompiled-function-handler*",
-                  CURRENT_UNCOMPILED_FUNCTION_HANDLER);
-
-        LRef compiled_code  = NIL;
-
-        if(call_lisp_procedure(CURRENT_UNCOMPILED_FUNCTION_HANDLER, &compiled_code, NULL,
-                               1, function))
-          panic(_T("Error compiling code at runtime"));
-
-        SET_CLOSURE_CODE(function, compiled_code);
-        c_code                 = compiled_code;
-      }
-
-    assert(CONSP(c_code));
-
     *env = extend_env(args, CAR(c_code), c_env);
 
     return CDR(c_code); // tail call
