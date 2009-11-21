@@ -386,9 +386,7 @@
     (cond ((keyword? var)
            (compile-error form "Cannot rebind a keyword: ~s" var))
           ((bound-in-cenv? var cenv)
-           ;(scheme::assemble-fast-op :local-set! var ,(form-meaning val-form cenv genv at-toplevel?))
-
-           `(system::%%set! ,var ,(form-meaning val-form cenv genv at-toplevel?)))
+           (scheme::assemble-fast-op :local-set! var (form-meaning val-form cenv genv at-toplevel?)))
           (#t
            (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?))))))
 
