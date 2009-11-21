@@ -1225,7 +1225,8 @@
    benchmark suite. The results from these tests shouldn't be trusted
    for actual benchmarking purposes."
   (dynamic-let ((*estimate-min-test-duration* 0.2))
-    (bench 'funcall-inline
+    (bench 'exec-loop-repeat
+           'funcall-inline
 	   'funcall-inline-args
 	   'funcall-local
 	   'funcall-local-args
