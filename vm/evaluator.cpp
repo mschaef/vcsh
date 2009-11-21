@@ -818,6 +818,7 @@ namespace scan {
             LRef val;
 
             LRef global_binding;
+            LRef local_binding;
 
             switch (FAST_OP_OPCODE(form))
               {
@@ -828,7 +829,7 @@ namespace scan {
               case FOP_GLOBAL_REF:
                 assert(SYMBOLP(sym));
 
-                if (SYMBOL_HOME(sym) == interp.keyword_package)
+                if (SYMBOL_HOME(sym) == interp.keyword_package) // TODO: this code path shouldn't be used
                   retval = sym;
                 else
                   {
@@ -848,6 +849,31 @@ namespace scan {
                 val = leval(FAST_OP_ARG2(form), env);
 
                 SET_SYMBOL_VCELL(sym, val);
+                retval = val;
+                break;
+
+              case FOP_LOCAL_REF:
+                assert(SYMBOLP(sym));
+
+                local_binding = lenvlookup(sym, env);
+
+                if (NULLP(local_binding))
+                  vmerror_unbound(sym);
+
+                retval = CAR(local_binding);
+                break;
+
+              case FOP_LOCAL_SET:
+                assert(SYMBOLP(sym));
+
+                local_binding = lenvlookup(sym, env);
+
+                if (NULLP(local_binding))
+                  vmerror_unbound(sym);
+
+                val = leval(FAST_OP_ARG2(form), env);
+                SET_CAR(local_binding, val);
+
                 retval = val;
                 break;
 

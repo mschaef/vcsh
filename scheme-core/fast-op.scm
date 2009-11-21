@@ -27,6 +27,8 @@
 (define-fast-op :literal 8 1)
 (define-fast-op :global-ref 16 1)
 (define-fast-op :global-set! 17 2)
+(define-fast-op :local-ref 18 1)
+(define-fast-op :local-set! 19 2)
 
 (define-fast-op :if-true 32 3)
 
