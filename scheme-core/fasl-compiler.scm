@@ -408,6 +408,9 @@
 (define (meaning/the-environment form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :get-env))
 
+(define (meaning/catch form cenv genv at-toplevel?)
+  `(system::%%catch ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
@@ -427,6 +430,9 @@
                ((scheme::%define)  (meaning/%define         form cenv genv at-toplevel?))
                ((quote)            (meaning/quote           form cenv genv at-toplevel?))
                ((the-environment)  (meaning/the-environment form cenv genv at-toplevel?))
+
+               ((catch)  (meaning/catch form cenv genv at-toplevel?))
+
                (#t                 (meaning/application     form cenv genv at-toplevel?))))))
     form))
 

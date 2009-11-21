@@ -4,13 +4,9 @@
 ;;;
 ;;; Lisp references to native SUBRs.
 
-;; special forms - subr_f
-(define catch #.(scheme::%subr-by-name "catch"))
-
-(define system::%%catch #.(scheme::%subr-by-name "catch"))
-
 ;; primitive functions
 (define %call-with-global-environment #.(scheme::%subr-by-name "%call-with-global-environment"))
+(define %catch-apply0 #.(scheme::%subr-by-name "%catch-apply0"))
 (define %closure #.(scheme::%subr-by-name "%closure"))
 (define %closure-code #.(scheme::%subr-by-name "%closure-code"))
 (define %closure-env #.(scheme::%subr-by-name "%closure-env"))

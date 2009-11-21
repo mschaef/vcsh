@@ -1198,18 +1198,6 @@ namespace scan {
     return val;
   }
 
-  LRef lilambda(LRef args, LRef env)
-  {
-    LRef properties = lcar(args);
-
-    args = lcdr(args);
-
-    LRef body_forms = lcdr(args);
-
-    LRef body = lcar(body_forms);
-
-    return lclosurecons(env, lcons(lcar(args), body), properties);
-  }
 
   LRef ltime_apply0(LRef fn)
   {
@@ -1263,16 +1251,12 @@ namespace scan {
    *
    * 2) catch should match catch tags on eqv?
    * 3) throw should detect missing catch tag prior to unwinding the stack.
-   * 4) catch should not be a special form. (The existing special form can be a macro atop the funcational form.)
    * 5) catch should have optional on-throw thunk that's tail-called if the catch is thrown to.
    */
 
-  LRef lcatch(LRef args, LRef env)
+  LRef lcatch_apply0(LRef tag, LRef fn)
   {
-    LRef tag;
-    LRef retval = NIL;
-
-    tag = leval(lcar(args), env);
+    LRef retval;
 
     // tag==#t implies all tags
     if (BOOLP(tag) && TRUEP(tag))
@@ -1280,14 +1264,11 @@ namespace scan {
 
     ENTER_TRY(tag)
       {
-        for (LRef l = lcdr(args); !NULLP (l); l = lcdr(l))
-          retval = leval(lcar(l), env);
+        retval = napply(fn, 0);
       }
     ON_ERROR()
       {
-        dscwritef(DF_SHOW_THROWS,
-                  _T("; DEBUG: catch ~a :~a\n"),
-                  ERROR_TAG(), ERROR_RETVAL());
+        dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"), ERROR_TAG(), ERROR_RETVAL());
 
         retval = ERROR_RETVAL();
       }

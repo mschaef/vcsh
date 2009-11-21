@@ -194,6 +194,9 @@
          ,@body
          (incr! ,ii-sym)))))
 
+(defmacro (catch tag-form . body)
+  `(%catch-apply0 ,tag-form (lambda () ,@body)))
+
 ;;; Anaphoric macros
 
 (defmacro (awhen condition . code)

@@ -1878,8 +1878,7 @@ namespace scan {
   LRef lmacrop(LRef obj);
   LRef lset_handler_frames(LRef new_frames);
   LRef lhandler_frames();
-  LRef lcatch (LRef args, LRef env);
-  LRef lilambda (LRef args, LRef env);
+  LRef lcatch_apply0(LRef tag, LRef fn);
   LRef ltime_apply0(LRef fn);
   LRef lpanic(LRef msg);
   LRef lexternal_data(LRef x);
