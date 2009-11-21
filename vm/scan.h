@@ -119,8 +119,6 @@ namespace scan {
     SUBR_6               = 7,
     SUBR_ARGC            = 8,  // Arbitrary number of paramaters, passed as array
     SUBR_N               = 9,  // Arbitrary number of paramaters, passed as list
-    SUBR_F               = 10, // Arbitrary number of paramaters, no paramater eval
-    SUBR_MACRO           = 11  // Macro subroutine: arbitrary evaluation rules
   };
 
   /* ...Forward declarations and typedefs... */
@@ -1118,8 +1116,6 @@ namespace scan {
   INLINE f_4_t SUBR_F4(LRef x) { return ((*x).storage_as.subr.code.f_4); }
   INLINE f_5_t SUBR_F5(LRef x) { return ((*x).storage_as.subr.code.f_5); }
   INLINE f_6_t SUBR_F6(LRef x) { return ((*x).storage_as.subr.code.f_6); }
-  INLINE f_f_t SUBR_FF(LRef x) { return ((*x).storage_as.subr.code.f_f); }
-  INLINE f_m_t SUBR_FM(LRef x) { return ((*x).storage_as.subr.code.f_m); }
   INLINE f_argc_t SUBR_FARGC(LRef x) { return ((*x).storage_as.subr.code.f_argc); }
 
   const _TCHAR *subr_kind_str(subr_arity_t n);

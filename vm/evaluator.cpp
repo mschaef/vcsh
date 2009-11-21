@@ -27,8 +27,6 @@ namespace scan {
       case SUBR_6:     return _T("subr-6");
       case SUBR_N:     return _T("subr-n");
       case SUBR_ARGC:  return _T("subr-argc");
-      case SUBR_F:     return _T("subr-f");
-      case SUBR_MACRO: return _T("subr-macro");
       default:         return _T("???");
       }
   }
@@ -703,10 +701,6 @@ namespace scan {
             args = arg_list_from_buffer(argc, argv);
             *retval = (SUBR_F1(function)(args));
             break;
-
-          case SUBR_F:
-          case SUBR_MACRO:
-            vmerror("Can't apply special forms", function);
           }
       } LEAVE_FRAME();
 
@@ -912,52 +906,19 @@ namespace scan {
               default: vmerror("Unsupported fast-op: ~s", form);
               }
           }
-        else if (type == TC_SYMBOL)
-          {
-            dscwritef(";;; sym: ~a\n", form);
-
-            if (SYMBOL_HOME(form) == interp.keyword_package)
-              retval = form;
-            else
-              {
-                LRef local_binding = lenvlookup(form, env);
-
-                if(NULLP(local_binding))
-                  retval = SYMBOL_VCELL(form);
-                else
-                  retval = CAR(local_binding);
-
-                if (UNBOUND_MARKER_P(retval))
-                  vmerror_unbound(form);
-              }
-          }
         else if (type == TC_CONS)
           {
             // Split up the form into function and arguments
             function = leval(CAR(form), env);
             args = CDR(form);
 
-            if (SUBRP(function) && (SUBR_TYPE(function) == SUBR_F))
-              {
-                retval = (SUBR_FF(function)(args, env));
-              }
-            else if (SUBRP(function) && (SUBR_TYPE(function) == SUBR_MACRO))
-              {
-                if (NULLP(SUBR_FM (function) (&form, &env)))
-                  retval = form;
-                else
-                  goto loop;
-              }
-            else
-              {
-                LRef argv[ARG_BUF_LEN];
-                size_t argc = evaluate_arguments_to_buffer(lcdr(form), env, ARG_BUF_LEN, argv);
+            LRef argv[ARG_BUF_LEN];
+            size_t argc = evaluate_arguments_to_buffer(lcdr(form), env, ARG_BUF_LEN, argv);
 
-                form = apply(function, argc, argv, &env, &retval);
+            form = apply(function, argc, argv, &env, &retval);
 
-                if  (!NULLP(form))
-                  goto loop;
-              }
+            if  (!NULLP(form))
+              goto loop;
           }
         else
           retval = form;
