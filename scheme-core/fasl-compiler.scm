@@ -390,9 +390,10 @@
 
 (define (meaning/%define form cenv genv at-toplevel?)
   (dbind (fn-pos name defn) form
-    `(scheme::%define-global ,(scheme::assemble-fast-op :literal name)
-                             ,(form-meaning defn cenv genv at-toplevel?)
-                             ,(scheme::assemble-fast-op :literal genv))))
+    (scheme::assemble-fast-op :global-def
+                              name
+                              (compiler-evaluate (form-meaning defn cenv genv at-toplevel?) genv)
+                              genv)))
 
 (define (meaning/quote form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :literal (cadr form)))

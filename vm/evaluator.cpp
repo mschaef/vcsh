@@ -903,11 +903,19 @@ namespace scan {
                 retval = env;
                 break;
 
+              case FOP_GLOBAL_DEF:
+                retval = lidefine_global(FAST_OP_ARG1(form),
+                                         FAST_OP_ARG2(form),
+                                         FAST_OP_ARG3(form));
+                break;
+
               default: vmerror("Unsupported fast-op: ~s", form);
               }
           }
         else if (type == TC_SYMBOL)
           {
+            dscwritef(";;; sym: ~a\n", form);
+
             if (SYMBOL_HOME(form) == interp.keyword_package)
               retval = form;
             else

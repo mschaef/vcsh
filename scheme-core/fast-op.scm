@@ -41,6 +41,8 @@
 
 (define-fast-op :get-env 224 0)
 
+(define-fast-op :global-def 240 3)
+
 (define (parse-fast-op fast-op :optional (parse-opcode? #t))
   (let ((opcode (%fast-op-opcode fast-op))
         (args (%fast-op-args fast-op)))
