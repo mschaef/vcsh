@@ -709,18 +709,6 @@ namespace scan {
   }
 
 
-  INLINE LRef closure_apply(LRef function, LRef args, LRef *env, LRef *retval)
-  {
-    UNREFERENCED(retval);
-
-    LRef c_code = CLOSURE_CODE(function);
-    LRef c_env  = CLOSURE_ENV(function);
-
-    *env = extend_env(args, CAR(c_code), c_env);
-
-    return CDR(c_code); // tail call
-  }
-
   INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef *env, LRef *retval)
   {
     typecode_t type = TYPE(function);
@@ -733,7 +721,13 @@ namespace scan {
     LRef args = arg_list_from_buffer(argc, argv);
 
     if (type == TC_CLOSURE)
-      return closure_apply(function, args, env, retval);
+      {
+        LRef c_code = CLOSURE_CODE(function);
+
+        *env = extend_env(args, CAR(c_code), CLOSURE_ENV(function));
+
+        return CDR(c_code); // tail call
+      }
     else if (!NULLP(CURRENT_BAD_APPLY_HANDLER))
       {
         if (!CLOSUREP(CURRENT_BAD_APPLY_HANDLER))
