@@ -1874,8 +1874,6 @@ namespace scan {
   LRef lhandler_frames();
   LRef lcatch (LRef args, LRef env);
   LRef lilambda (LRef args, LRef env);
-  LRef lwhile (LRef form, LRef env);
-  LRef lrepeat (LRef form, LRef env);
   LRef lsetq (LRef args, LRef env);
   LRef lthe_environment (LRef args, LRef env);
   LRef ltime_apply0(LRef fn);

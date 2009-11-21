@@ -1236,37 +1236,6 @@ namespace scan {
     return env;
   }
 
-  LRef lwhile (LRef form, LRef env)
-  {
-    LRef l;
-
-    while (TRUEP(leval(lcar(form), env)))
-      for (l = lcdr(form); !NULLP(l); l = lcdr(l))
-        leval(lcar(l), env);
-
-    return NIL;
-  }
-
-  LRef lrepeat (LRef form, LRef env)
-  {
-    LRef limit = leval(lcar(form), env);
-
-    if (!NUMBERP(limit))
-      vmerror("Expected number for repeat limit", NIL);
-
-    fixnum_t lim = get_c_fixnum(limit);
-
-    while (lim > 0)
-      {
-        for (LRef l = lcdr(form); !NULLP(l); l = lcdr(l))
-          leval(lcar(l), env);
-
-        lim--;
-      }
-
-    return (NIL);
-  }
-
   LRef ltime_apply0(LRef fn)
   {
     if (!PROCEDUREP(fn))
