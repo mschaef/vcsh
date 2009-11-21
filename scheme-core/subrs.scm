@@ -7,7 +7,6 @@
 ;; special forms - subr_f
 (define catch #.(scheme::%subr-by-name "catch"))
 
-;;(define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
 
 ;; primitive functions
