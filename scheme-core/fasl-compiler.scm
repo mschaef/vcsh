@@ -347,9 +347,6 @@
 (define (meaning/application form cenv genv at-toplevel?)
   (map #L(form-meaning _ cenv genv at-toplevel?) form))
 
-(define (meaning/begin form cenv genv at-toplevel?)
-  `(system::%%begin ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
-
 ;; REVISIT: meaning/begin, /or, and /and all have the same basic form, poss. refactor.
 ;; REVISIT: meaning/begin, /or, and /and are all non-tail recursive
 
@@ -410,6 +407,12 @@
         (#t
          (scheme::assemble-fast-op :global-ref form))))
 
+(define (meaning/while form cenv genv at-toplevel?)
+  `(system::%%while ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+
+(define (meaning/repeat form cenv genv at-toplevel?)
+  `(system::%%repeat ,@(map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+
 (define (form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
@@ -428,6 +431,10 @@
                ((set!)             (meaning/set!        form cenv genv at-toplevel?))
                ((scheme::%define)  (meaning/%define     form cenv genv at-toplevel?))
                ((quote)            (meaning/quote       form cenv genv at-toplevel?))
+
+               ((while)            (meaning/while       form cenv genv at-toplevel?))
+               ((repeat)           (meaning/repeat      form cenv genv at-toplevel?))
+
                (#t                 (meaning/application form cenv genv at-toplevel?))))))
     form))
 
