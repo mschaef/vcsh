@@ -8,8 +8,6 @@
 (define %lambda #.(scheme::%subr-by-name "%lambda"))
 (define catch #.(scheme::%subr-by-name "catch"))
 (define the-environment #.(scheme::%subr-by-name "the-environment"))
-(define while #.(scheme::%subr-by-name "while"))
-(define repeat #.(scheme::%subr-by-name "repeat"))
 
 (define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
