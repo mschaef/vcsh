@@ -7,11 +7,9 @@
 ;; special forms - subr_f
 (define %lambda #.(scheme::%subr-by-name "%lambda"))
 (define catch #.(scheme::%subr-by-name "catch"))
-(define the-environment #.(scheme::%subr-by-name "the-environment"))
 
 (define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
-(define system::%%the-environment #.(scheme::%subr-by-name "the-environment"))
 (define system::%%set! #.(scheme::%subr-by-name "set!"))
 
 ;; primitive functions

@@ -1233,13 +1233,6 @@ namespace scan {
     return new_closure;
   }
 
-  LRef lthe_environment (LRef args, LRef env)
-  {
-    UNREFERENCED(args);
-
-    return env;
-  }
-
   LRef ltime_apply0(LRef fn)
   {
     if (!PROCEDUREP(fn))

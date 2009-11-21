@@ -491,7 +491,6 @@ namespace scan {
     register_subr(_T("%lambda"),                          SUBR_F,     (void*)lilambda                            );
     register_subr(_T("catch"),                            SUBR_F,     (void*)lcatch                              );
     register_subr(_T("set!"),                             SUBR_F,     (void*)lsetq                               );
-    register_subr(_T("the-environment"),                  SUBR_F,     (void*)lthe_environment                    );
 
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
