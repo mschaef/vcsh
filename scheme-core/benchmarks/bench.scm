@@ -57,7 +57,7 @@
     (gc)
     (format #t "~a." count)
     (flush-port (current-output-port))
-    (let ((result (scheme::%time (repeat count (apply closure)))))
+    (let ((result (scheme::%time-apply0 (lambda () (repeat count (apply closure))))))
       (let ((cpu-time (vector-ref result 1))
 	    (net-time (- (vector-ref result 1)
 			 (vector-ref result 2))))
