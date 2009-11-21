@@ -737,10 +737,7 @@ namespace scan {
 
   LRef leval(LRef form, LRef env)
   {
-    typecode_t type;
     LRef retval = NIL;
-    LRef args = NIL;
-    LRef function = NIL;
 
     STACK_CHECK(&form);
 
@@ -753,15 +750,19 @@ namespace scan {
 
         _process_interrupts();
 
-        type = TYPE(form);
+        typecode_t type = TYPE(form);
 
         if (type == TC_FAST_OP)
           {
             LRef sym = FAST_OP_ARG1(form);
             LRef val;
 
+            LRef function;
+
             LRef global_binding;
             LRef local_binding;
+            size_t argc;
+            LRef argv[ARG_BUF_LEN];
 
             switch (FAST_OP_OPCODE(form))
               {
@@ -820,6 +821,18 @@ namespace scan {
                 retval = val;
                 break;
 
+              case FOP_APPLY:
+                function = leval(FAST_OP_ARG1(form), env);
+
+                argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
+
+                form = apply(function, argc, argv, &env, &retval);
+
+                if  (!NULLP(form))
+                  goto loop;
+
+                break;
+
               case FOP_IF_TRUE:
                 if (TRUEP(leval(FAST_OP_ARG1(form), env)))
                   form = FAST_OP_ARG2(form);
@@ -875,8 +888,8 @@ namespace scan {
         else if (type == TC_CONS)
           {
             // Split up the form into function and arguments
-            function = leval(CAR(form), env);
-            args = CDR(form);
+            LRef function = leval(CAR(form), env);
+            LRef args = CDR(form);
 
             LRef argv[ARG_BUF_LEN];
             size_t argc = evaluate_arguments_to_buffer(lcdr(form), env, ARG_BUF_LEN, argv);

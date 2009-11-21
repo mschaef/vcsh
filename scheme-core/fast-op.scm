@@ -30,6 +30,8 @@
 (define-fast-op :local-ref 18 1)
 (define-fast-op :local-set! 19 2)
 
+(define-fast-op :apply 24 2)
+
 (define-fast-op :if-true 32 3)
 
 (define-fast-op :and/2 64 2)
