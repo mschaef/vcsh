@@ -405,9 +405,7 @@
   (cond ((keyword? form)
          (scheme::assemble-fast-op :literal form))
         ((bound-in-cenv? form cenv)
-         form
-         ;(scheme::assemble-fast-op :local-ref form)
-         )
+         (scheme::assemble-fast-op :local-ref form))
         (#t
          (scheme::assemble-fast-op :global-ref form))))
 
