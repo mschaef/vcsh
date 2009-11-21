@@ -338,11 +338,9 @@
                                    at-toplevel?)))
       (if (null? cenv)
           (scheme::%closure () (cons l-list body-form) p-list)
-          ;; The compiler does not reify closures if they are defined in
-          ;; the context of local variables. The interpreter must reify at
-          ;; runtime to capture the correct variable bindings in the closure's
-          ;; environment.
-          `(system::%%lambda ,p-list ,l-list ,body-form)))))
+          (scheme::assemble-fast-op :close-env
+                                    (cons l-list body-form)
+                                    p-list)))))
 
 (define (meaning/application form cenv genv at-toplevel?)
   (map #L(form-meaning _ cenv genv at-toplevel?) form))

@@ -895,6 +895,10 @@ namespace scan {
                 form = FAST_OP_ARG2(form);
                 goto loop;
 
+              case FOP_CLOSE_ENV:
+                retval = lclosurecons(env, FAST_OP_ARG1(form), FAST_OP_ARG2(form));
+                break;
+
               case FOP_GET_ENV:
                 retval = env;
                 break;

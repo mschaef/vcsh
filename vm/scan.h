@@ -1545,6 +1545,8 @@ namespace scan {
 
     FOP_SEQUENCE   = 96,
 
+    FOP_CLOSE_ENV  = 128,
+
     FOP_GET_ENV    = 224,
   };
 

@@ -37,6 +37,8 @@
 
 (define-fast-op :sequence 96 2)
 
+(define-fast-op :close-env 128 2)
+
 (define-fast-op :get-env 224 0)
 
 (define (parse-fast-op fast-op :optional (parse-opcode? #t))
