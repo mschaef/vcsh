@@ -880,6 +880,12 @@ namespace scan {
                 form = FAST_OP_ARG2(form);
                 goto loop;
 
+              case FOP_SEQUENCE:
+                leval(FAST_OP_ARG1(form), env);
+
+                form = FAST_OP_ARG2(form);
+                goto loop;
+
               default: vmerror("Unsupported fast-op: ~s", form);
               }
           }

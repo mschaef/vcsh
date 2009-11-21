@@ -33,6 +33,8 @@
 (define-fast-op :and/2 64 2)
 (define-fast-op :or/2 65 2)
 
+(define-fast-op :sequence 96 2)
+
 (define (parse-fast-op fast-op :optional (parse-opcode? #t))
   (let ((opcode (%fast-op-opcode fast-op))
         (args (%fast-op-args fast-op)))

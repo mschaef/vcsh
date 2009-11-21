@@ -4,11 +4,6 @@
 ;;;
 ;;; Lisp references to native SUBRs.
 
-;; special forms - subr_macro
-(define begin #.(scheme::%subr-by-name "begin"))
-
-(define system::%%begin #.(scheme::%subr-by-name "begin"))
-
 ;; special forms - subr_f
 (define %lambda #.(scheme::%subr-by-name "%lambda"))
 (define catch #.(scheme::%subr-by-name "catch"))
