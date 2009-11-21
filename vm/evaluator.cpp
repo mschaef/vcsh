@@ -718,28 +718,19 @@ namespace scan {
     if (type == TC_SUBR)
       return subr_apply(function, argc, argv, env, retval);
 
-    LRef args = arg_list_from_buffer(argc, argv);
 
     if (type == TC_CLOSURE)
       {
         LRef c_code = CLOSURE_CODE(function);
 
-        *env = extend_env(args, CAR(c_code), CLOSURE_ENV(function));
+        *env = extend_env(arg_list_from_buffer(argc, argv),
+                          CAR(c_code),
+                          CLOSURE_ENV(function));
 
         return CDR(c_code); // tail call
       }
-    else if (!NULLP(CURRENT_BAD_APPLY_HANDLER))
-      {
-        if (!CLOSUREP(CURRENT_BAD_APPLY_HANDLER))
-          vmerror("Invalid bad-apply handler", CURRENT_BAD_APPLY_HANDLER);
 
-        if (call_lisp_procedure(CURRENT_BAD_APPLY_HANDLER, retval, NULL, 2, function, args))
-          panic(_T("Error evaluating bad apply handler"));
-
-        return NIL;
-      }
-    else
-      vmerror("Cannot apply: ~s", function);
+    vmerror("Cannot apply: ~s", function);
 
     return NIL; // avoid a warning, since the error case returns nothing.
   }

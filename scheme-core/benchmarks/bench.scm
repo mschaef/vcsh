@@ -1064,15 +1064,15 @@
       (set-benchmark-structure-f3! (vector-ref db ii) (vector-ref db (random size))))
     db))
 
-(defbench structure/fasl-roundtrip-complex-sharing
-  (let ((structures (make-complex-structure-vector 2000))
-        (fn (temporary-file-name "scf")))
-    (account
-     (with-fasl-file of fn
-       (fasl-write structures of))
-     (with-port if (open-input-file fn :binary)
-       (fasl-load if)))
-    (delete-file fn)))
+;; (defbench structure/fasl-roundtrip-complex-sharing
+;;   (let ((structures (make-complex-structure-vector 2000))
+;;         (fn (temporary-file-name "scf")))
+;;     (account
+;;      (with-fasl-file of fn
+;;        (fasl-write structures of))
+;;      (with-port if (open-input-file fn :binary)
+;;        (fasl-load if)))
+;;     (delete-file fn)))
 
 (define-proto benchmark-proto
   'f1 0

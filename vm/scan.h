@@ -629,8 +629,6 @@ namespace scan {
   // This is the 'universally availble' debugger output port.
 #define VM_DEBUG_PORT (&interp.debugger_output)
 
-#define CURRENT_BAD_APPLY_HANDLER (SYMBOL_VCELL(interp.sym_global_bad_apply_handler))
-#define CURRENT_UNCOMPILED_FUNCTION_HANDLER (SYMBOL_VCELL(interp.sym_uncompiled_function_handler))
 #define CURRENT_GLOBAL_DEFINE_HOOK (SYMBOL_VCELL(interp.sym_global_define_hook))
 #define CURRENT_VM_RUNTIME_ERROR_HANDLER (SYMBOL_VCELL(interp.sym_vm_runtime_error_handler))
 #define CURRENT_VM_SIGNAL_HANDLER (SYMBOL_VCELL(interp.sym_vm_signal_handler))
