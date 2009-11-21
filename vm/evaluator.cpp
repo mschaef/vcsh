@@ -551,23 +551,6 @@ namespace scan {
   }
 #endif
 
-  LRef arglchk (LRef x)
-  {
-#if (!ENVLOOKUP_TRICK)
-    LRef l;
-
-    if (SYMBOLP (x))
-      return (x);
-
-    for (l = x; CONSP (l); l = CDR (l)) ;
-
-    if (!NULLP (l))
-      error("improper formal argument list", x);
-
-#endif
-    return (x);
-  }
-
 
   void signal_break()
   {
@@ -1219,22 +1202,9 @@ namespace scan {
 
     LRef body_forms = lcdr(args);
 
-    // If no body or args have been specified, create an 'uncompiled' lambda.
-    if (NULLP(body_forms))
-      return lclosurecons(env, NIL, properties);
+    LRef body = lcar(body_forms);
 
-    LRef body;
-
-    // lambda code can be composed of exactly one form. If there are
-    // multiple forms, then they're wrapped in a (begin ...)
-    if (NULLP(lcdr(body_forms)))
-      body = lcar(body_forms);
-    else
-      body = lcons(interp.sym_progn, body_forms);
-
-    LRef new_closure = lclosurecons(env, lcons(arglchk(lcar(args)), body), properties);
-
-    return new_closure;
+    return lclosurecons(env, lcons(lcar(args), body), properties);
   }
 
   LRef ltime_apply0(LRef fn)

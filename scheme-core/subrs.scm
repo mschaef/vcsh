@@ -5,12 +5,10 @@
 ;;; Lisp references to native SUBRs.
 
 ;; special forms - subr_f
-(define %lambda #.(scheme::%subr-by-name "%lambda"))
 (define catch #.(scheme::%subr-by-name "catch"))
 
 (define system::%%lambda #.(scheme::%subr-by-name "%lambda"))
 (define system::%%catch #.(scheme::%subr-by-name "catch"))
-;;(define system::%%set! #.(scheme::%subr-by-name "set!"))
 
 ;; primitive functions
 (define %call-with-global-environment #.(scheme::%subr-by-name "%call-with-global-environment"))
