@@ -125,19 +125,51 @@
              (loop (+ ii 1)))))))
 
 
+
 (define (disassemble . functions)
+  (define (print-closure-code code port)
+    (let recur ((code code))
+      (trace-indent port)
+      (cond ((fast-op? code)
+             (values-bind (parse-fast-op code) (opcode args)
+               (case opcode
+                 ((:global-ref :local-ref :literal)
+                  (format port "~s ~s\n" opcode (car args)))
+                 ((:global-set! :local-set!)
+                  (format port "~s ~s\n" opcode (car args))
+                  (in-trace-level
+                   (recur (cadr args))))
+                 ((:close-env)
+                  (format port "~s ~s {\n" opcode (caar args))
+                  (in-trace-level
+                   (recur (cdar args)))
+                  (trace-indent port)
+                  (format port "}\n"))
+                 ((:apply)
+                  (format port "~s\n" opcode)
+                  (in-trace-level
+                   (dolist (arg (cons (car args) (cadr args)))
+                     (recur arg))))
+                 (#t
+                  (format port "~s\n" opcode)
+                  (in-trace-level
+                   (dolist (arg args)
+                     (recur arg)))))))
+            (#t
+             (format port "~s\n" code)))))
   (define (print-closure-disassembly closure)
     (format  (current-debug-port) "; disassemble\n; ----------------\n")
-    (format  (current-debug-port) "; code  : ~s\n" (%closure-code closure))
+    (format  (current-debug-port) "; l-list: ~s\n" (car (%closure-code closure)))
     (format  (current-debug-port) "; env   : ~s\n" (%closure-env closure))
-    (format  (current-debug-port) "; p-list: ~s\n" (%property-list closure)))
+    (format  (current-debug-port) "; p-list: ~s\n" (%property-list closure))
+    (print-closure-code (cdr (%closure-code closure)) (current-debug-port)))
   (dynamic-let ((*print-readably* #f))
     (dolist (f functions)
       (let ((f (if (symbol? f) (symbol-value f) f)))
         (cond ((generic-function? f)
                (format  (current-debug-port) "generic function disassembly:\n\n")
                (dolist (method (generic-function-methods f))
-                 (format  (current-debug-port) "\nmethod disassesmble ~s:\n" (car method))
+                 (format  (current-debug-port) "\nmethod disassemble ~s:\n" (car method))
                  (print-closure-disassembly (cdr method))
                  (newline (current-debug-port))))
               ((compiled-closure? f)
