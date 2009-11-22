@@ -23,6 +23,7 @@
             "load-tests"
             "values-eq?"
             "values-equal?"
+            "test-body"
             "dtu-lambda-list"))
 
 ;; TODO: unit tests over ranged x (ie: this should apply from all x in [0,255]
@@ -110,6 +111,9 @@
          (lambda (x y) (> 0 (strcmp x y)))
          symbol-name))
 
+(define (test-body test-name)
+  (hash-ref *test-cases* test-name))
+
 ;;;; Unit test execution
 
 (define (execute-test test-name)
@@ -118,12 +122,11 @@
     (set! *check-count* 0)
     (set! *check-fail-count* 0)
     (format #t "; ~a..." test-name)
-    ((hash-ref *test-cases* test-name))
+    ((test-body test-name))
     (indent 50)
     (format #t " ~a check~a." *check-count* (if (> *check-count* 1) "s" ""))
     (when (> *check-fail-count* 0) (format #t " (~a FAILED!!!)" *check-fail-count*))
-    (newline)
-    ))
+    (newline)))
 
 (define (test-location-string form-loc)
   (if form-loc

@@ -40,3 +40,11 @@
 	  (y x))
       (test-case (= x 100))
       (test-case (= y 10)))))
+
+
+(define-test let
+  (let lp ((x 0) (y 10) z)
+    (test-case (runtime-error? (lp))))
+
+  (let lp ((x 0) (y 10) z)
+    (test-case (equal? z '()))))
