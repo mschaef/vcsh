@@ -343,7 +343,9 @@
                                     p-list)))))
 
 (define (meaning/application form cenv genv at-toplevel?)
-  (map #L(form-meaning _ cenv genv at-toplevel?) form))
+  (scheme::assemble-fast-op :apply
+                            (form-meaning (car form) cenv genv at-toplevel?)
+                            (map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
 ;; REVISIT: meaning/begin, /or, and /and all have the same basic form, poss. refactor.
 ;; REVISIT: meaning/begin, /or, and /and are all non-tail recursive
