@@ -416,9 +416,10 @@
     (lambda (form)
       (cond ((symbol? form)
              (meaning/symbol form cenv genv at-toplevel?))
-            ((atom? form)
-             ;(scheme::assemble-fast-op :literal form)
+            ((scheme::fast-op? form)
              form)
+            ((atom? form)
+             (scheme::assemble-fast-op :literal form))
             (#t
              (case (car form)
                ((scheme::%macro)   (meaning/%macro          form cenv genv at-toplevel?))
