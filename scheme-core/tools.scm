@@ -106,26 +106,6 @@
               `(format #t "WATCH: ~s = ~s\n" ',expr ,expr))
             exprs)))
 
-(define (disassemble-compiled-function f :optional (nesting 0))
-  (format #t "\ndisassemble-compiled:")
-  (let ((consts (%closure-code f)))
-    (let loop ((ii 0))
-      (newline (current-debug-port))
-      (indent (* 3 nesting))
-      (format  (current-debug-port) "k[~a]=" ii)
-      (cond ((= ii 0)
-             (newline (current-debug-port))
-             (table (vector-ref consts ii) (* 3 nesting)))
-            ((< ii (length consts))
-             (let ((const (vector-ref consts ii)))
-               (cond ((compiled-closure? const)
-                      (disassesmble-compiled-function const (+ nesting 1)))
-                     (#t
-                      (write ii const))))
-             (loop (+ ii 1)))))))
-
-
-
 (define (disassemble . functions)
   (define (print-closure-code code port)
     (let recur ((code code))
@@ -172,10 +152,10 @@
                  (format  (current-debug-port) "\nmethod disassemble ~s:\n" (car method))
                  (print-closure-disassembly (cdr method))
                  (newline (current-debug-port))))
-              ((compiled-closure? f)
-               (disassemble-compiled-function f))
+              ((closure? f)
+               (print-closure-disassembly f))
               (#t
-               (print-closure-disassembly f)))))))
+               (error "Cannot disassemble: ~s" f)))))))
 
 
 ;;; The function tracer

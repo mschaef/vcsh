@@ -44,12 +44,6 @@
         (cons "env" (%closure-env obj))
         (cons "p-list" (%property-list obj))))
 
-
-(define-method (inspect-analyze-object (obj compiled-closure))
-  (list (cons "env" (%closure-env obj))
-        (cons "consts" (%closure-code obj))
-        (cons "p-list" (%property-list obj))))
-
 (define-method (inspect-analyze-object (obj macro))
   (list (cons "transformer" (%macro-transformer obj))
         (cons "p-list" (%property-list obj))))

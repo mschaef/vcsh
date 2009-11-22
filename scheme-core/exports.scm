@@ -12,7 +12,7 @@
 
            ;; Handler binding variables
            "*after-gc*" "*global-bad-apply-handler*" "*global-define-hook*" "*timer-event-handler*"
-           "*uncompiled-function-handler*" "*user-break-handler*" "*vm-runtime-error-handler*"
+           "*user-break-handler*" "*vm-runtime-error-handler*"
            "*vm-signal-handler*"
 
            ;; Escapes
@@ -23,7 +23,7 @@
 
            ;; Type names
            "boolean" "byte-vector" "external" "character" "closure"
-           "compiled-closure" "cons"  "end-of-file" "errobj" "fast-op" "fixnum"
+           "cons"  "end-of-file" "errobj" "fast-op" "fixnum"
            "flonum" "free-cell" "hash" "instance" "macro" "name" "nil" "package"
            "port" "string" "structure" "subr" "symbol" "values-tuple" "vector"
            )
@@ -267,7 +267,6 @@
            close-port
            closure?
            columns->instance
-           compiled-closure?
            complex
            complex?
            cond

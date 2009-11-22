@@ -154,12 +154,6 @@
               )
             (format p " ~s\n\n" frame-data)))))))
 
-;;; Uncompiled function handler
-
-(set! *uncompiled-function-handler*
-      (lambda (function)
-        (error "Uncompiled function [ ~a ]" function)))
-
 (defmacro (check predicate value . msg)
   "Applies <predicate> to <value> and signals an error if false. <predicate>
    can either be a symbol naming a predicate, a list describing a composite
