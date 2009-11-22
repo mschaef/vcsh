@@ -887,6 +887,7 @@ namespace scan {
           }
         else if (type == TC_CONS)
           {
+            dscwritef("; list: ~a\n", form);
             // Split up the form into function and arguments
             LRef function = leval(CAR(form), env);
             LRef args = CDR(form);
