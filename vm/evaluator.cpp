@@ -902,7 +902,7 @@ namespace scan {
           }
         else
           {
-            dscwritef("; other: ~s\n", form);
+            dscwritef("\n\n\n; OTHER: ~s\n\n\n\n", form);
             retval = form;
           }
       }

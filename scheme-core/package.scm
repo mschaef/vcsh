@@ -478,34 +478,36 @@
           (add-symbol-to-package sym package)
           sym))))
 
+;; TODO: this interacts badly with the compiler
+;;
 ;; (define gensym
-;;   (let ((count 0))
-;;     (lambda (:optional (name "GS"))
-;;       (cond ((symbol? name)
-;;              (gensym (symbol-name name))
-;;             ((string? name)
-;;              (incr! count)
-;;              (string->uninterned-symbol
-;;               (string-append name "-" (number->string count))))
-;;             (#t
-;;              (error "Invalid gensym base name: ~s" name))))))
+;;   (let ((count 0)) ;; this, in particular
+;;     (lambda name
+;;       (set! count (+ count 1))
+;;       (if (or (not (pair? name))
+;;               (not (string? (car name))))
+;;           (set! name "GS")
+;;           (set! name (car name)))
+;;       (string->uninterned-symbol
+;;        (string-append
+;;         name
+;;         (number->string count))))))
 
-(define gensym ;; TODO: This should take symbols and keywords as base names
-  (let ((count 0))
-    (lambda name
-      (set! count (+ count 1))
-      (if (or (not (pair? name))
-              (not (string? (car name))))
-          (set! name "GS")
-          (set! name (car name)))
-      (string->uninterned-symbol
-       (string-append
-        name
-        "-"
-        ;; TODO: put the gensym count to the left of the name. Otherwise, there
-        ;; is the implication that the count is name scoped, rather than
-        ;; scoped to the set of all gensyms.
-        (number->string count))))))
+
+(define *gensym-count* 0)
+
+(define gensym
+  (lambda name
+    (set! *gensym-count* (+ *gensym-count* 1))
+    (if (or (not (pair? name))
+            (not (string? (car name))))
+        (set! name "GS")
+        (set! name (car name)))
+    (string->uninterned-symbol
+     (string-append
+      name
+      "-"
+      (number->string *gensym-count*)))))
 
 (defmacro (with-gensyms gensym-names . code)
   (check list? gensym-names)
