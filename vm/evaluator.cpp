@@ -688,7 +688,7 @@ namespace scan {
             arg1 = SUBR_F2(function) (arg1, _ARGV(1));
 
             for (size_t ii = 2; ii < argc; ii++)
-              arg1 = SUBR_F2(function)(arg1, leval(_ARGV(ii), *env));
+              arg1 = SUBR_F2(function)(arg1, _ARGV(ii));
 
             *retval = arg1;
             break;
@@ -902,7 +902,7 @@ namespace scan {
           }
         else
           {
-            //dscwritef("; other: ~a\n", form);
+            dscwritef("; other: ~s\n", form);
             retval = form;
           }
       }
