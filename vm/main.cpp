@@ -374,24 +374,23 @@ namespace scan {
     _T("package"),
     _T("subr"),
     _T("closure"),
-    _T("compiled-closure"),
-
     _T("macro"),
+
     _T("byte-vector"),
     _T("string"),
     _T("vector"),
-
     _T("structure"),
+
     _T("hash"),
     _T("port"),
     _T("end-of-file"),
-
     _T("external"),
+
     _T("values-tuple"),
     _T("instance"),
     _T("unbound-marker"),
-
     _T("gc-trip-wire"),
+
     _T("fast-op"),
   };
 
@@ -451,9 +450,6 @@ namespace scan {
     gc_protect_sym(&interp.sym_global_bad_apply_handler, _T("*global-bad-apply-handler*"), interp.system_package);
     lidefine_global(interp.sym_global_bad_apply_handler, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_uncompiled_function_handler, _T("*uncompiled-function-handler*"), interp.system_package);
-    lidefine_global(interp.sym_uncompiled_function_handler, NIL, NIL);
-
     gc_protect_sym(&interp.sym_global_define_hook, _T("*global-define-hook*"), interp.system_package);
     lidefine_global(interp.sym_global_define_hook, NIL, NIL);
 
@@ -493,7 +489,6 @@ namespace scan {
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
-    register_subr(_T("%compiled-closure"),                SUBR_3,     (void*)lcompiled_closurecons               );
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
@@ -603,7 +598,6 @@ namespace scan {
     register_subr(_T("clone-instance"),                   SUBR_1,     (void*)lclone_instance                     );
     register_subr(_T("close-port"),                       SUBR_1,     (void*)lclose_port                         );
     register_subr(_T("closure?"),                         SUBR_1,     (void*)lclosurep                           );
-    register_subr(_T("compiled-closure?"),                SUBR_1,     (void*)lcompiled_closurep                  );
     register_subr(_T("complex?"),                         SUBR_1,     (void*)lcomplexp                           );
     register_subr(_T("cons"),                             SUBR_2,     (void*)lcons                               );
     register_subr(_T("cos"),                              SUBR_1,     (void*)lcos                                );
@@ -852,7 +846,6 @@ namespace scan {
     interp.sym_current_package                     = NIL;
     interp.sym_progn                               = NIL;
     interp.sym_errobj                              = NIL;
-    interp.sym_uncompiled_function_handler         = NIL;
     interp.sym_global_define_hook                  = NIL;
 
     // Statistics Counters

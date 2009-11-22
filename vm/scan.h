@@ -84,27 +84,26 @@ namespace scan {
     TC_PACKAGE          = 8,
     TC_SUBR             = 9,
     TC_CLOSURE          = 10,
-    TC_COMPILED_CLOSURE = 11,
+    TC_MACRO            = 11,
 
-    TC_MACRO            = 12,
-    TC_BYTE_VECTOR      = 13,
-    TC_STRING           = 14,
-    TC_VECTOR           = 15,
+    TC_BYTE_VECTOR      = 12,
+    TC_STRING           = 13,
+    TC_VECTOR           = 14,
+    TC_STRUCTURE        = 15,
 
-    TC_STRUCTURE        = 16,
-    TC_HASH             = 17,
-    TC_PORT             = 18,
-    TC_END_OF_FILE      = 19,
+    TC_HASH             = 16,
+    TC_PORT             = 17,
+    TC_END_OF_FILE      = 18,
+    TC_EXTERNAL        =  19,
 
-    TC_EXTERNAL        = 20,
-    TC_VALUES_TUPLE     = 21,
-    TC_INSTANCE         = 22,
-    TC_UNBOUND_MARKER   = 23,
+    TC_VALUES_TUPLE     = 20,
+    TC_INSTANCE         = 21,
+    TC_UNBOUND_MARKER   = 22,
+    TC_GC_TRIP_WIRE     = 23,
 
-    TC_GC_TRIP_WIRE     = 24,
-    TC_FAST_OP          = 25,
+    TC_FAST_OP          = 24,
 
-    LAST_INTERNAL_TYPEC = 25,
+    LAST_INTERNAL_TYPEC = 24,
   };
 
   enum subr_arity_t
@@ -455,7 +454,6 @@ namespace scan {
     LRef        sym_name;
     LRef        sym_do_not_understand;
     LRef        sym_global_bad_apply_handler;
-    LRef        sym_uncompiled_function_handler;
     LRef        sym_global_define_hook;
     LRef        sym_internal_files;
     LRef        sym_reader_defaults_to_flonum;
@@ -531,8 +529,7 @@ namespace scan {
   INLINE bool VECTORP(LRef x)            { return TYPEP(x,TC_VECTOR); }
   INLINE bool STRUCTUREP(LRef x)         { return TYPEP(x,TC_STRUCTURE); }
   INLINE bool HASHP(LRef x)              { return TYPEP(x,TC_HASH); }
-  INLINE bool CLOSUREP(LRef x)           { return TYPEP(x,TC_CLOSURE) || TYPEP(x,TC_COMPILED_CLOSURE); }
-  INLINE bool COMPILEDP(LRef x)          { return TYPEP(x,TC_COMPILED_CLOSURE); }
+  INLINE bool CLOSUREP(LRef x)           { return TYPEP(x,TC_CLOSURE); }
   INLINE bool SUBRP(LRef x)              { return TYPEP(x, TC_SUBR); }
   INLINE bool PROCEDUREP(LRef x)         { return CLOSUREP(x) || SUBRP(x); }
   INLINE bool BYTE_VECTOR_P(LRef x)      { return TYPEP(x, TC_BYTE_VECTOR); }
@@ -1628,7 +1625,6 @@ namespace scan {
   LRef lsubr_kind(LRef subr);
   LRef lprimitivep(LRef obj);
   LRef lclosurep(LRef obj);
-  LRef lcompiled_closurep(LRef obj);
   LRef lconsp(LRef x);
   LRef lsetcar(LRef cell, LRef value);
   LRef lsetcdr(LRef cell, LRef value);
@@ -1861,7 +1857,6 @@ namespace scan {
   LRef lshow_env_lookup_stats();
 #endif
   LRef lclosurecons(LRef env, LRef code, LRef property_list);
-  LRef lcompiled_closurecons(LRef env, LRef consts, LRef property_list);
   LRef lproperty_list(LRef exp);
   LRef lset_property_list(LRef exp, LRef property_list);
   LRef lprocedurep(LRef exp);

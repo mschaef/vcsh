@@ -285,13 +285,6 @@ namespace scan {
 	    obj = CLOSURE_ENV(obj);
             break;
 
-          case TC_COMPILED_CLOSURE:
-	    gc_mark(CLOSURE_CODE(obj));
-            gc_mark(CLOSURE_PROPERTY_LIST(obj));
-
-	    obj = CLOSURE_ENV(obj);
-            break;
-
           case TC_MACRO:
             obj = MACRO_TRANSFORMER(obj);
             break;

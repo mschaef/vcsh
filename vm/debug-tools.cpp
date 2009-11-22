@@ -821,7 +821,6 @@ namespace scan {
         scwritef("~u", port, (LRef)obj);
       break;
 
-    case TC_COMPILED_CLOSURE:
     case TC_BYTE_VECTOR:
       scwritef("~u", port, (LRef)obj);
       break;

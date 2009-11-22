@@ -111,20 +111,6 @@ namespace scan {
     return z;
   }
 
-  LRef lcompiled_closurecons(LRef env, LRef consts, LRef property_list)
-  {
-    LRef z = new_cell(TC_COMPILED_CLOSURE);
-
-    if (!(VECTORP(consts)))
-      vmerror_wrong_type(2, consts);
-
-    SET_CLOSURE_ENV(z, env);
-    SET_CLOSURE_CODE(z, consts);
-    SET_CLOSURE_PROPERTY_LIST(z, property_list);
-
-    return z;
-  }
-
   LRef lset_closure_code(LRef exp, LRef code)
   {
     if (!CLOSUREP(exp))
@@ -201,14 +187,6 @@ namespace scan {
   LRef lclosurep(LRef obj)
   {
     if (CLOSUREP(obj))
-      return obj;
-    else
-      return boolcons(false);
-  }
-
-  LRef lcompiled_closurep(LRef obj)
-  {
-    if (COMPILEDP(obj))
       return obj;
     else
       return boolcons(false);
