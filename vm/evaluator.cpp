@@ -901,7 +901,10 @@ namespace scan {
               goto loop;
           }
         else
-          retval = form;
+          {
+            //dscwritef("; other: ~a\n", form);
+            retval = form;
+          }
       }
 #ifdef _DEBUG
     LEAVE_FRAME();
