@@ -57,15 +57,21 @@
 (define *check-escape* (gensym "check-escape"))
 (define *test-escape* (gensym "test-escape"))
 
+(define-structure test-case
+  name
+  location
+  runner)
 
-(define (add-test! test-name test-fn)
+(define (add-test! test-name location runner)
   "Extend the unit test dictionary to include a test named
    <test-name> implemented by the function <test-fn>."
   (check symbol? test-name)
-  (check closure? test-fn)
+  (check closure? runner)
   (when (hash-has? *test-cases* test-name)
     (format #t "; WARNING: Redefining test case ~s" test-name))
-  (hash-set! *test-cases* test-name test-fn)
+  (hash-set! *test-cases* test-name (make-test-case :name     test-name
+                                                    :location location
+                                                    :runner   runner))
   (values))
 
 (define-structure test-failure
@@ -88,21 +94,7 @@
 (defmacro (define-test test-name . code)
   "Define a test named <test-name> implemented with the code in <code>."
   (let ((loc (form-source-location (car code))))
-    `(add-test! ',test-name
-                (lambda ()
-                  (catch *test-escape*
-                         (handler-bind
-                        ((runtime-error (lambda args
-                                          (test-failed ',test-name ',loc (cons 'runtime-error args))
-                                          (throw *test-escape* #f)))
-                         (unhandled-abort (lambda args
-                                            (test-failed ',test-name ',loc (cons 'unhandled-abort args))
-                                            (throw *test-escape* #f)))
-                         (uncaught-throw (lambda args
-                                           (test-failed ',test-name ',loc (cons 'uncaught-throw args))
-                                           (throw *test-escape* #f))))
-                      (dynamic-let ((*running-test-case* ',test-name))
-                        ,@code)))))))
+    `(add-test! ',test-name ',loc (lambda () ,@code))))
 
 (define (all-tests)
   "Returns a list of all currently defined tests, sorted in alphabetical
@@ -112,21 +104,34 @@
          symbol-name))
 
 (define (test-body test-name)
-  (hash-ref *test-cases* test-name))
+  (test-case-runner (hash-ref *test-cases* test-name)))
 
 ;;;; Unit test execution
 
+(define (run-test test-case)
+  (catch *test-escape*
+    (define (fail reason args)
+      (test-failed (test-case-name test-case) (test-case-location test-case)
+                   (cons reason args))
+      (throw *test-escape* #f))
+    (handler-bind ((runtime-error   (lambda args (fail 'runtime-error   args)))
+                   (unhandled-abort (lambda args (fail 'unhandled-abort args)))
+                   (uncaught-throw  (lambda args (fail 'uncaught-throw  args))))
+      (dynamic-let ((*running-test-case* (test-case-name test-case)))
+        ((test-case-runner test-case))))))
+
 (define (execute-test test-name)
-  (dynamic-let ((*error* *show-test-messages*)
-                (*info* *show-test-messages*))
-    (set! *check-count* 0)
-    (set! *check-fail-count* 0)
-    (format #t "; ~a..." test-name)
-    ((test-body test-name))
-    (indent 50)
-    (format #t " ~a check~a." *check-count* (if (> *check-count* 1) "s" ""))
-    (when (> *check-fail-count* 0) (format #t " (~a FAILED!!!)" *check-fail-count*))
-    (newline)))
+  (let ((test-case (hash-ref *test-cases* test-name)))
+    (dynamic-let ((*error* *show-test-messages*)
+                  (*info* *show-test-messages*))
+      (set! *check-count* 0)
+      (set! *check-fail-count* 0)
+      (format #t "; ~a..." (test-case-name test-case))
+      (run-test test-case)
+      (indent 50)
+      (format #t " ~a check~a." *check-count* (if (> *check-count* 1) "s" ""))
+      (when (> *check-fail-count* 0) (format #t " (~a FAILED!!!)" *check-fail-count*))
+      (newline))))
 
 (define (test-location-string form-loc)
   (if form-loc
