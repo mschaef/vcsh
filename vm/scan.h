@@ -1010,7 +1010,7 @@ namespace scan {
     if (SYMBOL_INDEX(sym) == 0)
       return UNBOUND_MARKER;
 
-    checked_assert(interp.last_global_env_entry < VECTOR_LENGTH(interp.global_env));
+    checked_assert(interp.last_global_env_entry < VECTOR_DIM(interp.global_env));
 
     return VECTOR_ELEM(interp.global_env, SYMBOL_INDEX(sym));
   }
@@ -1018,7 +1018,7 @@ namespace scan {
   INLINE void SET_SYMBOL_VCELL(LRef sym, LRef val)
   {
     checked_assert(SYMBOL_INDEX(sym) != 0);
-    checked_assert(interp.last_global_env_entry < VECTOR_LENGTH(interp.global_env));
+    checked_assert(interp.last_global_env_entry < VECTOR_DIM(interp.global_env));
 
     return SET_VECTOR_ELEM(interp.global_env, SYMBOL_INDEX(sym), val);
   }
@@ -1414,37 +1414,37 @@ namespace scan {
 
   INLINE void *EXTERNAL_DATA(LRef x)
   {
-    checked_assert(EXTERNAL_P(x));
+    checked_assert(EXTERNALP(x));
     return ((*x).storage_as.external.data);
   }
 
   INLINE void *SET_EXTERNAL_DATA(LRef x, void *data)
   {
-    checked_assert(EXTERNAL_P(x));
+    checked_assert(EXTERNALP(x));
     return ((*x).storage_as.external.data) = data;
   }
 
   INLINE LRef EXTERNAL_DESC(LRef x)
   {
-    checked_assert(EXTERNAL_P(x));
+    checked_assert(EXTERNALP(x));
     return ((*x).storage_as.external.desc);
   }
 
   INLINE void SET_EXTERNAL_DESC(LRef x, LRef desc)
   {
-    checked_assert(EXTERNAL_P(x));
+    checked_assert(EXTERNALP(x));
     ((*x).storage_as.external.desc) = desc;
   }
 
   INLINE external_meta_t *EXTERNAL_META(LRef x)
   {
-    checked_assert(EXTERNAL_P(x));
+    checked_assert(EXTERNALP(x));
     return ((*x).storage_as.external.meta);
   }
 
   INLINE void SET_EXTERNAL_META(LRef x, external_meta_t *meta)
   {
-    checked_assert(EXTERNAL_P(x));
+    checked_assert(EXTERNALP(x));
     ((*x).storage_as.external.meta) = meta;
   }
 

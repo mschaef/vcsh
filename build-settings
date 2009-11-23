@@ -2,8 +2,8 @@
 #
 # Settings for configuring the type of build to produce.
 
-# DEBUG or RELEASE
-BUILD_TYPE=DEBUG
+# DEBUG, RELEASE, or CHECKED
+BUILD_TYPE=CHECKED
 
 # unix (gcc), windows (msvc)
 PLATFORM=windows
