@@ -732,10 +732,7 @@ namespace scan {
     LRef sym = FAST_OP_ARG1(form);
     LRef val;
 
-    LRef function;
-
-    LRef global_binding;
-    LRef local_binding;
+    LRef binding;
     size_t argc;
     LRef argv[ARG_BUF_LEN];
 
@@ -749,12 +746,12 @@ namespace scan {
         checked_assert(SYMBOLP(sym));
         checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
 
-        global_binding = SYMBOL_VCELL(sym);
+        binding = SYMBOL_VCELL(sym);
 
-        if (UNBOUND_MARKER_P(global_binding))
+        if (UNBOUND_MARKER_P(binding))
           vmerror_unbound(sym);
 
-        retval = global_binding;
+        retval = binding;
         break;
 
       case FOP_GLOBAL_SET:
@@ -770,34 +767,32 @@ namespace scan {
       case FOP_LOCAL_REF:
         checked_assert(SYMBOLP(sym));
 
-        local_binding = lenvlookup(sym, env);
+        binding = lenvlookup(sym, env);
 
-        if (NULLP(local_binding))
+        if (NULLP(binding))
           vmerror_unbound(sym);
 
-        retval = CAR(local_binding);
+        retval = CAR(binding);
         break;
 
       case FOP_LOCAL_SET:
         checked_assert(SYMBOLP(sym));
 
-        local_binding = lenvlookup(sym, env);
+        binding = lenvlookup(sym, env);
 
-        if (NULLP(local_binding))
+        if (NULLP(binding))
           vmerror_unbound(sym);
 
         val = leval(FAST_OP_ARG2(form), env);
-        SET_CAR(local_binding, val);
+        SET_CAR(binding, val);
 
         retval = val;
         break;
 
       case FOP_APPLY:
-        function = leval(FAST_OP_ARG1(form), env);
-
         argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
 
-        form = apply(function, argc, argv, &env, &retval);
+        form = apply(leval(FAST_OP_ARG1(form), env), argc, argv, &env, &retval);
 
         if  (!NULLP(form))
           goto loop;
