@@ -748,18 +748,14 @@ namespace scan {
 
       case FOP_GLOBAL_REF:
         assert(SYMBOLP(sym));
+        assert(SYMBOL_HOME(sym) != interp.keyword_package);
 
-        if (SYMBOL_HOME(sym) == interp.keyword_package) // TODO: this code path shouldn't be used
-          retval = sym;
-        else
-          {
-            global_binding = SYMBOL_VCELL(sym);
+        global_binding = SYMBOL_VCELL(sym);
 
-            if (UNBOUND_MARKER_P(global_binding))
-              vmerror_unbound(sym);
+        if (UNBOUND_MARKER_P(global_binding))
+          vmerror_unbound(sym);
 
-            retval = global_binding;
-          }
+        retval = global_binding;
         break;
 
       case FOP_GLOBAL_SET:
