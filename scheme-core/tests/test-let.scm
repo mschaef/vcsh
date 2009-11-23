@@ -7,10 +7,13 @@
     (test-case (closure? closure)))
   (let ((x (let lp ((x2 10)) x2)))
     (test-case (equal? x 10)))
-  
+
+  (test-case
+   (runtime-error?
+    (let lp ((x 0) (y 10) z)
+      (lp))))
+
   (let lp ((x 0) (y 10) z)
-    (test-case (runtime-error? (lp)))
-    ;(test-case (runtime-error? (lp 1 2 3 4))) Eventually, too many arguments should throw an error too...
     (test-case (equal? z '())))
 
   (let ((side-effect-0 #f)
@@ -40,11 +43,3 @@
 	  (y x))
       (test-case (= x 100))
       (test-case (= y 10)))))
-
-
-(define-test let
-  (let lp ((x 0) (y 10) z)
-    (test-case (runtime-error? (lp))))
-
-  (let lp ((x 0) (y 10) z)
-    (test-case (equal? z '()))))
