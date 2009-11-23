@@ -727,8 +727,7 @@ namespace scan {
 
     _process_interrupts();
 
-    if (TYPE(form) != TC_FAST_OP)
-      vmerror("Invalid object in leval: ~s", form);
+    checked_assert(TYPE(form) == TC_FAST_OP);
 
     LRef sym = FAST_OP_ARG1(form);
     LRef val;
@@ -747,8 +746,8 @@ namespace scan {
         break;
 
       case FOP_GLOBAL_REF:
-        assert(SYMBOLP(sym));
-        assert(SYMBOL_HOME(sym) != interp.keyword_package);
+        checked_assert(SYMBOLP(sym));
+        checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
 
         global_binding = SYMBOL_VCELL(sym);
 
@@ -759,8 +758,8 @@ namespace scan {
         break;
 
       case FOP_GLOBAL_SET:
-        assert(SYMBOLP(sym));
-        assert(SYMBOL_HOME(sym) != interp.keyword_package);
+        checked_assert(SYMBOLP(sym));
+        checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
 
         val = leval(FAST_OP_ARG2(form), env);
 
@@ -769,7 +768,7 @@ namespace scan {
         break;
 
       case FOP_LOCAL_REF:
-        assert(SYMBOLP(sym));
+        checked_assert(SYMBOLP(sym));
 
         local_binding = lenvlookup(sym, env);
 
@@ -780,7 +779,7 @@ namespace scan {
         break;
 
       case FOP_LOCAL_SET:
-        assert(SYMBOLP(sym));
+        checked_assert(SYMBOLP(sym));
 
         local_binding = lenvlookup(sym, env);
 
