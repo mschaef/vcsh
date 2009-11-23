@@ -722,168 +722,146 @@ namespace scan {
 #ifdef _DEBUG
     ENTER_EVAL_FRAME(form, env)
 #endif
-      {
       loop:
-        interp.forms_evaluated++;
+      interp.forms_evaluated++;
 
-        _process_interrupts();
+    _process_interrupts();
 
-        typecode_t type = TYPE(form);
+    if (TYPE(form) != TC_FAST_OP)
+      vmerror("Invalid object in leval: ~s", form);
 
-        if (type == TC_FAST_OP)
-          {
-            LRef sym = FAST_OP_ARG1(form);
-            LRef val;
+    LRef sym = FAST_OP_ARG1(form);
+    LRef val;
 
-            LRef function;
+    LRef function;
 
-            LRef global_binding;
-            LRef local_binding;
-            size_t argc;
-            LRef argv[ARG_BUF_LEN];
+    LRef global_binding;
+    LRef local_binding;
+    size_t argc;
+    LRef argv[ARG_BUF_LEN];
 
-            switch (FAST_OP_OPCODE(form))
-              {
-              case FOP_LITERAL:
-                retval = FAST_OP_ARG1(form);
-                break;
+    switch (FAST_OP_OPCODE(form))
+      {
+      case FOP_LITERAL:
+        retval = FAST_OP_ARG1(form);
+        break;
 
-              case FOP_GLOBAL_REF:
-                assert(SYMBOLP(sym));
+      case FOP_GLOBAL_REF:
+        assert(SYMBOLP(sym));
 
-                if (SYMBOL_HOME(sym) == interp.keyword_package) // TODO: this code path shouldn't be used
-                  retval = sym;
-                else
-                  {
-                    global_binding = SYMBOL_VCELL(sym);
-
-                    if (UNBOUND_MARKER_P(global_binding))
-                      vmerror_unbound(sym);
-
-                    retval = global_binding;
-                  }
-                break;
-
-              case FOP_GLOBAL_SET:
-                assert(SYMBOLP(sym));
-                assert(SYMBOL_HOME(sym) != interp.keyword_package);
-
-                val = leval(FAST_OP_ARG2(form), env);
-
-                SET_SYMBOL_VCELL(sym, val);
-                retval = val;
-                break;
-
-              case FOP_LOCAL_REF:
-                assert(SYMBOLP(sym));
-
-                local_binding = lenvlookup(sym, env);
-
-                if (NULLP(local_binding))
-                  vmerror_unbound(sym);
-
-                retval = CAR(local_binding);
-                break;
-
-              case FOP_LOCAL_SET:
-                assert(SYMBOLP(sym));
-
-                local_binding = lenvlookup(sym, env);
-
-                if (NULLP(local_binding))
-                  vmerror_unbound(sym);
-
-                val = leval(FAST_OP_ARG2(form), env);
-                SET_CAR(local_binding, val);
-
-                retval = val;
-                break;
-
-              case FOP_APPLY:
-                function = leval(FAST_OP_ARG1(form), env);
-
-                argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
-
-                form = apply(function, argc, argv, &env, &retval);
-
-                if  (!NULLP(form))
-                  goto loop;
-
-                break;
-
-              case FOP_IF_TRUE:
-                if (TRUEP(leval(FAST_OP_ARG1(form), env)))
-                  form = FAST_OP_ARG2(form);
-                else
-                  form = FAST_OP_ARG3(form);
-                goto loop;
-
-              case FOP_AND2:
-                if (TRUEP(leval(FAST_OP_ARG1(form), env)))
-                  {
-                    form = FAST_OP_ARG2(form);
-                    goto loop;
-                  }
-
-                retval = boolcons(false);
-                break;
-
-              case FOP_OR2:
-                val = leval(FAST_OP_ARG1(form), env);
-
-                if (TRUEP(val))
-                  {
-                    retval = val;
-                    break;
-                  }
-
-                form = FAST_OP_ARG2(form);
-                goto loop;
-
-              case FOP_SEQUENCE:
-                leval(FAST_OP_ARG1(form), env);
-
-                form = FAST_OP_ARG2(form);
-                goto loop;
-
-              case FOP_CLOSE_ENV:
-                retval = lclosurecons(env, FAST_OP_ARG1(form), FAST_OP_ARG2(form));
-                break;
-
-              case FOP_GET_ENV:
-                retval = env;
-                break;
-
-              case FOP_GLOBAL_DEF:
-                retval = lidefine_global(FAST_OP_ARG1(form),
-                                         FAST_OP_ARG2(form),
-                                         FAST_OP_ARG3(form));
-                break;
-
-              default: vmerror("Unsupported fast-op: ~s", form);
-              }
-          }
-        else if (type == TC_CONS)
-          {
-            dscwritef("; list: ~a\n", form);
-            // Split up the form into function and arguments
-            LRef function = leval(CAR(form), env);
-            LRef args = CDR(form);
-
-            LRef argv[ARG_BUF_LEN];
-            size_t argc = evaluate_arguments_to_buffer(lcdr(form), env, ARG_BUF_LEN, argv);
-
-            form = apply(function, argc, argv, &env, &retval);
-
-            if  (!NULLP(form))
-              goto loop;
-          }
+        if (SYMBOL_HOME(sym) == interp.keyword_package) // TODO: this code path shouldn't be used
+          retval = sym;
         else
           {
-            dscwritef("\n\n\n; OTHER: ~s\n\n\n\n", form);
-            retval = form;
+            global_binding = SYMBOL_VCELL(sym);
+
+            if (UNBOUND_MARKER_P(global_binding))
+              vmerror_unbound(sym);
+
+            retval = global_binding;
           }
+        break;
+
+      case FOP_GLOBAL_SET:
+        assert(SYMBOLP(sym));
+        assert(SYMBOL_HOME(sym) != interp.keyword_package);
+
+        val = leval(FAST_OP_ARG2(form), env);
+
+        SET_SYMBOL_VCELL(sym, val);
+        retval = val;
+        break;
+
+      case FOP_LOCAL_REF:
+        assert(SYMBOLP(sym));
+
+        local_binding = lenvlookup(sym, env);
+
+        if (NULLP(local_binding))
+          vmerror_unbound(sym);
+
+        retval = CAR(local_binding);
+        break;
+
+      case FOP_LOCAL_SET:
+        assert(SYMBOLP(sym));
+
+        local_binding = lenvlookup(sym, env);
+
+        if (NULLP(local_binding))
+          vmerror_unbound(sym);
+
+        val = leval(FAST_OP_ARG2(form), env);
+        SET_CAR(local_binding, val);
+
+        retval = val;
+        break;
+
+      case FOP_APPLY:
+        function = leval(FAST_OP_ARG1(form), env);
+
+        argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
+
+        form = apply(function, argc, argv, &env, &retval);
+
+        if  (!NULLP(form))
+          goto loop;
+
+        break;
+
+      case FOP_IF_TRUE:
+        if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+          form = FAST_OP_ARG2(form);
+        else
+          form = FAST_OP_ARG3(form);
+        goto loop;
+
+      case FOP_AND2:
+        if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+          {
+            form = FAST_OP_ARG2(form);
+            goto loop;
+          }
+
+        retval = boolcons(false);
+        break;
+
+      case FOP_OR2:
+        val = leval(FAST_OP_ARG1(form), env);
+
+        if (TRUEP(val))
+          {
+            retval = val;
+            break;
+          }
+
+        form = FAST_OP_ARG2(form);
+        goto loop;
+
+      case FOP_SEQUENCE:
+        leval(FAST_OP_ARG1(form), env);
+
+        form = FAST_OP_ARG2(form);
+        goto loop;
+
+      case FOP_CLOSE_ENV:
+        retval = lclosurecons(env, FAST_OP_ARG1(form), FAST_OP_ARG2(form));
+        break;
+
+      case FOP_GET_ENV:
+        retval = env;
+        break;
+
+      case FOP_GLOBAL_DEF:
+        retval = lidefine_global(FAST_OP_ARG1(form),
+                                 FAST_OP_ARG2(form),
+                                 FAST_OP_ARG3(form));
+        break;
+
+      default:
+        vmerror("Unsupported fast-op: ~s", form);
       }
+
 #ifdef _DEBUG
     LEAVE_FRAME();
 #endif
