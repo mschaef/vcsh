@@ -2510,4 +2510,7 @@
 #S(benchmark-result :seq 3069 :system ("MSCHAEF-LAPTOP" :win32 :debug) :test-name mandelbrot-cplx :timings (1347.91 1347.91) :run-time #D"2009-11-26T23:00:40-0500")
 #S(benchmark-result :seq 3070 :system ("MSCHAEF-LAPTOP" :win32 :debug) :test-name qsorting :timings (30.1185 30.1185) :run-time #D"2009-11-26T23:00:42-0500")
 #S(benchmark-result :seq 3071 :system ("MSCHAEF-LAPTOP" :win32 :debug) :test-name slow-queue :timings (345.228 345.228) :run-time #D"2009-11-26T23:00:44-0500")
+#S(benchmark-result :seq 3073 :system ("MSCHAEF-LAPTOP" :win32 :debug) :test-name proto/make-0-args :timings (174.486 174.486) :run-time #D"2009-11-27T17:09:23-0500")
+#S(benchmark-result :seq 3074 :system ("MSCHAEF-LAPTOP" :win32 :debug) :test-name proto/make-1-args :timings (345.716 285.166) :run-time #D"2009-11-27T17:09:49-0500")
+#S(benchmark-result :seq 3075 :system ("MSCHAEF-LAPTOP" :win32 :debug) :test-name proto/make-3-args :timings (604.570 501.881) :run-time #D"2009-11-27T17:10:11-0500")
 ; end benchmark results

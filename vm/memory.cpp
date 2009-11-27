@@ -320,7 +320,7 @@ namespace scan {
 
           case TC_VECTOR:
             for (size_t jj = 0; jj < VECTOR_DIM(obj); ++jj)
-	      gc_mark (VECTOR_ELEM(obj, jj));
+              gc_mark (VECTOR_ELEM(obj, jj));
 
             obj = NIL;
             break;
@@ -419,6 +419,10 @@ namespace scan {
 
     case TC_PORT:
       port_gc_free(obj);
+      break;
+
+    case TC_INSTANCE:
+      safe_free(INSTANCE_DATA(obj));
       break;
 
     case TC_GC_TRIP_WIRE:
