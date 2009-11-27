@@ -205,7 +205,7 @@ namespace scan {
       if (!enlarge_heap())
         break;
 
-    dscwritef(DF_SHOW_GC, _T("; Allocated ~cd heap~cs of ~cd requested.\n"), CURRENT_DEBUG_PORT,
+    dscwritef(DF_SHOW_GC, _T("; Allocated ~cd heap~cs of ~cd requested.\n"),
               created, created > 1 ? "s" : "",
               requested);
 
@@ -595,7 +595,7 @@ namespace scan {
         unsigned long blocks_alloced = (unsigned long)(malloc_blocks - interp.malloc_blocks_at_last_gc);
 
         if ((bytes_alloced > 0) || (blocks_alloced > 0))
-            dscwritef(_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"), CURRENT_DEBUG_PORT,
+            dscwritef(_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"),
                       bytes_alloced, blocks_alloced);
 
         dscwritef(_T("; GC (th:~c&) @ T+~cf:"), sys_current_thread(), time_since_launch());
