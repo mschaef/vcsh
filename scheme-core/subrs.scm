@@ -127,7 +127,6 @@
 (define eq? #.(scheme::%subr-by-name "eq?"))
 (define equal? #.(scheme::%subr-by-name "equal?"))
 (define eqv? #.(scheme::%subr-by-name "eqv?"))
-(define %eval #.(scheme::%subr-by-name "%eval"))
 (define exact->inexact #.(scheme::%subr-by-name "exact->inexact"))
 (define exact? #.(scheme::%subr-by-name "exact?"))
 (define exp #.(scheme::%subr-by-name "exp"))

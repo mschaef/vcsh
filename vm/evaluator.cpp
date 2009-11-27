@@ -403,7 +403,7 @@ namespace scan {
    * The Evaluator
    */
 
-  LRef arg_list_from_buffer(size_t argc, LRef argv[]) {
+  static LRef arg_list_from_buffer(size_t argc, LRef argv[]) {
     LRef result = NIL;
 
     for(size_t ii = argc; ii > 0; ii--)
@@ -414,7 +414,9 @@ namespace scan {
     return result;
   }
 
-  size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LRef argv[])
+  static LRef leval(LRef form, LRef env);
+
+  static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LRef argv[])
   {
     size_t argc = 0;
     LRef args = l;
@@ -437,18 +439,6 @@ namespace scan {
       vmerror("bad syntax argument list: ~s", l);
 
     return argc;
-  }
-
-  LRef evaluate_arguments(LRef l, LRef env)
-  {
-    if (NULLP (l))
-      return (NIL);
-
-    LRef argv[ARG_BUF_LEN];
-
-    size_t argc = evaluate_arguments_to_buffer(l, env, ARG_BUF_LEN, argv);
-
-    return arg_list_from_buffer(argc, argv);
   }
 
   static LRef extend_env (LRef actuals, LRef formals, LRef env)
@@ -713,7 +703,7 @@ namespace scan {
     return NIL; // avoid a warning, since the error case returns nothing.
   }
 
-  LRef leval(LRef form, LRef env)
+  static LRef leval(LRef form, LRef env)
   {
     LRef retval = NIL;
 

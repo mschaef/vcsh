@@ -615,7 +615,6 @@ namespace scan {
     register_subr(_T("eq?"),                              SUBR_2,     (void*)leq                                 );
     register_subr(_T("equal?"),                           SUBR_2,     (void*)lequal                              );
     register_subr(_T("eqv?"),                             SUBR_2,     (void*)leql                                );
-    register_subr(_T("%eval"),                            SUBR_2,     (void*)leval                               );
     register_subr(_T("exact->inexact"),                   SUBR_1,     (void*)lexact2inexact                      );
     register_subr(_T("exact?"),                           SUBR_1,     (void*)lexactp                             );
     register_subr(_T("exp"),                              SUBR_1,     (void*)lexp                                );

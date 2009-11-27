@@ -1860,7 +1860,6 @@ namespace scan {
   LRef lproperty_list(LRef exp);
   LRef lset_property_list(LRef exp, LRef property_list);
   LRef lprocedurep(LRef exp);
-  LRef leval(LRef x, LRef env);
   LRef lapply(size_t argc, LRef argv[]);
   LRef lthrow(LRef tag,LRef value);
   LRef lunbind_symbol(LRef var);
