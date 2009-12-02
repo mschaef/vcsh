@@ -21,7 +21,7 @@
                    (fasl-compiler::compile-warning
                     (lambda (context-form message args)
                       (fasl-compiler::compiler-message/form context-form :warning message args))))
-      (let ((form-fn (fasl-compiler::compile-toplevel-form `(scheme::%tlambda ,form) genv)))
+      (let ((form-fn (fasl-compiler::compile-toplevel-form form genv)))
         (locally-capture (apply)
           (if (vector? genv) ;; TODO: vector? -> global-environment?.
               (with-global-environment genv

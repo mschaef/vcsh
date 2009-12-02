@@ -18,10 +18,19 @@
             "*cross-compile*"
             ))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Option variables
 
 (define *cross-compile* #f)
+(define *show-expansions* #f)
+(define *show-meanings* #f)
+(define *show-actions* #f)
+(define *debug* #f)
+(define *verbose* #f)
+(define *initial-package* "user")
 
-;;;; Compiler diagnostics
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Compiler diagnostic messages
 
 (define *compiler-output-port* (current-error-port))
 (define *compiler-error-port* (current-error-port))
@@ -60,16 +69,20 @@
             (apply values results)))
         (apply fn args))))
 
+
+;;;; Ways to signal compilation events
+
+(define (compile-warning context-form message . args)
+  (signal 'compile-warning context-form message args))
+
+(define (compile-error context-form message . message-args)
+  (signal 'compile-error context-form #f message message-args))
+
+(define (compile-fatal-error context-form message . message-args)
+  (signal 'compile-error context-form #t message message-args))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Compiler environment
-
-
-(define *show-expansions* #f)
-(define *show-meanings* #f)
-(define *show-actions* #f)
-(define *debug* #f)
-(define *verbose* #f)
-(define *initial-package* "user")
-
 
 (define (compiler-evaluate form genv)
   "Evaluates <form> in global environment <genv>, signaling a compiler-error in
@@ -92,17 +105,7 @@
       (symbol-value symbol () bindings)
       unbound-value))
 
-;;;; Ways to signal compilation events
-
-(define (compile-warning context-form message . args)
-  (signal 'compile-warning context-form message args))
-
-(define (compile-error context-form message . message-args)
-  (signal 'compile-error context-form #f message message-args))
-
-(define (compile-fatal-error context-form message . message-args)
-  (signal 'compile-error context-form #t message message-args))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; The expander
 ;;;;
 ;;;; This is the the initial phase of compilation. It takes raw source s-exprs
@@ -238,7 +241,7 @@
   `(scheme::%lambda ,(cadr form) ,(caddr form)
       ,@(translate-form-sequence (cdddr form) #t genv #f)))
 
-(define (expand/%tlambda form genv at-toplevel?)
+(define (expand/%toplevel-lambda form genv at-toplevel?)
   `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t genv #t)))
 
 (define (expand/set! form genv at-toplevel?)
@@ -276,7 +279,7 @@
            ((or and)              (expand/logical     form genv at-toplevel?))
            ((if)                  (expand/if          form genv at-toplevel?))
            ((scheme::%lambda)     (expand/%lambda     form genv at-toplevel?))
-           ((scheme::%tlambda)    (expand/%tlambda    form genv at-toplevel?))
+           ((%toplevel-lambda)    (expand/%toplevel-lambda    form genv at-toplevel?))
            ((set!)                (expand/set!        form genv at-toplevel?))
            ((begin)               (expand/begin       form genv at-toplevel?))
            ((eval-when)           (expand/eval-when   form genv at-toplevel?))
@@ -295,6 +298,7 @@
 (define (expand-form form genv at-toplevel?)
   (apply-expander form-expander form genv at-toplevel?))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Form Semantic Analysis
 
 (define (l-list-vars l-list)
@@ -435,14 +439,19 @@
                (#t                 (meaning/application     form cenv genv at-toplevel?))))))
     form))
 
-;;;; Form Compiler
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Form compiler entry points
 
 (define (compile-form form :optional (genv #f))
   (form-meaning (expand-form form genv #f) () genv #f))
 
 (define (compile-toplevel-form form :optional (genv #f))
-  (form-meaning (expand-form form genv #t) () genv #t))
+  (compile-form `(%toplevel-lambda ,form) genv))
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; File Compiler
 
 ;;; The file reader
@@ -515,7 +524,7 @@
     (compile-error #f "Invalid include form: ~s" form))
   (let ((file-spec (second form)))
     (define (file-spec-files)
-      (if (wild-glob-pattern? file-spec)
+      (if (wild-glob-pattern? file-spec) ;; TODO: Always glob
           (directory file-spec)
           (list file-spec)))
     (dolist (filename (file-spec-files))
@@ -613,7 +622,6 @@
   (compiler-message (form-location-string context-form) message-type message message-args))
 
 ;;; Compilation setup
-
 
 (define *files-currently-compiling* ())
 
