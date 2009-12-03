@@ -505,21 +505,19 @@
           (set! forms (cdr forms))
           form))))
 
-(define *output-stream* #f)
-
-(define (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv)
+(define (process-toplevel-eval-when form load-time-eval? compile-time-eval? *toplevel-forms* genv)
   (values-bind (parse-eval-when form) (situations forms)
     (let ((load-time-eval? (and load-time-eval? (member :load-toplevel situations)))
           (compile-time-eval? (or (member :compile-toplevel situations)
                                   (and compile-time-eval?
                                        (member :execute-toplevel situations)))))
       (when (or load-time-eval? compile-time-eval?)
-        (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? genv)))))
+        (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? *toplevel-forms* genv)))))
 
 
 
 
-(define (process-toplevel-include form genv)
+(define (process-toplevel-include form output-fasl-stream genv)
   (unless (and (list? form) (length=2? form) (string? (second form)))
     (compile-error #f "Invalid include form: ~s" form))
   (let ((file-spec (second form)))
@@ -533,10 +531,10 @@
                                     (when (currently-compiling-file? filename)
                                       (compile-fatal-error #f "Recursive include of ~s while compiling ~s"
                                                            filename *files-currently-compiling*))
-                                    (compile-file/simple filename genv))
+                                    (compile-file/simple filename output-fasl-stream genv))
         filename))))
 
-(define (process-toplevel-form form load-time-eval? compile-time-eval? genv)
+(define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream genv)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
                  (if compile-time-eval? " [compile-time]" "")
@@ -550,31 +548,31 @@
          
          ;; error checking here???
          (compiler-define var (compiler-evaluate val genv) genv)
-         (emit-definition var val genv)))
+         (emit-definition var val output-fasl-stream genv)))
       ((begin)
-       (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? genv))
+       (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream genv))
       ((include)
-       (process-toplevel-include form genv))
+       (process-toplevel-include form output-fasl-stream genv))
       ((eval-when)
-       (process-toplevel-eval-when form load-time-eval? compile-time-eval? genv))
+       (process-toplevel-eval-when form load-time-eval? compile-time-eval? output-fasl-stream genv))
       (#t
        (values-bind (maybe-expand-user-macro form genv #t) (expanded? expanded-form)
          (cond (expanded?
-                (process-toplevel-form expanded-form load-time-eval? compile-time-eval? genv))
+                (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream genv))
                (#t
                 (when compile-time-eval?
                   (compiler-evaluate form genv))
                 (when load-time-eval?
-                  (emit-action form *output-stream* genv)))))))))
+                  (emit-action form output-fasl-stream genv)))))))))
 
-(define (process-toplevel-forms reader load-time-eval? compile-time-eval? genv)
+(define (process-toplevel-forms reader load-time-eval? compile-time-eval? output-fasl-stream genv)
   (let loop ((next-form (reader)))
     (unless (eof-object? next-form)
-      (process-toplevel-form next-form load-time-eval? compile-time-eval? genv)
+      (process-toplevel-form next-form load-time-eval? compile-time-eval? output-fasl-stream genv)
       (loop (reader)))))
 
-(define (expand-port-forms ip *output-stream* genv)
-  (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f genv))
+(define (compile-port-forms ip output-fasl-stream genv)
+  (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f output-fasl-stream genv))
 
 ;;; FASL file generaiton
 
@@ -583,9 +581,10 @@
    result of that evaluation."
   (compile-form `(lambda () ,form) genv))
 
-(define (emit-action form *output-stream* genv)
+
+(define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form genv)) *output-stream*))
+  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form genv)) output-fasl-stream))
 
 (define (evaluated-object? obj)
   "Returns true if <obj> is an object that has specific handling in the scheme
@@ -594,17 +593,17 @@
       (symbol? obj)
       (pair? obj)))
 
-(define (emit-definition var val genv)
+(define (emit-definition var val output-fasl-stream genv)
   (trace-message *show-actions*"==> EMIT-DEFINITION: ~s := ~s\n" var val)
   (trace-message *verbose* "; defining ~a\n" var)
   (if (evaluated-object? val)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (form->compiled-procedure val genv)) *output-stream*)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) *output-stream*)))
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (form->compiled-procedure val genv)) output-fasl-stream)
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) output-fasl-stream)))
 
 ;;; Error reporting
 
-(define (end-compile-abnormally return-code *output-stream*)
-  (abort-fasl-writes *output-stream*)
+(define (end-compile-abnormally return-code output-fasl-stream)
+  (abort-fasl-writes output-fasl-stream)
   (throw 'end-compile-now return-code))
 
 (define (compiler-message context-desc message-type message message-args)
@@ -632,7 +631,7 @@
 
 ;; TODO: dynamic-let in a specific global environment
 
-(define (compile-file/simple filename genv)
+(define (compile-file/simple filename output-fasl-stream genv)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
@@ -640,47 +639,40 @@
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
-          (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) *output-stream*)
-          (expand-port-forms input-port *output-stream* genv)
-          (fasl-write-op scheme::FASL-OP-END-LOAD-UNIT (list filename) *output-stream*)))
+          (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) output-fasl-stream)
+          (compile-port-forms input-port output-fasl-stream genv)
+          (fasl-write-op scheme::FASL-OP-END-LOAD-UNIT (list filename) output-fasl-stream)))
     (set-symbol-value! '*package* original-package () genv)))
 
-(define (compile-file/checked filename genv)
+(define (compile-file/checked filename output-fasl-stream genv)
   (let ((compile-error-count 0))
     (handler-bind ((compile-read-error
                     (lambda (message port port-location)
                       (compiler-message (port-location-string port port-location) :read-error message ())
-                      (end-compile-abnormally 1 *output-stream*)))
+                      (end-compile-abnormally 1 output-fasl-stream)))
                    (compile-error
                     (lambda (context-form fatal? message details)
                       (compiler-message/form context-form :error message details)
                       (incr! compile-error-count)
                       (when fatal?
-                        (end-compile-abnormally 1 *output-stream*))))
+                        (end-compile-abnormally 1 output-fasl-stream))))
                    (compile-warning
                     (lambda (context-form message args)
                       (compiler-message/form context-form :warning message args))))
-      (compile-file/simple filename genv)
+      (compile-file/simple filename output-fasl-stream genv)
       compile-error-count)))
 
-(defmacro (with-compiler-output-stream os filename . code)
-  (with-gensyms (output-port-sym)
-    `(with-port ,output-port-sym (open-output-file ,filename :binary)
-       (with-fasl-stream ,os ,output-port-sym
-         (dynamic-let ((*output-stream* ,os))
-           ,@code)))))
-
 (define (compile-files filenames output-file-name :optional (genv #f))
-  (with-compiler-output-stream output-fasl-stream  output-file-name
-     (let next-file ((filenames filenames) (error-count 0))
-       (cond ((not (null? filenames))
-              (next-file (cdr filenames)
-                         (+ error-count (compile-file/checked (car filenames) genv))))
-             ((> error-count 0)
-              (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
-              (end-compile-abnormally 2 output-fasl-stream))
-             (#t
-              ())))))
+  (with-fasl-file output-fasl-stream output-file-name
+    (let next-file ((filenames filenames) (error-count 0))
+      (cond ((not (null? filenames))
+             (next-file (cdr filenames)
+                        (+ error-count (compile-file/checked (car filenames) output-fasl-stream genv))))
+            ((> error-count 0)
+             (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
+             (end-compile-abnormally 2 output-fasl-stream))
+            (#t
+             ())))))
 
 (define (input-file-name->output-file-name input-filename)
   (cond ((list? input-filename)
