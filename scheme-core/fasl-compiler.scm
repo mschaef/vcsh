@@ -322,7 +322,7 @@
                  (loop (cdr rest))))))))
 
 (define (meaning/%macro defn cenv genv at-toplevel?)
-  `(scheme::%macrocons ,(form-meaning (second defn) () genv at-toplevel?)))
+  `(scheme::%macrocons ,(expanded-form-meaning (second defn) () genv at-toplevel?)))
 
 (define (meaning/%lambda defn cenv genv at-toplevel?)
 
@@ -336,10 +336,10 @@
   (unless (and (list? defn) (>= (length defn) 3))
     (error "Invalid function syntax: ~s" defn))
   (dbind (fn-pos p-list l-list . body) defn
-    (let ((body-form (form-meaning (code-body-form body)
-                                   (extend-cenv l-list cenv)
-                                   genv
-                                   at-toplevel?)))
+    (let ((body-form (expanded-form-meaning (code-body-form body)
+                                            (extend-cenv l-list cenv)
+                                            genv
+                                            at-toplevel?)))
       (if (null? cenv)
           (scheme::%closure () (cons l-list body-form) p-list)
           (scheme::assemble-fast-op :close-env
@@ -348,8 +348,8 @@
 
 (define (meaning/application form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :apply
-                            (form-meaning (car form) cenv genv at-toplevel?)
-                            (map #L(form-meaning _ cenv genv at-toplevel?) (cdr form))))
+                            (expanded-form-meaning (car form) cenv genv at-toplevel?)
+                            (map #L(expanded-form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
 ;; REVISIT: meaning/begin, /or, and /and all have the same basic form, poss. refactor.
 ;; REVISIT: meaning/begin, /or, and /and are all non-tail recursive
@@ -357,48 +357,48 @@
 (define (meaning/begin form cenv genv at-toplevel?)
   (let recur ((args (cdr form)))
     (cond ((null? args)     (scheme::assemble-fast-op :literal ()))
-          ((length=1? args) (form-meaning (car args) cenv genv at-toplevel?))
+          ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
           (#t (scheme::assemble-fast-op :sequence
-                                        (form-meaning (car args) cenv genv at-toplevel?)
+                                        (expanded-form-meaning (car args) cenv genv at-toplevel?)
                                         (recur (cdr args)))))))
 
 (define (meaning/or form cenv genv at-toplevel?)
   (let recur ((args (cdr form)))
     (cond ((null? args)     (scheme::assemble-fast-op :literal #f))
-          ((length=1? args) (form-meaning (car args) cenv genv at-toplevel?))
+          ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
           (#t (scheme::assemble-fast-op :or/2
-                                        (form-meaning (car args) cenv genv at-toplevel?)
+                                        (expanded-form-meaning (car args) cenv genv at-toplevel?)
                                         (recur (cdr args)))))))
 
 
 (define (meaning/and form cenv genv at-toplevel?)
   (let recur ((args (cdr form)))
     (cond ((null? args)     (scheme::assemble-fast-op :literal #t))
-          ((length=1? args) (form-meaning (car args) cenv genv at-toplevel?))
+          ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
           (#t (scheme::assemble-fast-op :and/2
-                                        (form-meaning (car args) cenv genv at-toplevel?)
+                                        (expanded-form-meaning (car args) cenv genv at-toplevel?)
                                         (recur (cdr args)))))))
 
 (define (meaning/if form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :if-true
-                            (form-meaning (second form) cenv genv at-toplevel?)
-                            (form-meaning (third form) cenv genv at-toplevel?)
-                            (form-meaning (fourth form) cenv genv at-toplevel?)))
+                            (expanded-form-meaning (second form) cenv genv at-toplevel?)
+                            (expanded-form-meaning (third form) cenv genv at-toplevel?)
+                            (expanded-form-meaning (fourth form) cenv genv at-toplevel?)))
 
 (define (meaning/set! form cenv genv at-toplevel?)
   (dbind (fn-pos var val-form) form
     (cond ((keyword? var)
            (compile-error form "Cannot rebind a keyword: ~s" var))
           ((bound-in-cenv? var cenv)
-           (scheme::assemble-fast-op :local-set! var (form-meaning val-form cenv genv at-toplevel?)))
+           (scheme::assemble-fast-op :local-set! var (expanded-form-meaning val-form cenv genv at-toplevel?)))
           (#t
-           (scheme::assemble-fast-op :global-set! var (form-meaning val-form cenv genv at-toplevel?))))))
+           (scheme::assemble-fast-op :global-set! var (expanded-form-meaning val-form cenv genv at-toplevel?))))))
 
 (define (meaning/%define form cenv genv at-toplevel?)
   (dbind (fn-pos name defn) form
     (scheme::assemble-fast-op :global-def
                               name
-                              (compiler-evaluate (form-meaning defn cenv genv at-toplevel?) genv)
+                              (compiler-evaluate (expanded-form-meaning defn cenv genv at-toplevel?) genv)
                               genv)))
 
 (define (meaning/quote form cenv genv at-toplevel?)
@@ -415,7 +415,7 @@
 (define (meaning/the-environment form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :get-env))
 
-(define (form-meaning form cenv genv at-toplevel?)
+(define (expanded-form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
       (cond ((symbol? form)
@@ -442,14 +442,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Form compiler entry points
 
-(define (compile-form form :optional (genv #f))
-  (form-meaning (expand-form form genv #f) () genv #f))
+(define (form-meaning form :optional (genv #f))
+  (expanded-form-meaning (expand-form form genv #f) () genv #f))
 
 (define (compile-toplevel-form form :optional (genv #f))
-  (compile-form `(%toplevel-lambda ,form) genv))
-
-
-
+  (form-meaning `(%toplevel-lambda ,form) genv))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; File Compiler
@@ -544,7 +541,7 @@
     (case (car form)
       ((scheme::%define)
        (let ((var (second form))
-             (val (compile-form (third form) genv)))
+             (val (form-meaning (third form) genv)))
          
          ;; error checking here???
          (compiler-define var (compiler-evaluate val genv) genv)
@@ -576,15 +573,9 @@
 
 ;;; FASL file generaiton
 
-(define (form->compiled-procedure form genv)
-  "Compute a compiled procedure that evaluates <form> and returns the
-   result of that evaluation."
-  (compile-form `(lambda () ,form) genv))
-
-
 (define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (form->compiled-procedure form genv)) output-fasl-stream))
+  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (compile-toplevel-form form genv)) output-fasl-stream))
 
 (define (evaluated-object? obj)
   "Returns true if <obj> is an object that has specific handling in the scheme
@@ -597,7 +588,7 @@
   (trace-message *show-actions*"==> EMIT-DEFINITION: ~s := ~s\n" var val)
   (trace-message *verbose* "; defining ~a\n" var)
   (if (evaluated-object? val)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (form->compiled-procedure val genv)) output-fasl-stream)
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (compile-toplevel-form val genv)) output-fasl-stream)
       (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) output-fasl-stream)))
 
 ;;; Error reporting
