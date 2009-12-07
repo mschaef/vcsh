@@ -532,23 +532,19 @@
       (symbol? obj)
       (pair? obj)))
 
-(define (compiler-define var val genv)
-  (trace-message *show-actions* "==> COMPILER-DEFINE: ~s := ~s genv=~@\n" var val genv)
-  (scheme::%define-global var val genv))
-
-(define (emit-definition var val output-fasl-stream genv)
-  (trace-message *show-actions*"==> EMIT-DEFINITION: ~s := ~s\n" var val)
-  (trace-message *verbose* "; defining ~a\n" var)
-  (if (evaluated-object? val)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (compile-toplevel-form val genv)) output-fasl-stream)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) output-fasl-stream)))
-
 (define (process-toplevel-define form output-fasl-stream genv)
   (let ((var (second form))
         (val (form-meaning (third form) genv)))
+
+    (trace-message *show-actions*"==> DEFINE: ~s := ~s\n" var val)
+    (trace-message *verbose* "; defining ~a\n" var)
+
     ;; error checking here???
-    (compiler-define var (compiler-evaluate val genv) genv)
-    (emit-definition var val output-fasl-stream genv)))
+    (scheme::%define-global var (compiler-evaluate val genv) genv)
+
+    (if (evaluated-object? val)
+        (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (compile-toplevel-form val genv)) output-fasl-stream)
+        (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) output-fasl-stream))))
 
 (define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
