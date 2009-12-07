@@ -483,12 +483,6 @@
         (trace-message *show-actions* "* READ in ~s genv=~@\n" *package* genv)
         (*compiler-reader* port #f))))) ; REVISIT #. eval/read forms are not evaluated in genv
 
-;;; The evaluator
-
-(define (compiler-define var val genv)
-  (trace-message *show-actions* "==> COMPILER-DEFINE: ~s := ~s genv=~@\n" var val genv)
-  (scheme::%define-global var val genv))
-
 ;;; The main loop
 
 (define (form-list-reader forms)
@@ -531,6 +525,35 @@
                                     (compile-file/simple filename output-fasl-stream genv))
         filename))))
 
+(define (evaluated-object? obj)
+  "Returns true if <obj> is an object that has specific handling in the scheme
+   evaluator. If <obj> evaluates to itself, returns #f."
+  (or (scheme::fast-op? obj)
+      (symbol? obj)
+      (pair? obj)))
+
+(define (compiler-define var val genv)
+  (trace-message *show-actions* "==> COMPILER-DEFINE: ~s := ~s genv=~@\n" var val genv)
+  (scheme::%define-global var val genv))
+
+(define (emit-definition var val output-fasl-stream genv)
+  (trace-message *show-actions*"==> EMIT-DEFINITION: ~s := ~s\n" var val)
+  (trace-message *verbose* "; defining ~a\n" var)
+  (if (evaluated-object? val)
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (compile-toplevel-form val genv)) output-fasl-stream)
+      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) output-fasl-stream)))
+
+(define (process-toplevel-define form output-fasl-stream genv)
+  (let ((var (second form))
+        (val (form-meaning (third form) genv)))
+    ;; error checking here???
+    (compiler-define var (compiler-evaluate val genv) genv)
+    (emit-definition var val output-fasl-stream genv)))
+
+(define (emit-action form output-fasl-stream genv)
+  (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
+  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (compile-toplevel-form form genv)) output-fasl-stream))
+
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream genv)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
@@ -540,12 +563,7 @@
   (when (pair? form) 
     (case (car form)
       ((scheme::%define)
-       (let ((var (second form))
-             (val (form-meaning (third form) genv)))
-         
-         ;; error checking here???
-         (compiler-define var (compiler-evaluate val genv) genv)
-         (emit-definition var val output-fasl-stream genv)))
+       (process-toplevel-define form output-fasl-stream genv))
       ((begin)
        (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream genv))
       ((include)
@@ -570,26 +588,6 @@
 
 (define (compile-port-forms ip output-fasl-stream genv)
   (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f output-fasl-stream genv))
-
-;;; FASL file generaiton
-
-(define (emit-action form output-fasl-stream genv)
-  (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (compile-toplevel-form form genv)) output-fasl-stream))
-
-(define (evaluated-object? obj)
-  "Returns true if <obj> is an object that has specific handling in the scheme
-   evaluator. If <obj> evaluates to itself, returns #f."
-  (or (scheme::fast-op? obj)
-      (symbol? obj)
-      (pair? obj)))
-
-(define (emit-definition var val output-fasl-stream genv)
-  (trace-message *show-actions*"==> EMIT-DEFINITION: ~s := ~s\n" var val)
-  (trace-message *verbose* "; defining ~a\n" var)
-  (if (evaluated-object? val)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var (compile-toplevel-form val genv)) output-fasl-stream)
-      (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) output-fasl-stream)))
 
 ;;; Error reporting
 
