@@ -281,7 +281,6 @@ namespace scan {
   LRef get_current_frames(fixnum_t skip_count, LRef dump_to_port_while_gathering)
   {
     LRef frame_obj;
-    LRef source_loc;
     LRef l = NIL;
     frame_record_t *loc = TOP_FRAME;
     fixnum_t frame_count = 0;
@@ -290,7 +289,6 @@ namespace scan {
 
     while(loc)
       {
-        source_loc = lcons(strcons(loc->filename), fixcons(loc->line));
 
         frame_count++;
 
@@ -300,18 +298,19 @@ namespace scan {
           {
           case FRAME_EVAL:
             frame_obj   = listn(4, keyword_intern(_T("eval")),
-                                source_loc,
-                                loc->frame_as.eval.expr,
+                                *loc->frame_as.eval.form,
+                                loc->frame_as.eval.initial_form,
                                 loc->frame_as.eval.env);
 
             if (printing)
-              scwritef(_T("eval > ~s\n"), dump_to_port_while_gathering,
-                       loc->frame_as.eval.expr);
+              scwritef(_T("eval > ~s in ~s\n"), dump_to_port_while_gathering,
+                       *loc->frame_as.eval.form,
+                       loc->frame_as.eval.initial_form);
             break;
 
           case FRAME_EX_TRY:
             frame_obj   = listn(3, keyword_intern(_T("dynamic-escape-try")),
-                                source_loc,
+                                NIL,
                                 loc->frame_as.dynamic_escape.tag);
 
             if (printing)
@@ -322,17 +321,17 @@ namespace scan {
 
           case FRAME_EX_GUARD:
             frame_obj   = listn(2, keyword_intern(_T("dynamic-escape-guard")),
-                                source_loc);
+                                NIL);
             break;
 
           case FRAME_EX_UNWIND:
             frame_obj   = listn(2, keyword_intern(_T("dynamic-escape-unwind-protect")),
-                                source_loc);
+                                NIL);
             break;
 
           case FRAME_PRIMITIVE:
             frame_obj   = listn(3, keyword_intern(_T("primitive")),
-                                source_loc,
+                                NIL,
                                 loc->frame_as.primitive.function);
 
             if (printing)
@@ -686,7 +685,6 @@ namespace scan {
     if (type == TC_SUBR)
       return subr_apply(function, argc, argv, env, retval);
 
-
     if (type == TC_CLOSURE)
       {
         LRef c_code = CLOSURE_CODE(function);
@@ -710,7 +708,7 @@ namespace scan {
     STACK_CHECK(&form);
 
 #ifdef _DEBUG
-    ENTER_EVAL_FRAME(form, env)
+    ENTER_EVAL_FRAME(&form, env)
 #endif
       loop:
       interp.forms_evaluated++;

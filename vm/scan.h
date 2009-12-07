@@ -371,11 +371,8 @@ namespace scan {
 
     frame_type_t type;
 
-    const _TCHAR *filename;
-    int line;
-
     union {
-      struct { LRef expr; LRef env;                                                 } eval;
+      struct { LRef *form; LRef initial_form; LRef env;                             } eval;
       struct { LRef tag; LRef retval; jmp_buf cframe; bool pending; bool unwinding; } dynamic_escape;
       struct { LRef function;                                                       } primitive;
     } frame_as;
@@ -1950,8 +1947,6 @@ namespace scan {
 {                                                                   \
    frame_record_t  __frame;                                         \
                                                                     \
-   __frame.filename = __FILE__;                                     \
-   __frame.line     = __LINE__;                                     \
    __frame.previous = thread.frame_stack;                           \
                                                                     \
    thread.frame_stack = &__frame;
@@ -1973,11 +1968,12 @@ namespace scan {
           __frame.frame_as.dynamic_escape.tag        = __tag;       \
           __frame.frame_as.dynamic_escape.retval     = NIL;
 
-#define ENTER_EVAL_FRAME(__expr, __env)                             \
+#define ENTER_EVAL_FRAME(__form, __env)                             \
       ENTER_FRAME()                                                 \
          __frame.type                                = FRAME_EVAL;  \
                                                                     \
-         __frame.frame_as.eval.expr                  = __expr;      \
+         __frame.frame_as.eval.form                  = __form;      \
+         __frame.frame_as.eval.initial_form          = *__form;     \
          __frame.frame_as.eval.env                   = __env;
 
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
