@@ -7,6 +7,9 @@
 
 #include "../vm/scan.h"
 
+extern unsigned char scmFaslCompilerRun[]; // REVISIT: need to change this to _TCHAR
+extern unsigned int scmFaslCompilerRun_bytes;
+
 namespace scan {
 
   void scanlib_register_internal_files();
@@ -23,7 +26,7 @@ namespace scan {
 
     register_internal_file(_T("s-core"), true, scmSCore, scmSCore_bytes);
 
-    ENTER_GUARD() {
+    ENTER_TRY(NIL) {
       lifasl_load(open_c_data_input(true, scmSCore, scmSCore_bytes));
     } ON_ERROR() {
       assert(SYMBOLP(interp.sym_errobj));
@@ -31,7 +34,7 @@ namespace scan {
       scwritef("\nError loading sinit, errobj = ~a\n", 
 	       DEFAULT_PORT, 
 	       SYMBOL_VCELL(interp.sym_errobj));
-    } LEAVE_GUARD() ;
+    } LEAVE_TRY();
   }
 
   void init(int argc, _TCHAR *argv[], debug_flag_t initial_debug_flags)

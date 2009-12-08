@@ -361,7 +361,6 @@ namespace scan {
     FRAME_PRIMITIVE = 0,
     FRAME_EVAL      = 1,
 
-    FRAME_EX_GUARD  = 2,
     FRAME_EX_TRY    = 3,
     FRAME_EX_UNWIND = 4,
   };
@@ -478,7 +477,6 @@ namespace scan {
 
     fixnum_t    gc_total_cells_allocated;
     fixnum_t    gc_total_environment_cells_allocated;
-    fixnum_t    gc_cells_allocated;
     fixnum_t    gc_cells_collected;
 
     fixnum_t    malloc_bytes_at_last_gc;
@@ -1956,16 +1954,14 @@ namespace scan {
        __frame.type                         = FRAME_PRIMITIVE;      \
        __frame.frame_as.primitive.function  = __f;
 
-#define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)                   \
-      ENTER_FRAME()                                                 \
-         assert((__type == FRAME_EX_GUARD)                          \
-                || (__type == FRAME_EX_TRY)                         \
-                || (__type == FRAME_EX_UNWIND));                    \
-                                                                    \
-          __frame.type                               = __type;      \
-          __frame.frame_as.dynamic_escape.pending    = FALSE;       \
-          __frame.frame_as.dynamic_escape.unwinding  = FALSE;       \
-          __frame.frame_as.dynamic_escape.tag        = __tag;       \
+#define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)                         \
+      ENTER_FRAME()                                                       \
+         assert((__type == FRAME_EX_TRY) || (__type == FRAME_EX_UNWIND)); \
+                                                                          \
+          __frame.type                               = __type;            \
+          __frame.frame_as.dynamic_escape.pending    = FALSE;             \
+          __frame.frame_as.dynamic_escape.unwinding  = FALSE;             \
+          __frame.frame_as.dynamic_escape.tag        = __tag;             \
           __frame.frame_as.dynamic_escape.retval     = NIL;
 
 #define ENTER_EVAL_FRAME(__form, __env)                             \
@@ -2017,9 +2013,6 @@ namespace scan {
       }                                                         \
       else                                                      \
       {
-
-#define LEAVE_GUARD()                                           \
-    LEAVE_TRY()
 
 #define LEAVE_TRY()                                             \
       }                                                         \
@@ -2105,19 +2098,16 @@ size_t port_length(LRef port);
 
 INLINE LRef new_cell(typecode_t type)
 {
-  assert(!interp.shutting_down);
-
-  LRef retval;
+  checked_assert(!interp.shutting_down);
 
   if (NULLP(thread.freelist))
     thread.freelist = gc_claim_freelist();
 
-  assert(!NULLP(thread.freelist));
+  assert(!NULLP(thread.freelist)); // Fired on out-of-memory... What then?
 
-  retval = thread.freelist;
+  LRef retval = thread.freelist;
   thread.freelist = NEXT_FREE_CELL(thread.freelist);
 
-  ++interp.gc_cells_allocated;
   ++interp.gc_total_cells_allocated;
 
   SET_TYPE(retval, type);
@@ -2129,12 +2119,6 @@ INLINE LRef new_cell(typecode_t type)
 
 extern unsigned char scmSCore[]; // REVISIT: need to change this to _TCHAR
 extern unsigned int scmSCore_bytes;
-
-extern unsigned char scmFaslCompiler[];
-extern unsigned int scmFaslCompiler_bytes;
-
-extern unsigned char scmFaslCompilerRun[];
-extern unsigned int scmFaslCompilerRun_bytes;
 
 
 #endif

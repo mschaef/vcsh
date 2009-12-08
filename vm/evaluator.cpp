@@ -319,11 +319,6 @@ namespace scan {
 
             break;
 
-          case FRAME_EX_GUARD:
-            frame_obj   = listn(2, keyword_intern(_T("dynamic-escape-guard")),
-                                NIL);
-            break;
-
           case FRAME_EX_UNWIND:
             frame_obj   = listn(2, keyword_intern(_T("dynamic-escape-unwind-protect")),
                                 NIL);
@@ -1002,7 +997,7 @@ namespace scan {
         retval = ERROR_RETVAL();
         if (out_escape_tag) *out_escape_tag = ERROR_TAG();
       }
-    LEAVE_GUARD();
+    LEAVE_TRY();
 
 
     if (out_retval)     *out_retval     = retval;
@@ -1255,9 +1250,7 @@ namespace scan {
   {
     assert(TOP_FRAME);
 
-    assert(    (TOP_FRAME->type == FRAME_EX_GUARD)
-               || (TOP_FRAME->type == FRAME_EX_TRY)
-               || (TOP_FRAME->type == FRAME_EX_UNWIND));
+    assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
 
     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
 
@@ -1268,9 +1261,7 @@ namespace scan {
   {
     assert(TOP_FRAME);
 
-    assert(    (TOP_FRAME->type == FRAME_EX_GUARD)
-               || (TOP_FRAME->type == FRAME_EX_TRY)
-               || (TOP_FRAME->type == FRAME_EX_UNWIND));
+    assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
 
     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
 
@@ -1310,9 +1301,6 @@ namespace scan {
   {
     if (!exclude_unwind_protection)
       {
-        if (rec->type == FRAME_EX_GUARD)
-          return TRUE;
-
         /* If a frame is being unwound, it means that we're executing the
          * unwind clause and any errors thrown belong to an outside exception
          * frame. Therefore it is not a candidate for the current throw. */
@@ -1384,9 +1372,7 @@ namespace scan {
     LRef tag;
 
     assert(TOP_FRAME);
-    assert(    (TOP_FRAME->type == FRAME_EX_GUARD)
-               || (TOP_FRAME->type == FRAME_EX_TRY)
-               || (TOP_FRAME->type == FRAME_EX_UNWIND));
+    assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
 
     tag     = TOP_FRAME->frame_as.dynamic_escape.tag;
