@@ -4,6 +4,13 @@
 ;;;
 ;;; A variant of compiler.scm that emits a FASL file, rather than a text file
 
+;;; TODO: Alter compiler to store a metadata with compiled functions
+;;;   - Version of host VM/scheme image
+;;;   - Date/time compiled
+;;;   - Mapping from fast-ops back to source forms
+;;;   - Original source
+;;;   - (A lot of these should be optional in various ways.)
+
 (define-package "fasl-compiler"
   (:uses "scheme")
   (:exports "compile-file"
