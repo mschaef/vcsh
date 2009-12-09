@@ -428,6 +428,10 @@
 (defmacro (values-bind form vars . body)
   `(call-with-values (lambda ,vars ,@body) ,form))
 
+;;; A way to place markers on the frame stack
+
+(defmacro (with-stack-marker tag . code)
+  `(%apply0-with-stack-marker ,tag (lambda () ,@code)))
 
 ;;; An implementation of hooks
 

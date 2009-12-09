@@ -5,6 +5,7 @@
 ;;; Lisp references to native SUBRs.
 
 ;; primitive functions
+(define %apply0-with-stack-marker #.(scheme::%subr-by-name "%apply0-with-stack-marker"))
 (define %call-with-global-environment #.(scheme::%subr-by-name "%call-with-global-environment"))
 (define %catch-apply0 #.(scheme::%subr-by-name "%catch-apply0"))
 (define %closure #.(scheme::%subr-by-name "%closure"))

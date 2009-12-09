@@ -285,8 +285,6 @@ namespace scan {
     frame_record_t *loc = TOP_FRAME;
     fixnum_t frame_count = 0;
 
-
-
     while(loc)
       {
 
@@ -332,7 +330,11 @@ namespace scan {
             if (printing)
               scwritef(_T("primitive > ~s\n"), dump_to_port_while_gathering,
                        loc->frame_as.primitive.function);
+            break;
 
+          case FRAME_MARKER:
+            frame_obj = listn(2, keyword_intern(_T("marker")),
+                              loc->frame_as.marker.tag);
             break;
 
           default:
@@ -1106,6 +1108,19 @@ namespace scan {
     argv[7] = fixcons(interp.forms_evaluated - forms);
 
     return lvector(8, argv);
+  }
+
+  LRef lapply0_with_stack_marker(LRef tag, LRef fn)
+  {
+    LRef retval = NIL;
+
+    ENTER_MARKER_FRAME(tag)
+    {
+      retval = napply(fn, 0);
+    }
+    LEAVE_FRAME()
+
+    return retval;
   }
 
   /**************************************************************

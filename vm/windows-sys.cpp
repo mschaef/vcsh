@@ -401,7 +401,7 @@ namespace scan {
   void _panic(const _TCHAR *str, const _TCHAR *filename, long lineno)
   {
     _TCHAR buf[MESSAGE_BUF_SIZE];
-    _sntprintf(buf, MESSAGE_BUF_SIZE, "Fatal Error: %s @ (%s:%d)\n", str, filename, lineno);
+    _sntprintf(buf, MESSAGE_BUF_SIZE, "Panic: %s @ (%s:%d)\n", str, filename, lineno);
 
     fprintf(stderr, "%s", buf);
     fflush(stderr);

@@ -150,8 +150,7 @@
             (incr! frame-count)
             (format p "~a>" frame-count)
             (when (eq? frame-class :eval)
-              (set! frame-data (car frame-data))
-              )
+              (set! frame-data (car frame-data)))
             (format p " ~s\n\n" frame-data)))))))
 
 (defmacro (check predicate value . msg)

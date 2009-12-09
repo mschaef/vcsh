@@ -565,6 +565,7 @@ namespace scan {
     register_subr(_T("append!"),                          SUBR_ARGC,  (void*)lappendd                            );
     register_subr(_T("append"),                           SUBR_ARGC,  (void*)lappend                             );
     register_subr(_T("apply"),                            SUBR_ARGC,  (void*)lapply                              );
+    register_subr(_T("%apply0-with-stack-marker"),        SUBR_2,     (void*)lapply0_with_stack_marker           );
     register_subr(_T("asin"),                             SUBR_1,     (void*)lasin                               );
     register_subr(_T("ass"),                              SUBR_3,     (void*)lass                                );
     register_subr(_T("assoc"),                            SUBR_2,     (void*)lassoc                              );

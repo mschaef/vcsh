@@ -363,6 +363,8 @@ namespace scan {
 
     FRAME_EX_TRY    = 3,
     FRAME_EX_UNWIND = 4,
+
+    FRAME_MARKER = 8,
   };
 
   struct frame_record_t {
@@ -374,6 +376,7 @@ namespace scan {
       struct { LRef *form; LRef initial_form; LRef env;                             } eval;
       struct { LRef tag; LRef retval; jmp_buf cframe; bool pending; bool unwinding; } dynamic_escape;
       struct { LRef function;                                                       } primitive;
+      struct { LRef tag;                                                            } marker;
     } frame_as;
   };
 
@@ -1856,6 +1859,7 @@ namespace scan {
   LRef lset_property_list(LRef exp, LRef property_list);
   LRef lprocedurep(LRef exp);
   LRef lapply(size_t argc, LRef argv[]);
+  LRef lapply0_with_stack_marker(LRef tag, LRef fn);
   LRef lthrow(LRef tag,LRef value);
   LRef lunbind_symbol(LRef var);
   LRef lunwind_protect(LRef thunk, LRef after);
@@ -1948,6 +1952,11 @@ namespace scan {
    __frame.previous = thread.frame_stack;                           \
                                                                     \
    thread.frame_stack = &__frame;
+
+#define ENTER_MARKER_FRAME(__tag)                                   \
+  ENTER_FRAME()                                                     \
+     __frame.type = FRAME_MARKER;                                   \
+     __frame.frame_as.marker.tag = __tag;
 
 #define ENTER_PRIMITIVE_FRAME(__f)                                  \
     ENTER_FRAME()                                                   \

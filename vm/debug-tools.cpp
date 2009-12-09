@@ -451,11 +451,12 @@ namespace scan {
             }
       }
 
-      if (!found) {
-        dscwritef("Unknown debug flag while parsing ~cs, starting here: ~cs\n", source_name, str);
-        show_debug_flags();
-        panic("Aborting Run");
-      }
+      if (!found)
+        {
+          dscwritef("Unknown debug flag while parsing ~cs, starting here: ~cs\n", source_name, str);
+          show_debug_flags();
+          panic("Aborting Run");
+        }
 
       str = (*envtokend == '\0') ? NULL :  envtokend + 1;
     }

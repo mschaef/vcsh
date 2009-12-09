@@ -433,7 +433,7 @@
         ((:linux)
          (member filename '("./" "../"))))))
 
-(define (directory filename)
+(define (directory filename) ;; XXX (directory "file-that-exists.scm") does something wierd
   (let ((filename (if (string? filename)
                       (filename->list filename)
                       filename)))
