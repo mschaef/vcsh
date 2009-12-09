@@ -1541,6 +1541,8 @@ namespace scan {
     FOP_GET_ENV    = 224,
 
     FOP_GLOBAL_DEF = 240,
+
+    FOP_MARK_STACK = 248,
   };
 
   /****************************************************************
@@ -1859,7 +1861,6 @@ namespace scan {
   LRef lset_property_list(LRef exp, LRef property_list);
   LRef lprocedurep(LRef exp);
   LRef lapply(size_t argc, LRef argv[]);
-  LRef lapply0_with_stack_marker(LRef tag, LRef fn);
   LRef lthrow(LRef tag,LRef value);
   LRef lunbind_symbol(LRef var);
   LRef lunwind_protect(LRef thunk, LRef after);

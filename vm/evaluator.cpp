@@ -833,6 +833,14 @@ namespace scan {
                                  FAST_OP_ARG3(form));
         break;
 
+      case FOP_MARK_STACK:
+        ENTER_MARKER_FRAME(leval(FAST_OP_ARG1(form), env))
+        {
+          retval = leval(FAST_OP_ARG2(form), env);
+        }
+        LEAVE_FRAME()
+        break;
+
       default:
         vmerror("Unsupported fast-op: ~s", form);
       }
@@ -1108,19 +1116,6 @@ namespace scan {
     argv[7] = fixcons(interp.forms_evaluated - forms);
 
     return lvector(8, argv);
-  }
-
-  LRef lapply0_with_stack_marker(LRef tag, LRef fn)
-  {
-    LRef retval = NIL;
-
-    ENTER_MARKER_FRAME(tag)
-    {
-      retval = napply(fn, 0);
-    }
-    LEAVE_FRAME()
-
-    return retval;
   }
 
   /**************************************************************
