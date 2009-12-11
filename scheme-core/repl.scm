@@ -8,6 +8,9 @@
 
 (define *repl-history* #())
 
+(define *repl-recent-history-length* 5)
+(define *repl-recent-history-indices* ())
+
 (define (extend-repl-history! value)
   "Adds <value> to the REPL history, returning the value's history
    index. If a value is new to the history, it is added to the end
@@ -18,15 +21,22 @@
                       (set! *repl-history* (vector-resize *repl-history* (+ new-index 1)))
                       (vector-set! *repl-history* new-index value)
                       new-index))))
+    (set! *repl-recent-history-indices*
+          (take-up-to (cons index *repl-recent-history-indices*)
+                       *repl-recent-history-length*))
     index))
 
 (define (repl-history-value index)
   "Returns the history value at index <index>."
   ;; TODO: negative index could mean an index from the end of the history
   (cond ((not (number? index))
-         (error "Bad REPL history index, expected a positive number.~s" index))
-        ((or (< index 0) (>= index (length *repl-history*)))
+         (error "Bad REPL history index, expected a number.~s" index))
+        ((>= index (length *repl-history*))
          (error "History index ~s not available." index))
+        ((> (- index) (length *repl-recent-history-indices*))
+         (error "Recent history index ~s not available." index))
+        ((< index 0)
+         (repl-history-value (nth *repl-recent-history-indices* (- (- index) 1))))
         (#t
          (vector-ref *repl-history* index))))
 
@@ -36,11 +46,14 @@
   (set! *repl-history* #())
   (apply values xs))
 
+
+(define (read-history-form port)
+  (read-char port)
+  `(repl-history-value ,(read port)))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (set-property! 'repl-history-value 'pretty-print-syntax "##")
-  (set-char-syntax! *readsharp-syntax* #\# (lambda (port)
-                                             (read-char port)
-                                             `(repl-history-value ,(read port)))))
+  (set-char-syntax! *readsharp-syntax* #\# 'read-history-form))
 
 (define (repl-choose choices :optional (prompt "which one?") (simple? #t))
   "Allow a user at the REPL to select from the list of <choices>. <prompt>
