@@ -198,3 +198,7 @@
                  ((1) `(,iterate/r-loop-name ,body-form))
                  (#t  `(call-with-values ,body-form ,iterate/r-loop-name)))
               ,@maybe-final-form)))
+
+(defmacro (doiterate seqs . code)
+  "An do... form that takes a list of iterate sequences."
+  `(iterate/r ,seqs () (begin ,@code)))

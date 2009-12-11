@@ -66,6 +66,7 @@
            *repl-pre-read-hook*
            *repl-post-hook*
            *repl-pre-print-value-hook*
+           *show-system-frames*
            *shutdown-hook*
            *silent*
            *time-flonum-print-precision*
@@ -322,6 +323,7 @@
            display-packages
            do
            dohash
+           doiterate
            dolist
            dotimes
            dotted-list?
