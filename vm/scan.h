@@ -1613,7 +1613,6 @@ namespace scan {
   **************************************************************/
 
   LRef ladd_symbol_to_package(LRef symbol, LRef package);
-  LRef ldebug_backtrace();
   LRef lbyte_vector_p(LRef x);
   LRef lbyte_vector2vector(LRef bytevec);
   LRef lvector2byte_vector(LRef vec);

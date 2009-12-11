@@ -116,7 +116,6 @@
 (define complex? #.(scheme::%subr-by-name "complex?"))
 (define cons #.(scheme::%subr-by-name "cons"))
 (define cos #.(scheme::%subr-by-name "cos"))
-(define debug-backtrace #.(scheme::%subr-by-name "debug-backtrace"))
 (define debug-write #.(scheme::%subr-by-name "debug-write"))
 (define delete-file #.(scheme::%subr-by-name "delete-file"))
 (define delq #.(scheme::%subr-by-name "delq"))

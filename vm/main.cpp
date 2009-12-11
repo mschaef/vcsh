@@ -601,7 +601,6 @@ namespace scan {
     register_subr(_T("complex?"),                         SUBR_1,     (void*)lcomplexp                           );
     register_subr(_T("cons"),                             SUBR_2,     (void*)lcons                               );
     register_subr(_T("cos"),                              SUBR_1,     (void*)lcos                                );
-    register_subr(_T("debug-backtrace"),                  SUBR_0,     (void*)ldebug_backtrace                    );
     register_subr(_T("debug-write"),                      SUBR_1,     (void*)ldebug_write                        );
     register_subr(_T("delete-file"),                      SUBR_1,     (void*)ldelete_file                        );
     register_subr(_T("delq"),                             SUBR_2,     (void*)ldelq                               );

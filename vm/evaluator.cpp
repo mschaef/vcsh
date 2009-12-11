@@ -271,13 +271,6 @@ namespace scan {
     return loc;
   }
 
-  LRef ldebug_backtrace()
-  {
-    get_current_frames(0, CURRENT_DEBUG_PORT);
-
-    return NIL;
-  }
-
   LRef get_current_frames(fixnum_t skip_count, LRef dump_to_port_while_gathering)
   {
     LRef frame_obj;

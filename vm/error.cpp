@@ -55,13 +55,13 @@ void vmerror_stack_overflow (u8 *obj)
 	in_stack_overflow = true;
 
     if (DEBUGGING_BUILD)
-      ldebug_backtrace();
+      get_current_frames(0, CURRENT_DEBUG_PORT);
 
 	panic("Stack Overflow!");
 
     // TODO: Stack overflow should throw out to a catch block and then
     // invoke a overflow handler.
-    // REVISIT: Should the user be allowed to continue after an overflow.
+    // REVISIT: Should the user be allowed to continue after an overflow?
 
 	THROW_ESCAPE(interp.sym_stack_overflow, NIL);
 }
