@@ -241,7 +241,8 @@
    toplevel REPL."
   (catch 'repl-quit
     (let loop ()
-      (catch 'repl-toplevel (repl))
+      (catch 'repl-toplevel
+        (repl))
       (format #t "; Restarting toplevel REPL\n")
       (loop))))
 

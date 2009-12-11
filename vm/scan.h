@@ -1864,7 +1864,8 @@ namespace scan {
   LRef lunbind_symbol(LRef var);
   LRef lunwind_protect(LRef thunk, LRef after);
   LRef lrepresentation_of(LRef obj);
-  LRef get_current_frames(fixnum_t skip_count, LRef dump_to_port_while_gathering);
+  void dump_current_frames(LRef oport);
+  LRef get_current_frames(fixnum_t skip_count);
   LRef lget_current_frames(LRef skip_count);
   LRef lmacrop(LRef obj);
   LRef lset_handler_frames(LRef new_frames);

@@ -208,14 +208,10 @@ namespace scan {
 
   static panic_handler_t previous_panic_handler = NULL;
 
-  static bool in_panic_handler = false;
-
   static void scan_panic_handler()
   {
-    in_panic_handler = true;
-
-    if (DEBUGGING_BUILD && !in_panic_handler)
-      get_current_frames(0, VM_DEBUG_PORT);
+    if (DEBUGGING_BUILD)
+      dump_current_frames(CURRENT_ERROR_PORT);
 
     if (previous_panic_handler)
       previous_panic_handler();

@@ -271,8 +271,49 @@ namespace scan {
     return loc;
   }
 
-  LRef get_current_frames(fixnum_t skip_count, LRef dump_to_port_while_gathering)
+
+  void dump_current_frames(LRef oport)
   {
+    frame_record_t *loc = TOP_FRAME;
+
+    while(loc)
+      {
+        switch(loc->type)
+          {
+          case FRAME_EVAL:
+            scwritef(_T("eval > ~s in ~s\n"), oport, *loc->frame_as.eval.form, loc->frame_as.eval.initial_form);
+            break;
+
+          case FRAME_EX_TRY:
+            scwritef(_T("try > ~s\n"), oport, loc->frame_as.dynamic_escape.tag);
+            break;
+
+          case FRAME_EX_UNWIND:
+            scwritef(_T("unwind-protect >\n"), oport);
+            break;
+
+          case FRAME_PRIMITIVE:
+            scwritef(_T("primitive > ~s\n"), oport, loc->frame_as.primitive.function);
+            break;
+
+          case FRAME_MARKER:
+            scwritef(_T("marker > ~s\n"), oport, loc->frame_as.marker.tag);
+            break;
+
+          default:
+            scwritef(_T("<< INVALID-FRAME-TYPE >>\n"), oport);
+            break;
+          }
+
+        lflush_port(oport);
+
+        loc = loc->previous;
+      }
+  }
+
+  LRef lget_current_frames(LRef sc)
+  {
+    fixnum_t skip_count = get_c_fixnum(sc);
     LRef frame_obj;
     LRef l = NIL;
     frame_record_t *loc = TOP_FRAME;
@@ -280,10 +321,7 @@ namespace scan {
 
     while(loc)
       {
-
         frame_count++;
-
-        bool printing = (frame_count >= skip_count) && !NULLP(dump_to_port_while_gathering);
 
         switch(loc->type)
           {
@@ -292,22 +330,12 @@ namespace scan {
                                 *loc->frame_as.eval.form,
                                 loc->frame_as.eval.initial_form,
                                 loc->frame_as.eval.env);
-
-            if (printing)
-              scwritef(_T("eval > ~s in ~s\n"), dump_to_port_while_gathering,
-                       *loc->frame_as.eval.form,
-                       loc->frame_as.eval.initial_form);
             break;
 
           case FRAME_EX_TRY:
             frame_obj   = listn(3, keyword_intern(_T("dynamic-escape-try")),
                                 NIL,
                                 loc->frame_as.dynamic_escape.tag);
-
-            if (printing)
-              scwritef(_T("try > ~s\n"), dump_to_port_while_gathering,
-                       loc->frame_as.dynamic_escape.tag);
-
             break;
 
           case FRAME_EX_UNWIND:
@@ -319,10 +347,6 @@ namespace scan {
             frame_obj   = listn(3, keyword_intern(_T("primitive")),
                                 NIL,
                                 loc->frame_as.primitive.function);
-
-            if (printing)
-              scwritef(_T("primitive > ~s\n"), dump_to_port_while_gathering,
-                       loc->frame_as.primitive.function);
             break;
 
           case FRAME_MARKER:
@@ -342,11 +366,6 @@ namespace scan {
       }
 
     return l;
-  }
-
-  LRef lget_current_frames(LRef skip_count)
-  {
-    return get_current_frames(get_c_fixnum(skip_count), NIL);
   }
 
   /**************************************************************
@@ -998,12 +1017,14 @@ namespace scan {
     ON_ERROR()
       {
         retval = ERROR_RETVAL();
-        if (out_escape_tag) *out_escape_tag = ERROR_TAG();
+        if (out_escape_tag)
+          *out_escape_tag = ERROR_TAG();
       }
     LEAVE_TRY();
 
 
-    if (out_retval)     *out_retval     = retval;
+    if (out_retval)
+      *out_retval = retval;
 
     return failed;
   }

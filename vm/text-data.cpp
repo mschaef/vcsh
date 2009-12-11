@@ -313,7 +313,7 @@ namespace scan {
             pos += 1;
 	  }
         else
-	  assert(false);
+          panic("Unexpected string type in string-append concatenation phase.");
       }
 
     return (s);

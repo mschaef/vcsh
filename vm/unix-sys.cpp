@@ -415,7 +415,7 @@ namespace scan {
     if (current_panic_handler)
       current_panic_handler();
 
-    assert(false);
+    exit(1);
   }
 
 

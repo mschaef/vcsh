@@ -411,7 +411,7 @@ namespace scan {
     if (current_panic_handler)
       current_panic_handler();
 
-    assert(false);
+    exit(1);
   }
 
   extern "C" char *strchrnul(const char *s, int c)

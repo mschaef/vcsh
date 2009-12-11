@@ -55,7 +55,7 @@ void vmerror_stack_overflow (u8 *obj)
 	in_stack_overflow = true;
 
     if (DEBUGGING_BUILD)
-      get_current_frames(0, CURRENT_DEBUG_PORT);
+      dump_current_frames(CURRENT_DEBUG_PORT);
 
 	panic("Stack Overflow!");
 
