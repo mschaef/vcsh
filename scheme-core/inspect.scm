@@ -40,7 +40,8 @@
                           :unbound))))
 
 (define-method (inspect-analyze-object (obj closure))
-  (list (cons "code" (%closure-code obj))
+  (list (cons "l-list" (car (%closure-code obj)))
+        (cons "code" (cdr (%closure-code obj)))
         (cons "env" (%closure-env obj))
         (cons "p-list" (%property-list obj))))
 
