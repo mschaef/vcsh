@@ -133,25 +133,22 @@
 
 (define *vm-signal-handler* abort)
 
-
-;;; A global error handler
-;;;
-;;; All this does is dump out a stack trace when an error takes place.
-
-(define *show-frames-print-length* 40)
+(define *show-system-frames* #f)
 
 (define (show-frames frame-list p)
-  (dynamic-let ((*print-length* *show-frames-print-length*))
-    (let ((frame-list (filter (lambda (frame) (eq? (car frame) :eval)) frame-list)))
-      (let ((frame-count 0))
-        (dolist (f (reverse frame-list))
-          (let ((frame-class (car f))
-                (frame-data (cddr f)))
-            (incr! frame-count)
-            (format p "~a>" frame-count)
-            (when (eq? frame-class :eval)
-              (set! frame-data (car frame-data)))
-            (format p " ~s\n\n" frame-data)))))))
+  (define (maybe-remove-system-frames frame-list)
+    (if *show-system-frames*
+        frame-list
+        (take-while #L(not (and (eq? (car _) :marker)
+                                (eq? (cadr _) 'system-stack-boundary)))
+                    frame-list)))
+  (let ((frame-list (filter (lambda (frame) (eq? (car frame) :eval))
+                            (maybe-remove-system-frames frame-list))))
+    (doiterate ((list frame (reverse frame-list))
+                (count frame-index))
+      (format p "~a> ~s\n\n" frame-index (third frame))
+      (unless (eq? (second frame) (third frame))
+        (format p "   -> ~s\n\n" (second frame))))))
 
 (defmacro (check predicate value . msg)
   "Applies <predicate> to <value> and signals an error if false. <predicate>

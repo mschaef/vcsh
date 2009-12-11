@@ -10,7 +10,6 @@
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (ensure-package! "fasl-compiler"))
 
-
 (define (eval form :optional (lenv ()) (genv #f))
   (unless (null? lenv)
     (error "non-null lenvs are not currently supported with compiler evaluation. form: ~s env: ~s" form lenv))

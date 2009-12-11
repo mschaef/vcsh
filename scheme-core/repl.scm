@@ -196,7 +196,7 @@
                       (info "***USER BREAK***")
                       (throw 'repl-abort-evaluation (list 'user-break)))))
       (catch 'error-escape
-        (values-bind (time (eval form env)) results
+        (values-bind (time (eval `(scheme::%mark-stack 'system-stack-boundary ,form) env)) results
           results)))))
 
 (define *repl-pre-read-hook* ())
