@@ -1,6 +1,6 @@
 # Makefile for Build Utilities
 
-TARGETS=to-c-source${EXE_EXT}
+TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT}
 
 include ../build-settings
 
@@ -10,6 +10,13 @@ TO_C_SOURCE_SRCS:=$(TO_C_SOURCE_OBJS:${OBJ_EXT}=.cpp)
 
 to-c-source${EXE_EXT}: $(TO_C_SOURCE_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}to-c-source${EXE_EXT} $(TO_C_SOURCE_OBJS)
+
+SHOW_RETVAL_OBJS=show-retval${OBJ_EXT}
+
+SHOW_RETVAL_SRCS:=$(SHOW_RETVAL_OBJS:${OBJ_EXT}=.cpp)
+
+show-retval${EXE_EXT}: $(SHOW_RETVAL_OBJS)
+	${CC} ${LDFLAGS} ${NAMOBJFL}show-retval${EXE_EXT} $(SHOW_RETVAL_OBJS)
 
 depend: $(VM_SRCS) $(SHO_SRCS)
 	$(CC) -MM $(CCFLAGS) $(DEFINES) $^ 1>.depend
