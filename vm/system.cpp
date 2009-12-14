@@ -341,7 +341,8 @@ namespace scan {
       build_keyword = keyword_intern(_T("release"));
 
     lhash_set(obj, keyword_intern(_T("build-type")), build_keyword);
-    lhash_set(obj, keyword_intern(_T("build-id")), strcons(build_id_string()));
+
+    lhash_set(obj, keyword_intern(_T("vm-build-id")), strcons(build_id_string()));
 
     lhash_set(obj, keyword_intern(_T("platform-name")), keyword_intern(info._platform_name));
 

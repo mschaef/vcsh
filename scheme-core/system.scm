@@ -10,6 +10,11 @@
    is #f or unspecified a hash of all attribute is returned. If <attribute> is specified and a valid
    attribute name, the attribute value is returned, otherwise a runtime error is signaled."
   (let ((all (%system-info)))
+    (hash-set! all :scheme-build-id *scheme-build-date*)
+
+    (hash-set! all :scheme-build-vm *scheme-build-vm*)
+    (hash-set! all :scheme-build-image *scheme-build-image*)
+
     (cond ((not attribute)
            all)
           ((not (hash-has? all attribute))

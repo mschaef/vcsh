@@ -393,9 +393,13 @@
   (unless *no-startup-files*
     (process-startup-files))
   (unless *silent*
-    (format #t "; Welcome to SIOD, ~a\n" (system-info :build-id))
-    (format #t "; (C) Copyright 2001-2008 East Coast Toolworks Inc.\n")
-    (format #t "; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.\n"))
+    (format #t "; Welcome to VCSH\n")
+    (format #t ";    VM Build ID    : ~a\n" (system-info :vm-build-id))
+    (format #t ";    Scheme Build ID: ~a\n" (system-info :scheme-build-id))
+    (format #t ";\n")
+    (format #t "; (C) Copyright 2001-2009 East Coast Toolworks Inc.\n")
+    (format #t "; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.\n")
+    (format #t "\n"))
   (let ((rc (if *no-repl* 0 (toplevel-repl))))
     (unless *silent*
       (format #t "; Exiting with rc=~a\n" rc))

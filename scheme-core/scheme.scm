@@ -4,6 +4,16 @@
 ;;;;
 ;;;; Compile with: ..\vcsh -c scheme.scm --cross-compile --initial-package:scheme --output:scheme.scf
 
+;; Capture some relevent attriutes of the image build.
+
+(define *scheme-build-date* #.(date->string (current-date) "~b ~d ~Y ~H:~M:~S"))
+
+(define *scheme-build-vm* #.(system-info :vm-build-id))
+
+(define *scheme-build-image* #.(system-info :scheme-build-id))
+
+;;; The build is composed of the following files:
+
 (include "subrs.scm")
 (include "character.scm")
 (include "class-graph.scm")
