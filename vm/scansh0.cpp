@@ -19,7 +19,7 @@ void sigint_handler(int i)
 };
 
 
-#include "sys.h"
+using namespace scan;
 
 int _tmain(int argc, _TCHAR* argv[])
 {

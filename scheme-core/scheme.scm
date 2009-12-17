@@ -12,6 +12,8 @@
 
 (define *scheme-build-image* #.(system-info :scheme-build-id))
 
+(define *scheme-build-version* "Scheme 0.50")
+
 ;;; The build is composed of the following files:
 
 (include "subrs.scm")

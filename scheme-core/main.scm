@@ -395,8 +395,8 @@
     (process-startup-files))
   (unless *silent*
     (format #t "; Welcome to VCSH\n")
-    (format #t ";    VM Build ID    : ~a\n" (system-info :vm-build-id))
-    (format #t ";    Scheme Build ID: ~a\n" (system-info :scheme-build-id))
+    (format #t ";    VM Build ID     : ~a (~a)\n" (system-info :vm-build-id) (system-info :build-type))
+    (format #t ";    Scheme Build ID : ~a\n" (system-info :scheme-build-id))
     (format #t ";\n")
     (format #t "; (C) Copyright 2001-2009 East Coast Toolworks Inc.\n")
     (format #t "; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.\n")
