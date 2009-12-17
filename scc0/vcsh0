@@ -7,6 +7,6 @@ SCC0_BASE=`dirname $0`
 # scansh0 command line parser loads them.
 SCANPATH=${SCC0_BASE}/../scheme:${SCANPATH}
 
-${SCC0_BASE}/../vm/scansh0 ${SCC0_BASE}/scheme.scf \
-                           ${SCC0_BASE}/invoke-repl.scf \
+${SCC0_BASE}/../vm/scansh0 -Xinit-load=${SCC0_BASE}/scheme.scf \
+                           -Xinit-load=${SCC0_BASE}/invoke-repl.scf \
                            $@
