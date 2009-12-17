@@ -60,6 +60,8 @@ namespace scan {
       MAX_GC_ROOTS = 512,             // The maximum number of GC roots per thread
 
       DEBUG_FLONUM_PRINT_PRECISION = 8, // The debug printer's flonum precisoin
+
+      MAX_INIT_LOAD_FILES = 8,       // The maximum number of init load files.
     };
 
   /* _The_ type *************************************************
@@ -413,6 +415,9 @@ namespace scan {
 
     LRef        global_env;
     size_t      last_global_env_entry;
+
+    size_t      init_load_file_count;
+    _TCHAR     *init_load_file_name[MAX_INIT_LOAD_FILES];
 
     size_t      gc_heap_segment_size;
     size_t      gc_max_heap_segments;

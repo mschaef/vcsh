@@ -275,6 +275,18 @@ namespace scan {
     interp.gc_max_heap_segments = process_vm_int_argument_value(arg_name, arg_value);
   }
 
+  static void process_vm_arg_init_load(_TCHAR *arg_name, _TCHAR *arg_value)
+  {
+    UNREFERENCED(arg_name);
+
+    if (interp.init_load_file_count >= MAX_INIT_LOAD_FILES)
+      panic("Too many init-load files.");
+
+    interp.init_load_file_name[interp.init_load_file_count] = arg_value;
+
+    interp.init_load_file_count++;
+  }
+
   static struct {
     const _TCHAR *vm_arg_name;
     void (* vm_arg_handler)(_TCHAR *arg_name, _TCHAR *arg_value);
@@ -282,11 +294,12 @@ namespace scan {
     { "debug-flags",       process_vm_arg_debug_flags },
     { "heap-segment-size", process_vm_arg_heap_segment_size },
     { "max-heap-segments", process_vm_arg_max_heap_segments },
+    { "init-load",         process_vm_arg_init_load },
     { NULL, NULL }
   };
 
   static void show_vm_args() {
-    dscwritef("Available VM arguments:\n\n");
+    dscwritef("\nAvailable VM arguments:\n");
 
     for(size_t ii = 0; vm_arg_names[ii].vm_arg_name; ii++)
       dscwritef("* ~cs\n", vm_arg_names[ii].vm_arg_name);
@@ -304,7 +317,7 @@ namespace scan {
           }
       }
 
-    dscwritef("Unknown VM argument ~cs\n", arg_name);
+    dscwritef("Unknown VM argument: ~cs\n", arg_name);
     show_vm_args();
     panic("Aborting Run");
   }
@@ -321,6 +334,8 @@ namespace scan {
       _TCHAR arg_name_buf[STACK_STRBUF_LEN];
       memset(arg_name_buf, 0, STACK_STRBUF_LEN);
 
+      // REVISIT: This should accept both '=' and ':' as arg value delims
+      // (':' is more appropriate for specifying filenames)
       _TCHAR *arg_value_loc = strchrnul(arg_text, '=');
 
       _tcsncpy(arg_name_buf, arg_text,
@@ -793,7 +808,20 @@ namespace scan {
     assert(sizeof(LObject) == 4 * sizeof(LRef));
   }
 
-  // !! Init needs a way to receive standard output ports, for non-console uses of scan
+
+  static void load_init_load_files()
+  {
+    for(size_t ii = 0; ii < interp.init_load_file_count; ii++)
+      {
+        LRef fname = strcons(interp.init_load_file_name[ii]);
+
+        dscwritef("; Init Loading ~a...\n", fname);
+
+        lifasl_load(fname);
+      }
+  }
+
+  // REVISIT Init needs a way to receive standard output ports, for non-console uses of scan
   void init0(int argc, _TCHAR *argv[], debug_flag_t initial_debug_flags)
   {
     global_environment_asserts();
@@ -808,6 +836,8 @@ namespace scan {
     interp.debug_flags                             = debug_flags_from_environment(initial_debug_flags);
 
     init_debugger_output();
+
+    interp.init_load_file_count                    = 0;
 
     interp.break_pending                           = false;
     interp.timer_event_pending                     = false;
@@ -882,6 +912,8 @@ namespace scan {
     accept_command_line_arguments(argc, argv);
 
     interp.gc_status_flag = 1;
+
+    load_init_load_files();
   }
 
 
