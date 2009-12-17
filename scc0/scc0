@@ -9,5 +9,4 @@ SCANPATH=${SCC0_BASE}/../scheme:${SCANPATH}
 
 ${SCC0_BASE}/../vm/scansh0 -Xinit-load=${SCC0_BASE}/scheme.scf \
                            -Xinit-load=${SCC0_BASE}/fasl-compiler-run.scf \
-                           -Xinit-load=${SCC0_BASE}/fasl-compiler0.scf \
                            $@

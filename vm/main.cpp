@@ -368,7 +368,7 @@ namespace scan {
       }
     }
 
-    lidefine_global(interp.sym_args0, arg_list, NIL);
+    lidefine_global(interp.sym_args, arg_list, NIL);
   }
 
   const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
@@ -431,7 +431,6 @@ namespace scan {
     gc_protect_sym(&interp.sym_msglvl_errors, _T("*error*"), interp.system_package);
     lidefine_global(interp.sym_msglvl_errors, boolcons(true), NIL);
 
-    gc_protect_sym(&interp.sym_args0, _T("*args0*"), interp.system_package);
     gc_protect_sym(&interp.sym_args, _T("*args*"), interp.system_package);
 
     gc_protect_sym(&interp.sym_port_current_in, _T("*current-input-port*"), interp.system_package);
@@ -865,7 +864,6 @@ namespace scan {
     interp.sym_after_gc                            = NIL;
     interp.sym_msglvl_info                         = NIL;
     interp.sym_msglvl_errors                       = NIL;
-    interp.sym_args0                               = NIL;
     interp.sym_args                                = NIL;
     interp.sym_current_package                     = NIL;
     interp.sym_progn                               = NIL;
@@ -922,42 +920,10 @@ namespace scan {
     return sys_runtime() - interp.launch_realtime;
   }
 
-  LRef load_files_from_args0()
-  {
-    LRef retval = NIL;
-
-    // Skip the first argument... it typically specifies the launch executable
-    if (CONSP(SYMBOL_VCELL(interp.sym_args0)))
-      SET_SYMBOL_VCELL(interp.sym_args0, CDR(SYMBOL_VCELL(interp.sym_args0)));
-
-    // While there are still arguments in *args0*, load them. Note
-    // that this leaves open the possibility that one of the loaded
-    // files will take over argument processing and set *args0* to
-    // null itself...
-    while(CONSP(SYMBOL_VCELL(interp.sym_args0)))
-      {
-        LRef fname = CAR(SYMBOL_VCELL(interp.sym_args0));
-
-        if (STRINGP(fname))
-          {
-            scwritef("; Boot Loading ~a...\n", DEFAULT_PORT, CAR(SYMBOL_VCELL(interp.sym_args0)));
-
-            retval = lifasl_load(fname);
-          }
-
-        /* This check keeps us from crashing if the loaded file alters
-         * *arg0*. This can happen if one of the loaded scheme files
-         * decides to start taking over the boot process itself. */
-        if (CONSP(SYMBOL_VCELL(interp.sym_args0)))
-          SET_SYMBOL_VCELL(interp.sym_args0, CDR(SYMBOL_VCELL(interp.sym_args0)));
-      }
-
-    return retval;
-  }
-
   LRef run()
   {
-    LRef retval = NIL;
+    if(DEBUG_FLAG(DF_NO_STARTUP))
+      return NIL;
 
     LRef run0_proc = lisymbol_value(simple_intern(_T("%run0"), interp.scheme_package), NIL, NIL);
 
@@ -966,6 +932,8 @@ namespace scan {
 
     if (!PROCEDUREP(run0_proc))
       panic("Invalid bootstrap procedure found in scheme::%run0. (failed PROCEDUREP).");
+
+    LRef retval = NIL;
 
     if(call_lisp_procedure(run0_proc, &retval, NULL, 0))
       panic("Failure during interprer launch.");

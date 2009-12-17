@@ -348,6 +348,7 @@ namespace scan {
       DF_SHOW_FAST_LOAD_FORMS     = 0x40000000,
       DF_SHOW_FAST_LOAD_UNITS     = 0x80000000,
 
+      DF_NO_STARTUP               = 0x40000000,
       DF_TEMP                     = 0x80000000,
 
       DF_NONE                     = 0x00000000,
@@ -449,7 +450,6 @@ namespace scan {
     LRef        sym_msglvl_info;
     LRef        sym_msglvl_warnings;
     LRef        sym_msglvl_errors;
-    LRef        sym_args0;
     LRef        sym_args;
     LRef        sym_current_package;
     LRef        sym_progn;
@@ -1558,7 +1558,6 @@ namespace scan {
 
   void init0(int argc, _TCHAR *argv[], debug_flag_t initial_debug_flags);
   void init(int argc, _TCHAR *argv[], debug_flag_t initial_debug_flags);
-  LRef load_files_from_args0();
 
   void signal_break();
   void signal_timer();

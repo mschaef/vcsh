@@ -387,7 +387,8 @@
                         (run)))))))
     ;; The shutdown hook is always invoked, to allow for any cleanxup
     ;; that needs to occur before the heap is shut down itself.
-    (invoke-hook '*shutdown-hook* retval)))
+    (invoke-hook '*shutdown-hook* retval)
+    retval))
 
 (define (run)
   (unless *no-startup-files*

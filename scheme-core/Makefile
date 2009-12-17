@@ -5,7 +5,7 @@ TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT}
 
 include ../build-settings
 
-SCC0=../scc0/scc0
+SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/fasl-compiler-run.scf
 
 tested: all
 	 ./vcsh unit-test.scm tests/run-tests.scm
@@ -38,14 +38,14 @@ scheme${OBJ_EXT}: scheme.scf
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}scheme${OBJ_EXT} scheme.cpp
 
 scheme.scf:
-	$(SCC0) scheme.scm --cross-compile --initial-package:scheme
+	$(SCC0) --cross-compile --initial-package:scheme scheme.scm
 
 fasl-compiler-run${OBJ_EXT}: fasl-compiler-run.scf
 	../util/to-c-source fasl-compiler-run.scf scmFaslCompilerRun > fasl-compiler-run.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}fasl-compiler-run${OBJ_EXT} fasl-compiler-run.cpp
 
 fasl-compiler-run.scf: fasl-compiler-run.scm
-	$(SCC0) fasl-compiler-run.scm  --cross-compile --initial-package:scheme
+	$(SCC0) --cross-compile --initial-package:scheme fasl-compiler-run.scm
 
 clean-scheme:
 	${RM_F} scheme${OBJ_EXT} fasl-compiler-run${OBJ_EXT}

@@ -33,7 +33,12 @@ int _tmain(int argc, _TCHAR* argv[])
   SET_SYMBOL_VCELL(scan::interp.sym_port_current_err, SYMBOL_VCELL(scan::interp.sym_port_current_out));
   SET_SYMBOL_VCELL(scan::interp.sym_port_debug, SYMBOL_VCELL(scan::interp.sym_port_current_err));
 
-  scan::LRef retval = scan::load_files_from_args0();
+  scan::LRef retval = scan::run();
+
+  long return_status = 0;
+
+  if (scan::NUMBERP(retval))
+    return_status = scan::get_c_long(retval);
 
   int rc = (int)(FIXNUMP(retval) ? get_c_fixnum(retval) : 0);
 

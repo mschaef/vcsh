@@ -14,6 +14,5 @@ SET SCANPATH=%SCC0_BASE%\..\base-scheme:%SCANPATH%
 SET LAUNCH_FILES=
 SET LAUNCH_FILES=%LAUNCH_FILES% -Xinit-load=%SCC0_BASE%\scheme.scf
 SET LAUNCH_FILES=%LAUNCH_FILES% -Xinit-load=%SCC0_BASE%\fasl-compiler-run.scf
-SET LAUNCH_FILES=%LAUNCH_FILES% -Xinit-load=%SCC0_BASE%\fasl-compiler0.scf
 
 %SCC0_BASE%\..\vm\scansh0 %LAUNCH_FILES% %1 %2 %3 %4 %5 %6 %7 %8 %9

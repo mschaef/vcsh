@@ -9,16 +9,12 @@ SCC=${SCHEME_PATH}/vcsh --compile --initial-package:scheme
 
 all: update
 
-update: fasl-compiler0.scf invoke-repl.scf
+update:
 	cp ${SCHEME_PATH}/scheme.scf .
 	cp ${SCHEME_PATH}/fasl-compiler-run.scf .
 
 %.scf: %.scm Makefile
 	$(SCC) --cross-compile --output:$@ $<
-
-invoke-repl.scf: invoke-repl.scm
-
-fasl-compiler0.scf: fasl-compiler0.scm
 
 clean: 
 	rm -f *.scf *~
