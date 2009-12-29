@@ -273,6 +273,10 @@
 (define (evaluate-object o)
   ((objects->postfix-program (list o))))
 
+
+(define *recording-macro* #f)
+(define *current-macro-seq* '())
+
 (define (interactively-evaluate-objects . os)
   (when *recording-macro*
     (set! *current-macro-seq* (append! *current-macro-seq* (filter recordable? os))))

@@ -51,6 +51,8 @@
             "*number-format-mode*"
             "*seperator-mode*"
             "objects->postfix-program"
+            "*recording-macro*"
+            "*current-macro-seq*"
             ))
   
 ;;;; Bootstrap process

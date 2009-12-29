@@ -50,9 +50,6 @@
   (apply values *last-arguments*))
 
 
-(define *recording-macro* #f)
-(define *current-macro-seq* '())
-
 (define-vcalc-command (begin-macro) 
   "Begin recording a keystroke macro."
   (declare :not-recordable)
