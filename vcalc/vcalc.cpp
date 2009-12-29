@@ -179,6 +179,7 @@ BOOL CVCalcApp::InitInstance()
 
   // We bring the interpreter up first so that we have Scheme facilities
   // availble during initialization.
+  sys_init();
   boot_start_time = sys_runtime();
   init(0, NULL, DF_DEBUGGER_TO_ODS);
   scboot_time  = sys_runtime() - boot_start_time;
