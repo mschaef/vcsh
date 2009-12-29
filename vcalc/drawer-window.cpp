@@ -6,7 +6,7 @@
 #include "stdafx.h"
 #include "drawer-window.h"
 
-#include <scan-assert.h>
+#include "../util/base-assert.h"
 
 #include "vcalc.h"
 
@@ -475,9 +475,9 @@ LRef CDrawer::SetPlacement(LRef new_placement)
     vmerror_wrong_type(1, new_placement);
   
   // Parse out the drawer side...    
-  if (VECTOR_LENGTH(new_placement) >= 1)
+  if (VECTOR_DIM(new_placement) >= 1)
     {
-      temp = VECTOR_OBJECT(new_placement, 0);
+      temp = VECTOR_ELEM(new_placement, 0);
 
       if (!SYMBOLP(temp))
         vmerror("Invalid side specifier in drawer placement.", temp);
@@ -495,9 +495,9 @@ LRef CDrawer::SetPlacement(LRef new_placement)
     }
 
   // Parse out the visibility...
-  if (VECTOR_LENGTH(new_placement) >= 2)
+  if (VECTOR_DIM(new_placement) >= 2)
     {
-      temp = VECTOR_OBJECT(new_placement, 1);
+      temp = VECTOR_ELEM(new_placement, 1);
 
       if (!BOOLP(temp))
         vmerror("Invalid visibility in drawer placement.", temp);
@@ -511,9 +511,9 @@ LRef CDrawer::SetPlacement(LRef new_placement)
     }
 
   // Parse out the size...
-  if (VECTOR_LENGTH(new_placement) >= 3)
+  if (VECTOR_DIM(new_placement) >= 3)
     {
-      temp = VECTOR_OBJECT(new_placement, 2);
+      temp = VECTOR_ELEM(new_placement, 2);
       if (!FIXNUMP(temp))
         vmerror("Invalid size in drawer placement.", temp);
 
@@ -523,29 +523,29 @@ LRef CDrawer::SetPlacement(LRef new_placement)
     }
 
   // Finally, the offsets...
-  if (VECTOR_LENGTH(new_placement) >= 5)
+  if (VECTOR_DIM(new_placement) >= 5)
     {
-      temp = VECTOR_OBJECT(new_placement, 3);
+      temp = VECTOR_ELEM(new_placement, 3);
 
       if (!FIXNUMP(temp))
         vmerror("Invalid lower offset in drawer placement.", temp);
 
       new_ofs_low = (int)get_c_fixnum(temp);
 
-      temp = VECTOR_OBJECT(new_placement, 4);
+      temp = VECTOR_ELEM(new_placement, 4);
 
       if (!FIXNUMP(temp))
         vmerror("Invalid upper offset in drawer placement.", temp);
 
       new_ofs_high = (int)get_c_fixnum(temp);
 
-      valid_placement_length = (VECTOR_LENGTH(new_placement) == 5);
+      valid_placement_length = (VECTOR_DIM(new_placement) == 5);
     }
 
   // If we're here, we've been able to parse the placement vector, 
   // and can commit our work if the placement vector is not too
   // long.
-  switch(VECTOR_LENGTH(new_placement))
+  switch(VECTOR_DIM(new_placement))
     {
     case 5:
       _ofs_low    = new_ofs_low;

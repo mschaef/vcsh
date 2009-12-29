@@ -4,7 +4,9 @@
 #include "stdafx.h"
 #include "vcalc.h"
 #include "TipWindow.h"
-#include "scan.h"
+
+#include "../vm/scan.h"
+
 #include "lisp-window.h"
 
 // TipWindow dialog

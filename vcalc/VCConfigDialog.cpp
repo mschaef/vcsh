@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "vcalc.h"
 #include "VCConfigDialog.h"
-#include "CRegistrationDialog.h"
+#include "../ectworks/CRegistrationDialog.h"
 #include "lisp-window.h"
 
 // CVConfigDialog dialog
@@ -160,28 +160,28 @@ bool CVConfigDialog::SetOptionVector(LRef config_vector)
 
 	if (VECTORP(config_vector))
 	{
-		if (VECTOR_LENGTH(config_vector) != 6)
+		if (VECTOR_DIM(config_vector) != 6)
                   vmerror("Configuration vectors need to be of length 6", config_vector);
 		
 		/* This code is tolerant of invalid vector members. If something
 		 * isn't right, it just defaults to NULL or 0. */
-		if (lkeywordp(VECTOR_OBJECT(config_vector, 0)))
-			m_AngleMode = get_c_string(VECTOR_OBJECT(config_vector, 0));
+		if (lkeywordp(VECTOR_ELEM(config_vector, 0)))
+			m_AngleMode = get_c_string(VECTOR_ELEM(config_vector, 0));
 
-		if (lkeywordp(VECTOR_OBJECT(config_vector, 1)))
-			m_NumberSeperator = get_c_string(VECTOR_OBJECT(config_vector, 1));
+		if (lkeywordp(VECTOR_ELEM(config_vector, 1)))
+			m_NumberSeperator = get_c_string(VECTOR_ELEM(config_vector, 1));
 
-		if (lkeywordp(VECTOR_OBJECT(config_vector, 2)))
-			m_NumberStyle = get_c_string(VECTOR_OBJECT(config_vector, 2));
+		if (lkeywordp(VECTOR_ELEM(config_vector, 2)))
+			m_NumberStyle = get_c_string(VECTOR_ELEM(config_vector, 2));
 
-		if (FIXNUMP(VECTOR_OBJECT(config_vector, 3)))
-			m_NumberDigits = (int)get_c_fixnum(VECTOR_OBJECT(config_vector, 3));
+		if (FIXNUMP(VECTOR_ELEM(config_vector, 3)))
+			m_NumberDigits = (int)get_c_fixnum(VECTOR_ELEM(config_vector, 3));
 
-		if (lkeywordp(VECTOR_OBJECT(config_vector, 4)))
-			m_InterestMode = get_c_string(VECTOR_OBJECT(config_vector, 4));
+		if (lkeywordp(VECTOR_ELEM(config_vector, 4)))
+			m_InterestMode = get_c_string(VECTOR_ELEM(config_vector, 4));
 
-		if (lkeywordp(VECTOR_OBJECT(config_vector, 5)))
-			m_DefaultBase  = get_c_string(VECTOR_OBJECT(config_vector, 5));
+		if (lkeywordp(VECTOR_ELEM(config_vector, 5)))
+			m_DefaultBase  = get_c_string(VECTOR_ELEM(config_vector, 5));
 
 	} else if (!NULLP(config_vector))
 		return TRUE;
@@ -196,28 +196,28 @@ LRef CVConfigDialog::GetOptionVector()
 	if (!NULLP(result_vector))
 	{        
 		if (m_AngleMode)
-                  SET_VECTOR_OBJECT(result_vector, 0, keyword_intern(m_AngleMode));
+                  SET_VECTOR_ELEM(result_vector, 0, keyword_intern(m_AngleMode));
 
 		if (m_NumberSeperator)
-                  SET_VECTOR_OBJECT(result_vector, 1, keyword_intern(m_NumberSeperator));
+                  SET_VECTOR_ELEM(result_vector, 1, keyword_intern(m_NumberSeperator));
 
 		if (m_NumberStyle)
-                  SET_VECTOR_OBJECT(result_vector, 2, keyword_intern(m_NumberStyle));
+                  SET_VECTOR_ELEM(result_vector, 2, keyword_intern(m_NumberStyle));
 
 		if (m_NumberDigits >= 0)
-                  SET_VECTOR_OBJECT(result_vector, 3, fixcons(m_NumberDigits));
+                  SET_VECTOR_ELEM(result_vector, 3, fixcons(m_NumberDigits));
 
 		if (m_InterestMode)
-                  SET_VECTOR_OBJECT(result_vector, 4, keyword_intern(m_InterestMode));
+                  SET_VECTOR_ELEM(result_vector, 4, keyword_intern(m_InterestMode));
 
 		if (m_DefaultBase)
-                  SET_VECTOR_OBJECT(result_vector, 5, keyword_intern(m_DefaultBase));
+                  SET_VECTOR_ELEM(result_vector, 5, keyword_intern(m_DefaultBase));
 
 		/* Handle the case where keyword_intern or fixcons failed. boolcons
          * will not fail, since it doesn't do any allocation. */
 		for(int i = 0; i < 6; i++)
-			if (NULLP(VECTOR_OBJECT(result_vector, i)))
-                          SET_VECTOR_OBJECT(result_vector, i, boolcons(FALSE));
+			if (NULLP(VECTOR_ELEM(result_vector, i)))
+                          SET_VECTOR_ELEM(result_vector, i, boolcons(FALSE));
 
 		return result_vector;
 	}

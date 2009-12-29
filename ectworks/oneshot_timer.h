@@ -8,8 +8,8 @@
 #ifndef __ONESHOT_TIMER_H
 #define __ONESHOT_TIMER_H
 
-#include <scan-assert.h>
-#include <scan-types.h>
+#include "../util/base-assert.h"
+#include "../util/base-types.h"
 
 #ifdef __cplusplus
 extern "C" {

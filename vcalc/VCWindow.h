@@ -7,7 +7,7 @@
 #ifndef __VCWINDOW_H
 #define __VCWINDOW_H
 
-#include "scan.h"
+#include "../vm/scan.h"
 #include "afxwin.h"
 
 #include "lisp-window.h"

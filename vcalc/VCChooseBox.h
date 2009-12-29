@@ -8,7 +8,7 @@
 #ifndef __VCCHOOSE_BOX
 #define __VCCHOOSE_BOX
 
-#include "scan.h"
+#include "../vm/scan.h"
 #include "afxwin.h"
 
 // CVChooseBox dialog

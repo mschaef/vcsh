@@ -9,7 +9,7 @@
 #define __CINTRODIALOG_H
 
 #include "afxwin.h"
-#include <scan-types.h>
+#include "../util/base-types.h"
 #include "smartpicturestatic.h"
 
 // CIntroDialog dialog

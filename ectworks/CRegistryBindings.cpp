@@ -38,7 +38,8 @@
 
 
 #include <afxwin.h>
-#include <scan-types.h>
+
+#include "../util/base-types.h"
 
 #include "CRegistryBindings.h"
 

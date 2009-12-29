@@ -6,7 +6,7 @@
 #include "EnterNotifyEdit.h"
 #include "KeyboardTranslation.h"
 
-#include <scan.h>
+#include "../vm/scan.h"
 
 // CEnterNotifyEdit
 

@@ -7,14 +7,16 @@
 #ifndef __VCALC_H
 #define __VCALC_H
 
-#include <scan.h>
+#include "../vm/scan.h"
+
 #include <tchar.h>
-#include <scan-assert.h>
+
+#include "../util/base-assert.h"
 
 #include "resource.h"		
 
-#include "TimeoutRegistration.h"
-#include "CAppBranding.h"
+#include "../ectworks/TimeoutRegistration.h"
+#include "../ectworks/CAppBranding.h"
 
 #include "image.h"
 #include "console-window.h"

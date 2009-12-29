@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "vcalc.h"
 
-#include "CAboutBox.h"
+#include "../ectworks/CAboutBox.h"
 
 #include "image.h"
 #include "console-window.h"
@@ -13,14 +13,15 @@
 #include "VCConfigDialog.h"
 #include "VCSystem.h"
 #include "VCChooseBox.h"
-#include "CIntroDialog.h"
-#include "CRegistrationDialog.h"
+#include "../ectworks/CIntroDialog.h"
+#include "../ectworks/CRegistrationDialog.h"
 #include "TipWindow.h"
-#include <util-crypt.h>
+// TODO: encrypt license text
+// #include <util-crypt.h>
 #include "drawer-window.h"
 #include "VCEditor.h"
 
-#include <scan.h>
+#include "../vm/scan.h"
 
 using namespace scan;
 
@@ -222,7 +223,7 @@ BOOL CVCalcApp::InitInstance()
 
   vcalc_core_boot_time  = sys_runtime() - boot_start_time;
 
-  ENTER_GUARD()	
+  ENTER_TRY(NULL)
     {
       dscwritef("loading vcinit\n");
 
@@ -241,7 +242,7 @@ BOOL CVCalcApp::InitInstance()
           RETHROW_DYNAMIC_ESCAPE();
         }
     }
-  LEAVE_GUARD();
+  LEAVE_TRY();
 
   vcalc_boot_time  = sys_runtime() - boot_start_time;
 
@@ -635,5 +636,5 @@ void vcalc_init_vcalc_package()
 
   gc_protect_sym(&sym_current_image, _T("*current-image*"), vcalc_package);
 
-  lidefine_global(sym_current_image, NIL);
+  lidefine_global(sym_current_image, NIL, NIL);
 }

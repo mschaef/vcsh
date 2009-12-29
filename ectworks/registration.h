@@ -9,7 +9,8 @@
 #define __REGISTRATION_H
 
 #include "CRegistryBindings.h"
-#include <scan-types.h>
+
+#include "../util/base-types.h"
 
 /* __forceinline is a heavy-duty Microsoft-C++ specific version
  * of the C++ keyword 'inline'.  Like its name implies, it forces

@@ -11,7 +11,7 @@
 #include "afxcmn.h"
 #include "resource.h"
 
-#include <scan-types.h>
+#include "../util/base-types.h"
 
 #include "image.h"
 

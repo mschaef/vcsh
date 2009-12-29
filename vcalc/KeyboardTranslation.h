@@ -9,8 +9,8 @@
 #ifndef __KEYBOARDTRANSLATION_H
 #define __KEYBOARDTRANSLATION_H
 
-#include "scan-types.h"
-#include "scan.h"
+#include "../util/base-types.h"
+#include "../vm/scan.h"
 
 using namespace scan;
 

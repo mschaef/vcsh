@@ -7,7 +7,7 @@
 #include "vcalc.h"
 #include "console-window.h"
 
-#include "scan.h"
+#include "../vm/scan.h"
 
 using namespace scan;
 
@@ -345,9 +345,9 @@ BOOL CLispConsole::OnInitDialog()
 
   m_OutputPane.SetTargetDevice(NULL, 0);
 
-  lidefine_global(sym_console_input_port, coninportcons(this));
-  lidefine_global(sym_console_output_port, conoutportcons(this));
-  lidefine_global(sym_console_error_port, conerrportcons(this));
+  lidefine_global(sym_console_input_port, coninportcons(this), NIL);
+  lidefine_global(sym_console_output_port, conoutportcons(this), NIL);
+  lidefine_global(sym_console_error_port, conerrportcons(this), NIL);
 
   return TRUE;  // return TRUE unless you set the focus to a control
   // EXCEPTION: OCX Property Pages should return FALSE

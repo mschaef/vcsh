@@ -9,7 +9,7 @@
 #ifndef __ENTERNOTIFYYEDIT_H
 #define __ENTERNOTIFYYEDIT_H
 
-#include "scan.h"
+#include "../vm/scan.h"
 
 #include "vcalc.h"
 

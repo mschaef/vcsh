@@ -2,7 +2,8 @@
 //
 
 #include "stdafx.h"
-#include <scan-assert.h>
+
+#include "../util/base-assert.h"
 
 #include "SmartPictureStatic.h"
 

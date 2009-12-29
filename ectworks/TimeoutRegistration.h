@@ -1,6 +1,7 @@
 #pragma once
 
-#include <scan-types.h>
+#include "../util/base-types.h"
+
 #include "registration.h"
 
 class TimeoutRegistration :

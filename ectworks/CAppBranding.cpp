@@ -5,7 +5,7 @@
  * the branding of the applicaton
  */
 
-#include <scan-assert.h>
+#include "../util/base-assert.h"
 
 #include "CAppBranding.h"
 

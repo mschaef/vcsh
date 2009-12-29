@@ -9,8 +9,8 @@
 #define __VCCONFIGDIALOG_H
 
 #include "afxwin.h"
-#include "IDCombo.h"
-#include "scan.h"
+#include "../ectworks/IDCombo.h"
+#include "../vm/scan.h"
 
 // CVConfigDialog dialog
 

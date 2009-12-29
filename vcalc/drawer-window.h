@@ -6,7 +6,7 @@
 #ifndef __DRAWERWINDOW_H
 #define __DRAWERWINDOW_H
 
-#include <scan-types.h>
+#include "../util/base-types.h"
 
 #include "lisp-window.h"
 #include "image.h"

@@ -8,7 +8,7 @@
 #ifndef __IMAGE_H
 #define __IMAGE_H
 
-#include "scan.h"
+#include "../vm/scan.h"
 
 extern scan::LRef sym_bold;
 extern scan::LRef sym_italic;

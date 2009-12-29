@@ -9,7 +9,7 @@
 #include "VCChooseBox.h"
 #include "VCWindow.h"
 
-#include "scan.h"
+#include "../vm/scan.h"
 
 /****************************************************************
  * CVCWindow

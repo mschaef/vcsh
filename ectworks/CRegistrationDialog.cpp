@@ -3,8 +3,10 @@
 
 #define OEMRESOURCE
 #include "stdafx.h"
-#include <scan-assert.h>
-#include <util-resource.h>
+
+#include "../util/base-assert.h"
+
+#include "util-resource.h"
 
 #include "CAppBranding.h"
 

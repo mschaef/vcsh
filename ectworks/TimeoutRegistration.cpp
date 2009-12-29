@@ -1,6 +1,8 @@
 #include "StdAfx.h"
-#include <util-resource.h>
-#include <scan-assert.h>
+
+#include "util-resource.h"
+
+#include "../util/base-assert.h"
 
 #include "TimeoutRegistration.h"
 

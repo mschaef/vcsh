@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 
-#include <util-resource.h>
+#include "util-resource.h"
 
 #include "TimeoutRegistration.h"
 #include "CRegistrationDialog.h"

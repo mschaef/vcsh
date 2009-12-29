@@ -349,21 +349,21 @@ LRef CLispWnd::SetPlacement(LRef placement)
     if (!VECTORP(placement)) 
       vmerror_wrong_type(1, placement);
 
-    if (   (VECTOR_LENGTH(placement) != 6)
-        || !FIXNUMP(VECTOR_OBJECT(placement, 0))
-        || !FIXNUMP(VECTOR_OBJECT(placement, 1))
-        || !FIXNUMP(VECTOR_OBJECT(placement, 2))
-        || !FIXNUMP(VECTOR_OBJECT(placement, 3))
-        || !FIXNUMP(VECTOR_OBJECT(placement, 4))
-        || !FIXNUMP(VECTOR_OBJECT(placement, 5)))
+    if (   (VECTOR_DIM(placement) != 6)
+        || !FIXNUMP(VECTOR_ELEM(placement, 0))
+        || !FIXNUMP(VECTOR_ELEM(placement, 1))
+        || !FIXNUMP(VECTOR_ELEM(placement, 2))
+        || !FIXNUMP(VECTOR_ELEM(placement, 3))
+        || !FIXNUMP(VECTOR_ELEM(placement, 4))
+        || !FIXNUMP(VECTOR_ELEM(placement, 5)))
         vmerror("invalid placement vector in set-window-placement!", placement);
 
-    wp.flags                    = (UINT)get_c_fixnum(VECTOR_OBJECT(placement, 0));
-    wp.showCmd                  = (UINT)get_c_fixnum(VECTOR_OBJECT(placement, 1));
-    wp.rcNormalPosition.left    = (LONG)get_c_fixnum(VECTOR_OBJECT(placement, 2));
-    wp.rcNormalPosition.top     = (LONG)get_c_fixnum(VECTOR_OBJECT(placement, 3));
-    wp.rcNormalPosition.right   = (LONG)get_c_fixnum(VECTOR_OBJECT(placement, 4));
-    wp.rcNormalPosition.bottom  = (LONG)get_c_fixnum(VECTOR_OBJECT(placement, 5));
+    wp.flags                    = (UINT)get_c_fixnum(VECTOR_ELEM(placement, 0));
+    wp.showCmd                  = (UINT)get_c_fixnum(VECTOR_ELEM(placement, 1));
+    wp.rcNormalPosition.left    = (LONG)get_c_fixnum(VECTOR_ELEM(placement, 2));
+    wp.rcNormalPosition.top     = (LONG)get_c_fixnum(VECTOR_ELEM(placement, 3));
+    wp.rcNormalPosition.right   = (LONG)get_c_fixnum(VECTOR_ELEM(placement, 4));
+    wp.rcNormalPosition.bottom  = (LONG)get_c_fixnum(VECTOR_ELEM(placement, 5));
 
     wp.rcNormalPosition.left = min (wp.rcNormalPosition.left,
                                     ::GetSystemMetrics (SM_CXSCREEN) -
@@ -432,13 +432,13 @@ scan::LRef CLispWnd::SendInstanceMessage(scan::LRef message, scan::LRef args /* 
 
   ENTER_TRY(NULL)
     {
-      rc = lsend_message(_lisp_instance, message, args);
+      rc = lsend(lcons(_lisp_instance, lcons(message, args)));
     }
   ON_ERROR()
     {
       WRITE_TEXT_CONSTANT("Error sending instance message.", CURRENT_ERROR_PORT);
     }
-  LEAVE_GUARD();
+  LEAVE_TRY();
 
   return rc;
 }

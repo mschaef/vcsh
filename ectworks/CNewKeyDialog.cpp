@@ -5,7 +5,7 @@
 
 #include "CNewKeyDialog.h"
 
-#include <util-resource.h>
+#include "util-resource.h"
 
 #include "registration.h"
 
