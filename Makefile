@@ -1,7 +1,13 @@
 
-.PHONY: vm util
+.PHONY: vcalc ectworks tested vcsh vm util clean
 
-all: vcsh
+all: vcalc
+
+vcalc: vcsh ectworks
+	$(MAKE) -r -C vcalc
+
+ectworks:
+	$(MAKE) -r -C ectworks
 
 tested: vcsh
 	$(MAKE) -r -C scheme-core tested
@@ -20,3 +26,5 @@ clean:
 	$(MAKE) -r -C util clean
 	$(MAKE) -r -C scheme-core clean
 	$(MAKE) -r -C scheme-core clean-scheme
+	$(MAKE) -r -C vcalc clean
+	$(MAKE) -r -C ectworks clean
