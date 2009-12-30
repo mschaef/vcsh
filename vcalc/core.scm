@@ -149,8 +149,14 @@
     (newline port))))
 
 (define (write-save-state port)
-  (display ";;; vCalc 1.1 Save File\n\n" port)
-  (write-config-variables port))
+  (dynamic-let ((*print-shared-structure* #f)
+                (*print-depth* #f)
+                (*print-length* #f)
+                (*print-readably* #t)
+                (*print-addresses* #f)
+                (*print-packages-always* #t))
+    (format #t ";;; vCalc 1.1 Save File\n;;; Saved On ~a\n\n" (current-date))
+    (write-config-variables port)))
 
 (define (save-state-to-file filename)
   (let ((fileport (open-output-file filename)))

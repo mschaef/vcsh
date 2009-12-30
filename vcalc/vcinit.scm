@@ -85,6 +85,7 @@
   (init-busy-keymap)
   (init-global-keymap)
   (setup-user-package)
+  (maybe-load-persistant-state)
   (init-vcalc-stack-window)
   )
 
