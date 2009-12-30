@@ -31,7 +31,7 @@
             "last-stack" "redo-stack" "stack-clear" "stack-drop"
             "stack-swap" "stack-dup" "stack-dup2" "srot" "srotd"
             "stack-dropn" "begin-macro " "end-macro " "export-csv-file data"
-            "toggle-key-help" "begin-editor-with-last-keystroke " "edit-object"
+            "begin-editor-with-last-keystroke " "edit-object"
             "enter-object" "interactive-break"))
 
 

@@ -62,6 +62,7 @@
             "*current-macro-seq*"
             "vc-error"
             "*register-watch-list*"
+            "toggle-key-help"
             ))
   
 ;;;; Bootstrap process
