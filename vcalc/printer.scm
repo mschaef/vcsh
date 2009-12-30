@@ -113,8 +113,8 @@
 	(display "}}" port)
 	(display "}" port)))
   (if (postfix-program-object? o)
-      (postfix-write (scheme::%procedure-property o 'lambda-list)
-		     (scheme::%procedure-property o 'postfix)
+      (postfix-write (get-property o 'scheme::lambda-list)
+                     (get-property o 'postfix)
 		     (not (null? (scheme::%closure-env o))))
       (call-next-method)))
 

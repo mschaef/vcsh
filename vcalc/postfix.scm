@@ -133,7 +133,7 @@
 
 (define (postfix-program-object? object)
   (and (closure? object)
-        (scheme::%procedure-property object 'postfix)))
+        (get-property object 'postfix)))
 
 (define (objects->postfix-program objects)
   "Given a list of <objects>, returns a program that evaluates the list

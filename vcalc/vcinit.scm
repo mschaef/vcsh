@@ -59,6 +59,7 @@
             "objects->postfix-program"
             "*recording-macro*"
             "*current-macro-seq*"
+            "vc-error"
             ))
   
 ;;;; Bootstrap process
