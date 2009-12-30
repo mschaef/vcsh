@@ -6,19 +6,6 @@
 (define *busy-keymap* #f)
 (define *global-keymap* #f)
 
-(define *vcalc-state-file* "vcalc-savestate.vcx")
-
-
-(define (save-persistant-state)
-  (save-state-to-file (get-user-file-path *vcalc-state-file*)))
-
-(define (maybe-load-persistant-state)
-  (catch 'abort-load
-    (handler-bind ((read-error (lambda args
-				 (info "Persistant state load aborted!!!")
-				 (throw 'abort-load))))
-      (when (file-exists? (get-user-file-path *vcalc-state-file*))
-	(load-state-from-file (get-user-file-path *vcalc-state-file*))))))
 
 (define (do-quit)
   (exit-application))
@@ -184,12 +171,18 @@
   [self set-placement! (car state)]
   [@keyhelp-drawer set-placement! (cdr state)])
 
+(defmesg <vcalc-window> (ensure-visible)
+  [self show]
+  [@keyhelp-drawer show])
+
+(define (ensure-visible-stack-window)
+  (dolist (w (all-toplevel-windows))
+    [w ensure-visible]))
+
 (define (init-vcalc-stack-window)
   (let* ((w [<vcalc-window> create])
          (d [<keyhelp-drawer> create 'parent w]))
     (slot-set! w 'keyhelp-drawer d)
-    [w show]
-    [d show]
     w))
 
 (define (make-keyspec-ftext keyspec binding)

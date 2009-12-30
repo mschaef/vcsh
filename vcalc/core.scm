@@ -141,28 +141,53 @@
 
 (define (set-config-variables! bindings)
   (dolist (binding bindings)
-    (set-symbol-value! (car binding) (cdr binding))))
+    (let ((sym (car binding))
+          (val (cdr binding)))
+      (cond ((assq sym *config-variables*)
+             (set-symbol-value! sym val))
+            (*debug*
+             (format (current-error-port) "; Ignoring unknown config variable: ~s\n" sym))))))
 
 (define (save-state-to-file filename)
   (with-fasl-file output-stream filename
-    (fasl-write (cons "vCalc 1.1 Save File" (date->string (current-date))) output-stream)
-    (fasl-write (current-config-variables) output-stream)))
-
-;;; Forms to be executed at file load time
-(defconfig *load-forms* '())
+    (fasl-write (cons :comment "vCalc 1.1 Save File") output-stream)
+    (fasl-write (cons :version (cons 1 1)) output-stream)
+    (fasl-write (cons :save-date (date->string (current-date))) output-stream)
+    (fasl-write (cons :window-state [(car (all-toplevel-windows)) window-state]) output-stream)
+    (fasl-write (cons :config (current-config-variables) output-stream) output-stream)))
 
 ;;; TODO: does load-state-from-file need better error handling?
-(define (load-state-from-file filename)
-  (catch-all
-   (load filename)
-   (eval (cons 'begin *load-forms*))))
 
 (define (load-state-from-file filename)
   (catch-all
    (with-port ip (open-input-file filename :binary)
-     (fast-read ip)
-     (set-config-variables! (fast-read ip)))))
+     (let ((window-state #f))
+       (let loop ((clause (fast-read ip)))
+         (when (pair? clause)
+           (case (car clause)
+             ((:config)
+              (set-config-variables! (cdr clause)))
+             ((:window-state)
+              (set! window-state (cdr clause)))
+             (#t
+              (when *debug*
+                (format (current-error-port) "; Ignoring save file clause: ~s\n" clause))))
+           (loop (fast-read ip))))
+       (when window-state
+         [(car (all-toplevel-windows)) set-window-state! window-state])))))
 
+(define *vcalc-state-file* "vcalc-savestate.vcx")
+
+(define (save-persistant-state)
+  (save-state-to-file (get-user-file-path *vcalc-state-file*)))
+
+(define (maybe-load-persistant-state)
+  (catch 'abort-load
+    (handler-bind ((read-error (lambda args
+                                 (info "Persistant state load aborted!!!")
+                                 (throw 'abort-load))))
+      (when (file-exists? (get-user-file-path *vcalc-state-file*))
+        (load-state-from-file (get-user-file-path *vcalc-state-file*))))))
 
 ;;; The main operand stack.
 

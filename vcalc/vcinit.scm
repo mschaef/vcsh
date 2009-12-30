@@ -85,8 +85,9 @@
   (init-busy-keymap)
   (init-global-keymap)
   (setup-user-package)
-  (maybe-load-persistant-state)
   (init-vcalc-stack-window)
+  (maybe-load-persistant-state)
+  (ensure-visible-stack-window)
   )
 
 ;;; Initialize I/O to point to the correct places
