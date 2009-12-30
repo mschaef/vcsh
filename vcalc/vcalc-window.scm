@@ -177,6 +177,13 @@
   [self update]
   [@keyhelp-drawer update])
 
+(defmesg <vcalc-window> (window-state)
+  (cons [self placement] [@keyhelp-drawer placement]))
+
+(defmesg <vcalc-window> (set-window-state! state)
+  [self set-placement! (car state)]
+  [@keyhelp-drawer set-placement! (cdr state)])
+
 (define (init-vcalc-stack-window)
   (let* ((w [<vcalc-window> create])
          (d [<keyhelp-drawer> create 'parent w]))
