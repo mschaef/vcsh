@@ -457,6 +457,8 @@
           (#t
             (intern! segment-1)))))
 
+(define *reader-defaults-to-flonum* #f)
+
 (define (accept-number port error-port error-location)
 
   (define (accept-single-number)
@@ -476,7 +478,10 @@
         (awhile (read-expected-char char-numeric? port #f)
           (write-strings buf it)))
       (if (> (length buf) 0)
-          (string->number (get-output-string buf))
+          (let ((num (string->number (get-output-string buf))))
+            (if *reader-defaults-to-flonum*
+                (+ num 0.0)
+                num))
           #f)))
 
   (let ((re (accept-single-number)))
