@@ -79,7 +79,8 @@
     (use-package! "vcalc" p)
     (use-package! "vcalc-commands" p)
     (install-config-variables! p)
-    (reset-config-variables!)))
+    (reset-config-variables!)
+    (in-package! p)))
 
 (define (vcalc-boot)
   (init-busy-keymap)
@@ -100,6 +101,5 @@
 (define (run)
   ;(set-current-error-port scheme::*console-error-port*)
   ; (set-current-output-port scheme::*console-output-port*)
-  (in-package! "vcalc-user")
   (vcalc-boot)
   (repl))
