@@ -244,8 +244,8 @@
             (unless (eof-object? form)
               (let ((results (repl-eval form env)))
                 (apply repl-print results))
-              (invoke-hook '*repl-post-hook*))))
-            (loop)))))
+              (invoke-hook '*repl-post-hook*)
+              (loop))))))))
 
 (define (toplevel-repl)
   "Enters a toplevel Lisp REPL. A toplevel Lisp REPL is distinguished
