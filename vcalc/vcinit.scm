@@ -63,6 +63,7 @@
             "vc-error"
             "*register-watch-list*"
             "toggle-key-help"
+            "last-key-number"
             ))
   
 ;;;; Bootstrap process
