@@ -136,32 +136,17 @@
           (init-fn (cdr vardef)))
       (set-symbol-value! var (init-fn)))))
 
+(define (current-config-variables)
+  (map #L(cons _ (symbol-value _)) (local-package-variables (find-package "vcalc-user"))))
 
-(define (write-config-variables port)
-  (dolist (varname (local-package-variables (find-package "vcalc-user")))
-    (let ((val (symbol-value varname)))
-      (write `(set! ,varname 
-		    ,(if (pair? val)
-			 (list 'quote val)
-			 val))
-		    port)
-    (newline port)
-    (newline port))))
-
-(define (write-save-state port)
-  (dynamic-let ((*print-shared-structure* #f)
-                (*print-depth* #f)
-                (*print-length* #f)
-                (*print-readably* #t)
-                (*print-addresses* #f)
-                (*print-packages-always* #t))
-    (format port ";;; vCalc 1.1 Save File\n;;; Saved On ~a\n\n" (current-date))
-    (write-config-variables port)))
+(define (set-config-variables! bindings)
+  (dolist (binding bindings)
+    (set-symbol-value! (car binding) (cdr binding))))
 
 (define (save-state-to-file filename)
-  (let ((fileport (open-output-file filename)))
-    (write-save-state fileport)
-    (close-port fileport)))
+  (with-fasl-file output-stream filename
+    (fasl-write (cons "vCalc 1.1 Save File" (date->string (current-date))) output-stream)
+    (fasl-write (current-config-variables) output-stream)))
 
 ;;; Forms to be executed at file load time
 (defconfig *load-forms* '())
@@ -171,6 +156,12 @@
   (catch-all
    (load filename)
    (eval (cons 'begin *load-forms*))))
+
+(define (load-state-from-file filename)
+  (catch-all
+   (with-port ip (open-input-file filename :binary)
+     (fast-read ip)
+     (set-config-variables! (fast-read ip)))))
 
 
 ;;; The main operand stack.
