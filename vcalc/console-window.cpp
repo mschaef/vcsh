@@ -504,9 +504,6 @@ void CLispConsole::InsertLispOutput(CString txt, OutputClass txtClass)
 
   long nStartPos, nEndPos,nTemp;
 
-  if ((txtClass != OUTPUT_PORT_TEXT) && (txtClass != ERROR_PORT_TEXT))
-    txt += '\n';
-
   // Set selection to end of text
   m_OutputPane.SetSel(LONG_MAX,LONG_MAX);      
   m_OutputPane.GetSel(nStartPos,nTemp);

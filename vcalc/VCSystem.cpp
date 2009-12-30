@@ -159,7 +159,7 @@ LRef lbeep()
 
 LRef lexit_application()
 {
-	AfxGetMainWnd()->PostMessage(WM_CLOSE);
+	AfxGetMainWnd()->PostMessage(WM_QUIT);
 
 	return boolcons(FALSE);
 }
