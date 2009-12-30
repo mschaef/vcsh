@@ -479,7 +479,7 @@
           (write-strings buf it)))
       (if (> (length buf) 0)
           (let ((num (string->number (get-output-string buf))))
-            (if *reader-defaults-to-flonum*
+            (if (and (number? num) *reader-defaults-to-flonum*)
                 (+ num 0.0)
                 num))
           #f)))
