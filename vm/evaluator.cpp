@@ -755,6 +755,11 @@ namespace scan {
         checked_assert(SYMBOLP(sym));
         checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
 
+        binding = SYMBOL_VCELL(sym);
+
+        if (UNBOUND_MARKER_P(binding))
+          vmerror_unbound(sym);
+
         val = leval(FAST_OP_ARG2(form), env);
 
         SET_SYMBOL_VCELL(sym, val);

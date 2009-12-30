@@ -541,7 +541,8 @@
   (let ((slot (parse-register-number s)))
     (unless (member slot *register-watch-list*)
       (set! *register-watch-list* (qsort (cons slot *register-watch-list*) <))
-      [*current-window* update]))
+      (when *current-window*
+        [*current-window* update])))
   (values))
 
 (define-vcalc-command (register-unwatch s)

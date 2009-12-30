@@ -37,6 +37,7 @@
             "*last-arguments*"
             "*stack*"
             "*current-window*"
+            "*registers*"
             "apply-to-stack"
             "string->vc-object"
             "edit-text"

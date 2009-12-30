@@ -377,7 +377,6 @@
   [*current-window*  begin-editor-with (key-char (last-keystroke))]
   (values))
 
-
 (define (vc-read/interactive string)
   (handler-bind ((read-error (lambda (error-type port location)
 			       (message (format #f "~s @ ~s" error-type location) "Invalid Object Format!"))))
