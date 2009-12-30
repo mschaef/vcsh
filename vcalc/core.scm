@@ -286,7 +286,7 @@
 ;;; Keyboard macros and object evaluation
 
 
-(set! *last-eval-time* "")
+(define *last-eval-time* "")
 
 (define (string->program string)
   (objects->postfix-program (read-multiple string vc-read)))
