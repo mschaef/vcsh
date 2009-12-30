@@ -50,18 +50,26 @@
 
 ;;; Commands and command registration.
 
+(define (command-mode? command-fn mode)
+  (if (memq mode (command-modes command-fn))
+      #t
+      #f))
+
 (define (disabled-premium-binding? b)
   (and (not (get-run-mode))
        (procedure? (symbol-value b)) 
-       (scheme::procedure-decl? (symbol-value b) :premium)))
+       (command-mode? (symbol-value b) :premium)))
 
 (define (recordable? o) ; REVISIT: can be more encapsulated?
   (if (symbol? o)
-      (let ((o (symbol-value o)))
-	(not (scheme::procedure-decl? o :not-recordable)))
+      (not (command-mode? (symbol-value o) :not-recordable))
       #t))
 
 (define *vcalc-commands* '())
+
+(define (register-vcalc-command! command-name)
+  (unless (member command-name *vcalc-commands*)
+    (push! command-name *vcalc-commands*)))
 
 (defmacro (define-vcalc-command lambda-list documentation-string . code)
   (unless (and (list? lambda-list) (symbol? (car lambda-list)))
@@ -70,20 +78,30 @@
   (unless (string? documentation-string)
     (error "vCalc command definitions must have a documentation-string: ~a" (car lambda-list)))
 
-  `(begin
-     (unless (member ',(car lambda-list) *vcalc-commands*)
-       (push! ',(car lambda-list) *vcalc-commands*))
+  (let ((code code)
+        (modes ()))
 
-     (define-generic-function ,lambda-list
-       ,documentation-string
+    (when (aand (pair? code)
+                (pair? (car code))
+                (eq? (car it) 'command-modes))
+      (set! modes (cdar code))
+      (set! code (cdr code)))
+
+    `(begin
+       (register-vcalc-command! ',(car lambda-list))
+
+       (define-generic-function ,lambda-list
+         ,documentation-string
        
-       ,@(if (null? code)
-	     `((vc-error "The command ~a can only be applied to one of the following:\n\n~a"
-			 ',(car lambda-list)
-			 (with-output-to-string
-			   (dolist (signature (generic-function-signatures ,(car lambda-list)))
-			     (format #t "* ~a\n" (signature-list->english signature))))))
-	     code))))
+         ,@(if (null? code)
+               `((vc-error "The command ~a can only be applied to one of the following:\n\n~a"
+                           ',(car lambda-list)
+                           (with-output-to-string
+                             (dolist (signature (generic-function-signatures ,(car lambda-list)))
+                               (format #t "* ~a\n" (signature-list->english signature))))))
+               code))
+
+       (set-property! ,(car lambda-list) 'command-modes ',modes))))
 
 ;;; Constant memory - vCalc remembers user state on shutdown and restores
 ;;; it on startup.
@@ -174,54 +192,23 @@
   (if (< (length *stack*) number)
     (throw 'invalid-number-of-arguments)))
            
-
 (define (command-stack-defmesg <vcalc-window> arit argy fn)
   (define (lambda-list-mandatory-args lambda-list count)
     (if (not (atom? lambda-list))
-	(lambda-list-mandatory-args (cdr lambda-list) (+ 1 count))
-	count))
+        (lambda-list-mandatory-args (cdr lambda-list) (+ 1 count))
+        count))
   (aif (scheme::procedure-decl? fn 'stack-arity)
-    (car it)
-    (lambda-list-mandatory-args (car (scheme::%closure-code fn)) 0)))
+       (car it)
+       (lambda-list-mandatory-args (car (scheme::%closure-code fn)) 0)))
 
+(define (command-modes fn)
+  (get-property fn 'command-modes ()))
 
 (define (command-stack-arity fn)
   (values-bind (procedure-arity fn) (arity rest?)
     arity))
 
 (define *last-arguments* '())
-
-(define (apply-to-stack obj)
-  "Apply an object to the stack.  For most objects, this pushes the object onto the
-   stack. For procedures, this applies the function to the topmost n values on
-   the stack."
-  (cond ((procedure? obj)
-	 (let ((count (command-stack-arity obj)))
-	   
-	   (when (< (length *stack*) count)
-	     (vc-error "Invalid number of arguments"))
-	   
-	   (let ((remaining-stack (drop *stack* count))
-		 (fixed-arguments (reverse (take *stack* count))))
-	     
-	     (with-stack-transaction (not (scheme::procedure-decl? obj :no-stack-transaction))
-				     (set! *stack* remaining-stack)
-				     (values-bind (apply obj (append fixed-arguments remaining-stack)) retval
-				       (cond ((null? retval)
-					      )
-					     ((pair? retval)
-					      (for-each stack-push retval))
-					     (#t
-					      (stack-push retval)))
-				       (when (not (scheme::procedure-decl? obj :no-last-arguments))
-					 (set! *last-arguments* fixed-arguments))
-				       retval)))))
-	(#t
-	 (stack-push obj)))
-  (values))
-
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
 ;;; last-stack support
@@ -261,6 +248,38 @@
           (set! *stack-transaction-level* old-st-level)))))
 
 
+(define (apply-to-stack obj)
+  "Apply an object to the stack.  For most objects, this pushes the object onto the
+   stack. For procedures, this applies the function to the topmost n values on
+   the stack."
+  (cond ((procedure? obj)
+	 (let ((count (command-stack-arity obj)))
+
+	   (when (< (length *stack*) count)
+	     (vc-error "Invalid number of arguments"))
+
+	   (let ((remaining-stack (drop *stack* count))
+		 (fixed-arguments (reverse (take *stack* count))))
+
+	     (with-stack-transaction (not (command-mode? obj :no-stack-transaction))
+				     (set! *stack* remaining-stack)
+				     (values-bind (apply obj (append fixed-arguments remaining-stack)) retval
+				       (cond ((null? retval)
+					      )
+					     ((pair? retval)
+					      (for-each stack-push retval))
+					     (#t
+					      (stack-push retval)))
+				       (when (not (command-mode? obj :no-last-arguments))
+					 (set! *last-arguments* fixed-arguments))
+				       retval)))))
+	(#t
+	 (stack-push obj)))
+  (values))
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Keyboard macros and object evaluation
 
@@ -281,7 +300,7 @@
   (when *recording-macro*
     (set! *current-macro-seq* (append! *current-macro-seq* (filter recordable? os))))
   (with-application-busy
-   (let ((results (scheme::%time ((objects->postfix-program os)))))
+   (let ((results (scheme::%time-apply0 (objects->postfix-program os))))
      (dynamic-let ((*flonum-print-precision* 4))
        (set! *last-eval-time* (format #f "~a ms." (* 1000.0 (vector-ref results 1)))))
      (vector-ref results 0))))

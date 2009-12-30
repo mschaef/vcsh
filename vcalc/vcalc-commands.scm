@@ -46,13 +46,13 @@
 
 (define-vcalc-command (last-arguments) 
   "Pushes the arguments to the last command on the stack."
-  (declare :no-last-arguments)
+  (command-modes :no-last-arguments)
   (apply values *last-arguments*))
 
 
 (define-vcalc-command (begin-macro) 
   "Begin recording a keystroke macro."
-  (declare :not-recordable)
+  (command-modes :not-recordable)
   (when *recording-macro*
     (vc-error "You are already recording a macro."))
   (set! *recording-macro* #t)
@@ -61,7 +61,7 @@
  
 (define-vcalc-command (end-macro) 
   "End recording a keystroke macro."
-  (declare :not-recordable)
+  (command-modes :not-recordable)
   (unless *recording-macro*
     (vc-error "You are not recording a macro."))
   (let ((toplevel-macro (objects->postfix-program *current-macro-seq*)))
@@ -379,7 +379,7 @@
 
 (define-vcalc-command (factorial x)
   "Computes the factorial of a number."
-  (declare :premium))
+  (command-modes :premium))
 
 (define-method (factorial (x fixnum))
   (define (loop x accum)
@@ -490,7 +490,7 @@
 
 (define-vcalc-command (rstore-with-last-keystroke)
   "Invokes rstore, using the key number of the last keystroke."
-  (declare :not-recordable)
+  (command-modes :not-recordable)
   (interactively-evaluate-objects (+ 1 (last-key-number)) 'rstore)
   (values))
 
@@ -503,7 +503,7 @@
 
 (define-vcalc-command (rrecall-with-last-keystroke)
   "Invokes rrecall, using the key number of the last keystroke."
-  (declare :not-recordable)
+  (command-modes :not-recordable)
   (interactively-evaluate-objects (+ 1 (last-key-number)) 'rrecall)
   (values))
 
@@ -516,7 +516,7 @@
 
 (define-vcalc-command (rapply-with-last-keystroke)
   "Invokes rapply, using the key number of the last keystroke."
-  (declare :not-recordable)
+  (command-modes :not-recordable)
   (interactively-evaluate-objects (+ 1 (last-key-number)) 'rapply)
   (values))
 
@@ -704,7 +704,7 @@
 
 (define-vcalc-command (clear-data)
   "Clears the current dataset, prompts the user to verify."
-  (declare :premium)
+  (command-modes :premium)
   (when (yes-or-no? "Are you sure you want to clear the current dataset?")
     (always-clear-data))
   (values))
@@ -999,7 +999,7 @@
 (define-vcalc-command (constant-library)
   "Prompts the user to select a constant from the library to be pushed on 
    the stack."
-  (declare :not-recordable)
+  (command-modes :not-recordable)
   (awhen (choose *current-window* *constant-library* "Constant Library" "Pick a constant")
     (interactively-evaluate-objects (cdr it)))
   (values))
@@ -1007,7 +1007,7 @@
 
 (define-vcalc-command (last-stack) 
   "Resets the stack to its state at the beginning of the last command."
-  (declare :no-stack-transaction)
+  (command-modes :no-stack-transaction)
   (when (not (null? *last-stack*))
     (set! *redo-stack* (cons *stack* *redo-stack*))
     (set! *stack* (car *last-stack*))
@@ -1016,7 +1016,7 @@
 
 (define-vcalc-command (redo-stack) 
   "Restores the stack after an invocation of last-stack."
-  (declare :no-stack-transaction)
+  (command-modes :no-stack-transaction)
   (when (not (null? *redo-stack*))
     (set! *last-stack* (cons *stack* *last-stack*))
     (set! *stack* (car *redo-stack*))
