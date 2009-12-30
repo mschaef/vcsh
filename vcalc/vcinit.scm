@@ -61,6 +61,7 @@
             "*recording-macro*"
             "*current-macro-seq*"
             "vc-error"
+            "*register-watch-list*"
             ))
   
 ;;;; Bootstrap process

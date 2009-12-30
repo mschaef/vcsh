@@ -532,8 +532,6 @@
 ; on the primary window as they are updated
 ;
 
-(defconfig *register-watch-list* '())    
-
 (define-vcalc-command (register-watch s)
   "Adds a watch on the specified register to the watch window.")
 

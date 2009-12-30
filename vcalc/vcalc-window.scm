@@ -262,7 +262,7 @@
 (defconfig *eval-time-display* #f)
 (defconfig *eval-trace* #f)
 
-(define *register-watch-list* ())
+(defconfig *register-watch-list* '())
 
 (defmesg <vcalc-window> (on-update)
   (let ((w @native-peer))
