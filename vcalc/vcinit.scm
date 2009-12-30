@@ -40,6 +40,7 @@
             "*registers*"
             "apply-to-stack"
             "string->vc-object"
+            "vc-object->string"
             "edit-text"
             "check-text"
             "keymap-bind-sequence!"
@@ -64,8 +65,11 @@
             "*register-watch-list*"
             "toggle-key-help"
             "last-key-number"
+            "yes-or-no?"
             ))
-  
+
+(define *debug* #f)
+
 ;;;; Bootstrap process
 
 (define (setup-user-package)
@@ -94,7 +98,6 @@
 (define (run)
   ;(set-current-error-port scheme::*console-error-port*)
   ; (set-current-output-port scheme::*console-output-port*)
-  ;(vcalc-boot)
-  (in-package! "vcalc")
+  (in-package! "vcalc-user")
   (vcalc-boot)
   (repl))

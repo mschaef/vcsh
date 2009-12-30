@@ -160,7 +160,8 @@
   [self update])
 
 (defmesg <vcalc-window> (on-keypress key-info)
-  (format #t "; keypress=~s\n" key-info)
+  (when *debug*
+    (format #t "; keypress=~s\n" key-info))
   (push-key! key-info)
   (let ((binding (current-key-binding)))
     (cond ((not binding)
@@ -357,6 +358,8 @@
              [self on-keypress #f key-id]
              #f))))))
 
+(defmesg <vcalc-window> (edit-text text check-fn)
+  (edit-text @native-peer text check-fn))
 
 (define char-edit-pred
   (lambda (ch)

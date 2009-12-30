@@ -1066,13 +1066,13 @@
 
 (define-vcalc-command (edit-object x)
   "Opens object <x> in a text editor."
-  (aif (edit-text *stack-window* (vc-object->string x) check-text)
+  (aif [*current-window* edit-text (vc-object->string x) check-text]
        (string->vc-object it)
        x))
 
 (define-vcalc-command (enter-object)
   "Opens a text editor for entry of a new object."
-  (aif (edit-text *stack-window* "" check-text)
+  (aif [*current-window* edit-text "" check-text]
        (string->vc-object it)
        (values)))
 

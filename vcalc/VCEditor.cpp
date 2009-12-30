@@ -13,6 +13,9 @@ IMPLEMENT_DYNAMIC(CVCEditor, CDialog)
 CVCEditor::CVCEditor(CWnd* pParent, LRef syntax_checker): CDialog(CVCEditor::IDD, pParent)
 {
   _syntax_checker = syntax_checker;
+
+  assert(NULLP(_syntax_checker) || CLOSUREP(_syntax_checker));
+
   m_dialogInitialized = FALSE;
 }
 
@@ -65,7 +68,7 @@ BOOL CVCEditor::OnInitDialog()
   cf.dwEffects = 0;
   cf.crTextColor = RGB(0, 0, 0);
   cf.yHeight = 180;
-  strcpy(cf.szFaceName,"Courier");
+  strcpy(cf.szFaceName, "Courier");
 
   m_Editor.SetDefaultCharFormat(cf);
 
@@ -121,7 +124,7 @@ bool CVCEditor::CheckSyntax(bool reformat_also)
   m_Editor.SetSel(0, LONG_MAX);
   CString currentText = m_Editor.GetSelText();
 
-  assert(!(NULLP(_syntax_checker) || CLOSUREP(_syntax_checker)));
+  assert(NULLP(_syntax_checker) || CLOSUREP(_syntax_checker));
 
   LRef formatted_text = NIL;
 
@@ -153,6 +156,9 @@ LRef ledit_text(LRef parent, LRef text, LRef syntax_checker)
 
   if (!STRINGP(text))
     vmerror_wrong_type(2, text);
+
+  if (!(NULLP(syntax_checker) || CLOSUREP(syntax_checker)))
+    vmerror_wrong_type(3,syntax_checker);
 
   CVCEditor dlg(WNDOB(parent), syntax_checker);
 
