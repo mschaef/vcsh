@@ -155,7 +155,7 @@
                 (*print-readably* #t)
                 (*print-addresses* #f)
                 (*print-packages-always* #t))
-    (format #t ";;; vCalc 1.1 Save File\n;;; Saved On ~a\n\n" (current-date))
+    (format port ";;; vCalc 1.1 Save File\n;;; Saved On ~a\n\n" (current-date))
     (write-config-variables port)))
 
 (define (save-state-to-file filename)

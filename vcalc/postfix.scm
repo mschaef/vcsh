@@ -125,11 +125,11 @@
 
 (defmacro (postfix-program-object args docs body)
   `(scheme::%lambda ((postfix ,@(recursive-list-copy body))
-	     (lambda-list ,@args))
-	    ,args
-	    (begin
-	      ,(expand-postfix-code body)
-	      (values))))
+                     (scheme::lambda-list ,@args))
+                    ,args
+                    (begin
+                      ,(expand-postfix-code body)
+                      (values))))
 
 (define (postfix-program-object? object)
   (and (closure? object)
