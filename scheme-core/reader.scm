@@ -394,6 +394,14 @@
 (define (read-list port)
   (read-sequence port #\( #\)))
 
+(define *reader-quotes-literal-lists* #f)
+
+(define (read-literal-list port)
+  (let ((l (read-list port)))
+    (if *reader-quotes-literal-lists*
+        `',l
+        l)))
+
 (define (read-message-send port)
   (let ((location (port-location port))
         (form (read-sequence port #\[ #\])))
@@ -550,7 +558,7 @@
   (list 'unquote-splicing-destructive (read port #t)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *read-syntax* #\( 'read-list)
+  (set-char-syntax! *read-syntax* #\( 'read-literal-list)
   (set-char-syntax! *read-syntax* #\) 'read-unexpected-close)
 
   (set-char-syntax! *read-syntax* #\[ 'read-message-send)
