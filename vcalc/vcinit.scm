@@ -19,7 +19,9 @@
              "default-keymap.scm"
              "vcalc-window.scm"
              )
-  (:exports "command-modes"
+  (:exports "all-vcalc-commands"
+            "choose"
+            "command-modes"
             "define-vcalc-command"
             "defconfig"
             "load-time-define"

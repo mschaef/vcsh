@@ -34,8 +34,6 @@
             "begin-editor-with-last-keystroke " "edit-object"
             "enter-object" "interactive-break"))
 
-
-
 (define-vcalc-command (apply-to-stack-repeatedly o c)
   "Evaluate the object <o>, <c> times."
   (unless (real? c)
@@ -50,7 +48,6 @@
   ; (apply values *last-arguments*) runs into argument count limits pretty quickly,
   ; so we cons up a values tuple directly.
   (scheme::%list->values *last-arguments*))
-
 
 (define-vcalc-command (begin-macro) 
   "Begin recording a keystroke macro."
@@ -1010,10 +1007,9 @@
   "Prompts the user to select a constant from the library to be pushed on 
    the stack."
   (command-modes :not-recordable)
-  (awhen (choose *current-window* *constant-library* "Constant Library" "Pick a constant")
+  (awhen [*current-window* choose *constant-library* "Constant Library" "Pick a constant"]
     (interactively-evaluate-objects (cdr it)))
   (values))
-
 
 (define-vcalc-command (last-stack) 
   "Resets the stack to its state at the beginning of the last command."
