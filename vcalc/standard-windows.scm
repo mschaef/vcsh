@@ -122,6 +122,9 @@
 (defmesg <lisp-window> (set-placement! placement)
   (set-window-placement! @native-peer placement))
 
+(defmesg <lisp-window> (choose choose-list title description)
+  (choose @native-peer choose-list title description))
+
 (define-proto (<drawer> <lisp-window>)
   'initial-title "LispWindow: No title specified."
   'window-type :drawer)
