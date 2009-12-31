@@ -16,8 +16,6 @@
   (message (apply format (cons #f *vcalc-error-object*)) "Error!")
   (throw 'vcalc-error))
 
-(define scheme::*reader-quotes-literal-lists* ()) ; TODO: figure out what this does, and how it should really be defined in the core
-
 (define (vc-read ip)
   "The vcalc reader: reads one object from <ip> with the correct reader
    settings. <ip> can also be a string, in which case open-input-string
