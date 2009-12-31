@@ -498,3 +498,32 @@
   (set-symbol-value! hook (delete hook-fn (->hook hook) eq?)))
 
 
+(define (frame->a-list frame)
+  "Given a local environment frame <frame>, return the frame's bindings
+   as an a-list."
+  (let recur ((vars (car frame))
+              (bindings (cdr frame)))
+    (cond ((null? vars)
+           ())
+          ((symbol? vars)
+           (cons (cons vars bindings)))
+          ((and (pair? vars) (pair? bindings))
+           (cons (cons (car vars) (car bindings))
+                 (recur (cdr vars) (cdr bindings))))
+          (#t
+           (error "Invalid frame: ~s" frame)))))
+
+(define (closure-env->a-list closure-env)
+  "Given a local environment <closure-env>, return the bindings
+   as an a-list.  All bindings are returned in the list, even those
+   shadowed by other bindings of the same name."
+  (fold (lambda (frame bindings)
+          (append bindings (frame->a-list frame)))
+        ()
+        closure-env))
+
+(define (closure-bindings closure)
+  "Given a closure <closure>, return an a-list with the bindings
+   visible within that closure.  The a-list returned is minimal:
+   shadowed locals are not returned."
+  (minimal-alist (closure-env->a-list (%closure-env closure))))
