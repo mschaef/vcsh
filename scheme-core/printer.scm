@@ -5,7 +5,7 @@
 
 (define *print-shared-structure* #t)
 (define *print-packages-always* #f)
-(define *allow-rich-writes* #f)
+(define *allow-rich-writes* #t)
 (define *flonum-print-precision* 5)
 (define *print-addresses* #f)
 (define *print-length* #f)
