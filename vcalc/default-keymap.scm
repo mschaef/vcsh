@@ -11,10 +11,16 @@
 (define (init-global-keymap)   
   (set! *global-keymap* (make-keymap :name "Global Keybindings"))
 
-  (keymap-bind-sequence! *global-keymap* '(#\() 'vcalc-commands::begin-list)
-  (keymap-bind-sequence! *global-keymap* '(#\)) 'vcalc-commands::end-list)
+  (keymap-describe-sequence! *global-keymap* '(#\p) "Program>>")
+  (keymap-bind-sequence! *global-keymap* '(#\p #\l) 'vcalc-commands::command-library)
+  (keymap-bind-sequence! *global-keymap* '(#\p #\[) 'vcalc-commands::begin-macro)
+  (keymap-bind-sequence! *global-keymap* '(#\p #\]) 'vcalc-commands::end-macro)
+  (keymap-bind-sequence! *global-keymap* '(#\p #\a) 'vcalc-commands::apply-to-stack)
+  (keymap-bind-sequence! *global-keymap* '(#\p #\A) 'vcalc-commands::apply-to-stack-repeatedly)
 
   (keymap-describe-sequence! *global-keymap* '(#\l) "List>>")
+  (keymap-bind-sequence! *global-keymap* '(#\l #\() 'vcalc-commands::begin-list)
+  (keymap-bind-sequence! *global-keymap* '(#\l #\)) 'vcalc-commands::end-list)
   (keymap-bind-sequence! *global-keymap* '(#\l #\>) 'vcalc-commands::list->)
   (keymap-bind-sequence! *global-keymap* '(#\l #\<) 'vcalc-commands::->list)
   (keymap-bind-sequence! *global-keymap* '(#\l #\f) 'vcalc-commands::first)
@@ -38,16 +44,8 @@
   (keymap-bind-sequence! *global-keymap* '(#\c #\R) 'vcalc-commands::make-rectangular)
   (keymap-bind-sequence! *global-keymap* '(#\c #\P) 'vcalc-commands::make-polar)
 
-
-  (keymap-bind-sequence! *global-keymap* '(#\a) 'vcalc-commands::apply-to-stack)
-  (keymap-bind-sequence! *global-keymap* '(#\A) 'vcalc-commands::apply-to-stack-repeatedly)
   (keymap-bind-sequence! *global-keymap* '((:control #\e)) 'vcalc-commands::edit-object)
   (keymap-bind-sequence! *global-keymap* '((:control #\E)) 'vcalc-commands::enter-object)
-
-  (keymap-describe-sequence! *global-keymap* '((:control #\k)) "Keyboard Macro>>")
-  (keymap-bind-sequence! *global-keymap* '((:control #\k) #\[) 'vcalc-commands::begin-macro)
-  (keymap-bind-sequence! *global-keymap* '((:control #\k) #\]) 'vcalc-commands::end-macro)
-
 
   (keymap-describe-sequence! *global-keymap* '(#\M) "Mode >>")
 
