@@ -22,6 +22,7 @@
   (:exports "all-vcalc-commands"
             "choose"
             "command-modes"
+            "configure"
             "define-vcalc-command"
             "defconfig"
             "load-time-define"

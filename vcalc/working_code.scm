@@ -88,34 +88,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Menu operations
 
-(define (do-config w)
-  (define (get-current-config-vector)
-    (vector *angle-mode*
-	    *seperator-mode*
-	    *number-format-mode*
-	    *number-precision*
-	    *interest-accrual-mode*
-	    *default-base*))
-  (define (set-current-config-vector vec)
-    (awhen (vector-ref vec 0)
-      (set! *angle-mode* it))
-    (awhen (vector-ref vec 1)
-      (set! *seperator-mode* it))
-    (awhen (vector-ref vec 2)
-      (set! *number-format-mode* it))
-    (awhen (vector-ref vec 3)
-      (set! *number-precision* it))
-    (awhen (vector-ref vec 4)
-      (set! *interest-accrual-mode* it))
-    (awhen (vector-ref vec 5)
-      (set! *default-base* it))
-      (update-window *current-window*))
-  (let ((current-configuration (get-current-config-vector)))
-    (set-current-config-vector (aif (show-config-dialog w
-							current-configuration
-							set-current-config-vector)
-				    it
-				    current-configuration))))
 
 "vCalc Save Files (*.vcx)|*.vcx|All Files (*.*)|*.*||"
 
