@@ -414,3 +414,12 @@
                 (vc-read data))
                (#t (values))))
        (values)))
+
+(define (all-vcalc-commands)
+  "Return a list of all vcalc commands by name.  vcalc commands are identified
+   as symbols exported from the vcalc-commands package and bound to a procedure."
+  (filter (lambda (sym)
+            (and (symbol-bound? sym)
+                 (procedure? (symbol-value sym))))
+          (exported-package-symbols "vcalc-commands")))
+
