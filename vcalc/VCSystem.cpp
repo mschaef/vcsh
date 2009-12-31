@@ -332,7 +332,7 @@ LRef lset_clipboard_data(LRef args)
 		if (!CONSP(lcdr(loc)))
 			vmerror("Expected even number of arguments", args);
 
-		if (!STRINGP(lcar(lcdr(loc)))) // !!!! Generalize to c-pointer
+		if (!STRINGP(lcar(lcdr(loc)))) // REVISIT: Generalize to c-pointer
                   vmerror("Clipboard data must be of type string", lcar(lcdr(loc)));
 	}
 

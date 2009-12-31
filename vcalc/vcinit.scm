@@ -5,7 +5,7 @@
 
  
 (define-package "vcalc"
-  (:uses "scheme")
+  (:uses "scheme" "csv")
   (:includes "subrs.scm"
              "utils.scm"
              "standard-windows.scm"
@@ -66,6 +66,8 @@
             "toggle-key-help"
             "last-key-number"
             "yes-or-no?"
+            "copy-object-to-clipboard"
+            "get-object-from-clipboard"
             ))
 
 (define *debug* #f)

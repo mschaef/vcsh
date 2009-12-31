@@ -382,3 +382,37 @@
 
 (define (macro-recorder-text)
   "")
+
+;;;; Clipboard
+
+(define (string-accept-to-null string)
+  "Returns the leftmost characters of <string>, up to but
+   not including the first #\nul. If there is no #\nul,
+   this function returns all of <string>"
+  (aif (string-first-character string "\0")
+       (substring string 0 it)
+       string))
+
+(define (copy-object-to-clipboard obj)
+  (dynamic-let ((*seperator-mode* :none))
+    (cond ((number? obj)
+           (set-clipboard-data :CF_TEXT (vc-object->f-text obj)
+                               "s-expression" (write-to-string obj)))
+          ((list? obj)
+           (set-clipboard-data "Csv" (list->csv-string obj)
+                               "s-expression" (write-to-string obj)))
+          (#t
+           (set-clipboard-data "s-expression" (write-to-string obj))))))
+
+(define (get-object-from-clipboard)
+  (aif (get-clipboard-data "s-expression" "Csv" :CF_TEXT)
+       (let ((format (car it))
+             (data (string-accept-to-null (cdr it))))
+         (cond ((equal? format "s-expression")
+                (vc-read data))
+               ((equal? format "Csv")
+                (csv-string->list data))
+               ((equal? format :CF_TEXT)
+                (vc-read data))
+               (#t (values))))
+       (values)))

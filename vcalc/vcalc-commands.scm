@@ -844,7 +844,7 @@
 
 (define-vcalc-command (begin-list)
   "Pushes a list marker onto the stack."
-  (make-instance stack-marker))
+  (make-stack-marker))
 
 (define-vcalc-command (end-list)
   "Create a list with all the elements from the top of the stack 
@@ -1080,3 +1080,18 @@
   "Stops exection of the current interactive command."
   (signal 'user-break)
   (values))
+
+(define-vcalc-command (stack-cut x)
+  "Cuts the top object from the stack and places it on the clipboard."
+  (copy-object-to-clipboard x)
+  (values))
+
+(define-vcalc-command (stack-copy x)
+  "Copies the top object from the stack to the clipboard."
+  (copy-object-to-clipboard x)
+  (values x))
+
+(define-vcalc-command (stack-paste)
+  "Pastes the object from the clipaboard onto the stack."
+  (get-object-from-clipboard))
+
