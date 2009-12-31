@@ -62,11 +62,12 @@ todo:
 	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n TESTTHIS) || true
 	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n REVISIT) || true
 
+clean-local:
 
 clean-cov:
 	${RM_F} *.gcda *.gcov
 
-clean: clean-cov
+clean: clean-cov clean-local
 	${RM_F} *.pdb *.ilk
 	${RM_F} *.o *.obj TAGS *~ *.ii *.exe *.s ${TARGETS} *.scf
 	${RM_F} scheme/*~ gmon${OBJ_EXT}ut *.gcno

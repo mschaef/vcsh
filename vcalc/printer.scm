@@ -94,7 +94,6 @@
 (define-method (write-vc-object (o string) port)
   (format port "~s" o))
 
-
 (define-method (write-vc-object (o closure) port)
   (define (postfix-write lambda-list postfix-code)
     (define (nested-definition? x)

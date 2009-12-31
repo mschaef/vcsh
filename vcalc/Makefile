@@ -30,7 +30,7 @@ VCALC_OBJS=drawer-window${OBJ_EXT} \
            VCEditor${OBJ_EXT} \
            VCSystem${OBJ_EXT} \
            VCWindow${OBJ_EXT} \
-           VCInit${OBJ_EXT}
+           Vcinit${OBJ_EXT}
 
 
 VCALC_LISP_SRCS=vcinit.scm subrs.scm standard-windows.scm utils.scm \
@@ -55,9 +55,9 @@ VCSystem.obj: VCSystem.cpp str_keys.i
 
 lisp-window.obj: lisp-window.cpp lisp-window.h cmd_keys.i
 
-VCInit.cpp: ${VCALC_LISP_SRCS}
+Vcinit.cpp: ${VCALC_LISP_SRCS}
 	../scheme-core/vcsh -c vcinit.scm -o:vcinit.scf
-	../util/to-c-source vcinit.scf vcInit > VCInit.cpp
+	../util/to-c-source vcinit.scf vcInit > vcinit.cpp
 
 vcalc.res: vcalc.rc ../ectworks/util-resource.h ../ectworks/util-resource.rc
 	rc  /i "../ectworks" /fo vcalc.res vcalc.rc
@@ -68,8 +68,9 @@ vcalc.res: vcalc.rc ../ectworks/util-resource.h ../ectworks/util-resource.rc
 depend: $(VM_SRCS) $(SHO_SRCS)
 	$(CC) -MM $(CCFLAGS) $(DEFINES) $^ 1>.depend
 
+clean-local:
+	${RM_F} vcinit.cpp vcinit.scf
 
 ifneq ($(wildcard .depend),)
 include .depend
 endif
-
