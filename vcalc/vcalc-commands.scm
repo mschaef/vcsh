@@ -32,7 +32,7 @@
             "stack-swap" "stack-dup" "stack-dup2" "srot" "srotd"
             "stack-dropn" "begin-macro " "end-macro " "export-csv-file data"
             "begin-editor-with-last-keystroke " "edit-object"
-            "enter-object" "interactive-break"))
+            "enter-object" "interactive-break" "command-library"))
 
 (define-vcalc-command (apply-to-stack-repeatedly o c)
   "Evaluate the object <o>, <c> times."
@@ -1004,12 +1004,23 @@
   (scheme::ieee-754-bits-> x))
 
 (define-vcalc-command (constant-library)
-  "Prompts the user to select a constant from the library to be pushed on 
-   the stack."
+  "Prompts the user to select a constant from the constant library to be
+   pushed on the stack."
   (command-modes :not-recordable)
   (awhen [*current-window* choose *constant-library* "Constant Library" "Pick a constant"]
     (interactively-evaluate-objects (cdr it)))
   (values))
+
+(define-vcalc-command (command-library)
+  "Prompts the user to select a command to be evaluated from the list of available
+   commands."
+  (command-modes :not-recordable)
+  (let ((command-choose-list (map (lambda (command)
+                                    (cons (symbol-name command) command))
+                                  (qsort (all-vcalc-commands) string< symbol-name))))
+    (awhen [*current-window* choose command-choose-list "Commands" "Pick a command"]
+      (interactively-evaluate-objects (cdr it)))
+    (values)))
 
 (define-vcalc-command (last-stack) 
   "Resets the stack to its state at the beginning of the last command."
