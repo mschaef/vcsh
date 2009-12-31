@@ -100,7 +100,7 @@
                            ',(car lambda-list)
                            (with-output-to-string
                              (dolist (signature (generic-function-signatures ,(car lambda-list)))
-                               (format #t "* ~a\n" (signature-list->english signature))))))
+                               (format #t "* ~a\n" signature)))))
                code))
 
        (set-property! ,(car lambda-list) 'command-modes ',modes))))
