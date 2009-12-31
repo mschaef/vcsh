@@ -266,6 +266,7 @@
            close-input-port
            close-output-port
            close-port
+           closure-bindings
            closure?
            columns->instance
            complex
