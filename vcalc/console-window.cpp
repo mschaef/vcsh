@@ -184,7 +184,7 @@ size_t conout_port_write(const void *buf, size_t size, size_t count, LRef obj)
   return con_port_write(buf, size, count, obj, CLispConsole::OUTPUT_PORT_TEXT);
 }
 
-bool conout_port_rich_write(LRef obj, bool machine_readable, LRef port)
+bool con_port_rich_write(LRef obj, bool machine_readable, LRef port)
 {
   UNREFERENCED(machine_readable);
 
@@ -214,7 +214,7 @@ port_class_t console_output_port = {
   NULL,
   NULL,
   conout_port_write,
-  conout_port_rich_write,
+  con_port_rich_write,
 
   NULL,
   NULL,
@@ -232,7 +232,7 @@ port_class_t console_error_port = {
   NULL,
   NULL,
   conerr_port_write,
-  NULL,
+  con_port_rich_write,
 
   NULL,
   NULL,
