@@ -280,6 +280,7 @@
 (define unread-char #.(scheme::%subr-by-name "unread-char"))
 (define unwind-protect #.(scheme::%subr-by-name "unwind-protect"))
 (define %values #.(scheme::%subr-by-name "%values"))
+(define %list->values #.(scheme::%subr-by-name "%list->values"))
 (define %values->list #.(scheme::%subr-by-name "%values->list"))
 (define vector #.(scheme::%subr-by-name "vector"))
 (define vector->byte-vector #.(scheme::%subr-by-name "vector->byte-vector"))

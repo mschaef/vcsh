@@ -782,6 +782,7 @@ namespace scan {
     register_subr(_T("vector-copy"),                      SUBR_1,     (void*)lvector_copy                        );
     register_subr(_T("vector-fill!"),                     SUBR_2,     (void*)lvector_fill                        );
     register_subr(_T("%values"),                          SUBR_N,     (void*)lvalues                             );
+    register_subr(_T("%list->values"),                    SUBR_1,     (void*)lvalues                             );
     register_subr(_T("%values->list"),                    SUBR_3,     (void*)lvalues2list                        );
     register_subr(_T("vector-ref"),                       SUBR_3,     (void*)lvector_ref                         );
     register_subr(_T("vector-resize!"),                   SUBR_3,     (void*)lvector_resized                     );
