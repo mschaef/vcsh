@@ -47,7 +47,9 @@
 (define-vcalc-command (last-arguments) 
   "Pushes the arguments to the last command on the stack."
   (command-modes :no-last-arguments)
-  (apply values *last-arguments*))
+  ; (apply values *last-arguments*) runs into argument count limits pretty quickly,
+  ; so we cons up a values tuple directly.
+  (scheme::%list->values *last-arguments*))
 
 
 (define-vcalc-command (begin-macro) 
@@ -477,9 +479,9 @@
 
 (define-method (parse-register-number (r number))
   (when (or (scheme::< r 0)
-	    (scheme::>= r *max-register*))
+            (scheme::>= r *max-register*))
     (vc-error "Invalid register ~a, register numbers must be in the range [~a, ~a]"
-	      r 0 (scheme::- *max-register* 1)))
+              r 0 (scheme::- *max-register* 1)))
   (scheme::inexact->exact r))
 
 
@@ -865,16 +867,25 @@
    number of list elements.")
 
 (define-method (list-> (xs cons))
-  (apply values (append xs (cons (length xs)))))
+  (scheme::%list->values (append xs (cons (length xs)))))
+
+(define-vcalc-command (parse-count n)
+  "Parses the count <n>.")
+
+(define-method (parse-count (r number))
+  (when (< r 0)
+    (vc-error "Invalid count ~a, conunts must be non-negative numbers" r))
+  (scheme::inexact->exact r))
 
 (define-vcalc-command (->list count)
   "Builds a list from the top <count> stack elements.")
 
 (define-method (->list (count number))
-  (stack-ensure-arguments count) ;; !!!!!!!!!! this does not seem to work
-  (let ((new-list (reverse! (take *stack* count))))
-    (stack-dropn count)
-    new-list))
+  (let ((count (parse-count count)))
+    (stack-ensure-arguments count) ;; !!!!!!!!!! this does not seem to work
+    (let ((new-list (reverse! (take *stack* count))))
+      (stack-dropn count)
+      new-list)))
 
 (define-vcalc-command (first xs)
   "Returns the first element of the list <xs>.")

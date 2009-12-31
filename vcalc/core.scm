@@ -277,28 +277,28 @@
    stack. For procedures, this applies the function to the topmost n values on
    the stack."
   (cond ((procedure? obj)
-	 (let ((count (command-stack-arity obj)))
+         (let ((count (command-stack-arity obj)))
 
-	   (when (< (length *stack*) count)
-	     (vc-error "Invalid number of arguments"))
+           (when (< (length *stack*) count)
+             (vc-error "Invalid number of arguments"))
 
-	   (let ((remaining-stack (drop *stack* count))
-		 (fixed-arguments (reverse (take *stack* count))))
+           (let ((remaining-stack (drop *stack* count))
+                 (fixed-arguments (reverse (take *stack* count))))
 
-	     (with-stack-transaction (not (command-mode? obj :no-stack-transaction))
-				     (set! *stack* remaining-stack)
-				     (values-bind (apply obj (append fixed-arguments remaining-stack)) retval
-				       (cond ((null? retval)
-					      )
-					     ((pair? retval)
-					      (for-each stack-push retval))
-					     (#t
-					      (stack-push retval)))
-				       (when (not (command-mode? obj :no-last-arguments))
-					 (set! *last-arguments* fixed-arguments))
-				       retval)))))
-	(#t
-	 (stack-push obj)))
+             (with-stack-transaction (not (command-mode? obj :no-stack-transaction))
+               (set! *stack* remaining-stack)
+               (let ((retval (scheme::%values->list (apply obj fixed-arguments))))
+                 (cond ((null? retval)
+                        )
+                       ((pair? retval)
+                        (for-each stack-push retval))
+                       (#t
+                        (stack-push retval)))
+                 (when (not (command-mode? obj :no-last-arguments))
+                   (set! *last-arguments* fixed-arguments))
+                 retval)))))
+        (#t
+         (stack-push obj)))
   (values))
 
 
