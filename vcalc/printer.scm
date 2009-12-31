@@ -96,11 +96,10 @@
 
 
 (define-method (write-vc-object (o closure) port)
-  (define (postfix-write lambda-list postfix-code has-local-environment?)
-    (define (nested-definition? x) (and (list? x) (= (length x) 4)))
-    (if has-local-environment?
-        (display "#{{ " port)
-        (display "#{ " port))
+  (define (postfix-write lambda-list postfix-code)
+    (define (nested-definition? x)
+      (and (list? x) (= (length x) 4)))
+    (display "#{ " port)
     (dolist (arg lambda-list)
       (format port "~s " arg))
     (display "| " port)
@@ -109,13 +108,11 @@
           (postfix-write (second oper) (fourth oper) #f)
           (write-vc-object oper port))
       (display " " port))
-    (if has-local-environment?
-        (display "}}" port)
-        (display "}" port)))
-  (if (postfix-program-object? o)
+    (display "}" port))
+  (if (and (postfix-program-object? o)
+           (null? (closure-bindings o)))
       (postfix-write (get-property o 'scheme::lambda-list)
-                     (get-property o 'postfix)
-                     (not (null? (scheme::%closure-env o))))
+                     (get-property o 'postfix))
       (call-next-method)))
 
 (define-method (vc-object->f-text (p closure))
