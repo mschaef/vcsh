@@ -226,7 +226,7 @@
   "Returns <ch> if it is a character that is normally read as part of a symbol
    even if unescaped. Returns #f otherwise."
   (if (or (char-whitespace? ch)
-          (memq ch '( #\( #\) #\[ #\]  #\'
+          (memq ch '( #\( #\) #\[ #\]  #\{ #\} #\'
                       #\; #\: #\" #\# #\, #\ #\\)))
       #f
       ch))
