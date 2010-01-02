@@ -46,6 +46,7 @@
            *flonum-print-precision*
            *global-define-hook*
            *global-readsharp-table*
+           *idle-hook*
            *location-mapping*
            *memoize-results?*
            *number-of-characters*
