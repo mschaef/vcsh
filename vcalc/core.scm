@@ -26,6 +26,15 @@
                     (scheme::*reader-quotes-literal-lists* #t))
         (read ip))))
 
+(define (call-with-application-busy fn)
+  (let ((was-busy? (set-application-busy! #t)))
+    (unwind-protect
+     fn
+     (lambda ()
+       (set-application-busy! was-busy?)))))
+
+(defmacro (with-application-busy . code)
+  `(call-with-application-busy (lambda () ,@code)))
 
 
 ;; (defmacro (with-application-busy . code)
@@ -46,7 +55,6 @@
 ;; 	    (unless (eq? ,previous-busy-sym :deferred)
 ;; 	      (set-application-busy ,previous-busy-sym))))))))
 
-(defmacro (with-application-busy . code) `(begin ,@code))
 
 ;;; Commands and command registration.
 

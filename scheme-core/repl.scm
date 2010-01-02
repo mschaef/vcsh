@@ -275,4 +275,4 @@
   (throw '%end-it-all retval))
 
 
-(add-hook-function! '*repl-post-hook* process-idle-list)
+(add-hook-function! '*repl-post-hook* 'process-idle-list)

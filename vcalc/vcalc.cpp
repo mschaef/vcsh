@@ -288,10 +288,12 @@ bool CVCalcApp::MessagePump(bool *endLoopFlag, bool exitWhenIdle)
       // Call OnIdle while we have idle work to do.
       while (!::PeekMessage(&(pState->m_msgCur), NULL, NULL, NULL, PM_NOREMOVE))
         {
-          if (exitWhenIdle) {
-            loop_running = false;
-            break;
-          } else if (!OnIdle(lIdleCount++))
+          if (exitWhenIdle)
+            {
+              loop_running = false;
+              break;
+            }
+          else if (!OnIdle(lIdleCount++))
             {
               break;
             }
@@ -509,7 +511,7 @@ static void vcalc_register_subrs()
   register_subr(_T("get-run-mode")          , SUBR_0, lget_run_mode); 
   register_subr(_T("do-register")           , SUBR_0, ldo_register); 
   register_subr(_T("about-box")             , SUBR_1, labout_box); 
-  register_subr(_T("set-application-busy")  , SUBR_1, lset_application_busy);
+  register_subr(_T("set-application-busy!") , SUBR_1, lset_application_busy);
   register_subr(_T("pump-messages")         , SUBR_0, lpump_messages);
   register_subr(_T("%set-timer-event-time") , SUBR_1, lset_timer_event_time );
 

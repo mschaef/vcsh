@@ -17,7 +17,7 @@
 (load-time-define get-run-mode (scheme::%subr-by-name "get-run-mode"))
 (load-time-define do-register (scheme::%subr-by-name "do-register"))
 (load-time-define about-box (scheme::%subr-by-name "about-box"))
-(load-time-define set-application-busy (scheme::%subr-by-name "set-application-busy"))
+(load-time-define set-application-busy! (scheme::%subr-by-name "set-application-busy!"))
 (load-time-define pump-messages (scheme::%subr-by-name "pump-messages"))
 (load-time-define %set-timer-event-time (scheme::%subr-by-name "%set-timer-event-time"))
 
