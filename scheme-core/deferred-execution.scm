@@ -128,3 +128,12 @@
       ;; REVISIT: errors from idle thunks need to be sequestered
 `     ;; away and reported in another idle process.
       (thunk))))
+
+(define *idle-hook* ())
+
+(define (do-idle-processing)
+  (invoke-hook '*idle-hook*))
+
+(eval-when (:load-toplevel :execute)
+  (add-hook-function! '*idle-hook* 'process-idle-list))
+
