@@ -65,12 +65,6 @@
       (not (command-mode? (symbol-value o) :not-recordable))
       #t))
 
-(define *vcalc-commands* '())
-
-(define (register-vcalc-command! command-name)
-  (unless (member command-name *vcalc-commands*)
-    (push! command-name *vcalc-commands*)))
-
 (defmacro (define-vcalc-command lambda-list documentation-string . code)
   (unless (and (list? lambda-list) (symbol? (car lambda-list)))
     (error "vCalc command definitions must begin with a lambda list with a name in the first position: ~a" lambda-list))
@@ -79,17 +73,15 @@
     (error "vCalc command definitions must have a documentation-string: ~a" (car lambda-list)))
 
   (let ((code code)
-        (modes ()))
+        (modes '(vcalc-command)))
 
     (when (aand (pair? code)
                 (pair? (car code))
                 (eq? (car it) 'command-modes))
-      (set! modes (cdar code))
+      (set! modes (append (cdar code) modes))
       (set! code (cdr code)))
 
     `(begin
-       (register-vcalc-command! ',(car lambda-list))
-
        (define-generic-function ,lambda-list
          ,documentation-string
        
@@ -417,9 +409,11 @@
 
 (define (all-vcalc-commands)
   "Return a list of all vcalc commands by name.  vcalc commands are identified
-   as symbols exported from the vcalc-commands package and bound to a procedure."
+   as symbols visible in the vcalc-user package and bound to a procedure that is
+   marked as a vcalc command."
   (filter (lambda (sym)
             (and (symbol-bound? sym)
-                 (procedure? (symbol-value sym))))
-          (exported-package-symbols "vcalc-commands")))
+                 (procedure? (symbol-value sym))
+                 (command-mode? (symbol-value sym) 'vcalc-command)))
+          (all-package-symbols "vcalc-user")))
 

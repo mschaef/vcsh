@@ -81,7 +81,6 @@
   (when (find-package "vcalc-user")
     (delete-package! "vcalc-user"))
   (let ((p (make-package! "vcalc-user")))
-    (use-package! "vcalc" p)
     (use-package! "vcalc-commands" p)
     (install-config-variables! p)
     (reset-config-variables!)
@@ -93,8 +92,7 @@
   (setup-user-package)
   (init-vcalc-stack-window)
   (maybe-load-persistant-state)
-  (ensure-visible-stack-window)
-  )
+  (ensure-visible-stack-window))
 
 ;;; Initialize I/O to point to the correct places
 
