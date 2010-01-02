@@ -126,8 +126,9 @@
     (set! *on-idle-list* ())
     (dolist (thunk idle-thunks)
       ;; REVISIT: errors from idle thunks need to be sequestered
-`     ;; away and reported in another idle process.
+      ;; away and reported in another idle process.
       (thunk))))
+
 
 (define *idle-hook* ())
 
