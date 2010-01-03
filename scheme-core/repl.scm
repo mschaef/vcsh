@@ -241,11 +241,11 @@
         (catch 'read-failed
           (repl-prompt *repl-level*)
           (let ((form (repl-read *repl-abbreviations*)))
-            (unless (eof-object? form)
-              (let ((results (repl-eval form env)))
-                (apply repl-print results))
-              (invoke-hook '*repl-post-hook*)
-              (loop))))))))
+            (when (eof-object? form)
+              (throw 'repl-escape))
+            (apply repl-print (repl-eval form env))
+            (invoke-hook '*repl-post-hook*)))
+        (loop)))))
 
 (define (toplevel-repl)
   "Enters a toplevel Lisp REPL. A toplevel Lisp REPL is distinguished
