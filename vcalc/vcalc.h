@@ -83,7 +83,7 @@ public:
 	bool SetAppBusy(bool busyFlag);
 	bool GetAppBusy();
 
-	void SetEventTimer(fixnum_t realtime);
+	void SetEventTimer(flonum_t realtime);
 	void CancelEventTimer();
 };
 

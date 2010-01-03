@@ -293,6 +293,8 @@ bool CVCalcApp::MessagePump(bool *endLoopFlag, bool exitWhenIdle)
               loop_running = false;
               break;
             }
+          // REVISIT: this design fires idle processing after each event, which is
+          // probably too often.
           else if (!OnIdle(lIdleCount++))
             {
               break;
@@ -336,11 +338,25 @@ int CVCalcApp::Run()
   return 0;
 }
 
+LRef sym_on_idle_handler = NIL;
+
+
 BOOL CVCalcApp::OnIdle(LONG lCount)
 {
-  UNREFERENCED(lCount);
+  LRef idle_retval = NIL;
 
-  // return process_idle_list(); REVISIT: What's on the idle list?
+  LRef idle_fn = SYMBOL_VCELL(sym_on_idle_handler);
+
+  if (!UNBOUND_MARKER_P(idle_fn))
+    {
+      if (!CLOSUREP(idle_fn))
+        panic(_T("Invalid idle hook"));
+
+      if (scan::call_lisp_procedure(idle_fn, &idle_retval, NULL, 1, fixcons(lCount)))
+        panic(_T("Error evaluating idle hook"));
+
+      return TRUEP(idle_retval);
+    }
 
   return FALSE;
 } 
@@ -382,7 +398,7 @@ bool CVCalcApp::GetAppBusy()
   return m_busy_flag;
 }
 
-void CVCalcApp::SetEventTimer(fixnum_t realtime)
+void CVCalcApp::SetEventTimer(flonum_t realtime)
 {
   m_console.SetEventTimer(realtime);
 }
@@ -440,8 +456,8 @@ LRef lpump_messages()
 LRef lset_timer_event_time(LRef realtime)
 {
 	
-  if (FIXNUMP(realtime))
-    VCalcGetApp()->SetEventTimer(FIXNM(realtime));
+  if (NUMBERP(realtime))
+    VCalcGetApp()->SetEventTimer(get_c_flonum(realtime));
   else if (FALSEP(realtime))
     VCalcGetApp()->CancelEventTimer();
   else
@@ -599,7 +615,9 @@ void vcalc_init_vcalc_package()
 {
   gc_protect(_T("vcalc-package"), &vcalc_package, 1);
   vcalc_package = lmake_package(strcons( "vcalc"));
-  
+
+  gc_protect_sym(&sym_on_idle_handler, _T("*on-idle-handler*"), vcalc_package);
+
   vcalc_register_subrs();
 
   gc_protect(_T("keysym-table"), &sym_key[0], NUM_KEYS);

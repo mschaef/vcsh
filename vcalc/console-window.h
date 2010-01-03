@@ -231,9 +231,9 @@ class CLispConsole : public CDialog
 
   enum { EVENT_TIMER_ID = 0x123 };
 
-  fixnum_t m_event_time;
+  flonum_t m_event_time;
   void EventTimerElapsed();
-  void SetEventTimer(fixnum_t realtime);
+  void SetEventTimer(flonum_t realtime);
   void CancelEventTimer();
   afx_msg void OnTimer(UINT nIDEvent);
 };

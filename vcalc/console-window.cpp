@@ -527,35 +527,34 @@ void CLispConsole::EventTimerElapsed()
   scan::signal_timer();
 }
 
-void CLispConsole::SetEventTimer(fixnum_t realtime)
+void CLispConsole::SetEventTimer(flonum_t realtime)
 {
-  i64 now;
-  GetSystemTimeAsFileTime((LPFILETIME)&now);
+  flonum_t now = sys_realtime();
+
+  CancelEventTimer();
 
   if (now > realtime)
-    EventTimerElapsed();
-  else
     {
-      i64 msec_to_go = (realtime - now) / 10000;
-
-      if (m_event_time > 0)
-        CancelEventTimer();
-
-      assert(msec_to_go < U32_MAX);
-
-      SetTimer(EVENT_TIMER_ID, (UINT)msec_to_go, NULL);
-
-      m_event_time = realtime;
+      EventTimerElapsed();
+      return;
     }
+
+  flonum_t msec_to_go = (realtime - now) * 1000.0;
+
+  assert(msec_to_go < U32_MAX);
+
+  SetTimer(EVENT_TIMER_ID, (UINT)msec_to_go, NULL);
+
+  m_event_time = realtime;
 }
 
 void CLispConsole::CancelEventTimer()
 {
-  if (m_event_time > 0) 
-    {
-      KillTimer(EVENT_TIMER_ID);
-      m_event_time = -1;
-    }
+  if (m_event_time < 0) 
+    return;
+
+  KillTimer(EVENT_TIMER_ID);
+  m_event_time = -1;
 }
 
 void CLispConsole::OnTimer(UINT nIDEvent)
@@ -564,7 +563,7 @@ void CLispConsole::OnTimer(UINT nIDEvent)
     {
       assert(m_event_time > 0);
 
-      KillTimer(EVENT_TIMER_ID);
+      CancelEventTimer();
 
       EventTimerElapsed();
     }
