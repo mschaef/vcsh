@@ -26,6 +26,8 @@
                     (scheme::*reader-quotes-literal-lists* #t))
         (read ip))))
 
+(define *busy-hook* ())
+
 (define *busy-hysterisis* 0.1)
 
 (define (call-with-application-busy fn)
@@ -34,7 +36,8 @@
     (in *busy-hysterisis*
         (lambda ()
           (unless computation-complete?
-            (set! was-busy? (set-application-busy! #t)))))
+            (set! was-busy? (set-application-busy! #t))
+            (invoke-hook '*busy-hook*))))
     (unwind-protect
      (lambda ()
        (begin-1
@@ -332,11 +335,12 @@
 (define (interactively-evaluate-objects . os)
   (when *recording-macro*
     (set! *current-macro-seq* (append! *current-macro-seq* (filter recordable? os))))
-  (with-application-busy
-   (let ((results (scheme::%time-apply0 (objects->postfix-program os))))
-     (dynamic-let ((*flonum-print-precision* 4))
-       (set! *last-eval-time* (format #f "~a ms." (* 1000.0 (vector-ref results 1)))))
-     (vector-ref results 0))))
+  (dynamic-let ((*global-keymap* *busy-keymap*))
+    (with-application-busy
+        (let ((results (scheme::%time-apply0 (objects->postfix-program os))))
+          (dynamic-let ((*flonum-print-precision* 4))
+            (set! *last-eval-time* (format #f "~a ms." (* 1000.0 (vector-ref results 1)))))
+          (vector-ref results 0)))))b
 
 
 
