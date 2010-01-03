@@ -76,7 +76,7 @@
   "Schedules <closure> to be called at <realtime>. If events are currently being
    processed, then the schedule add is deferred until the next call to
    %schedule-all-deferred-events."
-  (check exact? realtime)
+  (check number? realtime)
   (check closure? closure)
   (if *currently-processing-events*
       (push! (cons realtime closure) *deferred-schedule-events*)
@@ -100,7 +100,7 @@
   (cond
    ((eq? realtime :idle)
     (push! closure *on-idle-list*))
-   ((exact? realtime)
+   ((number? realtime)
     (%schedule-event realtime closure))
    (#t
     (error "Schedule times must be exact numbers: ~a" realtime))))
@@ -112,7 +112,7 @@
   (cond ((eq? seconds :idle)
          (at :idle closure))
         ((number? seconds)
-         (at (+ (realtime) (seconds->realtime seconds)) closure))
+         (at (+ (realtime) seconds) closure))
         (#t
          (error "Schedule times must be exact numbers: ~a" realtime))))
 
