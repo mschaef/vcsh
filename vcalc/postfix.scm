@@ -60,6 +60,13 @@
 
 (define postfix-syntax-error error)
 
+(define *vcalc-user-break?* #f)
+
+(define (postfix-checkpoint)
+  (pump-messages)
+  (when *vcalc-user-break?*
+    (signal 'postfix-break)))
+
 (define (postfix-if-statement stream)
   (let* ((cond-statement (postfix-statement stream))
 	 (then-statement (postfix-statement stream))
@@ -74,7 +81,7 @@
 (define (postfix-repeat-statement stream)
   (let ((loop-body (postfix-statement stream)))
     `(repeat (stack-pop)
-       (pump-messages)
+       (postfix-checkpoint)
        ,loop-body)))
 
 (define (postfix-while-statement stream)
@@ -85,7 +92,7 @@
 	 (let ,loop-sym ()
 	      ,cond-statement
 	      (when (stack-pop)
-		(pump-messages)
+		(postfix-checkpoint)
 		,loop-body
 		(,loop-sym)))))))
 
@@ -116,7 +123,8 @@
 	   (postfix-syntax-error "End of statement in statement list"))
 	  ((or (stream :at-end?)
 	       (stream :next-token-is? *close-brace*))
-	   `(begin (pump-messages) ,@(reverse! tokens)))
+	   `(begin (postfix-checkpoint)
+           ,@(reverse! tokens)))
 	  (#t
 	   (loop (cons (postfix-statement stream) tokens))))))
 
