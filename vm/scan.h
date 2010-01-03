@@ -407,7 +407,7 @@ namespace scan {
 
   struct interpreter_t
   {
-    // TODO: This interrupt mechanism can be generalized a bit... 
+    // TODO: This interrupt mechanism can be generalized a bit...
     // * machine word mask and pending variables
     // * logically and the two and check against zero to see if an interrupt gets raised
     // * raise interrupt by dispatching to one of 32 vectors (closures)

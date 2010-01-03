@@ -329,21 +329,24 @@
   ((objects->postfix-program (list o))))
 
 
+(define *interactive-evaluate-level* 0)
 (define *recording-macro* #f)
 (define *current-macro-seq* '())
 
 (define (interactively-evaluate-objects . os)
-  (when *recording-macro*
-    (set! *current-macro-seq* (append! *current-macro-seq* (filter recordable? os))))
-  (dynamic-let ((*global-keymap* *busy-keymap*))
-    (with-application-busy
-        (let ((results (scheme::%time-apply0 (objects->postfix-program os))))
-          (dynamic-let ((*flonum-print-precision* 4))
-            (set! *last-eval-time* (format #f "~a ms." (* 1000.0 (vector-ref results 1)))))
-          (vector-ref results 0)))))b
-
-
-
+  (catch 'user-break
+    (when *recording-macro*
+      (set! *current-macro-seq* (append! *current-macro-seq* (filter recordable? os))))
+    (when (= *interactive-evaluate-level* 0)
+      (set! *vcalc-user-break?* #f))
+    (dynamic-let ((*global-keymap* *busy-keymap*)
+                  ( *interactive-evaluate-level* (+ *interactive-evaluate-level* 1)))
+      (handler-bind ((postfix-break (lambda () (throw 'user-break))))
+        (with-application-busy
+            (let ((results (scheme::%time-apply0 (objects->postfix-program os))))
+              (dynamic-let ((*flonum-print-precision* 4))
+                (set! *last-eval-time* (format #f "~a ms." (* 1000.0 (vector-ref results 1)))))
+              (vector-ref results 0)))))))
 
 (defconfig *angle-mode* :degrees)
 (defconfig *default-base* :decimal)

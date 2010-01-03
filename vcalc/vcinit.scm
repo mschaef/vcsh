@@ -71,6 +71,7 @@
             "yes-or-no?"
             "copy-object-to-clipboard"
             "get-object-from-clipboard"
+            "*vcalc-user-break?*"
             ))
 
 (define *debug* #f)

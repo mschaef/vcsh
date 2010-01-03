@@ -1110,7 +1110,7 @@
 
 (define-vcalc-command (interactive-break)
   "Stops exection of the current interactive command."
-  (signal 'user-break)
+  (set! *vcalc-user-break?* #t)
   (values))
 
 (define-vcalc-command (stack-cut x)
