@@ -425,3 +425,8 @@
                  (command-mode? (symbol-value sym) 'vcalc-command)))
           (all-package-symbols "vcalc-user")))
 
+(define (*on-idle-handler* count)
+  (when (< count 1)
+    (catch-all
+     (scheme::do-idle-processing)))
+  #f)
