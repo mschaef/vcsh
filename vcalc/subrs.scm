@@ -19,7 +19,8 @@
 (load-time-define about-box (scheme::%subr-by-name "about-box"))
 (load-time-define set-application-busy! (scheme::%subr-by-name "set-application-busy!"))
 (load-time-define pump-messages (scheme::%subr-by-name "pump-messages"))
-(load-time-define %set-timer-event-time (scheme::%subr-by-name "%set-timer-event-time"))
+
+(load-time-define scheme::%set-timer-event-time (scheme::%subr-by-name "%set-timer-event-time"))
 
 (load-time-define make-image (scheme::%subr-by-name "make-image"))
 (load-time-define measure-image (scheme::%subr-by-name "measure-image"))
