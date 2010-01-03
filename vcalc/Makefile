@@ -9,6 +9,10 @@ SCC=../vcsh -c
 CCFLAGS+=/DWINVER=0x0500
 LDFLAGS=/nologo /subsystem:windows /incremental:no /nodefaultlib:libcmt
 
+ifeq (${BUILD_TYPE}, DEBUG)
+  LDFLAGS+=/DEBUG
+endif
+
 all: ${TARGETS} TAGS
 
 tested: all
