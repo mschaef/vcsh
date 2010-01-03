@@ -338,6 +338,8 @@
   (open-editor @native-peer (character->string letter)))
 
 (defmesg <vcalc-window> (on-edit-keypress key-id)
+  (when *debug*
+    (format #t "; key-id=~s\n" key-id))
   (let ((key-desc (last (key-id->key-name key-id))))
     (case key-desc
       ((:key-return)

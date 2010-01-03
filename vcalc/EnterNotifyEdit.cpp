@@ -47,24 +47,26 @@ BOOL CEnterNotifyEdit::PreTranslateMessage(MSG* pMsg)
     assert(pMsg->hwnd == GetSafeHwnd());
 
     if (pMsg->message == WM_KEYDOWN)
-    {
+      {
+        i32 key_id = current_keypress_key_id((u32)(pMsg->wParam));
 
-    i32 key_id = current_keypress_key_id((u32)(pMsg->wParam));
+        if (key_id < 0)
+          return TRUE;
 
-      LRef key_handling = 
-        _parent->SendInstanceMessage(sym_on_edit_keypress,
-                                     listn(1, fixcons(current_keypress_key_id(key_id))));
+        LRef key_handling =
+          _parent->SendInstanceMessage(sym_on_edit_keypress,
+                                       listn(1, fixcons(current_keypress_key_id(key_id))));
 
         if (STRINGP(key_handling))
-        {
+          {
             ReplaceSel(CString(get_c_string(key_handling)));
             return TRUE;
-        }
+          }
         else if (FALSEP(key_handling))
-        {
+          {
             return TRUE;
-        }
-    }
+          }
+      }
 
     return CEdit::PreTranslateMessage(pMsg);
 }
