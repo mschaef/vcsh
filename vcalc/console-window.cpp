@@ -550,7 +550,7 @@ void CLispConsole::SetEventTimer(flonum_t realtime)
 
 void CLispConsole::CancelEventTimer()
 {
-  if (m_event_time < 0) 
+  if (m_event_time < 0)
     return;
 
   KillTimer(EVENT_TIMER_ID);

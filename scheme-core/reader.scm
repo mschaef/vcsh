@@ -226,7 +226,9 @@
   "Returns <ch> if it is a character that is normally read as part of a symbol
    even if unescaped. Returns #f otherwise."
   (if (or (char-whitespace? ch)
-          (memq ch '( #\( #\) #\[ #\]  #\{ #\} #\'
+          (memq ch '( #\( #\) #\[ #\] #\'
+                      ;  #\{ #\} TODO: These interfere with the postfix program
+                      ; reader in vcalc. It depends on reading the { and } symbols.
                       #\; #\: #\" #\# #\, #\ #\\)))
       #f
       ch))

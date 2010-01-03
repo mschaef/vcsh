@@ -53,6 +53,8 @@
 ;;     unwind-protect <statement> <statement>
 ;;
 
+;; TODO: These symbols assume that braces are symbol constituents, which
+;; they should not be.
 (define *open-brace* '{ )
 (define *close-brace* '} )
 
