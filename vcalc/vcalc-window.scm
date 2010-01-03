@@ -348,14 +348,14 @@
        #f)
       ((not (char-edit-pred letter))
        [self commit-editor-text]
-       [self on-keypress #f key-id]
+       [self on-keypress key-id]
        #f)
       (#t
        (if (char-edit-pred (key-char key-id))
            #t
            (begin 
-             (commit-editor-text)
-             [self on-keypress #f key-id]
+             [self commit-editor-text]
+             [self on-keypress key-id]
              #f))))))
 
 (defmesg <vcalc-window> (edit-text text check-fn)
