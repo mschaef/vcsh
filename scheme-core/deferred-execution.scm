@@ -45,6 +45,13 @@
 (define (process-scheduled-events)
   "Process all events in the scheduled event list.  All events due or past due
    are evaluated in the current scope."
+
+  ;; REVISIT: The vcalc implementation of timer events works by invoking timer
+  ;; thunks in the WM_TIMER callback. This code path is not disabled by disabling
+  ;; interrupts. The other way this could be done is by having WM_TIMER set an
+  ;; interrupt that the evaluator then detects and uses as a signal to dispatch to
+  ;; an ISR.
+
   (%with-disabled-interrupts
    (dynamic-let ((*currently-processing-events* #t))
      (let ((now (realtime)))
