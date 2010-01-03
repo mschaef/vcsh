@@ -26,12 +26,23 @@
                     (scheme::*reader-quotes-literal-lists* #t))
         (read ip))))
 
+(define *busy-hysterisis* 0.1)
+
 (define (call-with-application-busy fn)
-  (let ((was-busy? (set-application-busy! #t)))
+  (let ((was-busy? :not-reset)
+        (computation-complete? #f))
+    (in *busy-hysterisis*
+        (lambda ()
+          (unless computation-complete?
+            (set! was-busy? (set-application-busy! #t)))))
     (unwind-protect
-     fn
      (lambda ()
-       (set-application-busy! was-busy?)))))
+       (begin-1
+        (fn)
+        (set! computation-complete? #t)))
+     (lambda ()
+       (unless (eq? was-busy? :not-reset)
+         (set-application-busy! was-busy?))))))
 
 (defmacro (with-application-busy . code)
   `(call-with-application-busy (lambda () ,@code)))
