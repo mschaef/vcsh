@@ -381,7 +381,7 @@
     ((:degrees)  "DEG" )
     ((:gradians) "GRAD")
     ((:radians)  "RAD" )
-    (#t                           "???" )))
+    (#t          "???" )))
 
 (defconfig *interest-accrual-mode* :begin)
 
@@ -389,7 +389,7 @@
   (case *interest-accrual-mode* 
     ((:begin)     "BEGIN" )
     ((:end  )     "END"   )
-    (#t                                       "???"   )))
+    (#t           "???"   )))
 
 (define (macro-recorder-text)
   (cond ((not *recording-macro*) "")
