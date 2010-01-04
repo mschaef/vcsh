@@ -6,9 +6,9 @@
 ;; This code implements a mechanism by which arbitrary lisp
 ;; objects can be tagged with descriptive information.
 
-(define-proto tagged-object
-  'value      #f
-  'tag        #f)
+(define-structure tagged-object
+  value
+  tag)
 
 (define-method (vc-object->f-text (o tagged-object))
   (list #f 
@@ -20,20 +20,13 @@
   (write-vc-object (tagged-object-value o) port))
 
 (define (tag-object value tag)
-  (make-instance tagged-object
-		 'value value
-		 'tag   tag))
+  (make-tagged-object :value value
+                      :tag   tag))
 
 (define (object-value object)
   (while (tagged-object? object)
     (set! object (slot-ref object 'value)))
   object)
-
-(define (tagged-object-tag object)
-  (slot-ref object 'tag))
-
-(define (tagged-object-value object)
-  (slot-ref object 'value))
 
 (defmacro (with-object-values vars . body)
   `(let (,@(map (lambda (var) `(,var (object-value ,var))) vars))
@@ -42,6 +35,6 @@
 (defmacro (strip-tags! . vars)
   `(begin
      ,@(map
-	(lambda (var)
-	  `(set! ,var (object-value ,var)))
-	vars)))
+        (lambda (var)
+          `(set! ,var (object-value ,var)))
+        vars)))
