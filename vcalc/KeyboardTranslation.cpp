@@ -214,11 +214,19 @@ LRef lkey_id2key_name(LRef id)
 
   _TCHAR ch = key_encodes_char(key_id);
 
-  if (ch != _T('\0')) {
-    result = lcons(charcons(ch), NIL);
-  } else {
-    result = lcons(sym_key[key_id & KEY_ID_VK_FIELD], NIL);
-  }
+  if (ch != _T('\0'))
+    {
+      result = lcons(charcons(ch), NIL);
+    }
+  else
+    {
+      fixnum_t vkid = key_id & KEY_ID_VK_FIELD;
+
+      if ((vkid < 0) || (vkid >= NUM_KEYS))
+        vmerror("Invalid key id ~s, out of range", id);
+
+      result = lcons(sym_key[vkid], NIL);
+    }
 
   // Parse out the control bits, and start building the result list
   // !!! Don't know if VK_KANA is right for HANKAKU or not
