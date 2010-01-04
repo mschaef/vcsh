@@ -260,7 +260,7 @@
      (draw-keyboard-help @width @height))
   [self flush])
 
-(defconfig *eval-time-display* #f)
+(defconfig *eval-time-display* #t)
 (defconfig *eval-trace* #f)
 
 (defconfig *register-watch-list* '())
