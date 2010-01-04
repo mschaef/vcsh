@@ -98,7 +98,7 @@
   (define (postfix-write lambda-list postfix-code)
     (define (nested-definition? x)
       (and (list? x) (= (length x) 4)))
-    (display "{ " port)
+    (display "#{ " port)
     (dolist (arg lambda-list)
       (format port "~s " arg))
     (display "| " port)
@@ -110,10 +110,8 @@
     (display "}" port))
   (if (and (postfix-program-object? o)
            (null? (closure-bindings o)))
-      (begin
-        (display "#" port)
-        (postfix-write (get-property o 'scheme::lambda-list)
-                       (get-property o 'postfix)))
+      (postfix-write (get-property o 'scheme::lambda-list)
+                     (get-property o 'postfix))
       (call-next-method)))
 
 (define-method (vc-object->f-text (p closure))

@@ -123,7 +123,8 @@
 	   (postfix-syntax-error "End of statement in statement list"))
 	  ((or (stream :at-end?)
 	       (stream :next-token-is? *close-brace*))
-	   `(begin (postfix-checkpoint)
+	   `(begin
+          (postfix-checkpoint)
            ,@(reverse! tokens)))
 	  (#t
 	   (loop (cons (postfix-statement stream) tokens))))))
