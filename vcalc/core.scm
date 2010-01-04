@@ -391,13 +391,10 @@
     ((:end  )     "END"   )
     (#t                                       "???"   )))
 
-;; (define (macro-recorder-text)
-;;   (cond ((not *recording-macro*) "")
-;; 	(#t "REC")))
-
-
 (define (macro-recorder-text)
-  "")
+  (cond ((not *recording-macro*) "")
+        (#t "REC")))
+
 
 ;;;; Clipboard
 
