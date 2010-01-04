@@ -357,15 +357,15 @@
 	((:hexadecimal) "HEX")
 	((:octal)       "OCT" )
 	((:binary)      "BIN" )
-	(#t                                "???" )))
+	(#t             "???" )))
 
 (define (default-base-char)
   (case *default-base*
     ((:decimal)     "d" )
-    ((:hexadecimal) "h")
+    ((:hexadecimal) "x")
     ((:octal)       "o" )
     ((:binary)      "b" )
-    (#t                                "?" )))
+    (#t             "?" )))
 
 (define (default-base)
   (case *default-base*
@@ -373,7 +373,7 @@
     ((:hexadecimal) 16 )
     ((:octal)       8  )
     ((:binary)      2  )
-    (#t                                10 )))
+    (#t             10 )))
 
 
 (define (angle-mode-text)
