@@ -23,18 +23,8 @@
   (make-tagged-object :value value
                       :tag   tag))
 
-(define (object-value object)
-  (while (tagged-object? object)
-    (set! object (slot-ref object 'value)))
-  object)
+(define (strip-tags x)
+  (if (tagged-object? x)
+      (strip-tags (tagged-object-value x))
+      x))
 
-(defmacro (with-object-values vars . body)
-  `(let (,@(map (lambda (var) `(,var (object-value ,var))) vars))
-     ,@body))
-
-(defmacro (strip-tags! . vars)
-  `(begin
-     ,@(map
-        (lambda (var)
-          `(set! ,var (object-value ,var)))
-        vars)))

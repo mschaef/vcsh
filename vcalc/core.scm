@@ -266,7 +266,7 @@
 (define *stack-transaction-level* 0)
 
 (define (update-last-stack)
-   (set! *last-stack* 
+  (set! *last-stack*
       (take-up-to (cons *stack* *last-stack*) *last-stack-limit*))
    (set! *redo-stack* '()))
     
@@ -294,20 +294,21 @@
            (when (< (length *stack*) count)
              (vc-error "Invalid number of arguments"))
 
-           (let ((remaining-stack (drop *stack* count))
-                 (fixed-arguments (reverse (take *stack* count))))
+           (let* ((remaining-stack (drop *stack* count))
+                  (stack-arguments (reverse (take *stack* count)))
+                  (actual-arguments (map strip-tags stack-arguments)))
 
              (with-stack-transaction (not (command-mode? obj :no-stack-transaction))
                (set! *stack* remaining-stack)
-               (let ((retval (scheme::%values->list (apply obj fixed-arguments))))
+               (let ((retval (scheme::%values->list (apply obj actual-arguments))))
                  (cond ((null? retval)
                         )
                        ((pair? retval)
                         (for-each stack-push retval))
                        (#t
                         (stack-push retval)))
-                 (when (not (command-mode? obj :no-last-arguments))
-                   (set! *last-arguments* fixed-arguments))
+                 (unless (command-mode? obj :no-last-arguments)
+                   (set! *last-arguments* stack-arguments))
                  retval)))))
         (#t
          (stack-push obj)))

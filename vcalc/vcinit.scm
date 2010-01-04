@@ -15,6 +15,7 @@
              "printer.scm"
              "postfix.scm"
              "keymap.scm"
+             "tagged-object.scm"
              "vcalc-commands.scm"
              "default-keymap.scm"
              "vcalc-window.scm"
@@ -72,6 +73,7 @@
             "copy-object-to-clipboard"
             "get-object-from-clipboard"
             "*vcalc-user-break?*"
+            "tag-object"
             ))
 
 (define *debug* #f)

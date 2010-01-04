@@ -6,8 +6,7 @@
 (define-package "vcalc-commands"
   (:uses "vcalc"
          "scheme")
-  (:includes "tagged-object.scm"
-             "constants.scm")
+  (:includes "constants.scm")
   (:shadows "+" "-" "*" "/" ">" ">=" "<" "<=" "=" "abs"
             "sin" "cos" "tan" "asin" "acos" "atan"
             "log" "exp" "expt" "log10" "exp10" "sqrt"
