@@ -390,17 +390,21 @@
     (invoke-hook '*shutdown-hook* retval)
     retval))
 
+(define (display-vcsh-banner :optional (port (current-output-port)))
+  "Display the vcsh startup banner on <port>."
+  (format port "; Welcome to VCSH\n")
+  (format port ";    VM Build ID     : ~a (~a)\n" (system-info :vm-build-id) (system-info :build-type))
+  (format port ";    Scheme Build ID : ~a\n" (system-info :scheme-build-id))
+  (format port ";\n")
+  (format port "; (C) Copyright 2001-2009 East Coast Toolworks Inc.\n")
+  (format port "; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.\n")
+  (format port "\n"))
+
 (define (run)
   (unless *no-startup-files*
     (process-startup-files))
   (unless *silent*
-    (format #t "; Welcome to VCSH\n")
-    (format #t ";    VM Build ID     : ~a (~a)\n" (system-info :vm-build-id) (system-info :build-type))
-    (format #t ";    Scheme Build ID : ~a\n" (system-info :scheme-build-id))
-    (format #t ";\n")
-    (format #t "; (C) Copyright 2001-2009 East Coast Toolworks Inc.\n")
-    (format #t "; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.\n")
-    (format #t "\n"))
+    (display-vcsh-banner))
   (let ((rc (if *no-repl* 0 (toplevel-repl))))
     (unless *silent*
       (format #t "; Exiting with rc=~a\n" rc))
