@@ -164,10 +164,11 @@ bool CVCalcApp::DelegateMessageToLispProcedure(_TCHAR *desc, LRef closure, LRef 
 
 BOOL CVCalcApp::InitInstance()
 {	
-  flonum_t boot_start_time;
-  flonum_t scboot_time;
-  flonum_t vcalc_core_boot_time;
-  flonum_t vcalc_boot_time;
+  flonum_t timestamp_startup;
+
+  flonum_t time_to_scheme_load;
+  flonum_t time_to_vcalc_load;
+  flonum_t time_to_vcalc_startup;
         
   CWinApp::InitInstance();
 
@@ -179,10 +180,10 @@ BOOL CVCalcApp::InitInstance()
 
   // We bring the interpreter up first so that we have Scheme facilities
   // availble during initialization.
-  sys_init();
-  boot_start_time = sys_runtime();
+  sys_init(); // REVISIT: Does this need to be done outside of scan::init?
+  timestamp_startup = sys_runtime();
   init(0, NULL, DF_DEBUGGER_TO_ODS);
-  scboot_time  = sys_runtime() - boot_start_time;
+  time_to_scheme_load  = sys_runtime() - timestamp_startup;
 
   m_registration.loadRegistrationSettings();
 
@@ -221,8 +222,6 @@ BOOL CVCalcApp::InitInstance()
 
   m_console.Create(IDD_LISP_CONSOLE);
 
-  vcalc_core_boot_time  = sys_runtime() - boot_start_time;
-
   ENTER_TRY(NULL)
     {
       dscwritef("loading vcinit\n");
@@ -244,11 +243,10 @@ BOOL CVCalcApp::InitInstance()
     }
   LEAVE_TRY();
 
-  vcalc_boot_time  = sys_runtime() - boot_start_time;
+  time_to_vcalc_load  = sys_runtime() - timestamp_startup;
 
-  scwritef("; scan Boot time = ~cf sec.\n", NIL, scboot_time);
-  scwritef("; vCalc Core Boot time = ~cf sec.\n", NIL, vcalc_core_boot_time);
-  scwritef("; vCalc Boot time = ~cf sec.\n", NIL, vcalc_boot_time);
+  scwritef("; time to scheme load = ~cf sec.\n", NIL, time_to_scheme_load);
+  scwritef("; time to vcalc load  = ~cf sec.\n", NIL, time_to_vcalc_load);
 
   m_throw_pending = false;
   scan::gc_protect(_T("pending-throw-return-value"), &m_pending_throw_retval, 1);
