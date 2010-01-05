@@ -91,13 +91,17 @@
     (reset-config-variables!)
     (in-package! p)))
 
+(defconfig *display-console-at-startup* #f)
+
 (define (vcalc-boot)
   (init-busy-keymap)
   (init-global-keymap)
   (setup-user-package)
   (init-vcalc-stack-window)
   (maybe-load-persistant-state)
-  (ensure-visible-stack-window))
+  (ensure-visible-stack-window)
+  (when *display-console-at-startup*
+    (show-console)))
 
 ;;; Initialize I/O to point to the correct places
 
