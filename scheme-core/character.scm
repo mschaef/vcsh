@@ -46,14 +46,18 @@
 
 (define (charset-vector . chars)
   "Return a vector with a boolean element for each valid character. Characters
-   in the string(s) <chars> are set to #t, all others are #f."
+   by <chars> are set to #t, all others are #f. Each argument <chars> can be
+   either a string or a character."
   (let ((vec (make-vector (char->integer (hash-ref (system-info)
                                                    :most-positive-character))
                           #f)))
     (dolist (chars chars)
-      (check string? chars)
-      (dotimes (ii (length chars))
-        (vector-set! vec (string-ref chars ii) #t)))
+      (etypecase chars
+        ((character)
+         (vector-set! vec chars #t))
+        ((string)
+         (dotimes (ii (length chars))
+           (vector-set! vec (string-ref chars ii) #t)))))
     vec))
 
 
@@ -77,11 +81,10 @@
   (and (char? x)
        (vector-ref #.(charset-vector "0123456789") x)))
 
-
 (define (char-whitespace? x)
  "Returns #t if <char> is a whitespace character, #f otherwise."
   (and (char? x)
-       (member x '(#\newline #\cr #\tab #\space))))
+       (vector-ref #.(charset-vector #\newline #\cr #\tab #\space) x)))
 
 (define (char-upper-case? x)
  "Returns #t if <char> is a upper case alphabetic letter, #f

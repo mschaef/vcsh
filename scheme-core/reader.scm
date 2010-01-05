@@ -225,38 +225,43 @@
 (define (char-symbol-constituent? ch) ;; TODO: The printer should honor this predicate when printing symbols
   "Returns <ch> if it is a character that is normally read as part of a symbol
    even if unescaped. Returns #f otherwise."
-  (if (or (char-whitespace? ch)
-          (memq ch '( #\( #\) #\[ #\] #\'
-                      ;  #\{ #\} TODO: These interfere with the postfix program
-                      ; reader in vcalc. It depends on reading the { and } symbols.
-                      #\; #\: #\" #\# #\, #\ #\\)))
-      #f
-      ch))
+
+  ;; REVISIT: The first four elements of this charset are shared with the
+  ;; char-whitespace? charset. There should be a single definition for the
+  ;; whitespace set.
+  (not (vector-ref #.(charset-vector #\newline #\cr #\tab #\space
+                                     #\( #\) #\[ #\] #\'
+                                     ;; #\{ #\} TODO: These interfere with the postfix program
+                                     ;; reader in vcalc. It depends on reading the { and } symbols.
+                                     #\; #\: #\" #\# #\, #\ #\\)
+                   ch)))
+
 
 (define (read-token port :optional (accept-any-first-character? #f))
   "Reads a token from <port>. A token is defined as the sequence of characters
    up to the next unescaped character with syntactic significance to the reader."
   (let ((buf (open-output-buffer)))
-    (let loop ((escaped? #f) (first? #t))
+    (define (escaped)
+      (unless (port-at-end? port)
+        (write-strings buf (read-char port)))
+      (non-escaped))
+    (define (non-escaped)
       (let ((ch (peek-char port)))
         (cond ((eof-object? ch)
                (get-output-string buf))
-              (escaped?
-               ;; REVISIT: Should read-token have a escape for char-literals (\xFF, etc.)
+              ((and accept-any-first-character? (= (length buf) 0))
                (write-strings buf (read-char port))
-               (loop #f #f))
-              ((and first? accept-any-first-character?)
-               (write-strings buf (read-char port))
-               (loop #f #f))
+               (non-escaped))
               ((eq? ch #\\)
-               (write-strings buf  (read-char port))
-               (loop #t #f))
+               (write-strings buf (read-char port))
+               (escaped))
               ((or (char-symbol-constituent? ch)
                    (eq? ch #\:))
                (write-strings buf (read-char port))
-               (loop #f #f))
+               (non-escaped))
               (#t
-               (get-output-string buf)))))))
+               (get-output-string buf)))))
+    (non-escaped)))
 
 (define (read-fixnum-with-radix port radix)
   (let ((location (port-location port)))
