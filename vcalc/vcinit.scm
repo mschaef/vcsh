@@ -113,5 +113,7 @@
 (define (run)
   ;(set-current-error-port scheme::*console-error-port*)
   ; (set-current-output-port scheme::*console-output-port*)
+  (scheme::display-vcsh-banner)
   (vcalc-boot)
+  (format #t "; vCalc Started\n\n")
   (repl))
