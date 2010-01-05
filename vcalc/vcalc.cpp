@@ -220,7 +220,6 @@ BOOL CVCalcApp::InitInstance()
   m_pMainWnd = &m_console;
 
   m_console.Create(IDD_LISP_CONSOLE);
-  m_console.ShowWindow(SW_SHOW);
 
   vcalc_core_boot_time  = sys_runtime() - boot_start_time;
 

@@ -74,6 +74,8 @@
             "get-object-from-clipboard"
             "*vcalc-user-break?*"
             "tag-object"
+            "show-console"
+            "hide-console"
             ))
 
 (define *debug* #f)
