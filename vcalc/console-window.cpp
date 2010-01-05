@@ -247,12 +247,20 @@ LRef sym_console_error_port;
 
 LRef conoutportcons(CLispConsole *c)
 {
-  return portcons(&console_output_port, NIL, PORT_OUTPUT, NIL, (void *)c);
+  LRef port = portcons(&console_output_port, NIL, PORT_OUTPUT, NIL, (void *)c);
+
+  PORT_TEXT_INFO(port)->_crlf_translate = false;
+
+  return port;
 }
 
 LRef conerrportcons(CLispConsole *c)
 {
-  return portcons(&console_error_port, NIL, PORT_OUTPUT,  NIL, (void *)c);
+  LRef port = portcons(&console_error_port, NIL, PORT_OUTPUT,  NIL, (void *)c);
+
+  PORT_TEXT_INFO(port)->_crlf_translate = false;
+
+  return port;
 }
 
 
