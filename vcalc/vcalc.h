@@ -69,6 +69,9 @@ private:
 public:
 	bool DelegateMessageToLispProcedure(_TCHAR *desc, scan::LRef closure, scan::LRef *retval, long n, ...);
 
+    void StartupVCalc();
+    BOOL SetupRegistration();
+
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 

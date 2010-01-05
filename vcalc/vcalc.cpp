@@ -162,29 +162,8 @@ bool CVCalcApp::DelegateMessageToLispProcedure(_TCHAR *desc, LRef closure, LRef 
   return failed;
 }
 
-BOOL CVCalcApp::InitInstance()
-{	
-  flonum_t timestamp_startup;
-
-  flonum_t time_to_scheme_load;
-  flonum_t time_to_vcalc_load;
-  flonum_t time_to_vcalc_startup;
-        
-  CWinApp::InitInstance();
-
-  // InitCommonControls() is required on Windows XP if an application
-  // manifest specifies use of ComCtl32.dll version 6 or later to enable
-  // visual styles.  Otherwise, any window creation will fail.
-  InitCommonControls();
-  AfxInitRichEdit2();
-
-  // We bring the interpreter up first so that we have Scheme facilities
-  // availble during initialization.
-  sys_init(); // REVISIT: Does this need to be done outside of scan::init?
-  timestamp_startup = sys_runtime();
-  init(0, NULL, DF_DEBUGGER_TO_ODS);
-  time_to_scheme_load  = sys_runtime() - timestamp_startup;
-
+BOOL CVCalcApp::SetupRegistration()
+{
   m_registration.loadRegistrationSettings();
 
   if (m_registration.isRegisteredVersion() != m_registration.isRegisteredVersion())
@@ -214,14 +193,11 @@ BOOL CVCalcApp::InitInstance()
         return FALSE;
     }
 
-  m_pszAppName = _tcsdup(_T("vCalc")); // !!!!! String Literal
+  return TRUE;
+}
 
-  vcalc_init_vcalc_package();
-
-  m_pMainWnd = &m_console;
-
-  m_console.Create(IDD_LISP_CONSOLE);
-
+void CVCalcApp::StartupVCalc()
+{
   ENTER_TRY(NULL)
     {
       dscwritef("loading vcinit\n");
@@ -242,16 +218,68 @@ BOOL CVCalcApp::InitInstance()
         }
     }
   LEAVE_TRY();
+}
 
+BOOL CVCalcApp::InitInstance()
+{
+  flonum_t timestamp_startup;
+
+  flonum_t time_to_scheme_load;
+  flonum_t time_to_vcalc_load;
+
+  CWinApp::InitInstance();
+
+  // InitCommonControls() is required on Windows XP if an application
+  // manifest specifies use of ComCtl32.dll version 6 or later to enable
+  // visual styles.  Otherwise, any window creation will fail.
+  InitCommonControls();
+  AfxInitRichEdit2();
+
+  m_pszAppName = _tcsdup(_T("vCalc")); // !!!!! String Literal
+
+  /*
+   * Bring up the scheme interpreter.
+   */
+  sys_init(); // REVISIT: Does this need to be done outside of scan::init?
+  timestamp_startup = sys_runtime();
+  init(0, NULL, DF_DEBUGGER_TO_ODS);
+  time_to_scheme_load  = sys_runtime() - timestamp_startup;
+
+  /*
+   * Check for registration... if the user denies the license, we abort
+   * here.
+   */
+  if (!SetupRegistration())
+    return FALSE;
+
+  /*
+   * Set up the vcalc package... necessary for the console to provide access
+   * to the console port.
+   */
+  vcalc_init_vcalc_package();
+
+  /*
+   * The main window for the application is the console... it always exists,
+   * even if it isn't always (or even usually) displayed.
+   */
+  m_pMainWnd = &m_console;
+  m_console.Create(IDD_LISP_CONSOLE);
+
+  /**/
+  StartupVCalc();
+
+  /**/
   time_to_vcalc_load  = sys_runtime() - timestamp_startup;
 
   scwritef("; time to scheme load = ~cf sec.\n", NIL, time_to_scheme_load);
   scwritef("; time to vcalc load  = ~cf sec.\n", NIL, time_to_vcalc_load);
 
+  /**/
   m_throw_pending = false;
   scan::gc_protect(_T("pending-throw-return-value"), &m_pending_throw_retval, 1);
   scan::gc_protect(_T("pending-throw-tag"), &m_pending_throw_tag, 1);
 
+  /**/
   scan::run();
   scan::shutdown();
 
