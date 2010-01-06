@@ -271,8 +271,9 @@ BOOL CVCalcApp::InitInstance()
   /**/
   time_to_vcalc_load  = sys_runtime() - timestamp_startup;
 
-  scwritef("; time to scheme load = ~cf sec.\n", NIL, time_to_scheme_load);
-  scwritef("; time to vcalc load  = ~cf sec.\n", NIL, time_to_vcalc_load);
+  scwritef("; time to scheme load = B+~cf sec.\n", NIL, time_to_scheme_load);
+  scwritef("; time to vcalc load  = B+~cf sec.\n", NIL, time_to_vcalc_load);
+  scwritef(";\n", NIL, time_to_vcalc_load);
 
   /**/
   m_throw_pending = false;
