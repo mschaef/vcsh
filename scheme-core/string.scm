@@ -263,3 +263,14 @@
                                              (display ch op))))
                                     (open-output-string)
                                     string))))
+
+(define (text->boolean text)
+  "Coerce a text value into a boolean.  All string values are taken to be
+   true, aside from 'no', 'n', 'false', 'f', '0', and the empty string. <text>
+   can also be a character, in which case it is coerced to a string."
+  (etypecase text
+    ((character)
+     (text->boolean (make-string 1 text)))
+    ((string)
+     (let ((text (string-downcase (string-trim text))))
+       (not (member text '("no" "n" "false" "f" "0" "")))))))

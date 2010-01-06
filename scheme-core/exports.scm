@@ -822,6 +822,7 @@
            take-while!
            tan
            temporary-file-name
+           text->boolean
            the-environment
            third
            throw
