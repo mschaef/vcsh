@@ -93,15 +93,22 @@
 
 (defconfig *display-console-at-startup* #f)
 
-(define (vcalc-boot)
+
+(define (vcalc-boot-1)
   (init-busy-keymap)
   (init-global-keymap)
   (setup-user-package)
   (init-vcalc-stack-window)
   (maybe-load-persistant-state)
-  (ensure-visible-stack-window)
-  (when *display-console-at-startup*
-    (show-console)))
+  (ensure-visible-stack-window))
+
+(define (vcalc-boot)
+  (let ((minimal-boot? (aand (environment-variable "VCALC_MINIMAL_BOOT")
+                             (text->boolean it))))
+    (unless minimal-boot?
+      (vcalc-boot-1))
+    (when (or minimal-boot? *display-console-at-startup*)
+      (show-console))))
 
 ;;; Initialize I/O to point to the correct places
 
