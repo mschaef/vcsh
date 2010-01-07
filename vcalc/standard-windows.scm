@@ -70,27 +70,33 @@
   (dolist (child @children)
     [child parent-repositioned]))
 
-(defmesg <lisp-window> (on-size sx sy)
-  (define (round-down x interval)   (* interval (quotient (inexact->exact x) interval)))
-  (define (round-up x interval)     (* interval (quotient (+ interval (inexact->exact x)) interval)))
+(defmesg <lisp-window> (maybe-resize-window-buffer sx sy)
+  (define (round-down x interval)
+    (* interval (quotient (inexact->exact x) interval)))
+  (define (round-up x interval)
+    (* interval (quotient (+ interval (inexact->exact x)) interval)))
+  (unless (or (<= sx 0) (<= sy 0))
+    (let* ((surface (or @surface
+                        (let ((img (make-image sx sy)))
+                          (slot-set! self 'surface img)
+                          img)))
+           (surface-size (measure-image surface)))
+      (when (or (> sx (point-x surface-size))
+                (> sy (point-y surface-size))
+                (< sx (round-down (point-x surface-size) *lisp-window-resize-delta*))
+                (< sy (round-down (point-y surface-size) *lisp-window-resize-delta*)))
+        (slot-set! self 'surface
+                   (cross-image (round-up sx *lisp-window-resize-delta*)
+                                (round-up sy *lisp-window-resize-delta*)))
+        (awhen @native-peer
+          (update-window it))))))
 
+(defmesg <lisp-window> (on-size sx sy)
   (slot-set! self 'width sx)
   (slot-set! self 'height sy)
 
-  (let* ((surface (or @surface
-                      (let ((img (make-image sx sy)))
-                        (slot-set! self 'surface img)
-                        img)))
-         (surface-size (measure-image surface)))
-    (when (or (> sx (point-x surface-size))
-              (> sy (point-y surface-size))
-              (< sx (round-down (point-x surface-size) *lisp-window-resize-delta*))
-              (< sy (round-down (point-y surface-size) *lisp-window-resize-delta*)))
-      (slot-set! self 'surface 
-                 (cross-image (round-up sx *lisp-window-resize-delta*)
-                             (round-up sy *lisp-window-resize-delta*)))
-      (awhen @native-peer
-        (update-window it))))
+  [self maybe-resize-window-buffer sx sy]
+
   (dolist (child @children)
     [child parent-repositioned]))
 
