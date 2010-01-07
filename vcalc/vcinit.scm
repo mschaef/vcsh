@@ -5,8 +5,9 @@
 
  
 (define-package "vcalc"
-  (:uses "scheme" "csv")
-  (:includes "subrs.scm"
+  (:uses "scheme")
+  (:includes "..\\scheme-core\\csv.scm"
+             "subrs.scm"
              "utils.scm"
              "standard-windows.scm"
              "colors.scm"
