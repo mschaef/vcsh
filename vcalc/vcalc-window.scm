@@ -180,7 +180,7 @@
     [w ensure-visible]))
 
 (define (init-vcalc-stack-window)
-  (let* ((w [<vcalc-window> create])
+  (let* ((w [<vcalc-window> create 'initial-title "vCalc"])
          (d [<keyhelp-drawer> create 'parent w]))
     (slot-set! w 'keyhelp-drawer d)
     w))
