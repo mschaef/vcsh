@@ -31,7 +31,7 @@
 
 (define (call-with-port-bandwidth port fn)
   (let* ((starting-counts (port-io-counts port))
-         (result (%time (fn)))
+         (result (%time-apply0 fn))
          (ending-counts (port-io-counts port)))
     (newline)
     (format #t "; read bandwidth = ~a\n" (/ (- (car ending-counts)
