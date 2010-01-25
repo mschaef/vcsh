@@ -558,7 +558,7 @@
                    ((#\T) (formatter/absolute-tab-stop arg (next-segment)))
                    ((#\@)
                     (unless (eq? (read-char ip) #\*)
-                            (error "Invalid format reference syntax in format string: ~s" format string))
+                            (error "Invalid format reference syntax in format string: ~s" format-string))
                     (formatter/absolute-goto arg (next-segment)))
                    (#t (error "Unknown paramaterized format code in format string: ~s" format-string)))))))
       (define (accept-format-code)
