@@ -55,8 +55,7 @@
 (define (show-signal-handlers)
   "Shows a list of all current signal handlers"
   (format (current-error-port) "Current Signal Handlers:\n--------------------------------\n")
-  (dynamic-let ((*print-closures* #f))
-    (table (%handler-frames) #f (current-error-port))))
+  (table (%handler-frames) #f (current-error-port)))
 
 (define (signal condition . args)
   "Signals condition <condition> with the specified arguments. The signal
