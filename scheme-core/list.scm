@@ -742,7 +742,7 @@
 (define (alist-delete key alist :optional (test? equal?))
   "Returns <alist> with all instances of <key> deleted. <test?> is the equality predicate
    used to identity instances of <key>."
-  (filter (lambda (elt) (not (test?? key (car elt)))) alist))
+  (filter (lambda (elt) (not (test? key (car elt)))) alist))
 
 ;; !! split-at
 ;; !! split-at!
