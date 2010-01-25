@@ -10,7 +10,10 @@
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (ensure-package! "fasl-compiler"))
 
+
 (define (eval form :optional (lenv ()) (genv #f))
+  ;; TODO: Add support to the inspector for passing in lenvs when this
+  ;; gets enabled
   (unless (null? lenv)
     (error "non-null lenvs are not currently supported with compiler evaluation. form: ~s env: ~s" form lenv))
   (catch 'end-eval
