@@ -17,6 +17,8 @@
        ((eq? (car x) 'unquote-splicing) (cadr x))
        (#t (list 'list (qq-expand x)))))
     (cond
+     ;; TODO: Structure support for quasiquote
+     ;; TODO: Instance support for quasiquote
      ((vector? x) (list 'list->vector (qq-expand (vector->list x))))
      ((hash? x) (list 'list->hash (qq-expand (hash->list x))))
      ((atom? x) (list 'quote x))
