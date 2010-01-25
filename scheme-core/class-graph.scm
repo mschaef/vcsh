@@ -4,6 +4,7 @@
 ;;;
 ;;; The class inheritance graph.
 
+(in-package! "scheme")
 
 (define *class-graph* (make-hash))
 
@@ -108,6 +109,8 @@
    is the name of the prototype symbol closest up the prototype list. For
    structures, returns the structure type name."
   (cond ((instance? obj)
+         ;; TODO: Instances should always be of type 'instance, unless they implement
+         ;; a type-of message that returns an alternative type.
          (let next-instance ((obj obj))
            (let ((proto (%instance-proto obj)))
              (cond ((symbol? proto)
@@ -122,6 +125,8 @@
          (%representation-of obj))))
 
 ;;; Method definition
+
+
 
 (define (is-a? object type)
   "Determines if <object> is of the type specified by <type>."
@@ -192,6 +197,8 @@
    whether or not they are directly available or available through inheritance.."
   (set-union/eq (aif (instance-proto instance) (direct-instance-slots it) ())
                 (direct-instance-slots instance)))
+
+;;; TODO: Add separate slot not found handlers for slot-ref and slot-set!.
 
 (define (flatten-instance instance)
   "Returns a copy of <instance> with a flattened prototype chain. The returned
@@ -376,7 +383,7 @@
   (unless (generic-function? generic-function)
     (error "Generic function expected" generic-function))
   (unless (closure? method-closure)
-    (error "Closure expected" method-cllosure))
+    (error "Closure expected" method-closure))
   (unless (or (null? method-signature) (list? method-signature))
     (error "Method signatures must be lists" method-signature))
 
