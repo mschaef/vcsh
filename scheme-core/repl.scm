@@ -29,7 +29,6 @@
 
 (define (repl-history-value index)
   "Returns the history value at index <index>."
-  ;; TODO: negative index could mean an index from the end of the history
   (cond ((not (number? index))
          (error "Bad REPL history index, expected a number.~s" index))
         ((>= index (length *repl-history*))
@@ -170,6 +169,26 @@
         (#t
          (loop (cons (read ip) xs)))))))
 
+(defmacro (with-repl-error-handling context-name . code) ;; TODO: split into fn/macro
+  "Evaluates <form> in environment <env>, suppressing errors and returning
+  return values as a list, rather than as multiple values."
+  `(catch 'repl-abort-evaluation
+     (handler-bind ((uncaught-throw ;; TODO: Refactor this into an external fn
+                     (lambda (tag retval)
+                       ;; TODO: Correct this port
+                       (format #t "Uncaught throw during ~a: ~a\n" ,context-name tag)
+                       (throw 'repl-abort-evaluation (list retval))))
+                    (unhandled-abort
+                     (lambda (condition args)
+                       (format #t "Unhandled abort during ~a: ~a\n\nargs=~a\n\n" ,context-name condition args)
+                       (throw 'repl-abort-evaluation (list condition))))
+                    (user-break
+                     (lambda ()
+                       (info "***USER BREAK***")
+                       (throw 'repl-abort-evaluation (list 'user-break)))))
+       (catch 'error-escape
+         ,@code))))
+
 (define (repl-read abbrevs)
   "Reads a form from the current input port, honoring REPL
    abbreviations contained in <abbrevs>."
@@ -186,34 +205,20 @@
   (flush-port (current-error-port))
   (flush-port (current-output-port))
   (let ((first-char (flush-whitespace)))
-    (invoke-hook '*repl-pre-read-hook*) ;; TODO: error guard
+    (with-repl-error-handling "pre-read-hook"
+     (invoke-hook '*repl-pre-read-hook*))
     (let ((input-form (with-default-read-error-handling (read))))
       (if (and (keyword? input-form) *repl-abbreviations-enabled*)
           (repl-abbreviated-form (cons input-form
                                        (with-default-read-error-handling (read-abbreviated-list))))
           input-form))))
 
-
 (define (repl-eval form :optional (env ()))
   "Evaluates <form> in environment <env>, suppressing errors and returning
   return values as a list, rather than as multiple values."
-  (catch 'repl-abort-evaluation
-    (handler-bind ((uncaught-throw ;; TODO: Refactor this into an external fn
-                    (lambda (tag retval)
-                      ;; TODO: Correct this port
-                      (format #t "Uncaught throw during evaluation: ~a\n" tag)
-                      (throw 'repl-abort-evaluation (list retval))))
-                   (unhandled-abort
-                    (lambda (condition args)
-                      (format #t "Unhandled abort during evaluation: ~a\n\nargs=~a\n\n" condition args)
-                      (throw 'repl-abort-evaluation (list condition))))
-                   (user-break
-                    (lambda ()
-                      (info "***USER BREAK***")
-                      (throw 'repl-abort-evaluation (list 'user-break)))))
-      (catch 'error-escape
-        (values-bind (time (eval `(scheme::%mark-stack 'system-stack-boundary ,form) env)) results
-          results)))))
+  (with-repl-error-handling "evaluation"
+   (values-bind (time (eval `(scheme::%mark-stack 'system-stack-boundary ,form) env)) results
+     results)))
 
 (define *repl-pre-read-hook* ())
 (define *repl-pre-print-value-hook* ())
@@ -224,7 +229,8 @@
    the REPL history."
   (dolist (value values)
     (catch 'repl-do-not-print
-      (invoke-hook '*repl-pre-print-value-hook* value) ;; TODO: error guard
+      (with-repl-error-handling "pre-print-value-hook"
+       (invoke-hook '*repl-pre-print-value-hook* value))
       (handler-bind ((runtime-error (lambda (message args)
                                       (format (current-error-port) "; REPL Print Error: ~I" message args)
                                       (throw 'repl-do-not-print))))
@@ -247,7 +253,8 @@
             (when (eof-object? form)
               (throw 'repl-escape))
             (apply repl-print (repl-eval form env))
-            (invoke-hook '*repl-post-hook*))) ;; TODO: error guard
+            (with-repl-error-handling "post-hook"
+             (invoke-hook '*repl-post-hook*)))) ;; TODO: error guard
         (loop)))))
 
 (define (toplevel-repl)
