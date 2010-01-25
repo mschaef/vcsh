@@ -367,7 +367,7 @@
   (define (print-value? val)
     (member (type-of val) '(symbol character fixnum flonum nil boolean)))
   (aif (traced-procedure? obj)
-       (format #f "Traced ~a" (describe it))
+       (format #f "Traced ~a" (apropos-description it))
        (cond
         ((primitive? obj)
          (format #f "Primitive function: ~s" (procedure-name obj)))
