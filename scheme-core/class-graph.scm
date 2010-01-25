@@ -4,8 +4,6 @@
 ;;;
 ;;; The class inheritance graph.
 
-(in-package! "scheme")
-
 (define *class-graph* (make-hash))
 
 (define (valid-class-name? maybe-class-name)
