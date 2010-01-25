@@ -57,7 +57,7 @@
                   :environment
                   (intern-keyword! cross-compiler-mode))))
     (unless (memq mode '(:environment 
-                         ;:package-renaming
+                         :package-renaming
                          ))
        (bad-command-argument-value 'cross-compiler-mode
                                    "Bad cross compiler mode, valid options are \"environment\" and \"package-renaming\"." mode))

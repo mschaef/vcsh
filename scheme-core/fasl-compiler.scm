@@ -392,6 +392,10 @@
                             (expanded-form-meaning (third form) cenv genv at-toplevel?)
                             (expanded-form-meaning (fourth form) cenv genv at-toplevel?)))
 
+(define (warn-if-global-unbound var genv)
+  (unless (symbol-bound? var () genv)
+    (compile-warning var "Global variable unbound: ~s" var)))
+
 (define (meaning/set! form cenv genv at-toplevel?)
   (dbind (fn-pos var val-form) form
     (cond ((keyword? var)
@@ -399,6 +403,7 @@
           ((bound-in-cenv? var cenv)
            (scheme::assemble-fast-op :local-set! var (expanded-form-meaning val-form cenv genv at-toplevel?)))
           (#t
+           (warn-if-global-unbound var genv)
            (scheme::assemble-fast-op :global-set! var (expanded-form-meaning val-form cenv genv at-toplevel?))))))
 
 (define (meaning/%define form cenv genv at-toplevel?)
@@ -411,12 +416,14 @@
 (define (meaning/quote form cenv genv at-toplevel?)
   (scheme::assemble-fast-op :literal (cadr form)))
 
+
 (define (meaning/symbol form cenv genv at-toplevel?)
   (cond ((keyword? form)
          (scheme::assemble-fast-op :literal form))
         ((bound-in-cenv? form cenv)
          (scheme::assemble-fast-op :local-ref form))
         (#t
+         (warn-if-global-unbound form genv)
          (scheme::assemble-fast-op :global-ref form))))
 
 (define (meaning/the-environment form cenv genv at-toplevel?)
@@ -683,22 +690,32 @@
          (error "Invalid input filename: ~s" input-filename))))
 
 ;; This is an example of how another form of cross compilation might work
-;;
-;; (define (setup-cross-compiler/package-renaming)
-;;   "Setup for cross compiling using renamed packages."
-;;   (format #t "; Configuring for cross compile by renaming packages.\n")
-;;   (let ((excluded-packages (map find-package '("system" "keyword"))))
-;;     (dolist (p (list-all-packages))
-;;       (unless (memq p excluded-packages)
-;;         (rename-package! p (string-append "host-" (package-name p))))))
-;;   (make-package! "scheme")
-;;   (make-package! "user")
-;;   (use-package! "system" "scheme")
-;;   (use-package! "scheme" "user")
-;;   (in-package! "scheme")
-;;   (load-internal "s-core")
-;;   (set! fasl-compiler::*compiler-reader*
-;;         (symbol-value (intern! "read" (find-package "scheme")))))
+
+(define (setup-cross-compiler/package-renaming)
+  "Setup for cross compiling using renamed packages."
+  (format #t "; Configuring for cross compile by renaming packages.\n")
+  (let ((excluded-packages (map find-package '("system" "keyword"))))
+    (dolist (p (list-all-packages))
+      (unless (memq p excluded-packages)
+        (rename-package! p (string-append "host-" (package-name p))))))
+  (let ((new-scheme (make-package! "scheme")))
+    (import! 'scheme::%macro          new-scheme)
+    (import! 'scheme::%lambda         new-scheme)
+    (import! 'scheme::or              new-scheme)
+    (import! 'scheme::and             new-scheme)
+    (import! 'scheme::if              new-scheme)
+    (import! 'scheme::set!            new-scheme)
+    (import! 'scheme::%define         new-scheme)
+    (import! 'scheme::quote           new-scheme)
+    (import! 'scheme::the-environment new-scheme)
+    (import! 'scheme::%mark-stack     new-scheme)
+    (import! 'scheme::include         new-scheme)
+    (import! 'scheme::eval-when       new-scheme)
+    (import! 'scheme::%subr-by-name   new-scheme))
+  (make-package! "user")
+  (use-package! "system" "scheme")
+  (use-package! "scheme" "user")
+  (in-package! "scheme"))
 
 (define (compile-file filename :optional (output-file-name #f))
   (let ((output-file-name (cond ((string? output-file-name) output-file-name)
@@ -717,8 +734,10 @@
                                     message args)
                             (throw 'end-compile-now 127)))))
 
+        (when (eq? *cross-compile* :package-renaming)
+          (setup-cross-compiler/package-renaming))
         (let* ((compiler-genv (scheme::%current-global-environment))
-               (target-genv (if *cross-compile*
+               (target-genv (if (eq? *cross-compile* :environment)
                                 (copy-global-environment :compiler-target-bindings)
                                 compiler-genv)))
 
