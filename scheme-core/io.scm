@@ -187,6 +187,15 @@
       (%debug-printer obj port #f))
       (printer obj port #f))
 
-
-
-
+(defmacro (with-temporary-file filename-var prefix . code)
+  (with-gensyms (internal-filename-var)
+    ;; We store the temporary filename twice, once in a local variable
+    ;; that's not visible outside the macro definition itself. This allows
+    ;; the macro to guarantee that it deletes the file that was created,
+    ;; even if <code> rebinds <filename-var>.
+    `(let* ((,internal-filename-var (temporary-file-name ,prefix))
+            (,filename-var ,internal-filename-var))
+       (unwind-protect (lambda () ,@code)
+                       (lambda ()
+                         (when (file-exists? ,internal-filename-var)
+                           (delete-file ,internal-filename-var)))))))

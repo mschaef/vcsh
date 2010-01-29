@@ -912,6 +912,7 @@
            with-output-to-string
            with-package
            with-port
+           with-temporary-file
            within?
            write
            write-binary-fixnum
