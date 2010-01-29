@@ -17,6 +17,7 @@
 (define-package "dotty"
   (:uses "scheme")
   (:exports "write/dotty"
+            "lisp-name->c-name"
             "dotty"))
 
 (define (lisp-name->c-name name)
@@ -28,25 +29,33 @@
   (if (symbol? name)
       (lisp-name->c-name (symbol-name name))
       (let ((ip (open-input-string name))
-	    (op (open-output-string)))
-	(let loop ((leading? #t))
-	  (let ((ch (read-char ip)))
-	    (cond ((and leading? (member ch '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)))
-		   (display ch op))
-		  ((and (eq? ch #\-) (eq? (peek-char ip) #\>))
-		   (read-char ip) ; eat the #\>
-		   (when leading?
-		     (display #\_ op))
-		   (display #\2 op))
-		  ((eq? ch #\-)
-		   (display #\_ op))
-		  ((eof-object? ch)
-		   )
-		  (#t
-		   (display ch op)))
-	    (unless (port-at-end? ip)
-	      (loop #f))))
-	(get-output-string op))))
+            (op (open-output-string)))
+        (let loop ((leading? #t))
+          (let ((ch (read-char ip)))
+            (cond ((and leading? (member ch '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)))
+                   (display ch op))
+                  ((and (eq? ch #\-) (eq? (peek-char ip) #\>))
+                   (read-char ip) ; eat the #\>
+                   (when leading?
+                     (display #\_ op))
+                   (display #\2 op))
+                  ((eq? ch #\*)
+                   (display "__" op))
+                  ((eq? ch #\?)
+                   (display "_p" op))
+                  ((eq? ch #\%)
+                   (if leading?
+                       (display "_i_" op)
+                       (display "pct" op)))
+                  ((eq? ch #\-)
+                   (display #\_ op))
+                  ((eof-object? ch)
+                   )
+                  (#t
+                   (display ch op)))
+            (unless (port-at-end? ip)
+              (loop #f))))
+        (get-output-string op))))
 
 (define (quote-c-string string)
   "Returns <string>, with the necessary quotations to make it representable
@@ -71,7 +80,7 @@
   "Returns a string naming the object in dotty syntax. Each object, distinguished
    by eq?, is guaranteed to have a unique name."
   (format #f "~a_~a" (lisp-name->c-name (type-of x))
-	  (number->string (%obaddr x) 16)))
+	  (number->string (scheme::%obaddr x) 16)))
 
 (define (write-dotty-edge p src src-elem dest)
   (when (and (not (null? src)) (not (null? dest)))
@@ -95,7 +104,7 @@
       (unless (hash-has? visited x)
 	(hash-set! visited x #t)
 	(case (type-of x)
-	  ((character fixnum flonum complex boolean)
+	  ((character fixnum flonum complex)
 	   (format p "~a [ label=\"~s\" ];\n" (dotty-object-name x) x))
 	  ((boolean)
 	   (format p "~a\n" (dotty-object-name x)))
@@ -108,12 +117,12 @@
 	  ((closure)
 	   (format p "~a [ shape=record, label=\"closure | { <code>code|<env>env|<p_list>p_list }\"];\n"
 		   (dotty-object-name x))
-	   (write-dotty-edge p x "code" (%closure-code x))
-	   (write-dotty-edge p x "env" (%closure-env x))
-	   (write-dotty-edge p x "p_list" (%procedure-property-list x))
-	   (loop (%closure-code x))
-	   (loop (%closure-env x))
-	   (loop (%procedure-property-list x)))
+	   (write-dotty-edge p x "code" (scheme::%closure-code x))
+	   (write-dotty-edge p x "env" (scheme::%closure-env x))
+	   (write-dotty-edge p x "p_list" (scheme::%property-list x))
+	   (loop (scheme::%closure-code x))
+	   (loop (scheme::%closure-env x))
+	   (loop (scheme::%property-list x)))
 	  ((lisp-array)
 	   (format p "~a [ shape=record, label=\"#()|" (dotty-object-name x))
 	   (let next-element ((i 0) (needs-seperator? #f))
@@ -141,15 +150,15 @@
 ;    ((string hash macro)
 
 (define (dotty . xs)
-  (let ((dotty-filename (temporary-file-name "dot")))
+  (with-temporary-file dotty-filename "dot"
     (with-port p (open-output-file dotty-filename)
       (format p "digraph G {\n")
       (dolist (x xs)
         (write/dotty x p))
       (format p "};\n"))
-    ;;    (system (format #f "start /wait dotty ~a" dotty-filename)) - win32
-    (system (format #f "dotty ~a" dotty-filename))
-    (delete-file dotty-filename)))
+    (system (format #f "dir ~a" dotty-filename))
+
+    (system (format #f "dotty ~a" dotty-filename))))
 
 
 
