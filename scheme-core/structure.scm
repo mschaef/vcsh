@@ -251,11 +251,6 @@
        it
        (error "Slot ~s not found in structure ~s." slot-name structure)))
 
-(define (%make-structure-from-layout layout args)
-  (initialize-structure
-   (%structure-cons (make-vector (length (cadr layout))) layout)
-   args))
-
 (define (make-structure-by-name type-name . args)
   (aif (get-property type-name 'structure-constructor)
        (apply it args)
