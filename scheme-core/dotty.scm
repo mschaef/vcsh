@@ -156,9 +156,11 @@
       (dolist (x xs)
         (write/dotty x p))
       (format p "};\n"))
-    (system (format #f "dir ~a" dotty-filename))
-
-    (system (format #f "dotty ~a" dotty-filename))))
+    (system (format #f "dotty ~a" dotty-filename))
+    ;; necessary to give dotty time to read the graph. dotty is a
+    ;; bit odd in that it immediately launches an instance of lefty,
+    ;; loads dotty.lefty and the graph, and immediately quits.
+    (sleep 2000)))
 
 
 
