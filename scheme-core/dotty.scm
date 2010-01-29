@@ -79,8 +79,9 @@
 (define (dotty-object-name x)
   "Returns a string naming the object in dotty syntax. Each object, distinguished
    by eq?, is guaranteed to have a unique name."
-  (format #f "~a_~a" (lisp-name->c-name (type-of x))
-	  (number->string (scheme::%obaddr x) 16)))
+  (format #f "~a_~a"
+          (lisp-name->c-name (type-of x))
+          (number->string (scheme::%obaddr x) 16)))
 
 (define (write-dotty-edge p src src-elem dest)
   (when (and (not (null? src)) (not (null? dest)))
@@ -123,7 +124,7 @@
 	   (loop (scheme::%closure-code x))
 	   (loop (scheme::%closure-env x))
 	   (loop (scheme::%property-list x)))
-	  ((lisp-array)
+	  ((vector)
 	   (format p "~a [ shape=record, label=\"#()|" (dotty-object-name x))
 	   (let next-element ((i 0) (needs-seperator? #f))
 	     (when (< i (length x))
@@ -144,9 +145,19 @@
 	   (write-dotty-edge p x "car" (car x))
 	   (write-dotty-edge p x "cdr" (cdr x))
 	   (loop (car x))
-	   (loop (cdr x)))))))
+	   (loop (cdr x)))
+      ((fast-op)
+       (values-bind (scheme::parse-fast-op x) (opcode args)
+         (format p "~a [ shape=record, label=\"#fop:~a|" (dotty-object-name x) opcode)
+         (doiterate ((list arg args)
+                     (count ii 0))
+           (format p "~a<~a>" (if (> ii 0) "|" "") ii))
+         (format p "\" ];\n")
+         (doiterate ((list arg args)
+                     (count ii 0))
+           (loop arg)
+           (write-dotty-edge p x ii arg)))))))))
 
-)
 ;    ((string hash macro)
 
 (define (dotty . xs)
@@ -158,8 +169,8 @@
       (format p "};\n"))
     (system (format #f "dotty ~a" dotty-filename))
     ;; necessary to give dotty time to read the graph. dotty is a
-    ;; bit odd in that it immediately launches an instance of lefty,
-    ;; loads dotty.lefty and the graph, and immediately quits.
+    ;; bit odd in that it launches, spawns another process to do the
+    ;; work, and then immediately returns.
     (sleep 2000)))
 
 
