@@ -3,7 +3,8 @@
   (:uses "scheme")
   (:exports "package-call-graph"
             "call-graph"
-            "procedure-global-bindings"))
+            "procedure-global-bindings"
+            "map-bindings"))
 
 (define (closure-global-bindings fn)
   (list->set/eq
@@ -48,13 +49,27 @@
     ((subr)
      ())))
 
+(define (map-bindings fn cg)
+  (map #L(cons (car _)
+               (fn (cdr _)))
+       cg))
+
 (define (call-graph symbols)
   (map #L(cons _ (procedure-global-bindings (symbol-value _)))
        (filter #L(and (symbol-bound? _)
                       (procedure? (symbol-value _)))
                symbols)))
 
-(define (package-call-graph package)
-  (call-graph (local-package-symbols (->package package))))
+(define (filter-bindings pred cg)
+  (map-bindings #L(filter pred _) cg))
+
+(define (remove-externals cg local-pkg)
+  (filter-bindings #L(eq? (symbol-package _) local-pkg) cg))
+
+(define (package-call-graph package :keyword (externals? #t))
+  (let ((cg (call-graph (local-package-symbols (->package package)))))
+    (if externals?
+        cg
+        (remove-externals cg (->package package)))))
 
 
