@@ -52,7 +52,7 @@ namespace scan {
 
       FAST_LOAD_STACK_DEPTH = 8,      // The depth of the stack the FASL loader uses to store load unit state
 
-      ARG_BUF_LEN = 24,               // The number of arguments contained in argment buffers
+      ARG_BUF_LEN = 32,               // The number of arguments contained in argment buffers
 
       MAX_THREADS = 8,                // The maximum number of threads.
       THREAD_FREELIST_SIZE = 1024,    // The number of cells on per-thread sub-freelist

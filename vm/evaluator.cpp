@@ -901,11 +901,12 @@ namespace scan {
         args = CDR(args);
       }
 
-    if (!NULLP(args))
-      vmerror("bad argument list in call to apply: ~s", lcons(fn, args));
 
     if (fn_argc >= ARG_BUF_LEN)
       vmerror("too many arguments in call to apply: ~s", lcons(fn, NIL));
+
+    if (!NULLP(args))
+      vmerror("bad argument list in call to apply: ~s", lcons(fn, args));
 
     LRef retval = NIL;
 
