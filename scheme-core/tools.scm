@@ -627,3 +627,33 @@
                     (set! *package-restore-proc* #f)))))
     (in-package! package)))
 
+;; Memory utilities
+
+(define (type-stats-delta x y)
+  (define (lookup-x type)
+    (aif (assq type x) (cdr it) 0))
+  (map #L(cons (car _) ( - (lookup-x (car _)) (cdr _))) y))
+
+(define (write-type-stats-table ts :optional (op (current-output-port)))
+  (define (type-name type)
+    (format #f "~s" type))
+  (let ((max-type-length (apply max (map #L(length (type-name (car _))) ts))))
+    (dolist (entry (qsort ts > cdr))
+      (format op "; ~a = ~a cells\n" (pad-to-width (car entry) max-type-length) (cdr entry)))))
+
+(push! '(:sts show-type-stats) *repl-abbreviations*)
+
+(define (show-type-stats)
+  (write-type-stats-table (scheme::%show-type-stats) (current-debug-port))
+  (values))
+
+(push! '(:std show-type-delta) *repl-abbreviations*)
+
+(defmacro (show-type-delta expr)
+  (with-gensyms (initial-ts-sym)
+    `(let ((,initial-ts-sym (scheme::%show-type-stats)))
+       (begin-1
+        ,expr
+        (let ((final-ts (scheme::%show-type-stats)))
+          (format (current-debug-port) "; Type stats delta (note that this reflects GC's)\n;\n")
+          (write-type-stats-table (type-stats-delta final-ts ,initial-ts-sym) (current-debug-port)))))))

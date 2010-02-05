@@ -734,6 +734,8 @@
            set-union/eq
            shadow-symbol!
            show-runtime-error
+           show-type-delta
+           show-type-stats
            signal
            simplify-filename-list
            sin
