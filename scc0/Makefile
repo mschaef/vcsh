@@ -20,7 +20,4 @@ clean:
 	rm -f *.scf *~
 
 revert:
-	git checkout fasl-compiler-run.scf \
-                 fasl-compiler0.scf \
-                 invoke-repl.scf \
-                 scheme.scf
+	git checkout fasl-compiler-run.scf scheme.scf
