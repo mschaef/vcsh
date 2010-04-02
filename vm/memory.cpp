@@ -346,6 +346,11 @@ namespace scan {
             gc_mark(FAST_OP_ARG1(obj));
             gc_mark(FAST_OP_ARG2(obj));
             obj = FAST_OP_ARG3(obj);
+            
+          default:
+            // By default, objects are either immediate or otherwise self contained, and
+            // do not need special-case handling in gc_mark.
+            break;
           }
       }
   }
@@ -429,6 +434,12 @@ namespace scan {
       if (interp.gc_trip_wires_armed)
         panic("GC trip wire freed!");
       break;
+
+    default:
+      // By default, objects are either immediate or otherwise self contained, and
+      // do not need special-case free handling.
+      break;
+
     }
 
     gc_init_cell(obj);

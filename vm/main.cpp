@@ -177,9 +177,8 @@ namespace scan {
     case TC_HASH:       return hash_equal(a, b);
     case TC_INSTANCE:   return instance_equal(a, b);
     case TC_FAST_OP:    return fast_op_equal(a, b);
+    default:            return false;
     }
-
-    return false;
   }
 
   LRef lequal(LRef a, LRef b)
