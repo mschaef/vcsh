@@ -21,28 +21,13 @@
 
 namespace scan {
 
-  sys_retcode_t rc_to_sys_retcode_t(int rc); // forward decl
-
-  flonum_t sys_runtime(void)
+  void sys_init()
   {
-    timeval now;
-
-    int retval = gettimeofday(&now, NULL);
-
-    assert(retval == 0);
-
-    return (double)now.tv_sec + ((double)now.tv_usec)/1000000.0;
   }
 
-  flonum_t sys_time_resolution()
-  {
-    return 1000000.0;
-  }
-
-  sys_retcode_t sys_gethostname(_TCHAR *buf, size_t len)
-  {
-    return rc_to_sys_retcode_t(gethostname(buf, len));
-  }
+  /****************************************************************
+   * Environment Variable Access
+   */
 
   _TCHAR **sys_get_env_vars()
   {
@@ -52,6 +37,80 @@ namespace scan {
   sys_retcode_t sys_setenv(_TCHAR *varname, _TCHAR *value)
   {
     return rc_to_sys_retcode_t(setenv(varname, value, 1)); // 1 == always overwrite
+  }
+
+
+  sys_retcode_t sys_opendir(const char *path, sys_dir_t **dir)
+  {
+    *dir = (sys_dir_t *)safe_malloc(sizeof(sys_dir_t));
+
+    if (*dir == NULL)
+      return SYS_ENOMEM;
+
+    (*dir)->_dir = opendir(path);
+
+    if ((*dir)->_dir == NULL)
+      {
+        safe_free(*dir);
+        *dir = NULL;
+
+        return rc_to_sys_retcode_t(errno);
+      }
+
+    return SYS_OK;
+  }
+
+
+  sys_retcode_t sys_readdir(sys_dir_t *dir, sys_dirent_t *ent, bool *done)
+  {
+    struct dirent *sent;
+
+    errno = 0;
+    sent = readdir(dir->_dir);
+
+    if (sent == NULL)
+      {
+        *done = true;
+        return rc_to_sys_retcode_t(errno);
+      }
+    else
+      *done = false;
+
+    ent->_ino  = sent->d_ino;
+
+#if !defined(__CYGWIN__)
+    switch(sent->d_type) {
+    case DT_FIFO: ent->_type = SYS_FT_FIFO; break;
+    case DT_CHR:  ent->_type = SYS_FT_CHR;  break;
+    case DT_DIR:  ent->_type = SYS_FT_DIR;  break;
+    case DT_BLK:  ent->_type = SYS_FT_BLK;  break;
+    case DT_REG:  ent->_type = SYS_FT_REG;  break;
+    case DT_LNK:  ent->_type = SYS_FT_LNK;  break;
+    case DT_SOCK: ent->_type = SYS_FT_SOCK; break;
+    case DT_WHT:  ent->_type = SYS_FT_FIFO; break;
+    case DT_UNKNOWN:
+      /* fall-through */
+    default:
+      ent->_type = SYS_FT_UNKNOWN;
+      break;
+    }
+#else
+    ent->_type = SYS_FT_UNKNOWN;
+#endif
+
+    strncpy(ent->_name, sent->d_name, SYS_NAME_MAX);
+
+    return SYS_OK;
+  }
+
+  sys_retcode_t sys_closedir(sys_dir_t *dir)
+  {
+    DIR *d = dir->_dir;
+
+    dir->_dir = NULL;
+    safe_free(dir);
+
+    return rc_to_sys_retcode_t(closedir(d));
   }
 
   const char *filename_beginning(const char *path)
@@ -127,77 +186,60 @@ namespace scan {
     DIR *_dir;
   };
 
-  sys_retcode_t sys_opendir(const char *path, sys_dir_t **dir)
+  /****************************************************************
+   * Time and Date
+   */
+
+  static flonum_t runtime_offset = 0.0;  // timebase offset to interp start
+
+  static flonum_t sys_timebase_time(void);
+
+  static void sys_init_time()
   {
-    *dir = (sys_dir_t *)safe_malloc(sizeof(sys_dir_t));
-
-    if (*dir == NULL)
-      return SYS_ENOMEM;
-
-    (*dir)->_dir = opendir(path);
-
-    if ((*dir)->_dir == NULL)
-      {
-        safe_free(*dir);
-        *dir = NULL;
-
-        return rc_to_sys_retcode_t(errno);
-      }
-
-    return SYS_OK;
+    // Record the current time so that we can get a measure of uptime
+    runtime_offset = sys_timebase_time();
   }
 
-
-  sys_retcode_t sys_readdir(sys_dir_t *dir, sys_dirent_t *ent, bool *done)
+  static flonum_t sys_timebase_time(void)
   {
-    struct dirent *sent;
+    struct timeval tv;
 
-    errno = 0;
-    sent = readdir(dir->_dir);
+    gettimeofday(&tv, NULL);
 
-    if (sent == NULL)
-      {
-        *done = true;
-        return rc_to_sys_retcode_t(errno);
-      }
-    else
-      *done = false;
-
-    ent->_ino  = sent->d_ino;
-
-#if !defined(__CYGWIN__)
-    switch(sent->d_type) {
-    case DT_FIFO: ent->_type = SYS_FT_FIFO; break;
-    case DT_CHR:  ent->_type = SYS_FT_CHR;  break;
-    case DT_DIR:  ent->_type = SYS_FT_DIR;  break;
-    case DT_BLK:  ent->_type = SYS_FT_BLK;  break;
-    case DT_REG:  ent->_type = SYS_FT_REG;  break;
-    case DT_LNK:  ent->_type = SYS_FT_LNK;  break;
-    case DT_SOCK: ent->_type = SYS_FT_SOCK; break;
-    case DT_WHT:  ent->_type = SYS_FT_FIFO; break;
-    case DT_UNKNOWN:
-      /* fall-through */
-    default:
-      ent->_type = SYS_FT_UNKNOWN;
-      break;
-    }
-#else
-    ent->_type = SYS_FT_UNKNOWN;
-#endif
-
-    strncpy(ent->_name, sent->d_name, SYS_NAME_MAX);
-
-    return SYS_OK;
+    return tv.tv_sec + tv_usec * 1000000.0
   }
 
-  sys_retcode_t sys_closedir(sys_dir_t *dir)
+  flonum_t sys_realtime(void)
   {
-    DIR *d = dir->_dir;
+    return sys_timebase_time();
+  }
 
-    dir->_dir = NULL;
-    safe_free(dir);
+  flonum_t sys_runtime(void)
+  {
+    return sys_timebase_time() - runtime_offset;
+  }
 
-    return rc_to_sys_retcode_t(closedir(d));
+  flonum_t sys_time_resolution()
+  {
+    return 1000000.0;
+  }
+
+  flonum_t sys_timezone_offset()
+  {
+    struct timezone tz;
+
+    gettimeofday(NULL, &tz);
+
+    return (flonum_t)tz.tz_minuteswest * SECONDS_PER_MINUTE;
+  }
+
+  /****************************************************************
+   * System Information
+   */
+
+  sys_retcode_t sys_gethostname(_TCHAR *buf, size_t len)
+  {
+    return rc_to_sys_retcode_t(gethostname(buf, len));
   }
 
   void sys_get_info(sys_info_t *info)
@@ -207,6 +249,10 @@ namespace scan {
     info->_fs_names_case_sensitive = true;
     info->_platform_name           = _T("linux");
   }
+
+  /****************************************************************
+   * Error Code Mapping
+   */
 
   sys_retcode_t rc_to_sys_retcode_t(int rc)
   {
@@ -254,42 +300,42 @@ namespace scan {
     case ENOTEMPTY       : return SYS_ENOTEMPTY;
     case ELOOP           : return SYS_ELOOP;
     case ENOMSG          : return SYS_ENOMSG;
-    case EL2NSYNC        : return SYS_EL2NSYNC;
-    case EL3HLT          : return SYS_EL3HLT;
-    case EL3RST          : return SYS_EL3RST;
-    case ELNRNG          : return SYS_ELNRNG;
-    case EUNATCH         : return SYS_EUNATCH;
-    case ENOCSI          : return SYS_ENOCSI;
-    case EL2HLT          : return SYS_EL2HLT;
-    case EBADE           : return SYS_EBADE;
-    case EBADR           : return SYS_EBADR;
-    case EXFULL          : return SYS_EXFULL;
-    case ENOANO          : return SYS_ENOANO;
-    case EBADRQC         : return SYS_EBADRQC;
-    case EBADSLT         : return SYS_EBADSLT;
-    case EBFONT          : return SYS_EBFONT;
+      //case EL2NSYNC        : return SYS_EL2NSYNC;
+      //case EL3HLT          : return SYS_EL3HLT;
+      //case EL3RST          : return SYS_EL3RST;
+      //case ELNRNG          : return SYS_ELNRNG;
+      //case EUNATCH         : return SYS_EUNATCH;
+      //case ENOCSI          : return SYS_ENOCSI;
+      //case EL2HLT          : return SYS_EL2HLT;
+      //case EBADE           : return SYS_EBADE;
+      //case EBADR           : return SYS_EBADR;
+      //case EXFULL          : return SYS_EXFULL;
+      //case ENOANO          : return SYS_ENOANO;
+      //case EBADRQC         : return SYS_EBADRQC;
+      //case EBADSLT         : return SYS_EBADSLT;
+      //case EBFONT          : return SYS_EBFONT;
     case ENOSTR          : return SYS_ENOSTR;
     case ETIME           : return SYS_ETIME;
-    case ENONET          : return SYS_ENONET;
-    case ENOPKG          : return SYS_ENOPKG;
+      //case ENONET          : return SYS_ENONET;
+      //case ENOPKG          : return SYS_ENOPKG;
     case EREMOTE         : return SYS_EREMOTE;
     case ENOLINK         : return SYS_ENOLINK;
-    case EADV            : return SYS_EADV;
-    case ESRMNT          : return SYS_ESRMNT;
-    case ECOMM           : return SYS_ECOMM;
+      //case EADV            : return SYS_EADV;
+      //case ESRMNT          : return SYS_ESRMNT;
+      //case ECOMM           : return SYS_ECOMM;
     case EPROTO          : return SYS_EPROTO;
     case EMULTIHOP       : return SYS_EMULTIHOP;
-    case EDOTDOT         : return SYS_EDOTDOT;
+      //case EDOTDOT         : return SYS_EDOTDOT;
     case EBADMSG         : return SYS_EBADMSG;
     case EOVERFLOW       : return SYS_EOVERFLOW;
-    case ENOTUNIQ        : return SYS_ENOTUNIQ;
-    case EBADFD          : return SYS_EBADFD;
-    case EREMCHG         : return SYS_EREMCHG;
-    case ELIBACC         : return SYS_ELIBACC;
-    case ELIBBAD         : return SYS_ELIBBAD;
-    case ELIBSCN         : return SYS_ELIBSCN;
-    case ELIBMAX         : return SYS_ELIBMAX;
-    case ELIBEXEC        : return SYS_ELIBEXEC;
+      //case ENOTUNIQ        : return SYS_ENOTUNIQ;
+      //case EBADFD          : return SYS_EBADFD;
+      //case EREMCHG         : return SYS_EREMCHG;
+      //case ELIBACC         : return SYS_ELIBACC;
+      //case ELIBBAD         : return SYS_ELIBBAD;
+      //case ELIBSCN         : return SYS_ELIBSCN;
+      //case ELIBMAX         : return SYS_ELIBMAX;
+      //case ELIBEXEC        : return SYS_ELIBEXEC;
     case EILSEQ          : return SYS_EILSEQ;
       // case ERESTART        : return SYS_ERESTART;
       // case ESTRPIPE        : return SYS_ESTRPIPE;
@@ -329,7 +375,7 @@ namespace scan {
       // case EISNAM          : return SYS_EISNAM;
       // case EREMOTEIO       : return SYS_EREMOTEIO;
     case EDQUOT          : return SYS_EDQUOT;
-    case ENOMEDIUM       : return SYS_ENOMEDIUM;
+      //case ENOMEDIUM       : return SYS_ENOMEDIUM;
       // case EMEDIUMTYPE     : return SYS_EMEDIUMTYPE;
       // case ECANCELED       : return SYS_ECANCELED;
       // case ENOKEY          : return SYS_ENOKEY;
@@ -341,40 +387,15 @@ namespace scan {
     default              : return SYS_EWIERD;
     }
   }
-  // REVISIT: There has to be a better way to find the stack start in Linux
 
-  static void *stack_start = NULL;
-
-  void set_stack_start()
-  {
-    int foo;
-
-    stack_start = &foo;
-  }
-
-  void *get_stack_start()
-  {
-    assert(stack_start);
-
-    return stack_start;
-  }
+  /****************************************************************
+   * Debug I/O
+   */
 
   void output_debug_string(const _TCHAR *str)
   {
     fputs(str, stderr);
   }
-
-  void debug_break()
-  {
-    __asm__ __volatile__ ("int3"); // !!! Is this the gdb way to simulate a breakpoint?
-  }
-
-  /**************************************************************
-   * int debug_printf(_TCHAR *, ...)
-   *
-   * Debugging print statement. Sends debug messages to the
-   * standard debugging output.
-   */
 
   enum { MESSAGE_BUF_SIZE = 256 };
 
@@ -392,6 +413,10 @@ namespace scan {
 
     return i;
   }
+
+  /****************************************************************
+   * Panic Handling
+   */
 
   static panic_handler_t current_panic_handler = NULL;
 
@@ -418,6 +443,106 @@ namespace scan {
     exit(1);
   }
 
+  void debug_break()
+  {
+    __asm__ __volatile__ ("int3"); // !!! Is this the gdb way to simulate a breakpoint?
+  }
+
+  /****************************************************************
+   * Threads
+   */
+
+  sys_thread_t sys_create_thread(thread_entry_t entry, uptr max_stack_size,  void *arglist)
+  {
+    return 0;
+  }
+
+  sys_thread_t sys_current_thread()
+  {
+    return 0;
+  }
+
+  void *sys_set_thread_stack_limit(size_t new_size_limit) // new_size_limit of 0 disables limit checking
+  {
+    return NULL;
+  }
+
+  sys_retcode_t sys_suspend_thread(sys_thread_t thread)
+  {
+    return SYS_OK;
+  }
+
+  sys_retcode_t sys_resume_thread(sys_thread_t thread)
+  {
+    return SYS_OK;
+  }
+
+  struct sys_critical_section_t // REVISIT: Add magic number?
+  {
+    int dummy;
+  };
+
+  sys_critical_section_t *sys_create_critical_section() // REVISIT: Add section name?
+  {
+    sys_critical_section_t *crit_sec =
+      (sys_critical_section_t *)safe_malloc(sizeof(sys_critical_section_t));
+
+    return crit_sec;
+  }
+
+  void sys_enter_critical_section(sys_critical_section_t *crit_sec)
+  {
+    assert(crit_sec != NULL);
+  }
+
+  void sys_leave_critical_section(sys_critical_section_t *crit_sec)
+  {
+    assert(crit_sec != NULL);
+  }
+
+  void sys_delete_critical_section(sys_critical_section_t *crit_sec)
+  {
+    assert(crit_sec != NULL);
+
+    safe_free(crit_sec);
+  }
+
+  void sys_sleep(uintptr_t duration_ms)
+  {
+    usleep(duration_ms);
+  }
+
+
+  sys_thread_context_t *sys_get_thread_context(sys_thread_t thread)
+  {
+    return NULL;
+  }
+
+  void sys_thread_context_get_state_region(sys_thread_context_t *context, void **low, void **high)
+  {
+    *low  = NULL;
+    *high = NULL;
+  }
+
+  void *sys_thread_context_get_stack_pointer(sys_thread_context_t *context)
+  {
+    return NULL;
+  }
+
+  /****************************************************************
+   * String utilities
+   */
+
+#if defined(__CYGWIN__) || defined (SCAN_UNIX)
+  char *strchrnul(char *string, int c) // REVISIT: Also implmented in windows-sys.cpp... consolidate
+  {
+    for(; *string; string++)
+      if (*string == c)
+        break;
+
+    return string;
+  }
+#endif
 
 } // end namespace scan
 

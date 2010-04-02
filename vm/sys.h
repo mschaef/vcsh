@@ -29,7 +29,7 @@
 
 
 #ifdef SCAN_UNIX // REVISIT: Can these ifdef's be removed?
-#  error Multithreaded build not supported on Unix
+#  define SCAN_THREAD_LOCAL __thread
 #endif
 
 #ifdef SCAN_WINDOWS
@@ -284,7 +284,12 @@ namespace scan {
   if (((u8 *)_obj) < stack_limit_obj)           \
     vmerror_stack_overflow((u8 *) _obj);
 
+#ifdef SCAN_WINDOWS
   typedef uintptr_t sys_thread_t;
+#endif
+#ifdef SCAN_UNIX
+  typedef pthread_t sys_thread_t;
+#endif
 
   typedef void(* thread_entry_t)(void *);
 
@@ -313,6 +318,10 @@ namespace scan {
 
   void sys_sleep(uintptr_t duration_ms);
 
+  char *strchrnul(char *string, int c);
+
 } // namespace scan
+
+extern char **environ;
 
 #endif // __SYS_H
