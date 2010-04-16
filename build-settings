@@ -3,7 +3,7 @@
 # Settings for configuring the type of build to produce.
 
 # DEBUG, RELEASE, or CHECKED
-BUILD_TYPE=DEBUG
+BUILD_TYPE=CHECKED
 
 # unix (gcc), windows (msvc)
 PLATFORM=unix
