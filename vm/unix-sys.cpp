@@ -597,7 +597,13 @@ namespace scan {
     if (crit_sec == NULL)
       return NULL;
 
-    int rc = pthread_mutex_init(&(crit_sec->mutex), NULL);
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+
+    int rc = pthread_mutex_init(&(crit_sec->mutex), &attr);
+
+    pthread_mutexattr_destroy(&attr);
 
     if (rc != 0)
       {
