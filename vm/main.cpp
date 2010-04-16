@@ -903,6 +903,7 @@ namespace scan {
 
     register_main_subrs();
 
+    CURRENT_TIB()->state = THREAD_RUNNING;
     gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
     SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));

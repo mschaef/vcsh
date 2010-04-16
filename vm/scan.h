@@ -396,7 +396,7 @@ namespace scan {
   {
     THREAD_EMPTY,
     THREAD_STARTING,
-    THREAD_RUNNIG
+    THREAD_RUNNING
   };
 
   struct interpreter_thread_info_block_t
