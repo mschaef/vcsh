@@ -229,7 +229,7 @@ namespace scan {
   void __frame_set_top(frame_record_t *f)
   {
 #ifdef _DEBUG
-    frame_record_t *loc = thread.frame_stack;
+    frame_record_t *loc = CURRENT_TIB()->frame_stack;
 
     while(loc)
       {
@@ -240,7 +240,7 @@ namespace scan {
     assert(loc); // The frame ought to be on the stack already.
 #endif
 
-    thread.frame_stack = f;
+    CURRENT_TIB()->frame_stack = f;
   }
 
   /* __frame_find(pred, info)
@@ -258,7 +258,7 @@ namespace scan {
    */
   frame_record_t *__frame_find(frame_predicate pred, uptr info)
   {
-    frame_record_t *loc = thread.frame_stack;
+    frame_record_t *loc = CURRENT_TIB()->frame_stack;
 
     while(loc)
       {
@@ -1144,14 +1144,14 @@ namespace scan {
 
   LRef lset_handler_frames(LRef new_frames)
   {
-    thread.handler_frames = new_frames;
+    CURRENT_TIB()->handler_frames = new_frames;
 
     return new_frames;
   }
 
   LRef lhandler_frames()
   {
-    return thread.handler_frames;
+    return CURRENT_TIB()->handler_frames;
   }
 
   /**************************************************************
@@ -1409,7 +1409,7 @@ namespace scan {
     retval  = TOP_FRAME->frame_as.dynamic_escape.retval;
 
     /* Avoid hitting the same exception over and over again... */
-    thread.frame_stack = TOP_FRAME;
+    CURRENT_TIB()->frame_stack = TOP_FRAME;
 
     __ex_throw_dynamic_escape(tag, retval, TRUE);
   }

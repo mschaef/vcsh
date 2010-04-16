@@ -11,9 +11,9 @@ namespace scan {
 
   /*** GC thread registration
    */
-  void gc_register_thread(interpreter_thread_t *thr) // TODO: s/register/initialize/
+  void gc_register_thread(interpreter_thread_info_block_t *thr) // TODO: s/register/initialize/
   {
-    memset(thr, 0, sizeof(interpreter_thread_t));
+    memset(thr, 0, sizeof(interpreter_thread_info_block_t));
 
     thr->thid       = sys_current_thread();
     thr->stack_base = sys_get_stack_start();
@@ -26,10 +26,10 @@ namespace scan {
     sys_thread_t ct = sys_current_thread();
 
     for(size_t ii = 0; ii < MAX_THREADS; ii++) {
-      interpreter_thread_t *table_entry = interp.thread_table[ii];
+      interpreter_thread_info_block_t *table_entry = &(interp.thread_table[ii]);
 
-      if ((table_entry == NULL)
-          || (table_entry == THREAD_INITIALIZING)
+      if ((table_entry->state == THREAD_EMPTY)
+          || (table_entry->state == THREAD_STARTING)
           || (table_entry->thid == ct))
         continue;
 
@@ -44,14 +44,14 @@ namespace scan {
 
     for(size_t ii = 0; ii < MAX_THREADS; ii++)
       {
-        interpreter_thread_t *thread = interp.thread_table[ii];
-
-        if ((thread == NULL)
-            || (thread == THREAD_INITIALIZING)
-            || (thread->thid == ct))
+        interpreter_thread_info_block_t *tib = &(interp.thread_table[ii]);
+ 
+        if ((tib->state == NULL)
+            || (tib->state == THREAD_STARTING)
+            || (tib->thid == ct))
           continue;
 
-        sys_resume_thread(thread->thid);
+        sys_resume_thread(tib->thid);
       }
 
     sys_leave_critical_section(interp.thread_table_crit_sec);
@@ -69,12 +69,12 @@ namespace scan {
     size_t root_index = 0;
 
     for(root_index = 0; root_index < MAX_GC_ROOTS; root_index++)
-      if (thread.gc_roots[root_index].name == NULL)
+      if (CURRENT_TIB()->gc_roots[root_index].name == NULL)
         break;
 
     assert(root_index < MAX_GC_ROOTS);
 
-    gc_root_t *root = (gc_root_t *)&thread.gc_roots[root_index];
+    gc_root_t *root = (gc_root_t *)&(CURRENT_TIB()->gc_roots[root_index]);
 
     root->name     = name;
     root->location = location;
@@ -362,14 +362,14 @@ namespace scan {
   {
     for(size_t th_idx = 0; th_idx < MAX_THREADS; th_idx++)
       {
-        interpreter_thread_t *thread = interp.thread_table[th_idx];
+        interpreter_thread_info_block_t *tib = &interp.thread_table[th_idx];
 
-        if ((thread == NULL) || (thread == THREAD_INITIALIZING))
+        if ((tib->state == THREAD_EMPTY) || (tib->state == THREAD_STARTING))
           continue;
 
         for (size_t root_idx = 0; root_idx < MAX_GC_ROOTS; root_idx++)
-          for (size_t ii = 0; ii < thread->gc_roots[root_idx].length; ii++)
-            gc_mark((thread->gc_roots[root_idx].location)[ii]);
+          for (size_t ii = 0; ii < tib->gc_roots[root_idx].length; ii++)
+            gc_mark((tib->gc_roots[root_idx].location)[ii]);
       }
   }
 
@@ -437,7 +437,7 @@ namespace scan {
 
     default:
       // By default, objects are either immediate or otherwise self contained, and
-      // do not need special-case free handling.
+      // do not need special-case 
       break;
 
     }
@@ -460,15 +460,15 @@ namespace scan {
   {
     for(size_t ii = 0; ii < MAX_THREADS; ii++)
       {
-        interpreter_thread_t *thread = interp.thread_table[ii];
+        interpreter_thread_info_block_t *tib = &interp.thread_table[ii];
 
-        if ((thread == NULL) || (thread == THREAD_INITIALIZING))
+        if ((tib->state == THREAD_EMPTY) || (tib->state == THREAD_STARTING))
           continue;
 
         dscwritef(";;; thid:~c& freelist @ ~c& ~cd cells",
-                  thread->thid,
-                  thread->freelist,
-                  show_freelist_length(thread->freelist));
+                  tib->thid,
+                  tib->freelist,
+                  show_freelist_length(tib->freelist));
 
         dscwritef("\n");
       }
@@ -558,15 +558,15 @@ namespace scan {
 
     for(size_t ii = 0; ii < MAX_THREADS; ii++)
       {
-        interpreter_thread_t *thread = interp.thread_table[ii];
+        interpreter_thread_info_block_t *tib = &interp.thread_table[ii];
 
         // Skip empty thread slots.
-        if ((thread == NULL) || (thread == THREAD_INITIALIZING))
+        if ((tib->state == THREAD_EMPTY) || (tib->state  == THREAD_STARTING))
           continue;
 
         // Special case for the current thread, since we can't
         // get a thread context in the normal way.
-        if (thread->thid == ct)
+        if (tib->thid == ct)
           {
             jmp_buf registers;
             LRef    stack_end;
@@ -575,11 +575,11 @@ namespace scan {
 
             gc_mark_range((LRef *)registers, (LRef *)(((u8 *) registers) + sizeof(registers)));
 
-            gc_mark_range((LRef *)thread->stack_base, (LRef *)&stack_end);
+            gc_mark_range((LRef *)tib->stack_base, (LRef *)&stack_end);
           }
         else
           {
-            sys_thread_context_t *ctx = sys_get_thread_context(thread->thid);
+            sys_thread_context_t ctx = sys_get_thread_context(tib->thid);
 
             void *low, *high;
 
@@ -588,10 +588,10 @@ namespace scan {
             gc_mark_range((LRef *)low, (LRef *)high);
 
             fprintf(stderr, "\n[%0x08x, %0x08x]\n",
-                    (LRef *)thread->stack_base,
+                    (LRef *)tib->stack_base,
                     (LRef *)sys_thread_context_get_stack_pointer(ctx));
 
-            gc_mark_range((LRef *)thread->stack_base,
+            gc_mark_range((LRef *)tib->stack_base,
                           (LRef *)sys_thread_context_get_stack_pointer(ctx));
           }
       }
@@ -694,11 +694,11 @@ namespace scan {
 
     sys_enter_critical_section(interp.gc_heap_freelist_crit_sec);
     {
-      SET_NEXT_FREE_LIST(thread.freelist, interp.global_freelist);
+      SET_NEXT_FREE_LIST(CURRENT_TIB()->freelist, interp.global_freelist);
 
-      interp.global_freelist = thread.freelist;
+      interp.global_freelist = CURRENT_TIB()->freelist;
 
-      thread.freelist = NULL;
+      CURRENT_TIB()->freelist = NULL;
     }
     sys_leave_critical_section(interp.gc_heap_freelist_crit_sec);
   }
@@ -741,11 +741,13 @@ namespace scan {
     interp.gc_heap_freelist_crit_sec = sys_create_critical_section();
 
     for(size_t jj = 0; jj < MAX_THREADS; jj++)
-      interp.thread_table[jj] = NULL;
+      interp.thread_table[jj].state = THREAD_EMPTY;
 
-    /* Initialize the startup thread. */
-    interp.thread_table[0] = &thread;
-    gc_register_thread(&thread);
+    interpreter_thread_info_block_t *tib = allocate_thread_info_block();
+
+    SET_CURRENT_TIB(tib);
+
+    gc_register_thread(tib);
 
     /* Initialize the heap table */
     interp.gc_heap_segments = (LRef *) safe_malloc(sizeof (LRef) * interp.gc_max_heap_segments);

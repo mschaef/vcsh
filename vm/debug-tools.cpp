@@ -215,7 +215,7 @@ namespace scan {
 
     if (FIXNUMP(s))
       args->sleep_duration = get_c_long(s);
-
+    
     interp_create_thread(heap_stress_thread_entry, args);
 
     return NIL;
@@ -343,13 +343,13 @@ namespace scan {
   {
     for(size_t ii = 0; ii < MAX_THREADS; ii++)
       {
-        interpreter_thread_t *thread = interp.thread_table[ii];
+        interpreter_thread_info_block_t *thread = &(interp.thread_table[ii]);
 
         fprintf(stderr, "thread_table[%x]: ", ii);
 
-        if (thread == NULL)
+        if (thread->state == THREAD_EMPTY)
           fprintf(stderr, "EMPTY\n");
-        else if (thread == THREAD_INITIALIZING)
+        else if (thread->state == THREAD_STARTING)
           fprintf(stderr, "INITIALIZING\n");
         else
           {

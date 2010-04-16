@@ -7,31 +7,21 @@
 
 namespace scan {
 
-
-  struct interp_thread_args_t
+  interpreter_thread_info_block_t *allocate_thread_info_block()
   {
-    thread_entry_t entry;
-    void *arglist;
-
-    interpreter_thread_t **thread_table_entry;
-  };
-
-  static interpreter_thread_t **allocate_thread_table_entry()
-  {
-    interpreter_thread_t **table_entry = NULL;
+    interpreter_thread_info_block_t *table_entry = NULL;
 
     sys_enter_critical_section(interp.thread_table_crit_sec);
     {
       for(size_t ii = 0; ii < MAX_THREADS; ii++)
         {
-          if (interp.thread_table[ii] == NULL)
-            {
-              table_entry = &(interp.thread_table[ii]);
+          table_entry = &(interp.thread_table[ii]);
 
-              *table_entry = THREAD_INITIALIZING;
+          if (table_entry->state != THREAD_EMPTY)
+            continue;
 
-              break;
-            }
+          table_entry->state = THREAD_STARTING;
+          break;
         }
     }
     sys_leave_critical_section(interp.thread_table_crit_sec);
@@ -39,54 +29,53 @@ namespace scan {
     return table_entry;
   }
 
-  void interp_thread_main(void *arglist)
+  void free_thread_info_block(interpreter_thread_info_block_t *tib)
   {
-    thread_entry_t entry                      = ((interp_thread_args_t *)arglist)->entry;
-    void *actual_arglist                      = ((interp_thread_args_t *)arglist)->arglist;
-    interpreter_thread_t **thread_table_entry = ((interp_thread_args_t *)arglist)->thread_table_entry;
+    gc_release_freelist(tib->freelist);
+    tib->freelist = NULL;
 
-    safe_free(arglist);
+    tib->state = THREAD_EMPTY;
+  }
 
-    assert(*thread_table_entry == THREAD_INITIALIZING);
+  void interp_thread_main(void *userdata)
+  {
+    interpreter_thread_info_block_t *tib = (interpreter_thread_info_block_t *)userdata;
+
+    thread_entry_t entry = tib->entry;
+    void *actual_arglist = tib->arglist;
+
+    assert(tib->state == THREAD_STARTING);
 
     dscwritef(DF_SHOW_THREADS, ";;; ENTERING INTERPRETER THREAD, thid=~c&\n", sys_current_thread());
 
-    sys_enter_critical_section(interp.thread_table_crit_sec);
-    {
-      *thread_table_entry = &thread;
+    gc_register_thread(tib);
 
-      gc_register_thread(&thread);
-    }
-    sys_leave_critical_section(interp.thread_table_crit_sec);
-
-    thread.frame_stack = NULL;
-    thread.handler_frames = NIL;
-    gc_protect(_T("handler-frames"), &thread.handler_frames, 1);
+    tib->frame_stack = NULL;
+    tib->handler_frames = NIL;
+    gc_protect(_T("handler-frames"), &(tib->handler_frames), 1);
 
     entry(actual_arglist);
-
-    gc_release_freelist(thread.freelist);
-    thread.freelist = NULL;
-
-    *thread_table_entry = NULL; // atomic, so no lock required
+    
+    free_thread_info_block(tib);
 
     dscwritef(DF_SHOW_THREADS, ";;; LEAVING INTERPRETER THREAD, thid=~c&", sys_current_thread());
   }
 
   sys_thread_t interp_create_thread(thread_entry_t entry, void *arglist)
   {
-    interpreter_thread_t **table_entry = allocate_thread_table_entry();
+    interpreter_thread_info_block_t *tib = allocate_thread_info_block();
 
-    if (table_entry == NULL)
+    if (tib == NULL)
       return NULL;
 
-    interp_thread_args_t *args = (interp_thread_args_t *)safe_malloc(sizeof(interp_thread_args_t));
+    tib->entry              = entry;
+    tib->arglist            = arglist;
 
-    args->entry              = entry;
-    args->arglist            = arglist;
-    args->thread_table_entry = table_entry;
+    sys_thread_t sys_th = sys_create_thread(interp_thread_main, THREAD_DEFAULT_STACK_SIZE, tib);
 
-    return sys_create_thread(interp_thread_main, THREAD_DEFAULT_STACK_SIZE, args);
+    if (sys_th == NULL)
+      free_thread_info_block(tib);
+
+    return sys_th;
   }
-
 }

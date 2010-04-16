@@ -2100,7 +2100,7 @@ namespace scan {
                 break;
 
               case '&':
-                _sntprintf(buf, STACK_STRBUF_LEN, _T("#x%08x"), (unsigned int)va_arg(arglist, void *));
+                _sntprintf(buf, STACK_STRBUF_LEN, _T("#x%08x"), (uptr)va_arg(arglist, void *));
 
                 if (return_next_value)
                   return_value = strcons(buf);

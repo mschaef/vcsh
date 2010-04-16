@@ -14,8 +14,7 @@ namespace scan {
    */
 
   interpreter_t interp;
-  SCAN_THREAD_LOCAL interpreter_thread_t thread;
-
+  
   LRef liimmediate_p(LRef obj)
   {
     return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
@@ -800,10 +799,11 @@ namespace scan {
   {
     void *stack_start = sys_get_stack_start();
 
-    assert(&stack_start < stack_start); // The stack grows downwards, so the stack_start
-    // variable should be lower in memory than the
-    // start of the stack
+    /* The stack grows downwards, so the stack_start variable should be lower
+     * in memory than the start of the stack */
+    assert(&stack_start < stack_start);
 
+    /* An LObject is the size of four pointers (LRef's) */
     assert(sizeof(LObject) == 4 * sizeof(LRef));
   }
 
@@ -903,7 +903,7 @@ namespace scan {
 
     register_main_subrs();
 
-    gc_protect(_T("handler-frames"), &thread.handler_frames, 1);
+    gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
     SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));
 
