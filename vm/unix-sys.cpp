@@ -221,7 +221,7 @@ namespace scan {
 
     gettimeofday(&tv, NULL);
 
-    return tv.tv_sec + tv.tv_usec * 1000000.0;
+    return tv.tv_sec + tv.tv_usec / 1000000.0;
   }
 
   flonum_t sys_realtime(void)
@@ -638,9 +638,11 @@ namespace scan {
     safe_free(crit_sec);
   }
 
+  #define MSEC_PER_USEC 1000
+
   void sys_sleep(uintptr_t duration_ms)
   {
-    usleep(duration_ms);
+    usleep(duration_ms * MSEC_PER_USEC);
   }
 
   struct _sys_thread_context_t
