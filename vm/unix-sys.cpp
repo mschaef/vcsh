@@ -239,7 +239,7 @@ namespace scan {
     return 1000000.0;
   }
 
-  flonum_t sys_timezone_offset()
+  flonum_t sys_timezone_offset() // XXX: This does not accurately capture DST on MacOS X
   {
     struct timezone tz;
 
@@ -569,17 +569,17 @@ namespace scan {
     thinfo->userdata = userdata;
   }
 
-  void *sys_set_thread_stack_limit(size_t new_size_limit) // new_size_limit of 0 disables limit checking
+  void *sys_set_thread_stack_limit(size_t new_size_limit) // XXX: Unimplemented
   {
     return NULL;
   }
 
-  sys_retcode_t sys_suspend_thread(sys_thread_t thread)
+  sys_retcode_t sys_suspend_thread(sys_thread_t thread) // XXX: Unimplemented
   {
     return SYS_OK;
   }
 
-  sys_retcode_t sys_resume_thread(sys_thread_t thread)
+  sys_retcode_t sys_resume_thread(sys_thread_t thread) // XXX: Unimplemented
   {
     return SYS_OK;
   }
