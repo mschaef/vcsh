@@ -543,7 +543,6 @@ namespace scan {
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
     register_subr(_T("%stress-c-heap"),                   SUBR_2,     (void*)lstress_c_heap                      );
     register_subr(_T("%stress-lisp-heap"),                SUBR_1,     (void*)lstress_lisp_heap                   );
-    register_subr(_T("%lisp-heap-stress-thread"),         SUBR_3,     (void*)llisp_heap_stress_thread            );
     register_subr(_T("%structure-meta")  ,                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-layout"),                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-length"),                SUBR_1,     (void*)lstructure_length                   );
@@ -903,7 +902,6 @@ namespace scan {
 
     register_main_subrs();
 
-    CURRENT_TIB()->state = THREAD_RUNNING;
     gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
     SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));

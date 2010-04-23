@@ -54,7 +54,6 @@ namespace scan {
 
       ARG_BUF_LEN = 32,               // The number of arguments contained in argment buffers
 
-      MAX_THREADS = 8,                // The maximum number of threads.
       THREAD_FREELIST_SIZE = 1024,    // The number of cells on per-thread sub-freelist
 
       MAX_GC_ROOTS = 512,             // The maximum number of GC roots per thread
@@ -335,7 +334,6 @@ namespace scan {
       DF_SHOW_VMSIGNALS           = 0x00000400,
       DF_SHOW_VMERRORS            = 0x00000800,
 
-      DF_SHOW_THREADS             = 0x00001000,
       DF_SHOW_GC                  = 0x00002000,
       DF_SHOW_GC_DETAILS          = 0x00004000,
 
@@ -358,7 +356,6 @@ namespace scan {
       DF_ALL                      = 0xFFFFFFFF
     };
 
-  void show_threads();
 
   /* The interpreter maintains a stack of frames annotating the C
    * stack. These are used to implement try/catch as well as some
@@ -392,29 +389,15 @@ namespace scan {
     size_t length;
   };
 
-  enum interpreter_thread_state_t
-  {
-    THREAD_EMPTY,
-    THREAD_STARTING,
-    THREAD_RUNNING
-  };
 
   struct interpreter_thread_info_block_t
   {
-    interpreter_thread_state_t state;
-    sys_thread_t               thid;
     LRef                       freelist;
     void                      *stack_base;
     frame_record_t            *frame_stack;
     gc_root_t                  gc_roots[MAX_GC_ROOTS];
     LRef                       handler_frames;
-
-    thread_entry_t             entry;
-    void                      *arglist;
   };
-
-  interpreter_thread_info_block_t *allocate_thread_info_block();
-  void free_thread_info_block(interpreter_thread_info_block_t *tib);
 
   struct interpreter_t
   {
@@ -440,12 +423,6 @@ namespace scan {
     size_t      gc_current_heap_segments;
     LRef       *gc_heap_segments;
 
-    sys_critical_section_t thread_table_crit_sec;
-    interpreter_thread_info_block_t thread_table[MAX_THREADS];
-
-    // TODO: Allocating with the heap freelist lock taken is a bad idea. There should
-    // be a way to assert that this lock isn't taken on each new_cell. At least in debug builds.
-    sys_critical_section_t gc_heap_freelist_crit_sec;
     LRef        global_freelist;
 
     long        gc_status_flag;
@@ -517,6 +494,8 @@ namespace scan {
 #endif
 
     debug_flag_t debug_flags;
+
+    interpreter_thread_info_block_t thread;
   };
 
   extern interpreter_t interp; // One interpter... one global state variable.
@@ -2125,13 +2104,9 @@ size_t port_length(LRef port);
 
  INLINE interpreter_thread_info_block_t *CURRENT_TIB()
  {
-   return (interpreter_thread_info_block_t *)sys_current_thread_userdata();
+   return &interp.thread;
  }
 
- INLINE void SET_CURRENT_TIB(interpreter_thread_info_block_t *tib)
- {
-   sys_set_current_thread_userdata(tib);
- }
 
 INLINE LRef new_cell(typecode_t type)
 {

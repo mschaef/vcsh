@@ -126,99 +126,9 @@ namespace scan {
     return NIL;
   }
 
-  struct heap_stress_thread_t
-  {
-    long type;
-    long count;
-    long sleep_duration;
-  };
-
-  void heap_stress_thread_add_tripwires(long count, long sleep_duration)
-  {
-    LRef tripwire = NIL;
-
-    if (count <= 0)
-      {
-        sleep_duration = (sleep_duration < 0) ? 1000 : sleep_duration;
-
-        sys_sleep(sleep_duration);
-      }
-    else
-      {
-        tripwire = ligc_trip_wire();
-
-        heap_stress_thread_add_tripwires(count - 1, sleep_duration);
-      }
-  }
-
-  void heap_stress_thread_entry(void *a)
-  {
-    heap_stress_thread_t *args = (heap_stress_thread_t *)a;
-
-    long type           = args->type;
-    long count          = args->count;
-    long sleep_duration = args->sleep_duration;
-
-    safe_free(args);
-    args = NULL;
-
-    dscwritef(";;; ENTERING heap-stress thid:~c& t:~cd c:~cd sd:~cd\n", sys_current_thread(),
-              type, count, sleep_duration);
-
-
-    if (type == 1)
-      {
-        heap_stress_thread_add_tripwires(count, sleep_duration);
-      }
-    else
-      {
-        LRef cells = NIL;
-
-        for(int ii = 0; (ii < count) || (count < 0); ii++)
-          {
-            if (type == 0)
-              {
-                LRef ptr = lcons(NIL, NIL);
-                assert(CONSP(ptr));
-              }
-            else if (type == 3)
-              {
-                cells = lcons(NIL, cells);
-                assert(CONSP(cells));
-              }
-            else
-              {
-                lgc();
-              }
-
-            if (sleep_duration != -1)
-              sys_sleep(sleep_duration);
-          }
-      }
-
-    dscwritef(";;; LEAVING heap-stress thid:~c&\n", sys_current_thread());
-  }
-
   LRef llisp_heap_stress_thread(LRef t, LRef c, LRef s)
   {
-    heap_stress_thread_t *args = (heap_stress_thread_t *)safe_malloc(sizeof(heap_stress_thread_t));
-
-    args->type           = 0;
-    args->count          = -1;
-    args->sleep_duration = -1;
-
-    if (FIXNUMP(t))
-      args->type = get_c_long(t);
-
-    if (FIXNUMP(c))
-      args->count = get_c_long(c);
-
-    if (FIXNUMP(s))
-      args->sleep_duration = get_c_long(s);
-    
-    interp_create_thread(heap_stress_thread_entry, args);
-
-    return NIL;
+    vmerror("threads unimplemented.", NIL);
   }
 
   LRef lsysob(LRef addr) // address->object
@@ -339,39 +249,6 @@ namespace scan {
     return boolcons(new_state);
   }
 
-  void show_threads()
-  {
-    for(size_t ii = 0; ii < MAX_THREADS; ii++)
-      {
-        interpreter_thread_info_block_t *thread = &(interp.thread_table[ii]);
-
-        fprintf(stderr, "thread_table[%x]: ", ii);
-
-        if (thread->state == THREAD_EMPTY)
-          fprintf(stderr, "EMPTY\n");
-        else if (thread->state == THREAD_STARTING)
-          fprintf(stderr, "INITIALIZING\n");
-        else
-          {
-          fprintf(stderr, "thid=0x%08x, stack_base=0x%08x, freelist=0x%08x\n",
-                  thread->thid,  thread->stack_base, thread->freelist);
-
-          for(size_t jj = 0; jj < MAX_GC_ROOTS; jj++)
-            {
-              gc_root_t *root = &(thread->gc_roots[jj]);
-
-              if (root->name == NULL)
-                continue;
-
-              fprintf(stderr, "    root[%x], name=\"%s\", location=0x%08x, len=%d\n",
-                      jj, root->name, root->location, root->length);
-            }
-          }
-      }
-  }
-
-
-
   static struct {
     const char  *df_env_name;
     debug_flag_t df;
@@ -382,7 +259,6 @@ namespace scan {
     { "show-throws"          , DF_SHOW_THROWS           },
     { "show-vmsignals"       , DF_SHOW_VMSIGNALS        },
     { "show-vmerrors"        , DF_SHOW_VMERRORS         },
-    { "show-threads"         , DF_SHOW_THREADS          },
     { "show-gc"              , DF_SHOW_GC               },
     { "show-gc-details"      , DF_SHOW_GC_DETAILS       },
     { "print-for-diff"       , DF_PRINT_FOR_DIFF        },
