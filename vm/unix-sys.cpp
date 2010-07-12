@@ -4,8 +4,6 @@
  * Unix (Linux/MacOS) version of system access routines.
  */
 
-#define _XOPEN_SOURCE // Necessary for the ucontext functions we shouldn't be using.
-
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -17,28 +15,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <ucontext.h>
 
 #include "scan.h"
 
 namespace scan {
 
   static sys_retcode_t rc_to_sys_retcode_t(int rc);
-  static sys_retcode_t sys_init_threads();
   static sys_retcode_t sys_init_time();
+
+  static u8 *sys_stack_start;
+
+  u8 *stack_limit_obj;
 
   sys_retcode_t sys_init()
   {
-    if (sys_init_threads() != SYS_OK)
-      return SYS_ENOTRECOVERABLE;
+    // REVISIT: Can this be done more efficiently with inline assembly?
+    int stack_location;
+
+    sys_stack_start = (u8 *)&stack_location;
 
     if (sys_init_time() != SYS_OK)
       return SYS_ENOTRECOVERABLE;
 
-	ucontext_t uctx;
-	getcontext(&uctx);
 
-    sys_set_thread_stack_limit(uctx.uc_stack.ss_size);
+
+
+    sys_set_stack_limit(DEFAULT_STACK_SIZE);
 	
     return SYS_OK;
   }
@@ -468,200 +470,27 @@ namespace scan {
     __asm__ __volatile__ ("int3"); // !!! Is this the gdb way to simulate a breakpoint?
   }
 
-  /****************************************************************
-   * Threads
-   */
-
-  struct _sys_thread_t
-  {
-    pthread_t pt;
-
-    thread_entry_t entry;
-
-    void *userdata;
-
-    ucontext_t ucontext;
-    jmp_buf jb;
-  };
-
-  // This is the thread we started the process on
-  static struct _sys_thread_t initial_thread;
-
-  // All threads carry a single user pointer around that's a pointer to a thread local block (defined above)
-  static pthread_key_t ptkey_info;
-
-  sys_retcode_t sys_init_threads()
-  {
-    if (pthread_key_create(&ptkey_info, NULL) != 0)
-      return SYS_ENOMEM;
-
-    initial_thread.pt       = pthread_self();
-    initial_thread.entry    = NULL;
-    initial_thread.userdata = NULL;
-    getcontext(&initial_thread.ucontext);
-
-    pthread_setspecific(ptkey_info, &initial_thread);
-
-    return SYS_OK;
-  }
-
-  sys_thread_t sys_current_thread()
-  {
-    return (sys_thread_t)pthread_getspecific(ptkey_info);
-  }
-
-  static void *thread_main(void *userdata)
-  {
-    sys_thread_t thinfo = (sys_thread_t)userdata;
-
-    pthread_setspecific(ptkey_info, thinfo);
-
-    getcontext(&(thinfo->ucontext));
-
-    thinfo->entry(thinfo->userdata);
-
-    safe_free(thinfo);
-
-    return NULL;
-  }
-
-  sys_thread_t sys_create_thread(thread_entry_t entry, uptr max_stack_size,  void *userdata)
-  { 
-    sys_thread_t thinfo = (sys_thread_t)safe_malloc(sizeof(_sys_thread_t));
-
-    if (thinfo == NULL)
-      return NULL;
-
-    thinfo->entry          = entry;
-    thinfo->userdata       = userdata;
-    
-    int rc = pthread_create(&(thinfo->pt), NULL, thread_main, thinfo);
-    
-    if (rc != 0)
-      {
-        safe_free(thinfo);
-
-        return NULL;
-      }
-
-    return thinfo;
-  }
-
   void *sys_get_stack_start()
   {
-    ucontext_t uctx;
-    getcontext(&uctx);
-
-  return uctx.uc_stack.ss_sp;
+    return (void *)sys_stack_start;
   }
-
-  void *sys_current_thread_userdata()
+  void *sys_set_stack_limit(size_t new_size_limit)
   {
-    sys_thread_t thinfo = sys_current_thread();
-
-    assert(thinfo != NULL);
-
-    return thinfo->userdata;
-  }
-
-  void sys_set_current_thread_userdata(void *userdata)
-  {
-    sys_thread_t thinfo = sys_current_thread();
-
-    assert(thinfo != NULL);
-
-    thinfo->userdata = userdata;
-  }
-
-  static uptr max_stack_size = THREAD_DEFAULT_STACK_SIZE;
-  u8 *stack_limit_obj;
-
-  void *sys_set_thread_stack_limit(size_t new_size_limit)
-  {
-    u8 *stack_start = (u8 *)sys_get_stack_start();
-
-    if (new_size_limit > max_stack_size)
-      new_size_limit = max_stack_size;
-
     /* If the size limit is greater than the address, the computation of
      * stack_limit_obj would wrap around the address space, put the limit
      * at the very top of the address space, and therefore immediately trigger
      * a stack limit violation at the next check. This clamp keeps that
      * from happening.
      */
-    if (new_size_limit > (uptr)stack_start)
+    if (new_size_limit > (uptr)sys_stack_start)
       new_size_limit = 0;
 
     if (new_size_limit == 0)
       stack_limit_obj = (u8 *)0;
     else
-      stack_limit_obj = (u8 *)(stack_start - new_size_limit);
+      stack_limit_obj = (u8 *)(sys_stack_start - new_size_limit);
 
     return stack_limit_obj;
-  }
-
-  sys_retcode_t sys_suspend_thread(sys_thread_t thread) // XXX: Unimplemented
-  {
-    return SYS_OK;
-  }
-
-  sys_retcode_t sys_resume_thread(sys_thread_t thread) // XXX: Unimplemented
-  {
-    return SYS_OK;
-  }
-
-  struct _sys_critical_section_t // REVISIT: Add magic number?
-  {
-    pthread_mutex_t mutex;
-  };
-
-  sys_critical_section_t sys_create_critical_section()
-  {
-    sys_critical_section_t crit_sec =
-      (sys_critical_section_t)safe_malloc(sizeof(_sys_critical_section_t));
-
-    if (crit_sec == NULL)
-      return NULL;
-
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-
-    int rc = pthread_mutex_init(&(crit_sec->mutex), &attr);
-
-    pthread_mutexattr_destroy(&attr);
-
-    if (rc != 0)
-      {
-        safe_free(crit_sec);
-
-        return NULL;
-      }
-
-    return crit_sec;
-  }
-
-  void sys_enter_critical_section(sys_critical_section_t crit_sec)
-  {
-    assert(crit_sec != NULL);
-
-    pthread_mutex_lock(&(crit_sec->mutex));
-  }
-
-  void sys_leave_critical_section(sys_critical_section_t crit_sec)
-  {
-    assert(crit_sec != NULL);
-
-    pthread_mutex_unlock(&(crit_sec->mutex));
-  }
-
-  void sys_delete_critical_section(sys_critical_section_t crit_sec)
-  {
-    assert(crit_sec != NULL);
-
-    pthread_mutex_destroy(&(crit_sec->mutex));
-
-    safe_free(crit_sec);
   }
 
   #define MSEC_PER_USEC 1000
@@ -671,28 +500,6 @@ namespace scan {
     usleep(duration_ms * MSEC_PER_USEC);
   }
 
-  struct _sys_thread_context_t
-  {
-    int unused;
-  };
-
-  sys_thread_context_t sys_get_thread_context(sys_thread_t thread)
-  {
-    assert(thread == sys_current_thread());
-   
-    return NULL;
-  }
-
-  void sys_thread_context_get_state_region(sys_thread_context_t context, void **low, void **high)
-  {
-    *low  = NULL;
-    *high = NULL;
-  }
-
-  void *sys_thread_context_get_stack_pointer(sys_thread_context_t context)
-  {
-    return NULL;
-  }
 
   /****************************************************************
    * String utilities

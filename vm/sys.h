@@ -26,19 +26,11 @@
 #  define SYS_NAME_MAX _MAX_PATH
 #endif
 
-#ifdef SCAN_UNIX // REVISIT: Can these ifdef's be removed?
-#  define SCAN_THREAD_LOCAL __thread
-#endif
-
-#ifdef SCAN_WINDOWS
-#  define SCAN_THREAD_LOCAL __declspec(thread)
-#endif
-
 namespace scan {
 
   enum
   {
-      THREAD_DEFAULT_STACK_SIZE  = 512 * 1024, // The default stack size for a newly created thread
+      DEFAULT_STACK_SIZE  = 512 * 1024, // The default stack size for a newly created thread
       SECONDS_PER_MINUTE         = 60
   };
 
@@ -281,49 +273,7 @@ namespace scan {
 
 # define STACK_CHECK(_obj)  if (((u8 *)_obj) < stack_limit_obj) vmerror_stack_overflow((u8 *) _obj);
 
-
-  /* Threads
-   */
-
-  struct _sys_thread_t;
-  typedef struct _sys_thread_t *sys_thread_t;
-
-  typedef void(* thread_entry_t)(void *);
-
-  sys_thread_t sys_create_thread(thread_entry_t entry, uptr max_stack_size,  void *userdata);
-
-  void *sys_current_thread_userdata();
-  void sys_set_current_thread_userdata(void *userdata);
-
-  sys_thread_t sys_current_thread();
-  void *sys_set_thread_stack_limit(size_t new_size_limit);
-
-  sys_retcode_t sys_suspend_thread(sys_thread_t thread);
-  sys_retcode_t sys_resume_thread(sys_thread_t thread);
-
-  /* Thread Context
-   */
-
-  struct _sys_thread_context_t;
-  typedef struct _sys_thread_context_t *sys_thread_context_t;
-
-  sys_thread_context_t sys_get_thread_context(sys_thread_t thread);
-
-  void sys_thread_context_get_state_region(sys_thread_context_t context, void **low, void **high);
-  void *sys_thread_context_get_stack_pointer(sys_thread_context_t context);
-
-  /* Critical Section
-   */
-
-  struct _sys_critical_section_t;
-  typedef struct _sys_critical_section_t *sys_critical_section_t;
-
-  sys_critical_section_t sys_create_critical_section();
-
-  void sys_enter_critical_section(sys_critical_section_t cs);
-  void sys_leave_critical_section(sys_critical_section_t cs);
-
-  void sys_delete_critical_section(sys_critical_section_t cs);
+  void *sys_set_stack_limit(size_t new_size_limit);
 
   /* Timing
    */

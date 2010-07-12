@@ -379,7 +379,7 @@ namespace scan {
     if (!NULLP(amount) && !FALSEP(amount))
       new_size_limit = get_c_long(amount);
 
-    void *new_limit_obj = sys_set_thread_stack_limit(new_size_limit);
+    void *new_limit_obj = sys_set_stack_limit(new_size_limit);
 
     if (!new_size_limit)
       {

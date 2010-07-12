@@ -1597,8 +1597,6 @@ namespace scan {
 
   void safe_free(void *block);
 
-  sys_thread_t interp_create_thread(thread_entry_t entry, void *arglist);
-
   void set_global_env(LRef genv);
 
   /****** Time */
