@@ -35,6 +35,11 @@ namespace scan {
     if (sys_init_time() != SYS_OK)
       return SYS_ENOTRECOVERABLE;
 
+	ucontext_t uctx;
+	getcontext(&uctx);
+
+    sys_set_thread_stack_limit(uctx.uc_stack.ss_size);
+	
     return SYS_OK;
   }
 
@@ -544,11 +549,10 @@ namespace scan {
 
   void *sys_get_stack_start()
   {
-    sys_thread_t thinfo = sys_current_thread();
+    ucontext_t uctx;
+    getcontext(&uctx);
 
-    assert(thinfo != NULL);
-
-  return thinfo->ucontext.uc_stack.ss_sp;
+  return uctx.uc_stack.ss_sp;
   }
 
   void *sys_current_thread_userdata()
@@ -569,9 +573,31 @@ namespace scan {
     thinfo->userdata = userdata;
   }
 
-  void *sys_set_thread_stack_limit(size_t new_size_limit) // XXX: Unimplemented
+  static uptr max_stack_size = THREAD_DEFAULT_STACK_SIZE;
+  u8 *stack_limit_obj;
+
+  void *sys_set_thread_stack_limit(size_t new_size_limit)
   {
-    return NULL;
+    u8 *stack_start = (u8 *)sys_get_stack_start();
+
+    if (new_size_limit > max_stack_size)
+      new_size_limit = max_stack_size;
+
+    /* If the size limit is greater than the address, the computation of
+     * stack_limit_obj would wrap around the address space, put the limit
+     * at the very top of the address space, and therefore immediately trigger
+     * a stack limit violation at the next check. This clamp keeps that
+     * from happening.
+     */
+    if (new_size_limit > (uptr)stack_start)
+      new_size_limit = 0;
+
+    if (new_size_limit == 0)
+      stack_limit_obj = (u8 *)0;
+    else
+      stack_limit_obj = (u8 *)(stack_start - new_size_limit);
+
+    return stack_limit_obj;
   }
 
   sys_retcode_t sys_suspend_thread(sys_thread_t thread) // XXX: Unimplemented

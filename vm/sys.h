@@ -277,13 +277,10 @@ namespace scan {
   extern i64 malloc_blocks;
   extern i64 malloc_bytes;
 
-#ifdef SCAN_WINDOWS
-  extern SCAN_THREAD_LOCAL u8 *stack_limit_obj;
+  extern u8 *stack_limit_obj;
+
 # define STACK_CHECK(_obj)  if (((u8 *)_obj) < stack_limit_obj) vmerror_stack_overflow((u8 *) _obj);
-#endif
-#ifdef SCAN_UNIX
-# define STACK_CHECK(_obj)
-#endif
+
 
   /* Threads
    */

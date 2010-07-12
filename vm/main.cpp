@@ -798,9 +798,11 @@ namespace scan {
   {
     void *stack_start = sys_get_stack_start();
 
+    fprintf(stderr, "0x%016xl < 0x%016xl\n", &stack_start, stack_start);
+
     /* The stack grows downwards, so the stack_start variable should be lower
      * in memory than the start of the stack */
-    assert(&stack_start < stack_start);
+     assert(&stack_start < stack_start);
 
     /* An LObject is the size of four pointers (LRef's) */
     assert(sizeof(LObject) == 4 * sizeof(LRef));
