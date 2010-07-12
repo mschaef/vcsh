@@ -33,7 +33,7 @@ namespace scan {
                      Interpreter Paramaters
   ****************************************************************/
 
-#define SCAN_VERSION _T("SCAN 0.50-MT")
+#define SCAN_VERSION _T("SCAN 0.50")
 
   enum
     {
