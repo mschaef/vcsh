@@ -89,7 +89,7 @@ namespace scan {
 
         current_sub_freelist_size++;
 
-        if (current_sub_freelist_size >= THREAD_FREELIST_SIZE)
+        if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
           {
             interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
 
@@ -427,7 +427,7 @@ namespace scan {
             current_sub_freelist_size++;
             current_sub_freelist = SET_NEXT_FREE_CELL(obj, current_sub_freelist);
 
-            if (current_sub_freelist_size >= THREAD_FREELIST_SIZE)
+            if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
               {
                 interp.global_freelist = SET_NEXT_FREE_LIST(obj, interp.global_freelist);
 
@@ -449,7 +449,7 @@ namespace scan {
     return free_cells;
   }
 
-  static void gc_mark_thread_stacks()
+  static void gc_mark_stack()
   {
     jmp_buf registers;
     LRef    stack_end;
@@ -501,7 +501,7 @@ namespace scan {
 
     gc_begin_stats();
 
-    gc_mark_thread_stacks();
+    gc_mark_stack();
     gc_mark_roots();
 
     cells_freed = gc_sweep();

@@ -126,11 +126,6 @@ namespace scan {
     return NIL;
   }
 
-  LRef llisp_heap_stress_thread(LRef t, LRef c, LRef s)
-  {
-    vmerror("threads unimplemented.", NIL);
-  }
-
   LRef lsysob(LRef addr) // address->object
   {
     return (LRef)get_c_long(addr);

@@ -14,7 +14,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
 
 #include "scan.h"
 
@@ -36,9 +35,6 @@ namespace scan {
 
     if (sys_init_time() != SYS_OK)
       return SYS_ENOTRECOVERABLE;
-
-
-
 
     sys_set_stack_limit(DEFAULT_STACK_SIZE);
 	

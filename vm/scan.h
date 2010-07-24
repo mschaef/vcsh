@@ -54,7 +54,7 @@ namespace scan {
 
       ARG_BUF_LEN = 32,               // The number of arguments contained in argment buffers
 
-      THREAD_FREELIST_SIZE = 1024,    // The number of cells on per-thread sub-freelist
+      SUB_FREELIST_SIZE = 1024,       // The number of cells on a sub-freelist
 
       MAX_GC_ROOTS = 512,             // The maximum number of GC roots per thread
 
