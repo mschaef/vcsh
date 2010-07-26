@@ -907,7 +907,7 @@
 	  new-str))))
 
 (define (tm%last-n-digits i n) ;; SRFI-19
-  (abs (remainder i (expt 10 n))))
+  (inexact->exact (abs (remainder i (expt 10 n)))))
 
 (define (tm%locale-abbr-weekday n)  ;; SRFI-19
   (->text (vector-ref tm%locale-abbr-weekday-vector n)))
