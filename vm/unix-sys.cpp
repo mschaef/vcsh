@@ -502,7 +502,7 @@ namespace scan {
    */
 
 #if defined(__CYGWIN__) || defined (SCAN_UNIX)
-  char *strchrnul(char *string, int c) // REVISIT: Also implmented in windows-sys.cpp... consolidate
+  extern "C" const char *strchrnul(const char *string, int c) // REVISIT: Also implmented in windows-sys.cpp... consolidate
   {
     for(; *string; string++)
       if (*string == c)

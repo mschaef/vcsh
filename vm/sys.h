@@ -283,7 +283,7 @@ namespace scan {
   /* String Utilities
    */
 
-  extern "C" char *strchrnul(const char *s, int c);
+  extern "C" const char *strchrnul(const char *s, int c);
 
 } // namespace scan
 
