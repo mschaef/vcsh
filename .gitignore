@@ -8,4 +8,5 @@ TAGS
 *.exe
 *.suo
 *.scf
+build-settings
 
