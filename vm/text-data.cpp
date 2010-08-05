@@ -952,11 +952,11 @@ namespace scan {
     return (NULL);
   }
 
-  _TCHAR *get_c_string_dim (LRef x, size_t &len)
+  _TCHAR *get_c_string_dim (LRef x, size_t *len)
   {
     _TCHAR *rc = get_c_string(x);
 
-    len = _tcslen(rc);
+    *len = _tcslen(rc);
 
     return rc;
   }

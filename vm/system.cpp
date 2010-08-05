@@ -13,7 +13,7 @@ namespace scan {
   LRef lsystem(size_t argc, LRef argv[])
   {
     size_t len = 0;
-    _TCHAR *command_line = get_c_string_dim(lstring_append(argc, argv), len);
+    _TCHAR *command_line = get_c_string_dim(lstring_append(argc, argv), &len);
 
     if (len == 0)
       vmerror("Empty commmand line", NIL);

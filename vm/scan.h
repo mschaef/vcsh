@@ -1212,7 +1212,7 @@ namespace scan {
   LRef strcons_transfer_buffer(size_t length, _TCHAR *buffer);
 
   _TCHAR *get_c_string(LRef x);
-  _TCHAR *get_c_string_dim(LRef x, size_t &);
+  _TCHAR *get_c_string_dim(LRef x, size_t *);
   _TCHAR *try_get_c_string(LRef x);
 
 
