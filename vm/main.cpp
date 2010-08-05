@@ -334,7 +334,7 @@ namespace scan {
 
       // REVISIT: This should accept both '=' and ':' as arg value delims
       // (':' is more appropriate for specifying filenames)
-      _TCHAR *arg_value_loc = strchrnul(arg_text, '=');
+      _TCHAR *arg_value_loc = (_TCHAR *)strchrnul(arg_text, '=');
 
       _tcsncpy(arg_name_buf, arg_text,
                MIN2(arg_value_loc - arg_text, STACK_STRBUF_LEN - 1));

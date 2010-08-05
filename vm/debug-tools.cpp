@@ -296,7 +296,7 @@ namespace scan {
       if (*str == _T('\0'))
         break;
 
-      char *envtokend = strchrnul(str , ',');
+      const char *envtokend = strchrnul(str , ',');
 
       bool found = false;
       bool remove = false;
@@ -330,7 +330,7 @@ namespace scan {
           panic("Aborting Run");
         }
 
-      str = (*envtokend == '\0') ? NULL :  envtokend + 1;
+      str = (char *)((*envtokend == '\0') ? NULL :  envtokend + 1);
     }
 
     return rc;
