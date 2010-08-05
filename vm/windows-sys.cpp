@@ -414,7 +414,7 @@ namespace scan {
     exit(1);
   }
 
-  extern "C" char *strchrnul(const char *s, int c)
+  extern "C" const char *strchrnul(const char *s, int c)
   {
     char *loc = (char *)s;
 
