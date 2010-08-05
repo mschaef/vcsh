@@ -33,7 +33,7 @@ namespace scan {
                      Interpreter Paramaters
   ****************************************************************/
 
-#define SCAN_VERSION _T("SCAN 0.50-MT")
+#define SCAN_VERSION _T("SCAN 0.50")
 
   enum
     {
@@ -54,8 +54,7 @@ namespace scan {
 
       ARG_BUF_LEN = 32,               // The number of arguments contained in argment buffers
 
-      MAX_THREADS = 8,                // The maximum number of threads.
-      THREAD_FREELIST_SIZE = 1024,    // The number of cells on per-thread sub-freelist
+      SUB_FREELIST_SIZE = 1024,       // The number of cells on a sub-freelist
 
       MAX_GC_ROOTS = 512,             // The maximum number of GC roots per thread
 
@@ -223,6 +222,9 @@ namespace scan {
       typecode_t type      : 8;
       unsigned int opcode  : 8;
       unsigned int gc_mark : 1; // REVISIT: multiple bits, for shallow/weak refs
+#if defined(__LP64__)
+      unsigned int pad     : 32; // Explicit pad to keep the LP64 header the same size as an LP64 pointer.
+#endif
     } header;
 
     union {
@@ -332,7 +334,6 @@ namespace scan {
       DF_SHOW_VMSIGNALS           = 0x00000400,
       DF_SHOW_VMERRORS            = 0x00000800,
 
-      DF_SHOW_THREADS             = 0x00001000,
       DF_SHOW_GC                  = 0x00002000,
       DF_SHOW_GC_DETAILS          = 0x00004000,
 
@@ -355,7 +356,6 @@ namespace scan {
       DF_ALL                      = 0xFFFFFFFF
     };
 
-  void show_threads();
 
   /* The interpreter maintains a stack of frames annotating the C
    * stack. These are used to implement try/catch as well as some
@@ -389,21 +389,15 @@ namespace scan {
     size_t length;
   };
 
-  struct interpreter_thread_t
+
+  struct interpreter_thread_info_block_t
   {
-    sys_thread_t thid;
-
-    LRef freelist;
-
-    void *stack_base;
-    frame_record_t *frame_stack;
-
-    gc_root_t gc_roots[MAX_GC_ROOTS];
-
-    LRef        handler_frames;
+    LRef                       freelist;
+    void                      *stack_base;
+    frame_record_t            *frame_stack;
+    gc_root_t                  gc_roots[MAX_GC_ROOTS];
+    LRef                       handler_frames;
   };
-
-#define THREAD_INITIALIZING ((interpreter_thread_t *)0x00000001)
 
   struct interpreter_t
   {
@@ -429,12 +423,6 @@ namespace scan {
     size_t      gc_current_heap_segments;
     LRef       *gc_heap_segments;
 
-    sys_critical_section_t *thread_table_crit_sec;
-    interpreter_thread_t *thread_table[MAX_THREADS];
-
-    // TODO: Allocating with the heap freelist lock taken is a bad idea. There should
-    // be a way to assert that this lock isn't taken on each new_cell. At least in debug builds.
-    sys_critical_section_t *gc_heap_freelist_crit_sec;
     LRef        global_freelist;
 
     long        gc_status_flag;
@@ -506,11 +494,11 @@ namespace scan {
 #endif
 
     debug_flag_t debug_flags;
+
+    interpreter_thread_info_block_t thread;
   };
 
   extern interpreter_t interp; // One interpter... one global state variable.
-
-  extern SCAN_THREAD_LOCAL interpreter_thread_t thread;
 
   /**** Boxed types ****/
 
@@ -1600,7 +1588,7 @@ namespace scan {
   void gc_protect(const _TCHAR *name, LRef *location, size_t n);
   LRef gc_protect_sym(LRef *location, const _TCHAR *st, LRef package);
 
-  void gc_register_thread(interpreter_thread_t *thr);
+  void gc_register_thread(interpreter_thread_info_block_t *thr);
 
   void gc_release_freelist(LRef new_freelist);
   LRef gc_claim_freelist();
@@ -1608,8 +1596,6 @@ namespace scan {
   void *safe_malloc(size_t size);
 
   void safe_free(void *block);
-
-  sys_thread_t interp_create_thread(thread_entry_t entry, void *arglist);
 
   void set_global_env(LRef genv);
 
@@ -1958,9 +1944,9 @@ namespace scan {
 {                                                                   \
    frame_record_t  __frame;                                         \
                                                                     \
-   __frame.previous = thread.frame_stack;                           \
+   __frame.previous = CURRENT_TIB()->frame_stack;                   \
                                                                     \
-   thread.frame_stack = &__frame;
+   CURRENT_TIB()->frame_stack = &__frame;
 
 #define ENTER_MARKER_FRAME(__tag)                                   \
   ENTER_FRAME()                                                     \
@@ -1992,11 +1978,11 @@ namespace scan {
 
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
 #define LEAVE_FRAME()                                               \
-  assert(thread.frame_stack == &__frame);                           \
-  thread.frame_stack = __frame.previous;                            \
+  assert(CURRENT_TIB()->frame_stack == &__frame);                   \
+  CURRENT_TIB()->frame_stack = __frame.previous;                    \
 }
 
-#define TOP_FRAME thread.frame_stack
+#define TOP_FRAME CURRENT_TIB()->frame_stack
 
   void __frame_set_top(frame_record_t *f);
 
@@ -2114,17 +2100,25 @@ size_t port_length(LRef port);
  * Allocate cells from the heap.
  */
 
+ INLINE interpreter_thread_info_block_t *CURRENT_TIB()
+ {
+   return &interp.thread;
+ }
+
+
 INLINE LRef new_cell(typecode_t type)
 {
   checked_assert(!interp.shutting_down);
 
-  if (NULLP(thread.freelist))
-    thread.freelist = gc_claim_freelist();
+  interpreter_thread_info_block_t *thread = CURRENT_TIB();
 
-  assert(!NULLP(thread.freelist)); // Fired on out-of-memory... What then?
+  if (NULLP(thread->freelist))
+    thread->freelist = gc_claim_freelist();
 
-  LRef retval = thread.freelist;
-  thread.freelist = NEXT_FREE_CELL(thread.freelist);
+  assert(!NULLP(thread->freelist)); // Fired on out-of-memory... What then?
+
+  LRef retval = thread->freelist;
+  thread->freelist = NEXT_FREE_CELL(thread->freelist);
 
   ++interp.gc_total_cells_allocated;
 

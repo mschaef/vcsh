@@ -437,9 +437,8 @@ namespace scan {
     case TC_VECTOR: return VECTOR_DIM(obj);
     case TC_HASH:   return hash_length(obj);
     case TC_PORT:   return port_length(obj);
+    default:        return 0;
     }
-
-    return 0; // REVISIT: is this the correct default for object_length? prefer 1? error?
   }
 
   LRef llength(LRef obj)

@@ -14,8 +14,7 @@ namespace scan {
    */
 
   interpreter_t interp;
-  SCAN_THREAD_LOCAL interpreter_thread_t thread;
-
+  
   LRef liimmediate_p(LRef obj)
   {
     return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
@@ -177,9 +176,8 @@ namespace scan {
     case TC_HASH:       return hash_equal(a, b);
     case TC_INSTANCE:   return instance_equal(a, b);
     case TC_FAST_OP:    return fast_op_equal(a, b);
+    default:            return false;
     }
-
-    return false;
   }
 
   LRef lequal(LRef a, LRef b)
@@ -545,7 +543,6 @@ namespace scan {
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
     register_subr(_T("%stress-c-heap"),                   SUBR_2,     (void*)lstress_c_heap                      );
     register_subr(_T("%stress-lisp-heap"),                SUBR_1,     (void*)lstress_lisp_heap                   );
-    register_subr(_T("%lisp-heap-stress-thread"),         SUBR_3,     (void*)llisp_heap_stress_thread            );
     register_subr(_T("%structure-meta")  ,                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-layout"),                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-length"),                SUBR_1,     (void*)lstructure_length                   );
@@ -801,10 +798,11 @@ namespace scan {
   {
     void *stack_start = sys_get_stack_start();
 
-    assert(&stack_start < stack_start); // The stack grows downwards, so the stack_start
-    // variable should be lower in memory than the
-    // start of the stack
+    /* The stack grows downwards, so the stack_start variable should be lower
+     * in memory than the start of the stack */
+     assert(&stack_start < stack_start);
 
+    /* An LObject is the size of four pointers (LRef's) */
     assert(sizeof(LObject) == 4 * sizeof(LRef));
   }
 
@@ -904,7 +902,7 @@ namespace scan {
 
     register_main_subrs();
 
-    gc_protect(_T("handler-frames"), &thread.handler_frames, 1);
+    gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
     SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));
 

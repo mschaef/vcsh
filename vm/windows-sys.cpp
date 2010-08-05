@@ -24,11 +24,9 @@
 #include "shlwapi.h"
 
 
-#define SECONDS_PER_MINUTE (60)
-
 namespace scan {
 
-  struct sys_thread_context_t
+  struct _sys_thread_context_t
   {
     CONTEXT _context;
   };
@@ -558,22 +556,22 @@ namespace scan {
     void *arglist;
   };
 
-  void sys_thread_main(void *arglist)
+  void sys_thread_main(void *args)
   {
-    thread_entry_t entry    = ((sys_thread_args_t *)arglist)->entry;
-    void *actual_arglist    = ((sys_thread_args_t *)arglist)->arglist;
+    thread_entry_t entry    = ((sys_thread_args_t *)args)->entry;
+    void *actual_arglist    = ((sys_thread_args_t *)args)->arglist;
 
-    max_stack_size = ((sys_thread_args_t *)arglist)->max_stack_size;
+    max_stack_size = ((sys_thread_args_t *)args)->max_stack_size;
 
-    safe_free(arglist);
+    safe_free(args);
 
     setup_current_thread();
 
     entry(actual_arglist);
   }
+ 
 
-
-  sys_thread_t sys_create_thread(thread_entry_t entry, uptr max_stack_size,  void *arglist)
+  sys_retcode_t sys_create_thread(sys_thread_t *th, thread_entry_t entry, uptr max_stack_size,  void *arglist)
   {
     sys_thread_args_t *args = (sys_thread_args_t *)safe_malloc(sizeof(sys_thread_args_t));
 
@@ -581,9 +579,9 @@ namespace scan {
     args->arglist        = arglist;
     args->max_stack_size = max_stack_size;
 
-    sys_thread_t thread_handle = _beginthread(sys_thread_main, max_stack_size, args);
+    *th = _beginthread(sys_thread_main, max_stack_size, args);
 
-    return thread_handle;
+    return SYS_OK;
   }
 
   sys_thread_t sys_current_thread()
@@ -644,7 +642,7 @@ namespace scan {
       return SYS_EWIERD; // TODO: Parse GetLastError?
   }
 
-  struct sys_critical_section_t // REVISIT: Add magic number?
+  struct _sys_critical_section_t // REVISIT: Add magic number?
   {
     CRITICAL_SECTION _crit_sec;
   };
