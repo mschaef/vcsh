@@ -258,7 +258,7 @@ namespace scan {
 
   static flonum_t sys_timebase_time(void);
 
-  static void sys_init_time()
+  static sys_retcode_t sys_init_time()
   {
     LARGE_INTEGER temp;
 
@@ -283,6 +283,8 @@ namespace scan {
 
     // Record the current time so that we can get a measure of uptime
     runtime_offset = sys_timebase_time();
+
+    return SYS_OK;
   }
 
   static flonum_t sys_timebase_time(void)
@@ -422,18 +424,6 @@ namespace scan {
     return loc;
   }
 
-  void *sys_get_stack_start()
-  {
-    SYSTEM_INFO sysinfo;
-    MEMORY_BASIC_INFORMATION mem_info;
-
-    GetSystemInfo(&sysinfo);
-
-    VirtualQuery(((u8 *)&mem_info) - sysinfo.dwPageSize, &mem_info, sizeof(mem_info));
-
-    return (char *)mem_info.BaseAddress + mem_info.RegionSize;
-  }
-
   void output_debug_string(const _TCHAR *str)
   {
     OutputDebugString(str);
@@ -506,181 +496,48 @@ namespace scan {
   }
 
 
-  static SCAN_THREAD_LOCAL sys_thread_t current_thread;
-  static SCAN_THREAD_LOCAL uptr max_stack_size;
-  static SCAN_THREAD_LOCAL sys_thread_context_t current_thread_context_buffer;
-
-  /* External, thanks to the fact that it's used in the stack limit checking
-   * macro. */
-  SCAN_THREAD_LOCAL u8 *stack_limit_obj;
-
-
-  static void setup_current_thread()
-  {
-    HANDLE thread;
-
-    BOOL success = DuplicateHandle(GetCurrentProcess(),
-                                   GetCurrentThread(),
-                                   GetCurrentProcess(),
-                                   &thread,
-                                   NULL,
-                                   TRUE,
-                                   DUPLICATE_SAME_ACCESS);
-
-    assert(success && "Error finding current thread handle!");
-
-    current_thread = (sys_thread_t)thread;
-
-    sys_set_thread_stack_limit(max_stack_size);
-  }
+  static u8 *sys_stack_start;
+  u8 *stack_limit_obj;
 
   static bool sys_initialized = false;
 
-  void sys_init()
+  sys_retcode_t sys_init()
   {
-    assert(!sys_initialized);
+    // REVISIT: Can this be done more efficiently with inline assembly?
+    int stack_location;
 
-    sys_initialized = true;
+    sys_stack_start = (u8 *)&stack_location;
 
-    max_stack_size = THREAD_DEFAULT_STACK_SIZE;
+    if (sys_init_time() != SYS_OK)
+      return SYS_ENOTRECOVERABLE;
 
-    sys_init_time();
-
-    setup_current_thread();
-  }
-
-  struct sys_thread_args_t
-  {
-    thread_entry_t entry;
-    uptr max_stack_size;
-    void *arglist;
-  };
-
-  void sys_thread_main(void *args)
-  {
-    thread_entry_t entry    = ((sys_thread_args_t *)args)->entry;
-    void *actual_arglist    = ((sys_thread_args_t *)args)->arglist;
-
-    max_stack_size = ((sys_thread_args_t *)args)->max_stack_size;
-
-    safe_free(args);
-
-    setup_current_thread();
-
-    entry(actual_arglist);
-  }
- 
-
-  sys_retcode_t sys_create_thread(sys_thread_t *th, thread_entry_t entry, uptr max_stack_size,  void *arglist)
-  {
-    sys_thread_args_t *args = (sys_thread_args_t *)safe_malloc(sizeof(sys_thread_args_t));
-
-    args->entry          = entry;
-    args->arglist        = arglist;
-    args->max_stack_size = max_stack_size;
-
-    *th = _beginthread(sys_thread_main, max_stack_size, args);
-
+    sys_set_stack_limit(DEFAULT_STACK_SIZE);
+	
     return SYS_OK;
   }
 
-  sys_thread_t sys_current_thread()
+  void *sys_get_stack_start()
   {
-    return (sys_thread_t)current_thread;
+    return (void *)sys_stack_start;
   }
 
-  enum {
-    MAX_THREAD_SUSPEND_ATTEMPTS   = 6,   // The maximum number of times to try to suspend a thread
-    THREAD_SUSPEND_SLEEP_DURATION = 100 ,// The duration (in ms.) of the sleep between suspend attempts.
-  };
-
-  void *sys_set_thread_stack_limit(size_t new_size_limit) // new_size_limit of 0 disables limit checking
+  void *sys_set_stack_limit(size_t new_size_limit) // new_size_limit of 0 disables limit checking
   {
-    u8 *stack_start = (u8 *)sys_get_stack_start();
-
-    if (new_size_limit > max_stack_size)
-      new_size_limit = max_stack_size;
-
     /* If the size limit is greater than the address, the computation of
      * stack_limit_obj would wrap around the address space, put the limit
      * at the very top of the address space, and therefore immediately trigger
      * a stack limit violation at the next check. This clamp keeps that
      * from happening.
      */
-    if (new_size_limit > (uptr)stack_start)
+    if (new_size_limit > (uptr)sys_stack_start)
       new_size_limit = 0;
 
     if (new_size_limit == 0)
       stack_limit_obj = (u8 *)0;
     else
-      stack_limit_obj = (u8 *)(stack_start - new_size_limit);
+      stack_limit_obj = (u8 *)(sys_stack_start - new_size_limit);
 
     return stack_limit_obj;
-  }
-
-  sys_retcode_t sys_suspend_thread(sys_thread_t thread)
-  {
-    /* Retry thread suspension if it initially fails, to catch the scenario of a
-     * failed suspension due to a thread in system code.
-     */
-    for(size_t attempts = 0; attempts < MAX_THREAD_SUSPEND_ATTEMPTS; attempts++)
-      {
-        if (SuspendThread((HANDLE)thread) == 0)
-          return SYS_OK;
-
-        Sleep(THREAD_SUSPEND_SLEEP_DURATION);
-      }
-
-    return SYS_EWIERD; // TODO: Return something more descriptive?
-  }
-
-  sys_retcode_t sys_resume_thread(sys_thread_t thread)
-  {
-    if (ResumeThread((HANDLE)thread) == 0)
-      return SYS_OK;
-    else
-      return SYS_EWIERD; // TODO: Parse GetLastError?
-  }
-
-  struct _sys_critical_section_t // REVISIT: Add magic number?
-  {
-    CRITICAL_SECTION _crit_sec;
-  };
-
-  sys_critical_section_t *sys_create_critical_section() // REVISIT: Add section name?
-  {
-    sys_critical_section_t *crit_sec =
-      (sys_critical_section_t *)safe_malloc(sizeof(sys_critical_section_t));
-
-    if (crit_sec == NULL)
-      return NULL;
-
-    InitializeCriticalSection(&(crit_sec->_crit_sec));
-
-    return crit_sec;
-  }
-
-  void sys_enter_critical_section(sys_critical_section_t *crit_sec)
-  {
-    assert(crit_sec != NULL);
-
-    EnterCriticalSection(&(crit_sec->_crit_sec));
-  }
-
-  void sys_leave_critical_section(sys_critical_section_t *crit_sec)
-  {
-    assert(crit_sec != NULL);
-
-    LeaveCriticalSection(&(crit_sec->_crit_sec));
-  }
-
-  void sys_delete_critical_section(sys_critical_section_t *crit_sec)
-  {
-    assert(crit_sec != NULL);
-
-    DeleteCriticalSection(&(crit_sec->_crit_sec));
-
-    safe_free(crit_sec);
   }
 
   void sys_sleep(uintptr_t duration_ms)
@@ -688,27 +545,5 @@ namespace scan {
     Sleep(duration_ms);
   }
 
-
-  sys_thread_context_t *sys_get_thread_context(sys_thread_t thread)
-  {
-    current_thread_context_buffer._context.ContextFlags
-      = CONTEXT_SEGMENTS | CONTEXT_INTEGER | CONTEXT_CONTROL;
-
-    if (GetThreadContext((HANDLE)thread, &(current_thread_context_buffer._context)) != 0)
-      return NULL;
-
-    return &current_thread_context_buffer;
-  }
-
-  void sys_thread_context_get_state_region(sys_thread_context_t *context, void **low, void **high)
-  {
-    *low  = &(context->_context.SegGs);
-    *high = &(context->_context.ExtendedRegisters[0]);
-  }
-
-  void *sys_thread_context_get_stack_pointer(sys_thread_context_t *context)
-  {
-    return (void *)(context->_context.Esp);
-  }
 
 } // end namespace scan

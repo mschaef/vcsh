@@ -6,7 +6,7 @@
 BUILD_TYPE=DEBUG
 
 # unix (gcc), windows (msvc)
-PLATFORM=unix
+PLATFORM=windows
 
 # on or off
 COVERAGE_TEST=off
