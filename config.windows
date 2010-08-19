@@ -2,6 +2,8 @@
 #
 # Makefile configuration paramaters for windows host.
 
+BUILD_VCALC=yes
+
 DEFINES=
 LIBS=
 

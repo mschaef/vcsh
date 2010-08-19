@@ -2,6 +2,8 @@
 #
 # Makefile configuration paramaters for Unix host.
 
+BUILD_VCALC=no
+
 DEFINES=
 LIBS=
 

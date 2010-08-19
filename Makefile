@@ -1,7 +1,11 @@
 
 .PHONY: vcalc ectworks tested vcsh vm util clean
 
+ifeq (${BUILD_VCALC}, YES)
 all: vcalc
+else
+all: vcsh
+endif
 
 vcalc: vcsh ectworks
 	$(MAKE) -r -C vcalc
