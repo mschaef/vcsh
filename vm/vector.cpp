@@ -86,14 +86,16 @@ bool vector_equal(LRef veca, LRef vecb)
 	assert(VECTORP(veca));
     assert(VECTORP(vecb));
 
-	fixnum_t len = VECTOR_DIM(veca);
+	size_t len = VECTOR_DIM(veca);
 
 	if (len != VECTOR_DIM(vecb))
 		return FALSE;
 
-	for (fixnum_t ii = 0; ii < len; ii++)
+	for (size_t ii = 0; ii < len; ii++)
+      {
 		if (!equalp(VECTOR_ELEM(veca, ii), VECTOR_ELEM(vecb, ii)))
-		return FALSE;
+          return FALSE;
+      }
 
 	return TRUE;
 }
@@ -146,17 +148,27 @@ LRef lvectorp (LRef obj)
  * Output: The value of the <index> element of the array.
  */
 
-static INLINE fixnum_t get_c_vector_index(LRef i)
+static INLINE size_t get_c_vector_index(LRef i)
 {
-	if (NUMBERP(i))
-		return get_c_fixnum(i);
-	else if (CHARP(i))
-		return (fixnum_t)(CHARV(i));
-	else {
-          vmerror_wrong_type(i);
+  fixnum_t index;
 
-          return 0; // never reached... vmerror_wrong_type will throw out
-        }
+  if (NUMBERP(i))
+    index = get_c_fixnum(i);
+  else if (CHARP(i))
+    index = (fixnum_t)(CHARV(i));
+  else {
+    vmerror_wrong_type(i);
+
+    return 0; // never reached... vmerror_wrong_type will throw out
+  }
+
+  if (index < 0)
+    {
+      vmerror("Vector indices and sizes must be non-negative.", i);
+      return 0; // never reached... vmerror_wrong_type will throw out
+    }
+
+  return (size_t)index;
 }
 
 LRef lvector_ref (LRef vec, LRef i, LRef default_value)
@@ -164,7 +176,7 @@ LRef lvector_ref (LRef vec, LRef i, LRef default_value)
 	if (!VECTORP(vec))
       vmerror_wrong_type(1, vec);
 
-	fixnum_t index = get_c_vector_index(i);
+	size_t index = get_c_vector_index(i);
 
 	if ((index >= 0) && (index < VECTOR_DIM(vec)))
 		return VECTOR_ELEM(vec, index);
@@ -181,7 +193,7 @@ LRef lvector_set (LRef vec, LRef i, LRef v)
 	if (!VECTORP(vec))
       vmerror_wrong_type(1, vec);
 
-	fixnum_t index = get_c_vector_index(i);
+	size_t index = get_c_vector_index(i);
 
 	if ((index >= 0) && (index < VECTOR_DIM(vec)))
 	{
@@ -244,7 +256,7 @@ LRef lvector_fill (LRef vec, LRef v)
 	if (!VECTORP(vec))
 		vmerror_wrong_type(1, vec);
 
-	for(fixnum_t ii = 0; ii < VECTOR_DIM(vec); ii++)
+	for(size_t ii = 0; ii < VECTOR_DIM(vec); ii++)
       SET_VECTOR_ELEM(vec, ii, v);
 
 	return vec;
@@ -258,7 +270,7 @@ LRef lvector_copy(LRef vec)
 
 	LRef result = vectorcons(VECTOR_DIM(vec));
 
-	for(fixnum_t ii = 0; ii < VECTOR_DIM(vec); ii++)
+	for(size_t ii = 0; ii < VECTOR_DIM(vec); ii++)
       SET_VECTOR_ELEM(result, ii, VECTOR_ELEM(vec, ii));
 
 	return result;
@@ -290,7 +302,7 @@ LRef vector_reallocate_in_place(LRef vec, size_t new_size, LRef new_element)
 
 	assert(new_vector_data);
 
-	for(fixnum_t ii = 0; ii < new_size; ii++)
+	for(size_t ii = 0; ii < new_size; ii++)
 	{
 		if (ii < VECTOR_DIM(vec))
 			new_vector_data[ii] = VECTOR_ELEM(vec, ii);
@@ -306,34 +318,38 @@ LRef vector_reallocate_in_place(LRef vec, size_t new_size, LRef new_element)
 	return vec;
 }
 
-LRef lvector_resize(LRef vec, LRef new_size, LRef new_element)
+LRef lvector_resize(LRef vec, LRef ns, LRef new_element)
 {
 	if (!VECTORP(vec))
       vmerror_wrong_type(1, vec);
-	if (!FIXNUMP(new_size))
-      vmerror_wrong_type(2, new_size);
+	if (!FIXNUMP(ns))
+      vmerror_wrong_type(2, ns);
 
-	if (FIXNM(new_size) < 0)
-      return vmerror("Vector dimensions must be non-negative.", new_size);
-    if (FIXNM(new_size) > SIZE_MAX)
-      return vmerror("Vector dimension too large.", new_size);
+	size_t new_size = get_c_vector_index(ns);
 
-	return vector_resize(vec, (size_t)FIXNM(new_size), new_element);
+	if (new_size < 0)
+      return vmerror("Vector dimensions must be non-negative.", ns);
+    if (new_size > SIZE_MAX)
+      return vmerror("Vector dimension too large.", ns);
+
+	return vector_resize(vec, new_size, new_element);
 }
 
-LRef lvector_resized(LRef vec, LRef new_size, LRef new_element)
+LRef lvector_resized(LRef vec, LRef ns, LRef new_element)
 {
 	if (!VECTORP(vec))
       vmerror_wrong_type(1, vec);
-	if (!FIXNUMP(new_size))
-      vmerror_wrong_type(2, new_size);
+	if (!FIXNUMP(ns))
+      vmerror_wrong_type(2, ns);
 
-	if (FIXNM(new_size) < 0)
-		return vmerror("Vector dimensions must be non-negative.", new_size);
-    if (FIXNM(new_size) > SIZE_MAX)
-      return vmerror("Vector dimension too large.", new_size);
+	size_t new_size = get_c_vector_index(ns);
 
-	return vector_reallocate_in_place(vec, (size_t)FIXNM(new_size), new_element);
+	if (new_size < 0)
+		return vmerror("Vector dimensions must be non-negative.", ns);
+    if (new_size > SIZE_MAX)
+      return vmerror("Vector dimension too large.", ns);
+
+	return vector_reallocate_in_place(vec, new_size, new_element);
 }
 
 
