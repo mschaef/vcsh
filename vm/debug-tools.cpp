@@ -288,7 +288,7 @@ namespace scan {
   }
 #endif
 
-  debug_flag_t debug_flags_from_string(debug_flag_t initial, char *source_name, char *str)
+  debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR *source_name, const _TCHAR *str)
   {
     debug_flag_t rc = initial;
 
@@ -338,7 +338,7 @@ namespace scan {
 
   debug_flag_t debug_flags_from_environment(debug_flag_t initial)
   {
-    return debug_flags_from_string(initial, "VCSH_DEBUG_FLAGS", getenv("VCSH_DEBUG_FLAGS"));
+    return debug_flags_from_string(initial, _T("VCSH_DEBUG_FLAGS"), getenv("VCSH_DEBUG_FLAGS"));
   }
 
   /*

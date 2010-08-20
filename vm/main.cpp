@@ -260,7 +260,7 @@ namespace scan {
   {
     UNREFERENCED(arg_name);
 
-    interp.debug_flags = debug_flags_from_string(interp.debug_flags, "command line argument", arg_value);
+    interp.debug_flags = debug_flags_from_string(interp.debug_flags, _T("command line argument"), arg_value);
   }
 
   static void process_vm_arg_heap_segment_size(_TCHAR *arg_name, _TCHAR *arg_value)

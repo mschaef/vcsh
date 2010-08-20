@@ -2088,7 +2088,7 @@ size_t port_length(LRef port);
 #define CHARNAMECOUNT (33)
 #define CHAREXTENDED (0x80)
 
- debug_flag_t debug_flags_from_string(debug_flag_t initial, char *source_name, char *str);
+ debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR *source_name, const _TCHAR *str);
  debug_flag_t debug_flags_from_environment(debug_flag_t initial);
 
 /****************************************************************
