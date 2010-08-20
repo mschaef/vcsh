@@ -529,7 +529,7 @@ namespace scan {
 
   // TODO: Fasl table entries move around upon resize, which can screw up FASL load if the loader
   // as a pointer into the fasl table during a resize.
-  static void fasl_ensure_valid_table_index(LRef port, fixnum_t index)
+  static void fasl_ensure_valid_table_index(LRef port, size_t index)
   {
     if (NULLP(PORT_PINFO(port)->_fasl_table)) {
       PORT_PINFO(port)->_fasl_table =
@@ -537,10 +537,10 @@ namespace scan {
     } else {
       assert(VECTORP(PORT_PINFO(port)->_fasl_table));
 
-      fixnum_t old_len = VECTOR_DIM(PORT_PINFO(port)->_fasl_table);
+      size_t old_len = VECTOR_DIM(PORT_PINFO(port)->_fasl_table);
 
       if (index  >= old_len) {
-        fixnum_t new_len = (index >= old_len * 2) ? index +  DEFAULT_FASL_TABLE_SIZE : (old_len * 2);
+        size_t new_len = (index >= old_len * 2) ? index +  DEFAULT_FASL_TABLE_SIZE : (old_len * 2);
 
         PORT_PINFO(port)->_fasl_table =
           vector_resize(PORT_PINFO(port)->_fasl_table,
@@ -561,7 +561,10 @@ namespace scan {
     if (!FIXNUMP(index))
       fast_read_error("Expected fixnum for FASL table index", port, index);
 
-    fasl_ensure_valid_table_index(port, FIXNM(index));
+    if (FIXNM(index) < 0)
+      fast_read_error("FASL table indicies must be >=0", port, index);
+
+    fasl_ensure_valid_table_index(port, (size_t)FIXNM(index));
 
     return FIXNM(index);
   }
