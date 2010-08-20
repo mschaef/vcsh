@@ -2061,7 +2061,7 @@ namespace scan {
                 str_arg_value = va_arg(arglist, _TCHAR *);
 
                 if (return_next_value)
-                  return_value = scvwritef(str_arg_value, port, va_arg(arglist, va_list));
+                  return_value = scvwritef(str_arg_value, port, arglist);
                 else
                   scvwritef(str_arg_value, port, arglist);
                 break;
@@ -2100,7 +2100,7 @@ namespace scan {
                 break;
 
               case '&':
-                _sntprintf(buf, STACK_STRBUF_LEN, _T("#x%08x"), (uptr)va_arg(arglist, void *));
+                _sntprintf(buf, STACK_STRBUF_LEN, _T("%p"), (void *)va_arg(arglist, void *));
 
                 if (return_next_value)
                   return_value = strcons(buf);

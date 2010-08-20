@@ -23,7 +23,7 @@ namespace scan {
     SET_STRUCTURE_LAYOUT(new_st, STRUCTURE_LAYOUT(st));
     SET_STRUCTURE_DATA(new_st, (LRef *)safe_malloc(len * sizeof (LRef)));
 
-    for (fixnum_t ii = 0; ii < len; ii++)
+    for (size_t ii = 0; ii < len; ii++)
       SET_STRUCTURE_ELEM(new_st, ii, STRUCTURE_ELEM(st, ii));
 
     return new_st;
@@ -69,7 +69,7 @@ namespace scan {
     SET_STRUCTURE_LAYOUT(st, layout);
     SET_STRUCTURE_DATA(st, (LRef *)safe_malloc(len * sizeof (LRef)));
 
-    for (fixnum_t ii = 0; ii < len; ii++)
+    for (size_t ii = 0; ii < len; ii++)
       SET_STRUCTURE_ELEM(st, ii, VECTOR_ELEM(slots, ii));
 
     return st;
@@ -112,7 +112,7 @@ namespace scan {
 
     fixnum_t idx = get_c_fixnum(index);
 
-    if ((idx >= 0) && (idx < STRUCTURE_DIM(st)))
+    if ((idx >= 0) && ((size_t)idx < STRUCTURE_DIM(st)))
       return STRUCTURE_ELEM(st, idx);
 
     return vmerror("Structure index out of bounds.", lcons(st, index));
@@ -128,7 +128,7 @@ namespace scan {
 
     fixnum_t idx = get_c_fixnum(index);
 
-    if ((idx >= 0) && (idx < STRUCTURE_DIM(st)))
+    if ((idx >= 0) && ((size_t)idx < STRUCTURE_DIM(st)))
       {
         SET_STRUCTURE_ELEM(st, idx, value);
 
@@ -149,7 +149,7 @@ namespace scan {
     if (STRUCTURE_DIM(sta) != STRUCTURE_DIM(stb))
       return false;
 
-    for (fixnum_t ii = 0; ii < STRUCTURE_DIM(sta); ii++)
+    for (size_t ii = 0; ii < STRUCTURE_DIM(sta); ii++)
       if (!equalp(STRUCTURE_ELEM(sta, ii), STRUCTURE_ELEM(stb, ii)))
         return false;
 

@@ -224,7 +224,7 @@ namespace scan {
 
   static void clear_hash_data(hash_entry_t *entries, size_t size)
   {
-    for (fixnum_t ii = 0; ii < size; ii++)
+    for (size_t ii = 0; ii < size; ii++)
       init_hash_entry(&entries[ii]);
   }
 
