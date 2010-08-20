@@ -10,6 +10,10 @@
 
 // REVISIT: It would be nice if this emitted something directly loadable via the scheme reader
 
+// REVISIT: There are a few places where size_t's are printed with %08zx, which truncates on
+// 64-bit sizes. I never want to have to use fasl-dump on a >4GB file, but it is not strictly
+// correct to truncate.
+
 using namespace scan;
 
 // REVISIT: MAX_READER_DEFINITIONS should be dynamic
@@ -55,7 +59,7 @@ void show_opcode(size_t offset, FaslOpcode opcode, const _TCHAR *desc)
       newline();
     }
 
-  printf(" 0x%08x (D+0x%08x) ", offset, offset - last_definition_offset);
+  printf(" 0x%08zx (D+0x%08zx) ", offset, offset - last_definition_offset);
   indent();
 
   if (desc)
@@ -146,8 +150,7 @@ static FaslOpcode dump_next_object(const _TCHAR *desc = NULL, fixnum_t *fixnum_v
 static void dump_error(const _TCHAR *message)
 {
   _TCHAR buf[STACK_STRBUF_LEN];
-  _sntprintf(buf, STACK_STRBUF_LEN, "Error Reading FASL File: %s @ 0x%08x.",
-	     message, g_current_ofs);
+  _sntprintf(buf, STACK_STRBUF_LEN, "Error Reading FASL File: %s @ 0x%08zx.", message, g_current_ofs);
 
   panic(buf);
 }
