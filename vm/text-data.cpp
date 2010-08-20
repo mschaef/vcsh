@@ -204,20 +204,18 @@ namespace scan {
 
   LRef lstring_ref (LRef a, LRef i)
   {
-    fixnum_t k;
+    if(!STRINGP(a))
+      return vmerror("not a string", a);
 
-    if (!FIXNUMP (i))
+    if (!FIXNUMP(i))
       vmerror("bad index to aref", i);
 
-    k = get_c_fixnum(i);
+    fixnum_t k = get_c_fixnum(i);
 
     if (k < 0)
       vmerror("negative index to string-ref", i);
 
-    if(!STRINGP(a))
-      return vmerror("not a string", a);
-
-    if (k >= STRING_DIM(a))
+    if ((size_t)k >= STRING_DIM(a))
       vmerror("index too large", i);
 
     return charcons(STRING_DATA(a)[k]);
@@ -225,28 +223,27 @@ namespace scan {
 
   LRef lstring_set(LRef a, LRef i, LRef v)
   {
-    fixnum_t k;
+    if(!STRINGP(a))
+      return vmerror("not a string", a);
 
     if (!FIXNUMP (i))
       vmerror("bad index to string-set!", i);
 
-    k = get_c_fixnum(i);
+    fixnum_t k = get_c_fixnum(i);
+
     if (k < 0)
       vmerror("negative index to string-set!", i);
 
-    if(!STRINGP(a))
-      return vmerror("not a string", a);
-
-    if (k >= STRING_DIM(a))
+    if ((size_t)k >= STRING_DIM(a))
       return vmerror("index to string-set too large", i);
 
     if (FIXNUMP(v))
       {
-	STRING_DATA(a)[k] = (_TCHAR) FIXNM(v);
+        STRING_DATA(a)[k] = (_TCHAR) FIXNM(v);
       }
     else if (CHARP(v))
       {
-	STRING_DATA(a)[k] = CHARV(v);
+        STRING_DATA(a)[k] = CHARV(v);
       }
     else
       {

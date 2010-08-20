@@ -142,8 +142,11 @@ namespace scan {
     if (!NULLP(c)) {
       fixnum_t r = get_c_fixnum(c);
 
-      if ((r < 1) || (r >= interp.gc_max_heap_segments))
-        return vmerror("Number of requested heaps out of range.", c);
+      if (r < 1)
+        return vmerror("Heap size requests cannot be < 1", c);
+
+      if ((size_t)r >= interp.gc_max_heap_segments)
+        return vmerror("Heap size requests cannot be larger than the maximum number of heaps.", c);
 
       requested = (size_t)r - interp.gc_current_heap_segments;
     }

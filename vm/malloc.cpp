@@ -35,8 +35,7 @@ namespace scan {
     if (block == (void *) NULL) {
       _TCHAR buf[STACK_STRBUF_LEN];
 
-      _sntprintf(buf, STACK_STRBUF_LEN, "failed to allocate %d bytes from system", size);
-
+      _sntprintf(buf, STACK_STRBUF_LEN, "failed to allocate %zd bytes from system", size);
       panic(buf);
     }
 
