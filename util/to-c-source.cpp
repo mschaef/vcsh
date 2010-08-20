@@ -54,9 +54,7 @@ void write_file_as_c_source(FILE *in, FILE *out, _TCHAR *varname)
     total += bytes;
   }
 
-  fprintf(out, "};\n\nunsigned int %s_bytes = %i;\n",
-	  varname,
-	  s._bytes_transferred);
+  fprintf(out, "};\n\nunsigned int %s_bytes = %zi;\n", varname, s._bytes_transferred);
 }
 
 int main(int argc, char *argv[]) // REVISIT: Enhance to map n files to 1 source file
