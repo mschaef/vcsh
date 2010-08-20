@@ -267,7 +267,7 @@
                   :second     (+ seconds (tm%leap-second-delta seconds)))))
 
 (define (tm%current-time-tai) ;; SRFI-19
-  (tm%current-time->time-tai (realtime)))
+  (tm%realtime->time-tai (realtime)))
 
 (define (tm%current-time-ms-time time-type current-ms) ;; SRFI-19
   (make-time :type       time-type
@@ -487,7 +487,7 @@
 
 ;; -- these depend on time-monotonic having the same definition as time-tai!
 (define (time-monotonic->time-utc time-in) ;; SRFI-19
-  (unless (eq? (time-type time-in) time-monotonic)
+  (unless (eq? (time-type time-in) :time-monotonic)
       (tm%time-error 'time-monotoinc->time-utc 'incompatible-time-types time-in))
   (let ((ntime (copy-time time-in)))
     (set-time-type! ntime :time-tai)
@@ -865,7 +865,7 @@
 (define (julian-day->time-monotonic jdn) ;; SRFI-19
   (time-utc->time-monotonic! (julian-day->time-utc jdn)))
 
-(define (julian-day->date jdn :optional (tz-offset (tm%local-tx-offset))) ;; SRFI-19
+(define (julian-day->date jdn :optional (tz-offset (tm%local-tz-offset))) ;; SRFI-19
   (time-utc->date (julian-day->time-utc jdn) tz-offset))
 
 (define (modified-julian-day->date jdn :optional (tz-offset (tm%local-tz-offset))) ;; SRFI-19
@@ -922,7 +922,7 @@
   (->text (vector-ref tm%locale-long-month-vector n)))
 
 (define (tm%vector-find needle haystack comparator) ;; SRFI-19
-  (let ((len (vector-length haystack)))
+  (let ((len (length haystack)))
     (define (tm%vector-find-int index) ;; SRFI-19
       (cond
         ((>= index len) #f)
@@ -931,7 +931,7 @@
     (tm%vector-find-int 0)))
 
 (define (text=? a b)
-  (string=? (->text a) (->text b)))
+  (equal? (->text a) (->text b)))
 
 (define (tm%locale-abbr-weekday->index string) ;; SRFI-19
   (tm%vector-find string tm%locale-abbr-weekday-vector text=?))

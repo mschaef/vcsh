@@ -133,6 +133,15 @@
   (and (list? pts)
        (every? number? pts)))
 
+(define (list-2d? pts)
+  "Returns <pts> if it is a proper list of 2-dimensional points, #f otherwise. To qualify,
+   <pts> must be a proper list of numbers, at least one of which has a complex component."
+  (if (and (list? pts)
+           (every? number? pts)
+           (any? complex? pts))
+      pts
+      #f))
+
 (define (list-sdev pts)
   "Computes the standard deviation of the numbers in the list <pts>. If any point in <pts> i
    two dimentional (a complex number), then this function returns two standard deviations,

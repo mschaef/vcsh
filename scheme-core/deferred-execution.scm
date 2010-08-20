@@ -22,6 +22,8 @@
   (set! *scheduled-event-list* ())
   (%set-timer-event-time #f))
 
+(define realtime->seconds)
+
 (define (show-scheduled-events)
   "Shows a list of all currently scheduled events"
   (format #t "Currently Scheduled Events:\n--------------------------------\n")

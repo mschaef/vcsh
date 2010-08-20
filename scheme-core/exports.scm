@@ -505,6 +505,7 @@
            let*
            letrec
            list
+           list-2d?
            list->filename
            list->hash
            list->hash-set
