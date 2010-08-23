@@ -949,7 +949,7 @@ namespace scan {
 
   const _TCHAR *build_id_string()
   {
-    return (__DATE__ " " __TIME__ " - " SCAN_VERSION);
+    return (__DATE__ "-" SCAN_VERSION);
   }
 
 } // end namespace scan

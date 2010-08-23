@@ -28,7 +28,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
   signal(SIGINT, sigint_handler);
 
-  printf("scansh0: %s\n", scan::build_id_string());
+  fprintf(stderr, ";;; scansh0 - %s\n", scan::build_id_string());
 
   SET_SYMBOL_VCELL(scan::interp.sym_port_current_err, SYMBOL_VCELL(scan::interp.sym_port_current_out));
   SET_SYMBOL_VCELL(scan::interp.sym_port_debug, SYMBOL_VCELL(scan::interp.sym_port_current_err));
@@ -44,7 +44,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
   scan::shutdown();
 
-  _tprintf(_T("\nscansh0 return code = %d\n"), rc);
+  fprintf(stderr, "\n;;; scansh0 return code = %d\n", rc);
 
   exit(rc);
 }

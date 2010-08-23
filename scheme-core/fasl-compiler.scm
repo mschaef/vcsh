@@ -483,14 +483,14 @@
 
 (define (port-location-string port :optional (port-location ()))
   (if (null? port-location)
-      (format #f "~a(...)" (port-name port))
-      (format #f "~a(~a, ~a)" (port-name port) (car port-location) (cdr port-location))))
+      (format #f "~a:...: " (port-name port))
+      (format #f "~a:~a:~a: " (port-name port) (car port-location) (cdr port-location))))
 
 (define (form-location-string form)
   (aif (and (hash? *compiler-location-map*)
             (hash-ref *compiler-location-map* form #f))
        (port-location-string (car it) (cdr it))
-       "(...)"))
+       "...."))
 
 (define (compiler-read port genv)
   (let ((loc (begin
