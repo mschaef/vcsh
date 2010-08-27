@@ -5,7 +5,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /**************************************************************
    * Macro type implementation
@@ -41,4 +41,4 @@ namespace scan {
     return MACROP(obj) ? obj : boolcons(false);
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

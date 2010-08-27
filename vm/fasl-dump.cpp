@@ -14,7 +14,7 @@
 /*  64-bit sizes. I never want to have to use fasl-dump on a >4GB file, but it is not strictly */
 /*  correct to truncate. */
 
-using namespace scan;
+BEGIN_NAMESPACE(scan)
 
 /*  REVISIT: MAX_READER_DEFINITIONS should be dynamic */
 #define MAX_READER_DEFINITIONS (200000)
@@ -646,10 +646,12 @@ int dump_file(char *filename)
   return 0;
 }
 
+END_NAMESPACE
+
 int main(int argc, char *argv[])
 {
-  memset(g_reader_definition_ops, 0, sizeof(g_reader_definition_ops));
-  memset(g_reader_definition_fixnums, 0, sizeof(g_reader_definition_fixnums));
+     memset(scan::g_reader_definition_ops, 0, sizeof(scan::g_reader_definition_ops));
+     memset(scan::g_reader_definition_fixnums, 0, sizeof(scan::g_reader_definition_fixnums));
 
   if (argc < 2) {
     fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
@@ -657,8 +659,10 @@ int main(int argc, char *argv[])
   }
 
   for(int arg = 1; arg < argc; arg++)
-    if (dump_file(argv[arg]))
-      break;
+       if (scan::dump_file(argv[arg]))
+            break;
 
   return 0;
 }
+
+

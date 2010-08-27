@@ -6,7 +6,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /*** GC heap startup and shutdown
    */
@@ -696,4 +696,4 @@ namespace scan {
     return lvector(8, argv);
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

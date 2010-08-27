@@ -8,7 +8,7 @@
 #include <limits.h>
 #include <float.h>
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /**************************************************************
    * Character
@@ -1168,4 +1168,4 @@ namespace scan {
     return strcons(buf);
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

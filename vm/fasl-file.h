@@ -9,7 +9,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
 enum FaslOpcode { /* see fasl-write.scm for details about opcode assignment */
   FASL_OP_NIL				 = 1  ,
@@ -66,6 +66,6 @@ enum FaslOpcode { /* see fasl-write.scm for details about opcode assignment */
 
 const  _TCHAR *fasl_opcode_name(FaslOpcode opcode);
 
-} /*  namespace scan */
+END_NAMESPACE
 
 #endif /*  __FASL_FILE_H */

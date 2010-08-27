@@ -24,7 +24,7 @@
 #include "shlwapi.h"
 
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   struct _sys_thread_context_t
   {
@@ -546,4 +546,4 @@ namespace scan {
   }
 
 
-} /*  end namespace scan */
+END_NAMESPACE

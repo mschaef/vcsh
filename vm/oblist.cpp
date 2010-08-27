@@ -19,7 +19,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /*** Utility Functions ***/
 
@@ -422,6 +422,7 @@ namespace scan {
                                                    lcons(interp.system_package, NIL))
                     , NIL);
 
+
     /* The *package* symbol needs to be created in the scheme namespace. */
     gc_protect_sym(&interp.sym_current_package, "*package*", interp.system_package);
     lidefine_global(interp.sym_current_package, NIL, NIL);
@@ -436,4 +437,4 @@ namespace scan {
     gc_protect(_T("keyword-package"), &interp.keyword_package, 1);
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

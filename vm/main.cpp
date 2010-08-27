@@ -7,7 +7,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /**************************************************************
    * Interpreter globals
@@ -952,4 +952,4 @@ namespace scan {
     return (__DATE__ "-" SCAN_VERSION);
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

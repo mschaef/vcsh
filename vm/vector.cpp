@@ -5,7 +5,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /**** Byte Vector
    */
@@ -352,4 +352,4 @@ LRef lvector_resized(LRef vec, LRef ns, LRef new_element)
 }
 
 
-} /*  end namespace scan */
+END_NAMESPACE

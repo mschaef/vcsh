@@ -6,7 +6,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /**** Cons Cell
    */
@@ -510,4 +510,4 @@ namespace scan {
     return result;
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

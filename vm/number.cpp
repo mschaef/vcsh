@@ -17,7 +17,7 @@
 #include "scan.h"
 #include "mt19937.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /**************************************************************
    * Numeric data type implementations
@@ -967,4 +967,4 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     return fixcons(seed);
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

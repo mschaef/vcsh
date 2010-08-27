@@ -19,8 +19,6 @@ void sigint_handler(int i)
 };
 
 
-using namespace scan;
-
 int _tmain(int argc, _TCHAR* argv[])
 {
   scan::sys_init();

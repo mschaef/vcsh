@@ -4,7 +4,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
 
   /**************************************************************
@@ -1544,4 +1544,4 @@ namespace scan {
   }
 
 
-} /*  end namespace scan */
+END_NAMESPACE

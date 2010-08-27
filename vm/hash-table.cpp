@@ -5,7 +5,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
      /*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
 
@@ -676,4 +676,4 @@ namespace scan {
     return HASH_COUNT(hash);
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

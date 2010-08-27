@@ -8,7 +8,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
      /*  REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports. */
 
@@ -2210,4 +2210,4 @@ namespace scan {
     lidefine_global(interp.sym_port_debug, stderr_port, NIL);
   }
 
-} /* end namespace scan */
+END_NAMESPACE

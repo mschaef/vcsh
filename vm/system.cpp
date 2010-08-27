@@ -8,7 +8,7 @@
 #include "scan.h"
 
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   LRef lsystem(size_t argc, LRef argv[])
   {
@@ -369,4 +369,4 @@ namespace scan {
     return obj;
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

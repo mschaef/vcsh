@@ -13,7 +13,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   static void instance_reallocate_in_place(LRef inst, size_t new_size)
   {
@@ -430,4 +430,4 @@ namespace scan {
   }
 
 
-} /*  end namespace scan */
+END_NAMESPACE

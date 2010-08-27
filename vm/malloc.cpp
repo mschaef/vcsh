@@ -5,7 +5,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   i64 malloc_blocks = 0;
      i64 malloc_bytes  = 0; /*  REVISIT: have malloc set flag based on user defined limit? use that to trigger GC? */
@@ -80,4 +80,4 @@ namespace scan {
   }
 
 
-} /*  end namespace scan */
+END_NAMESPACE

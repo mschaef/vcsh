@@ -48,7 +48,7 @@
  * so it's worth more formal investigation.
  */
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /* This code depends on using an output paramater, rather than a
    * function return code. For self-referential data structures, this
@@ -842,4 +842,4 @@ namespace scan {
 
     return result;
   }
-} /*  namespace scan */
+END_NAMESPACE

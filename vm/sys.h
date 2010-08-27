@@ -26,7 +26,7 @@
 #  define SYS_NAME_MAX _MAX_PATH
 #endif
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   enum
   {
@@ -287,7 +287,7 @@ namespace scan {
 
   extern "C" const char *strchrnul(const char *s, int c);
 
-} /*  namespace scan */
+END_NAMESPACE
 
 extern char **environ;
 

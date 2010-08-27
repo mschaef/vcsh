@@ -26,7 +26,8 @@
 
 #define ENVLOOKUP_STATS
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
+
   extern i64 malloc_bytes;
 
   /****************************************************************
@@ -2128,7 +2129,7 @@ INLINE LRef new_cell(typecode_t type)
   return retval;
 }
 
-} /*  end namespace scan */
+END_NAMESPACE
 
 extern unsigned char scmSCore[]; /*  REVISIT: need to change this to _TCHAR */
 extern unsigned int scmSCore_bytes;

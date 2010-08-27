@@ -7,7 +7,7 @@
 #include "scan.h"
 #include "fasl-file.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
 const _TCHAR *fasl_opcode_name(FaslOpcode opcode)
 {
@@ -59,4 +59,4 @@ const _TCHAR *fasl_opcode_name(FaslOpcode opcode)
     }
 }
 
-} /*  namespace scan */
+END_NAMESPACE

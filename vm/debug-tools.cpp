@@ -5,7 +5,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   /* ldump_heap_state
    *
@@ -762,6 +762,6 @@ namespace scan {
 
     return debug_print_object(obj, port, TRUEP(machine_readable_p));
   }
-} /*  namespace scan */
+END_NAMESPACE
 
 

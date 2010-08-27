@@ -10,7 +10,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
 /**************************************************************
  * Error Reporting
@@ -183,4 +183,4 @@ LRef vmerror_wrong_type(int which_argument, LRef new_errobj)
   }
 
 
-} /*  end namespace scan */
+END_NAMESPACE

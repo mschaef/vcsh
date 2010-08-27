@@ -6,7 +6,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
      /*  REVISIT %structure-become */
 
@@ -156,4 +156,4 @@ namespace scan {
     return true;
   }
 
-} /*  end namespace scan */
+END_NAMESPACE

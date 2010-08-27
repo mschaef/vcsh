@@ -17,7 +17,7 @@
 
 #include "scan.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
   static sys_retcode_t rc_to_sys_retcode_t(int rc);
   static sys_retcode_t sys_init_time();
@@ -512,5 +512,5 @@ namespace scan {
   }
 #endif
 
-} /*  end namespace scan */
+END_NAMESPACE
 
