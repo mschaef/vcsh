@@ -190,7 +190,7 @@ namespace scan {
 
     LRef new_string = new_cell(TC_STRING);
 
-    assert(buffer[length] == _T('\0')); // String buffers must be null terminated.
+    assert(buffer[length] == _T('\0')); /*  String buffers must be null terminated. */
 
     SET_STRING_DATA(new_string, buffer);
     SET_STRING_OFS(new_string,  0);
@@ -331,7 +331,7 @@ namespace scan {
     if ((s < 0) || (s > STRING_DIM(str)))
       vmerror("bad start index", start);
 
-    // REVISIT: it would be more permissive for substring to coerce e <= STRING_DIM. Is this desirable?
+    /*  REVISIT: it would be more permissive for substring to coerce e <= STRING_DIM. Is this desirable? */
     if ((e < 0) || (e > STRING_DIM(str)))
        vmerror("bad end index", end);
 
@@ -359,7 +359,7 @@ namespace scan {
     return (size_t)ofs;
   }
 
-  LRef lstring_search(LRef tok, LRef str, LRef maybe_initial_ofs) // REVISIT: to Knuth-Morris-Pratt
+     LRef lstring_search(LRef tok, LRef str, LRef maybe_initial_ofs) /*  REVISIT: to Knuth-Morris-Pratt */
   {
     if (!STRINGP(tok) && !CHARP(tok))
       vmerror_wrong_type(1, tok);
@@ -697,12 +697,12 @@ namespace scan {
 #ifdef FIXNUM_64BIT
     result = strtoll(string, &endobj, radix);
 
-    if (((result == I64_MIN) || (result == I64_MAX)) && (errno == ERANGE)) // REVISIT: errno causes problems with the _link_
+    if (((result == I64_MIN) || (result == I64_MAX)) && (errno == ERANGE)) /*  REVISIT: errno causes problems with the _link_ */
       overflow = true;
 #else
     result = strtol(string, &endobj, radix);
 
-    if (((result == LONG_MIN) || (result == LONG_MAX)) && (errno == ERANGE)) // REVISIT: errno causes problems with the _link_
+    if (((result == LONG_MIN) || (result == LONG_MAX)) && (errno == ERANGE)) /*  REVISIT: errno causes problems with the _link_ */
       overflow = true;
 #endif
 
@@ -803,8 +803,8 @@ namespace scan {
 
   LRef lstring_first_char(LRef string, LRef char_set, LRef maybe_initial_ofs)
   {
-    // REVISIT: string-first-char should accept character/lists as char_set
-    // REVISIT: string-first-char should take args in same order as string-search
+       /*  REVISIT: string-first-char should accept character/lists as char_set */
+       /*  REVISIT: string-first-char should take args in same order as string-search */
 
     if (!STRINGP(string))
       vmerror_wrong_type(1, string);
@@ -830,8 +830,8 @@ namespace scan {
 
   LRef lstring_first_substring(LRef string, LRef char_set, LRef maybe_initial_ofs)
   {
-    // REVISIT: string-first-substring should accept character/lists as char_set
-    // REVISIT: string-first-string should take args in same order as string-search
+       /*  REVISIT: string-first-substring should accept character/lists as char_set */
+       /*  REVISIT: string-first-string should take args in same order as string-search */
 
     if (!STRINGP(string))
       vmerror_wrong_type(1, string);
@@ -986,7 +986,7 @@ namespace scan {
     if (round)
       {
 	int places;
-	double int_part; // Unused
+	double int_part; /*  Unused */
 	double frac_part;
 
         double adjust_amount = 0.5;
@@ -1024,7 +1024,7 @@ namespace scan {
     _TCHAR *result_loc = buf;   /* location in result buffer */
     bool first = true;          /* True on the first numeric character */
 
-    // TODO: result_loc should be range checked against buf_len
+    /*  TODO: result_loc should be range checked against buf_len */
 
     /* Most of the interesting numerical work is done by _ecvt. _ecvt
      * gives us most of the information we need to print the number. */
@@ -1168,4 +1168,4 @@ namespace scan {
     return strcons(buf);
   }
 
-} // end namespace scan
+} /*  end namespace scan */

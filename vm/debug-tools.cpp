@@ -126,12 +126,12 @@ namespace scan {
     return NIL;
   }
 
-  LRef lsysob(LRef addr) // address->object
+     LRef lsysob(LRef addr) /* address->object */
   {
     return (LRef)get_c_long(addr);
   };
 
-  LRef lobaddr(LRef object) //object->address
+     LRef lobaddr(LRef object) /* object->address */
   {
     return fixcons((fixnum_t)object);
   }
@@ -633,8 +633,8 @@ namespace scan {
         scwritef(":~a", port, SYMBOL_PNAME(obj));
       else
         {
-          // With only a minimal c-level package implementation, we just assume
-          // every symbol is private.
+             /*  With only a minimal c-level package implementation, we just assume
+              *  every symbol is private. */
           scwritef("~a::~a", port,
                    PACKAGE_NAME(SYMBOL_HOME(obj)),
                    SYMBOL_PNAME(obj));
@@ -762,6 +762,6 @@ namespace scan {
 
     return debug_print_object(obj, port, TRUEP(machine_readable_p));
   }
-} // namespace scan
+} /*  namespace scan */
 
 

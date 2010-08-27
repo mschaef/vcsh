@@ -8,7 +8,7 @@
 namespace scan {
 
   i64 malloc_blocks = 0;
-  i64 malloc_bytes  = 0; // REVISIT: have malloc set flag based on user defined limit? use that to trigger GC?
+     i64 malloc_bytes  = 0; /*  REVISIT: have malloc set flag based on user defined limit? use that to trigger GC? */
 
   /**** The C Heap
    *
@@ -80,4 +80,4 @@ namespace scan {
   }
 
 
-} // end namespace scan
+} /*  end namespace scan */

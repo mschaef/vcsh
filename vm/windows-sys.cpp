@@ -31,7 +31,7 @@ namespace scan {
     CONTEXT _context;
   };
 
-  sys_retcode_t rc_to_sys_retcode_t(DWORD rc); // forward decl
+     sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
 
   _TCHAR **sys_get_env_vars()
   {
@@ -51,7 +51,7 @@ namespace scan {
 #   define FILE_ATTRIBUTE_DEVICE 0x0040
 #endif
 
-  // !! find-files should be able to take lists of filename specifiers in addition to single specifiers.
+     /*  !! find-files should be able to take lists of filename specifiers in addition to single specifiers. */
 
   struct sys_dir_t
   {
@@ -107,7 +107,7 @@ namespace scan {
     if (file_attributes & FILE_ATTRIBUTE_DIRECTORY)
       return SYS_FT_DIR;
     else if (file_attributes & FILE_ATTRIBUTE_DEVICE)
-      return SYS_FT_BLK; // REVISIT: Can we do better than assuming every dev is block?
+         return SYS_FT_BLK; /*  REVISIT: Can we do better than assuming every dev is block? */
     else if (file_attributes & FILE_ATTRIBUTE_REPARSE_POINT)
       return SYS_FT_LNK;
     else
@@ -211,9 +211,9 @@ namespace scan {
     if (fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
       buf->_attrs = (sys_file_attrs_t)(buf->_attrs & SYS_FATTR_HIDDEN);
 
-    // REVISIT: add alternate filename
+    /*  REVISIT: add alternate filename */
 
-    // REVISIT: Better way to get mode info?
+    /*  REVISIT: Better way to get mode info? */
     buf->_mode    = (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? 0555 : 0777;
 
     buf->_size    = make_i64(fd.nFileSizeHigh, fd.nFileSizeLow);
@@ -253,8 +253,8 @@ namespace scan {
   static __int64 runtime_ticks_per_sec = 0;
   static bool have_highres_timebase = false;
 
-  static flonum_t realtime_offset = 0.0; // timebase offset to epoch
-  static flonum_t runtime_offset = 0.0;  // timebase offset to interp start
+     static flonum_t realtime_offset = 0.0; /*  timebase offset to epoch */
+     static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
 
   static flonum_t sys_timebase_time(void);
 
@@ -262,8 +262,8 @@ namespace scan {
   {
     LARGE_INTEGER temp;
 
-    // Determine the number of high resolution ticks per second
-    if (QueryPerformanceFrequency(&temp) == 0) // 0 => FAIL
+    /*  Determine the number of high resolution ticks per second */
+    if (QueryPerformanceFrequency(&temp) == 0) /*  0 => FAIL */
       {
         have_highres_timebase = false;
         runtime_ticks_per_sec = 1000;
@@ -274,14 +274,14 @@ namespace scan {
         runtime_ticks_per_sec = temp.QuadPart;
       }
 
-    // Get the current time so that we can accurately return a high resolution
-    // time relative to the Unix epoch.
+    /*  Get the current time so that we can accurately return a high resolution */
+    /*  time relative to the Unix epoch. */
     FILETIME ft_runtime;
     GetSystemTimeAsFileTime(&ft_runtime);
 
     realtime_offset = (flonum_t)filetime_to_time_t(ft_runtime) - sys_timebase_time();
 
-    // Record the current time so that we can get a measure of uptime
+    /*  Record the current time so that we can get a measure of uptime */
     runtime_offset = sys_timebase_time();
 
     return SYS_OK;
@@ -336,7 +336,7 @@ namespace scan {
         bias += tz_info.StandardBias;
         break;
 
-        // The TIME_ZONE_ID_UNKNOWN case gets no additional bias
+        /*  The TIME_ZONE_ID_UNKNOWN case gets no additional bias */
       }
 
     return bias * SECONDS_PER_MINUTE;
@@ -396,7 +396,7 @@ namespace scan {
     return old_handler;
   }
 
-  void debug_break(); // REVISIT: where does this prototype really go?
+     void debug_break(); /*  REVISIT: where does this prototype really go? */
 
   void _panic(const _TCHAR *str, const _TCHAR *filename, long lineno)
   {
@@ -503,7 +503,7 @@ namespace scan {
 
   sys_retcode_t sys_init()
   {
-    // REVISIT: Can this be done more efficiently with inline assembly?
+       /*  REVISIT: Can this be done more efficiently with inline assembly? */
     int stack_location;
 
     sys_stack_start = (u8 *)&stack_location;
@@ -521,7 +521,7 @@ namespace scan {
     return (void *)sys_stack_start;
   }
 
-  void *sys_set_stack_limit(size_t new_size_limit) // new_size_limit of 0 disables limit checking
+     void *sys_set_stack_limit(size_t new_size_limit) /*  new_size_limit of 0 disables limit checking */
   {
     /* If the size limit is greater than the address, the computation of
      * stack_limit_obj would wrap around the address space, put the limit
@@ -546,4 +546,4 @@ namespace scan {
   }
 
 
-} // end namespace scan
+} /*  end namespace scan */

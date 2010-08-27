@@ -37,30 +37,30 @@ namespace scan {
 
   enum
     {
-      DEFAULT_HEAP_SEGMENT_SIZE = 262144, // Default size of a heap segment, in cells
-      DEFAULT_MAX_HEAP_SEGMENTS = 256,    // Default limit on the Maximum number of heap segments
+         DEFAULT_HEAP_SEGMENT_SIZE = 262144, /*  Default size of a heap segment, in cells */
+         DEFAULT_MAX_HEAP_SEGMENTS = 256,    /*  Default limit on the Maximum number of heap segments */
 
-      DEFAULT_HASH_SIZE = 8,          // Default size for hash tables
-      DEFAULT_FASL_TABLE_SIZE = 8192, // Default size for FASL loader tables
-      STACK_STRBUF_LEN = 256,          // Local (stack) string buffer size
-      PORT_UNGET_BUFFER_SIZE = 8,     // The number of characters that can be ungotten from a port
+         DEFAULT_HASH_SIZE = 8,          /*  Default size for hash tables */
+         DEFAULT_FASL_TABLE_SIZE = 8192, /*  Default size for FASL loader tables */
+         STACK_STRBUF_LEN = 256,          /*  Local (stack) string buffer size */
+         PORT_UNGET_BUFFER_SIZE = 8,     /* The number of characters that can be ungotten from a port */
 
-      DETAILED_MEMORY_LOG = FALSE,    // Record individual safe_mallocs to debug
-      ALWAYS_GC = FALSE,              // Garbage collect on each call to newCell (Very slow)
+         DETAILED_MEMORY_LOG = FALSE,    /*  Record individual safe_mallocs to debug */
+         ALWAYS_GC = FALSE,              /*  Garbage collect on each call to newCell (Very slow) */
 
-      GLOBAL_ENV_BLOCK_SIZE = 4096,   // The default allocation unit for global environment vectors.
+         GLOBAL_ENV_BLOCK_SIZE = 4096,   /*  The default allocation unit for global environment vectors. */
 
-      FAST_LOAD_STACK_DEPTH = 8,      // The depth of the stack the FASL loader uses to store load unit state
+         FAST_LOAD_STACK_DEPTH = 8,      /*  The depth of the stack the FASL loader uses to store load unit state */
 
-      ARG_BUF_LEN = 32,               // The number of arguments contained in argment buffers
+         ARG_BUF_LEN = 32,               /*  The number of arguments contained in argment buffers */
 
-      SUB_FREELIST_SIZE = 1024,       // The number of cells on a sub-freelist
+         SUB_FREELIST_SIZE = 1024,       /*  The number of cells on a sub-freelist */
 
-      MAX_GC_ROOTS = 512,             // The maximum number of GC roots per thread
+         MAX_GC_ROOTS = 512,             /*  The maximum number of GC roots per thread */
 
-      DEBUG_FLONUM_PRINT_PRECISION = 8, // The debug printer's flonum precisoin
+         DEBUG_FLONUM_PRINT_PRECISION = 8, /*  The debug printer's flonum precisionn */
 
-      MAX_INIT_LOAD_FILES = 8,       // The maximum number of init load files.
+         MAX_INIT_LOAD_FILES = 8,       /* The maximum number of init load files. */
     };
 
   /* _The_ type *************************************************
@@ -112,13 +112,13 @@ namespace scan {
     SUBR_0               = 0,
     SUBR_1               = 1,
     SUBR_2               = 2,
-    SUBR_2N              = 3, // 2 or more homogenous arguments
+    SUBR_2N              = 3, /*  2 or more homogenous arguments */
     SUBR_3               = 4,
     SUBR_4               = 5,
     SUBR_5               = 6,
     SUBR_6               = 7,
-    SUBR_ARGC            = 8,  // Arbitrary number of paramaters, passed as array
-    SUBR_N               = 9,  // Arbitrary number of paramaters, passed as list
+    SUBR_ARGC            = 8,  /*  Arbitrary number of paramaters, passed as array */
+    SUBR_N               = 9,  /*  Arbitrary number of paramaters, passed as list */
   };
 
   /* ...Forward declarations and typedefs... */
@@ -135,7 +135,7 @@ namespace scan {
     LREF1_TAG_SHIFT = 2,
     LREF1_REF       = 0x0,
     LREF1_FIXNUM    = 0x1,
-    LREF1_SPECIAL   = 0x3, // signals second stage tagging
+    LREF1_SPECIAL   = 0x3, /*  signals second stage tagging */
 
 
     /* Second tagging stage, least sig five bits. */
@@ -150,7 +150,7 @@ namespace scan {
 #define UNBOUND_MARKER ((LRef)LREF2_UNBOUND)
 
   enum {
-    // REVISIT: change to 'IPTR_MAX/MIN'
+       /*  REVISIT: change to 'IPTR_MAX/MIN' */
     MAX_LREF_FIXNUM = I32_MAX >> LREF1_TAG_SHIFT,
     MIN_LREF_FIXNUM = I32_MIN >> LREF1_TAG_SHIFT,
   };
@@ -212,7 +212,7 @@ namespace scan {
    */
 
   struct hash_entry_t {
-    LRef _key;    // == UNBOUND_MARKER for empty.
+       LRef _key;    /*  == UNBOUND_MARKER for empty. */
     LRef _val;
   };
 
@@ -221,9 +221,9 @@ namespace scan {
     struct {
       typecode_t type      : 8;
       unsigned int opcode  : 8;
-      unsigned int gc_mark : 1; // REVISIT: multiple bits, for shallow/weak refs
+         unsigned int gc_mark : 1; /*  REVISIT: multiple bits, for shallow/weak refs */
 #if defined(__LP64__)
-      unsigned int pad     : 32; // Explicit pad to keep the LP64 header the same size as an LP64 pointer.
+         unsigned int pad     : 32; /*  Explicit pad to keep the LP64 header the same size as an LP64 pointer. */
 #endif
     } header;
 
@@ -298,7 +298,7 @@ namespace scan {
         return NULLP(object) ? TC_NIL : object->header.type;
       else if (LREF1_TAG(object) == LREF1_FIXNUM)
         return TC_FIXNUM;
-      else // if (LREF_TAG(object) == LREF_SPECIAL)
+      else /*  if (LREF_TAG(object) == LREF_SPECIAL) */
         {
           if (LREF2_TAG(object) == LREF2_BOOL)
             return TC_BOOLEAN;
@@ -306,7 +306,7 @@ namespace scan {
             return TC_CHARACTER;
           else if (LREF2_TAG(object) == LREF2_UNBOUND)
             return TC_UNBOUND_MARKER;
-          else // if ((LREF_TAG(object) == LREF_SPECIAL) && (LREF_TAG2(object) == LREF_EOF))
+          else /*  if ((LREF_TAG(object) == LREF_SPECIAL) && (LREF_TAG2(object) == LREF_EOF)) */
             return TC_END_OF_FILE;
         }
     }
@@ -401,10 +401,11 @@ namespace scan {
 
   struct interpreter_t
   {
-    // TODO: This interrupt mechanism can be generalized a bit...
-    // * machine word mask and pending variables
-    // * logically and the two and check against zero to see if an interrupt gets raised
-    // * raise interrupt by dispatching to one of 32 vectors (closures)
+       /* TODO: This interrupt mechanism can be generalized a bit...
+        *
+        * machine word mask and pending variables
+        * logically and the two and check against zero to see if an interrupt gets raised
+        * raise interrupt by dispatching to one of 32 vectors (closures) */
     bool        break_pending;
     bool        timer_event_pending;
     bool        interrupts_masked;
@@ -436,7 +437,7 @@ namespace scan {
 
     LRef        base_instance;
 
-    // Standard symbols (REVISIT: How many of these are still used? useful?)
+       /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
     LRef        syms_internal_type_names[LAST_INTERNAL_TYPEC + 1];
     LRef        sym_after_gc;
     LRef        sym_msglvl_info;
@@ -461,18 +462,18 @@ namespace scan {
     LRef        sym_user_break_handler;
     LRef        sym_subr_table;
 
-    // Standard ports
+       /*  Standard ports */
     LRef        sym_port_current_in;
     LRef        sym_port_current_out;
     LRef        sym_port_current_err;
     LRef        sym_port_debug;
 
-    // A statically allocated LObject used to hold a debugger output port.
-    // This is intended to be available before the GC heap is operational,
-    // so it has to be located here, and not on the heap.
+       /*  A statically allocated LObject used to hold a debugger output port.
+        *  This is intended to be available before the GC heap is operational,
+        *  so it has to be located here, and not on the heap. */
     LObject debugger_output;
 
-    // Statistics Counters
+       /*  Statistics Counters */
     size_t      forms_evaluated;
 
     fixnum_t    gc_total_cells_allocated;
@@ -498,7 +499,7 @@ namespace scan {
     interpreter_thread_info_block_t thread;
   };
 
-  extern interpreter_t interp; // One interpter... one global state variable.
+  extern interpreter_t interp; /*  One interpter... one global state variable. */
 
   /**** Boxed types ****/
 
@@ -618,7 +619,7 @@ namespace scan {
 #define CURRENT_ERROR_PORT SYMBOL_VCELL(interp.sym_port_current_err)
 #define CURRENT_DEBUG_PORT SYMBOL_VCELL(interp.sym_port_debug)
 
-  // This is the 'universally availble' debugger output port.
+  /*  This is the 'universally availble' debugger output port. */
 #define VM_DEBUG_PORT (&interp.debugger_output)
 
 #define CURRENT_GLOBAL_DEFINE_HOOK (SYMBOL_VCELL(interp.sym_global_define_hook))
@@ -672,7 +673,7 @@ namespace scan {
             Boxed object accessors and constructors
   ****************************************************************/
 
-  // REVISIT: Seperate out setter accessors
+  /*  REVISIT: Seperate out setter accessors */
 
   /*** boolean **/
   LRef boolcons(bool val);
@@ -870,7 +871,7 @@ namespace scan {
     ((vec)->storage_as.vector.data[(index)]) = new_value;
   }
 
-  /*** structure ***/ // REVISIT:  how much of the structure representation can be shared with vectors?
+  /*** structure ***/ /*  REVISIT:  how much of the structure representation can be shared with vectors? */
 
   INLINE size_t STRUCTURE_DIM(LRef obj)
   {
@@ -967,7 +968,7 @@ namespace scan {
       }
   }
 
-  LRef lcons(LRef x,LRef y); // Forward decl
+  LRef lcons(LRef x,LRef y); /*  Forward decl */
 
   INLINE void SET_SYMBOL_PROPS(LRef sym, LRef props)
   {
@@ -1251,7 +1252,7 @@ namespace scan {
 
   LRef hashcons(bool shallow, size_t size = DEFAULT_HASH_SIZE);
 
-  bool hash_ref(LRef table, LRef key, LRef &result); // TODO: convert to pointer
+  bool hash_ref(LRef table, LRef key, LRef &result); /*  TODO: convert to pointer */
 
   INLINE size_t HASH_MASK(LRef obj)
   {
@@ -1571,7 +1572,7 @@ namespace scan {
 
   /****** Error handling and control */
 
-  bool infop(); // REVISIT: still used?
+  bool infop(); /*  REVISIT: still used? */
   void info(const _TCHAR *message, ...);
 
 
@@ -1743,7 +1744,7 @@ namespace scan {
   LRef lnumberp(LRef x);
   LRef lrealp (LRef x);
   LRef lintegerp (LRef x);
-  LRef linteger2char(LRef s); // REVISIT: rename to exact->char
+  LRef linteger2char(LRef s); /*  REVISIT: rename to exact->char */
   LRef lrationalp (LRef x);
   LRef lcomplexp(LRef x);
   LRef lnanp(LRef x);
@@ -1904,7 +1905,7 @@ namespace scan {
   LRef lstructure_ref(LRef st, LRef index);
   LRef lstructure_set(LRef st, LRef index, LRef value);
 
-  // Diagnostics support
+  /*  Diagnostics support */
   LRef ldump_heap_state(LRef port);
   LRef lshow_type_stats ();
   LRef lmemref_byte (LRef addr);
@@ -2092,7 +2093,7 @@ size_t port_length(LRef port);
  debug_flag_t debug_flags_from_environment(debug_flag_t initial);
 
 /****************************************************************
- * INLINE function definitions // REVISIT: not strictly true.
+ * INLINE function definitions (REVISIT: not strictly true.)
  */
 
 /* new_cell
@@ -2115,7 +2116,7 @@ INLINE LRef new_cell(typecode_t type)
   if (NULLP(thread->freelist))
     thread->freelist = gc_claim_freelist();
 
-  assert(!NULLP(thread->freelist)); // Fired on out-of-memory... What then?
+  assert(!NULLP(thread->freelist)); /*  Fired on out-of-memory... What then? */
 
   LRef retval = thread->freelist;
   thread->freelist = NEXT_FREE_CELL(thread->freelist);
@@ -2127,9 +2128,9 @@ INLINE LRef new_cell(typecode_t type)
   return retval;
 }
 
-} // end namespace scan
+} /*  end namespace scan */
 
-extern unsigned char scmSCore[]; // REVISIT: need to change this to _TCHAR
+extern unsigned char scmSCore[]; /*  REVISIT: need to change this to _TCHAR */
 extern unsigned int scmSCore_bytes;
 
 

@@ -28,7 +28,7 @@ namespace scan {
 
   sys_retcode_t sys_init()
   {
-    // REVISIT: Can this be done more efficiently with inline assembly?
+       /*  REVISIT: Can this be done more efficiently with inline assembly? */
     int stack_location;
 
     sys_stack_start = (u8 *)&stack_location;
@@ -52,7 +52,7 @@ namespace scan {
 
   sys_retcode_t sys_setenv(_TCHAR *varname, _TCHAR *value)
   {
-    return rc_to_sys_retcode_t(setenv(varname, value, 1)); // 1 == always overwrite
+       return rc_to_sys_retcode_t(setenv(varname, value, 1)); /*  1 == always overwrite */
   }
 
   struct sys_dir_t
@@ -206,13 +206,13 @@ namespace scan {
    * Time and Date
    */
 
-  static flonum_t runtime_offset = 0.0;  // timebase offset to interp start
+  static flonum_t runtime_offset = 0.0;  /* timebase offset to interp start */
 
   static flonum_t sys_timebase_time(void);
 
   static sys_retcode_t sys_init_time()
   {
-    // Record the current time so that we can get a measure of uptime
+       /*  Record the current time so that we can get a measure of uptime */
     runtime_offset = sys_timebase_time();
     
     return SYS_OK;
@@ -242,7 +242,7 @@ namespace scan {
     return 1000000.0;
   }
 
-  flonum_t sys_timezone_offset() // XXX: This does not accurately capture DST on MacOS X
+     flonum_t sys_timezone_offset() /*  XXX: This does not accurately capture DST on MacOS X */
   {
     struct timezone tz;
 
@@ -318,45 +318,45 @@ namespace scan {
     case ENOTEMPTY       : return SYS_ENOTEMPTY;
     case ELOOP           : return SYS_ELOOP;
     case ENOMSG          : return SYS_ENOMSG;
-      //case EL2NSYNC        : return SYS_EL2NSYNC;
-      //case EL3HLT          : return SYS_EL3HLT;
-      //case EL3RST          : return SYS_EL3RST;
-      //case ELNRNG          : return SYS_ELNRNG;
-      //case EUNATCH         : return SYS_EUNATCH;
-      //case ENOCSI          : return SYS_ENOCSI;
-      //case EL2HLT          : return SYS_EL2HLT;
-      //case EBADE           : return SYS_EBADE;
-      //case EBADR           : return SYS_EBADR;
-      //case EXFULL          : return SYS_EXFULL;
-      //case ENOANO          : return SYS_ENOANO;
-      //case EBADRQC         : return SYS_EBADRQC;
-      //case EBADSLT         : return SYS_EBADSLT;
-      //case EBFONT          : return SYS_EBFONT;
+         /* case EL2NSYNC        : return SYS_EL2NSYNC; */
+         /* case EL3HLT          : return SYS_EL3HLT; */
+         /* case EL3RST          : return SYS_EL3RST; */
+         /* case ELNRNG          : return SYS_ELNRNG; */
+         /* case EUNATCH         : return SYS_EUNATCH; */
+         /* case ENOCSI          : return SYS_ENOCSI; */
+         /* case EL2HLT          : return SYS_EL2HLT; */
+         /* case EBADE           : return SYS_EBADE; */
+         /* case EBADR           : return SYS_EBADR; */
+         /* case EXFULL          : return SYS_EXFULL; */
+         /* case ENOANO          : return SYS_ENOANO; */
+         /* case EBADRQC         : return SYS_EBADRQC; */
+         /* case EBADSLT         : return SYS_EBADSLT; */
+         /* case EBFONT          : return SYS_EBFONT; */
     case ENOSTR          : return SYS_ENOSTR;
     case ETIME           : return SYS_ETIME;
-      //case ENONET          : return SYS_ENONET;
-      //case ENOPKG          : return SYS_ENOPKG;
+         /* case ENONET          : return SYS_ENONET; */
+         /* case ENOPKG          : return SYS_ENOPKG; */
     case EREMOTE         : return SYS_EREMOTE;
     case ENOLINK         : return SYS_ENOLINK;
-      //case EADV            : return SYS_EADV;
-      //case ESRMNT          : return SYS_ESRMNT;
-      //case ECOMM           : return SYS_ECOMM;
+         /* case EADV            : return SYS_EADV; */
+         /* case ESRMNT          : return SYS_ESRMNT; */
+         /* case ECOMM           : return SYS_ECOMM; */
     case EPROTO          : return SYS_EPROTO;
     case EMULTIHOP       : return SYS_EMULTIHOP;
-      //case EDOTDOT         : return SYS_EDOTDOT;
+         /* case EDOTDOT         : return SYS_EDOTDOT; */
     case EBADMSG         : return SYS_EBADMSG;
     case EOVERFLOW       : return SYS_EOVERFLOW;
-      //case ENOTUNIQ        : return SYS_ENOTUNIQ;
-      //case EBADFD          : return SYS_EBADFD;
-      //case EREMCHG         : return SYS_EREMCHG;
-      //case ELIBACC         : return SYS_ELIBACC;
-      //case ELIBBAD         : return SYS_ELIBBAD;
-      //case ELIBSCN         : return SYS_ELIBSCN;
-      //case ELIBMAX         : return SYS_ELIBMAX;
-      //case ELIBEXEC        : return SYS_ELIBEXEC;
+         /* case ENOTUNIQ        : return SYS_ENOTUNIQ; */
+         /* case EBADFD          : return SYS_EBADFD; */
+         /* case EREMCHG         : return SYS_EREMCHG; */
+         /* case ELIBACC         : return SYS_ELIBACC; */
+         /* case ELIBBAD         : return SYS_ELIBBAD; */
+         /* case ELIBSCN         : return SYS_ELIBSCN; */
+         /* case ELIBMAX         : return SYS_ELIBMAX; */
+         /* case ELIBEXEC        : return SYS_ELIBEXEC; */
     case EILSEQ          : return SYS_EILSEQ;
-      // case ERESTART        : return SYS_ERESTART;
-      // case ESTRPIPE        : return SYS_ESTRPIPE;
+         /*  case ERESTART        : return SYS_ERESTART; */
+         /*  case ESTRPIPE        : return SYS_ESTRPIPE; */
     case EUSERS          : return SYS_EUSERS;
     case ENOTSOCK        : return SYS_ENOTSOCK;
     case EDESTADDRREQ    : return SYS_EDESTADDRREQ;
@@ -387,21 +387,21 @@ namespace scan {
     case EALREADY        : return SYS_EALREADY;
     case EINPROGRESS     : return SYS_EINPROGRESS;
     case ESTALE          : return SYS_ESTALE;
-      // case EUCLEAN         : return SYS_EUCLEAN;
-      // case ENOTNAM         : return SYS_ENOTNAM;
-      // case ENAVAIL         : return SYS_ENAVAIL;
-      // case EISNAM          : return SYS_EISNAM;
-      // case EREMOTEIO       : return SYS_EREMOTEIO;
+         /*  case EUCLEAN         : return SYS_EUCLEAN; */
+         /*  case ENOTNAM         : return SYS_ENOTNAM; */
+         /*  case ENAVAIL         : return SYS_ENAVAIL; */
+         /*  case EISNAM          : return SYS_EISNAM; */
+         /*  case EREMOTEIO       : return SYS_EREMOTEIO; */
     case EDQUOT          : return SYS_EDQUOT;
-      //case ENOMEDIUM       : return SYS_ENOMEDIUM;
-      // case EMEDIUMTYPE     : return SYS_EMEDIUMTYPE;
-      // case ECANCELED       : return SYS_ECANCELED;
-      // case ENOKEY          : return SYS_ENOKEY;
-      // case EKEYEXPIRED     : return SYS_EKEYEXPIRED;
-      // case EKEYREVOKED     : return SYS_EKEYREVOKED;
-      // case EKEYREJECTED    : return SYS_EKEYREJECTED;
-      // case EOWNERDEAD      : return SYS_EOWNERDEAD;
-      // case ENOTRECOVERABLE : return SYS_ENOTRECOVERABLE;
+         /* case ENOMEDIUM       : return SYS_ENOMEDIUM; */
+         /*  case EMEDIUMTYPE     : return SYS_EMEDIUMTYPE; */
+         /*  case ECANCELED       : return SYS_ECANCELED; */
+         /*  case ENOKEY          : return SYS_ENOKEY; */
+         /*  case EKEYEXPIRED     : return SYS_EKEYEXPIRED; */
+         /*  case EKEYREVOKED     : return SYS_EKEYREVOKED; */
+         /*  case EKEYREJECTED    : return SYS_EKEYREJECTED; */
+         /*  case EOWNERDEAD      : return SYS_EOWNERDEAD; */
+         /*  case ENOTRECOVERABLE : return SYS_ENOTRECOVERABLE; */
     default              : return SYS_EWIERD;
     }
   }
@@ -463,7 +463,7 @@ namespace scan {
 
   void debug_break()
   {
-    __asm__ __volatile__ ("int3"); // !!! Is this the gdb way to simulate a breakpoint?
+       __asm__ __volatile__ ("int3"); /*  !!! Is this the gdb way to simulate a breakpoint? */
   }
 
   void *sys_get_stack_start()
@@ -502,7 +502,7 @@ namespace scan {
    */
 
 #if defined(__CYGWIN__) || defined (SCAN_UNIX)
-  extern "C" const char *strchrnul(const char *string, int c) // REVISIT: Also implmented in windows-sys.cpp... consolidate
+     extern "C" const char *strchrnul(const char *string, int c) /*  REVISIT: Also implmented in windows-sys.cpp... consolidate */
   {
     for(; *string; string++)
       if (*string == c)
@@ -512,5 +512,5 @@ namespace scan {
   }
 #endif
 
-} // end namespace scan
+} /*  end namespace scan */
 

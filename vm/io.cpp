@@ -10,7 +10,7 @@
 
 namespace scan {
 
-  // REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports.
+     /*  REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports. */
 
 
   /* End-of-file object ****************************************
@@ -359,8 +359,8 @@ namespace scan {
                   {
                     PORT_TEXT_INFO(port)->_needs_lf = FALSE;
 
-                    // Notice: this _returns_ from read_char, to avoid double
-                    // counting ch in the position counters.
+                    /*  Notice: this _returns_ from read_char, to avoid double
+                     *  counting ch in the position counters. */
                     if (ch == '\n')
                       return read_char(port);
                   }
@@ -395,11 +395,11 @@ namespace scan {
       return boolcons(PORT_CLASS(port)->_read_readyp(port));
     else
       {
-        // If there's not explicit char-ready? handling provided by the port,
-        // we use this hokey logic that defaults to true unless the port
-        // is at EOF. Because our EOF detection depends on peek_char, we
-        // can't even go that far with binary ports. Fixing this will require
-        // bypassing the C RTL I/O logic, which will have to wait.
+           /*  If there's not explicit char-ready? handling provided by the port,
+            *  we use this hokey logic that defaults to true unless the port
+            *  is at EOF. Because our EOF detection depends on peek_char, we
+            *  can't even go that far with binary ports. Fixing this will require
+            *  bypassing the C RTL I/O logic, which will have to wait. */
 
         if (PORT_BINARYP(port))
           vmerror("char-ready? not supported on port", port);
@@ -417,7 +417,7 @@ namespace scan {
 
     while (reading_whitespace)
       {
-        // We can never be in a comment if we're not skipping them...
+           /*  We can never be in a comment if we're not skipping them... */
         assert(skip_lisp_comments ? true : !commentp);
 
         c = read_char(port);
@@ -1493,7 +1493,7 @@ namespace scan {
   {
     size_t bytes_read;
 
-    // REVISIT: This is a pretty bad string_port_read
+    /*  REVISIT: This is a pretty bad string_port_read */
 
     assert(size == sizeof(_TCHAR));
 
@@ -1517,7 +1517,7 @@ namespace scan {
     assert(size == sizeof(_TCHAR));
 
     if (NULLP(PORT_STRING(obj)))
-      PORT_STRING(obj) = strcons(count, (_TCHAR *)buf); // REVISIT: fails if buf has embedded nulls
+         PORT_STRING(obj) = strcons(count, (_TCHAR *)buf); /*  REVISIT: fails if buf has embedded nulls */
     else
       str_append_str(PORT_STRING(obj), (_TCHAR *)buf, count);
 
@@ -1556,13 +1556,13 @@ namespace scan {
     if (!STRINGP(string))
       vmerror_wrong_type(1, string);
 
-    // TODO: open-input-string can avoid duplicating incoming strings
-    // TODO: open-input-string take string input port argument
+    /*  TODO: open-input-string can avoid duplicating incoming strings */
+    /*  TODO: open-input-string take string input port argument */
 
     return portcons(&string_port_class, NIL, PORT_INPUT, strcons(string), NULL);
   }
 
-  LRef lopen_output_string()  // REVISIT: default string/length in oos?
+     LRef lopen_output_string()  /*  REVISIT: default string/length in oos? */
   {
     return portcons(&string_port_class, NIL, PORT_OUTPUT, NIL, NULL);
   }
@@ -1598,8 +1598,8 @@ namespace scan {
   }
 
 
-  // REVISIT: Do we need to restrict bootup NULL I/O
-  // REVISIT: lots of logic supports default ports if port==NULL. Move to scheme?
+     /*  REVISIT: Do we need to restrict bootup NULL I/O */
+     /*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
 
 
   /* C Data Stream **********************************************
@@ -1817,7 +1817,7 @@ namespace scan {
             if (!ps->_read_data(port, ps->_userdata))
               ps->_more_data = false;
 
-            // Handle the case where the read callback actually closed the port on us.
+            /*  Handle the case where the read callback actually closed the port on us. */
             if (PORT_MODE(port) == PORT_CLOSED)
               break;
 
@@ -1861,7 +1861,7 @@ namespace scan {
   void blocking_input_post_data(LRef port, void *data, size_t size)
   {
     assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
-    assert(!blocking_input_is_data_available(port)); // TODO: we really should allow this case
+    assert(!blocking_input_is_data_available(port)); /*  TODO: we really should allow this case */
 
     blocking_input_port_state *ps = (blocking_input_port_state *)(PORT_PINFO(port)->_user_data);
 
@@ -2037,9 +2037,9 @@ namespace scan {
             write_char('~', port);
             break;
 
-          case 'c': // C object prefix
+          case 'c': /*  C object prefix */
 
-            ch = *format_str; // read the next format character
+               ch = *format_str; /*  read the next format character */
             format_str++;
 
             switch (ch)
@@ -2188,7 +2188,7 @@ namespace scan {
       lflush_port(VM_DEBUG_PORT);
     }
   }
-  // !! add char-ready?
+     /*  !! add char-ready? */
 
   void init_debugger_output()
   {
@@ -2210,4 +2210,4 @@ namespace scan {
     lidefine_global(interp.sym_port_debug, stderr_port, NIL);
   }
 
-} // end namespace scan
+} /* end namespace scan */

@@ -63,7 +63,7 @@ namespace scan {
     return map;
   }
 
-  static bool instance_map_ref(LRef inst, LRef key, LRef &value) // TODO: ref->value
+     static bool instance_map_ref(LRef inst, LRef key, LRef &value) /*  TODO: ref->value */
   {
     return hash_ref(instance_map(inst), key, value);
   }
@@ -335,7 +335,7 @@ namespace scan {
     return inst;
   }
 
-  bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols) // REVISIT: should true really mean fail?
+     bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols) /*  REVISIT: should true really mean fail? */
   {
     /* initargs takes the form of a property list:
      *
@@ -430,4 +430,4 @@ namespace scan {
   }
 
 
-} // end namespace scan
+} /*  end namespace scan */

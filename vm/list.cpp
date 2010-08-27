@@ -415,7 +415,7 @@ namespace scan {
     return result;
   }
 
-  static size_t list_length(LRef xs) // REVISIT: extend to tolerate circularity?
+     static size_t list_length(LRef xs) /*  REVISIT: extend to tolerate circularity? */
   {
     size_t len = 0;
 
@@ -428,7 +428,7 @@ namespace scan {
     return len;
   }
 
-  size_t object_length(LRef obj) // REVISIT: Is it really necessary to be this generic in C?
+     size_t object_length(LRef obj) /*  REVISIT: Is it really necessary to be this generic in C? */
   {
     switch (TYPE(obj)) {
     case TC_NIL:    return 0;
@@ -510,4 +510,4 @@ namespace scan {
     return result;
   }
 
-} // end namespace scan
+} /*  end namespace scan */

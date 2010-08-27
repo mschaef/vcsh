@@ -64,19 +64,19 @@ namespace scan {
    *    to update the return value prior to reading any component objects.
    */
 
-  // REVISIT: The use of reference paramaters breaks when the reference
-  // points into the _fasl_table and the FASL table is resized while the
-  // reference is still pending. This needs to be fixed, otherwise funky
-  // stuff happens. (I think this can be resolveb by storig conses in the
-  // fasl_table and using references to their CAR's to store table entries...
-  // currently, the CONS will stay put even if the enderlying table is resized.
+  /*  REVISIT: The use of reference paramaters breaks when the reference
+   *  points into the _fasl_table and the FASL table is resized while the
+   *  reference is still pending. This needs to be fixed, otherwise funky
+   *  stuff happens. (I think this can be resolveb by storig conses in the
+   *  fasl_table and using references to their CAR's to store table entries...
+   *  currently, the CONS will stay put even if the enderlying table is resized. */
 
   static void fast_read(LRef port, LRef *retval, bool allow_loader_ops = false);
 
   static LRef fast_read_error(const _TCHAR *message, LRef port, LRef details = NIL)
   {
-    // REVISIT: fast_read_errors not always displayed
-    // REVISIT: fast_read_errors don't always show valid port locations
+       /*  REVISIT: fast_read_errors not always displayed */
+       /*  REVISIT: fast_read_errors don't always show valid port locations */
     assert(PORTP(port));
 
     LRef location = lport_location(port);
@@ -221,12 +221,12 @@ namespace scan {
 
     if (FALSEP(*package))
       {
-        info(_T("PACKAGE ~s@~a NOT FOUND, DEFAULTING TO ~a!"), // REVISIT: should this be allowable?
+           info(_T("PACKAGE ~s@~a NOT FOUND, DEFAULTING TO ~a!"), /*  REVISIT: should this be allowable? */
              name, lport_location(port), CURRENT_PACKAGE);
 
         *package = CURRENT_PACKAGE;
 
-        //fast_read_error("package not found", port, name);
+        /* fast_read_error("package not found", port, name); */
       }
   }
 
@@ -527,8 +527,8 @@ namespace scan {
     *retval = macrocons(macro_transformer);
   }
 
-  // TODO: Fasl table entries move around upon resize, which can screw up FASL load if the loader
-  // as a pointer into the fasl table during a resize.
+     /*  TODO: Fasl table entries move around upon resize, which can screw up FASL load if the loader */
+     /*  as a pointer into the fasl table during a resize. */
   static void fasl_ensure_valid_table_index(LRef port, size_t index)
   {
     if (NULLP(PORT_PINFO(port)->_fasl_table)) {
@@ -630,7 +630,7 @@ namespace scan {
     bool current_read_complete = false;
     while (!current_read_complete)
       {
-        // Assume we're going to complete the read unless we find out otherwise..
+           /*  Assume we're going to complete the read unless we find out otherwise.. */
         current_read_complete = true;
 
         LRef opcode_location = NIL;
@@ -716,7 +716,7 @@ namespace scan {
 
             fast_read(port, fasl_table_entry, allow_loader_ops);
 
-            //  TODO: This assert throws if the fasl table was resized during the reader definition.
+            /*   TODO: This assert throws if the fasl table was resized during the reader definition. */
             assert(fasl_table_entry == &_VECTOR_ELEM(pinfo->_fasl_table, index));
 
             *retval = *fasl_table_entry;
@@ -842,4 +842,4 @@ namespace scan {
 
     return result;
   }
-} // namespace scan
+} /*  namespace scan */

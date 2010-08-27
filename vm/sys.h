@@ -16,7 +16,7 @@
 #include "../util/base-tchar.h"
 
 
-#ifdef SCAN_UNIX // REVISIT: Can these ifdef's be removed?
+#ifdef SCAN_UNIX /*  REVISIT: Can these ifdef's be removed? */
 #  define SYS_PATH_MAX PATH_MAX
 #  define SYS_NAME_MAX NAME_MAX
 #endif
@@ -30,8 +30,10 @@ namespace scan {
 
   enum
   {
-      DEFAULT_STACK_SIZE  = 512 * 1024, // The default stack size for a newly created thread
-      SECONDS_PER_MINUTE         = 60
+      
+      DEFAULT_STACK_SIZE  = 512 * 1024,  /* The default stack size for a newly created thread */
+      
+      SECONDS_PER_MINUTE         = 60 /* bar */
   };
 
   typedef time_t sys_time_t;
@@ -285,8 +287,8 @@ namespace scan {
 
   extern "C" const char *strchrnul(const char *s, int c);
 
-} // namespace scan
+} /*  namespace scan */
 
 extern char **environ;
 
-#endif // __SYS_H
+#endif /*  __SYS_H */

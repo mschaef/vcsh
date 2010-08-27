@@ -161,9 +161,9 @@ namespace scan {
       return (FIXNM(a) == FIXNM(b));
 
     case  TC_FLONUM:
-      // equal? considers NaN to be equal to itself. This is different
-      // from =, which uses the more mathematical approach that NaN
-      // is equal to nothing.
+         /*  equal? considers NaN to be equal to itself. This is different */
+         /*  from =, which uses the more mathematical approach that NaN */
+         /*  is equal to nothing. */
       if (isnan(FLONM(a)) && isnan(FLONM(b)))
         return equalp(FLOIM(a), FLOIM(b));
       else
@@ -332,8 +332,8 @@ namespace scan {
       _TCHAR arg_name_buf[STACK_STRBUF_LEN];
       memset(arg_name_buf, 0, STACK_STRBUF_LEN);
 
-      // REVISIT: This should accept both '=' and ':' as arg value delims
-      // (':' is more appropriate for specifying filenames)
+      /*  REVISIT: This should accept both '=' and ':' as arg value delims */
+      /*  (':' is more appropriate for specifying filenames) */
       _TCHAR *arg_value_loc = (_TCHAR *)strchrnul(arg_text, '=');
 
       _tcsncpy(arg_name_buf, arg_text,
@@ -415,7 +415,7 @@ namespace scan {
       interp.syms_internal_type_names[ii] =
         simple_intern(system_type_names[ii], interp.system_package);
 
-    // !! These package paramaters should be explicit
+    /*  !! These package paramaters should be explicit */
     LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
     lidefine_global(nil_sym, NIL, NIL);
 
@@ -423,7 +423,7 @@ namespace scan {
     lidefine_global(interp.sym_after_gc, NIL, NIL);
 
     gc_protect_sym(&interp.sym_msglvl_info, _T("*info*"), interp.system_package);
-    // Info messages are too slow when we're GC'ing with every new_cell
+    /*  Info messages are too slow when we're GC'ing with every new_cell */
     lidefine_global(interp.sym_msglvl_info, boolcons(!ALWAYS_GC), NIL);
 
     gc_protect_sym(&interp.sym_msglvl_errors, _T("*error*"), interp.system_package);
@@ -504,7 +504,7 @@ namespace scan {
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
 
-    // TODO: one of these is not necessary
+    /*  TODO: one of these is not necessary */
     register_subr(_T("%fast-op-cons"),                    SUBR_4,     (void*)lfast_op                            );
     register_subr(_T("%fast-op"),                         SUBR_4,     (void*)lfast_op                            );
 
@@ -819,7 +819,7 @@ namespace scan {
       }
   }
 
-  // REVISIT Init needs a way to receive standard output ports, for non-console uses of scan
+     /*  REVISIT Init needs a way to receive standard output ports, for non-console uses of scan */
   void init0(int argc, _TCHAR *argv[], debug_flag_t initial_debug_flags)
   {
     global_environment_asserts();
@@ -829,8 +829,8 @@ namespace scan {
     /** Initialize the interpreter globals */
     memset(&interp, 0, sizeof(interp));
 
-    // We need the debug flags pretty early on, so that we know how
-    // to set up debugger I/O.
+    /*  We need the debug flags pretty early on, so that we know how
+     *  to set up debugger I/O. */
     interp.debug_flags                             = debug_flags_from_environment(initial_debug_flags);
 
     init_debugger_output();
@@ -859,7 +859,7 @@ namespace scan {
     interp.scheme_package                          = NIL;
     interp.keyword_package                         = NIL;
 
-    // Standard symbols
+    /*  Standard symbols */
     interp.sym_after_gc                            = NIL;
     interp.sym_msglvl_info                         = NIL;
     interp.sym_msglvl_errors                       = NIL;
@@ -869,7 +869,7 @@ namespace scan {
     interp.sym_errobj                              = NIL;
     interp.sym_global_define_hook                  = NIL;
 
-    // Statistics Counters
+    /*  Statistics Counters */
     interp.forms_evaluated                         = 0;
     interp.gc_total_cells_allocated                = 0;
     interp.gc_total_environment_cells_allocated    = 0;
@@ -952,4 +952,4 @@ namespace scan {
     return (__DATE__ "-" SCAN_VERSION);
   }
 
-} // end namespace scan
+} /*  end namespace scan */

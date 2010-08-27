@@ -11,7 +11,7 @@ namespace scan {
 
 const _TCHAR *fasl_opcode_name(FaslOpcode opcode)
 {
-    // Returns NULL for invalid opcodes
+     /*  Returns NULL for invalid opcodes */
 
     switch(opcode)
     {
@@ -59,4 +59,4 @@ const _TCHAR *fasl_opcode_name(FaslOpcode opcode)
     }
 }
 
-} // namespace scan
+} /*  namespace scan */

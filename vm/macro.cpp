@@ -11,7 +11,7 @@ namespace scan {
    * Macro type implementation
    */
 
-  LRef macrocons (LRef t) // TODO: Macros should be moved entirely to Lisp...
+     LRef macrocons (LRef t) /*  TODO: Macros should be moved entirely to Lisp... */
   {
     LRef z = new_cell(TC_MACRO);
 
@@ -41,4 +41,4 @@ namespace scan {
     return MACROP(obj) ? obj : boolcons(false);
   }
 
-} // end namespace scan
+} /*  end namespace scan */

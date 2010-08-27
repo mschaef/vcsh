@@ -59,14 +59,14 @@ void vmerror_stack_overflow (u8 *obj)
 
 	panic("Stack Overflow!");
 
-    // TODO: Stack overflow should throw out to a catch block and then
-    // invoke a overflow handler.
-    // REVISIT: Should the user be allowed to continue after an overflow?
+    /* TODO: Stack overflow should throw out to a catch block and then
+     * invoke a overflow handler.
+     * 
+     * REVISIT: Should the user be allowed to continue after an overflow? */
 
 	THROW_ESCAPE(interp.sym_stack_overflow, NIL);
 }
-
-bool infop() // REVISIT: still used?
+     bool infop() /* REVISIT: still used? */
 {
   assert(SYMBOLP(interp.sym_msglvl_info));
 
@@ -79,7 +79,7 @@ void info(const _TCHAR *message, ...)
     va_list arglist;
     va_start(arglist, message);
 
-    if (infop()) // this is the call in info (for find in files)
+    if (infop()) /*  this is the call in info (for find in files) */
     {
         WRITE_TEXT_CONSTANT(_T("; Info: "), CURRENT_ERROR_PORT);
         scvwritef(message, CURRENT_ERROR_PORT, arglist);
@@ -112,7 +112,7 @@ LRef vmsignal(const _TCHAR *signal_name, long n, ...)
 	return napply(CURRENT_VM_SIGNAL_HANDLER, 1, signal_args);
 }
 
-// REVISIT: lots of errors could be improved by adding ~s to print the error object
+/*  REVISIT: lots of errors could be improved by adding ~s to print the error object */
 LRef vmerror(const _TCHAR *message, LRef new_errobj)
 {
   assert(message);
@@ -172,7 +172,7 @@ LRef vmerror_wrong_type(int which_argument, LRef new_errobj)
     return vmerror(buffer, new_errobj);
 }
 
-  LRef lpanic(LRef msg) // If everything goes to hell, call this...
+     LRef lpanic(LRef msg) /*  If everything goes to hell, call this... */
   {
     if (STRINGP(msg))
       panic(get_c_string(msg));
@@ -183,4 +183,4 @@ LRef vmerror_wrong_type(int which_argument, LRef new_errobj)
   }
 
 
-} // end namespace scan
+} /*  end namespace scan */

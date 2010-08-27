@@ -24,5 +24,5 @@ double mt19937_real3(void);			/* generates a random number on (0,1)-real-interva
 double mt19937_res53(void);			/* generates a random number on [0,1) with 53-bit resolution*/
 
 
-#endif // __MT19937_H
+#endif /*  __MT19937_H */
 

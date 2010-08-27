@@ -159,13 +159,13 @@ static INLINE size_t get_c_vector_index(LRef i)
   else {
     vmerror_wrong_type(i);
 
-    return 0; // never reached... vmerror_wrong_type will throw out
+    return 0; /*  never reached... vmerror_wrong_type will throw out */
   }
 
   if (index < 0)
     {
       vmerror("Vector indices and sizes must be non-negative.", i);
-      return 0; // never reached... vmerror_wrong_type will throw out
+      return 0; /*  never reached... vmerror_wrong_type will throw out */
     }
 
   return (size_t)index;
@@ -288,7 +288,6 @@ LRef vector_resize(LRef vec, size_t new_size, LRef new_element)
           SET_VECTOR_ELEM(result, ii, VECTOR_ELEM(vec, ii));
 		else
           SET_VECTOR_ELEM(result, ii, new_element);
-
 	}
 
 	return result;
@@ -353,4 +352,4 @@ LRef lvector_resized(LRef vec, LRef ns, LRef new_element)
 }
 
 
-} // end namespace scan
+} /*  end namespace scan */

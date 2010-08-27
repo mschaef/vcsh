@@ -174,19 +174,19 @@ namespace scan {
       {
         LRef h = interp.gc_heap_segments[jj];
 
-        // Skip unallocated gc_heap_segments;
+        /*  Skip unallocated gc_heap_segments; */
         if (h == NULL)
 	  continue;
 
-        // Pointers point into gc_heap_segments
+        /*  Pointers point into gc_heap_segments */
         if ((p < h) || (p >= (h + interp.gc_heap_segment_size)))
 	  continue;
 
-        // Pointers are aligned at LObject boundaries
+        /*  Pointers are aligned at LObject boundaries */
         if (((((u8 *) p) - ((u8 *) h)) % sizeof (LObject)) != 0)
 	  continue;
 
-        // Pointers have types
+        /*  Pointers have types */
         if (TYPEP(p, TC_FREE_CELL))
 	  continue;
 
@@ -217,7 +217,7 @@ namespace scan {
             break;
 
           case TC_SYMBOL:
-            gc_mark((*obj).storage_as.symbol.props); // REVISIT: better accessor?
+               gc_mark((*obj).storage_as.symbol.props); /*  REVISIT: better accessor? */
             obj = SYMBOL_VCELL(obj);
             break;
 
@@ -298,8 +298,8 @@ namespace scan {
             obj = FAST_OP_ARG3(obj);
             
           default:
-            // By default, objects are either immediate or otherwise self contained, and
-            // do not need special-case handling in gc_mark.
+               /*  By default, objects are either immediate or otherwise self contained, and 
+                *  do not need special-case handling in gc_mark. */
             break;
           }
       }
@@ -378,8 +378,8 @@ namespace scan {
       break;
 
     default:
-      // By default, objects are either immediate or otherwise self contained, and
-      // do not need special-case 
+         /*  By default, objects are either immediate or otherwise self contained, and
+          *  do not need special-case  */
       break;
 
     }
@@ -523,9 +523,9 @@ namespace scan {
 
     cells_freed = gc_mark_and_sweep();
 
-    // Normally, the *after-gc* hook will enlarge the heap according
-    // to whatever policy. If it doesn't, this gives the interpreter
-    // a sort of last ditch way to keep running.
+    /*  Normally, the *after-gc* hook will enlarge the heap according
+     *  to whatever policy. If it doesn't, this gives the interpreter
+     *  a sort of last ditch way to keep running. */
     if (NULLP(interp.global_freelist))
       lenlarge_heap(NIL);
 
@@ -696,4 +696,4 @@ namespace scan {
     return lvector(8, argv);
   }
 
-} // end namespace scan
+} /*  end namespace scan */

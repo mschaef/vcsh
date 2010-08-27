@@ -81,7 +81,7 @@ namespace scan {
     return packagecons(name, bindings, use_list);
   }
 
-  LRef lpackage_name(LRef p) // ONLY SCHEME
+     LRef lpackage_name(LRef p) /*  ONLY SCHEME */
   {
     if (!PACKAGEP(p))
       vmerror_wrong_type(1, p);
@@ -89,7 +89,7 @@ namespace scan {
     return PACKAGE_NAME(p);
   }
 
-  LRef lset_package_name(LRef p, LRef new_name) // ONLY SCHEME
+     LRef lset_package_name(LRef p, LRef new_name) /*  ONLY SCHEME */
   {
     if (!PACKAGEP(p))
       vmerror_wrong_type(1, p);
@@ -102,7 +102,7 @@ namespace scan {
     return p;
   }
 
-  LRef lpackage_bindings(LRef p) // ONLY SCHEME
+     LRef lpackage_bindings(LRef p) /*  ONLY SCHEME */
   {
     if (!PACKAGEP(p))
       vmerror_wrong_type(1, p);
@@ -110,7 +110,7 @@ namespace scan {
     return PACKAGE_BINDINGS(p);
   }
 
-  LRef lpackage_use_list(LRef p) // ONLY SCHEME
+     LRef lpackage_use_list(LRef p) /*  ONLY SCHEME */
   {
     if (!PACKAGEP(p))
       vmerror_wrong_type(1, p);
@@ -192,9 +192,9 @@ namespace scan {
     if (!hash_ref(PACKAGE_BINDINGS(package), sym_name, sym_rec))
       return NIL;
 
-    // If we find a different symbol of the same name in this package, then
-    // we haven't found the requested symbol. Also, we've proven ourselves
-    // not to contain the requested symbol.
+    /*  If we find a different symbol of the same name in this package, then */
+    /*  we haven't found the requested symbol. Also, we've proven ourselves */
+    /*  not to contain the requested symbol. */
     if (SYMBOLP(sym_spec) && (sym_spec != CAR(sym_rec)))
       return NIL;
 
@@ -297,7 +297,7 @@ namespace scan {
 
   /*** Symbol primitives ***/
 
-  LRef lsymbol_package(LRef sym) //  REVISIT: fix split between _home and _package
+     LRef lsymbol_package(LRef sym) /*   REVISIT: fix split between _home and _package */
   {
     if (!SYMBOLP (sym))
       vmerror_wrong_type(1, sym);
@@ -436,4 +436,4 @@ namespace scan {
     gc_protect(_T("keyword-package"), &interp.keyword_package, 1);
   }
 
-} // end namespace scan
+} /*  end namespace scan */

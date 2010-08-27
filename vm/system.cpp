@@ -18,7 +18,7 @@ namespace scan {
     if (len == 0)
       vmerror("Empty commmand line", NIL);
 
-    // return fixcons(_tsystem(command_line));
+    /*  return fixcons(_tsystem(command_line)); */
 
     return fixcons(system(command_line));
   }
@@ -75,12 +75,12 @@ namespace scan {
     if (rc == SYS_OK)
       return boolcons(true);
 
-    // TODO: parse retcode
+    /*  TODO: parse retcode */
 
     return vmerror("Error setting environment variable", varname);
   }
 
-  LRef ltemporary_file_name(LRef p) // REVISIT: This is a generally bad way to create temp files
+     LRef ltemporary_file_name(LRef p) /*  REVISIT: This is a generally bad way to create temp files */
   {
     if (!(STRINGP(p) || NULLP(p)))
       vmerror_wrong_type(1, p);
@@ -109,15 +109,15 @@ namespace scan {
 
     return vmerror("Error deleting file: ~s", filename);
 
-    // !! delete_file should detect directories and call RemoveDirectory
-    // !!! parse errno
+    /*  !! delete_file should detect directories and call RemoveDirectory */
+    /*  !!! parse errno */
   }
 
   LRef file_details_object(_TCHAR *filename, struct sys_stat_t *info)
   {
     LRef obj = hashcons(true);
 
-    // !!! lots more info in info...
+    /*  !!! lots more info in info... */
 
     LRef file_type = NULL;
 
@@ -178,7 +178,7 @@ namespace scan {
 
     sys_stat_t file_info;
 
-    // If stat fails, we assume the file does not exist and return false.
+    /*  If stat fails, we assume the file does not exist and return false. */
     if (sys_stat(get_c_string(path), &file_info))
       return boolcons(false);
 
@@ -188,7 +188,7 @@ namespace scan {
     return file_details_object(get_c_string(path), &file_info);
   }
 
-  // !! find-files should be able to take lists of filename specifiers in addition to single specifiers.
+     /*  !! find-files should be able to take lists of filename specifiers in addition to single specifiers. */
 
 
   LRef lidirectory(LRef dn, LRef m)
@@ -369,4 +369,4 @@ namespace scan {
     return obj;
   }
 
-} // end namespace scan
+} /*  end namespace scan */

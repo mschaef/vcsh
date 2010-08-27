@@ -11,7 +11,7 @@
 
 namespace scan {
 
-enum FaslOpcode { // see fasl-write.scm for details about opcode assignment
+enum FaslOpcode { /* see fasl-write.scm for details about opcode assignment */
   FASL_OP_NIL				 = 1  ,
   FASL_OP_TRUE				 = 2  ,
   FASL_OP_FALSE				 = 3  ,
@@ -52,7 +52,7 @@ enum FaslOpcode { // see fasl-write.scm for details about opcode assignment
   FASL_OP_READER_DEFINITION 	         = 193,
   FASL_OP_READER_REFERENCE               = 194,
   FASL_OP_LOADER_DEFINEQ                 = 208,
-  // 209 is the former FASL_OP_LOADER_DEFINE (which invoked the evaluator to determine the definition value.)
+       /*  209 is the former FASL_OP_LOADER_DEFINE (which invoked the evaluator to determine the definition value.) */
   FASL_OP_LOADER_DEFINEA0                = 210,
   FASL_OP_LOADER_APPLY0                  = 216,
 
@@ -60,12 +60,12 @@ enum FaslOpcode { // see fasl-write.scm for details about opcode assignment
   FASL_OP_END_LOAD_UNIT                  = 225,
 
   FASL_OP_EOF				 = 253
-  // 254, 255 reserved for Unicode Byte Order Marker
+       /*  254, 255 reserved for Unicode Byte Order Marker */
 };
 
 
 const  _TCHAR *fasl_opcode_name(FaslOpcode opcode);
 
-} // namespace scan
+} /*  namespace scan */
 
-#endif // __FASL_FILE_H
+#endif /*  __FASL_FILE_H */

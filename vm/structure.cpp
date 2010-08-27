@@ -8,9 +8,9 @@
 
 namespace scan {
 
-  // REVISIT %structure-become
+     /*  REVISIT %structure-become */
 
-  LRef lcopy_structure(LRef st) // REVISIT how much of this can be shared with lstructurecons?
+     LRef lcopy_structure(LRef st) /*  REVISIT how much of this can be shared with lstructurecons? */
   {
     if (!STRUCTUREP(st))
       return vmerror_wrong_type(1, st);
@@ -156,4 +156,4 @@ namespace scan {
     return true;
   }
 
-} // end namespace scan
+} /*  end namespace scan */

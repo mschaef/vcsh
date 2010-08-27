@@ -8,15 +8,15 @@
 
 #include "fasl-file.h"
 
-// REVISIT: It would be nice if this emitted something directly loadable via the scheme reader
+/*  REVISIT: It would be nice if this emitted something directly loadable via the scheme reader */
 
-// REVISIT: There are a few places where size_t's are printed with %08zx, which truncates on
-// 64-bit sizes. I never want to have to use fasl-dump on a >4GB file, but it is not strictly
-// correct to truncate.
+/*  REVISIT: There are a few places where size_t's are printed with %08zx, which truncates on */
+/*  64-bit sizes. I never want to have to use fasl-dump on a >4GB file, but it is not strictly */
+/*  correct to truncate. */
 
 using namespace scan;
 
-// REVISIT: MAX_READER_DEFINITIONS should be dynamic
+/*  REVISIT: MAX_READER_DEFINITIONS should be dynamic */
 #define MAX_READER_DEFINITIONS (200000)
 
 #define STRBUF_SIZE (256)
@@ -403,7 +403,7 @@ static void dump_fast_op(int arity)
 {
   fixnum_t opcode;
 
-  FaslOpcode op = dump_next_object(_T("opcode"), &opcode); // TODO: parse opcode to print name
+  FaslOpcode op = dump_next_object(_T("opcode"), &opcode); /*  TODO: parse opcode to print name */
 
   _TCHAR buf[STRBUF_SIZE];
 
@@ -500,7 +500,7 @@ static FaslOpcode dump_next_object(const _TCHAR *desc /* = NULL*/,
 
   bool current_read_complete = false;
   while (!current_read_complete) {
-    // Assume we're going to complete the read unless we find out otherwise..
+       /*  Assume we're going to complete the read unless we find out otherwise.. */
     current_read_complete = true;
 
     opcode = fast_read_opcode(&offset);

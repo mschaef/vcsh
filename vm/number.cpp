@@ -75,7 +75,7 @@ namespace scan {
     return (double)get_c_flonum(x);
   }
 
-  fixnum_t get_c_fixnum (LRef x) // REVISIT: how should this handle inan, ineginf, & iposinf
+     fixnum_t get_c_fixnum (LRef x) /*  REVISIT: how should this handle inan, ineginf, & iposinf */
   {
     if (!NUMBERP (x))
       vmerror_wrong_type(x);
@@ -339,7 +339,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     else
       return fixcons(get_c_fixnum(x) + get_c_fixnum(y));
 
-    // TODO add overflow
+    /*  TODO add overflow */
   };
 
   LRef lmultiply (LRef x, LRef y)
@@ -364,7 +364,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     else
       return fixcons(get_c_fixnum(x) * get_c_fixnum(y));
 
-    // TODO multiply overflow
+    /*  TODO multiply overflow */
   }
 
   LRef lsubtract (LRef x, LRef y)
@@ -390,7 +390,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     else
       return fixcons(get_c_fixnum(x) - get_c_fixnum(y));
 
-    // TODO subtract overflow
+    /*  TODO subtract overflow */
   }
 
   LRef ldivide (LRef x, LRef y)
@@ -427,7 +427,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     else
       return flocons(get_c_flonum(x) / get_c_flonum(y));
 
-    // TODO divide overflow
+    /*  TODO divide overflow */
   }
 
   /* Number-theoretic division **********************************/
@@ -723,7 +723,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
       return (flocons (exp (get_c_double (x))));
     else
       {
-        // e^(y+xi) =  e^y (cos x + i sin x)
+           /*  e^(y+xi) =  e^y (cos x + i sin x) */
 
         flonum_t ere = exp(get_c_flonum(x));
         flonum_t im = get_c_flonum_im(x);
@@ -747,7 +747,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
   }
 
 
-  // TODO Complex trancendental
+     /*  TODO Complex trancendental */
 
   LRef lsin (LRef x)
   {
@@ -918,7 +918,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
 
   /* Random number generator ************************************/
 
-  LRef lrandom (LRef n) // TESTTHIS
+     LRef lrandom (LRef n) /*  TESTTHIS */
   {
     if (NULLP(n))
       {
@@ -967,4 +967,4 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     return fixcons(seed);
   }
 
-} // end namespace scan
+} /*  end namespace scan */

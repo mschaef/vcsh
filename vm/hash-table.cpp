@@ -7,7 +7,7 @@
 
 namespace scan {
 
-  // REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets)
+     /*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
 
 #define HASH_COMBINE(_h1,_h2) ((((_h1) * 17 + 1) ^ (_h2)))
 
@@ -83,8 +83,8 @@ namespace scan {
 
   fixnum_t sxhash_eq(LRef obj)
   {
-    // slice off the tag bits, assuming that hashes will be mostly
-    // homogenous.
+       /*  slice off the tag bits, assuming that hashes will be mostly */
+       /*  homogenous. */
 
     if (LREF1_TAG(obj) == LREF1_SPECIAL)
       return ((uptr)obj) >> LREF2_TAG_SHIFT;
@@ -99,7 +99,7 @@ namespace scan {
 
     fixnum_t hash = 0;
 
-    // ADD_TYPE
+    /*  ADD_TYPE */
 
     if (NULLP(obj))
       return 0;
@@ -167,12 +167,12 @@ namespace scan {
       hash = 0;
     }
 
-    if (hash < 0) hash = -hash; // REVISIT: still needed?
+    if (hash < 0) hash = -hash; /*  REVISIT: still needed? */
 
     return hash;
   }
 
-  LRef lsxhash(LRef obj, LRef hash) // if hash is bound, lsxhash matches its hash function
+     LRef lsxhash(LRef obj, LRef hash) /*  if hash is bound, lsxhash matches its hash function */
   {
     bool shallow = false;
 
@@ -216,7 +216,7 @@ namespace scan {
       rounded <<= 1;
 
       if (rounded <= 0)
-        return 0; // REVISIT: correct overflow retval?
+           return 0; /*  REVISIT: correct overflow retval? */
     }
 
     return rounded;
@@ -407,7 +407,7 @@ namespace scan {
             return entry;
         }
 
-        // REVISIT: termination criteria, if unused entries. (which shouldn't happen)
+        /*  REVISIT: termination criteria, if unused entries. (which shouldn't happen) */
       }
 
     return NULL;
@@ -438,8 +438,8 @@ namespace scan {
     return lcons(entry->_key, entry->_val);
   }
 
-  // !! lhash_ref suffers because we can't tell the difference between unbound and null arguments.
-  // it'd occasionally be nice to have hash-ref return () for lookup failures
+     /*  !! lhash_ref suffers because we can't tell the difference between unbound and null arguments.
+      *  it'd occasionally be nice to have hash-ref return () for lookup failures */
   LRef lhash_ref (LRef table, LRef key, LRef defaultValue)
   {
     if (NULLP(defaultValue))
@@ -471,7 +471,7 @@ namespace scan {
   {
     assert(HASHP(table));
 
-    hash_entry_t *entry = hash_lookup_entry(table, key); // REVISIT: double lookup/hash
+    hash_entry_t *entry = hash_lookup_entry(table, key); /*  REVISIT: double lookup/hash */
 
     if (entry != NULL)
       {
@@ -582,7 +582,7 @@ namespace scan {
 
     LRef hash = lmake_hash(key_type);
 
-    if (init_slots(hash, bindings, false)) // REVISIT: should this really be init_slots?
+    if (init_slots(hash, bindings, false)) /*  REVISIT: should this really be init_slots? */
       vmerror("Invalid hash binding", bindings);
 
     return hash;
@@ -676,4 +676,4 @@ namespace scan {
     return HASH_COUNT(hash);
   }
 
-} // end namespace scan
+} /*  end namespace scan */

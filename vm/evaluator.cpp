@@ -87,7 +87,7 @@ namespace scan {
     LRef subr_table = SYMBOL_VCELL(interp.sym_subr_table);
 
     assert(STRINGP(subr_name));
-    assert(HASHP(subr_table)); // REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader
+    assert(HASHP(subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
 
     return lhash_ref(subr_table, subr_name, NIL);
   }
@@ -158,7 +158,7 @@ namespace scan {
     else
       {
         vmerror_wrong_type(1, exp);
-        return NIL; // unreached.
+        return NIL; /*  unreached. */
       }
 
     return property_list;
@@ -237,7 +237,7 @@ namespace scan {
         loc = loc->previous;
       }
 
-    assert(loc); // The frame ought to be on the stack already.
+    assert(loc); /*  The frame ought to be on the stack already. */
 #endif
 
     CURRENT_TIB()->frame_stack = f;
@@ -689,7 +689,7 @@ namespace scan {
   {
     typecode_t type = TYPE(function);
 
-    // NIL signals "no tail recursion", what happens when the actual form is NIL?
+    /*  NIL signals "no tail recursion", what happens when the actual form is NIL? */
 
     if (type == TC_SUBR)
       return subr_apply(function, argc, argv, env, retval);
@@ -702,12 +702,12 @@ namespace scan {
                           CAR(c_code),
                           CLOSURE_ENV(function));
 
-        return CDR(c_code); // tail call
+        return CDR(c_code); /*  tail call */
       }
 
     vmerror("Cannot apply: ~s", function);
 
-    return NIL; // avoid a warning, since the error case returns nothing.
+    return NIL; /*  avoid a warning, since the error case returns nothing. */
   }
 
   static LRef leval(LRef form, LRef env)
@@ -869,7 +869,7 @@ namespace scan {
     return retval;
   }
 
-  // REVISIT: lapply should be tail recursive
+     /*  REVISIT: lapply should be tail recursive */
   LRef lapply(size_t argc, LRef argv[])
   {
     size_t fn_argc = 0;
@@ -1169,7 +1169,7 @@ namespace scan {
   {
     LRef retval;
 
-    // tag==#t implies all tags
+    /*  tag==#t implies all tags */
     if (BOOLP(tag) && TRUEP(tag))
       tag = NULL;
 
@@ -1544,4 +1544,4 @@ namespace scan {
   }
 
 
-} // end namespace scan
+} /*  end namespace scan */

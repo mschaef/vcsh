@@ -65,19 +65,19 @@ void init_mt19937(unsigned long s)
     for (mti=1; mti<N; mti++) {
         mt[mti] =
 	    (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti);
-        /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
-        /* In the previous versions, MSBs of the seed affect   */
-        /* only MSBs of the array mt[].                        */
-        /* 2002/01/09 modified by Makoto Matsumoto             */
+        /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier.
+         * In the previous versions, MSBs of the seed affect
+         * only MSBs of the array mt[].
+         * 2002/01/09 modified by Makoto Matsumoto */
         mt[mti] &= 0xffffffffUL;
         /* for >32 bit machines */
     }
 }
 
-/* initialize by an array with array-length */
-/* init_key is the array for initializing keys */
-/* key_length is its length */
-/* slight change for C++, 2004/2/26 */
+/* initialize by an array with array-length 
+ * init_key is the array for initializing keys
+ * key_length is its length
+ * slight change for C++, 2004/2/26 */
 void init_mt19937_by_array(unsigned long init_key[], int key_length)
 {
     int i, j, k;
