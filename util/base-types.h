@@ -243,6 +243,12 @@ int debug_printf(const _TCHAR *, ...);
 #define FLONUM_EPSILON DBL_EPSILON
 
 
+/* Add macros for beginning and ending C++ namespaces. These are used to keep
+ * namespace blocks from confusing indent. If the namespace declarations are
+ * there, indent doesn't recognize function declarations as function declarations. */
+#define BEGIN_NAMESPACE(name) namespace name {
+#define END_NAMESPACE }
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
