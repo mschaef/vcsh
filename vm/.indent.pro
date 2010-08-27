@@ -1,1 +1,1 @@
--bad -bap -di1 -i4 -npsl  -bl -nce
+--k-and-r-style --braces-after-func-def-line --blank-lines-after-procedures
