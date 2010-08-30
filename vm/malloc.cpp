@@ -7,18 +7,19 @@
 
 BEGIN_NAMESPACE(scan)
 
+/* REVISIT: Is there not a better place to store malloc_blocks and malloc_bytes? */
   i64 malloc_blocks = 0;
      i64 malloc_bytes  = 0; /*  REVISIT: have malloc set flag based on user defined limit? use that to trigger GC? */
 
-  /**** The C Heap
-   *
-   * These functions wrap the C malloc/free allocator, and
-   * do a couple bits of additional accounting in debug builds.
-   * Each block is prefixed with a u32 containing the size of
-   * the block. This is used to track blocks allocated and freed
-   * and bytes allocated and freed.
-   */
-  void *safe_malloc(size_t size)
+/**** The C Heap
+ *
+ * These functions wrap the C malloc/free allocator, and
+ * do a couple bits of additional accounting in debug builds.
+ * Each block is prefixed with a u32 containing the size of
+ * the block. This is used to track blocks allocated and freed
+ * and bytes allocated and freed.
+ */
+void *safe_malloc(size_t size)
   {
     void *block;
 

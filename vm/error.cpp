@@ -66,7 +66,7 @@ void vmerror_stack_overflow (u8 *obj)
 
 	THROW_ESCAPE(interp.sym_stack_overflow, NIL);
 }
-     bool infop() /* REVISIT: still used? */
+bool infop() /* REVISIT: still used? */
 {
   assert(SYMBOLP(interp.sym_msglvl_info));
 

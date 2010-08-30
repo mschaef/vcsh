@@ -1,1 +1,14 @@
---k-and-r-style --braces-after-func-def-line --blank-lines-after-procedures
+--k-and-r-style
+--braces-after-func-def-line
+--braces-after-if-line
+--braces-after-struct-decl-line
+--blank-lines-after-procedures
+--blank-lines-before-block-comments
+--dont-cuddle-else
+--brace-indent0
+--line-length100
+--honour-newlines
+--leave-preprocessor-space
+--preprocessor-indentation4
+--no-tabs
+--leave-optional-blank-lines

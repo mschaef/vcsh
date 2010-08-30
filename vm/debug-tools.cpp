@@ -7,11 +7,11 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /* ldump_heap_state
-   *
-   * Traverse the heap segments, writing the FASL code of each cell to
-   * a file of the specified name.
-   */
+/* ldump_heap_state
+ *
+ * Traverse the heap segments, writing the FASL code of each cell to
+ * a file of the specified name.
+ */
 
   LRef ldump_heap_state(LRef port)
   {
@@ -41,12 +41,12 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* lshow_type_stats
-   *
-   * Traverse the heap segments, counting each instance of each type.
-   * Returns a list with a node for each type containing a count
-   * of the number of instances, by type.
-   */
+/* lshow_type_stats
+ *
+ * Traverse the heap segments, counting each instance of each type.
+ * Returns a list with a node for each type containing a count
+ * of the number of instances, by type.
+ */
 
   LRef lshow_type_stats ()
   {
@@ -154,11 +154,11 @@ BEGIN_NAMESPACE(scan)
     return fixcons(interp.debug_flags);
   }
 
-  /* Blocking input test port. This provides a fixed-length string of bytes
-   * from 0 to 255 repeating back to zero. The size of the blocks reported
-   * back to the port can be varied to allow tests to be written to exercise
-   * all of the code paths. (port_block > request_block, request_block > port_block,
-   * port_block == request_block). */
+/* Blocking input test port. This provides a fixed-length string of bytes
+ * from 0 to 255 repeating back to zero. The size of the blocks reported
+ * back to the port can be varied to allow tests to be written to exercise
+ * all of the code paths. (port_block > request_block, request_block > port_block,
+ * port_block == request_block). */
 
   struct test_blocking_input_info_t {
     fixnum_t _block_size;
@@ -224,12 +224,12 @@ BEGIN_NAMESPACE(scan)
                                test_blocking_input_read, test_blocking_input_close, info);
   }
 
-  /* GC Trip wire support.
-   *
-   * GC trip wires pretty much do what they sound like, they blow up when the garbage
-   * collector touches (attempts to free) them. They are used in tests to verify that
-   * the GC is picking up all object references.
-   */
+/* GC Trip wire support.
+ *
+ * GC trip wires pretty much do what they sound like, they blow up when the garbage
+ * collector touches (attempts to free) them. They are used in tests to verify that
+ * the GC is picking up all object references.
+ */
   LRef ligc_trip_wire()
   {
     return new_cell(TC_GC_TRIP_WIRE);
@@ -341,10 +341,10 @@ BEGIN_NAMESPACE(scan)
     return debug_flags_from_string(initial, _T("VCSH_DEBUG_FLAGS"), getenv("VCSH_DEBUG_FLAGS"));
   }
 
-  /*
-   * The debug printer. This is the printer used to print Lisp objects from C code, and it's
-   * supposed to work, even if the lisp interpreter is in an odd state and cannot be trusted.
-   */
+/*
+ * The debug printer. This is the printer used to print Lisp objects from C code, and it's
+ * supposed to work, even if the lisp interpreter is in an odd state and cannot be trusted.
+ */
 
 
   static void debug_print_flonum(LRef object, LRef port, bool machine_readable)

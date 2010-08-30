@@ -31,7 +31,7 @@ BEGIN_NAMESPACE(scan)
     CONTEXT _context;
   };
 
-     sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
+sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
 
   _TCHAR **sys_get_env_vars()
   {
@@ -165,12 +165,12 @@ BEGIN_NAMESPACE(scan)
     return retcode;
   }
 
-  /* FILETIME units (FT_UNITS) are 100ns units measured from an
-   * epoch beginning January 1st, 1601. These are the conversion
-   * factors necessary to convert them into time_t units, which
-   * are seconds from January 1st, 1970. The offset is itself
-   * measured in FILETIME units.
-   */
+/* FILETIME units (FT_UNITS) are 100ns units measured from an
+ * epoch beginning January 1st, 1601. These are the conversion
+ * factors necessary to convert them into time_t units, which
+ * are seconds from January 1st, 1970. The offset is itself
+ * measured in FILETIME units.
+ */
   const u64 FT_UNITS_PER_SECOND = U64(10000000);
   const u64 FT_UNITS_OFS        = U64(116444736000000000);
 
@@ -253,8 +253,8 @@ BEGIN_NAMESPACE(scan)
   static __int64 runtime_ticks_per_sec = 0;
   static bool have_highres_timebase = false;
 
-     static flonum_t realtime_offset = 0.0; /*  timebase offset to epoch */
-     static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
+static flonum_t realtime_offset = 0.0; /*  timebase offset to epoch */
+static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
 
   static flonum_t sys_timebase_time(void);
 
@@ -274,8 +274,8 @@ BEGIN_NAMESPACE(scan)
         runtime_ticks_per_sec = temp.QuadPart;
       }
 
-    /*  Get the current time so that we can accurately return a high resolution */
-    /*  time relative to the Unix epoch. */
+    /*  Get the current time so that we can accurately return a high resolution
+     *  time relative to the Unix epoch. */
     FILETIME ft_runtime;
     GetSystemTimeAsFileTime(&ft_runtime);
 
@@ -361,12 +361,12 @@ BEGIN_NAMESPACE(scan)
     info->_platform_name           = _T("win32");
   }
 
-  /**************************************************************
-   * int debug_printf(_TCHAR *, ...)
-   *
-   * Debugging print statement. Sends debug messages to the
-   * standard debugging output.
-   */
+/**************************************************************
+ * int debug_printf(_TCHAR *, ...)
+ *
+ * Debugging print statement. Sends debug messages to the
+ * standard debugging output.
+ */
 
   enum { MESSAGE_BUF_SIZE = 256 };
 

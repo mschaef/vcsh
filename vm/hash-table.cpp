@@ -1,4 +1,4 @@
-/* slib_hash.c
+/* hash-table.cpp
  *
  * SIOD hash table code.
  */
@@ -7,12 +7,14 @@
 
 BEGIN_NAMESPACE(scan)
 
-     /*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
+/*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
 
 #define HASH_COMBINE(_h1,_h2) ((((_h1) * 17 + 1) ^ (_h2)))
 
+
 #define HASH_SHALLOW(obj)		((obj)->storage_as.hash.info.shallow_keys)
 #define HASH_COUNT(obj)			((obj)->storage_as.hash.info.count)
+
 
 #define HASH_SMALL_ENLARGE_THRESHOLD    50000
 #define HASH_SMALL_ENLARGE_FACTOR       2
@@ -77,19 +79,19 @@ BEGIN_NAMESPACE(scan)
     return false;
   }
 
-  /**************************************************************
-   * Hashing
-   */
+/**************************************************************
+ * Hashing
+ */
 
   fixnum_t sxhash_eq(LRef obj)
   {
-       /*  slice off the tag bits, assuming that hashes will be mostly */
-       /*  homogenous. */
+       /* Slice off the tag bits, assuming that hashes will be mostly
+        * homogeneous. */
 
-    if (LREF1_TAG(obj) == LREF1_SPECIAL)
-      return ((uptr)obj) >> LREF2_TAG_SHIFT;
-    else
-      return ((uptr)obj) >> LREF1_TAG_SHIFT;
+       if (LREF1_TAG(obj) == LREF1_SPECIAL)
+            return ((uptr)obj) >> LREF2_TAG_SHIFT;
+       else
+            return ((uptr)obj) >> LREF1_TAG_SHIFT;
   }
 
   fixnum_t sxhash(LRef obj)
@@ -202,11 +204,11 @@ BEGIN_NAMESPACE(scan)
 
   }
 
-  /**************************************************************
-   * Hashes
-   */
+/**************************************************************
+ * Hashes
+ */
 
-  /* Constructor */
+/* Constructor */
 
   static size_t round_up_to_power_of_two(size_t val)
   {
@@ -251,7 +253,7 @@ BEGIN_NAMESPACE(scan)
     return hash;
   }
 
-  /* 'equal?' support */
+/* 'equal?' support */
 
   bool hash_equal(LRef a, LRef b)
   {
@@ -282,9 +284,9 @@ BEGIN_NAMESPACE(scan)
     return true;
   }
 
-  /* Hashing */
+/* Hashing */
 
-  /* R5RS Hash Functions ****************************************/
+/* R5RS Hash Functions ****************************************/
 
   LRef lmake_hash(LRef key_type)
   {
@@ -311,9 +313,9 @@ BEGIN_NAMESPACE(scan)
       return boolcons(false);
   }
 
-  /**************************************************************
-   * Hash Tables
-   **************************************************************/
+/**************************************************************
+ * Hash Tables
+ **************************************************************/
 
   static fixnum_t href_index(bool shallow_p, size_t mask, LRef key)
   {
@@ -438,8 +440,8 @@ BEGIN_NAMESPACE(scan)
     return lcons(entry->_key, entry->_val);
   }
 
-     /*  !! lhash_ref suffers because we can't tell the difference between unbound and null arguments.
-      *  it'd occasionally be nice to have hash-ref return () for lookup failures */
+/*  !! lhash_ref suffers because we can't tell the difference between unbound and null arguments.
+ *  it'd occasionally be nice to have hash-ref return () for lookup failures */
   LRef lhash_ref (LRef table, LRef key, LRef defaultValue)
   {
     if (NULLP(defaultValue))
@@ -540,14 +542,14 @@ BEGIN_NAMESPACE(scan)
     return hash;
   }
 
-  /* This returns a 'binding table', a term I'm using to refer to a
-   * vector with an element for each element in the hash table's array
-   * of entries.  The element is null for a completely unused entry,
-   * #f for a deleted entry, and a key/value pair for a bound entry.
-   *
-   * This is intended to make it possible to write scheme functions
-   * analyzing hash table performance.
-   */
+/* This returns a 'binding table', a term I'm using to refer to a
+ * vector with an element for each element in the hash table's array
+ * of entries.  The element is null for a completely unused entry,
+ * #f for a deleted entry, and a key/value pair for a bound entry.
+ *
+ * This is intended to make it possible to write scheme functions
+ * analyzing hash table performance.
+ */
   LRef lihash_binding_vector(LRef hash)
   {
     if (!HASHP(hash))

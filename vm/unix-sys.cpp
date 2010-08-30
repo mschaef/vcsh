@@ -41,9 +41,9 @@ BEGIN_NAMESPACE(scan)
     return SYS_OK;
   }
 
-  /****************************************************************
-   * Environment Variable Access
-   */
+/****************************************************************
+ * Environment Variable Access
+ */
 
   _TCHAR **sys_get_env_vars()
   {
@@ -202,9 +202,9 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /****************************************************************
-   * Time and Date
-   */
+/****************************************************************
+ * Time and Date
+ */
 
   static flonum_t runtime_offset = 0.0;  /* timebase offset to interp start */
 
@@ -251,9 +251,9 @@ BEGIN_NAMESPACE(scan)
     return (flonum_t)tz.tz_minuteswest * SECONDS_PER_MINUTE;
   }
 
-  /****************************************************************
-   * System Information
-   */
+/****************************************************************
+ * System Information
+ */
 
   sys_retcode_t sys_gethostname(_TCHAR *buf, size_t len)
   {
@@ -268,9 +268,9 @@ BEGIN_NAMESPACE(scan)
     info->_platform_name           = _T("linux");
   }
 
-  /****************************************************************
-   * Error Code Mapping
-   */
+/****************************************************************
+ * Error Code Mapping
+ */
 
   static sys_retcode_t rc_to_sys_retcode_t(int rc)
   {
@@ -406,9 +406,9 @@ BEGIN_NAMESPACE(scan)
     }
   }
 
-  /****************************************************************
-   * Debug I/O
-   */
+/****************************************************************
+ * Debug I/O
+ */
 
   void output_debug_string(const _TCHAR *str)
   {
@@ -432,9 +432,9 @@ BEGIN_NAMESPACE(scan)
     return i;
   }
 
-  /****************************************************************
-   * Panic Handling
-   */
+/****************************************************************
+ * Panic Handling
+ */
 
   static panic_handler_t current_panic_handler = NULL;
 
@@ -497,9 +497,9 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /****************************************************************
-   * String utilities
-   */
+/****************************************************************
+ * String utilities
+ */
 
 #if defined(__CYGWIN__) || defined (SCAN_UNIX)
      extern "C" const char *strchrnul(const char *string, int c) /*  REVISIT: Also implmented in windows-sys.cpp... consolidate */

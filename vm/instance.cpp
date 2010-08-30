@@ -63,7 +63,7 @@ BEGIN_NAMESPACE(scan)
     return map;
   }
 
-     static bool instance_map_ref(LRef inst, LRef key, LRef &value) /*  TODO: ref->value */
+static bool instance_map_ref(LRef inst, LRef key, LRef &value) /*  TODO: ref->value */
   {
     return hash_ref(instance_map(inst), key, value);
   }
@@ -84,7 +84,7 @@ BEGIN_NAMESPACE(scan)
     lhash_set(map, key, new_value);
   }
 
-  /* 'equal?' support */
+/* 'equal?' support */
 
   bool instance_equal(LRef a, LRef b)
   {
@@ -335,12 +335,12 @@ BEGIN_NAMESPACE(scan)
     return inst;
   }
 
-     bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols) /*  REVISIT: should true really mean fail? */
+bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols) /*  REVISIT: should true really mean fail? */
   {
-    /* initargs takes the form of a property list:
-     *
-     * ( name1 value1 name2 value2 ...)
-     */
+       /* initargs takes the form of a property list:
+        *
+        * ( name1 value1 name2 value2 ...)
+        */
     while(!NULLP(initargs))
       {
         if (!CONSP(initargs))

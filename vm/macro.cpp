@@ -7,9 +7,9 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /**************************************************************
-   * Macro type implementation
-   */
+/**************************************************************
+ * Macro type implementation
+ */
 
      LRef macrocons (LRef t) /*  TODO: Macros should be moved entirely to Lisp... */
   {

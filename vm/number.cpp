@@ -1,7 +1,4 @@
- /* slib_num.c
- *
- * SIOD numeric support
- */
+/* number.cpp */
 
 #include <stdio.h>
 #include <string.h>
@@ -19,13 +16,13 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /**************************************************************
-   * Numeric data type implementations
-   */
+/**************************************************************
+ * Numeric data type implementations
+ */
 
-  /**************************************************************
-   * Number constructors
-   */
+/**************************************************************
+ * Number constructors
+ */
 
   LRef fixcons(u32 high, u32 low)
   {
@@ -63,7 +60,7 @@ BEGIN_NAMESPACE(scan)
     return (z);
   }
 
-  /* Number accessors *******************************************/
+/* Number accessors *******************************************/
 
   long get_c_long (LRef x)
   {
@@ -110,10 +107,10 @@ BEGIN_NAMESPACE(scan)
       return 0.0;
   }
 
-  /* Number predicates ******************************************
-   *
-   * The only unique types we implement are fixnum (integer, exact)
-   * and flonum (real, inexact).  */
+/* Number predicates ******************************************
+ *
+ * The only unique types we implement are fixnum (integer, exact)
+ * and flonum (real, inexact).  */
 
   LRef lnumberp(LRef x)
   {
@@ -198,7 +195,7 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* Exactness conversion ***************************************/
+/* Exactness conversion ***************************************/
 
   LRef lexact2inexact(LRef x)
   {
@@ -222,7 +219,7 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* Comparisons ************************************************/
+/* Comparisons ************************************************/
 
   enum NumericArgumentType
     {
@@ -321,7 +318,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
   MAKE_NUMBER_COMPARISON_FN(lnum_le, <=, "<=");
   MAKE_NUMBER_COMPARISON_FN(lnum_lt, < , "<");
 
-  /* The basic four operations **********************************/
+/* The basic four operations **********************************/
 
   LRef ladd(LRef x, LRef y)
   {
@@ -430,7 +427,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     /*  TODO divide overflow */
   }
 
-  /* Number-theoretic division **********************************/
+/* Number-theoretic division **********************************/
 
   static flonum_t truncate(flonum_t x)
   {
@@ -568,7 +565,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
       return flocons(truncate(FLONM(x)));
   }
 
-  /* IEEE-754 bit conversion *************************************/
+/* IEEE-754 bit conversion *************************************/
 
   LRef lto_ieee754_bits(LRef x)
   {
@@ -606,7 +603,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     return flocons(value);
   }
 
-  /* Bitwise operations *****************************************/
+/* Bitwise operations *****************************************/
 
   LRef lbitwise_and(LRef x, LRef y)
   {
@@ -715,7 +712,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     return fixcons(FIXNM(x) >> bits);
   }
 
-  /* Transcenendal ***********************************************/
+/* Transcenendal ***********************************************/
 
   LRef lexp(LRef x)
   {
@@ -724,7 +721,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     else
       {
            /*  e^(y+xi) =  e^y (cos x + i sin x) */
-
+           
         flonum_t ere = exp(get_c_flonum(x));
         flonum_t im = get_c_flonum_im(x);
 
@@ -747,7 +744,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
   }
 
 
-     /*  TODO Complex trancendental */
+/*  TODO Complex trancendental */
 
   LRef lsin (LRef x)
   {
@@ -834,7 +831,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
     return (flocons (pow (get_c_double(x), get_c_double(y))));
   }
 
-  /* Complex Number Accessors **********************************/
+/* Complex Number Accessors **********************************/
 
   LRef lmake_rectangular(LRef re, LRef im)
   {
@@ -916,7 +913,7 @@ LRef fn_name(size_t argc, LRef argv[])                                          
   }
 
 
-  /* Random number generator ************************************/
+/* Random number generator ************************************/
 
      LRef lrandom (LRef n) /*  TESTTHIS */
   {

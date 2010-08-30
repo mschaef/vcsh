@@ -497,7 +497,7 @@ static FaslOpcode dump_next_object(const _TCHAR *desc /* = NULL*/,
 
   /* The core of this function is wrapped in a giant while loop to remove
    * tail recursive calls.*/
-
+  
   bool current_read_complete = false;
   while (!current_read_complete) {
        /*  Assume we're going to complete the read unless we find out otherwise.. */

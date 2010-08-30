@@ -10,9 +10,9 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /**************************************************************
-   * Character
-   */
+/**************************************************************
+ * Character
+ */
 
   LRef charcons(_TCHAR ch)
   {
@@ -48,9 +48,9 @@ BEGIN_NAMESPACE(scan)
     return charcons((_TCHAR)c);
   }
 
-  /**************************************************************
-   * String data type implementation
-   */
+/**************************************************************
+ * String data type implementation
+ */
 
   bool string_equal(LRef a, LRef b)
   {
@@ -69,7 +69,7 @@ BEGIN_NAMESPACE(scan)
       return false;
   }
 
-  /* String Constructor *****************************************/
+/* String Constructor *****************************************/
 
   static size_t string_storage_size(size_t bytes_to_be_stored)
   {
@@ -199,8 +199,8 @@ BEGIN_NAMESPACE(scan)
     return new_string;
   }
 
-  /* string-ref *************************************************
-   * string-set! */
+/* string-ref *************************************************
+ * string-set! */
 
   LRef lstring_ref (LRef a, LRef i)
   {
@@ -253,7 +253,7 @@ BEGIN_NAMESPACE(scan)
     return (a);
   }
 
-  /* string-append **********************************************/
+/* string-append **********************************************/
 
   LRef lstring_append(size_t argc, LRef argv[])
   {
@@ -316,7 +316,7 @@ BEGIN_NAMESPACE(scan)
     return (s);
   }
 
-  /* substring **************************************************/
+/* substring **************************************************/
 
   LRef lsubstring(LRef str, LRef start, LRef end)
   {
@@ -341,7 +341,7 @@ BEGIN_NAMESPACE(scan)
     return strcons(e - s, &(STRING_DATA(str)[s]));
   }
 
-  /* string-search **********************************************/
+/* string-search **********************************************/
 
   size_t get_string_offset(LRef maybe_ofs)
   {
@@ -359,7 +359,7 @@ BEGIN_NAMESPACE(scan)
     return (size_t)ofs;
   }
 
-     LRef lstring_search(LRef tok, LRef str, LRef maybe_initial_ofs) /*  REVISIT: to Knuth-Morris-Pratt */
+LRef lstring_search(LRef tok, LRef str, LRef maybe_initial_ofs) /*  REVISIT: to Knuth-Morris-Pratt */
   {
     if (!STRINGP(tok) && !CHARP(tok))
       vmerror_wrong_type(1, tok);
@@ -446,9 +446,9 @@ BEGIN_NAMESPACE(scan)
     return result;
   }
 
-  /* string-trim ************************************************
-   * string-trim-left
-   * string-trim-right */
+/* string-trim ************************************************
+ * string-trim-left
+ * string-trim-right */
 
   LRef lstring_trim(LRef str, LRef tc)
   {
@@ -529,8 +529,8 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* string-upcase **********************************************
-   * string-downcase */
+/* string-upcase **********************************************
+ * string-downcase */
 
   LRef lstring_upcased(LRef str)
   {
@@ -918,9 +918,9 @@ BEGIN_NAMESPACE(scan)
     STRING_DATA(obj)[size + len + 1] = _T('\0');
   }
 
-  /**************************************************************
-   * C string access
-   */
+/**************************************************************
+ * C string access
+ */
 
   _TCHAR *try_get_c_string (LRef x)
   {

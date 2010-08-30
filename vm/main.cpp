@@ -9,9 +9,9 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /**************************************************************
-   * Interpreter globals
-   */
+/**************************************************************
+ * Interpreter globals
+ */
 
   interpreter_t interp;
   
@@ -20,9 +20,9 @@ BEGIN_NAMESPACE(scan)
     return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
   }
 
-  /**************************************************************
-   * Boolean
-   */
+/**************************************************************
+ * Boolean
+ */
   LRef boolcons(bool val)
   {
     return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
@@ -38,9 +38,9 @@ BEGIN_NAMESPACE(scan)
     return boolcons(!TRUEP(x));
   }
 
-  /**************************************************************
-   * C-Pointers
-   */
+/**************************************************************
+ * C-Pointers
+ */
 
   LRef externalcons(void *data, LRef desc, external_meta_t *meta /* = NULL*/)
   {
@@ -101,9 +101,9 @@ BEGIN_NAMESPACE(scan)
     return boolcons(false);
   }
 
-  /**************************************************************
-   * Equality tests
-   */
+/**************************************************************
+ * Equality tests
+ */
 
   LRef leq(LRef x, LRef y)
   {
@@ -161,9 +161,9 @@ BEGIN_NAMESPACE(scan)
       return (FIXNM(a) == FIXNM(b));
 
     case  TC_FLONUM:
-         /*  equal? considers NaN to be equal to itself. This is different */
-         /*  from =, which uses the more mathematical approach that NaN */
-         /*  is equal to nothing. */
+         /*  equal? considers NaN to be equal to itself. This is different
+          *  from =, which uses the more mathematical approach that NaN
+          *  is equal to nothing. */
       if (isnan(FLONM(a)) && isnan(FLONM(b)))
         return equalp(FLOIM(a), FLOIM(b));
       else
@@ -201,8 +201,7 @@ BEGIN_NAMESPACE(scan)
     return make_type_name(TYPE(obj));
   }
 
-  /**** Default panic handler
-   */
+  /**** Default panic handler */
 
   static panic_handler_t previous_panic_handler = NULL;
 
@@ -215,16 +214,16 @@ BEGIN_NAMESPACE(scan)
       previous_panic_handler();
   }
 
-  /* Command line argument handling. Arguments are divided into two classes:
-   *
-   * 1) VM arguments are handled before the VM gets set up and are not passed
-   *    into the interpreted program. These kinds of arguments are used to set
-   *    boot-time paramaters  that _can't_ be set once the interpreter is run.
-   *    These are always of the form -X<name>[=<value>]
-   *
-   * 2) Everything else gets stuck in a list bound to system::*args0*, and is
-   *    handled by interpreted code.
-   */
+/* Command line argument handling. Arguments are divided into two classes:
+ *
+ * 1) VM arguments are handled before the VM gets set up and are not passed
+ *    into the interpreted program. These kinds of arguments are used to set
+ *    boot-time paramaters  that _can't_ be set once the interpreter is run.
+ *    These are always of the form -X<name>[=<value>]
+ *
+ * 2) Everything else gets stuck in a list bound to system::*args0*, and is
+ *    handled by interpreted code.
+ */
   static bool is_vm_argument(_TCHAR *arg)
   {
     return (arg != NULL)
@@ -332,8 +331,8 @@ BEGIN_NAMESPACE(scan)
       _TCHAR arg_name_buf[STACK_STRBUF_LEN];
       memset(arg_name_buf, 0, STACK_STRBUF_LEN);
 
-      /*  REVISIT: This should accept both '=' and ':' as arg value delims */
-      /*  (':' is more appropriate for specifying filenames) */
+      /*  REVISIT: This should accept both '=' and ':' as arg value delims
+       *  (':' is more appropriate for specifying filenames) */
       _TCHAR *arg_value_loc = (_TCHAR *)strchrnul(arg_text, '=');
 
       _tcsncpy(arg_name_buf, arg_text,
@@ -403,8 +402,7 @@ BEGIN_NAMESPACE(scan)
     _T("fast-op"),
   };
 
-  /**** Interpreter Initialization and Shutdown
-   */
+  /**** Interpreter Initialization and Shutdown */
   static void init_base_scheme_objects(void)
   {
     gc_protect(_T("type-name-symbols"),
@@ -415,7 +413,7 @@ BEGIN_NAMESPACE(scan)
       interp.syms_internal_type_names[ii] =
         simple_intern(system_type_names[ii], interp.system_package);
 
-    /*  !! These package paramaters should be explicit */
+    /*  REVISIT: These package paramaters should be explicit */
     LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
     lidefine_global(nil_sym, NIL, NIL);
 
@@ -819,7 +817,7 @@ BEGIN_NAMESPACE(scan)
       }
   }
 
-     /*  REVISIT Init needs a way to receive standard output ports, for non-console uses of scan */
+/*  REVISIT Init needs a way to receive standard output ports, for non-console uses of scan */
   void init0(int argc, _TCHAR *argv[], debug_flag_t initial_debug_flags)
   {
     global_environment_asserts();

@@ -7,8 +7,8 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /**** Byte Vector
-   */
+
+/**** Byte Vector */
   LRef byteveccons(size_t dim) {
     LRef z = new_cell(TC_BYTE_VECTOR);
 
@@ -64,8 +64,7 @@ BEGIN_NAMESPACE(scan)
     return vec;
   }
 
-  /**** Vectors
-   */
+/**** Vectors */
 
 LRef vectorcons(fixnum_t n, LRef initial)
 {

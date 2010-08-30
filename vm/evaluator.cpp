@@ -7,11 +7,11 @@
 BEGIN_NAMESPACE(scan)
 
 
-  /**************************************************************
-   * SUBR
-   *
-   * Subrs are the basic building block of a SIOD program. They
-   * represent executable code in compiled C. */
+/**************************************************************
+ * SUBR
+ *
+ * Subrs are the basic building block of a SIOD program. They
+ * represent executable code in compiled C. */
 
   const _TCHAR *subr_kind_str(subr_arity_t n)
   {
@@ -65,10 +65,10 @@ BEGIN_NAMESPACE(scan)
     return (z);
   }
 
-  /*
-   * This group of functions is responsible for registering subrs
-   * with the current package
-   */
+/*
+ * This group of functions is responsible for registering subrs
+ * with the current package
+ */
 
   void register_subr(const _TCHAR *name, subr_arity_t arity, void *implementation)
   {
@@ -92,9 +92,9 @@ BEGIN_NAMESPACE(scan)
     return lhash_ref(subr_table, subr_name, NIL);
   }
 
-  /**************************************************************
-   * Closures
-   */
+/**************************************************************
+ * Closures
+ */
 
 
   LRef lclosurecons(LRef env, LRef code, LRef property_list)
@@ -200,32 +200,32 @@ BEGIN_NAMESPACE(scan)
       return boolcons(false);
   }
 
-  /**************************************************************
-   * Frame manager
-   *
-   * Frames are basically annotations on the dynamic stack. Each
-   * frame has an "frame record" stored in an auto variable
-   * local to a newly created scope. When the frame is entered,
-   * the frame's frame record is registered on a global stack.
-   * When the frame is left, the frame record is popped off of
-   * the stack.
-   */
+/**************************************************************
+ * Frame manager
+ *
+ * Frames are basically annotations on the dynamic stack. Each
+ * frame has an "frame record" stored in an auto variable
+ * local to a newly created scope. When the frame is entered,
+ * the frame's frame record is registered on a global stack.
+ * When the frame is left, the frame record is popped off of
+ * the stack.
+ */
 
 
 
-  /* __frame_set_top(f)
-   *
-   * Sets the top frame of the frame stack.
-   *
-   * Parameters:
-   *   f - New top of the frame stack.
-   *
-   * Return value:
-   *
-   * Notes:
-   *   The passed in frame is expected to be somewhere on the
-   *   current frame stack.
-   */
+/* __frame_set_top(f)
+ *
+ * Sets the top frame of the frame stack.
+ *
+ * Parameters:
+ *   f - New top of the frame stack.
+ *
+ * Return value:
+ *
+ * Notes:
+ *   The passed in frame is expected to be somewhere on the
+ *   current frame stack.
+ */
   void __frame_set_top(frame_record_t *f)
   {
 #ifdef _DEBUG
@@ -243,19 +243,19 @@ BEGIN_NAMESPACE(scan)
     CURRENT_TIB()->frame_stack = f;
   }
 
-  /* __frame_find(pred, info)
-   *
-   * Finds a frame satisfying the inpassed predicate.
-   *
-   * Parameters:
-   *   pred - A C predicate function.
-   *   info - A uptr passed, along with the current frame, into the
-   *    predicate function.
-   *
-   * Return value:
-   *   A pointer to the first (topmost) frame satisfying the predicate.
-   *   NULL, if none found.
-   */
+/* __frame_find(pred, info)
+ *
+ * Finds a frame satisfying the inpassed predicate.
+ *
+ * Parameters:
+ *   pred - A C predicate function.
+ *   info - A uptr passed, along with the current frame, into the
+ *    predicate function.
+ *
+ * Return value:
+ *   A pointer to the first (topmost) frame satisfying the predicate.
+ *   NULL, if none found.
+ */
   frame_record_t *__frame_find(frame_predicate pred, uptr info)
   {
     frame_record_t *loc = CURRENT_TIB()->frame_stack;
@@ -368,9 +368,9 @@ BEGIN_NAMESPACE(scan)
     return l;
   }
 
-  /**************************************************************
-   * Stack limit checking
-   */
+/**************************************************************
+ * Stack limit checking
+ */
 
   LRef lset_stack_limit(LRef amount)
   {
@@ -407,9 +407,9 @@ BEGIN_NAMESPACE(scan)
     return boolcons(previous_mask);
   }
 
-  /**************************************************************
-   * The Evaluator
-   */
+/**************************************************************
+ * The Evaluator
+ */
 
   static LRef arg_list_from_buffer(size_t argc, LRef argv[]) {
     LRef result = NIL;
@@ -537,26 +537,26 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /**************************************************************
-   * leval(x, env, eval_option)
-   *
-   * Evaluates a Scheme form.
-   *
-   * Parameters:
-   *   form - The form to be evaluated.
-   *   env - The environment in which the form will be evaluated
-   *
-   * Options:
-   *
-   * Return value:
-   *   The result of the evaluation
-   *
-   * Implementation notes:
-   *   A basic idiom of this evaluator is that all the object-specific
-   *   callbacks return a bool value. The value returned is TRUE in
-   *   the case that the invoked object performed a tail-call, and needs
-   *   to avoid returning.
-   */
+/**************************************************************
+ * leval(x, env, eval_option)
+ *
+ * Evaluates a Scheme form.
+ *
+ * Parameters:
+ *   form - The form to be evaluated.
+ *   env - The environment in which the form will be evaluated
+ *
+ * Options:
+ *
+ * Return value:
+ *   The result of the evaluation
+ *
+ * Implementation notes:
+ *   A basic idiom of this evaluator is that all the object-specific
+ *   callbacks return a bool value. The value returned is TRUE in
+ *   the case that the invoked object performed a tail-call, and needs
+ *   to avoid returning.
+ */
 
   static void process_break_event()
   {
@@ -585,18 +585,18 @@ BEGIN_NAMESPACE(scan)
       panic(_T("Error evaluating timer event handler"));
   }
 
-  /* REVISIT interrupt processing rewrite
-   *
-   * There are a number of things that need to be done here:
-   *
-   * 1. Verify that performance impact of processing interrupts in an
-   *    inline function isn't too terrible.
-   * 2. Allow selective masking of individual interrupts.
-   * 3. Switch both the interrupt flags and the mask to a usys bitmap,
-   *    one bit per interrupt.
-   * 4. Confirm that it really makes sense to process interrupts seperately
-   *    from the normal signal handling mechanism.
-   */
+/* REVISIT interrupt processing rewrite
+ *
+ * There are a number of things that need to be done here:
+ *
+ * 1. Verify that performance impact of processing interrupts in an
+ *    inline function isn't too terrible.
+ * 2. Allow selective masking of individual interrupts.
+ * 3. Switch both the interrupt flags and the mask to a usys bitmap,
+ *    one bit per interrupt.
+ * 4. Confirm that it really makes sense to process interrupts seperately
+ *    from the normal signal handling mechanism.
+ */
   INLINE void _process_interrupts()
   {
     if (interp.interrupts_masked)
@@ -1048,11 +1048,11 @@ BEGIN_NAMESPACE(scan)
     return failed;
   }
 
-  /**************************************************************
-   * The evaluator inner functions
-   *
-   * These implement particular special forms within the evaluator
-   */
+/**************************************************************
+ * The evaluator inner functions
+ *
+ * These implement particular special forms within the evaluator
+ */
 
   static void check_global_environment_size()
   {
@@ -1138,9 +1138,9 @@ BEGIN_NAMESPACE(scan)
     return lvector(8, argv);
   }
 
-  /**************************************************************
-   * Handler Bindings
-   **************************************************************/
+/**************************************************************
+ * Handler Bindings
+ **************************************************************/
 
   LRef lset_handler_frames(LRef new_frames)
   {
@@ -1154,16 +1154,16 @@ BEGIN_NAMESPACE(scan)
     return CURRENT_TIB()->handler_frames;
   }
 
-  /**************************************************************
-   * Exception Scheme Bindings
-   **************************************************************/
+/**************************************************************
+ * Exception Scheme Bindings
+ **************************************************************/
 
-  /* TODO: Refactor implementation of catch/throw:
-   *
-   * 2) catch should match catch tags on eqv?
-   * 3) throw should detect missing catch tag prior to unwinding the stack.
-   * 5) catch should have optional on-throw thunk that's tail-called if the catch is thrown to.
-   */
+/* TODO: Refactor implementation of catch/throw:
+ *
+ * 2) catch should match catch tags on eqv?
+ * 3) throw should detect missing catch tag prior to unwinding the stack.
+ * 5) catch should have optional on-throw thunk that's tail-called if the catch is thrown to.
+ */
 
   LRef lcatch_apply0(LRef tag, LRef fn)
   {
@@ -1258,23 +1258,23 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /**************************************************************
-   * Exception Internal Implementation
-   *
-   * These functions implement the internal exception handling
-   * logic. They are intended to be called via the wrapper macros
-   * in the header file.
-   **************************************************************/
+/**************************************************************
+ * Exception Internal Implementation
+ *
+ * These functions implement the internal exception handling
+ * logic. They are intended to be called via the wrapper macros
+ * in the header file.
+ **************************************************************/
 
 
-  /**************************************************************
-   * __ex_current_catch_retval()
-   *
-   * Returns the current catch frame's retval.
-   *
-   * Return value:
-   *   The return value of the current stack frame.
-   */
+/**************************************************************
+ * __ex_current_catch_retval()
+ *
+ * Returns the current catch frame's retval.
+ *
+ * Return value:
+ *   The return value of the current stack frame.
+ */
 
   LRef __ex_current_catch_retval()
   {
@@ -1298,42 +1298,42 @@ BEGIN_NAMESPACE(scan)
     return TOP_FRAME->frame_as.dynamic_escape.tag;
   }
 
-  /**************************************************************
-   * __ex_throw_dynamic_escape(tag, retval, already_pending)
-   *
-   * Searches for the first matching stack frame, popping off
-   * stack frames along the way. The matching stack frame
-   * is left on the stack, with the return value specified.
-   * longjmp is called to restore execution at that execution
-   * context:
-   *
-   * Parameters:
-   *   tag - The tag of the exception frame to be thrown to.
-   *   retval - The return value for the catch frame
-   *   already_pending - True, if the exception is already in the
-   *     process of being handled
-   *
-   * Return value:
-   *   None.
-   */
+/**************************************************************
+ * __ex_throw_dynamic_escape(tag, retval, already_pending)
+ *
+ * Searches for the first matching stack frame, popping off
+ * stack frames along the way. The matching stack frame
+ * is left on the stack, with the return value specified.
+ * longjmp is called to restore execution at that execution
+ * context:
+ *
+ * Parameters:
+ *   tag - The tag of the exception frame to be thrown to.
+ *   retval - The return value for the catch frame
+ *   already_pending - True, if the exception is already in the
+ *     process of being handled
+ *
+ * Return value:
+ *   None.
+ */
 
-  /* These two predicates find the next exception frame in the list
-   * of frame handlers.  next_frame_to_catch is used to calculate
-   * the next frame that needs to process the current exception, including
-   * unwind protection frames that don't have any particular interest in the
-   * type of exception being thrown. next_try_frame is used to calculate the next
-   * frame that has explicitly requested interest in this kind of exception.
-   * This is used to determine if the exception was expected by the programmer.
-   */
+/* These two predicates find the next exception frame in the list
+ * of frame handlers.  next_frame_to_catch is used to calculate
+ * the next frame that needs to process the current exception, including
+ * unwind protection frames that don't have any particular interest in the
+ * type of exception being thrown. next_try_frame is used to calculate the next
+ * frame that has explicitly requested interest in this kind of exception.
+ * This is used to determine if the exception was expected by the programmer.
+ */
   bool __ex_matching_frame_1(frame_record_t *rec,
                              uptr tag,
                              bool exclude_unwind_protection)
   {
     if (!exclude_unwind_protection)
       {
-        /* If a frame is being unwound, it means that we're executing the
-         * unwind clause and any errors thrown belong to an outside exception
-         * frame. Therefore it is not a candidate for the current throw. */
+           /* If a frame is being unwound, it means that we're executing the
+            * unwind clause and any errors thrown belong to an outside exception
+            * frame. Therefore it is not a candidate for the current throw. */
         if (   (rec->type == FRAME_EX_UNWIND)
                && !rec->frame_as.dynamic_escape.unwinding)
           return TRUE;
@@ -1391,11 +1391,11 @@ BEGIN_NAMESPACE(scan)
     panic("Uncaught throw!");
   }
 
-  /**************************************************************
-   * __ex_rethrow_dynamic_escape
-   *
-   * Rethrows the exception matching the current catch frame
-   */
+/**************************************************************
+ * __ex_rethrow_dynamic_escape
+ *
+ * Rethrows the exception matching the current catch frame
+ */
   void __ex_rethrow_dynamic_escape()
   {
     LRef retval;
@@ -1414,9 +1414,9 @@ BEGIN_NAMESPACE(scan)
     __ex_throw_dynamic_escape(tag, retval, TRUE);
   }
 
-  /****************************************************************
-   * Values tuples
-   */
+/****************************************************************
+ * Values tuples
+ */
 
   LRef lvalues(LRef values)
   {

@@ -8,10 +8,9 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /*** GC heap startup and shutdown
-   */
+/*** GC heap startup and shutdown */
 
-  /*** GC Root Registry ***/
+/*** GC Root Registry ***/
 
 
   void gc_protect(const _TCHAR *name, LRef *location, size_t n)
@@ -66,12 +65,12 @@ BEGIN_NAMESPACE(scan)
     dscwritef("\n");
   }
 
-  /*** The heap segment allocator
-   *
-   * The GC heap is maintained as a variable sized array of heap segments. The VM
-   * starts out with one subheap, and will allocate up to as many as HEAP_SEGMENT_LIMIT
-   * heaps, on an as-needed basis.
-   */
+/*** The heap segment allocator
+ *
+ * The GC heap is maintained as a variable sized array of heap segments. The VM
+ * starts out with one subheap, and will allocate up to as many as HEAP_SEGMENT_LIMIT
+ * heaps, on an as-needed basis.
+ */
 
   static void gc_init_heap_segment(LRef seg_base)
   {
@@ -162,12 +161,12 @@ BEGIN_NAMESPACE(scan)
     return fixcons(interp.gc_current_heap_segments);
   }
 
-  /*** The Mark-and-Sweep garbage collection algorithm ***/
+/*** The Mark-and-Sweep garbage collection algorithm ***/
 
-  /* possible_heap_pointer_p
-   *
-   * Heuristic used to determine if a value is conceivably a pointer.
-   */
+/* possible_heap_pointer_p
+ *
+ * Heuristic used to determine if a value is conceivably a pointer.
+ */
   static bool possible_heap_pointer_p(LRef p)
   {
     for (size_t jj = 0; jj <  interp.gc_max_heap_segments; jj++)
@@ -197,9 +196,9 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* gc_mark
-   *
-   * Mark an object and its descendants as being reachable. */
+/* gc_mark
+ *
+ * Mark an object and its descendants as being reachable. */
   void gc_mark (LRef initial_obj)
   {
     LRef obj = initial_obj;
@@ -388,11 +387,11 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* gc_sweep
-   *
-   * Sweeps all unmarked memory cells back into the interp.gc_heap_freelist,
-   * calling the appropriate gc_free hooks along the way.
-   */
+/* gc_sweep
+ *
+ * Sweeps all unmarked memory cells back into the interp.gc_heap_freelist,
+ * calling the appropriate gc_free hooks along the way.
+ */
   fixnum_t gc_sweep()
   {
     fixnum_t free_cells = 0;
@@ -515,8 +514,7 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /*** The main entry point to the GC
-   */
+/*** The main entry point to the GC */
   static fixnum_t gc_collect_garbage(void)
   {
     fixnum_t cells_freed = 0;
@@ -546,7 +544,7 @@ BEGIN_NAMESPACE(scan)
                           fixcons(interp.gc_heap_segment_size));
   }
 
-  /*** Global freelist enqueue and dequeue */
+/*** Global freelist enqueue and dequeue */
 
   void gc_release_freelist(LRef new_freelist)
   {
@@ -610,14 +608,14 @@ BEGIN_NAMESPACE(scan)
 
   }
 
-  /**** The type manager
-   *
-   * All supported types are registered with the interpreter. This
-   * is done for a couple reasons:
-   *
-   * - Make it easier to perform sanity checks on the heap
-   * - Make it possible to look up type information by FASL code
-   */
+/**** The type manager
+ *
+ * All supported types are registered with the interpreter. This
+ * is done for a couple reasons:
+ *
+ * - Make it easier to perform sanity checks on the heap
+ * - Make it possible to look up type information by FASL code
+ */
 
   LRef make_type_name(typecode_t type_code)
   {
@@ -628,8 +626,7 @@ BEGIN_NAMESPACE(scan)
     return name;
   }
 
-  /**** Scheme interface functions
-   */
+/**** Scheme interface functions */
 
   LRef lgc()
   {

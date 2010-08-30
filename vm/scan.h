@@ -28,11 +28,9 @@
 
 BEGIN_NAMESPACE(scan)
 
-  extern i64 malloc_bytes;
+extern i64 malloc_bytes;
 
-  /****************************************************************
-                     Interpreter Paramaters
-  ****************************************************************/
+/*** Interpreter Paramaters ***/
 
 #define SCAN_VERSION _T("SCAN 0.50")
 
@@ -64,12 +62,12 @@ BEGIN_NAMESPACE(scan)
          MAX_INIT_LOAD_FILES = 8,       /* The maximum number of init load files. */
     };
 
-  /* _The_ type *************************************************
-   *
-   * This is the structure of a Lisp cell. The root of every Lisp
-   * object is one of these... */
+/* _The_ type *************************************************
+ *
+ * This is the structure of a Lisp cell. The root of every Lisp
+ * object is one of these... */
 
-  /* ...Each boxed object has a type field... */
+/* ...Each boxed object has a type field... */
 
   enum typecode_t
   {
@@ -122,7 +120,7 @@ BEGIN_NAMESPACE(scan)
     SUBR_N               = 9,  /*  Arbitrary number of paramaters, passed as list */
   };
 
-  /* ...Forward declarations and typedefs... */
+/* ...Forward declarations and typedefs... */
 
   struct port_class_t;
   struct port_info_t;
@@ -208,9 +206,9 @@ BEGIN_NAMESPACE(scan)
   typedef LRef (*f_f_t)(LRef, LRef);
   typedef LRef (*f_argc_t)(size_t, LRef[]);
 
-  /*
-   * ...This is the boxed object type...
-   */
+/*
+ * ...This is the boxed object type...
+ */
 
   struct hash_entry_t {
        LRef _key;    /*  == UNBOUND_MARKER for empty. */
@@ -324,7 +322,7 @@ BEGIN_NAMESPACE(scan)
       return TYPE(object) == typeCode;
     }
 
-  /* Debugging flags */
+/*** Debugging flags ***/
 
   enum debug_flag_t
     {
@@ -358,9 +356,9 @@ BEGIN_NAMESPACE(scan)
     };
 
 
-  /* The interpreter maintains a stack of frames annotating the C
-   * stack. These are used to implement try/catch as well as some
-   * debugging support. */
+/* The interpreter maintains a stack of frames annotating the C
+ * stack. These are used to implement try/catch as well as some
+ * debugging support. */
   enum frame_type_t {
     FRAME_PRIMITIVE = 0,
     FRAME_EVAL      = 1,
@@ -502,11 +500,11 @@ BEGIN_NAMESPACE(scan)
 
   extern interpreter_t interp; /*  One interpter... one global state variable. */
 
-  /**** Boxed types ****/
+/**** Boxed types ****/
 
 #define TYPEDECL
 
-  /* ...Type Predicates... */
+/* ...Type Predicates... */
 
   inline  /* full INLINE causes problems with gcc 3.4.4, due to prototype. */ LRef FLOIM(LRef x);
 
@@ -544,7 +542,7 @@ BEGIN_NAMESPACE(scan)
 
   LRef make_type_name(typecode_t type_code);
 
-  /**** Input/Output ****/
+/**** Input/Output ****/
 
   enum port_mode_t  {
     PORT_CLOSED  = 0x00,
@@ -620,7 +618,7 @@ BEGIN_NAMESPACE(scan)
 #define CURRENT_ERROR_PORT SYMBOL_VCELL(interp.sym_port_current_err)
 #define CURRENT_DEBUG_PORT SYMBOL_VCELL(interp.sym_port_debug)
 
-  /*  This is the 'universally availble' debugger output port. */
+/*  This is the 'universally availble' debugger output port. */
 #define VM_DEBUG_PORT (&interp.debugger_output)
 
 #define CURRENT_GLOBAL_DEFINE_HOOK (SYMBOL_VCELL(interp.sym_global_define_hook))
@@ -670,13 +668,11 @@ BEGIN_NAMESPACE(scan)
                            blocking_input_close_port_fn_t close_fn,
                            void *userdata);
 
-  /****************************************************************
-            Boxed object accessors and constructors
-  ****************************************************************/
+/*** Boxed object accessors and constructors ***/
 
-  /*  REVISIT: Seperate out setter accessors */
+/*  REVISIT: Seperate out setter accessors */
 
-  /*** boolean **/
+/*** boolean **/
   LRef boolcons(bool val);
 
   INLINE bool BOOLV(LRef x)
@@ -814,7 +810,7 @@ BEGIN_NAMESPACE(scan)
     return FLONM(FLOIM(x));
   }
 
-  /*** character **/
+ /*** character **/
   LRef charcons(_TCHAR ch);
 
   INLINE _TCHAR CHARV(LRef x)

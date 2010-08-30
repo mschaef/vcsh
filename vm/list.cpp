@@ -8,8 +8,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /**** Cons Cell
-   */
+/**** Cons Cell */
   LRef lcons(LRef x, LRef y) {
     LRef z = new_cell(TC_CONS);
 
@@ -65,8 +64,7 @@ BEGIN_NAMESPACE(scan)
     return value;
   }
 
-  /**** list library functions
-   */
+  /**** list library functions */
   LRef lmap1(LRef fcn,LRef in)
   {
     LRef res, obj, l;

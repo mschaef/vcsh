@@ -10,14 +10,14 @@
 
 BEGIN_NAMESPACE(scan)
 
-     /*  REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports. */
+/*  REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports. */
 
 
-  /* End-of-file object ****************************************
-   *
-   * This is the unreadable object that the R5RS specification talks
-   * about using to mark the end of a file.
-   */
+/* End-of-file object ****************************************
+ *
+ * This is the unreadable object that the R5RS specification talks
+ * about using to mark the end of a file.
+ */
 
   LRef lmake_eof()
   {
@@ -29,9 +29,9 @@ BEGIN_NAMESPACE(scan)
     return EOFP(obj) ? obj : boolcons(false);
   }
 
-  /* Port object ************************************************
-   *
-   * This represents a standard input or output port.  */
+/* Port object ************************************************
+ *
+ * This represents a standard input or output port.  */
 
   LRef port_gc_mark(LRef obj)
   {
@@ -129,11 +129,11 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /*
-   * Fundamental Port I/O Primatives - All I/O goes through these
-   * two functions. They basically write and read raw streams of
-   * bytes to and from ports.
-   */
+/*
+ * Fundamental Port I/O Primatives - All I/O goes through these
+ * two functions. They basically write and read raw streams of
+ * bytes to and from ports.
+ */
 
   size_t write_raw(const void *buf, size_t size, size_t count, LRef port)
   {
@@ -165,9 +165,9 @@ BEGIN_NAMESPACE(scan)
 
 
 
-  /*
-   * Lisp-visible port functions
-   */
+/*
+ * Lisp-visible port functions
+ */
 
   LRef linput_portp(LRef obj)
   {
@@ -312,9 +312,9 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* Text I/O ***************************************************
-   *
-   * The Text I/O translation state machine resides below. */
+/* Text I/O ***************************************************
+ *
+ * The Text I/O translation state machine resides below. */
 
   int read_char(LRef port)
   {
@@ -370,7 +370,7 @@ BEGIN_NAMESPACE(scan)
 
     if (!PORT_BINARYP(port))
       {
-        /* Update the text position indicators */
+           /* Update the text position indicators */
         if (ch == '\n')
           {
             PORT_TEXT_INFO(port)->_row++;
@@ -1124,17 +1124,17 @@ BEGIN_NAMESPACE(scan)
     return 0;
   }
 
-  /* C File Port ************************************************
-   *
-   * All the groovy stuff to specialize a port into a port capable
-   * of talking to a file is contained herein. Thanks to the fact
-   * that the C standard library's file I/O functions also talk
-   * to STDIN/OUT/ERR, this also contains simple port definitions
-   * for those devices, as well.
-   *
-   * state = FILE *
-   * extended_state = Scheme object containing file name
-   */
+/* C File Port ************************************************
+ *
+ * All the groovy stuff to specialize a port into a port capable
+ * of talking to a file is contained herein. Thanks to the fact
+ * that the C standard library's file I/O functions also talk
+ * to STDIN/OUT/ERR, this also contains simple port definitions
+ * for those devices, as well.
+ *
+ * state = FILE *
+ * extended_state = Scheme object containing file name
+ */
 
 #define SET_PORT_FILE(obj, file) ((PORT_PINFO(obj)->_user_data) = file)
 
@@ -1270,11 +1270,11 @@ BEGIN_NAMESPACE(scan)
     return fileportcons(&file_port_class, (port_mode_t)(PORT_OUTPUT | (binary ? PORT_BINARY : 0)), filename);
   }
 
-  /* Standard I/O ***********************************************
-   *
-   * These ports depend on some code from the C file ports to
-   * do their thing.
-   */
+/* Standard I/O ***********************************************
+ *
+ * These ports depend on some code from the C file ports to
+ * do their thing.
+ */
 
   void stdio_port_close (LRef obj)
   {
@@ -1350,9 +1350,9 @@ BEGIN_NAMESPACE(scan)
     NULL,
   };
 
-  /*
-   * The standard debug port.
-   */
+/*
+ * The standard debug port.
+ */
 
 #define DEBUG_PORT_BLOCK_SIZE (256)
 
@@ -1425,14 +1425,14 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /* Null port **************************************************
-   *
-   * Input port - Always reads out EOF.
-   * Output port - Accepts all writes. */
+/* Null port **************************************************
+ *
+ * Input port - Always reads out EOF.
+ * Output port - Accepts all writes. */
 
-  /*
-   * Input port
-   */
+/*
+ * Input port
+ */
 
   size_t null_port_read(void *buf, size_t size, size_t count, LRef obj)
   {
@@ -1477,13 +1477,13 @@ BEGIN_NAMESPACE(scan)
     return portcons(&null_port_class, NIL, (scan::port_mode_t)(PORT_INPUT_OUTPUT | PORT_BINARY), NIL, NULL);
   }
 
-  /* String port ************************************************
-   *
-   * This port supports Input from string objects
-   *
-   * state_info = Current char * pointer into the string
-   * extended_state_info = Current string object
-   **/
+/* String port ************************************************
+ *
+ * This port supports Input from string objects
+ *
+ * state_info = Current char * pointer into the string
+ * extended_state_info = Current string object
+ **/
 
 
 #define PORT_STRING(obj) (PORT_PINFO(obj)->_user_object)
@@ -1598,20 +1598,20 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-     /*  REVISIT: Do we need to restrict bootup NULL I/O */
-     /*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
+/*  REVISIT: Do we need to restrict bootup NULL I/O */
+/*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
 
 
-  /* C Data Stream **********************************************
-   *
-   * This port class allows data to be written to compiled
-   * C-code. As an out port, the C-data port acts as a filter,
-   * writing C code to initialize an array of unsigned chars.
-   * Conveniently, in input mode, the port allows reads to be
-   * made from an array of unsigned chars.
-   *
-   * (open-c-data-output <dest-stream> <var-name>)
-   */
+/* C Data Stream **********************************************
+ *
+ * This port class allows data to be written to compiled
+ * C-code. As an out port, the C-data port acts as a filter,
+ * writing C code to initialize an array of unsigned chars.
+ * Conveniently, in input mode, the port allows reads to be
+ * made from an array of unsigned chars.
+ *
+ * (open-c-data-output <dest-stream> <var-name>)
+ */
 
   struct c_data_port_state {
     size_t _bytes_transferred;
@@ -1741,20 +1741,20 @@ BEGIN_NAMESPACE(scan)
 
 
 
-  /* Blocking Input Port ****************************************
-   *
-   * This port class allows data to be read from a blocking_inputg input:
-   * an input that doesn't always have available data. To read
-   * from its input, blocking_inputg input ports call a read_input function
-   * that waits for input and passes it back to the port. While
-   * waiting for available input the read function is free to do
-   * as it wishes.
-   *
-   * Note, that there's nothing that makes it impossible to implement
-   * this kind of functionality with a standard port class. What this
-   * really does is abstract away a lot of the hairy buffer management
-   * logic away from the client C code.
-   */
+/* Blocking Input Port ****************************************
+ *
+ * This port class allows data to be read from a blocking_inputg input:
+ * an input that doesn't always have available data. To read
+ * from its input, blocking_inputg input ports call a read_input function
+ * that waits for input and passes it back to the port. While
+ * waiting for available input the read function is free to do
+ * as it wishes.
+ *
+ * Note, that there's nothing that makes it impossible to implement
+ * this kind of functionality with a standard port class. What this
+ * really does is abstract away a lot of the hairy buffer management
+ * logic away from the client C code.
+ */
 
   size_t blocking_input_port_read(void *buf, size_t size, size_t count, LRef port);
   void blocking_input_port_close(LRef port);
@@ -1926,26 +1926,26 @@ BEGIN_NAMESPACE(scan)
 
   }
 
-  /* A C function to do Lisp-style Formatted I/O ******************
-   *
-   * REVISIT: scvwritef's ~a and ~s should be changed to ~da and ~ds, signifying that they invoke the debug printer
-   * ~s - write the lisp object
-   * ~a - display the lisp object
-   * REVISIT: remove scvwritef ~u in favor of some kind of print_unreadable_object call
-   * ~u - display the lisp object in unprintable fashion (ie. <type@addr...>
-   *
-   * ~cs - display the C string
-   * ~cS - display the C string/arglist with a recursive call to scvwritef
-   * ~cd - display the C integer
-   * ~cf - display the C flonum
-   * ~c& - display the C pointer
-   * ~cc - display the C character
-   * ~cC - display the C integer as an octal character constant
-   * ~cB - display the C integer as a byte
-   *
-   * Prefixing a format code with a #\! (ie. ~!L) causes the corresponding
-   * value to be returned from the function as a Lisp object.
-   */
+/* A C function to do Lisp-style Formatted I/O ******************
+ *
+ * REVISIT: scvwritef's ~a and ~s should be changed to ~da and ~ds, signifying that they invoke the debug printer
+ * ~s - write the lisp object
+ * ~a - display the lisp object
+ * REVISIT: remove scvwritef ~u in favor of some kind of print_unreadable_object call
+ * ~u - display the lisp object in unprintable fashion (ie. <type@addr...>
+ *
+ * ~cs - display the C string
+ * ~cS - display the C string/arglist with a recursive call to scvwritef
+ * ~cd - display the C integer
+ * ~cf - display the C flonum
+ * ~c& - display the C pointer
+ * ~cc - display the C character
+ * ~cC - display the C integer as an octal character constant
+ * ~cB - display the C integer as a byte
+ *
+ * Prefixing a format code with a #\! (ie. ~!L) causes the corresponding
+ * value to be returned from the function as a Lisp object.
+ */
   LRef scvwritef(const _TCHAR *format_str, LRef port, va_list arglist)
   {
     char ch;
@@ -2188,7 +2188,7 @@ BEGIN_NAMESPACE(scan)
       lflush_port(VM_DEBUG_PORT);
     }
   }
-     /*  !! add char-ready? */
+/*  !! add char-ready? */
 
   void init_debugger_output()
   {

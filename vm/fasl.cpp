@@ -50,28 +50,28 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /* This code depends on using an output paramater, rather than a
-   * function return code. For self-referential data structures, this
-   * allows the reader definition table be updated before the definition
-   * is referenced. However, if a return paramater were used, the definition
-   * table wouldn't be updated until the object read was complete. Circular
-   * structures therefore wouldn't pick up the correct reference.
-   *
-   * This has two implications for you:
-   *
-   * 1. Do not change this code to use ordinary function return values.
-   * 2. When writing code that reads a composite object, be sure
-   *    to update the return value prior to reading any component objects.
-   */
+/* This code depends on using an output paramater, rather than a
+ * function return code. For self-referential data structures, this
+ * allows the reader definition table be updated before the definition
+ * is referenced. However, if a return paramater were used, the definition
+ * table wouldn't be updated until the object read was complete. Circular
+ * structures therefore wouldn't pick up the correct reference.
+ *
+ * This has two implications for you:
+ *
+ * 1. Do not change this code to use ordinary function return values.
+ * 2. When writing code that reads a composite object, be sure
+ *    to update the return value prior to reading any component objects.
+ */
 
-  /*  REVISIT: The use of reference paramaters breaks when the reference
-   *  points into the _fasl_table and the FASL table is resized while the
-   *  reference is still pending. This needs to be fixed, otherwise funky
-   *  stuff happens. (I think this can be resolveb by storig conses in the
-   *  fasl_table and using references to their CAR's to store table entries...
-   *  currently, the CONS will stay put even if the enderlying table is resized. */
+/*  REVISIT: The use of reference paramaters breaks when the reference
+ *  points into the _fasl_table and the FASL table is resized while the
+ *  reference is still pending. This needs to be fixed, otherwise funky
+ *  stuff happens. (I think this can be resolveb by storig conses in the
+ *  fasl_table and using references to their CAR's to store table entries...
+ *  currently, the CONS will stay put even if the enderlying table is resized. */
 
-  static void fast_read(LRef port, LRef *retval, bool allow_loader_ops = false);
+static void fast_read(LRef port, LRef *retval, bool allow_loader_ops = false);
 
   static LRef fast_read_error(const _TCHAR *message, LRef port, LRef details = NIL)
   {
@@ -527,8 +527,9 @@ BEGIN_NAMESPACE(scan)
     *retval = macrocons(macro_transformer);
   }
 
-     /*  TODO: Fasl table entries move around upon resize, which can screw up FASL load if the loader */
-     /*  as a pointer into the fasl table during a resize. */
+/* TODO: Fasl table entries move around upon resize, which can screw up FASL load if
+ * the loader as a pointer into the fasl table during a resize. */
+
   static void fasl_ensure_valid_table_index(LRef port, size_t index)
   {
     if (NULLP(PORT_PINFO(port)->_fasl_table)) {

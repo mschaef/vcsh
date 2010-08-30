@@ -21,7 +21,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-  /*** Utility Functions ***/
+/*** Utility Functions ***/
 
   static bool list_of_packages_p(LRef pkgs)
   {
@@ -37,7 +37,7 @@ BEGIN_NAMESPACE(scan)
     return true;
   }
 
-  /*** package constructor and accessors ***/
+/*** package constructor and accessors ***/
 
   LRef packagecons(LRef name, LRef bindings, LRef use_list)
   {
@@ -81,7 +81,7 @@ BEGIN_NAMESPACE(scan)
     return packagecons(name, bindings, use_list);
   }
 
-     LRef lpackage_name(LRef p) /*  ONLY SCHEME */
+LRef lpackage_name(LRef p) /*  ONLY SCHEME */
   {
     if (!PACKAGEP(p))
       vmerror_wrong_type(1, p);
@@ -131,7 +131,7 @@ BEGIN_NAMESPACE(scan)
     return p;
   }
 
-  /*** support primitives for packages ***/
+/*** support primitives for packages ***/
 
 
   LRef lmake_package(LRef name)
@@ -172,9 +172,9 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /*** support primitives for symbols and name mappings  ***/
+/*** support primitives for symbols and name mappings  ***/
 
-  /* Find a symbol record local to the specified package. */
+/* Find a symbol record local to the specified package. */
   static LRef find_direct_symbol_record(LRef sym_spec, LRef package)
   {
     LRef sym_rec;
@@ -192,9 +192,9 @@ BEGIN_NAMESPACE(scan)
     if (!hash_ref(PACKAGE_BINDINGS(package), sym_name, sym_rec))
       return NIL;
 
-    /*  If we find a different symbol of the same name in this package, then */
-    /*  we haven't found the requested symbol. Also, we've proven ourselves */
-    /*  not to contain the requested symbol. */
+    /*  If we find a different symbol of the same name in this package, then 
+     *  we haven't found the requested symbol. Also, we've proven ourselves
+     *  not to contain the requested symbol. */
     if (SYMBOLP(sym_spec) && (sym_spec != CAR(sym_rec)))
       return NIL;
 
@@ -222,7 +222,7 @@ BEGIN_NAMESPACE(scan)
   }
 
 
-  /*** symbol constructor and accessors ***/
+/*** symbol constructor and accessors ***/
 
   LRef symcons(_TCHAR *pname, LRef home)
   {
@@ -263,8 +263,8 @@ BEGIN_NAMESPACE(scan)
       return boolcons(false);
   }
 
-  /* A simpler variant of intern that does not honor use lists
-   * and reports errors via return value. */
+/* A simpler variant of intern that does not honor use lists
+ * and reports errors via return value. */
   LRef simple_intern(LRef print_name, LRef package)
   {
     if (!STRINGP(print_name) || !PACKAGEP(package))
@@ -295,7 +295,7 @@ BEGIN_NAMESPACE(scan)
     return simple_intern(strcons(name), interp.keyword_package);
   }
 
-  /*** Symbol primitives ***/
+/*** Symbol primitives ***/
 
      LRef lsymbol_package(LRef sym) /*   REVISIT: fix split between _home and _package */
   {
@@ -405,7 +405,7 @@ BEGIN_NAMESPACE(scan)
     return symcons(sname, NIL);
   }
 
-  /**** Initialization code ****/
+/**** Initialization code ****/
 
   void create_initial_packages()
   {
