@@ -2215,7 +2215,7 @@ void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...)
      }
 }
 
-/*  !! add char-ready? */
+/*  TODO: add char-ready? */
 
 void init_debugger_output()
 {

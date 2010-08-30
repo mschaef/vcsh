@@ -51,8 +51,6 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
 #   define FILE_ATTRIBUTE_DEVICE 0x0040
 #endif
 
-     /*  !! find-files should be able to take lists of filename specifiers in addition to single specifiers. */
-
   struct sys_dir_t
   {
     HANDLE          _fh;

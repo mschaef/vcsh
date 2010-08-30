@@ -128,7 +128,7 @@ static bool enlarge_heap()
 
 
      dscwritef(DF_SHOW_GC_DETAILS,
-               succeeded ? ";;; enlarged heap\n" : ";;; HEAP ENLARGE FAILED!!!\n");
+               succeeded ? ";;; enlarged heap\n" : ";;; HEAP ENLARGE FAILED!\n");
 
      return succeeded;
 }

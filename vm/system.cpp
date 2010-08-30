@@ -205,8 +205,7 @@ LRef lifile_details(LRef path, LRef existance_onlyp)
      return file_details_object(get_c_string(path), &file_info);
 }
 
-     /*  REVISIT: find-files should be able to take lists of filename specifiers in addition to single specifiers. */
-
+/*  REVISIT: directory should be able to take lists of filename specifiers in addition to single specifiers. */
 
 LRef lidirectory(LRef dn, LRef m)
 {
