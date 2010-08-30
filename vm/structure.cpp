@@ -1,3 +1,4 @@
+
 /* structure.cpp
  *
  * SIOD struture code. This contains the implementations for
@@ -7,153 +8,152 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
+    /*  REVISIT %structure-become */
+LRef lcopy_structure(LRef st)   /*  REVISIT how much of this can be shared with lstructurecons? */
+{
+     if (!STRUCTUREP(st))
+          return vmerror_wrong_type(1, st);
 
-     /*  REVISIT %structure-become */
+     LRef new_st = new_cell(TC_STRUCTURE);
 
-     LRef lcopy_structure(LRef st) /*  REVISIT how much of this can be shared with lstructurecons? */
-  {
-    if (!STRUCTUREP(st))
-      return vmerror_wrong_type(1, st);
+     size_t len = STRUCTURE_DIM(st);;
 
-    LRef new_st = new_cell(TC_STRUCTURE);
+     SET_STRUCTURE_DIM(new_st, len);
+     SET_STRUCTURE_LAYOUT(new_st, STRUCTURE_LAYOUT(st));
+     SET_STRUCTURE_DATA(new_st, (LRef *) safe_malloc(len * sizeof(LRef)));
 
-    size_t len = STRUCTURE_DIM(st);;
+     for (size_t ii = 0; ii < len; ii++)
+          SET_STRUCTURE_ELEM(new_st, ii, STRUCTURE_ELEM(st, ii));
 
-    SET_STRUCTURE_DIM(new_st, len);
-    SET_STRUCTURE_LAYOUT(new_st, STRUCTURE_LAYOUT(st));
-    SET_STRUCTURE_DATA(new_st, (LRef *)safe_malloc(len * sizeof (LRef)));
+     return new_st;
+}
 
-    for (size_t ii = 0; ii < len; ii++)
-      SET_STRUCTURE_ELEM(new_st, ii, STRUCTURE_ELEM(st, ii));
+static void validate_structure_layout(size_t slots, LRef layout)
+{
+     if (!CONSP(layout))
+          vmerror_wrong_type(2, layout);
 
-    return new_st;
-  }
+     size_t len = (size_t) get_c_long(llength(layout));
 
-  static void validate_structure_layout(size_t slots, LRef layout)
-  {
-    if (!CONSP(layout))
-      vmerror_wrong_type(2, layout);
+     if (len != 2)
+          vmerror("Malformed structure layout, bad length: ~s", layout);
 
-    size_t len = (size_t)get_c_long(llength(layout));
+     LRef slot_layout = CAR(CDR(layout));
 
-    if (len != 2)
-      vmerror("Malformed structure layout, bad length: ~s", layout);
+     if (get_c_long(llength(slot_layout)) != (long) slots)
+          vmerror("Wrong number of slots in structure layout: ~s",
+                  lcons(slot_layout, fixcons(slots)));
 
-    LRef slot_layout = CAR(CDR(layout));
+     for (; CONSP(slot_layout); slot_layout = CDR(slot_layout))
+     {
+          if (!CONSP(CAR(slot_layout)))
+               vmerror("Bad slot layout in structure layout", lcons(slot_layout, layout));
 
-    if (get_c_long(llength(slot_layout)) != (long)slots)
-      vmerror("Wrong number of slots in structure layout: ~s", lcons(slot_layout, fixcons(slots)));
+          if (!SYMBOLP(CAR(CAR(slot_layout))))
+               vmerror("Missing slot name from structure layout", layout);
+     }
+}
 
-    for(; CONSP(slot_layout); slot_layout = CDR(slot_layout))
-      {
-        if (!CONSP(CAR(slot_layout)))
-          vmerror("Bad slot layout in structure layout", lcons(slot_layout, layout));
+LRef lstructurecons(LRef slots, LRef layout)
+{
+     if (!VECTORP(slots))
+          vmerror_wrong_type(1, slots);
 
-        if (!SYMBOLP(CAR(CAR(slot_layout))))
-          vmerror("Missing slot name from structure layout", layout);
-      }
-  }
+     size_t len = VECTOR_DIM(slots);
 
-  LRef lstructurecons(LRef slots, LRef layout)
-  {
-    if (!VECTORP(slots))
-      vmerror_wrong_type(1, slots);
+     validate_structure_layout(len, layout);
 
-    size_t len = VECTOR_DIM(slots);
+     LRef st = new_cell(TC_STRUCTURE);
 
-    validate_structure_layout(len, layout);
+     SET_STRUCTURE_DIM(st, len);
+     SET_STRUCTURE_LAYOUT(st, layout);
+     SET_STRUCTURE_DATA(st, (LRef *) safe_malloc(len * sizeof(LRef)));
 
-    LRef st = new_cell(TC_STRUCTURE);
+     for (size_t ii = 0; ii < len; ii++)
+          SET_STRUCTURE_ELEM(st, ii, VECTOR_ELEM(slots, ii));
 
-    SET_STRUCTURE_DIM(st, len);
-    SET_STRUCTURE_LAYOUT(st, layout);
-    SET_STRUCTURE_DATA(st, (LRef *)safe_malloc(len * sizeof (LRef)));
+     return st;
+}
 
-    for (size_t ii = 0; ii < len; ii++)
-      SET_STRUCTURE_ELEM(st, ii, VECTOR_ELEM(slots, ii));
+LRef lstructurep(LRef st, LRef expected_layout)
+{
+     if (!STRUCTUREP(st))
+          return boolcons(false);
 
-    return st;
-  }
+     if (!NULLP(expected_layout) && (expected_layout != STRUCTURE_LAYOUT(st)))
+          return boolcons(false);
 
-  LRef lstructurep(LRef st, LRef expected_layout)
-  {
-    if (!STRUCTUREP(st))
-      return boolcons(false);
+     return boolcons(true);
+}
 
-    if (!NULLP(expected_layout) && (expected_layout != STRUCTURE_LAYOUT(st)))
-      return boolcons(false);
+LRef lstructure_layout(LRef st)
+{
+     if (!STRUCTUREP(st))
+          return vmerror_wrong_type(1, st);
 
-    return boolcons(true);
-  }
+     return STRUCTURE_LAYOUT(st);
+}
 
-  LRef lstructure_layout(LRef st)
-  {
-    if (!STRUCTUREP(st))
-      return vmerror_wrong_type(1, st);
+LRef lstructure_length(LRef st)
+{
+     if (!STRUCTUREP(st))
+          return vmerror_wrong_type(1, st);
 
-    return STRUCTURE_LAYOUT(st);
-  }
+     return fixcons(STRUCTURE_DIM(st));
+}
 
-  LRef lstructure_length(LRef st)
-  {
-    if (!STRUCTUREP(st))
-      return vmerror_wrong_type(1, st);
+LRef lstructure_ref(LRef st, LRef index)
+{
+     if (!STRUCTUREP(st))
+          vmerror_wrong_type(1, st);
 
-    return fixcons(STRUCTURE_DIM(st));
-  }
+     if (!FIXNUMP(index))
+          vmerror_wrong_type(2, index);
 
-  LRef lstructure_ref(LRef st, LRef index)
-  {
-    if (!STRUCTUREP(st))
-      vmerror_wrong_type(1, st);
+     fixnum_t idx = get_c_fixnum(index);
 
-    if (!FIXNUMP(index))
-      vmerror_wrong_type(2, index);
+     if ((idx >= 0) && ((size_t) idx < STRUCTURE_DIM(st)))
+          return STRUCTURE_ELEM(st, idx);
 
-    fixnum_t idx = get_c_fixnum(index);
+     return vmerror("Structure index out of bounds.", lcons(st, index));
+}
 
-    if ((idx >= 0) && ((size_t)idx < STRUCTURE_DIM(st)))
-      return STRUCTURE_ELEM(st, idx);
+LRef lstructure_set(LRef st, LRef index, LRef value)
+{
+     if (!STRUCTUREP(st))
+          vmerror_wrong_type(1, st);
 
-    return vmerror("Structure index out of bounds.", lcons(st, index));
-  }
+     if (!FIXNUMP(index))
+          vmerror_wrong_type(2, index);
 
-  LRef lstructure_set(LRef st, LRef index, LRef value)
-  {
-    if (!STRUCTUREP(st))
-      vmerror_wrong_type(1, st);
+     fixnum_t idx = get_c_fixnum(index);
 
-    if (!FIXNUMP(index))
-      vmerror_wrong_type(2, index);
+     if ((idx >= 0) && ((size_t) idx < STRUCTURE_DIM(st)))
+     {
+          SET_STRUCTURE_ELEM(st, idx, value);
 
-    fixnum_t idx = get_c_fixnum(index);
+          return st;
+     }
 
-    if ((idx >= 0) && ((size_t)idx < STRUCTURE_DIM(st)))
-      {
-        SET_STRUCTURE_ELEM(st, idx, value);
+     return vmerror("Structure index out of bounds.", lcons(st, index));
+}
 
-        return st;
-      }
+bool structure_equal(LRef sta, LRef stb)
+{
+     assert(STRUCTUREP(sta));
+     assert(STRUCTUREP(stb));
 
-    return vmerror("Structure index out of bounds.", lcons(st, index));
-  }
+     if (STRUCTURE_LAYOUT(sta) != STRUCTURE_LAYOUT(stb))
+          return false;
 
-  bool structure_equal(LRef sta, LRef stb)
-  {
-    assert(STRUCTUREP(sta));
-    assert(STRUCTUREP(stb));
+     if (STRUCTURE_DIM(sta) != STRUCTURE_DIM(stb))
+          return false;
 
-    if (STRUCTURE_LAYOUT(sta) != STRUCTURE_LAYOUT(stb))
-      return false;
+     for (size_t ii = 0; ii < STRUCTURE_DIM(sta); ii++)
+          if (!equalp(STRUCTURE_ELEM(sta, ii), STRUCTURE_ELEM(stb, ii)))
+               return false;
 
-    if (STRUCTURE_DIM(sta) != STRUCTURE_DIM(stb))
-      return false;
-
-    for (size_t ii = 0; ii < STRUCTURE_DIM(sta); ii++)
-      if (!equalp(STRUCTURE_ELEM(sta, ii), STRUCTURE_ELEM(stb, ii)))
-        return false;
-
-    return true;
-  }
+     return true;
+}
 
 END_NAMESPACE

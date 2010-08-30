@@ -1,3 +1,4 @@
+
 /* slib.c
  *
  * The core scan interpreter
@@ -12,207 +13,215 @@ BEGIN_NAMESPACE(scan)
 /**************************************************************
  * Interpreter globals
  */
+interpreter_t interp;
 
-  interpreter_t interp;
-  
-  LRef liimmediate_p(LRef obj)
-  {
-    return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
-  }
+LRef liimmediate_p(LRef obj)
+{
+     return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
+}
 
 /**************************************************************
  * Boolean
  */
-  LRef boolcons(bool val)
-  {
-    return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
-  }
+LRef boolcons(bool val)
+{
+     return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
+}
 
-  LRef lbooleanp(LRef x)
-  {
-    return boolcons(BOOLP(x));
-  }
+LRef lbooleanp(LRef x)
+{
+     return boolcons(BOOLP(x));
+}
 
-  LRef lnotp(LRef x)
-  {
-    return boolcons(!TRUEP(x));
-  }
+LRef lnotp(LRef x)
+{
+     return boolcons(!TRUEP(x));
+}
 
 /**************************************************************
  * C-Pointers
  */
 
-  LRef externalcons(void *data, LRef desc, external_meta_t *meta /* = NULL*/)
-  {
-    LRef z = new_cell(TC_EXTERNAL);
+LRef externalcons(void *data, LRef desc, external_meta_t * meta /* = NULL */ )
+{
+     LRef z = new_cell(TC_EXTERNAL);
 
-    assert((meta == NULL) || (meta->_name != NULL));
+     assert((meta == NULL) || (meta->_name != NULL));
 
-    SET_EXTERNAL_DATA(z, data);
-    SET_EXTERNAL_DESC(z, desc);
-    SET_EXTERNAL_META(z, meta);
+     SET_EXTERNAL_DATA(z, data);
+     SET_EXTERNAL_DESC(z, desc);
+     SET_EXTERNAL_META(z, meta);
 
-    return z;
-  }
+     return z;
+}
 
-  LRef lexternal_data(LRef x)
-  {
-    if (!EXTERNALP(x))
-      vmerror_wrong_type(1, x);
+LRef lexternal_data(LRef x)
+{
+     if (!EXTERNALP(x))
+          vmerror_wrong_type(1, x);
 
-    return fixcons((uptr)EXTERNAL_DATA(x));
-  }
+     return fixcons((uptr) EXTERNAL_DATA(x));
+}
 
-  LRef lexternal_desc(LRef x)
-  {
-    if (!EXTERNALP(x))
-      vmerror_wrong_type(1, x);
+LRef lexternal_desc(LRef x)
+{
+     if (!EXTERNALP(x))
+          vmerror_wrong_type(1, x);
 
-    return EXTERNAL_DESC(x);
-  }
+     return EXTERNAL_DESC(x);
+}
 
-  LRef lexternalp(LRef x)
-  {
-    if (EXTERNALP(x))
-      return x;
-    else
-      return boolcons(false);
-  }
+LRef lexternalp(LRef x)
+{
+     if (EXTERNALP(x))
+          return x;
+     else
+          return boolcons(false);
+}
 
-  LRef lexternal_type_name(LRef obj)
-  {
-    if (!EXTERNALP(obj))
-      return boolcons(false);
+LRef lexternal_type_name(LRef obj)
+{
+     if (!EXTERNALP(obj))
+          return boolcons(false);
 
-    if (EXTERNAL_META(obj))
-      return strcons(_T(EXTERNAL_META(obj)->_name));
+     if (EXTERNAL_META(obj))
+          return strcons(_T(EXTERNAL_META(obj)->_name));
 
-    return boolcons(true);
-  }
+     return boolcons(true);
+}
 
-  LRef lprint_external_details(LRef obj, LRef port)
-  {
-    if (!EXTERNALP(obj))
-      vmerror_wrong_type(1, obj);
+LRef lprint_external_details(LRef obj, LRef port)
+{
+     if (!EXTERNALP(obj))
+          vmerror_wrong_type(1, obj);
 
-    if (EXTERNAL_META(obj) && (EXTERNAL_META(obj)->_print_details))
-      return EXTERNAL_META(obj)->_print_details(obj, port);
+     if (EXTERNAL_META(obj) && (EXTERNAL_META(obj)->_print_details))
+          return EXTERNAL_META(obj)->_print_details(obj, port);
 
-    return boolcons(false);
-  }
+     return boolcons(false);
+}
 
 /**************************************************************
  * Equality tests
  */
 
-  LRef leq(LRef x, LRef y)
-  {
-    return boolcons(EQ(x, y));
-  }
+LRef leq(LRef x, LRef y)
+{
+     return boolcons(EQ(x, y));
+}
 
-  LRef leql(LRef x, LRef y)
-  {
-    bool rc = false;
+LRef leql(LRef x, LRef y)
+{
+     bool rc = false;
 
-    if (EQ(x, y))
-      rc = true;
-    else if (!NUMBERP(x) || !NUMBERP(y))
-      rc = false;
-    else if (FLONUMP(x) && FLONUMP(y))
-      rc = (FLONM (x) == FLONM (y));
-    else if (FIXNUMP(x) && FIXNUMP(y))
-      rc = (FIXNM (x) == FIXNM (y));
+     if (EQ(x, y))
+          rc = true;
+     else if (!NUMBERP(x) || !NUMBERP(y))
+          rc = false;
+     else if (FLONUMP(x) && FLONUMP(y))
+          rc = (FLONM(x) == FLONM(y));
+     else if (FIXNUMP(x) && FIXNUMP(y))
+          rc = (FIXNM(x) == FIXNM(y));
 
-    return boolcons(rc);
-  }
+     return boolcons(rc);
+}
 
-  bool equalp(LRef a, LRef b)
-  {
-    typecode_t atype;
+bool equalp(LRef a, LRef b)
+{
+     typecode_t atype;
 
-    STACK_CHECK (&a);
+     STACK_CHECK(&a);
 
-    if (EQ (a, b))
-      return true;
+     if (EQ(a, b))
+          return true;
 
-    atype = TYPE(a);
+     atype = TYPE(a);
 
-    if (atype != TYPE(b))
-      return false;
+     if (atype != TYPE(b))
+          return false;
 
-    switch (atype) {
-    case TC_CONS:
-      for(;;)
-        {
-          if (equalp(lcar(a), lcar(b)))
-            {
-              a = lcdr(a);
-              b = lcdr(b);
+     switch (atype)
+     {
+     case TC_CONS:
+          for (;;)
+          {
+               if (equalp(lcar(a), lcar(b)))
+               {
+                    a = lcdr(a);
+                    b = lcdr(b);
 
-              if (!CONSP(a) || !CONSP(b))
-                return equalp(a, b);
-            }
+                    if (!CONSP(a) || !CONSP(b))
+                         return equalp(a, b);
+               }
+               else
+                    return false;
+          }
+          break;
+
+     case TC_FIXNUM:
+          return (FIXNM(a) == FIXNM(b));
+
+     case TC_FLONUM:
+          /*  equal? considers NaN to be equal to itself. This is different
+           *  from =, which uses the more mathematical approach that NaN
+           *  is equal to nothing. */
+          if (isnan(FLONM(a)) && isnan(FLONM(b)))
+               return equalp(FLOIM(a), FLOIM(b));
           else
-            return false;
-        }
-      break;
+               return (FLONM(a) == FLONM(b)) && equalp(FLOIM(a), FLOIM(b));
 
-    case TC_FIXNUM:
-      return (FIXNM(a) == FIXNM(b));
+     case TC_SYMBOL:
+          return a == b;
+     case TC_VECTOR:
+          return vector_equal(a, b);
+     case TC_STRUCTURE:
+          return structure_equal(a, b);
+     case TC_STRING:
+          return string_equal(a, b);
+     case TC_HASH:
+          return hash_equal(a, b);
+     case TC_INSTANCE:
+          return instance_equal(a, b);
+     case TC_FAST_OP:
+          return fast_op_equal(a, b);
+     default:
+          return false;
+     }
+}
 
-    case  TC_FLONUM:
-         /*  equal? considers NaN to be equal to itself. This is different
-          *  from =, which uses the more mathematical approach that NaN
-          *  is equal to nothing. */
-      if (isnan(FLONM(a)) && isnan(FLONM(b)))
-        return equalp(FLOIM(a), FLOIM(b));
-      else
-        return (FLONM(a) == FLONM(b)) && equalp(FLOIM(a), FLOIM(b));
+LRef lequal(LRef a, LRef b)
+{
+     return boolcons(equalp(a, b));
+}
 
-    case TC_SYMBOL:     return a == b;
-    case TC_VECTOR:     return vector_equal(a, b);
-    case TC_STRUCTURE:  return structure_equal(a, b);
-    case TC_STRING:     return string_equal(a, b);
-    case TC_HASH:       return hash_equal(a, b);
-    case TC_INSTANCE:   return instance_equal(a, b);
-    case TC_FAST_OP:    return fast_op_equal(a, b);
-    default:            return false;
-    }
-  }
+LRef lnullp(LRef x)
+{
+     return boolcons(NULLP(x));
+}
 
-  LRef lequal(LRef a, LRef b)
-  {
-    return boolcons(equalp(a, b));
-  }
+LRef lrepresentation_of(LRef obj)
+{
+     if (COMPLEXP(obj))
+          return simple_intern(_T("complex"), interp.scheme_package);
 
-  LRef lnullp(LRef x)
-  {
-    return boolcons(NULLP(x));
-  }
+     if (INSTANCEP(obj))
+          return simple_intern(_T("instance"), interp.scheme_package);
 
-  LRef lrepresentation_of(LRef obj)
-  {
-    if (COMPLEXP(obj))
-      return simple_intern(_T("complex"), interp.scheme_package);
-
-    if (INSTANCEP(obj))
-      return simple_intern(_T("instance"), interp.scheme_package);
-
-    return make_type_name(TYPE(obj));
-  }
+     return make_type_name(TYPE(obj));
+}
 
 /**** Default panic handler */
 
-  static panic_handler_t previous_panic_handler = NULL;
+static panic_handler_t previous_panic_handler = NULL;
 
-  static void scan_panic_handler()
-  {
-    if (DEBUGGING_BUILD)
-      dump_current_frames(CURRENT_ERROR_PORT);
+static void scan_panic_handler()
+{
+     if (DEBUGGING_BUILD)
+          dump_current_frames(CURRENT_ERROR_PORT);
 
-    if (previous_panic_handler)
-      previous_panic_handler();
-  }
+     if (previous_panic_handler)
+          previous_panic_handler();
+}
 
 /* Command line argument handling. Arguments are divided into two classes:
  *
@@ -224,65 +233,78 @@ BEGIN_NAMESPACE(scan)
  * 2) Everything else gets stuck in a list bound to system::*args0*, and is
  *    handled by interpreted code.
  */
-  static bool is_vm_argument(_TCHAR *arg)
-  {
-    return (arg != NULL)
-      && (arg[0] == _T('-'))
-      && (arg[1] == _T('X'));
-  }
+static bool is_vm_argument(_TCHAR * arg)
+{
+     return (arg != NULL) && (arg[0] == _T('-')) && (arg[1] == _T('X'));
+}
 
-  static size_t process_vm_int_argument_value(_TCHAR *arg_name, _TCHAR *arg_value)
-  {
-    size_t rc = 0;
+static size_t process_vm_int_argument_value(_TCHAR * arg_name, _TCHAR * arg_value)
+{
+     size_t rc = 0;
 
-    _TCHAR *endobj = NULL;
+     _TCHAR *endobj = NULL;
 
-    rc = strtol(arg_value, &endobj, 10);
+     rc = strtol(arg_value, &endobj, 10);
 
-    switch(*endobj)
-      {
-      case 'k': case 'K': endobj++; rc *= 1024; break;
-      case 'm': case 'M': endobj++; rc *= (1024 * 1024); break;
-      case 'g': case 'G': endobj++; rc *= (1024 * 1024 * 1024); break;
-      }
+     switch (*endobj)
+     {
+     case 'k':
+     case 'K':
+          endobj++;
+          rc *= 1024;
+          break;
+     case 'm':
+     case 'M':
+          endobj++;
+          rc *= (1024 * 1024);
+          break;
+     case 'g':
+     case 'G':
+          endobj++;
+          rc *= (1024 * 1024 * 1024);
+          break;
+     }
 
-    if (*endobj != _T('\0'))
-      {
-        dscwritef("Invalid numeric value (\"~cs\") for VM argument \"~cs\".", arg_value, arg_name);
-        panic("Aborting Run");
-      }
+     if (*endobj != _T('\0'))
+     {
+          dscwritef("Invalid numeric value (\"~cs\") for VM argument \"~cs\".", arg_value,
+                    arg_name);
+          panic("Aborting Run");
+     }
 
-    return rc;
-  }
+     return rc;
+}
 
-  static void process_vm_arg_debug_flags(_TCHAR *arg_name, _TCHAR *arg_value)
-  {
-    UNREFERENCED(arg_name);
+static void process_vm_arg_debug_flags(_TCHAR * arg_name, _TCHAR * arg_value)
+{
+     UNREFERENCED(arg_name);
 
-    interp.debug_flags = debug_flags_from_string(interp.debug_flags, _T("command line argument"), arg_value);
-  }
+     interp.debug_flags =
+         debug_flags_from_string(interp.debug_flags, _T("command line argument"), arg_value);
+}
 
-  static void process_vm_arg_heap_segment_size(_TCHAR *arg_name, _TCHAR *arg_value)
-  {
-    interp.gc_heap_segment_size = process_vm_int_argument_value(arg_name, arg_value) / sizeof(LObject);
-  }
+static void process_vm_arg_heap_segment_size(_TCHAR * arg_name, _TCHAR * arg_value)
+{
+     interp.gc_heap_segment_size =
+         process_vm_int_argument_value(arg_name, arg_value) / sizeof(LObject);
+}
 
-  static void process_vm_arg_max_heap_segments(_TCHAR *arg_name, _TCHAR *arg_value)
-  {
-    interp.gc_max_heap_segments = process_vm_int_argument_value(arg_name, arg_value);
-  }
+static void process_vm_arg_max_heap_segments(_TCHAR * arg_name, _TCHAR * arg_value)
+{
+     interp.gc_max_heap_segments = process_vm_int_argument_value(arg_name, arg_value);
+}
 
-  static void process_vm_arg_init_load(_TCHAR *arg_name, _TCHAR *arg_value)
-  {
-    UNREFERENCED(arg_name);
+static void process_vm_arg_init_load(_TCHAR * arg_name, _TCHAR * arg_value)
+{
+     UNREFERENCED(arg_name);
 
-    if (interp.init_load_file_count >= MAX_INIT_LOAD_FILES)
-      panic("Too many init-load files.");
+     if (interp.init_load_file_count >= MAX_INIT_LOAD_FILES)
+          panic("Too many init-load files.");
 
-    interp.init_load_file_name[interp.init_load_file_count] = arg_value;
+     interp.init_load_file_name[interp.init_load_file_count] = arg_value;
 
-    interp.init_load_file_count++;
-  }
+     interp.init_load_file_count++;
+}
 
 /* *INDENT-OFF* */
   static struct {
@@ -297,201 +319,211 @@ BEGIN_NAMESPACE(scan)
   };
 /* *INDENT-ON* */
 
-  static void show_vm_args() {
-    dscwritef("\nAvailable VM arguments:\n");
+static void show_vm_args()
+{
+     dscwritef("\nAvailable VM arguments:\n");
 
-    for(size_t ii = 0; vm_arg_names[ii].vm_arg_name; ii++)
-      dscwritef("* ~cs\n", vm_arg_names[ii].vm_arg_name);
-  }
+     for (size_t ii = 0; vm_arg_names[ii].vm_arg_name; ii++)
+          dscwritef("* ~cs\n", vm_arg_names[ii].vm_arg_name);
+}
 
 
-  static void process_vm_argument(_TCHAR *arg_name, _TCHAR *arg_value)
-  {
-    for(size_t ii = 0; vm_arg_names[ii].vm_arg_name; ii++)
-      {
-        if (_tcscmp(arg_name, vm_arg_names[ii].vm_arg_name) == 0)
+static void process_vm_argument(_TCHAR * arg_name, _TCHAR * arg_value)
+{
+     for (size_t ii = 0; vm_arg_names[ii].vm_arg_name; ii++)
+     {
+          if (_tcscmp(arg_name, vm_arg_names[ii].vm_arg_name) == 0)
           {
-            vm_arg_names[ii].vm_arg_handler(arg_name, arg_value);
-            return;
+               vm_arg_names[ii].vm_arg_handler(arg_name, arg_value);
+               return;
           }
-      }
+     }
 
-    dscwritef("Unknown VM argument: ~cs\n", arg_name);
-    show_vm_args();
-    panic("Aborting Run");
-  }
+     dscwritef("Unknown VM argument: ~cs\n", arg_name);
+     show_vm_args();
+     panic("Aborting Run");
+}
 
-  static void process_vm_arguments(int argc, _TCHAR *argv[])
-  {
-    for(int ii = 0; ii < argc; ii++) {
+static void process_vm_arguments(int argc, _TCHAR * argv[])
+{
+     for (int ii = 0; ii < argc; ii++)
+     {
 
-      if (!is_vm_argument(argv[ii]))
-        continue;
+          if (!is_vm_argument(argv[ii]))
+               continue;
 
-      _TCHAR *arg_text = argv[ii] + 2;
+          _TCHAR *arg_text = argv[ii] + 2;
 
-      _TCHAR arg_name_buf[STACK_STRBUF_LEN];
-      memset(arg_name_buf, 0, STACK_STRBUF_LEN);
+          _TCHAR arg_name_buf[STACK_STRBUF_LEN];
+          memset(arg_name_buf, 0, STACK_STRBUF_LEN);
 
-      /*  REVISIT: This should accept both '=' and ':' as arg value delims
-       *  (':' is more appropriate for specifying filenames) */
-      _TCHAR *arg_value_loc = (_TCHAR *)strchrnul(arg_text, '=');
+          /*  REVISIT: This should accept both '=' and ':' as arg value delims
+           *  (':' is more appropriate for specifying filenames) */
+          _TCHAR *arg_value_loc = (_TCHAR *) strchrnul(arg_text, '=');
 
-      _tcsncpy(arg_name_buf, arg_text,
-               MIN2(arg_value_loc - arg_text, STACK_STRBUF_LEN - 1));
+          _tcsncpy(arg_name_buf, arg_text, MIN2(arg_value_loc - arg_text, STACK_STRBUF_LEN - 1));
 
-      if (*arg_value_loc == _T('='))
-        arg_value_loc++;
+          if (*arg_value_loc == _T('='))
+               arg_value_loc++;
 
-      process_vm_argument(arg_name_buf, arg_value_loc);
-    }
-  }
+          process_vm_argument(arg_name_buf, arg_value_loc);
+     }
+}
 
-  static void accept_command_line_arguments(int argc, _TCHAR *argv[])
-  {
-    LRef arg_list = NIL;
-    LRef arg_list_bud = NIL;
+static void accept_command_line_arguments(int argc, _TCHAR * argv[])
+{
+     LRef arg_list = NIL;
+     LRef arg_list_bud = NIL;
 
-    for(int ii = 0; ii < argc; ii++) {
+     for (int ii = 0; ii < argc; ii++)
+     {
+          if (is_vm_argument(argv[ii]))
+               continue;
 
-      if (is_vm_argument(argv[ii]))
-        continue;
+          LRef new_cell = lcons(strcons(argv[ii]), NIL);
 
-      LRef new_cell = lcons(strcons(argv[ii]), NIL);
+          if (NULLP(arg_list_bud))
+          {
+               arg_list = arg_list_bud = new_cell;
+          }
+          else
+          {
+               SET_CDR(arg_list_bud, new_cell);
+               arg_list_bud = new_cell;
+          }
+     }
 
-      if (NULLP(arg_list_bud)) {
-        arg_list = arg_list_bud = new_cell;
-      } else {
-        SET_CDR(arg_list_bud, new_cell);
-        arg_list_bud = new_cell;
-      }
-    }
+     lidefine_global(interp.sym_args, arg_list, NIL);
+}
 
-    lidefine_global(interp.sym_args, arg_list, NIL);
-  }
+const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
+     _T("free-cell"),
+     _T("nil"),
+     _T("boolean"),
+     _T("cons"),
 
-  const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
-    _T("free-cell"),
-    _T("nil"),
-    _T("boolean"),
-    _T("cons"),
+     _T("fixnum"),
+     _T("flonum"),
+     _T("character"),
+     _T("symbol"),
 
-    _T("fixnum"),
-    _T("flonum"),
-    _T("character"),
-    _T("symbol"),
+     _T("package"),
+     _T("subr"),
+     _T("closure"),
+     _T("macro"),
 
-    _T("package"),
-    _T("subr"),
-    _T("closure"),
-    _T("macro"),
+     _T("byte-vector"),
+     _T("string"),
+     _T("vector"),
+     _T("structure"),
 
-    _T("byte-vector"),
-    _T("string"),
-    _T("vector"),
-    _T("structure"),
+     _T("hash"),
+     _T("port"),
+     _T("end-of-file"),
+     _T("external"),
 
-    _T("hash"),
-    _T("port"),
-    _T("end-of-file"),
-    _T("external"),
+     _T("values-tuple"),
+     _T("instance"),
+     _T("unbound-marker"),
+     _T("gc-trip-wire"),
 
-    _T("values-tuple"),
-    _T("instance"),
-    _T("unbound-marker"),
-    _T("gc-trip-wire"),
-
-    _T("fast-op"),
-  };
+     _T("fast-op"),
+};
 
   /**** Interpreter Initialization and Shutdown */
-  static void init_base_scheme_objects(void)
-  {
-    gc_protect(_T("type-name-symbols"),
-               interp.syms_internal_type_names,
-               LAST_INTERNAL_TYPEC);
+static void init_base_scheme_objects(void)
+{
+     gc_protect(_T("type-name-symbols"), interp.syms_internal_type_names, LAST_INTERNAL_TYPEC);
 
-    for(size_t ii = 0; ii < LAST_INTERNAL_TYPEC + 1; ii++)
-      interp.syms_internal_type_names[ii] =
-        simple_intern(system_type_names[ii], interp.system_package);
+     for (size_t ii = 0; ii < LAST_INTERNAL_TYPEC + 1; ii++)
+          interp.syms_internal_type_names[ii] =
+              simple_intern(system_type_names[ii], interp.system_package);
 
-    /*  REVISIT: These package paramaters should be explicit */
-    LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
-    lidefine_global(nil_sym, NIL, NIL);
+     /*  REVISIT: These package paramaters should be explicit */
+     LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
+     lidefine_global(nil_sym, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_after_gc, _T("*after-gc*"), interp.system_package);
-    lidefine_global(interp.sym_after_gc, NIL, NIL);
+     gc_protect_sym(&interp.sym_after_gc, _T("*after-gc*"), interp.system_package);
+     lidefine_global(interp.sym_after_gc, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_msglvl_info, _T("*info*"), interp.system_package);
-    /*  Info messages are too slow when we're GC'ing with every new_cell */
-    lidefine_global(interp.sym_msglvl_info, boolcons(!ALWAYS_GC), NIL);
+     gc_protect_sym(&interp.sym_msglvl_info, _T("*info*"), interp.system_package);
+     /*  Info messages are too slow when we're GC'ing with every new_cell */
+     lidefine_global(interp.sym_msglvl_info, boolcons(!ALWAYS_GC), NIL);
 
-    gc_protect_sym(&interp.sym_msglvl_errors, _T("*error*"), interp.system_package);
-    lidefine_global(interp.sym_msglvl_errors, boolcons(true), NIL);
+     gc_protect_sym(&interp.sym_msglvl_errors, _T("*error*"), interp.system_package);
+     lidefine_global(interp.sym_msglvl_errors, boolcons(true), NIL);
 
-    gc_protect_sym(&interp.sym_args, _T("*args*"), interp.system_package);
+     gc_protect_sym(&interp.sym_args, _T("*args*"), interp.system_package);
 
-    gc_protect_sym(&interp.sym_port_current_in, _T("*current-input-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_current_in, NIL, NIL);
+     gc_protect_sym(&interp.sym_port_current_in, _T("*current-input-port*"), interp.system_package);
+     lidefine_global(interp.sym_port_current_in, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_port_current_out, _T("*current-output-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_current_out, NIL, NIL);
+     gc_protect_sym(&interp.sym_port_current_out, _T("*current-output-port*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_port_current_out, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_port_current_err, _T("*current-error-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_current_err, NIL, NIL);
+     gc_protect_sym(&interp.sym_port_current_err, _T("*current-error-port*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_port_current_err, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_port_debug, _T("*current-debug-port*"), interp.system_package);
-    lidefine_global(interp.sym_port_debug, NIL, NIL);
+     gc_protect_sym(&interp.sym_port_debug, _T("*current-debug-port*"), interp.system_package);
+     lidefine_global(interp.sym_port_debug, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_name, _T("name"), interp.system_package);
-    lidefine_global(interp.sym_name, NIL, NIL);
+     gc_protect_sym(&interp.sym_name, _T("name"), interp.system_package);
+     lidefine_global(interp.sym_name, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_documentation, _T("documentation"), interp.system_package);
-    lidefine_global(interp.sym_documentation, NIL, NIL);
+     gc_protect_sym(&interp.sym_documentation, _T("documentation"), interp.system_package);
+     lidefine_global(interp.sym_documentation, NIL, NIL);
 
-    gc_protect(_T("sym-do-not-understand"), &interp.sym_do_not_understand, 1);
-    interp.sym_do_not_understand = keyword_intern(_T("do-not-understand"));
+     gc_protect(_T("sym-do-not-understand"), &interp.sym_do_not_understand, 1);
+     interp.sym_do_not_understand = keyword_intern(_T("do-not-understand"));
 
-    gc_protect_sym (&interp.sym_errobj, _T("errobj"), interp.system_package);
-    lidefine_global(interp.sym_errobj, NIL, NIL);
+     gc_protect_sym(&interp.sym_errobj, _T("errobj"), interp.system_package);
+     lidefine_global(interp.sym_errobj, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_global_bad_apply_handler, _T("*global-bad-apply-handler*"), interp.system_package);
-    lidefine_global(interp.sym_global_bad_apply_handler, NIL, NIL);
+     gc_protect_sym(&interp.sym_global_bad_apply_handler, _T("*global-bad-apply-handler*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_global_bad_apply_handler, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_global_define_hook, _T("*global-define-hook*"), interp.system_package);
-    lidefine_global(interp.sym_global_define_hook, NIL, NIL);
+     gc_protect_sym(&interp.sym_global_define_hook, _T("*global-define-hook*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_global_define_hook, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
-    lidefine_global(interp.sym_internal_files, NIL, NIL);
+     gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
+     lidefine_global(interp.sym_internal_files, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_vm_runtime_error_handler, _T("*vm-runtime-error-handler*"), interp.system_package);
-    lidefine_global(interp.sym_vm_runtime_error_handler, NIL, NIL);
+     gc_protect_sym(&interp.sym_vm_runtime_error_handler, _T("*vm-runtime-error-handler*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_vm_runtime_error_handler, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_vm_signal_handler, _T("*vm-signal-handler*"), interp.system_package);
-    lidefine_global(interp.sym_vm_signal_handler, NIL, NIL);
+     gc_protect_sym(&interp.sym_vm_signal_handler, _T("*vm-signal-handler*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_vm_signal_handler, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_stack_overflow, _T("stack-overflow-escape"), interp.system_package);
+     gc_protect_sym(&interp.sym_stack_overflow, _T("stack-overflow-escape"), interp.system_package);
 
-    gc_protect_sym(&interp.sym_timer_event_handler, _T("*timer-event-handler*"), interp.system_package);
-    lidefine_global(interp.sym_timer_event_handler, NIL, NIL);
+     gc_protect_sym(&interp.sym_timer_event_handler, _T("*timer-event-handler*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_timer_event_handler, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_user_break_handler, _T("*user-break-handler*"), interp.system_package);
-    lidefine_global(interp.sym_user_break_handler, NIL, NIL);
+     gc_protect_sym(&interp.sym_user_break_handler, _T("*user-break-handler*"),
+                    interp.system_package);
+     lidefine_global(interp.sym_user_break_handler, NIL, NIL);
 
-    gc_protect_sym(&interp.sym_subr_table, _T("*subr-table*"), interp.system_package);
-    lidefine_global(interp.sym_subr_table, hashcons(false), NIL);
+     gc_protect_sym(&interp.sym_subr_table, _T("*subr-table*"), interp.system_package);
+     lidefine_global(interp.sym_subr_table, hashcons(false), NIL);
 
-    LRef temp_sym;
+     LRef temp_sym;
 
-    temp_sym = simple_intern(_T("*pi*"), interp.system_package);
-    lidefine_global(temp_sym, flocons (atan (1.0) * 4), NIL);
+     temp_sym = simple_intern(_T("*pi*"), interp.system_package);
+     lidefine_global(temp_sym, flocons(atan(1.0) * 4), NIL);
 
-    gc_protect_sym (&interp.sym_progn, _T("begin"), interp.system_package);
-  }
+     gc_protect_sym(&interp.sym_progn, _T("begin"), interp.system_package);
+}
 
 
-  static void register_main_subrs()
-  {
+static void register_main_subrs()
+{
 /* *INDENT-OFF* */
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
     register_subr(_T("%catch-apply0"),                    SUBR_2,     (void*)lcatch_apply0                       );
@@ -794,164 +826,164 @@ BEGIN_NAMESPACE(scan)
     register_subr(_T("write-binary-string"),              SUBR_2,     (void*)lwrite_binary_string                );
     register_subr(_T("write-char"),                       SUBR_2,     (void*)lwrite_char                         );
 /* *INDENT-ON* */
-  }
+}
 
-  static void global_environment_asserts()
-  {
-    void *stack_start = sys_get_stack_start();
+static void global_environment_asserts()
+{
+     void *stack_start = sys_get_stack_start();
 
-    /* The stack grows downwards, so the stack_start variable should be lower
-     * in memory than the start of the stack */
+     /* The stack grows downwards, so the stack_start variable should be lower
+      * in memory than the start of the stack */
      assert(&stack_start < stack_start);
 
-    /* An LObject is the size of four pointers (LRef's) */
-    assert(sizeof(LObject) == 4 * sizeof(LRef));
-  }
+     /* An LObject is the size of four pointers (LRef's) */
+     assert(sizeof(LObject) == 4 * sizeof(LRef));
+}
 
 
-  static void load_init_load_files()
-  {
-    for(size_t ii = 0; ii < interp.init_load_file_count; ii++)
-      {
-        LRef fname = strcons(interp.init_load_file_name[ii]);
+static void load_init_load_files()
+{
+     for (size_t ii = 0; ii < interp.init_load_file_count; ii++)
+     {
+          LRef fname = strcons(interp.init_load_file_name[ii]);
 
-        dscwritef("; Init Loading ~a...\n", fname);
+          dscwritef("; Init Loading ~a...\n", fname);
 
-        lifasl_load(fname);
-      }
-  }
+          lifasl_load(fname);
+     }
+}
 
 /*  REVISIT Init needs a way to receive standard output ports, for non-console uses of scan */
-  void init0(int argc, _TCHAR *argv[], debug_flag_t initial_debug_flags)
-  {
-    global_environment_asserts();
+void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
+{
+     global_environment_asserts();
 
-    previous_panic_handler = set_panic_handler(scan_panic_handler);
+     previous_panic_handler = set_panic_handler(scan_panic_handler);
 
     /** Initialize the interpreter globals */
-    memset(&interp, 0, sizeof(interp));
+     memset(&interp, 0, sizeof(interp));
 
-    /*  We need the debug flags pretty early on, so that we know how
-     *  to set up debugger I/O. */
-    interp.debug_flags                             = debug_flags_from_environment(initial_debug_flags);
+     /*  We need the debug flags pretty early on, so that we know how
+      *  to set up debugger I/O. */
+     interp.debug_flags = debug_flags_from_environment(initial_debug_flags);
 
-    init_debugger_output();
+     init_debugger_output();
 
-    interp.init_load_file_count                    = 0;
+     interp.init_load_file_count = 0;
 
-    interp.break_pending                           = false;
-    interp.timer_event_pending                     = false;
-    interp.interrupts_masked                       = false;
-    interp.gc_trip_wires_armed                     = false;
+     interp.break_pending = false;
+     interp.timer_event_pending = false;
+     interp.interrupts_masked = false;
+     interp.gc_trip_wires_armed = false;
 
-    interp.shutting_down                           = false;
+     interp.shutting_down = false;
 
-    interp.gc_heap_segment_size                    = DEFAULT_HEAP_SEGMENT_SIZE;
-    interp.gc_max_heap_segments                    = DEFAULT_MAX_HEAP_SEGMENTS;
-    interp.gc_current_heap_segments                = 0;
-    interp.gc_heap_segments                        = NULL;
+     interp.gc_heap_segment_size = DEFAULT_HEAP_SEGMENT_SIZE;
+     interp.gc_max_heap_segments = DEFAULT_MAX_HEAP_SEGMENTS;
+     interp.gc_current_heap_segments = 0;
+     interp.gc_heap_segments = NULL;
 
-    interp.gc_status_flag                          = 0;
+     interp.gc_status_flag = 0;
 
-    interp.launch_realtime                         = sys_runtime();
+     interp.launch_realtime = sys_runtime();
 
-    interp.sym_package_list                        = NIL;
+     interp.sym_package_list = NIL;
 
-    interp.system_package                          = NIL;
-    interp.scheme_package                          = NIL;
-    interp.keyword_package                         = NIL;
+     interp.system_package = NIL;
+     interp.scheme_package = NIL;
+     interp.keyword_package = NIL;
 
-    /*  Standard symbols */
-    interp.sym_after_gc                            = NIL;
-    interp.sym_msglvl_info                         = NIL;
-    interp.sym_msglvl_errors                       = NIL;
-    interp.sym_args                                = NIL;
-    interp.sym_current_package                     = NIL;
-    interp.sym_progn                               = NIL;
-    interp.sym_errobj                              = NIL;
-    interp.sym_global_define_hook                  = NIL;
+     /*  Standard symbols */
+     interp.sym_after_gc = NIL;
+     interp.sym_msglvl_info = NIL;
+     interp.sym_msglvl_errors = NIL;
+     interp.sym_args = NIL;
+     interp.sym_current_package = NIL;
+     interp.sym_progn = NIL;
+     interp.sym_errobj = NIL;
+     interp.sym_global_define_hook = NIL;
 
-    /*  Statistics Counters */
-    interp.forms_evaluated                         = 0;
-    interp.gc_total_cells_allocated                = 0;
-    interp.gc_total_environment_cells_allocated    = 0;
-    interp.gc_cells_collected                      = 0;
+     /*  Statistics Counters */
+     interp.forms_evaluated = 0;
+     interp.gc_total_cells_allocated = 0;
+     interp.gc_total_environment_cells_allocated = 0;
+     interp.gc_cells_collected = 0;
 
-    interp.malloc_bytes_at_last_gc                 = 0;
-    interp.malloc_blocks_at_last_gc                = 0;
-    interp.c_bytes_gc_threshold                    = (sizeof(LObject) * interp.gc_heap_segment_size);
+     interp.malloc_bytes_at_last_gc = 0;
+     interp.malloc_blocks_at_last_gc = 0;
+     interp.c_bytes_gc_threshold = (sizeof(LObject) * interp.gc_heap_segment_size);
 
-    interp.gc_total_run_time                       = 0.0;
-    interp.gc_run_time                             = 0.0;
-    interp.gc_count                                = 0;
+     interp.gc_total_run_time = 0.0;
+     interp.gc_run_time = 0.0;
+     interp.gc_count = 0;
 
 #ifdef ENVLOOKUP_STATS
-    interp.total_env_lookups                       = 0;
-    interp.global_env_lookups                      = 0;
-    interp.env_lookup_frames                       = 0;
+     interp.total_env_lookups = 0;
+     interp.global_env_lookups = 0;
+     interp.env_lookup_frames = 0;
 #endif
 
-    process_vm_arguments(argc, argv);
+     process_vm_arguments(argc, argv);
 
-    if (interp.debug_flags != DF_NONE)
-      dscwritef("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags);
+     if (interp.debug_flags != DF_NONE)
+          dscwritef("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags);
 
     /*** Create the gc heap and populate it with the standard objects */
-    create_gc_heap();
-    create_initial_packages();
-    init_base_scheme_objects();
-    init_stdio_ports();
+     create_gc_heap();
+     create_initial_packages();
+     init_base_scheme_objects();
+     init_stdio_ports();
 
-    register_main_subrs();
+     register_main_subrs();
 
-    gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
+     gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
-    SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));
+     SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));
 
-    accept_command_line_arguments(argc, argv);
+     accept_command_line_arguments(argc, argv);
 
-    interp.gc_status_flag = 1;
+     interp.gc_status_flag = 1;
 
-    load_init_load_files();
-  }
+     load_init_load_files();
+}
 
 
-  flonum_t time_since_launch()
-  {
-    return sys_runtime() - interp.launch_realtime;
-  }
+flonum_t time_since_launch()
+{
+     return sys_runtime() - interp.launch_realtime;
+}
 
-  LRef run()
-  {
-    if(DEBUG_FLAG(DF_NO_STARTUP))
-      return NIL;
+LRef run()
+{
+     if (DEBUG_FLAG(DF_NO_STARTUP))
+          return NIL;
 
-    LRef run0_proc = lisymbol_value(simple_intern(_T("%run0"), interp.scheme_package), NIL, NIL);
+     LRef run0_proc = lisymbol_value(simple_intern(_T("%run0"), interp.scheme_package), NIL, NIL);
 
-    if (NULLP(run0_proc))
-      panic("No bootstrap procedure found in scheme::%run0.");
+     if (NULLP(run0_proc))
+          panic("No bootstrap procedure found in scheme::%run0.");
 
-    if (!PROCEDUREP(run0_proc))
-      panic("Invalid bootstrap procedure found in scheme::%run0. (failed PROCEDUREP).");
+     if (!PROCEDUREP(run0_proc))
+          panic("Invalid bootstrap procedure found in scheme::%run0. (failed PROCEDUREP).");
 
-    LRef retval = NIL;
+     LRef retval = NIL;
 
-    if(call_lisp_procedure(run0_proc, &retval, NULL, 0))
-      panic("Failure during interprer launch.");
+     if (call_lisp_procedure(run0_proc, &retval, NULL, 0))
+          panic("Failure during interprer launch.");
 
-    return retval;
-  }
+     return retval;
+}
 
-  void shutdown()
-  {
-    interp.shutting_down = TRUE;
+void shutdown()
+{
+     interp.shutting_down = TRUE;
 
-    free_gc_heap();
-  }
+     free_gc_heap();
+}
 
-  const _TCHAR *build_id_string()
-  {
-    return (__DATE__ "-" SCAN_VERSION);
-  }
+const _TCHAR *build_id_string()
+{
+     return (__DATE__ "-" SCAN_VERSION);
+}
 
 END_NAMESPACE

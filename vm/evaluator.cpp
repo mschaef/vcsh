@@ -1,3 +1,4 @@
+
 /*
  * The scan evaluator
  */
@@ -6,199 +7,210 @@
 
 BEGIN_NAMESPACE(scan)
 
-
 /**************************************************************
  * SUBR
  *
  * Subrs are the basic building block of a SIOD program. They
  * represent executable code in compiled C. */
+const _TCHAR *subr_kind_str(subr_arity_t n)
+{
+     switch (n)
+     {
+     case SUBR_0:
+          return _T("subr-0");
+     case SUBR_1:
+          return _T("subr-1");
+     case SUBR_2:
+          return _T("subr-2");
+     case SUBR_2N:
+          return _T("subr-2n");
+     case SUBR_3:
+          return _T("subr-3");
+     case SUBR_4:
+          return _T("subr-4");
+     case SUBR_5:
+          return _T("subr-5");
+     case SUBR_6:
+          return _T("subr-6");
+     case SUBR_N:
+          return _T("subr-n");
+     case SUBR_ARGC:
+          return _T("subr-argc");
+     default:
+          return _T("???");
+     }
+}
 
-  const _TCHAR *subr_kind_str(subr_arity_t n)
-  {
-    switch (n)
-      {
-      case SUBR_0:     return _T("subr-0");
-      case SUBR_1:     return _T("subr-1");
-      case SUBR_2:     return _T("subr-2");
-      case SUBR_2N:    return _T("subr-2n");
-      case SUBR_3:     return _T("subr-3");
-      case SUBR_4:     return _T("subr-4");
-      case SUBR_5:     return _T("subr-5");
-      case SUBR_6:     return _T("subr-6");
-      case SUBR_N:     return _T("subr-n");
-      case SUBR_ARGC:  return _T("subr-argc");
-      default:         return _T("???");
-      }
-  }
+LRef lsubr_kind(LRef subr)
+{
+     if (!SUBRP(subr))
+          vmerror_wrong_type(1, subr);
 
-  LRef lsubr_kind(LRef subr)
-  {
-    if (!SUBRP(subr))
-      vmerror_wrong_type(1, subr);
+     return keyword_intern(subr_kind_str(SUBR_TYPE(subr)));
+}
 
-    return keyword_intern(subr_kind_str(SUBR_TYPE(subr)));
-  }
+LRef lsubr_name(LRef subr)
+{
+     assert(SUBRP(subr) || NULLP(subr));
 
-  LRef lsubr_name(LRef subr)
-  {
-    assert(SUBRP(subr) || NULLP(subr));
+     LRef name_cell = NIL;
 
-    LRef name_cell = NIL;
+     if (SUBRP(subr))
+          name_cell = lassq(interp.sym_name, SUBR_PROPERTY_LIST(subr));
 
-    if (SUBRP(subr))
-      name_cell = lassq(interp.sym_name, SUBR_PROPERTY_LIST(subr));
+     if (CONSP(name_cell))
+          return lcdr(name_cell);
+     else
+          return strcons(_T("<unknown>"));
+}
 
-    if (CONSP(name_cell))
-      return lcdr(name_cell);
-    else
-      return strcons(_T("<unknown>"));
-  }
+LRef subrcons(subr_arity_t type, LRef name, void *implementation)
+{
+     LRef z = new_cell(TC_SUBR);
 
-  LRef subrcons(subr_arity_t type, LRef name, void *implementation)
-  {
-    LRef z = new_cell(TC_SUBR);
+     SET_SUBR_TYPE(z, type);
+     SET_SUBR_PROPERTY_LIST(z, lcons(lcons(interp.sym_name, name), NIL));
+     SET_SUBR_CODE(z, implementation);
 
-    SET_SUBR_TYPE(z, type);
-    SET_SUBR_PROPERTY_LIST(z, lcons(lcons(interp.sym_name, name), NIL));
-    SET_SUBR_CODE(z, implementation);
-
-    return (z);
-  }
+     return (z);
+}
 
 /*
  * This group of functions is responsible for registering subrs
  * with the current package
  */
 
-  void register_subr(const _TCHAR *name, subr_arity_t arity, void *implementation)
-  {
-    if (implementation == NULL)
-      dscwritef(";;;; NULL SUBR IMPLEMENTATION: \"~cs\"! (Any attempt to use this subr will fail!)\n", name);
+void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation)
+{
+     if (implementation == NULL)
+          dscwritef
+              (";;;; NULL SUBR IMPLEMENTATION: \"~cs\"! (Any attempt to use this subr will fail!)\n",
+               name);
 
-    assert(name != NULL);
+     assert(name != NULL);
 
-    LRef subr = subrcons(arity, strcons(name), implementation);
+     LRef subr = subrcons(arity, strcons(name), implementation);
 
-    lhash_set(SYMBOL_VCELL(interp.sym_subr_table), strcons(name), subr);
-  }
+     lhash_set(SYMBOL_VCELL(interp.sym_subr_table), strcons(name), subr);
+}
 
-  LRef find_subr_by_name(LRef subr_name)
-  {
-    LRef subr_table = SYMBOL_VCELL(interp.sym_subr_table);
+LRef find_subr_by_name(LRef subr_name)
+{
+     LRef subr_table = SYMBOL_VCELL(interp.sym_subr_table);
 
-    assert(STRINGP(subr_name));
-    assert(HASHP(subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
+     assert(STRINGP(subr_name));
+     assert(HASHP(subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
 
-    return lhash_ref(subr_table, subr_name, NIL);
-  }
+     return lhash_ref(subr_table, subr_name, NIL);
+}
 
 /**************************************************************
  * Closures
  */
 
 
-  LRef lclosurecons(LRef env, LRef code, LRef property_list)
-  {
-    LRef z = new_cell(TC_CLOSURE);
+LRef lclosurecons(LRef env, LRef code, LRef property_list)
+{
+     LRef z = new_cell(TC_CLOSURE);
 
-    if (!(CONSP(code) || NULLP(code)))
-      vmerror_wrong_type(2, code);
+     if (!(CONSP(code) || NULLP(code)))
+          vmerror_wrong_type(2, code);
 
-    SET_CLOSURE_ENV(z, env);
-    SET_CLOSURE_CODE(z, code);
-    SET_CLOSURE_PROPERTY_LIST(z, property_list);
+     SET_CLOSURE_ENV(z, env);
+     SET_CLOSURE_CODE(z, code);
+     SET_CLOSURE_PROPERTY_LIST(z, property_list);
 
-    return z;
-  }
+     return z;
+}
 
-  LRef lset_closure_code(LRef exp, LRef code)
-  {
-    if (!CLOSUREP(exp))
-      vmerror_wrong_type(exp);
+LRef lset_closure_code(LRef exp, LRef code)
+{
+     if (!CLOSUREP(exp))
+          vmerror_wrong_type(exp);
 
-    SET_CLOSURE_CODE(exp, code);
+     SET_CLOSURE_CODE(exp, code);
 
-    return exp;
-  }
+     return exp;
+}
 
-  LRef lclosure_code(LRef exp)
-  {
-    if (!CLOSUREP(exp))
-      return boolcons(false);
-    else
-      return (CLOSURE_CODE(exp));
-  }
+LRef lclosure_code(LRef exp)
+{
+     if (!CLOSUREP(exp))
+          return boolcons(false);
+     else
+          return (CLOSURE_CODE(exp));
+}
 
-  LRef lset_closure_env(LRef exp, LRef env)
-  {
-    if (!CLOSUREP(exp))
-      vmerror_wrong_type(exp);
+LRef lset_closure_env(LRef exp, LRef env)
+{
+     if (!CLOSUREP(exp))
+          vmerror_wrong_type(exp);
 
-    SET_CLOSURE_ENV(exp, env);
+     SET_CLOSURE_ENV(exp, env);
 
-    return exp;
-  }
+     return exp;
+}
 
-  LRef lclosure_env(LRef exp)
-  {
-    if (!CLOSUREP(exp))
-      return boolcons(false);
-    else
-      return (CLOSURE_ENV(exp));
-  }
+LRef lclosure_env(LRef exp)
+{
+     if (!CLOSUREP(exp))
+          return boolcons(false);
+     else
+          return (CLOSURE_ENV(exp));
+}
 
-  LRef lset_property_list(LRef exp, LRef property_list)
-  {
-    if (CLOSUREP(exp))
-      SET_CLOSURE_PROPERTY_LIST(exp, property_list);
-    else if (SUBRP(exp))
-      SET_SUBR_PROPERTY_LIST(exp, property_list);
-    else if (SYMBOLP(exp))
-      SET_SYMBOL_PROPS(exp, property_list);
-    else
-      {
-        vmerror_wrong_type(1, exp);
-        return NIL; /*  unreached. */
-      }
+LRef lset_property_list(LRef exp, LRef property_list)
+{
+     if (CLOSUREP(exp))
+          SET_CLOSURE_PROPERTY_LIST(exp, property_list);
+     else if (SUBRP(exp))
+          SET_SUBR_PROPERTY_LIST(exp, property_list);
+     else if (SYMBOLP(exp))
+          SET_SYMBOL_PROPS(exp, property_list);
+     else
+     {
+          vmerror_wrong_type(1, exp);
+          return NIL;           /*  unreached. */
+     }
 
-    return property_list;
-  }
+     return property_list;
+}
 
-  LRef lproperty_list(LRef exp)
-  {
-    if (CLOSUREP(exp))
-      return CLOSURE_PROPERTY_LIST(exp);
-    else if (SUBRP(exp))
-      return SUBR_PROPERTY_LIST(exp);
-    else if (SYMBOLP(exp))
-      return SYMBOL_PROPS(exp);
-    else
-      return NIL;
-  }
+LRef lproperty_list(LRef exp)
+{
+     if (CLOSUREP(exp))
+          return CLOSURE_PROPERTY_LIST(exp);
+     else if (SUBRP(exp))
+          return SUBR_PROPERTY_LIST(exp);
+     else if (SYMBOLP(exp))
+          return SYMBOL_PROPS(exp);
+     else
+          return NIL;
+}
 
-  LRef lprimitivep(LRef obj)
-  {
-    if (SUBRP(obj))
-      return obj;
-    else
-      return boolcons(false);
-  }
+LRef lprimitivep(LRef obj)
+{
+     if (SUBRP(obj))
+          return obj;
+     else
+          return boolcons(false);
+}
 
-  LRef lclosurep(LRef obj)
-  {
-    if (CLOSUREP(obj))
-      return obj;
-    else
-      return boolcons(false);
-  }
+LRef lclosurep(LRef obj)
+{
+     if (CLOSUREP(obj))
+          return obj;
+     else
+          return boolcons(false);
+}
 
-  LRef lprocedurep(LRef exp)
-  {
-    if (PROCEDUREP(exp))
-      return exp;
-    else
-      return boolcons(false);
-  }
+LRef lprocedurep(LRef exp)
+{
+     if (PROCEDUREP(exp))
+          return exp;
+     else
+          return boolcons(false);
+}
 
 /**************************************************************
  * Frame manager
@@ -226,22 +238,23 @@ BEGIN_NAMESPACE(scan)
  *   The passed in frame is expected to be somewhere on the
  *   current frame stack.
  */
-  void __frame_set_top(frame_record_t *f)
-  {
+void __frame_set_top(frame_record_t * f)
+{
 #ifdef _DEBUG
-    frame_record_t *loc = CURRENT_TIB()->frame_stack;
+     frame_record_t *loc = CURRENT_TIB()->frame_stack;
 
-    while(loc)
-      {
-        if (loc == f) break;
-        loc = loc->previous;
-      }
+     while (loc)
+     {
+          if (loc == f)
+               break;
+          loc = loc->previous;
+     }
 
-    assert(loc); /*  The frame ought to be on the stack already. */
+     assert(loc);               /*  The frame ought to be on the stack already. */
 #endif
 
-    CURRENT_TIB()->frame_stack = f;
-  }
+     CURRENT_TIB()->frame_stack = f;
+}
 
 /* __frame_find(pred, info)
  *
@@ -256,285 +269,280 @@ BEGIN_NAMESPACE(scan)
  *   A pointer to the first (topmost) frame satisfying the predicate.
  *   NULL, if none found.
  */
-  frame_record_t *__frame_find(frame_predicate pred, uptr info)
-  {
-    frame_record_t *loc = CURRENT_TIB()->frame_stack;
+frame_record_t *__frame_find(frame_predicate pred, uptr info)
+{
+     frame_record_t *loc = CURRENT_TIB()->frame_stack;
 
-    while(loc)
-      {
-        if (pred(loc, info))
-          return loc;
+     while (loc)
+     {
+          if (pred(loc, info))
+               return loc;
 
-        loc = loc->previous;
-      }
+          loc = loc->previous;
+     }
 
-    return loc;
-  }
+     return loc;
+}
 
 
-  void dump_current_frames(LRef oport)
-  {
-    frame_record_t *loc = TOP_FRAME;
+void dump_current_frames(LRef oport)
+{
+     frame_record_t *loc = TOP_FRAME;
 
-    while(loc)
-      {
-        switch(loc->type)
+     while (loc)
+     {
+          switch (loc->type)
           {
           case FRAME_EVAL:
-            scwritef(_T("eval > ~s in ~s\n"), oport, *loc->frame_as.eval.form, loc->frame_as.eval.initial_form);
-            break;
+               scwritef(_T("eval > ~s in ~s\n"), oport, *loc->frame_as.eval.form,
+                        loc->frame_as.eval.initial_form);
+               break;
 
           case FRAME_EX_TRY:
-            scwritef(_T("try > ~s\n"), oport, loc->frame_as.dynamic_escape.tag);
-            break;
+               scwritef(_T("try > ~s\n"), oport, loc->frame_as.dynamic_escape.tag);
+               break;
 
           case FRAME_EX_UNWIND:
-            scwritef(_T("unwind-protect >\n"), oport);
-            break;
+               scwritef(_T("unwind-protect >\n"), oport);
+               break;
 
           case FRAME_PRIMITIVE:
-            scwritef(_T("primitive > ~s\n"), oport, loc->frame_as.primitive.function);
-            break;
+               scwritef(_T("primitive > ~s\n"), oport, loc->frame_as.primitive.function);
+               break;
 
           case FRAME_MARKER:
-            scwritef(_T("marker > ~s\n"), oport, loc->frame_as.marker.tag);
-            break;
+               scwritef(_T("marker > ~s\n"), oport, loc->frame_as.marker.tag);
+               break;
 
           default:
-            scwritef(_T("<< INVALID-FRAME-TYPE >>\n"), oport);
-            break;
+               scwritef(_T("<< INVALID-FRAME-TYPE >>\n"), oport);
+               break;
           }
 
-        lflush_port(oport);
+          lflush_port(oport);
 
-        loc = loc->previous;
-      }
-  }
+          loc = loc->previous;
+     }
+}
 
-  LRef lget_current_frames(LRef sc)
-  {
-    fixnum_t skip_count = get_c_fixnum(sc);
-    LRef frame_obj;
-    LRef l = NIL;
-    frame_record_t *loc = TOP_FRAME;
-    fixnum_t frame_count = 0;
+LRef lget_current_frames(LRef sc)
+{
+     fixnum_t skip_count = get_c_fixnum(sc);
+     LRef frame_obj;
+     LRef l = NIL;
+     frame_record_t *loc = TOP_FRAME;
+     fixnum_t frame_count = 0;
 
-    while(loc)
-      {
-        frame_count++;
+     while (loc)
+     {
+          frame_count++;
 
-        switch(loc->type)
+          switch (loc->type)
           {
           case FRAME_EVAL:
-            frame_obj   = listn(4, keyword_intern(_T("eval")),
-                                *loc->frame_as.eval.form,
-                                loc->frame_as.eval.initial_form,
-                                loc->frame_as.eval.env);
-            break;
+               frame_obj = listn(4, keyword_intern(_T("eval")),
+                                 *loc->frame_as.eval.form,
+                                 loc->frame_as.eval.initial_form, loc->frame_as.eval.env);
+               break;
 
           case FRAME_EX_TRY:
-            frame_obj   = listn(3, keyword_intern(_T("dynamic-escape-try")),
-                                NIL,
-                                loc->frame_as.dynamic_escape.tag);
-            break;
+               frame_obj = listn(3, keyword_intern(_T("dynamic-escape-try")),
+                                 NIL, loc->frame_as.dynamic_escape.tag);
+               break;
 
           case FRAME_EX_UNWIND:
-            frame_obj   = listn(2, keyword_intern(_T("dynamic-escape-unwind-protect")),
-                                NIL);
-            break;
+               frame_obj = listn(2, keyword_intern(_T("dynamic-escape-unwind-protect")), NIL);
+               break;
 
           case FRAME_PRIMITIVE:
-            frame_obj   = listn(3, keyword_intern(_T("primitive")),
-                                NIL,
-                                loc->frame_as.primitive.function);
-            break;
+               frame_obj = listn(3, keyword_intern(_T("primitive")),
+                                 NIL, loc->frame_as.primitive.function);
+               break;
 
           case FRAME_MARKER:
-            frame_obj = listn(2, keyword_intern(_T("marker")),
-                              loc->frame_as.marker.tag);
-            break;
+               frame_obj = listn(2, keyword_intern(_T("marker")), loc->frame_as.marker.tag);
+               break;
 
           default:
-            frame_obj = keyword_intern(_T("invalid"));
-            break;
+               frame_obj = keyword_intern(_T("invalid"));
+               break;
           }
 
-        if (frame_count >= skip_count)
-          l = lcons(frame_obj, l);
+          if (frame_count >= skip_count)
+               l = lcons(frame_obj, l);
 
-        loc = loc->previous;
-      }
+          loc = loc->previous;
+     }
 
-    return l;
-  }
+     return l;
+}
 
 /**************************************************************
  * Stack limit checking
  */
 
-  LRef lset_stack_limit(LRef amount)
-  {
-    size_t new_size_limit = 0;
+LRef lset_stack_limit(LRef amount)
+{
+     size_t new_size_limit = 0;
 
-    if (!NULLP(amount) && !FALSEP(amount))
-      new_size_limit = get_c_long(amount);
+     if (!NULLP(amount) && !FALSEP(amount))
+          new_size_limit = get_c_long(amount);
 
-    void *new_limit_obj = sys_set_stack_limit(new_size_limit);
+     void *new_limit_obj = sys_set_stack_limit(new_size_limit);
 
-    if (!new_size_limit)
-      {
-        info("stack limit disabled!");
-        return boolcons(false);
-      }
+     if (!new_size_limit)
+     {
+          info("stack limit disabled!");
+          return boolcons(false);
+     }
 
-    info("stack_size = ~cd bytes, [~c&,~c&]\n",
-         new_size_limit,
-         new_limit_obj,
-         sys_get_stack_start());
+     info("stack_size = ~cd bytes, [~c&,~c&]\n",
+          new_size_limit, new_limit_obj, sys_get_stack_start());
 
-    return fixcons(new_size_limit);
-  }
+     return fixcons(new_size_limit);
+}
 
-  LRef lset_interrupt_mask(LRef new_mask)
-  {
-    if (!BOOLP(new_mask))
-      vmerror_wrong_type(1, new_mask);
+LRef lset_interrupt_mask(LRef new_mask)
+{
+     if (!BOOLP(new_mask))
+          vmerror_wrong_type(1, new_mask);
 
-    bool previous_mask = interp.interrupts_masked;
+     bool previous_mask = interp.interrupts_masked;
 
-    interp.interrupts_masked = BOOLV(new_mask);
+     interp.interrupts_masked = BOOLV(new_mask);
 
-    return boolcons(previous_mask);
-  }
+     return boolcons(previous_mask);
+}
 
 /**************************************************************
  * The Evaluator
  */
 
-  static LRef arg_list_from_buffer(size_t argc, LRef argv[]) {
-    LRef result = NIL;
+static LRef arg_list_from_buffer(size_t argc, LRef argv[])
+{
+     LRef result = NIL;
 
-    for(size_t ii = argc; ii > 0; ii--)
-        result = lcons(argv[ii - 1], result);
+     for (size_t ii = argc; ii > 0; ii--)
+          result = lcons(argv[ii - 1], result);
 
-    interp.gc_total_environment_cells_allocated += argc;
+     interp.gc_total_environment_cells_allocated += argc;
 
-    return result;
-  }
+     return result;
+}
 
-  static LRef leval(LRef form, LRef env);
+static LRef leval(LRef form, LRef env);
 
-  static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LRef argv[])
-  {
-    size_t argc = 0;
-    LRef args = l;
+static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LRef argv[])
+{
+     size_t argc = 0;
+     LRef args = l;
 
-    while(CONSP(args))
-      {
-        if (argc >= max_argc)
+     while (CONSP(args))
+     {
+          if (argc >= max_argc)
           {
-            vmerror("too many actual arguments: ~s", l);
-            break;
+               vmerror("too many actual arguments: ~s", l);
+               break;
           }
 
-        argv[argc] = leval(CAR(args), env);
+          argv[argc] = leval(CAR(args), env);
 
-        args = CDR(args);
-        argc++;
-      }
+          args = CDR(args);
+          argc++;
+     }
 
-    if (!NULLP(args))
-      vmerror("bad syntax argument list: ~s", l);
+     if (!NULLP(args))
+          vmerror("bad syntax argument list: ~s", l);
 
-    return argc;
-  }
+     return argc;
+}
 
-  static LRef extend_env (LRef actuals, LRef formals, LRef env)
-  {
-    if (SYMBOLP (formals))
-      {
-        interp.gc_total_environment_cells_allocated += 4;
-        return lcons(lcons(lcons(formals, NIL), lcons(actuals, NIL)), env);
-      }
-    else
-      {
-        interp.gc_total_environment_cells_allocated += 2;
-        return lcons(lcons(formals, actuals), env);
-      }
-  }
+static LRef extend_env(LRef actuals, LRef formals, LRef env)
+{
+     if (SYMBOLP(formals))
+     {
+          interp.gc_total_environment_cells_allocated += 4;
+          return lcons(lcons(lcons(formals, NIL), lcons(actuals, NIL)), env);
+     }
+     else
+     {
+          interp.gc_total_environment_cells_allocated += 2;
+          return lcons(lcons(formals, actuals), env);
+     }
+}
 
 #define ENVLOOKUP_TRICK 1
 
-  LRef lenvlookup (LRef var, LRef env)
-  {
-    LRef frame, al, fl, tmp;
+LRef lenvlookup(LRef var, LRef env)
+{
+     LRef frame, al, fl, tmp;
 
 #ifdef ENVLOOKUP_STATS
-    interp.total_env_lookups++;
+     interp.total_env_lookups++;
 #endif
 
-    for (frame = env; CONSP (frame); frame = CDR (frame)) {
+     for (frame = env; CONSP(frame); frame = CDR(frame))
+     {
 
 #ifdef ENVLOOKUP_STATS
-      interp.env_lookup_frames++;
+          interp.env_lookup_frames++;
 #endif
 
-      tmp = CAR (frame);
+          tmp = CAR(frame);
 
-      if (!CONSP (tmp))
-        vmerror("damaged frame", tmp);
+          if (!CONSP(tmp))
+               vmerror("damaged frame", tmp);
 
-      for (fl = CAR (tmp), al = CDR (tmp); CONSP (fl);
-           fl = CDR (fl), al = CDR (al))
-        {
-          if (!CONSP (al))
-            vmerror("too few arguments", tmp);
+          for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
+          {
+               if (!CONSP(al))
+                    vmerror("too few arguments", tmp);
 
-          if (EQ (CAR (fl), var))
-            return (al);
-        }
-      /* suggested by a user. It works for reference (although conses)
-         but doesn't allow for set! to work properly... */
+               if (EQ(CAR(fl), var))
+                    return (al);
+          }
+          /* suggested by a user. It works for reference (although conses)
+             but doesn't allow for set! to work properly... */
 #if (ENVLOOKUP_TRICK)
-      if (SYMBOLP (fl) && EQ (fl, var))
-        {
-          return lcons(al, NIL);
-        }
+          if (SYMBOLP(fl) && EQ(fl, var))
+          {
+               return lcons(al, NIL);
+          }
 #endif
-    }
-    if (!NULLP (frame))
-      vmerror("damaged env", env);
+     }
+     if (!NULLP(frame))
+          vmerror("damaged env", env);
 
 #ifdef ENVLOOKUP_STATS
-    interp.global_env_lookups++;
+     interp.global_env_lookups++;
 #endif
 
-    return (NIL);
-  }
+     return (NIL);
+}
 
 #ifdef ENVLOOKUP_STATS
-  LRef lshow_env_lookup_stats()
-  {
-    LRef obj = hashcons(true);
+LRef lshow_env_lookup_stats()
+{
+     LRef obj = hashcons(true);
 
-    lhash_set(obj, keyword_intern(_T("total-lookups")), fixcons(interp.total_env_lookups));
-    lhash_set(obj, keyword_intern(_T("global-lookups")), fixcons(interp.global_env_lookups));
-    lhash_set(obj, keyword_intern(_T("lookup-frames")), fixcons(interp.env_lookup_frames));
+     lhash_set(obj, keyword_intern(_T("total-lookups")), fixcons(interp.total_env_lookups));
+     lhash_set(obj, keyword_intern(_T("global-lookups")), fixcons(interp.global_env_lookups));
+     lhash_set(obj, keyword_intern(_T("lookup-frames")), fixcons(interp.env_lookup_frames));
 
-    return obj;
-  }
+     return obj;
+}
 #endif
 
 
-  void signal_break()
-  {
-    interp.break_pending = true;
-  }
+void signal_break()
+{
+     interp.break_pending = true;
+}
 
-  void signal_timer()
-  {
-    interp.timer_event_pending = true;
-  }
+void signal_timer()
+{
+     interp.timer_event_pending = true;
+}
 
 
 /**************************************************************
@@ -558,32 +566,32 @@ BEGIN_NAMESPACE(scan)
  *   to avoid returning.
  */
 
-  static void process_break_event()
-  {
-    interp.break_pending = false;
+static void process_break_event()
+{
+     interp.break_pending = false;
 
-    if (!CLOSUREP(CURRENT_USER_BREAK_HANDLER))
-      panic("Bad user break handler");
+     if (!CLOSUREP(CURRENT_USER_BREAK_HANDLER))
+          panic("Bad user break handler");
 
-    LRef val = NIL;
-    LRef tag = NIL;
+     LRef val = NIL;
+     LRef tag = NIL;
 
-    if (call_lisp_procedure(CURRENT_USER_BREAK_HANDLER, &val, &tag, 0))
-      {
-        THROW_ESCAPE(tag, val);
-      }
-  }
+     if (call_lisp_procedure(CURRENT_USER_BREAK_HANDLER, &val, &tag, 0))
+     {
+          THROW_ESCAPE(tag, val);
+     }
+}
 
-  static void process_timer_event()
-  {
-    interp.timer_event_pending = false;
+static void process_timer_event()
+{
+     interp.timer_event_pending = false;
 
-    if (!CLOSUREP(CURRENT_TIMER_EVENT_HANDLER))
-      panic("Bad timer event handler");
+     if (!CLOSUREP(CURRENT_TIMER_EVENT_HANDLER))
+          panic("Bad timer event handler");
 
-    if (call_lisp_procedure(CURRENT_TIMER_EVENT_HANDLER, NULL, NULL, 0))
-      panic(_T("Error evaluating timer event handler"));
-  }
+     if (call_lisp_procedure(CURRENT_TIMER_EVENT_HANDLER, NULL, NULL, 0))
+          panic(_T("Error evaluating timer event handler"));
+}
 
 /* REVISIT interrupt processing rewrite
  *
@@ -597,456 +605,458 @@ BEGIN_NAMESPACE(scan)
  * 4. Confirm that it really makes sense to process interrupts seperately
  *    from the normal signal handling mechanism.
  */
-  INLINE void _process_interrupts()
-  {
-    if (interp.interrupts_masked)
-      return;
+INLINE void _process_interrupts()
+{
+     if (interp.interrupts_masked)
+          return;
 
-    if (interp.break_pending)
-      process_break_event();
+     if (interp.break_pending)
+          process_break_event();
 
-    if (interp.timer_event_pending)
-      process_timer_event();
-  }
+     if (interp.timer_event_pending)
+          process_timer_event();
+}
 
-  void process_interrupts() { _process_interrupts(); }
+void process_interrupts()
+{
+     _process_interrupts();
+}
 
 
-  LRef vmerror_unbound(LRef v)
-  {
-    return vmerror("unbound variable: ~s", v);
-  }
+LRef vmerror_unbound(LRef v)
+{
+     return vmerror("unbound variable: ~s", v);
+}
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
 
-  INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef *env, LRef *retval)
-  {
-    UNREFERENCED(env);
+INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
+{
+     UNREFERENCED(env);
 
-    LRef arg1 = NIL;
-    LRef args = NIL;
+     LRef arg1 = NIL;
+     LRef args = NIL;
 
-    ENTER_PRIMITIVE_FRAME(function)
-      {
-        switch(SUBR_TYPE(function))
+     ENTER_PRIMITIVE_FRAME(function)
+     {
+          switch (SUBR_TYPE(function))
           {
           case SUBR_0:
-            *retval = (SUBR_F0(function)());
-            break;
+               *retval = (SUBR_F0(function) ());
+               break;
 
           case SUBR_1:
-            *retval = (SUBR_F1(function)(_ARGV(0)));
-            break;
+               *retval = (SUBR_F1(function) (_ARGV(0)));
+               break;
 
           case SUBR_2:
-            *retval = (SUBR_F2(function)(_ARGV(0), _ARGV(1)));
-            break;
+               *retval = (SUBR_F2(function) (_ARGV(0), _ARGV(1)));
+               break;
 
           case SUBR_3:
-            *retval = (SUBR_F3(function)(_ARGV(0), _ARGV(1), _ARGV(2)));
-            break;
+               *retval = (SUBR_F3(function) (_ARGV(0), _ARGV(1), _ARGV(2)));
+               break;
 
           case SUBR_4:
-            *retval = (SUBR_F4(function)(_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3)));
-            break;
+               *retval = (SUBR_F4(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3)));
+               break;
 
           case SUBR_5:
-            *retval = (SUBR_F5(function)(_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4)));
-            break;
+               *retval = (SUBR_F5(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4)));
+               break;
 
           case SUBR_6:
-            *retval = (SUBR_F6(function)(_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4), _ARGV(5)));
-            break;
+               *retval =
+                   (SUBR_F6(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4), _ARGV(5)));
+               break;
 
           case SUBR_2N:
-            arg1 = _ARGV(0);
+               arg1 = _ARGV(0);
 
-            arg1 = SUBR_F2(function) (arg1, _ARGV(1));
+               arg1 = SUBR_F2(function) (arg1, _ARGV(1));
 
-            for (size_t ii = 2; ii < argc; ii++)
-              arg1 = SUBR_F2(function)(arg1, _ARGV(ii));
+               for (size_t ii = 2; ii < argc; ii++)
+                    arg1 = SUBR_F2(function) (arg1, _ARGV(ii));
 
-            *retval = arg1;
-            break;
+               *retval = arg1;
+               break;
 
           case SUBR_ARGC:
-            *retval = (SUBR_FARGC(function)(argc, argv));
-            break;
+               *retval = (SUBR_FARGC(function) (argc, argv));
+               break;
 
           case SUBR_N:
-            args = arg_list_from_buffer(argc, argv);
-            *retval = (SUBR_F1(function)(args));
-            break;
+               args = arg_list_from_buffer(argc, argv);
+               *retval = (SUBR_F1(function) (args));
+               break;
           }
-      } LEAVE_FRAME();
+     }
+     LEAVE_FRAME();
 
 
-    return NIL;
-  }
+     return NIL;
+}
 
 
-  INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef *env, LRef *retval)
-  {
-    typecode_t type = TYPE(function);
+INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
+{
+     typecode_t type = TYPE(function);
 
-    /*  NIL signals "no tail recursion", what happens when the actual form is NIL? */
+     /*  NIL signals "no tail recursion", what happens when the actual form is NIL? */
 
-    if (type == TC_SUBR)
-      return subr_apply(function, argc, argv, env, retval);
+     if (type == TC_SUBR)
+          return subr_apply(function, argc, argv, env, retval);
 
-    if (type == TC_CLOSURE)
-      {
-        LRef c_code = CLOSURE_CODE(function);
+     if (type == TC_CLOSURE)
+     {
+          LRef c_code = CLOSURE_CODE(function);
 
-        *env = extend_env(arg_list_from_buffer(argc, argv),
-                          CAR(c_code),
-                          CLOSURE_ENV(function));
+          *env = extend_env(arg_list_from_buffer(argc, argv), CAR(c_code), CLOSURE_ENV(function));
 
-        return CDR(c_code); /*  tail call */
-      }
+          return CDR(c_code);   /*  tail call */
+     }
 
-    vmerror("Cannot apply: ~s", function);
+     vmerror("Cannot apply: ~s", function);
 
-    return NIL; /*  avoid a warning, since the error case returns nothing. */
-  }
+     return NIL;                /*  avoid a warning, since the error case returns nothing. */
+}
 
-  static LRef leval(LRef form, LRef env)
-  {
-    LRef retval = NIL;
+static LRef leval(LRef form, LRef env)
+{
+     LRef retval = NIL;
 
-    STACK_CHECK(&form);
+     STACK_CHECK(&form);
 
 #ifdef _DEBUG
-    ENTER_EVAL_FRAME(&form, env)
+     ENTER_EVAL_FRAME(&form, env)
 #endif
-      loop:
-      interp.forms_evaluated++;
+   loop:
+     interp.forms_evaluated++;
 
-    _process_interrupts();
+     _process_interrupts();
 
-    checked_assert(TYPE(form) == TC_FAST_OP);
+     checked_assert(TYPE(form) == TC_FAST_OP);
 
-    LRef sym = FAST_OP_ARG1(form);
-    LRef val;
+     LRef sym = FAST_OP_ARG1(form);
+     LRef val;
 
-    LRef binding;
-    size_t argc;
-    LRef argv[ARG_BUF_LEN];
+     LRef binding;
+     size_t argc;
+     LRef argv[ARG_BUF_LEN];
 
-    switch (FAST_OP_OPCODE(form))
-      {
-      case FOP_LITERAL:
-        retval = FAST_OP_ARG1(form);
-        break;
+     switch (FAST_OP_OPCODE(form))
+     {
+     case FOP_LITERAL:
+          retval = FAST_OP_ARG1(form);
+          break;
 
-      case FOP_GLOBAL_REF:
-        checked_assert(SYMBOLP(sym));
-        checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+     case FOP_GLOBAL_REF:
+          checked_assert(SYMBOLP(sym));
+          checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
 
-        binding = SYMBOL_VCELL(sym);
+          binding = SYMBOL_VCELL(sym);
 
-        if (UNBOUND_MARKER_P(binding))
-          vmerror_unbound(sym);
+          if (UNBOUND_MARKER_P(binding))
+               vmerror_unbound(sym);
 
-        retval = binding;
-        break;
+          retval = binding;
+          break;
 
-      case FOP_GLOBAL_SET:
-        checked_assert(SYMBOLP(sym));
-        checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+     case FOP_GLOBAL_SET:
+          checked_assert(SYMBOLP(sym));
+          checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
 
-        binding = SYMBOL_VCELL(sym);
+          binding = SYMBOL_VCELL(sym);
 
-        if (UNBOUND_MARKER_P(binding))
-          vmerror_unbound(sym);
+          if (UNBOUND_MARKER_P(binding))
+               vmerror_unbound(sym);
 
-        val = leval(FAST_OP_ARG2(form), env);
+          val = leval(FAST_OP_ARG2(form), env);
 
-        SET_SYMBOL_VCELL(sym, val);
-        retval = val;
-        break;
+          SET_SYMBOL_VCELL(sym, val);
+          retval = val;
+          break;
 
-      case FOP_LOCAL_REF:
-        checked_assert(SYMBOLP(sym));
+     case FOP_LOCAL_REF:
+          checked_assert(SYMBOLP(sym));
 
-        binding = lenvlookup(sym, env);
+          binding = lenvlookup(sym, env);
 
-        if (NULLP(binding))
-          vmerror_unbound(sym);
+          if (NULLP(binding))
+               vmerror_unbound(sym);
 
-        retval = CAR(binding);
-        break;
+          retval = CAR(binding);
+          break;
 
-      case FOP_LOCAL_SET:
-        checked_assert(SYMBOLP(sym));
+     case FOP_LOCAL_SET:
+          checked_assert(SYMBOLP(sym));
 
-        binding = lenvlookup(sym, env);
+          binding = lenvlookup(sym, env);
 
-        if (NULLP(binding))
-          vmerror_unbound(sym);
+          if (NULLP(binding))
+               vmerror_unbound(sym);
 
-        val = leval(FAST_OP_ARG2(form), env);
-        SET_CAR(binding, val);
+          val = leval(FAST_OP_ARG2(form), env);
+          SET_CAR(binding, val);
 
-        retval = val;
-        break;
+          retval = val;
+          break;
 
-      case FOP_APPLY:
-        argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
+     case FOP_APPLY:
+          argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
 
-        form = apply(leval(FAST_OP_ARG1(form), env), argc, argv, &env, &retval);
+          form = apply(leval(FAST_OP_ARG1(form), env), argc, argv, &env, &retval);
 
-        if  (!NULLP(form))
+          if (!NULLP(form))
+               goto loop;
+
+          break;
+
+     case FOP_IF_TRUE:
+          if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+               form = FAST_OP_ARG2(form);
+          else
+               form = FAST_OP_ARG3(form);
           goto loop;
 
-        break;
+     case FOP_AND2:
+          if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+          {
+               form = FAST_OP_ARG2(form);
+               goto loop;
+          }
 
-      case FOP_IF_TRUE:
-        if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+          retval = boolcons(false);
+          break;
+
+     case FOP_OR2:
+          val = leval(FAST_OP_ARG1(form), env);
+
+          if (TRUEP(val))
+          {
+               retval = val;
+               break;
+          }
+
           form = FAST_OP_ARG2(form);
-        else
-          form = FAST_OP_ARG3(form);
-        goto loop;
+          goto loop;
 
-      case FOP_AND2:
-        if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+     case FOP_SEQUENCE:
+          leval(FAST_OP_ARG1(form), env);
+
+          form = FAST_OP_ARG2(form);
+          goto loop;
+
+     case FOP_CLOSE_ENV:
+          retval = lclosurecons(env, FAST_OP_ARG1(form), FAST_OP_ARG2(form));
+          break;
+
+     case FOP_GET_ENV:
+          retval = env;
+          break;
+
+     case FOP_GLOBAL_DEF:
+          retval = lidefine_global(FAST_OP_ARG1(form), FAST_OP_ARG2(form), FAST_OP_ARG3(form));
+          break;
+
+     case FOP_MARK_STACK:
+          ENTER_MARKER_FRAME(leval(FAST_OP_ARG1(form), env))
           {
-            form = FAST_OP_ARG2(form);
-            goto loop;
+               retval = leval(FAST_OP_ARG2(form), env);
           }
+          LEAVE_FRAME()break;
 
-        retval = boolcons(false);
-        break;
-
-      case FOP_OR2:
-        val = leval(FAST_OP_ARG1(form), env);
-
-        if (TRUEP(val))
-          {
-            retval = val;
-            break;
-          }
-
-        form = FAST_OP_ARG2(form);
-        goto loop;
-
-      case FOP_SEQUENCE:
-        leval(FAST_OP_ARG1(form), env);
-
-        form = FAST_OP_ARG2(form);
-        goto loop;
-
-      case FOP_CLOSE_ENV:
-        retval = lclosurecons(env, FAST_OP_ARG1(form), FAST_OP_ARG2(form));
-        break;
-
-      case FOP_GET_ENV:
-        retval = env;
-        break;
-
-      case FOP_GLOBAL_DEF:
-        retval = lidefine_global(FAST_OP_ARG1(form),
-                                 FAST_OP_ARG2(form),
-                                 FAST_OP_ARG3(form));
-        break;
-
-      case FOP_MARK_STACK:
-        ENTER_MARKER_FRAME(leval(FAST_OP_ARG1(form), env))
-        {
-          retval = leval(FAST_OP_ARG2(form), env);
-        }
-        LEAVE_FRAME()
-        break;
-
-      default:
-        vmerror("Unsupported fast-op: ~s", form);
-      }
+     default:
+          vmerror("Unsupported fast-op: ~s", form);
+     }
 
 #ifdef _DEBUG
-    LEAVE_FRAME();
+     LEAVE_FRAME();
 #endif
 
-    return retval;
-  }
+     return retval;
+}
 
      /*  REVISIT: lapply should be tail recursive */
-  LRef lapply(size_t argc, LRef argv[])
-  {
-    size_t fn_argc = 0;
-    LRef fn_argv[ARG_BUF_LEN];
+LRef lapply(size_t argc, LRef argv[])
+{
+     size_t fn_argc = 0;
+     LRef fn_argv[ARG_BUF_LEN];
 
-    if (argc == 0)
-      vmerror("apply requires a function to apply.", NIL);
+     if (argc == 0)
+          vmerror("apply requires a function to apply.", NIL);
 
-    LRef fn = argv[0];
+     LRef fn = argv[0];
 
-    for(size_t ii = 1; ii < argc - 1; ii++)
-      {
-        if (fn_argc >= ARG_BUF_LEN)
-          break;
+     for (size_t ii = 1; ii < argc - 1; ii++)
+     {
+          if (fn_argc >= ARG_BUF_LEN)
+               break;
 
-        fn_argv[fn_argc] = argv[ii];
-        fn_argc++;
-      }
+          fn_argv[fn_argc] = argv[ii];
+          fn_argc++;
+     }
 
-    LRef args = (argc > 1) ? argv[argc - 1] : NIL;
-    while(CONSP(args))
-      {
-        if (fn_argc >= ARG_BUF_LEN)
-          break;
+     LRef args = (argc > 1) ? argv[argc - 1] : NIL;
+     while (CONSP(args))
+     {
+          if (fn_argc >= ARG_BUF_LEN)
+               break;
 
-        fn_argv[fn_argc] = CAR(args);
-        fn_argc++;
+          fn_argv[fn_argc] = CAR(args);
+          fn_argc++;
 
-        args = CDR(args);
-      }
+          args = CDR(args);
+     }
 
 
-    if (fn_argc >= ARG_BUF_LEN)
-      vmerror("too many arguments in call to apply: ~s", lcons(fn, NIL));
+     if (fn_argc >= ARG_BUF_LEN)
+          vmerror("too many arguments in call to apply: ~s", lcons(fn, NIL));
 
-    if (!NULLP(args))
-      vmerror("bad argument list in call to apply: ~s", lcons(fn, args));
+     if (!NULLP(args))
+          vmerror("bad argument list in call to apply: ~s", lcons(fn, args));
 
-    LRef retval = NIL;
+     LRef retval = NIL;
 
-    STACK_CHECK (&args);
+     STACK_CHECK(&args);
 
-    LRef env = NIL;
-    LRef next_form = apply(fn, fn_argc, fn_argv, &env, &retval);
+     LRef env = NIL;
+     LRef next_form = apply(fn, fn_argc, fn_argv, &env, &retval);
 
-    if (NULLP(next_form))
-      return retval;
-    else
-      return leval(next_form, env);
-  }
+     if (NULLP(next_form))
+          return retval;
+     else
+          return leval(next_form, env);
+}
 
-  LRef lunbind_symbol(LRef var)
-  {
-    if (!SYMBOLP (var))
-      vmerror_wrong_type(1, var);
+LRef lunbind_symbol(LRef var)
+{
+     if (!SYMBOLP(var))
+          vmerror_wrong_type(1, var);
 
-    SET_SYMBOL_VCELL(var, UNBOUND_MARKER);
+     SET_SYMBOL_VCELL(var, UNBOUND_MARKER);
 
-    return NIL;
-  }
+     return NIL;
+}
 
-  LRef lsetvar (LRef var, LRef val, LRef lenv, LRef genv)
-  {
-    LRef tmp;
+LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
+{
+     LRef tmp;
 
-    if (!SYMBOLP (var))
-      vmerror_wrong_type(1, var);
+     if (!SYMBOLP(var))
+          vmerror_wrong_type(1, var);
 
-    tmp = lenvlookup (var, lenv);
+     tmp = lenvlookup(var, lenv);
 
-    if (NULLP(tmp)) {
-      LRef old_genv = interp.global_env;
+     if (NULLP(tmp))
+     {
+          LRef old_genv = interp.global_env;
 
-      if (TRUEP(genv) && !NULLP(genv))
-        set_global_env(genv);
+          if (TRUEP(genv) && !NULLP(genv))
+               set_global_env(genv);
 
-      if (UNBOUND_MARKER_P(SYMBOL_VCELL(var)))
-        vmerror("undefined symbol: ~s", var);
+          if (UNBOUND_MARKER_P(SYMBOL_VCELL(var)))
+               vmerror("undefined symbol: ~s", var);
 
-      if (SYMBOL_HOME(var) == interp.keyword_package)
-        vmerror("Cannot rebind keywords: ~s", var);
+          if (SYMBOL_HOME(var) == interp.keyword_package)
+               vmerror("Cannot rebind keywords: ~s", var);
 
-      SET_SYMBOL_VCELL(var, val);
+          SET_SYMBOL_VCELL(var, val);
 
-      interp.global_env = old_genv;
+          interp.global_env = old_genv;
 
-      return val;
-    }
+          return val;
+     }
 
-    SET_CAR(tmp, val);
-    return val;
-  }
+     SET_CAR(tmp, val);
+     return val;
+}
 
-  LRef napply(LRef closure, size_t argc, ...)
-  {
-    va_list args;
+LRef napply(LRef closure, size_t argc, ...)
+{
+     va_list args;
 
-    LRef argv[ARG_BUF_LEN];
+     LRef argv[ARG_BUF_LEN];
 
-    argv[0] = closure;
+     argv[0] = closure;
 
-    va_start(args, argc);
+     va_start(args, argc);
 
-    for(size_t ii = 0; ii < argc; ii++)
-      {
-        assert(ii + 1 < ARG_BUF_LEN);
+     for (size_t ii = 0; ii < argc; ii++)
+     {
+          assert(ii + 1 < ARG_BUF_LEN);
 
-        argv[ii + 1] = va_arg(args, LRef);
-      }
+          argv[ii + 1] = va_arg(args, LRef);
+     }
 
-    va_end(args);
+     va_end(args);
 
-    return lapply(argc + 1, argv);
-  }
+     return lapply(argc + 1, argv);
+}
 
-  bool call_lisp_procedurev(LRef closure, LRef *out_retval, LRef *out_escape_tag, LRef leading_args, size_t n, va_list args)
-  {
-    LRef dummy_form = leading_args;
+bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,
+                          size_t n, va_list args)
+{
+     LRef dummy_form = leading_args;
 
-    if (!CLOSUREP(closure))
-      vmerror_wrong_type(closure);
+     if (!CLOSUREP(closure))
+          vmerror_wrong_type(closure);
 
-    if (n)
-      {
-        LRef trailing_args = make_list(n, NIL);
+     if (n)
+     {
+          LRef trailing_args = make_list(n, NIL);
 
-        LRef loc = trailing_args;
-        for (size_t jj = 0; jj < n; ++jj)
+          LRef loc = trailing_args;
+          for (size_t jj = 0; jj < n; ++jj)
           {
-            lsetcar (loc, va_arg(args, LRef));
-            loc = CDR(loc);
+               lsetcar(loc, va_arg(args, LRef));
+               loc = CDR(loc);
           }
 
 
-        LRef argv[2];
-        argv[0] = dummy_form;
-        argv[1] = trailing_args;
+          LRef argv[2];
+          argv[0] = dummy_form;
+          argv[1] = trailing_args;
 
-        dummy_form = lappend(2, argv);
-      }
+          dummy_form = lappend(2, argv);
+     }
 
-    bool failed = true;
+     bool failed = true;
 
-    LRef retval = NIL;
+     LRef retval = NIL;
 
-    ENTER_TRY(NULL)
-      {
-        retval = napply(closure, 1, dummy_form);
-        failed = false;
-      }
-    ON_ERROR()
-      {
-        retval = ERROR_RETVAL();
-        if (out_escape_tag)
-          *out_escape_tag = ERROR_TAG();
-      }
-    LEAVE_TRY();
+     ENTER_TRY(NULL)
+     {
+          retval = napply(closure, 1, dummy_form);
+          failed = false;
+     }
+     ON_ERROR()
+     {
+          retval = ERROR_RETVAL();
+          if (out_escape_tag)
+               *out_escape_tag = ERROR_TAG();
+     }
+     LEAVE_TRY();
 
 
-    if (out_retval)
-      *out_retval = retval;
+     if (out_retval)
+          *out_retval = retval;
 
-    return failed;
-  }
+     return failed;
+}
 
-  bool call_lisp_procedure(LRef closure, LRef *out_retval, LRef *out_escape_tag, size_t n, ...)
-  {
-    va_list args;
+bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag, size_t n, ...)
+{
+     va_list args;
 
-    va_start(args, n);
+     va_start(args, n);
 
-    bool failed = call_lisp_procedurev(closure, out_retval, out_escape_tag, NIL, n, args);
+     bool failed = call_lisp_procedurev(closure, out_retval, out_escape_tag, NIL, n, args);
 
-    va_end(args);
+     va_end(args);
 
-    return failed;
-  }
+     return failed;
+}
 
 /**************************************************************
  * The evaluator inner functions
@@ -1054,105 +1064,103 @@ BEGIN_NAMESPACE(scan)
  * These implement particular special forms within the evaluator
  */
 
-  static void check_global_environment_size()
-  {
-    if (interp.last_global_env_entry >= VECTOR_DIM(interp.global_env))
-      interp.global_env =
-        vector_reallocate_in_place(interp.global_env,
-                                   VECTOR_DIM(interp.global_env) + GLOBAL_ENV_BLOCK_SIZE,
-                                   UNBOUND_MARKER);
-  }
+static void check_global_environment_size()
+{
+     if (interp.last_global_env_entry >= VECTOR_DIM(interp.global_env))
+          interp.global_env =
+              vector_reallocate_in_place(interp.global_env,
+                                         VECTOR_DIM(interp.global_env) + GLOBAL_ENV_BLOCK_SIZE,
+                                         UNBOUND_MARKER);
+}
 
-  static void extend_global_environment(LRef sym)
-  {
-    assert(SYMBOLP(sym));
-    assert(SYMBOL_INDEX(sym) == 0);
+static void extend_global_environment(LRef sym)
+{
+     assert(SYMBOLP(sym));
+     assert(SYMBOL_INDEX(sym) == 0);
 
-    interp.last_global_env_entry++;
+     interp.last_global_env_entry++;
 
-    check_global_environment_size();
+     check_global_environment_size();
 
-    SET_SYMBOL_INDEX(sym, interp.last_global_env_entry);
-  }
+     SET_SYMBOL_INDEX(sym, interp.last_global_env_entry);
+}
 
-  LRef lidefine_global(LRef var, LRef val, LRef genv)
-  {
-    assert(SYMBOLP(var));
+LRef lidefine_global(LRef var, LRef val, LRef genv)
+{
+     assert(SYMBOLP(var));
 
-    LRef old_genv = interp.global_env;
+     LRef old_genv = interp.global_env;
 
-    if (TRUEP(genv) && !NULLP(genv))
-      set_global_env(genv);
+     if (TRUEP(genv) && !NULLP(genv))
+          set_global_env(genv);
 
-    dscwritef(DF_SHOW_GLOBAL_DEFINES,
-              _T("; DEBUG: globally defining ~a in ~c& ~s\n"),
-              var, interp.global_env,
-              VECTOR_ELEM(interp.global_env, 0));
+     dscwritef(DF_SHOW_GLOBAL_DEFINES,
+               _T("; DEBUG: globally defining ~a in ~c& ~s\n"),
+               var, interp.global_env, VECTOR_ELEM(interp.global_env, 0));
 
-    if (SYMBOL_INDEX(var) == 0)
-      extend_global_environment(var);
+     if (SYMBOL_INDEX(var) == 0)
+          extend_global_environment(var);
 
-    SET_SYMBOL_VCELL(var, val);
+     SET_SYMBOL_VCELL(var, val);
 
-    if (!NULLP(interp.sym_global_define_hook)
-        && !NULLP(CURRENT_GLOBAL_DEFINE_HOOK))
-      {
-        if (!CLOSUREP(CURRENT_GLOBAL_DEFINE_HOOK))
-          panic("Bad *global-define-hook*");
+     if (!NULLP(interp.sym_global_define_hook) && !NULLP(CURRENT_GLOBAL_DEFINE_HOOK))
+     {
+          if (!CLOSUREP(CURRENT_GLOBAL_DEFINE_HOOK))
+               panic("Bad *global-define-hook*");
 
-        if(call_lisp_procedure(CURRENT_GLOBAL_DEFINE_HOOK, NULL, NULL, 2, var, val))
-          panic(_T("Error in *global-define-hook*"));
-      }
+          if (call_lisp_procedure(CURRENT_GLOBAL_DEFINE_HOOK, NULL, NULL, 2, var, val))
+               panic(_T("Error in *global-define-hook*"));
+     }
 
-    interp.global_env = old_genv;
+     interp.global_env = old_genv;
 
-    return val;
-  }
+     return val;
+}
 
 
-  LRef ltime_apply0(LRef fn)
-  {
-    if (!PROCEDUREP(fn))
-      vmerror_wrong_type(1, fn);
+LRef ltime_apply0(LRef fn)
+{
+     if (!PROCEDUREP(fn))
+          vmerror_wrong_type(1, fn);
 
-    fixnum_t cells      = interp.gc_total_cells_allocated;
-    fixnum_t env_cells  = interp.gc_total_environment_cells_allocated;
-    fixnum_t c_blocks   = malloc_blocks;
-    fixnum_t c_bytes    = malloc_bytes;
-    flonum_t t          = sys_runtime();
-    flonum_t gc_t       = interp.gc_total_run_time;
-    size_t forms        = interp.forms_evaluated;
+     fixnum_t cells = interp.gc_total_cells_allocated;
+     fixnum_t env_cells = interp.gc_total_environment_cells_allocated;
+     fixnum_t c_blocks = malloc_blocks;
+     fixnum_t c_bytes = malloc_bytes;
+     flonum_t t = sys_runtime();
+     flonum_t gc_t = interp.gc_total_run_time;
+     size_t forms = interp.forms_evaluated;
 
-    LRef argv[8];
+     LRef argv[8];
 
-    argv[0] = napply(fn, 0);
+     argv[0] = napply(fn, 0);
 
-    argv[1] = flocons(sys_runtime() - t);
-    argv[2] = flocons(interp.gc_total_run_time - gc_t);
-    argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
-    argv[4] = fixcons(interp.gc_total_environment_cells_allocated - env_cells);
-    argv[5] = fixcons(malloc_blocks - c_blocks);
-    argv[6] = fixcons(malloc_bytes - c_bytes);
-    argv[7] = fixcons(interp.forms_evaluated - forms);
+     argv[1] = flocons(sys_runtime() - t);
+     argv[2] = flocons(interp.gc_total_run_time - gc_t);
+     argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
+     argv[4] = fixcons(interp.gc_total_environment_cells_allocated - env_cells);
+     argv[5] = fixcons(malloc_blocks - c_blocks);
+     argv[6] = fixcons(malloc_bytes - c_bytes);
+     argv[7] = fixcons(interp.forms_evaluated - forms);
 
-    return lvector(8, argv);
-  }
+     return lvector(8, argv);
+}
 
 /**************************************************************
  * Handler Bindings
  **************************************************************/
 
-  LRef lset_handler_frames(LRef new_frames)
-  {
-    CURRENT_TIB()->handler_frames = new_frames;
+LRef lset_handler_frames(LRef new_frames)
+{
+     CURRENT_TIB()->handler_frames = new_frames;
 
-    return new_frames;
-  }
+     return new_frames;
+}
 
-  LRef lhandler_frames()
-  {
-    return CURRENT_TIB()->handler_frames;
-  }
+LRef lhandler_frames()
+{
+     return CURRENT_TIB()->handler_frames;
+}
 
 /**************************************************************
  * Exception Scheme Bindings
@@ -1165,97 +1173,92 @@ BEGIN_NAMESPACE(scan)
  * 5) catch should have optional on-throw thunk that's tail-called if the catch is thrown to.
  */
 
-  LRef lcatch_apply0(LRef tag, LRef fn)
-  {
-    LRef retval;
+LRef lcatch_apply0(LRef tag, LRef fn)
+{
+     LRef retval;
 
-    /*  tag==#t implies all tags */
-    if (BOOLP(tag) && TRUEP(tag))
-      tag = NULL;
+     /*  tag==#t implies all tags */
+     if (BOOLP(tag) && TRUEP(tag))
+          tag = NULL;
 
-    ENTER_TRY(tag)
-      {
-        retval = napply(fn, 0);
-      }
-    ON_ERROR()
-      {
-        dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"), ERROR_TAG(), ERROR_RETVAL());
+     ENTER_TRY(tag)
+     {
+          retval = napply(fn, 0);
+     }
+     ON_ERROR()
+     {
+          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"), ERROR_TAG(), ERROR_RETVAL());
 
-        retval = ERROR_RETVAL();
-      }
-    LEAVE_TRY();
+          retval = ERROR_RETVAL();
+     }
+     LEAVE_TRY();
 
-    return retval;
-  }
+     return retval;
+}
 
-  LRef lunwind_protect(LRef thunk, LRef after)
-  {
-    LRef rc = NIL;
+LRef lunwind_protect(LRef thunk, LRef after)
+{
+     LRef rc = NIL;
 
-    if (!CLOSUREP(thunk))
-      vmerror_wrong_type(1, thunk);
-    if (!CLOSUREP(after))
-      vmerror_wrong_type(2, after);
+     if (!CLOSUREP(thunk))
+          vmerror_wrong_type(1, thunk);
+     if (!CLOSUREP(after))
+          vmerror_wrong_type(2, after);
 
-    ENTER_UNWIND_PROTECT()
-      {
-        rc = napply(thunk, 0);
-      }
-    ON_UNWIND()
-      {
-        napply(after, 0);
-      }
-    LEAVE_UNWIND_PROTECT();
-
-
-    return rc;
-  }
+     ENTER_UNWIND_PROTECT()
+     {
+          rc = napply(thunk, 0);
+     }
+     ON_UNWIND()
+     {
+          napply(after, 0);
+     }
+     LEAVE_UNWIND_PROTECT();
 
 
-  LRef lthrow (LRef tag, LRef value)
-  {
-    dscwritef(DF_SHOW_THROWS,
-              _T("; DEBUG: throw ~a :~a\n"),
-              tag, value);
+     return rc;
+}
 
-    THROW_ESCAPE(tag, value);
 
-    return (NIL);
-  }
+LRef lthrow(LRef tag, LRef value)
+{
+     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, value);
+
+     THROW_ESCAPE(tag, value);
+
+     return (NIL);
+}
 
 
 
-  LRef lfuncall1 (LRef fcn, LRef a1)
-  {
-    STACK_CHECK (&fcn);
+LRef lfuncall1(LRef fcn, LRef a1)
+{
+     STACK_CHECK(&fcn);
 
-    if ((TYPE(fcn) == TC_SUBR) && (SUBR_TYPE(fcn) == SUBR_1))
-      return (SUBR_F1 (fcn) (a1));
-    else if (   (TYPE(fcn) == TC_CLOSURE)
-                && (SUBRP(CLOSURE_CODE(fcn)))
-                && (SUBR_TYPE(CLOSURE_CODE(fcn)) == SUBR_2))
-      return (SUBR_F2(CLOSURE_CODE(fcn))(CLOSURE_ENV(fcn), a1));
-    else
-      {
-        return (napply(fcn, 2, a1, NIL));
-      }
-  }
+     if ((TYPE(fcn) == TC_SUBR) && (SUBR_TYPE(fcn) == SUBR_1))
+          return (SUBR_F1(fcn) (a1));
+     else if ((TYPE(fcn) == TC_CLOSURE)
+              && (SUBRP(CLOSURE_CODE(fcn))) && (SUBR_TYPE(CLOSURE_CODE(fcn)) == SUBR_2))
+          return (SUBR_F2(CLOSURE_CODE(fcn)) (CLOSURE_ENV(fcn), a1));
+     else
+     {
+          return (napply(fcn, 2, a1, NIL));
+     }
+}
 
-  LRef lfuncall2 (LRef fcn, LRef a1, LRef a2)
-  {
-    if (   (TYPE(fcn) == TC_SUBR)
-           && (   (SUBR_TYPE(fcn) == SUBR_2)
-                  || (SUBR_TYPE(fcn) == SUBR_2N)))
-      {
-        STACK_CHECK (&fcn);
+LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
+{
+     if ((TYPE(fcn) == TC_SUBR) && ((SUBR_TYPE(fcn) == SUBR_2) || (SUBR_TYPE(fcn) == SUBR_2N)))
+     {
+          STACK_CHECK(&fcn);
 
-        return (SUBR_F2 (fcn) (a1, a2));
-      }
-    else
-      {
-        return napply(fcn, 3, a1, a2, NIL);
-      }
-  }
+          return (SUBR_F2(fcn) (a1, a2));
+     }
+     else
+     {
+          return napply(fcn, 3, a1, a2, NIL);
+     }
+}
 
 
 /**************************************************************
@@ -1276,27 +1279,27 @@ BEGIN_NAMESPACE(scan)
  *   The return value of the current stack frame.
  */
 
-  LRef __ex_current_catch_retval()
-  {
-    assert(TOP_FRAME);
+LRef __ex_current_catch_retval()
+{
+     assert(TOP_FRAME);
 
-    assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
+     assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
 
-    assert(TOP_FRAME->frame_as.dynamic_escape.pending);
+     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
 
-    return TOP_FRAME->frame_as.dynamic_escape.retval;
-  }
+     return TOP_FRAME->frame_as.dynamic_escape.retval;
+}
 
-  LRef __ex_current_catch_tag()
-  {
-    assert(TOP_FRAME);
+LRef __ex_current_catch_tag()
+{
+     assert(TOP_FRAME);
 
-    assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
+     assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
 
-    assert(TOP_FRAME->frame_as.dynamic_escape.pending);
+     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
 
-    return TOP_FRAME->frame_as.dynamic_escape.tag;
-  }
+     return TOP_FRAME->frame_as.dynamic_escape.tag;
+}
 
 /**************************************************************
  * __ex_throw_dynamic_escape(tag, retval, already_pending)
@@ -1325,223 +1328,224 @@ BEGIN_NAMESPACE(scan)
  * frame that has explicitly requested interest in this kind of exception.
  * This is used to determine if the exception was expected by the programmer.
  */
-  bool __ex_matching_frame_1(frame_record_t *rec,
-                             uptr tag,
-                             bool exclude_unwind_protection)
-  {
-    if (!exclude_unwind_protection)
-      {
-           /* If a frame is being unwound, it means that we're executing the
-            * unwind clause and any errors thrown belong to an outside exception
-            * frame. Therefore it is not a candidate for the current throw. */
-        if (   (rec->type == FRAME_EX_UNWIND)
-               && !rec->frame_as.dynamic_escape.unwinding)
-          return TRUE;
-      }
+bool __ex_matching_frame_1(frame_record_t * rec, uptr tag, bool exclude_unwind_protection)
+{
+     if (!exclude_unwind_protection)
+     {
+          /* If a frame is being unwound, it means that we're executing the
+           * unwind clause and any errors thrown belong to an outside exception
+           * frame. Therefore it is not a candidate for the current throw. */
+          if ((rec->type == FRAME_EX_UNWIND) && !rec->frame_as.dynamic_escape.unwinding)
+               return TRUE;
+     }
 
-    if (rec->type == FRAME_EX_TRY)
-      {
-        if (NULLP(rec->frame_as.dynamic_escape.tag))
-          return TRUE;
-        else
-          return EQ(rec->frame_as.dynamic_escape.tag, (LRef)tag);
-      }
+     if (rec->type == FRAME_EX_TRY)
+     {
+          if (NULLP(rec->frame_as.dynamic_escape.tag))
+               return TRUE;
+          else
+               return EQ(rec->frame_as.dynamic_escape.tag, (LRef) tag);
+     }
 
-    return FALSE;
-  }
+     return FALSE;
+}
 
-  bool __ex_next_frame_to_catch(frame_record_t *rec, uptr tag)
-  {
-    return __ex_matching_frame_1(rec, tag, FALSE);
-  }
+bool __ex_next_frame_to_catch(frame_record_t * rec, uptr tag)
+{
+     return __ex_matching_frame_1(rec, tag, FALSE);
+}
 
-  bool __ex_next_try_frame(frame_record_t *rec, uptr tag)
-  {
-    return __ex_matching_frame_1(rec, tag, TRUE);
-  }
+bool __ex_next_try_frame(frame_record_t * rec, uptr tag)
+{
+     return __ex_matching_frame_1(rec, tag, TRUE);
+}
 
 
-  void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
-  {
-    UNREFERENCED(already_pending);
+void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
+{
+     UNREFERENCED(already_pending);
 
-    /* Check to see if we have a matching catch block... */
-    frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr)((LRef)tag));
+     /* Check to see if we have a matching catch block... */
+     frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr) ((LRef) tag));
 
-    /* ...If we do, start unwinding the stack... */
-    if (next_try)
-      {
-        frame_record_t *next_catcher =
-          __frame_find(__ex_next_frame_to_catch, (uptr)((LRef)tag));
+     /* ...If we do, start unwinding the stack... */
+     if (next_try)
+     {
+          frame_record_t *next_catcher =
+              __frame_find(__ex_next_frame_to_catch, (uptr) ((LRef) tag));
 
-        next_catcher->frame_as.dynamic_escape.pending   = TRUE;
-        next_catcher->frame_as.dynamic_escape.unwinding = TRUE;
-        next_catcher->frame_as.dynamic_escape.tag        = tag;
-        next_catcher->frame_as.dynamic_escape.retval        = retval;
+          next_catcher->frame_as.dynamic_escape.pending = TRUE;
+          next_catcher->frame_as.dynamic_escape.unwinding = TRUE;
+          next_catcher->frame_as.dynamic_escape.tag = tag;
+          next_catcher->frame_as.dynamic_escape.retval = retval;
 
-        __frame_set_top(next_catcher);
+          __frame_set_top(next_catcher);
 
-        longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
-      }
+          longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
+     }
 
-    /* ...If we don't, signal the event... */
-    vmsignal(_T("uncaught-throw"), 2, tag, retval);
+     /* ...If we don't, signal the event... */
+     vmsignal(_T("uncaught-throw"), 2, tag, retval);
 
-    /* ...if nobody cares, then we start to panic. */
-    panic("Uncaught throw!");
-  }
+     /* ...if nobody cares, then we start to panic. */
+     panic("Uncaught throw!");
+}
 
 /**************************************************************
  * __ex_rethrow_dynamic_escape
  *
  * Rethrows the exception matching the current catch frame
  */
-  void __ex_rethrow_dynamic_escape()
-  {
-    LRef retval;
-    LRef tag;
+void __ex_rethrow_dynamic_escape()
+{
+     LRef retval;
+     LRef tag;
 
-    assert(TOP_FRAME);
-    assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
-    assert(TOP_FRAME->frame_as.dynamic_escape.pending);
+     assert(TOP_FRAME);
+     assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
+     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
 
-    tag     = TOP_FRAME->frame_as.dynamic_escape.tag;
-    retval  = TOP_FRAME->frame_as.dynamic_escape.retval;
+     tag = TOP_FRAME->frame_as.dynamic_escape.tag;
+     retval = TOP_FRAME->frame_as.dynamic_escape.retval;
 
-    /* Avoid hitting the same exception over and over again... */
-    CURRENT_TIB()->frame_stack = TOP_FRAME;
+     /* Avoid hitting the same exception over and over again... */
+     CURRENT_TIB()->frame_stack = TOP_FRAME;
 
-    __ex_throw_dynamic_escape(tag, retval, TRUE);
-  }
+     __ex_throw_dynamic_escape(tag, retval, TRUE);
+}
 
 /****************************************************************
  * Values tuples
  */
 
-  LRef lvalues(LRef values)
-  {
-    LRef z = new_cell(TC_VALUES_TUPLE);
+LRef lvalues(LRef values)
+{
+     LRef z = new_cell(TC_VALUES_TUPLE);
 
-    SET_VALUES_TUPLE_VALUES(z, values);
+     SET_VALUES_TUPLE_VALUES(z, values);
 
-    return z;
-  }
+     return z;
+}
 
-  LRef valuesn(long n, ...)
-  {
-    va_list args;
+LRef valuesn(long n, ...)
+{
+     va_list args;
 
-    va_start(args, n);
+     va_start(args, n);
 
-    LRef result = lvalues(listv(n, args));
+     LRef result = lvalues(listv(n, args));
 
-    va_end(args);
+     va_end(args);
 
-    return result;
-  }
+     return result;
+}
 
-  LRef lvalues2list(LRef obj)
-  {
-    if (VALUES_TUPLE_P(obj))
-      return VALUES_TUPLE_VALUES(obj);
+LRef lvalues2list(LRef obj)
+{
+     if (VALUES_TUPLE_P(obj))
+          return VALUES_TUPLE_VALUES(obj);
 
-    return lcons(obj, NIL);
-  }
-
-
-  LRef lcurrent_global_environment()
-  {
-    return interp.global_env;
-  }
+     return lcons(obj, NIL);
+}
 
 
-  void set_global_env(LRef genv)
-  {
-    if (!VECTORP(genv))
-      vmerror_wrong_type(genv);
+LRef lcurrent_global_environment()
+{
+     return interp.global_env;
+}
 
-    interp.global_env = genv;
-    check_global_environment_size();
-  }
 
-  LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
-  {
-    if(!VECTORP(new_global_env))
-      vmerror_wrong_type(new_global_env);
+void set_global_env(LRef genv)
+{
+     if (!VECTORP(genv))
+          vmerror_wrong_type(genv);
 
-    LRef old_global_env = interp.global_env;
-    LRef retval = NIL;
+     interp.global_env = genv;
+     check_global_environment_size();
+}
 
-    ENTER_UNWIND_PROTECT() {
+LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
+{
+     if (!VECTORP(new_global_env))
+          vmerror_wrong_type(new_global_env);
 
-      interp.global_env = new_global_env;
+     LRef old_global_env = interp.global_env;
+     LRef retval = NIL;
 
-      check_global_environment_size();
+     ENTER_UNWIND_PROTECT()
+     {
 
-      retval = napply(fn, 0);
+          interp.global_env = new_global_env;
 
-    } ON_UNWIND() {
-      interp.global_env = old_global_env;
-    } LEAVE_UNWIND_PROTECT();
+          check_global_environment_size();
 
-    return retval;
-  }
+          retval = napply(fn, 0);
 
-  LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3)
-  {
-    LRef z = new_cell(TC_FAST_OP);
+     }
+     ON_UNWIND()
+     {
+          interp.global_env = old_global_env;
+     }
+     LEAVE_UNWIND_PROTECT();
 
-    SET_FAST_OP_OPCODE(z, opcode);
-    SET_FAST_OP_ARG1(z, arg1);
-    SET_FAST_OP_ARG2(z, arg2);
-    SET_FAST_OP_ARG3(z, arg3);
+     return retval;
+}
 
-    return (z);
-  }
+LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3)
+{
+     LRef z = new_cell(TC_FAST_OP);
 
-  LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3)
-  {
-    if (!FIXNUMP(opcode))
-      vmerror_wrong_type(1, opcode);
+     SET_FAST_OP_OPCODE(z, opcode);
+     SET_FAST_OP_ARG1(z, arg1);
+     SET_FAST_OP_ARG2(z, arg2);
+     SET_FAST_OP_ARG3(z, arg3);
 
-    return fast_op(FIXNM(opcode), arg1, arg2, arg3);
-  }
+     return (z);
+}
 
-  LRef lfast_op_opcode(LRef fastop)
-  {
-    if (!FAST_OP_P(fastop))
-      vmerror_wrong_type(1, fastop);
+LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3)
+{
+     if (!FIXNUMP(opcode))
+          vmerror_wrong_type(1, opcode);
 
-    return fixcons(FAST_OP_OPCODE(fastop));
-  }
+     return fast_op(FIXNM(opcode), arg1, arg2, arg3);
+}
 
-  LRef lfast_op_args(LRef fastop)
-  {
-    if (!FAST_OP_P(fastop))
-      vmerror_wrong_type(1, fastop);
+LRef lfast_op_opcode(LRef fastop)
+{
+     if (!FAST_OP_P(fastop))
+          vmerror_wrong_type(1, fastop);
 
-    return listn(3, FAST_OP_ARG1(fastop), FAST_OP_ARG2(fastop), FAST_OP_ARG3(fastop));
-  }
+     return fixcons(FAST_OP_OPCODE(fastop));
+}
 
-  bool fast_op_equal(LRef a, LRef b)
-  {
-    assert(FAST_OP_P(a));
-    assert(FAST_OP_P(b));
+LRef lfast_op_args(LRef fastop)
+{
+     if (!FAST_OP_P(fastop))
+          vmerror_wrong_type(1, fastop);
 
-    if (FAST_OP_OPCODE(a) != FAST_OP_OPCODE(b))
-      return false;
+     return listn(3, FAST_OP_ARG1(fastop), FAST_OP_ARG2(fastop), FAST_OP_ARG3(fastop));
+}
 
-    if (FAST_OP_ARG1(a) != FAST_OP_ARG1(b))
-      return false;
+bool fast_op_equal(LRef a, LRef b)
+{
+     assert(FAST_OP_P(a));
+     assert(FAST_OP_P(b));
 
-    if (FAST_OP_ARG2(a) != FAST_OP_ARG2(b))
-      return false;
+     if (FAST_OP_OPCODE(a) != FAST_OP_OPCODE(b))
+          return false;
 
-    if (FAST_OP_ARG3(a) != FAST_OP_ARG3(b))
-      return false;
+     if (FAST_OP_ARG1(a) != FAST_OP_ARG1(b))
+          return false;
 
-    return true;
-  }
+     if (FAST_OP_ARG2(a) != FAST_OP_ARG2(b))
+          return false;
+
+     if (FAST_OP_ARG3(a) != FAST_OP_ARG3(b))
+          return false;
+
+     return true;
+}
 
 
 END_NAMESPACE

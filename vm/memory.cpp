@@ -1,3 +1,4 @@
+
 /* memory.cpp
  *
  * Garbage collected heap management. The GC heap is a heap of LObject's managed by
@@ -11,59 +12,56 @@ BEGIN_NAMESPACE(scan)
 /*** GC heap startup and shutdown */
 
 /*** GC Root Registry ***/
+void gc_protect(const _TCHAR * name, LRef * location, size_t n)
+{
+     size_t root_index = 0;
 
+     for (root_index = 0; root_index < MAX_GC_ROOTS; root_index++)
+          if (CURRENT_TIB()->gc_roots[root_index].name == NULL)
+               break;
 
-  void gc_protect(const _TCHAR *name, LRef *location, size_t n)
-  {
-    size_t root_index = 0;
+     assert(root_index < MAX_GC_ROOTS);
 
-    for(root_index = 0; root_index < MAX_GC_ROOTS; root_index++)
-      if (CURRENT_TIB()->gc_roots[root_index].name == NULL)
-        break;
+     gc_root_t *root = (gc_root_t *) & (CURRENT_TIB()->gc_roots[root_index]);
 
-    assert(root_index < MAX_GC_ROOTS);
+     root->name = name;
+     root->location = location;
+     root->length = n;
+}
 
-    gc_root_t *root = (gc_root_t *)&(CURRENT_TIB()->gc_roots[root_index]);
+LRef gc_protect_sym(LRef * location, const _TCHAR * st, LRef package)
+{
+     *location = simple_intern(st, package);
 
-    root->name     = name;
-    root->location = location;
-    root->length   = n;
-  }
+     gc_protect(st, location, 1);
 
-  LRef gc_protect_sym(LRef *location, const _TCHAR *st, LRef package)
-  {
-    *location = simple_intern(st, package);
+     return *location;
+}
 
-    gc_protect(st, location, 1);
+static void gc_init_cell(LRef obj)
+{
+     memset(obj, 0, sizeof(LObject));
+     SET_TYPE(obj, TC_FREE_CELL);
+     SET_GC_MARK(obj, 0);
+}
 
-    return *location;
-  }
+void dump_freelists()
+{
+     for (LRef current_freelist = interp.global_freelist;
+          current_freelist != NULL; current_freelist = NEXT_FREE_LIST(current_freelist))
+     {
+          dscwritef("{~c&: ", current_freelist);
 
-  static void gc_init_cell(LRef obj)
-  {
-    memset(obj, 0, sizeof(LObject));
-    SET_TYPE(obj, TC_FREE_CELL);
-    SET_GC_MARK(obj, 0);
-  }
+          int len = 0;
 
-  void dump_freelists()
-  {
-    for(LRef current_freelist = interp.global_freelist;
-        current_freelist != NULL;
-        current_freelist = NEXT_FREE_LIST(current_freelist))
-      {
-        dscwritef("{~c&: ", current_freelist);
+          for (LRef cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
+               len++;
 
-        int len = 0;
+          dscwritef("~cd }", len);
+     }
 
-        for(LRef cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
-          len++;
-
-        dscwritef("~cd }", len);
-      }
-
-    dscwritef("\n");
-  }
+     dscwritef("\n");
+}
 
 /*** The heap segment allocator
  *
@@ -72,94 +70,98 @@ BEGIN_NAMESPACE(scan)
  * heaps, on an as-needed basis.
  */
 
-  static void gc_init_heap_segment(LRef seg_base)
-  {
-    LRef current_sub_freelist = NIL;
-    size_t current_sub_freelist_size = 0;
+static void gc_init_heap_segment(LRef seg_base)
+{
+     LRef current_sub_freelist = NIL;
+     size_t current_sub_freelist_size = 0;
 
-    for(size_t ofs = 0; ofs < interp.gc_heap_segment_size; ofs++)
-      {
-        LRef cell = &seg_base[ofs];
+     for (size_t ofs = 0; ofs < interp.gc_heap_segment_size; ofs++)
+     {
+          LRef cell = &seg_base[ofs];
 
-        gc_init_cell(cell);
+          gc_init_cell(cell);
 
-        SET_NEXT_FREE_CELL(cell, current_sub_freelist);
-        current_sub_freelist = cell;
+          SET_NEXT_FREE_CELL(cell, current_sub_freelist);
+          current_sub_freelist = cell;
 
-        current_sub_freelist_size++;
+          current_sub_freelist_size++;
 
-        if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
+          if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
           {
-            interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
+               interp.global_freelist =
+                   SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
 
-            current_sub_freelist_size = 0;
-            current_sub_freelist = NIL;
+               current_sub_freelist_size = 0;
+               current_sub_freelist = NIL;
           }
-      }
+     }
 
-    if (!NULLP(current_sub_freelist))
-      interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
-  }
+     if (!NULLP(current_sub_freelist))
+          interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
+}
 
-  static bool enlarge_heap()
-  {
-    bool succeeded = false;
+static bool enlarge_heap()
+{
+     bool succeeded = false;
 
-    dscwritef(DF_SHOW_GC_DETAILS, ";;; attempting to enlarge heap\n");
+     dscwritef(DF_SHOW_GC_DETAILS, ";;; attempting to enlarge heap\n");
 
-    if (interp.gc_current_heap_segments < interp.gc_max_heap_segments)
-      {
-        LRef seg_base = (LRef)safe_malloc(sizeof (LObject) * interp.gc_heap_segment_size);
+     if (interp.gc_current_heap_segments < interp.gc_max_heap_segments)
+     {
+          LRef seg_base = (LRef) safe_malloc(sizeof(LObject) * interp.gc_heap_segment_size);
 
-        if (seg_base != NULL)
+          if (seg_base != NULL)
           {
-            size_t seg_idx = interp.gc_current_heap_segments;
+               size_t seg_idx = interp.gc_current_heap_segments;
 
-            interp.gc_current_heap_segments++;
+               interp.gc_current_heap_segments++;
 
-            interp.c_bytes_gc_threshold += (sizeof(LObject) * interp.gc_heap_segment_size);
+               interp.c_bytes_gc_threshold += (sizeof(LObject) * interp.gc_heap_segment_size);
 
-            interp.gc_heap_segments[seg_idx] = seg_base;
+               interp.gc_heap_segments[seg_idx] = seg_base;
 
-            gc_init_heap_segment(seg_base);
+               gc_init_heap_segment(seg_base);
 
-            succeeded = true;
+               succeeded = true;
           }
-      }
+     }
 
 
-    dscwritef(DF_SHOW_GC_DETAILS, succeeded ? ";;; enlarged heap\n" : ";;; HEAP ENLARGE FAILED!!!\n");
+     dscwritef(DF_SHOW_GC_DETAILS,
+               succeeded ? ";;; enlarged heap\n" : ";;; HEAP ENLARGE FAILED!!!\n");
 
-    return succeeded;
-  }
+     return succeeded;
+}
 
-  LRef lenlarge_heap(LRef c)
-  {
-    size_t requested = 1;
-    size_t created = 0;
+LRef lenlarge_heap(LRef c)
+{
+     size_t requested = 1;
+     size_t created = 0;
 
-    if (!NULLP(c)) {
-      fixnum_t r = get_c_fixnum(c);
+     if (!NULLP(c))
+     {
+          fixnum_t r = get_c_fixnum(c);
 
-      if (r < 1)
-        return vmerror("Heap size requests cannot be < 1", c);
+          if (r < 1)
+               return vmerror("Heap size requests cannot be < 1", c);
 
-      if ((size_t)r >= interp.gc_max_heap_segments)
-        return vmerror("Heap size requests cannot be larger than the maximum number of heaps.", c);
+          if ((size_t) r >= interp.gc_max_heap_segments)
+               return
+                   vmerror("Heap size requests cannot be larger than the maximum number of heaps.",
+                           c);
 
-      requested = (size_t)r - interp.gc_current_heap_segments;
-    }
+          requested = (size_t) r - interp.gc_current_heap_segments;
+     }
 
-    for(created = 0; created < requested; created++)
-      if (!enlarge_heap())
-        break;
+     for (created = 0; created < requested; created++)
+          if (!enlarge_heap())
+               break;
 
-    dscwritef(DF_SHOW_GC, _T("; Allocated ~cd heap~cs of ~cd requested.\n"),
-              created, created > 1 ? "s" : "",
-              requested);
+     dscwritef(DF_SHOW_GC, _T("; Allocated ~cd heap~cs of ~cd requested.\n"),
+               created, created > 1 ? "s" : "", requested);
 
-    return fixcons(interp.gc_current_heap_segments);
-  }
+     return fixcons(interp.gc_current_heap_segments);
+}
 
 /*** The Mark-and-Sweep garbage collection algorithm ***/
 
@@ -167,224 +169,225 @@ BEGIN_NAMESPACE(scan)
  *
  * Heuristic used to determine if a value is conceivably a pointer.
  */
-  static bool possible_heap_pointer_p(LRef p)
-  {
-    for (size_t jj = 0; jj <  interp.gc_max_heap_segments; jj++)
-      {
-        LRef h = interp.gc_heap_segments[jj];
+static bool possible_heap_pointer_p(LRef p)
+{
+     for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
+     {
+          LRef h = interp.gc_heap_segments[jj];
 
-        /*  Skip unallocated gc_heap_segments; */
-        if (h == NULL)
-	  continue;
+          /*  Skip unallocated gc_heap_segments; */
+          if (h == NULL)
+               continue;
 
-        /*  Pointers point into gc_heap_segments */
-        if ((p < h) || (p >= (h + interp.gc_heap_segment_size)))
-	  continue;
+          /*  Pointers point into gc_heap_segments */
+          if ((p < h) || (p >= (h + interp.gc_heap_segment_size)))
+               continue;
 
-        /*  Pointers are aligned at LObject boundaries */
-        if (((((u8 *) p) - ((u8 *) h)) % sizeof (LObject)) != 0)
-	  continue;
+          /*  Pointers are aligned at LObject boundaries */
+          if (((((u8 *) p) - ((u8 *) h)) % sizeof(LObject)) != 0)
+               continue;
 
-        /*  Pointers have types */
-        if (TYPEP(p, TC_FREE_CELL))
-	  continue;
+          /*  Pointers have types */
+          if (TYPEP(p, TC_FREE_CELL))
+               continue;
 
-        return true;
-      }
+          return true;
+     }
 
-    return false;
-  }
+     return false;
+}
 
 
 /* gc_mark
  *
  * Mark an object and its descendants as being reachable. */
-  void gc_mark (LRef initial_obj)
-  {
-    LRef obj = initial_obj;
+void gc_mark(LRef initial_obj)
+{
+     LRef obj = initial_obj;
 
-    while(!NULLP(obj) && !LREF_IMMEDIATE_P(obj) && !GC_MARK(obj))
-      {
-        SET_GC_MARK(obj, 1);
+     while (!NULLP(obj) && !LREF_IMMEDIATE_P(obj) && !GC_MARK(obj))
+     {
+          SET_GC_MARK(obj, 1);
 
-        switch(TYPE(obj))
+          switch (TYPE(obj))
           {
           case TC_CONS:
-	    gc_mark(CAR(obj));
+               gc_mark(CAR(obj));
 
-	    obj = CDR(obj);
-            break;
+               obj = CDR(obj);
+               break;
 
           case TC_SYMBOL:
                gc_mark((*obj).storage_as.symbol.props); /*  REVISIT: better accessor? */
-            obj = SYMBOL_VCELL(obj);
-            break;
+               obj = SYMBOL_VCELL(obj);
+               break;
 
           case TC_PACKAGE:
-            gc_mark(PACKAGE_BINDINGS(obj));
-	    gc_mark(PACKAGE_USE_LIST(obj));
+               gc_mark(PACKAGE_BINDINGS(obj));
+               gc_mark(PACKAGE_USE_LIST(obj));
 
-	    obj = PACKAGE_NAME(obj);
-            break;
+               obj = PACKAGE_NAME(obj);
+               break;
 
           case TC_CLOSURE:
-	    gc_mark(CLOSURE_CODE(obj));
-            gc_mark(CLOSURE_PROPERTY_LIST(obj));
+               gc_mark(CLOSURE_CODE(obj));
+               gc_mark(CLOSURE_PROPERTY_LIST(obj));
 
-	    obj = CLOSURE_ENV(obj);
-            break;
+               obj = CLOSURE_ENV(obj);
+               break;
 
           case TC_MACRO:
-            obj = MACRO_TRANSFORMER(obj);
-            break;
+               obj = MACRO_TRANSFORMER(obj);
+               break;
 
           case TC_FLONUM:
-            obj = FLOIM(obj);
-            break;
+               obj = FLOIM(obj);
+               break;
 
           case TC_SUBR:
-            obj = SUBR_PROPERTY_LIST(obj);
-            break;
+               obj = SUBR_PROPERTY_LIST(obj);
+               break;
 
           case TC_HASH:
-            for (size_t jj = 0; jj < HASH_SIZE(obj); ++jj)
-              {
-                gc_mark(HASH_DATA(obj)[jj]._key);
-                gc_mark(HASH_DATA(obj)[jj]._val);
-              }
+               for (size_t jj = 0; jj < HASH_SIZE(obj); ++jj)
+               {
+                    gc_mark(HASH_DATA(obj)[jj]._key);
+                    gc_mark(HASH_DATA(obj)[jj]._val);
+               }
 
-            obj = NIL;
-            break;
+               obj = NIL;
+               break;
 
           case TC_PORT:
-            obj = port_gc_mark(obj);
-            break;
+               obj = port_gc_mark(obj);
+               break;
 
           case TC_EXTERNAL:
-            if (EXTERNAL_META(obj) && EXTERNAL_META(obj)->_mark)
-              (EXTERNAL_META(obj)->_mark)(obj);
+               if (EXTERNAL_META(obj) && EXTERNAL_META(obj)->_mark)
+                    (EXTERNAL_META(obj)->_mark) (obj);
 
-            obj = EXTERNAL_DESC(obj);
-            break;
+               obj = EXTERNAL_DESC(obj);
+               break;
 
           case TC_VECTOR:
-            for (size_t jj = 0; jj < VECTOR_DIM(obj); ++jj)
-              gc_mark (VECTOR_ELEM(obj, jj));
+               for (size_t jj = 0; jj < VECTOR_DIM(obj); ++jj)
+                    gc_mark(VECTOR_ELEM(obj, jj));
 
-            obj = NIL;
-            break;
+               obj = NIL;
+               break;
 
           case TC_STRUCTURE:
-            for (size_t jj = 0; jj < STRUCTURE_DIM(obj); ++jj)
-              gc_mark (STRUCTURE_ELEM(obj, jj));
+               for (size_t jj = 0; jj < STRUCTURE_DIM(obj); ++jj)
+                    gc_mark(STRUCTURE_ELEM(obj, jj));
 
-            obj = STRUCTURE_LAYOUT(obj);
-            break;
+               obj = STRUCTURE_LAYOUT(obj);
+               break;
 
           case TC_VALUES_TUPLE:
-            obj = VALUES_TUPLE_VALUES(obj);
-            break;
+               obj = VALUES_TUPLE_VALUES(obj);
+               break;
 
           case TC_INSTANCE:
-            gc_mark(INSTANCE_MAP(obj));
-            for(size_t jj = 0; jj < INSTANCE_DIM(obj); jj++)
-              gc_mark(INSTANCE_ELEM(obj, jj));
-            break;
+               gc_mark(INSTANCE_MAP(obj));
+               for (size_t jj = 0; jj < INSTANCE_DIM(obj); jj++)
+                    gc_mark(INSTANCE_ELEM(obj, jj));
+               break;
 
           case TC_FAST_OP:
-            gc_mark(FAST_OP_ARG1(obj));
-            gc_mark(FAST_OP_ARG2(obj));
-            obj = FAST_OP_ARG3(obj);
-            
+               gc_mark(FAST_OP_ARG1(obj));
+               gc_mark(FAST_OP_ARG2(obj));
+               obj = FAST_OP_ARG3(obj);
+
           default:
                /*  By default, objects are either immediate or otherwise self contained, and 
                 *  do not need special-case handling in gc_mark. */
-            break;
+               break;
           }
-      }
-  }
+     }
+}
 
   /* mark_protected_registers
    *
    * Walk the list of GC roots, calling mark on each root */
-  static void gc_mark_roots(void)
-  {
-    for (size_t root_idx = 0; root_idx < MAX_GC_ROOTS; root_idx++)
-      for (size_t ii = 0; ii < interp.thread.gc_roots[root_idx].length; ii++)
-        gc_mark((interp.thread.gc_roots[root_idx].location)[ii]);
-  }
+static void gc_mark_roots(void)
+{
+     for (size_t root_idx = 0; root_idx < MAX_GC_ROOTS; root_idx++)
+          for (size_t ii = 0; ii < interp.thread.gc_roots[root_idx].length; ii++)
+               gc_mark((interp.thread.gc_roots[root_idx].location)[ii]);
+}
 
-  static void gc_mark_range_array(LRef *base, size_t n)
-  {
-    for (size_t jj = 0; jj < n; ++jj)
-      {
-	LRef p = base[jj];
+static void gc_mark_range_array(LRef * base, size_t n)
+{
+     for (size_t jj = 0; jj < n; ++jj)
+     {
+          LRef p = base[jj];
 
-	if (possible_heap_pointer_p(p))
-	  gc_mark(p);
-      }
-  }
+          if (possible_heap_pointer_p(p))
+               gc_mark(p);
+     }
+}
 
-  static void gc_mark_range (LRef *start, LRef * end)
-  {
-    if (start > end)
-      {
-        LRef *tmp = start;
-	start = end;
-	end = tmp;
-      }
+static void gc_mark_range(LRef * start, LRef * end)
+{
+     if (start > end)
+     {
+          LRef *tmp = start;
+          start = end;
+          end = tmp;
+     }
 
-    size_t n = end - start;
+     size_t n = end - start;
 
-    gc_mark_range_array(start, n);
-  }
+     gc_mark_range_array(start, n);
+}
 
-  static void gc_clear_cell(LRef obj)
-  {
-    switch(TYPE(obj)) {
-    case TC_STRING:
-      safe_free(STRING_DATA(obj));
-      break;
+static void gc_clear_cell(LRef obj)
+{
+     switch (TYPE(obj))
+     {
+     case TC_STRING:
+          safe_free(STRING_DATA(obj));
+          break;
 
-    case TC_VECTOR:
-      safe_free(VECTOR_DATA(obj));
-      break;
+     case TC_VECTOR:
+          safe_free(VECTOR_DATA(obj));
+          break;
 
-    case TC_BYTE_VECTOR:
-      safe_free(BYTE_VECTOR_DATA(obj));
-      break;
+     case TC_BYTE_VECTOR:
+          safe_free(BYTE_VECTOR_DATA(obj));
+          break;
 
-    case TC_HASH:
-      safe_free(HASH_DATA(obj));
-      break;
+     case TC_HASH:
+          safe_free(HASH_DATA(obj));
+          break;
 
-    case TC_EXTERNAL:
-      if (EXTERNAL_META(obj) && EXTERNAL_META(obj)->_free)
-        (EXTERNAL_META(obj)->_free)(obj);
-      break;
+     case TC_EXTERNAL:
+          if (EXTERNAL_META(obj) && EXTERNAL_META(obj)->_free)
+               (EXTERNAL_META(obj)->_free) (obj);
+          break;
 
-    case TC_PORT:
-      port_gc_free(obj);
-      break;
+     case TC_PORT:
+          port_gc_free(obj);
+          break;
 
-    case TC_INSTANCE:
-      safe_free(INSTANCE_DATA(obj));
-      break;
+     case TC_INSTANCE:
+          safe_free(INSTANCE_DATA(obj));
+          break;
 
-    case TC_GC_TRIP_WIRE:
-      if (interp.gc_trip_wires_armed)
-        panic("GC trip wire freed!");
-      break;
+     case TC_GC_TRIP_WIRE:
+          if (interp.gc_trip_wires_armed)
+               panic("GC trip wire freed!");
+          break;
 
-    default:
-         /*  By default, objects are either immediate or otherwise self contained, and
-          *  do not need special-case  */
-      break;
+     default:
+          /*  By default, objects are either immediate or otherwise self contained, and
+           *  do not need special-case  */
+          break;
 
-    }
+     }
 
-    gc_init_cell(obj);
-  }
+     gc_init_cell(obj);
+}
 
 
 /* gc_sweep
@@ -392,221 +395,220 @@ BEGIN_NAMESPACE(scan)
  * Sweeps all unmarked memory cells back into the interp.gc_heap_freelist,
  * calling the appropriate gc_free hooks along the way.
  */
-  fixnum_t gc_sweep()
-  {
-    fixnum_t free_cells = 0;
-    fixnum_t cells_freed = 0;
+fixnum_t gc_sweep()
+{
+     fixnum_t free_cells = 0;
+     fixnum_t cells_freed = 0;
 
-    LRef current_sub_freelist = NIL;
-    size_t current_sub_freelist_size = 0;
-
-
-    for (size_t heap_num = 0; heap_num < interp.gc_max_heap_segments; heap_num++)
-      {
-        if (interp.gc_heap_segments[heap_num] == NULL)
-	  continue;
-
-        LRef org = interp.gc_heap_segments[heap_num];
-        LRef end = org + interp.gc_heap_segment_size;
-
-        for (LRef obj = org; obj < end; ++obj)
-	  {
-            if (GC_MARK(obj))
-              {
-                SET_GC_MARK(obj, 0);
-                continue;
-              }
-
-            free_cells++;
-
-            if(FREE_CELL_P(obj))
-              continue;
-
-            cells_freed++;
-
-            gc_clear_cell(obj);
-
-            current_sub_freelist_size++;
-            current_sub_freelist = SET_NEXT_FREE_CELL(obj, current_sub_freelist);
-
-            if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
-              {
-                interp.global_freelist = SET_NEXT_FREE_LIST(obj, interp.global_freelist);
-
-                current_sub_freelist_size = 0;
-                current_sub_freelist = NIL;
-              }
-	  }
-      }
-
-    if (!NULLP(current_sub_freelist))
-      interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
-
-    assert(!NULLP(interp.global_freelist));
-
-    interp.gc_cells_collected = cells_freed;
-
-    dscwritef(DF_SHOW_GC_DETAILS, ";;; GC sweep done, freed:~cd, free:~cd\n", cells_freed, free_cells);
-
-    return free_cells;
-  }
-
-  static void gc_mark_stack()
-  {
-    jmp_buf registers;
-    LRef    stack_end;
-
-    setjmp(registers);
-    
-    gc_mark_range((LRef *)registers,
-                  (LRef *)(((u8 *) registers) + sizeof(registers)));
-
-    gc_mark_range((LRef *)sys_get_stack_start(),
-                  (LRef *)&stack_end);
-  }
+     LRef current_sub_freelist = NIL;
+     size_t current_sub_freelist_size = 0;
 
 
-  static void gc_begin_stats(void)
-  {
-    interp.gc_run_time = sys_runtime ();
-    interp.gc_count++;
-    interp.gc_cells_collected = 0;
+     for (size_t heap_num = 0; heap_num < interp.gc_max_heap_segments; heap_num++)
+     {
+          if (interp.gc_heap_segments[heap_num] == NULL)
+               continue;
 
-    if (DEBUG_FLAG(DF_SHOW_GC))
-      {
-        unsigned long bytes_alloced = (unsigned long)(malloc_bytes - interp.malloc_bytes_at_last_gc);
-        unsigned long blocks_alloced = (unsigned long)(malloc_blocks - interp.malloc_blocks_at_last_gc);
+          LRef org = interp.gc_heap_segments[heap_num];
+          LRef end = org + interp.gc_heap_segment_size;
 
-        if ((bytes_alloced > 0) || (blocks_alloced > 0))
-            dscwritef(_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"),
-                      bytes_alloced, blocks_alloced);
+          for (LRef obj = org; obj < end; ++obj)
+          {
+               if (GC_MARK(obj))
+               {
+                    SET_GC_MARK(obj, 0);
+                    continue;
+               }
 
-        dscwritef(_T("; GC @ T+~cf:"), time_since_launch());
-      }
-  }
+               free_cells++;
 
-  static void gc_end_stats(void)
-  {
-    interp.gc_run_time = sys_runtime () - interp.gc_run_time;
-    interp.gc_total_run_time += interp.gc_run_time;
+               if (FREE_CELL_P(obj))
+                    continue;
 
-    if (DEBUG_FLAG(DF_SHOW_GC))
-      dscwritef(" ~cfs., ~cd cells freed\n", interp.gc_run_time, interp.gc_cells_collected);
+               cells_freed++;
 
-    interp.malloc_bytes_at_last_gc    = malloc_bytes;
-    interp.malloc_blocks_at_last_gc   = malloc_blocks;
-  }
+               gc_clear_cell(obj);
 
-  fixnum_t gc_mark_and_sweep (void)
-  {
-    fixnum_t cells_freed;
+               current_sub_freelist_size++;
+               current_sub_freelist = SET_NEXT_FREE_CELL(obj, current_sub_freelist);
 
-    gc_begin_stats();
+               if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
+               {
+                    interp.global_freelist = SET_NEXT_FREE_LIST(obj, interp.global_freelist);
 
-    gc_mark_stack();
-    gc_mark_roots();
+                    current_sub_freelist_size = 0;
+                    current_sub_freelist = NIL;
+               }
+          }
+     }
 
-    cells_freed = gc_sweep();
+     if (!NULLP(current_sub_freelist))
+          interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
 
-    gc_end_stats();
+     assert(!NULLP(interp.global_freelist));
 
-    return cells_freed;
-  }
+     interp.gc_cells_collected = cells_freed;
+
+     dscwritef(DF_SHOW_GC_DETAILS, ";;; GC sweep done, freed:~cd, free:~cd\n", cells_freed,
+               free_cells);
+
+     return free_cells;
+}
+
+static void gc_mark_stack()
+{
+     jmp_buf registers;
+     LRef stack_end;
+
+     setjmp(registers);
+
+     gc_mark_range((LRef *) registers, (LRef *) (((u8 *) registers) + sizeof(registers)));
+
+     gc_mark_range((LRef *) sys_get_stack_start(), (LRef *) & stack_end);
+}
+
+
+static void gc_begin_stats(void)
+{
+     interp.gc_run_time = sys_runtime();
+     interp.gc_count++;
+     interp.gc_cells_collected = 0;
+
+     if (DEBUG_FLAG(DF_SHOW_GC))
+     {
+          unsigned long bytes_alloced =
+              (unsigned long) (malloc_bytes - interp.malloc_bytes_at_last_gc);
+          unsigned long blocks_alloced =
+              (unsigned long) (malloc_blocks - interp.malloc_blocks_at_last_gc);
+
+          if ((bytes_alloced > 0) || (blocks_alloced > 0))
+               dscwritef(_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"),
+                         bytes_alloced, blocks_alloced);
+
+          dscwritef(_T("; GC @ T+~cf:"), time_since_launch());
+     }
+}
+
+static void gc_end_stats(void)
+{
+     interp.gc_run_time = sys_runtime() - interp.gc_run_time;
+     interp.gc_total_run_time += interp.gc_run_time;
+
+     if (DEBUG_FLAG(DF_SHOW_GC))
+          dscwritef(" ~cfs., ~cd cells freed\n", interp.gc_run_time, interp.gc_cells_collected);
+
+     interp.malloc_bytes_at_last_gc = malloc_bytes;
+     interp.malloc_blocks_at_last_gc = malloc_blocks;
+}
+
+fixnum_t gc_mark_and_sweep(void)
+{
+     fixnum_t cells_freed;
+
+     gc_begin_stats();
+
+     gc_mark_stack();
+     gc_mark_roots();
+
+     cells_freed = gc_sweep();
+
+     gc_end_stats();
+
+     return cells_freed;
+}
 
 
 /*** The main entry point to the GC */
-  static fixnum_t gc_collect_garbage(void)
-  {
-    fixnum_t cells_freed = 0;
+static fixnum_t gc_collect_garbage(void)
+{
+     fixnum_t cells_freed = 0;
 
-    cells_freed = gc_mark_and_sweep();
+     cells_freed = gc_mark_and_sweep();
 
-    /*  Normally, the *after-gc* hook will enlarge the heap according
-     *  to whatever policy. If it doesn't, this gives the interpreter
-     *  a sort of last ditch way to keep running. */
-    if (NULLP(interp.global_freelist))
-      lenlarge_heap(NIL);
+     /*  Normally, the *after-gc* hook will enlarge the heap according
+      *  to whatever policy. If it doesn't, this gives the interpreter
+      *  a sort of last ditch way to keep running. */
+     if (NULLP(interp.global_freelist))
+          lenlarge_heap(NIL);
 
-    if (NULLP(interp.global_freelist))
-      panic("ran out of storage");
+     if (NULLP(interp.global_freelist))
+          panic("ran out of storage");
 
-    return cells_freed;
-  }
+     return cells_freed;
+}
 
-  static void invoke_after_gc_hook(fixnum_t cells_freed)
-  {
-    LRef after_gc_hook = SYMBOL_VCELL(interp.sym_after_gc);
+static void invoke_after_gc_hook(fixnum_t cells_freed)
+{
+     LRef after_gc_hook = SYMBOL_VCELL(interp.sym_after_gc);
 
-    if (!NULLP(after_gc_hook))
-      call_lisp_procedure(after_gc_hook, NULL, NULL,
-                          2,
-                          fixcons(cells_freed),
-                          fixcons(interp.gc_heap_segment_size));
-  }
+     if (!NULLP(after_gc_hook))
+          call_lisp_procedure(after_gc_hook, NULL, NULL,
+                              2, fixcons(cells_freed), fixcons(interp.gc_heap_segment_size));
+}
 
 /*** Global freelist enqueue and dequeue */
 
-  void gc_release_freelist(LRef new_freelist)
-  {
-    if (NULLP(new_freelist))
-      return;
+void gc_release_freelist(LRef new_freelist)
+{
+     if (NULLP(new_freelist))
+          return;
 
-    SET_NEXT_FREE_LIST(CURRENT_TIB()->freelist, interp.global_freelist);
+     SET_NEXT_FREE_LIST(CURRENT_TIB()->freelist, interp.global_freelist);
 
-    interp.global_freelist = CURRENT_TIB()->freelist;
+     interp.global_freelist = CURRENT_TIB()->freelist;
 
-    CURRENT_TIB()->freelist = NULL;
-  }
+     CURRENT_TIB()->freelist = NULL;
+}
 
-  LRef gc_claim_freelist()
-  {
-    fixnum_t cells_freed = 0;
-    LRef new_freelist = NIL;
+LRef gc_claim_freelist()
+{
+     fixnum_t cells_freed = 0;
+     LRef new_freelist = NIL;
 
-    if (NULLP(interp.global_freelist)
-        || ((malloc_bytes - interp.malloc_bytes_at_last_gc) > interp.c_bytes_gc_threshold)
-        || ALWAYS_GC)
-      cells_freed = gc_collect_garbage();
-    
-    assert(!NULLP(interp.global_freelist));
-      
-    new_freelist = interp.global_freelist;
-    
-    interp.global_freelist = NEXT_FREE_LIST(interp.global_freelist);
-    
-    SET_NEXT_FREE_LIST(new_freelist, NIL);
+     if (NULLP(interp.global_freelist)
+         || ((malloc_bytes - interp.malloc_bytes_at_last_gc) > interp.c_bytes_gc_threshold)
+         || ALWAYS_GC)
+          cells_freed = gc_collect_garbage();
 
-    if (cells_freed > 0)
-      invoke_after_gc_hook(cells_freed);
+     assert(!NULLP(interp.global_freelist));
 
-    return new_freelist;
-  }
+     new_freelist = interp.global_freelist;
 
-  void create_gc_heap()
-  {
-    /* Initialize the heap table */
-    interp.gc_heap_segments = (LRef *) safe_malloc(sizeof (LRef) * interp.gc_max_heap_segments);
-    for (size_t jj = 0; jj <  interp.gc_max_heap_segments; jj++)
-      interp.gc_heap_segments[jj] = NULL;
+     interp.global_freelist = NEXT_FREE_LIST(interp.global_freelist);
 
-    /* Get us started with one heap */
-    enlarge_heap();
+     SET_NEXT_FREE_LIST(new_freelist, NIL);
 
-    /* Set up space for global bindings. */
-    interp.last_global_env_entry = 1;
-    interp.global_env = vectorcons(GLOBAL_ENV_BLOCK_SIZE, UNBOUND_MARKER);
-    gc_protect(_T("global-environment"), &interp.global_env, 1);
-  }
+     if (cells_freed > 0)
+          invoke_after_gc_hook(cells_freed);
 
-  void free_gc_heap()
-  {
-    gc_sweep();
+     return new_freelist;
+}
 
-    for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
-      if (interp.gc_heap_segments[jj])
-        safe_free(interp.gc_heap_segments[jj]);
+void create_gc_heap()
+{
+     /* Initialize the heap table */
+     interp.gc_heap_segments = (LRef *) safe_malloc(sizeof(LRef) * interp.gc_max_heap_segments);
+     for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
+          interp.gc_heap_segments[jj] = NULL;
 
-  }
+     /* Get us started with one heap */
+     enlarge_heap();
+
+     /* Set up space for global bindings. */
+     interp.last_global_env_entry = 1;
+     interp.global_env = vectorcons(GLOBAL_ENV_BLOCK_SIZE, UNBOUND_MARKER);
+     gc_protect(_T("global-environment"), &interp.global_env, 1);
+}
+
+void free_gc_heap()
+{
+     gc_sweep();
+
+     for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
+          if (interp.gc_heap_segments[jj])
+               safe_free(interp.gc_heap_segments[jj]);
+
+}
 
 /**** The type manager
  *
@@ -617,80 +619,80 @@ BEGIN_NAMESPACE(scan)
  * - Make it possible to look up type information by FASL code
  */
 
-  LRef make_type_name(typecode_t type_code)
-  {
-    LRef name = interp.syms_internal_type_names[type_code];
+LRef make_type_name(typecode_t type_code)
+{
+     LRef name = interp.syms_internal_type_names[type_code];
 
-    assert(SYMBOLP(name));
+     assert(SYMBOLP(name));
 
-    return name;
-  }
+     return name;
+}
 
 /**** Scheme interface functions */
 
-  LRef lgc()
-  {
-    fixnum_t cells_freed = gc_collect_garbage();
+LRef lgc()
+{
+     fixnum_t cells_freed = gc_collect_garbage();
 
-    invoke_after_gc_hook(cells_freed);
+     invoke_after_gc_hook(cells_freed);
 
-    return NIL;
-  }
+     return NIL;
+}
 
-  static size_t count_active_gc_heap_segments(void)
-  {
-    size_t count = 0;
+static size_t count_active_gc_heap_segments(void)
+{
+     size_t count = 0;
 
-    for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
-      if (interp.gc_heap_segments[jj] != NULL)
-        count++;
+     for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
+          if (interp.gc_heap_segments[jj] != NULL)
+               count++;
 
-    return count;;
-  }
+     return count;;
+}
 
-  static size_t gc_heap_freelist_length(void)
-  {
-    size_t n;
-    LRef l;
+static size_t gc_heap_freelist_length(void)
+{
+     size_t n;
+     LRef l;
 
-    for (n = 0, l = interp.global_freelist; !NULLP (l); ++n)
-      l = CDR(l);
+     for (n = 0, l = interp.global_freelist; !NULLP(l); ++n)
+          l = CDR(l);
 
-    return n;
-  }
+     return n;
+}
 
-  LRef lgc_status(LRef new_gc_status)
-  {
-    if (!NULLP(new_gc_status))
-      interp.gc_status_flag = TRUEP(new_gc_status) ? 1 : 0;
+LRef lgc_status(LRef new_gc_status)
+{
+     if (!NULLP(new_gc_status))
+          interp.gc_status_flag = TRUEP(new_gc_status) ? 1 : 0;
 
-    if (interp.gc_status_flag)
-      info("garbage collection verbose");
-    else
-      info("garbage collection silent");
+     if (interp.gc_status_flag)
+          info("garbage collection verbose");
+     else
+          info("garbage collection silent");
 
-    size_t m = count_active_gc_heap_segments();
-    size_t n = gc_heap_freelist_length();
+     size_t m = count_active_gc_heap_segments();
+     size_t n = gc_heap_freelist_length();
 
-    info("~cd of ~cd heap segs, ~cd allocated ~cd free\n", m, interp.gc_max_heap_segments,
-         m * interp.gc_heap_segment_size - n, n);
+     info("~cd of ~cd heap segs, ~cd allocated ~cd free\n", m, interp.gc_max_heap_segments,
+          m * interp.gc_heap_segment_size - n, n);
 
-    return boolcons(interp.gc_status_flag != 0);
-  }
+     return boolcons(interp.gc_status_flag != 0);
+}
 
-  LRef lgc_info ()
-  {
-    LRef argv[8];
-    argv[0] = fixcons(count_active_gc_heap_segments());
-    argv[1] = fixcons(gc_heap_freelist_length());
-    argv[2] = fixcons(interp.gc_total_cells_allocated);
-    argv[3] = fixcons(interp.gc_total_environment_cells_allocated);
-    argv[4] = fixcons(malloc_bytes);
-    argv[5] = fixcons(interp.malloc_bytes_at_last_gc);
-    argv[6] = fixcons(malloc_blocks);
-    argv[7] = fixcons(interp.malloc_blocks_at_last_gc);
+LRef lgc_info()
+{
+     LRef argv[8];
+     argv[0] = fixcons(count_active_gc_heap_segments());
+     argv[1] = fixcons(gc_heap_freelist_length());
+     argv[2] = fixcons(interp.gc_total_cells_allocated);
+     argv[3] = fixcons(interp.gc_total_environment_cells_allocated);
+     argv[4] = fixcons(malloc_bytes);
+     argv[5] = fixcons(interp.malloc_bytes_at_last_gc);
+     argv[6] = fixcons(malloc_blocks);
+     argv[7] = fixcons(interp.malloc_blocks_at_last_gc);
 
-    return lvector(8, argv);
-  }
+     return lvector(8, argv);
+}
 
 END_NAMESPACE

@@ -1,3 +1,4 @@
+
 /* malloc.cpp
  *
  * A wrapper around malloc that adds some keeping and error checking.
@@ -8,8 +9,8 @@
 BEGIN_NAMESPACE(scan)
 
 /* REVISIT: Is there not a better place to store malloc_blocks and malloc_bytes? */
-  i64 malloc_blocks = 0;
-     i64 malloc_bytes  = 0; /*  REVISIT: have malloc set flag based on user defined limit? use that to trigger GC? */
+i64 malloc_blocks = 0;
+i64 malloc_bytes = 0;           /*  REVISIT: have malloc set flag based on user defined limit? use that to trigger GC? */
 
 /**** The C Heap
  *
@@ -20,65 +21,63 @@ BEGIN_NAMESPACE(scan)
  * and bytes allocated and freed.
  */
 void *safe_malloc(size_t size)
-  {
-    void *block;
+{
+     void *block;
 
-    if (DEBUGGING_BUILD)
-      {
-        size += sizeof(size_t);
-      }
+     if (DEBUGGING_BUILD)
+     {
+          size += sizeof(size_t);
+     }
 
-    malloc_blocks++;
-    malloc_bytes += size;
+     malloc_blocks++;
+     malloc_bytes += size;
 
-    block = (_TCHAR *) malloc ((size) ? size : 1);
+     block = (_TCHAR *) malloc((size) ? size : 1);
 
-    if (block == (void *) NULL) {
-      _TCHAR buf[STACK_STRBUF_LEN];
+     if (block == (void *) NULL)
+     {
+          _TCHAR buf[STACK_STRBUF_LEN];
 
-      _sntprintf(buf, STACK_STRBUF_LEN, "failed to allocate %zd bytes from system", size);
-      panic(buf);
-    }
+          _sntprintf(buf, STACK_STRBUF_LEN, "failed to allocate %zd bytes from system", size);
+          panic(buf);
+     }
 
-    if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
-      {
-        debug_printf("\"a\", %d, , %d, %d\n",
-                     malloc_blocks,
-                     block,
-                     size);
-      }
+     if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
+     {
+          debug_printf("\"a\", %d, , %d, %d\n", malloc_blocks, block, size);
+     }
 
 
-    if (DEBUGGING_BUILD)
-      {
-        size_t *tmp_block = (size_t *)block;
-        *tmp_block = (size - 4);
-        tmp_block += 1;
-        block = (void*)tmp_block;
-      }
+     if (DEBUGGING_BUILD)
+     {
+          size_t *tmp_block = (size_t *) block;
+          *tmp_block = (size - 4);
+          tmp_block += 1;
+          block = (void *) tmp_block;
+     }
 
-    return (block);
-  }
+     return (block);
+}
 
-  void safe_free(void *block)
-  {
-    if (block == NULL)
-      return;
+void safe_free(void *block)
+{
+     if (block == NULL)
+          return;
 
-    if (DEBUGGING_BUILD)
-      {
-        size_t *tmp_block;
+     if (DEBUGGING_BUILD)
+     {
+          size_t *tmp_block;
 
-        tmp_block = (size_t *)block;
-        tmp_block -= 1;
-        block = (void *)tmp_block;
+          tmp_block = (size_t *) block;
+          tmp_block -= 1;
+          block = (void *) tmp_block;
 
-        if (DETAILED_MEMORY_LOG)
-          debug_printf("\"d\", , , %d, \n",  block);
-      }
+          if (DETAILED_MEMORY_LOG)
+               debug_printf("\"d\", , , %d, \n", block);
+     }
 
-    free(block);
-  }
+     free(block);
+}
 
 
 END_NAMESPACE
