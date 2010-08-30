@@ -1,6 +1,8 @@
 
 # Makefile for Scan VM
 
+.PHONY: indented
+
 TARGETS=scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} TAGS
 
 include ../build-settings
@@ -38,6 +40,8 @@ endif
 depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
+indented:
+	gnuindent ${VM_SRCS} fasl-file.h mt19937.h scan.h sys.h
 
 %${OBJ_EXT}: %.cpp Makefile scan.h
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
