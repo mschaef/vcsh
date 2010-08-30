@@ -9,6 +9,4 @@
 --line-length100
 --honour-newlines
 --leave-preprocessor-space
---preprocessor-indentation4
 --no-tabs
---leave-optional-blank-lines

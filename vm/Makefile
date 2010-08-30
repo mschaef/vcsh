@@ -38,6 +38,7 @@ endif
 depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
+
 %${OBJ_EXT}: %.cpp Makefile scan.h
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
 

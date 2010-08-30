@@ -201,7 +201,7 @@ BEGIN_NAMESPACE(scan)
     return make_type_name(TYPE(obj));
   }
 
-  /**** Default panic handler */
+/**** Default panic handler */
 
   static panic_handler_t previous_panic_handler = NULL;
 
@@ -284,6 +284,7 @@ BEGIN_NAMESPACE(scan)
     interp.init_load_file_count++;
   }
 
+/* *INDENT-OFF* */
   static struct {
     const _TCHAR *vm_arg_name;
     void (* vm_arg_handler)(_TCHAR *arg_name, _TCHAR *arg_value);
@@ -294,6 +295,7 @@ BEGIN_NAMESPACE(scan)
     { "init-load",         process_vm_arg_init_load },
     { NULL, NULL }
   };
+/* *INDENT-ON* */
 
   static void show_vm_args() {
     dscwritef("\nAvailable VM arguments:\n");
@@ -490,6 +492,7 @@ BEGIN_NAMESPACE(scan)
 
   static void register_main_subrs()
   {
+/* *INDENT-OFF* */
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
     register_subr(_T("%catch-apply0"),                    SUBR_2,     (void*)lcatch_apply0                       );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
@@ -790,6 +793,7 @@ BEGIN_NAMESPACE(scan)
     register_subr(_T("write-strings"),                    SUBR_ARGC,  (void*)lwrite_strings                      );
     register_subr(_T("write-binary-string"),              SUBR_2,     (void*)lwrite_binary_string                );
     register_subr(_T("write-char"),                       SUBR_2,     (void*)lwrite_char                         );
+/* *INDENT-ON* */
   }
 
   static void global_environment_asserts()
