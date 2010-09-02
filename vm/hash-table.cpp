@@ -10,8 +10,35 @@ BEGIN_NAMESPACE(scan)
 
 /*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
 #define HASH_COMBINE(_h1,_h2) ((((_h1) * 17 + 1) ^ (_h2)))
-#define HASH_SHALLOW(obj)		((obj)->storage_as.hash.info.shallow_keys)
-#define HASH_COUNT(obj)			((obj)->storage_as.hash.info.count)
+
+INLINE void SET_HASH_SHALLOW(LRef hash, bool shallow_keys)
+{
+     assert(HASHP(hash));
+
+     hash->storage_as.hash.info.shallow_keys = shallow_keys;
+}
+
+INLINE bool HASH_SHALLOW(LRef hash)
+{
+     assert(HASHP(hash));
+
+     return hash->storage_as.hash.info.shallow_keys;
+}
+
+INLINE void SET_HASH_COUNT(LRef hash, unsigned int count)
+{
+     assert(HASHP(hash));
+
+     hash->storage_as.hash.info.count = count;
+}
+
+INLINE unsigned int HASH_COUNT(LRef hash)
+{
+     assert(HASHP(hash));
+
+     return hash->storage_as.hash.info.count;
+}
+
 static void init_hash_entry(hash_entry_t * entry)
 {
      entry->_key = UNBOUND_MARKER;
@@ -241,8 +268,8 @@ LRef hashcons(bool shallow, size_t size)
 
      SET_HASH_MASK(hash, size - 1);
      SET_HASH_DATA(hash, allocate_hash_data(size));
-     HASH_SHALLOW(hash) = shallow;
-     HASH_COUNT(hash) = 0;
+     SET_HASH_SHALLOW(hash, shallow);
+     SET_HASH_COUNT(hash, 0);
 
      return hash;
 }
@@ -483,7 +510,7 @@ LRef hash_set(LRef table, LRef key, LRef value, bool check_for_expand)
                     entry->_key = key;
                     entry->_val = value;
 
-                    HASH_COUNT(table)++;
+                    SET_HASH_COUNT(table, HASH_COUNT(table) + 1);
 
                     break;
                }
@@ -517,7 +544,7 @@ LRef lhash_remove(LRef table, LRef key)
      if (entry != NULL)
      {
           delete_hash_entry(entry);
-          HASH_COUNT(table)--;
+          SET_HASH_COUNT(table, HASH_COUNT(table) - 1);
      }
 
      return table;
@@ -528,7 +555,7 @@ LRef lhash_clear(LRef hash)
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
 
-     HASH_COUNT(hash) = 0;
+     SET_HASH_COUNT(hash, 0);
      clear_hash_data(HASH_DATA(hash), HASH_SIZE(hash));
 
      return hash;
