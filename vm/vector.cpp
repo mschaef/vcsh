@@ -19,7 +19,6 @@ LRef byteveccons(size_t dim)
      return z;
 }
 
-
 LRef lbyte_vector_p(LRef x)
 {
      if (BYTE_VECTOR_P(x))
@@ -163,7 +162,6 @@ static INLINE size_t get_c_vector_index(LRef i)
      else
      {
           vmerror_wrong_type(i);
-
           return 0;             /*  never reached... vmerror_wrong_type will throw out */
      }
 

@@ -100,10 +100,6 @@ bool hash_iter_next(LRef hash, hash_iter_t * iter, LRef * key, LRef * val)
      return false;
 }
 
-/**************************************************************
- * Hashing
- */
-
 fixnum_t sxhash_eq(LRef obj)
 {
      /* Slice off the tag bits, assuming that hashes will be mostly
@@ -226,13 +222,6 @@ LRef lsxhash(LRef obj, LRef hash)       /*  if hash is bound, lsxhash matches it
      return fixcons(hashed);
 
 }
-
-/**************************************************************
- * Hashes
- */
-
-/* Constructor */
-
 static size_t round_up_to_power_of_two(size_t val)
 {
      size_t rounded = 1;
@@ -277,8 +266,6 @@ LRef hashcons(bool shallow, size_t size)
      return hash;
 }
 
-/* 'equal?' support */
-
 bool hash_equal(LRef a, LRef b)
 {
      assert(HASHP(a));
@@ -307,10 +294,6 @@ bool hash_equal(LRef a, LRef b)
 
      return true;
 }
-
-/* Hashing */
-
-/* R5RS Hash Functions ****************************************/
 
 LRef lmake_hash(LRef key_type)
 {

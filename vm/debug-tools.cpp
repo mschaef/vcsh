@@ -170,7 +170,9 @@ struct test_blocking_input_info_t
 };
 
 enum
-{ BLOCKIN_MAX_BLOCK_SIZE = 256 };
+{
+     BLOCKIN_MAX_BLOCK_SIZE = 256
+};
 
 bool test_blocking_input_read(LRef port, void *userdata)
 {
@@ -250,52 +252,34 @@ LRef liarm_gc_trip_wires(LRef f)
      return boolcons(new_state);
 }
 
+/* *INDENT-OFF* */
 static struct
 {
      const char *df_env_name;
      debug_flag_t df;
-} debug_flag_env_names[] =
-{
-     {
-     "show-load-forms", DF_SHOW_LOAD_FORMS},
-     {
-     "show-global-defines", DF_SHOW_GLOBAL_DEFINES},
-     {
-     "show-local-defines", DF_SHOW_LOCAL_DEFINES},
-     {
-     "show-throws", DF_SHOW_THROWS},
-     {
-     "show-vmsignals", DF_SHOW_VMSIGNALS},
-     {
-     "show-vmerrors", DF_SHOW_VMERRORS},
-     {
-     "show-gc", DF_SHOW_GC},
-     {
-     "show-gc-details", DF_SHOW_GC_DETAILS},
-     {
-     "print-for-diff", DF_PRINT_FOR_DIFF},
-     {
-     "print-closure-code", DF_PRINT_CLOSURE_CODE},
-     {
-     "print-symbol-packages", DF_PRINT_SYMBOL_PACKAGES},
-     {
-     "print-addresses", DF_PRINT_ADDRESSES},
-     {
-     "debugger-to-ods", DF_DEBUGGER_TO_ODS},
-     {
-     "fasl-show-opcodes", DF_FASL_SHOW_OPCODES},
-     {
-     "show-fast-load-forms", DF_SHOW_FAST_LOAD_FORMS},
-     {
-     "show-fast-load-units", DF_SHOW_FAST_LOAD_UNITS},
-     {
-     "temp", DF_TEMP},
-     {
-     "no-startup", DF_NO_STARTUP},
-     {
-     "all", DF_ALL},
-     {
-NULL, DF_ALL},};
+} debug_flag_env_names[] = {
+     { "show-load-forms", DF_SHOW_LOAD_FORMS},
+     { "show-global-defines", DF_SHOW_GLOBAL_DEFINES},
+     { "show-local-defines", DF_SHOW_LOCAL_DEFINES},
+     { "show-throws", DF_SHOW_THROWS},
+     { "show-vmsignals", DF_SHOW_VMSIGNALS},
+     { "show-vmerrors", DF_SHOW_VMERRORS},
+     { "show-gc", DF_SHOW_GC},
+     { "show-gc-details", DF_SHOW_GC_DETAILS},
+     { "print-for-diff", DF_PRINT_FOR_DIFF},
+     { "print-closure-code", DF_PRINT_CLOSURE_CODE},
+     { "print-symbol-packages", DF_PRINT_SYMBOL_PACKAGES},
+     { "print-addresses", DF_PRINT_ADDRESSES},
+     { "debugger-to-ods", DF_DEBUGGER_TO_ODS},
+     { "fasl-show-opcodes", DF_FASL_SHOW_OPCODES},
+     { "show-fast-load-forms", DF_SHOW_FAST_LOAD_FORMS},
+     { "show-fast-load-units", DF_SHOW_FAST_LOAD_UNITS},
+     { "temp", DF_TEMP},
+     { "no-startup", DF_NO_STARTUP},
+     { "all", DF_ALL},
+     { NULL, DF_ALL},
+};
+/* *INDENT-ON* */
 
 static void show_debug_flags()
 {
