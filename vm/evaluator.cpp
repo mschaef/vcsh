@@ -877,7 +877,7 @@ static LRef leval(LRef form, LRef env)
      return retval;
 }
 
-     /*  REVISIT: lapply should be tail recursive */
+/*  REVISIT: lapply should be tail recursive */
 LRef lapply(size_t argc, LRef argv[])
 {
      size_t fn_argc = 0;

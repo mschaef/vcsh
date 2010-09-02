@@ -780,7 +780,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
 
                fast_read(port, fasl_table_entry, allow_loader_ops);
 
-               /*   TODO: This assert throws if the fasl table was resized during the reader definition. */
+               /* TODO: This assert throws if the fasl table was resized during the reader definition. */
                assert(fasl_table_entry == &_VECTOR_ELEM(pinfo->_fasl_table, index));
 
                *retval = *fasl_table_entry;
