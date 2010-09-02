@@ -16,10 +16,12 @@
 
 BEGIN_NAMESPACE(scan)
 
-/*  REVISIT: MAX_READER_DEFINITIONS should be dynamic */
-#define MAX_READER_DEFINITIONS (200000)
+enum
+{
+     MAX_READER_DEFINITIONS = 200000, /*  REVISIT: MAX_READER_DEFINITIONS should be dynamic */
 
-#define STRBUF_SIZE (256)
+     STRBUF_SIZE = 256,
+};
 
 FaslOpcode g_reader_definition_ops[MAX_READER_DEFINITIONS];
 fixnum_t g_reader_definition_fixnums[MAX_READER_DEFINITIONS];
