@@ -78,7 +78,6 @@ enum
      /* The maximum number of init load files. */
      MAX_INIT_LOAD_FILES = 8,
 
-
      /*** Hash table tuning settings ***/
 
      /*  Default initial size for hash tables */
@@ -97,6 +96,9 @@ enum
      /* The number of active elements a hash table needs in order to
       * be considered 'large'. */
      HASH_SMALL_ENLARGE_THRESHOLD = 50000,
+
+     /* The maximum size of blocks of text sent to the debug port. */
+     DEBUG_PORT_BLOCK_SIZE = 256,
 };
 
 /* _The_ type *************************************************

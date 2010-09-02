@@ -1157,9 +1157,15 @@ size_t port_length(LRef port)
  * extended_state = Scheme object containing file name
  */
 
-#define SET_PORT_FILE(obj, file) ((PORT_PINFO(obj)->_user_data) = file)
+INLINE void SET_PORT_FILE(LRef port, FILE *file)
+{
+     PORT_PINFO(port)->_user_data = file;
+}
 
-#define PORT_FILE(obj) ((FILE *)(PORT_PINFO(obj)->_user_data))
+INLINE FILE *PORT_FILE(LRef port)
+{
+     return (FILE *)(PORT_PINFO(port)->_user_data);
+}
 
 LRef fileportcons(port_class_t * cls, port_mode_t mode, LRef filename)
 {
@@ -1377,8 +1383,6 @@ port_class_t stderr_port_class = {
  * The standard debug port.
  */
 
-#define DEBUG_PORT_BLOCK_SIZE (256)
-
 size_t debug_port_write(const void *buf, size_t size, size_t count, LRef obj)
 {
      UNREFERENCED(obj);
@@ -1508,9 +1512,17 @@ LRef lopen_null_port()
  * extended_state_info = Current string object
  **/
 
+INLINE void SET_PORT_STRING(LRef port, LRef string)
+{
+     assert(STRINGP(string));
 
-#define PORT_STRING(obj) (PORT_PINFO(obj)->_user_object)
+     PORT_PINFO(port)->_user_object = string;
+}
 
+INLINE LRef PORT_STRING(LRef port)
+{
+     return PORT_PINFO(port)->_user_object;
+}
 
 size_t string_port_read(void *buf, size_t size, size_t count, LRef obj)
 {
@@ -1540,7 +1552,7 @@ size_t string_port_write(const void *buf, size_t size, size_t count, LRef obj)
      assert(size == sizeof(_TCHAR));
 
      if (NULLP(PORT_STRING(obj)))
-          PORT_STRING(obj) = strcons(count, (_TCHAR *) buf);    /*  REVISIT: fails if buf has embedded nulls */
+          SET_PORT_STRING(obj, strcons(count, (_TCHAR *) buf));    /*  REVISIT: fails if buf has embedded nulls */
      else
           str_append_str(PORT_STRING(obj), (_TCHAR *) buf, count);
 
