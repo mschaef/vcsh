@@ -54,7 +54,7 @@ void vmerror_stack_overflow(u8 * obj)
      in_stack_overflow = true;
 
      if (DEBUGGING_BUILD)
-          dump_current_frames(CURRENT_DEBUG_PORT);
+          dump_current_frames(CURRENT_DEBUG_PORT());
 
      panic("Stack Overflow!");
 
@@ -81,9 +81,9 @@ void info(const _TCHAR * message, ...)
 
      if (infop())               /*  this is the call in info (for find in files) */
      {
-          WRITE_TEXT_CONSTANT(_T("; Info: "), CURRENT_ERROR_PORT);
-          scvwritef(message, CURRENT_ERROR_PORT, arglist);
-          lnewline(CURRENT_ERROR_PORT);
+          WRITE_TEXT_CONSTANT(_T("; Info: "), CURRENT_ERROR_PORT());
+          scvwritef(message, CURRENT_ERROR_PORT(), arglist);
+          lnewline(CURRENT_ERROR_PORT());
      }
 }
 
@@ -100,13 +100,13 @@ LRef vmsignal(const _TCHAR * signal_name, long n, ...)
 
      dscwritef(DF_SHOW_VMSIGNALS, _T("; DEBUG: vm-signal :~cS : ~s\n"), signal_name, signal_args);
 
-     if (NULLP(CURRENT_VM_SIGNAL_HANDLER))
+     if (NULLP(CURRENT_VM_SIGNAL_HANDLER()))
           panic("VM condition signaled without registered handler.\n");
 
-     if (!PROCEDUREP(CURRENT_VM_SIGNAL_HANDLER))
+     if (!PROCEDUREP(CURRENT_VM_SIGNAL_HANDLER()))
           panic("Invalid VM signal handler, must be a procedure.\n");
 
-     return napply(CURRENT_VM_SIGNAL_HANDLER, 1, signal_args);
+     return napply(CURRENT_VM_SIGNAL_HANDLER(), 1, signal_args);
 }
 
 /*  REVISIT: lots of errors could be improved by adding ~s to print the error object */
@@ -119,13 +119,13 @@ LRef vmerror(const _TCHAR * message, LRef new_errobj)
      dscwritef(DF_SHOW_VMERRORS,
                _T("; DEBUG: runtime error: ~cS : errobj=~s\n"), message, new_errobj);
 
-     if (NULLP(CURRENT_VM_RUNTIME_ERROR_HANDLER))
+     if (NULLP(CURRENT_VM_RUNTIME_ERROR_HANDLER()))
           panic("VM runtime error without registered handler.\n");
 
-     if (!CLOSUREP(CURRENT_VM_RUNTIME_ERROR_HANDLER) && !SUBRP(CURRENT_VM_RUNTIME_ERROR_HANDLER))
+     if (!CLOSUREP(CURRENT_VM_RUNTIME_ERROR_HANDLER()) && !SUBRP(CURRENT_VM_RUNTIME_ERROR_HANDLER()))
           panic("Invalid VM error handler, must be a procedure.\n");
 
-     napply(CURRENT_VM_RUNTIME_ERROR_HANDLER, 4, strcons(message), err_primitive, new_errobj, NIL);
+     napply(CURRENT_VM_RUNTIME_ERROR_HANDLER(), 4, strcons(message), err_primitive, new_errobj, NIL);
 
      /* Execution should never get to this point...
       *

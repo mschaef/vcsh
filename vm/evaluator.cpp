@@ -570,13 +570,13 @@ static void process_break_event()
 {
      interp.break_pending = false;
 
-     if (!CLOSUREP(CURRENT_USER_BREAK_HANDLER))
+     if (!CLOSUREP(CURRENT_USER_BREAK_HANDLER()))
           panic("Bad user break handler");
 
      LRef val = NIL;
      LRef tag = NIL;
 
-     if (call_lisp_procedure(CURRENT_USER_BREAK_HANDLER, &val, &tag, 0))
+     if (call_lisp_procedure(CURRENT_USER_BREAK_HANDLER(), &val, &tag, 0))
      {
           THROW_ESCAPE(tag, val);
      }
@@ -586,10 +586,10 @@ static void process_timer_event()
 {
      interp.timer_event_pending = false;
 
-     if (!CLOSUREP(CURRENT_TIMER_EVENT_HANDLER))
+     if (!CLOSUREP(CURRENT_TIMER_EVENT_HANDLER()))
           panic("Bad timer event handler");
 
-     if (call_lisp_procedure(CURRENT_TIMER_EVENT_HANDLER, NULL, NULL, 0))
+     if (call_lisp_procedure(CURRENT_TIMER_EVENT_HANDLER(), NULL, NULL, 0))
           panic(_T("Error evaluating timer event handler"));
 }
 
@@ -1103,12 +1103,12 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
 
      SET_SYMBOL_VCELL(var, val);
 
-     if (!NULLP(interp.sym_global_define_hook) && !NULLP(CURRENT_GLOBAL_DEFINE_HOOK))
+     if (!NULLP(interp.sym_global_define_hook) && !NULLP(CURRENT_GLOBAL_DEFINE_HOOK()))
      {
-          if (!CLOSUREP(CURRENT_GLOBAL_DEFINE_HOOK))
+          if (!CLOSUREP(CURRENT_GLOBAL_DEFINE_HOOK()))
                panic("Bad *global-define-hook*");
 
-          if (call_lisp_procedure(CURRENT_GLOBAL_DEFINE_HOOK, NULL, NULL, 2, var, val))
+          if (call_lisp_procedure(CURRENT_GLOBAL_DEFINE_HOOK(), NULL, NULL, 2, var, val))
                panic(_T("Error in *global-define-hook*"));
      }
 

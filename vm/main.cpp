@@ -217,7 +217,7 @@ static panic_handler_t previous_panic_handler = NULL;
 static void scan_panic_handler()
 {
      if (DEBUGGING_BUILD)
-          dump_current_frames(CURRENT_ERROR_PORT);
+          dump_current_frames(CURRENT_ERROR_PORT());
 
      if (previous_panic_handler)
           previous_panic_handler();

@@ -158,12 +158,12 @@ LRef lfind_package(LRef name)
 
      _TCHAR *n = get_c_string(name);
 
-     for (LRef l = CURRENT_PACKAGE_LIST; CONSP(l); l = CDR(l))
+     for (LRef l = CURRENT_PACKAGE_LIST(); CONSP(l); l = CDR(l))
      {
           LRef p = CAR(l);
 
           if (!PACKAGEP(p))
-               vmerror("damaged package list", CURRENT_PACKAGE_LIST);
+               vmerror("damaged package list", CURRENT_PACKAGE_LIST());
           else if (_tcscmp(n, get_c_string(PACKAGE_NAME(p))) == 0)
                return p;
      }

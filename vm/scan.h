@@ -415,10 +415,6 @@ INLINE bool NULLP(LRef x)
      return EQ(x, NIL);
 };
 
-#define LOBJECT_AS(object, type) (*((type *)&((object).storage_as.misc.p1)))
-#define LREF_AS(ref, type) (LOBJECT_AS(*ref, type))
-
-
 INLINE void SET_GC_MARK(LRef object, int new_gc_mark_bit)
 {
      if (!LREF_IMMEDIATE_P(object))
@@ -823,135 +819,6 @@ INLINE bool FALSEP(LRef x)
 
 LRef make_type_name(typecode_t type_code);
 
-/**** Input/Output ****/
-
-enum port_mode_t
-{
-     PORT_CLOSED = 0x00,
-     PORT_INPUT = 0x01,
-     PORT_OUTPUT = 0x02,
-
-     PORT_INPUT_OUTPUT = PORT_INPUT | PORT_OUTPUT,
-
-     PORT_DIRECTION = PORT_INPUT | PORT_OUTPUT,
-
-     PORT_BINARY = 0x08
-};
-
-struct port_text_translation_info_t
-{
-     int _unread_buffer[PORT_UNGET_BUFFER_SIZE];
-     size_t _unread_valid;
-
-     bool _crlf_translate;
-     bool _needs_lf;
-
-     fixnum_t _column;
-     fixnum_t _row;
-
-     fixnum_t _previous_line_length;
-};
-
-struct port_info_t
-{
-     LRef _port_name;
-
-     void *_user_data;
-     LRef _user_object;
-     LRef _fasl_table;
-
-     LRef _fasl_stack[FAST_LOAD_STACK_DEPTH];
-     size_t _fasl_stack_ptr;
-
-     port_mode_t _mode;
-
-     port_text_translation_info_t *_text_info;
-
-     size_t _bytes_read;
-     size_t _bytes_written;
-};
-
-struct port_class_t
-{
-     const _TCHAR *_name;
-     port_mode_t _valid_modes;
-
-     void (*_open) (LRef);
-
-      bool(*_read_readyp) (LRef);
-      size_t(*_read) (void *, size_t, size_t, LRef);
-
-      size_t(*_write) (const void *, size_t, size_t, LRef);
-      bool(*_rich_write) (LRef, bool, LRef);
-
-     int (*_flush) (LRef);
-     void (*_close) (LRef);
-     void (*_gc_free) (LRef);
-
-      size_t(*_length) (LRef);
-};
-
-const LRef DEFAULT_PORT = NIL;
-
-
-#define CURRENT_TIMER_EVENT_HANDLER SYMBOL_VCELL(interp.sym_timer_event_handler)
-#define CURRENT_USER_BREAK_HANDLER SYMBOL_VCELL(interp.sym_user_break_handler)
-
-#define CURRENT_INPUT_PORT SYMBOL_VCELL(interp.sym_port_current_in)
-#define CURRENT_OUTPUT_PORT SYMBOL_VCELL(interp.sym_port_current_out)
-#define CURRENT_ERROR_PORT SYMBOL_VCELL(interp.sym_port_current_err)
-#define CURRENT_DEBUG_PORT SYMBOL_VCELL(interp.sym_port_debug)
-
-/*  This is the 'universally availble' debugger output port. */
-#define VM_DEBUG_PORT (&interp.debugger_output)
-
-#define CURRENT_GLOBAL_DEFINE_HOOK (SYMBOL_VCELL(interp.sym_global_define_hook))
-#define CURRENT_VM_RUNTIME_ERROR_HANDLER (SYMBOL_VCELL(interp.sym_vm_runtime_error_handler))
-#define CURRENT_VM_SIGNAL_HANDLER (SYMBOL_VCELL(interp.sym_vm_signal_handler))
-
-#define CURRENT_PACKAGE_LIST SYMBOL_VCELL(interp.sym_package_list)
-#define SET_CURRENT_PACKAGE_LIST(ps) SET_SYMBOL_VCELL(interp.sym_package_list, ps)
-
-#define READER_DEFAULTS_TO_FLONUM_P (TRUEP(SYMBOL_VCELL(interp.sym_reader_defaults_to_flonum)))
-#define READER_QUOTES_LITERAL_LISTS_P (TRUEP(SYMBOL_VCELL(interp.sym_reader_quotes_literal_lists)))
-
-bool print_length_check(long element);
-
-LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_object,
-              void *user_data);
-
-size_t read_raw(void *buf, size_t size, size_t count, LRef port);
-size_t write_raw(const void *buf, size_t size, size_t count, LRef port);
-
-int read_char(LRef port);
-int unread_char(int ch, LRef port);
-int peek_char(LRef port);
-void write_char(int ch, LRef port);
-size_t write_text(const _TCHAR * buf, size_t count, LRef port);
-
-#define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
-
-LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist);
-void scwritef(const _TCHAR * format_str, LRef port, ...);
-void dscwritef(const _TCHAR * format_str, ...);
-void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...);
-
-LRef debug_print_object(LRef exp, LRef port, bool machine_readable);
-
-void register_internal_file(const _TCHAR * filename, bool binary_data, unsigned char *data,
-                            size_t bytes);
-LRef open_c_data_input(bool binary_data, unsigned char *source, size_t bytes);
-
-typedef bool(*blocking_input_read_data_fn_t) (LRef port, void *userdata);
-typedef void (*blocking_input_close_port_fn_t) (LRef port, void *userdata);
-
-void blocking_input_post_data(LRef port, void *data, size_t size);
-void blocking_input_post_eof(LRef port);
-bool blocking_input_is_data_available(LRef port);
-
-LRef blocking_input_cons(const _TCHAR * port_name, bool binary,
-                         blocking_input_read_data_fn_t read_fn,
-                         blocking_input_close_port_fn_t close_fn, void *userdata);
 
 /*** Boxed object accessors and constructors ***/
 
@@ -1165,7 +1032,7 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-                                                                                                  /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
+                                                                                                                     /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
 
 INLINE size_t STRUCTURE_DIM(LRef obj)
 {
@@ -1324,6 +1191,7 @@ INLINE void SET_SYMBOL_HOME(LRef x, LRef home)
      checked_assert(SYMBOLP(x));
      ((*x).storage_as.symbol.home) = home;
 }
+
 
   /*** package **/
 #define CURRENT_PACKAGE (SYMBOL_VCELL(interp.sym_current_package))
@@ -1680,6 +1548,73 @@ INLINE void SET_INSTANCE_PROTO(LRef obj, LRef proto)
 
 
   /*** port **/
+
+enum port_mode_t
+{
+     PORT_CLOSED = 0x00,
+     PORT_INPUT = 0x01,
+     PORT_OUTPUT = 0x02,
+
+     PORT_INPUT_OUTPUT = PORT_INPUT | PORT_OUTPUT,
+
+     PORT_DIRECTION = PORT_INPUT | PORT_OUTPUT,
+
+     PORT_BINARY = 0x08
+};
+
+struct port_text_translation_info_t
+{
+     int _unread_buffer[PORT_UNGET_BUFFER_SIZE];
+     size_t _unread_valid;
+
+     bool _crlf_translate;
+     bool _needs_lf;
+
+     fixnum_t _column;
+     fixnum_t _row;
+
+     fixnum_t _previous_line_length;
+};
+
+struct port_info_t
+{
+     LRef _port_name;
+
+     void *_user_data;
+     LRef _user_object;
+     LRef _fasl_table;
+
+     LRef _fasl_stack[FAST_LOAD_STACK_DEPTH];
+     size_t _fasl_stack_ptr;
+
+     port_mode_t _mode;
+
+     port_text_translation_info_t *_text_info;
+
+     size_t _bytes_read;
+     size_t _bytes_written;
+};
+
+struct port_class_t
+{
+     const _TCHAR *_name;
+     port_mode_t _valid_modes;
+
+     void (*_open) (LRef);
+
+      bool(*_read_readyp) (LRef);
+      size_t(*_read) (void *, size_t, size_t, LRef);
+
+      size_t(*_write) (const void *, size_t, size_t, LRef);
+      bool(*_rich_write) (LRef, bool, LRef);
+
+     int (*_flush) (LRef);
+     void (*_close) (LRef);
+     void (*_gc_free) (LRef);
+
+      size_t(*_length) (LRef);
+};
+
 INLINE port_info_t *PORT_PINFO(LRef x)
 {
      checked_assert(PORTP(x));
@@ -1871,6 +1806,118 @@ enum fast_op_opcode_t
 
      FOP_MARK_STACK = 248,
 };
+
+/**** Input/Output ****/
+const LRef DEFAULT_PORT = NIL;
+
+
+
+INLINE LRef CURRENT_TIMER_EVENT_HANDLER()
+{
+     return SYMBOL_VCELL(interp.sym_timer_event_handler);
+}
+
+INLINE LRef CURRENT_USER_BREAK_HANDLER()
+{
+     return SYMBOL_VCELL(interp.sym_user_break_handler);
+}
+
+INLINE LRef CURRENT_INPUT_PORT()
+{
+     return SYMBOL_VCELL(interp.sym_port_current_in);
+}
+
+INLINE LRef CURRENT_OUTPUT_PORT()
+{
+     return SYMBOL_VCELL(interp.sym_port_current_out);
+}
+
+INLINE LRef CURRENT_ERROR_PORT()
+{
+     return SYMBOL_VCELL(interp.sym_port_current_err);
+}
+
+INLINE LRef CURRENT_DEBUG_PORT()
+{
+     return SYMBOL_VCELL(interp.sym_port_debug);
+}
+
+/*  This is the 'universally availble' debugger output port. */
+INLINE LRef VM_DEBUG_PORT()
+{
+     return (&interp.debugger_output);
+}
+
+INLINE LRef CURRENT_GLOBAL_DEFINE_HOOK()
+{
+     return (SYMBOL_VCELL(interp.sym_global_define_hook));
+}
+
+INLINE LRef CURRENT_VM_RUNTIME_ERROR_HANDLER()
+{
+     return (SYMBOL_VCELL(interp.sym_vm_runtime_error_handler));
+}
+
+INLINE LRef CURRENT_VM_SIGNAL_HANDLER()
+{
+     return (SYMBOL_VCELL(interp.sym_vm_signal_handler));
+}
+
+INLINE LRef CURRENT_PACKAGE_LIST()
+{
+     return SYMBOL_VCELL(interp.sym_package_list);
+}
+
+INLINE void SET_CURRENT_PACKAGE_LIST(LRef ps)
+{
+     SET_SYMBOL_VCELL(interp.sym_package_list, ps);
+}
+
+INLINE bool READER_DEFAULTS_TO_FLONUM_P()
+{
+     return (TRUEP(SYMBOL_VCELL(interp.sym_reader_defaults_to_flonum)));
+}
+
+INLINE bool READER_QUOTES_LITERAL_LISTS_P()
+{
+     return TRUEP(SYMBOL_VCELL(interp.sym_reader_quotes_literal_lists));
+}
+
+LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_object,
+              void *user_data);
+
+size_t read_raw(void *buf, size_t size, size_t count, LRef port);
+size_t write_raw(const void *buf, size_t size, size_t count, LRef port);
+
+int read_char(LRef port);
+int unread_char(int ch, LRef port);
+int peek_char(LRef port);
+void write_char(int ch, LRef port);
+size_t write_text(const _TCHAR * buf, size_t count, LRef port);
+
+#define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
+
+LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist);
+void scwritef(const _TCHAR * format_str, LRef port, ...);
+void dscwritef(const _TCHAR * format_str, ...);
+void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...);
+
+LRef debug_print_object(LRef exp, LRef port, bool machine_readable);
+
+void register_internal_file(const _TCHAR * filename, bool binary_data, unsigned char *data,
+                            size_t bytes);
+LRef open_c_data_input(bool binary_data, unsigned char *source, size_t bytes);
+
+typedef bool(*blocking_input_read_data_fn_t) (LRef port, void *userdata);
+typedef void (*blocking_input_close_port_fn_t) (LRef port, void *userdata);
+
+void blocking_input_post_data(LRef port, void *data, size_t size);
+void blocking_input_post_eof(LRef port);
+bool blocking_input_is_data_available(LRef port);
+
+LRef blocking_input_cons(const _TCHAR * port_name, bool binary,
+                         blocking_input_read_data_fn_t read_fn,
+                         blocking_input_close_port_fn_t close_fn, void *userdata);
 
   /****************************************************************
                          The C API

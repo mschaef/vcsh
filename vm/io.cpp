@@ -137,7 +137,7 @@ LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_ob
 size_t write_raw(const void *buf, size_t size, size_t count, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      assert(!NULLP(port));
      assert(PORT_CLASS(port)->_write);
@@ -150,7 +150,7 @@ size_t write_raw(const void *buf, size_t size, size_t count, LRef port)
 size_t read_raw(void *buf, size_t size, size_t count, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      assert(!NULLP(port));
      assert(PORT_CLASS(port)->_read);
@@ -218,7 +218,7 @@ LRef lport_mode(LRef obj)
 LRef lport_name(LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -229,7 +229,7 @@ LRef lport_name(LRef port)
 LRef lport_location(LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -322,7 +322,7 @@ int read_char(LRef port)
      int ch = EOF;
 
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      assert(!NULLP(port));
 
@@ -388,7 +388,7 @@ int read_char(LRef port)
 LRef lchar_readyp(LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
@@ -449,7 +449,7 @@ LRef lflush_whitespace(LRef port, LRef slc)
      int ch = EOF;
 
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -479,7 +479,7 @@ LRef lflush_whitespace(LRef port, LRef slc)
 LRef lread_char(LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
@@ -500,7 +500,7 @@ LRef lread_binary_string(LRef l, LRef port)
      _TCHAR buf[STACK_STRBUF_LEN];
 
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(2, port);
 
@@ -587,7 +587,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
 LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(3, port);
 
@@ -637,7 +637,7 @@ bool read_binary_flonum(LRef port, flonum_t & result)
 LRef lread_binary_flonum(LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(3, port);
 
@@ -657,7 +657,7 @@ LRef lread_line(LRef port)
      int ch;
 
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
@@ -683,14 +683,12 @@ LRef lread_line(LRef port)
 int unread_char(int ch, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      assert(!NULLP(port));
 
-
      if (PORT_BINARYP(port))
           vmerror("Unread not supported on binary ports!", port);
-
 
      switch (ch)
      {
@@ -719,7 +717,7 @@ int unread_char(int ch, LRef port)
 LRef lunread_char(LRef ch, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
@@ -738,7 +736,7 @@ int peek_char(LRef port)
      int ch = EOF;
 
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      assert(!NULLP(port));
 
@@ -753,7 +751,7 @@ LRef lpeek_char(LRef port)
      int ch;
 
      if (NULLP(port))
-          port = CURRENT_INPUT_PORT;
+          port = CURRENT_INPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -771,7 +769,7 @@ void write_char(int ch, LRef port)
      _TCHAR tch = (_TCHAR) ch;
 
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      assert(!NULLP(port));
 
@@ -787,7 +785,7 @@ LRef lwrite_char(LRef ch, LRef port)
           vmerror_wrong_type(1, ch);
 
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(2, port);
@@ -829,7 +827,7 @@ LRef lwrite_strings(size_t argc, LRef argv[])
 LRef lwrite_binary_string(LRef string, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(2, port);
 
@@ -855,7 +853,7 @@ LRef lwrite_binary_string(LRef string, LRef port)
 LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(4, port);
 
@@ -962,7 +960,7 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
 LRef lbinary_write_flonum(LRef v, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
      else if (!PORTP(port))
           vmerror_wrong_type(4, port);
 
@@ -991,7 +989,7 @@ LRef lbinary_write_flonum(LRef v, LRef port)
 size_t write_text(const _TCHAR * buf, size_t count, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      assert(PORTP(port));
 
@@ -1089,7 +1087,7 @@ size_t write_text(const _TCHAR * buf, size_t count, LRef port)
 LRef lrich_write(LRef obj, LRef machine_readable, LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(3, port);
@@ -1107,7 +1105,7 @@ LRef lrich_write(LRef obj, LRef machine_readable, LRef port)
 LRef lnewline(LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -1120,7 +1118,7 @@ LRef lnewline(LRef port)
 LRef lfresh_line(LRef port)
 {
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -1440,9 +1438,9 @@ port_class_t debug_port_class = {
 
 LRef ldebug_write(LRef form)
 {
-     debug_print_object(form, CURRENT_DEBUG_PORT, true);
+     debug_print_object(form, CURRENT_DEBUG_PORT(), true);
 
-     return lnewline(CURRENT_DEBUG_PORT);
+     return lnewline(CURRENT_DEBUG_PORT());
 }
 
 LRef lopen_debug_port()
@@ -1988,7 +1986,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
      char ch;
 
      if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT;
+          port = CURRENT_OUTPUT_PORT();
 
      assert(PORTP(port));
 
@@ -2210,8 +2208,8 @@ void dscwritef(const _TCHAR * format_str, ...)
 
      va_start(arglist, format_str);
 
-     scvwritef(format_str, VM_DEBUG_PORT, arglist);
-     lflush_port(VM_DEBUG_PORT);
+     scvwritef(format_str, VM_DEBUG_PORT(), arglist);
+     lflush_port(VM_DEBUG_PORT());
 }
 
 void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...)
@@ -2222,8 +2220,8 @@ void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...)
 
           va_start(arglist, format_str);
 
-          scvwritef(format_str, VM_DEBUG_PORT, arglist);
-          lflush_port(VM_DEBUG_PORT);
+          scvwritef(format_str, VM_DEBUG_PORT(), arglist);
+          lflush_port(VM_DEBUG_PORT());
      }
 }
 
