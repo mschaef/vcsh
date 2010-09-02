@@ -574,11 +574,11 @@ void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno)
      exit(1);
 }
 
-void debug_break() 
+void debug_break()
 {
      /*  REVISIT: Is this the gdb way to simulate a breakpoint? */
-     
-     __asm__ __volatile__("int3");      
+
+     __asm__ __volatile__("int3");
 }
 
 void *sys_get_stack_start()

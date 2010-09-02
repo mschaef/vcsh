@@ -36,30 +36,67 @@ extern i64 malloc_bytes;
 
 enum
 {
-     DEFAULT_HEAP_SEGMENT_SIZE = 262144,        /*  Default size of a heap segment, in cells */
-     DEFAULT_MAX_HEAP_SEGMENTS = 256,   /*  Default limit on the Maximum number of heap segments */
+     /*  Default size of a heap segment, in cells */
+     DEFAULT_HEAP_SEGMENT_SIZE = 262144,
 
-     DEFAULT_HASH_SIZE = 8,     /*  Default size for hash tables */
-     DEFAULT_FASL_TABLE_SIZE = 8192,    /*  Default size for FASL loader tables */
-     STACK_STRBUF_LEN = 256,    /*  Local (stack) string buffer size */
-     PORT_UNGET_BUFFER_SIZE = 8,        /* The number of characters that can be ungotten from a port */
+     /*  Default limit on the Maximum number of heap segments */
+     DEFAULT_MAX_HEAP_SEGMENTS = 256,
 
-     DETAILED_MEMORY_LOG = FALSE,       /*  Record individual safe_mallocs to debug */
-     ALWAYS_GC = FALSE,         /*  Garbage collect on each call to newCell (Very slow) */
+     /*  Default size for FASL loader tables */
+     DEFAULT_FASL_TABLE_SIZE = 8192,
 
-     GLOBAL_ENV_BLOCK_SIZE = 4096,      /*  The default allocation unit for global environment vectors. */
+     /*  Local (stack) string buffer size */
+     STACK_STRBUF_LEN = 256,
 
-     FAST_LOAD_STACK_DEPTH = 8, /*  The depth of the stack the FASL loader uses to store load unit state */
+     /* The number of characters that can be ungotten from a port */
+     PORT_UNGET_BUFFER_SIZE = 8,
 
-     ARG_BUF_LEN = 32,          /*  The number of arguments contained in argment buffers */
+     /*  Record individual safe_mallocs to debug */
+     DETAILED_MEMORY_LOG = FALSE,
 
-     SUB_FREELIST_SIZE = 1024,  /*  The number of cells on a sub-freelist */
+     /*  Garbage collect on each call to newCell (Very slow) */
+     ALWAYS_GC = FALSE,
 
-     MAX_GC_ROOTS = 512,        /*  The maximum number of GC roots per thread */
+     /*  The default allocation unit for global environment vectors. */
+     GLOBAL_ENV_BLOCK_SIZE = 4096,
 
-     DEBUG_FLONUM_PRINT_PRECISION = 8,  /*  The debug printer's flonum precisionn */
+     /*  The depth of the stack the FASL loader uses to store load unit state */
+     FAST_LOAD_STACK_DEPTH = 8,
 
-     MAX_INIT_LOAD_FILES = 8,   /* The maximum number of init load files. */
+     /*  The number of arguments contained in argment buffers */
+     ARG_BUF_LEN = 32,
+
+     /*  The number of cells on a sub-freelist */
+     SUB_FREELIST_SIZE = 1024,
+
+     /*  The maximum number of GC roots per thread */
+     MAX_GC_ROOTS = 512,
+
+     /*  The debug printer's flonum precisionn */
+     DEBUG_FLONUM_PRINT_PRECISION = 8,
+
+     /* The maximum number of init load files. */
+     MAX_INIT_LOAD_FILES = 8,
+
+
+     /*** Hash table tuning settings ***/
+
+     /*  Default initial size for hash tables */
+     HASH_DEFAULT_INITIAL_SIZE = 8,
+
+     /* The maximum allowable load factor for a hash table. If the fraction of
+      * used table entries exceeds this, then the hash table is enlarged. */
+     HASH_MAX_LOAD_FACTOR = 67, /* percent */
+
+     /* The factor by which 'small' hash tables are enlarged. */
+     HASH_SMALL_ENLARGE_FACTOR = 2,
+
+     /* The factor by which 'large' hash tables are enlarged. */
+     HASH_LARGE_ENLARGE_FACTOR = 4,
+
+     /* The number of active elements a hash table needs in order to
+      * be considered 'large'. */
+     HASH_SMALL_ENLARGE_THRESHOLD = 50000,
 };
 
 /* _The_ type *************************************************
@@ -1126,7 +1163,7 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-                                                                               /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
+                                                                                                  /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
 
 INLINE size_t STRUCTURE_DIM(LRef obj)
 {
@@ -1537,7 +1574,7 @@ fixnum_t sxhash_eq(LRef obj);
 fixnum_t sxhash(LRef obj);
 LRef lsxhash(LRef obj, LRef hash);
 
-LRef hashcons(bool shallow, size_t size = DEFAULT_HASH_SIZE);
+LRef hashcons(bool shallow, size_t size = HASH_DEFAULT_INITIAL_SIZE);
 
 bool hash_ref(LRef table, LRef key, LRef & result);     /*  TODO: convert to pointer */
 

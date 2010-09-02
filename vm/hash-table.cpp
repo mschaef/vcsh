@@ -12,10 +12,6 @@ BEGIN_NAMESPACE(scan)
 #define HASH_COMBINE(_h1,_h2) ((((_h1) * 17 + 1) ^ (_h2)))
 #define HASH_SHALLOW(obj)		((obj)->storage_as.hash.info.shallow_keys)
 #define HASH_COUNT(obj)			((obj)->storage_as.hash.info.count)
-#define HASH_SMALL_ENLARGE_THRESHOLD    50000
-#define HASH_SMALL_ENLARGE_FACTOR       2
-#define HASH_LARGE_ENLARGE_FACTOR       4
-#define HASH_MAX_LOAD_FACTOR            0.67
 static void init_hash_entry(hash_entry_t * entry)
 {
      entry->_key = UNBOUND_MARKER;
@@ -494,8 +490,11 @@ LRef hash_set(LRef table, LRef key, LRef value, bool check_for_expand)
           }
      }
 
-     if (check_for_expand && (HASH_COUNT(table) > HASH_SIZE(table) * HASH_MAX_LOAD_FACTOR))
-          enlarge_hash(table);
+     if (check_for_expand)
+     {
+          if (HASH_COUNT(table) > HASH_SIZE(table) * (HASH_MAX_LOAD_FACTOR / 100.0))
+               enlarge_hash(table);
+     }
 
      return table;
 }
