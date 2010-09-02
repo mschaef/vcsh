@@ -224,7 +224,7 @@ static void fast_read_package(LRef port, LRef * package)
           info(_T("PACKAGE ~s@~a NOT FOUND, DEFAULTING TO ~a!"),        /*  REVISIT: should this be allowable? */
                name, lport_location(port), CURRENT_PACKAGE);
 
-          *package = CURRENT_PACKAGE;
+          *package = CURRENT_PACKAGE();
 
           /* fast_read_error("package not found", port, name); */
      }
@@ -827,7 +827,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                if (pinfo->_fasl_stack_ptr == FAST_LOAD_STACK_DEPTH - 1)
                     fast_read_error(_T("Package stack overflow."), port, lport_location(port));
 
-               pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = CURRENT_PACKAGE;
+               pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = CURRENT_PACKAGE();
                pinfo->_fasl_stack_ptr++;
                break;
 
@@ -875,7 +875,7 @@ LRef lifasl_load(LRef fname_or_port)
      LRef result = NIL;
      LRef port = NIL;
 
-     LRef previous_package = CURRENT_PACKAGE;
+     LRef previous_package = CURRENT_PACKAGE();
 
      if (STRINGP(fname_or_port))
           port = lopen_input_file(fname_or_port, keyword_intern(_T("binary")));

@@ -1,5 +1,4 @@
-
-/* oblist.c
+/* oblist.cpp
  *
  * Package and symbol code.
  *
@@ -154,7 +153,7 @@ LRef lfind_package(LRef name)
      if (PACKAGEP(name))
           return name;
      else if (NULLP(name))
-          return CURRENT_PACKAGE;
+          return CURRENT_PACKAGE();
 
      _TCHAR *n = get_c_string(name);
 
