@@ -9,7 +9,10 @@
 BEGIN_NAMESPACE(scan)
 
 /*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
-#define HASH_COMBINE(_h1,_h2) ((((_h1) * 17 + 1) ^ (_h2)))
+INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
+{
+     return (_h1 * 17 + 1) ^ _h2;
+}
 
 INLINE void SET_HASH_SHALLOW(LRef hash, bool shallow_keys)
 {
