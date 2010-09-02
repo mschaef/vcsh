@@ -337,10 +337,6 @@ LRef lhashp(LRef obj)
           return boolcons(false);
 }
 
-/**************************************************************
- * Hash Tables
- **************************************************************/
-
 static fixnum_t href_index(bool shallow_p, size_t mask, LRef key)
 {
      fixnum_t index;
@@ -438,9 +434,9 @@ static hash_entry_t *hash_lookup_entry(LRef hash, LRef key)
      return NULL;
 }
 
-bool hash_ref(LRef table, LRef key, LRef & value_result)
+bool hash_ref(LRef hash, LRef key, LRef & value_result)
 {
-     hash_entry_t *entry = hash_lookup_entry(table, key);
+     hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry == NULL)
           return false;
@@ -450,12 +446,12 @@ bool hash_ref(LRef table, LRef key, LRef & value_result)
      return true;
 }
 
-LRef lhash_refs(LRef table, LRef key)
+LRef lhash_refs(LRef hash, LRef key)
 {
-     if (!HASHP(table))
-          vmerror_wrong_type(1, table);
+     if (!HASHP(hash))
+          vmerror_wrong_type(1, hash);
 
-     hash_entry_t *entry = hash_lookup_entry(table, key);
+     hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry == NULL)
           return boolcons(false);
@@ -464,15 +460,15 @@ LRef lhash_refs(LRef table, LRef key)
 }
 
 /*  TODO: Switch lhash_ref to SUBR_ARGS, so that it can return () for a lookup failure. */
-LRef lhash_ref(LRef table, LRef key, LRef defaultValue)
+LRef lhash_ref(LRef hash, LRef key, LRef defaultValue)
 {
      if (NULLP(defaultValue))
           defaultValue = boolcons(false);
 
-     if (!HASHP(table))
-          vmerror_wrong_type(1, table);
+     if (!HASHP(hash))
+          vmerror_wrong_type(1, hash);
 
-     hash_entry_t *entry = hash_lookup_entry(table, key);
+     hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry == NULL)
           return defaultValue;
@@ -480,22 +476,22 @@ LRef lhash_ref(LRef table, LRef key, LRef defaultValue)
           return entry->_val;
 }
 
-LRef lhash_hasp(LRef table, LRef key)
+LRef lhash_hasp(LRef hash, LRef key)
 {
-     if (!HASHP(table))
-          vmerror_wrong_type(1, table);
+     if (!HASHP(hash))
+          vmerror_wrong_type(1, hash);
 
-     if (hash_lookup_entry(table, key) == NULL)
+     if (hash_lookup_entry(hash, key) == NULL)
           return boolcons(false);
      else
-          return table;
+          return hash;
 }
 
-LRef hash_set(LRef table, LRef key, LRef value, bool check_for_expand)
+LRef hash_set(LRef hash, LRef key, LRef value, bool check_for_expand)
 {
-     assert(HASHP(table));
+     assert(HASHP(hash));
 
-     hash_entry_t *entry = hash_lookup_entry(table, key);       /*  REVISIT: double lookup/hash */
+     hash_entry_t *entry = hash_lookup_entry(hash, key);       /*  REVISIT: double lookup/hash */
 
      if (entry != NULL)
      {
@@ -503,17 +499,17 @@ LRef hash_set(LRef table, LRef key, LRef value, bool check_for_expand)
      }
      else
      {
-          for (fixnum_t index = href_index(HASH_SHALLOW(table), HASH_MASK(table), key);;
-               index = href_next_index(HASH_MASK(table), index))
+          for (fixnum_t index = href_index(HASH_SHALLOW(hash), HASH_MASK(hash), key);;
+               index = href_next_index(HASH_MASK(hash), index))
           {
-               hash_entry_t *entry = &HASH_DATA(table)[index];
+               hash_entry_t *entry = &HASH_DATA(hash)[index];
 
                if (hash_entry_unused_p(entry))
                {
                     entry->_key = key;
                     entry->_val = value;
 
-                    SET_HASH_COUNT(table, HASH_COUNT(table) + 1);
+                    SET_HASH_COUNT(hash, HASH_COUNT(hash) + 1);
 
                     break;
                }
@@ -522,35 +518,35 @@ LRef hash_set(LRef table, LRef key, LRef value, bool check_for_expand)
 
      if (check_for_expand)
      {
-          if (HASH_COUNT(table) > HASH_SIZE(table) * (HASH_MAX_LOAD_FACTOR / 100.0))
-               enlarge_hash(table);
+          if (HASH_COUNT(hash) > HASH_SIZE(hash) * (HASH_MAX_LOAD_FACTOR / 100.0))
+               enlarge_hash(hash);
      }
 
-     return table;
+     return hash;
 }
 
-LRef lhash_set(LRef table, LRef key, LRef value)
+LRef lhash_set(LRef hash, LRef key, LRef value)
 {
-     if (!HASHP(table))
-          vmerror_wrong_type(1, table);
+     if (!HASHP(hash))
+          vmerror_wrong_type(1, hash);
 
-     return hash_set(table, key, value, true);
+     return hash_set(hash, key, value, true);
 }
 
-LRef lhash_remove(LRef table, LRef key)
+LRef lhash_remove(LRef hash, LRef key)
 {
-     if (!HASHP(table))
-          vmerror_wrong_type(1, table);
+     if (!HASHP(hash))
+          vmerror_wrong_type(1, hash);
 
-     hash_entry_t *entry = hash_lookup_entry(table, key);
+     hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry != NULL)
      {
           delete_hash_entry(entry);
-          SET_HASH_COUNT(table, HASH_COUNT(table) - 1);
+          SET_HASH_COUNT(hash, HASH_COUNT(hash) - 1);
      }
 
-     return table;
+     return hash;
 };
 
 LRef lhash_clear(LRef hash)
