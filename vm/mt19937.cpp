@@ -157,9 +157,9 @@ unsigned long mt19937_int32(void)
 }
 
 /* generates a random number on [0,0xffffffffffffffff]-interval */
-u64 mt19937_int64(void)
+u64_t mt19937_int64(void)
 {
-     i64 retval = mt19937_int32();
+     i64_t retval = mt19937_int32();
 
      retval <<= 32;
 

@@ -269,7 +269,7 @@ void __frame_set_top(frame_record_t * f)
  *   A pointer to the first (topmost) frame satisfying the predicate.
  *   NULL, if none found.
  */
-frame_record_t *__frame_find(frame_predicate pred, uptr info)
+frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
 {
      frame_record_t *loc = CURRENT_TIB()->frame_stack;
 
@@ -1315,7 +1315,7 @@ LRef __ex_current_catch_tag()
  * frame that has explicitly requested interest in this kind of exception.
  * This is used to determine if the exception was expected by the programmer.
  */
-bool __ex_matching_frame_1(frame_record_t * rec, uptr tag, bool exclude_unwind_protection)
+bool __ex_matching_frame_1(frame_record_t * rec, uptr_t tag, bool exclude_unwind_protection)
 {
      if (!exclude_unwind_protection)
      {
@@ -1337,12 +1337,12 @@ bool __ex_matching_frame_1(frame_record_t * rec, uptr tag, bool exclude_unwind_p
      return FALSE;
 }
 
-bool __ex_next_frame_to_catch(frame_record_t * rec, uptr tag)
+bool __ex_next_frame_to_catch(frame_record_t * rec, uptr_t tag)
 {
      return __ex_matching_frame_1(rec, tag, FALSE);
 }
 
-bool __ex_next_try_frame(frame_record_t * rec, uptr tag)
+bool __ex_next_try_frame(frame_record_t * rec, uptr_t tag)
 {
      return __ex_matching_frame_1(rec, tag, TRUE);
 }
@@ -1353,13 +1353,13 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
      UNREFERENCED(already_pending);
 
      /* Check to see if we have a matching catch block... */
-     frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr) ((LRef) tag));
+     frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t)tag);
 
      /* ...If we do, start unwinding the stack... */
      if (next_try)
      {
           frame_record_t *next_catcher =
-              __frame_find(__ex_next_frame_to_catch, (uptr) ((LRef) tag));
+               __frame_find(__ex_next_frame_to_catch, (uptr_t)tag);
 
           next_catcher->frame_as.dynamic_escape.pending = TRUE;
           next_catcher->frame_as.dynamic_escape.unwinding = TRUE;

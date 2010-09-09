@@ -61,15 +61,15 @@ enum sys_file_attrs_t
      SYS_FATTR_HIDDEN = 0x20
 };
 
-const u64 SYS_BLKSIZE_UNKNOWN = 0;
+const u64_t SYS_BLKSIZE_UNKNOWN = 0;
 
 struct sys_stat_t
 {
      sys_filetype_t _filetype;  /* type of the file */
      sys_file_attrs_t _attrs;   /* FAT-style file attributes. */
-     i64 _mode;                 /* unix-style permissions bits */
+     i64_t _mode;               /* unix-style permissions bits */
 
-     i64 _size;                 /* total size, in bytes */
+     i64_t _size;               /* total size, in bytes */
      sys_time_t _atime;         /* time of last access */
      sys_time_t _mtime;         /* time of last modification */
      sys_time_t _ctime;         /* time of last status change */
@@ -275,22 +275,21 @@ struct sys_info_t
 
 void sys_get_info(sys_info_t * info);
 
-extern i64 malloc_blocks;
-extern i64 malloc_bytes;
+extern i64_t malloc_blocks;
+extern i64_t malloc_bytes;
 
-extern u8 *stack_limit_obj;
+extern u8_t *stack_limit_obj;
 
-# define STACK_CHECK(_obj)  if (((u8 *)_obj) < stack_limit_obj) vmerror_stack_overflow((u8 *) _obj);
+# define STACK_CHECK(_obj)  if (((u8_t *)_obj) < stack_limit_obj) vmerror_stack_overflow((u8_t *) _obj);
 
 void *sys_set_stack_limit(size_t new_size_limit);
 
-  /* Timing
-   */
+/*** Timing ***/
 
 void sys_sleep(uintptr_t duration_ms);
 
-  /* String Utilities
-   */
+/*** String Utilities ***/
+
 
 extern "C" const char *strchrnul(const char *s, int c);
 

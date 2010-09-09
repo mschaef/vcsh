@@ -25,7 +25,7 @@ BEGIN_NAMESPACE(scan)
  * The in-passed object is stored in the errobj symbol's
  * value binding.
  */
-bool primitive_frame(frame_record_t * rec, uptr notused)
+bool primitive_frame(frame_record_t * rec, uptr_t notused)
 {
      UNREFERENCED(notused);
 
@@ -36,7 +36,7 @@ LRef topmost_primitive()
 {
      frame_record_t *f;
 
-     f = __frame_find(primitive_frame, (uptr) NIL);
+     f = __frame_find(primitive_frame, (uptr_t) NIL);
 
      return f ? f->frame_as.primitive.function : NIL;
 }
@@ -44,7 +44,7 @@ LRef topmost_primitive()
 
 static bool in_stack_overflow = false;
 
-void vmerror_stack_overflow(u8 * obj)
+void vmerror_stack_overflow(u8_t * obj)
 {
      UNREFERENCED(obj);
 

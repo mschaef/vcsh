@@ -14,7 +14,7 @@ LRef byteveccons(size_t dim)
      LRef z = new_cell(TC_BYTE_VECTOR);
 
      SET_BYTE_VECTOR_DIM(z, dim);
-     SET_BYTE_VECTOR_DATA(z, (u8 *) safe_malloc(dim));
+     SET_BYTE_VECTOR_DATA(z, (u8_t *) safe_malloc(dim));
 
      return z;
 }
@@ -47,7 +47,7 @@ LRef lvector2byte_vector(LRef vec)
           if ((x < 0) || (x > 255))
                vmerror("integer out of range [0..255] to vector->byte-vetor", vec);
 
-          BYTE_VECTOR_DATA(bytevec)[ii] = (u8) x;
+          BYTE_VECTOR_DATA(bytevec)[ii] = (u8_t) x;
      }
 
      return bytevec;

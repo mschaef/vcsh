@@ -91,7 +91,7 @@ LRef lmemref_byte(LRef addr)
 {
      size_t baseaddr = (size_t) get_c_long(addr);
 
-     u8 *obj = (u8 *) baseaddr;
+     u8_t *obj = (u8_t *) baseaddr;
 
      return fixcons(*obj);
 }
@@ -166,7 +166,7 @@ struct test_blocking_input_info_t
 {
      fixnum_t _block_size;
      fixnum_t _length;
-     u8 _current;
+     u8_t _current;
 };
 
 enum
@@ -176,7 +176,7 @@ enum
 
 bool test_blocking_input_read(LRef port, void *userdata)
 {
-     u8 buf[BLOCKIN_MAX_BLOCK_SIZE];
+     u8_t buf[BLOCKIN_MAX_BLOCK_SIZE];
 
      test_blocking_input_info_t *info = (test_blocking_input_info_t *) userdata;
 

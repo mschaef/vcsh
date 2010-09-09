@@ -26,28 +26,28 @@
 
 /* *INDENT-OFF* */
 #if defined(__GNUC__)
-typedef unsigned long long int u64;
+typedef unsigned long long int u64_t;
 #elif defined(_MSC_VER)
-typedef unsigned __int64       u64;
+typedef unsigned __int64       u64_t;
 #endif
-typedef unsigned int           u32;
-typedef unsigned short         u16;
-typedef unsigned char          u8;
-typedef uintptr_t              uptr;
-typedef u32                    usys;  /* The 'natural' size for integers on the platform */
+typedef unsigned int           u32_t;
+typedef unsigned short         u16_t;
+typedef unsigned char          u8_t;
+typedef uintptr_t              uptr_t;
+typedef u32_t                  usys_t;  /* The 'natural' size for integers on the platform */
 
 #if defined(__GNUC__)
-typedef long long int          i64;
+typedef long long int          i64_t;
 #elif defined(_MSC_VER)
-typedef __int64                i64;
+typedef __int64                i64_t;
 #endif
-typedef int                    i32;
-typedef short                  i16;
-typedef signed char            i8;
-typedef intptr_t               iptr;
-typedef i32                    isys;  /* The 'natural' size for integers on the platform */
-typedef float                  f32;
-typedef double                 f64;
+typedef int                    i32_t;
+typedef short                  i16_t;
+typedef signed char            i8_t;
+typedef intptr_t               iptr_t;
+typedef i32_t                  isys_t;  /* The 'natural' size for integers on the platform */
+typedef float                  f32_t;
+typedef double                 f64_t;
 /* *INDENT-ON* */
 
 #ifndef TRUE
@@ -162,8 +162,8 @@ enum
 /*** Global data types ***/
 
 #ifdef FIXNUM_64BIT
-typedef i64 fixnum_t;
-typedef u64 unsigned_fixnum_t;
+typedef i64_t fixnum_t;
+typedef u64_t unsigned_fixnum_t;
 
 #   define FIXNUM_BITS (64)
 #   define FIXNUM_MAX           I64_MAX
@@ -198,14 +198,14 @@ typedef double flonum_t;
 
 extern "C" int debug_printf(const _TCHAR *, ...);
 
-extern "C" INLINE i64 make_i64(i64 high, i64 low)
+extern "C" INLINE i64_t make_i64(i64_t high, i64_t low)
 {
-     return ((i64) high << 32) + (i64) low;
+     return ((i64_t) high << 32) + (i64_t) low;
 }
 
-extern "C" INLINE u64 make_u64(u64 high, u64 low)
+extern "C" INLINE u64_t make_u64_t(u64_t high, u64_t low)
 {
-     return ((u64) high << 32) + (u64) low;
+     return ((u64_t) high << 32) + (u64_t) low;
 }
 
 #endif

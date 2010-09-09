@@ -28,7 +28,7 @@
 #define ENVLOOKUP_STATS
 
 BEGIN_NAMESPACE(scan)
-extern i64 malloc_bytes;
+extern i64_t malloc_bytes; /* REVISIT: Should this be u64_t? */
 
 /*** Interpreter Paramaters ***/
 
@@ -194,34 +194,34 @@ enum
      MIN_LREF_FIXNUM = I32_MIN >> LREF1_TAG_SHIFT,
 };
 
-INLINE LRef LREF1_CONS(lref_tag_t tag, iptr val)
+INLINE LRef LREF1_CONS(lref_tag_t tag, iptr_t val)
 {
      return (LRef) ((val << LREF1_TAG_SHIFT) | tag);
 }
 
-INLINE LRef LREF2_CONS(lref_tag_t tag, iptr val)
+INLINE LRef LREF2_CONS(lref_tag_t tag, iptr_t val)
 {
      return (LRef) ((val << LREF2_TAG_SHIFT) | tag);
 }
 
 INLINE lref_tag_t LREF1_TAG(LRef ref)
 {
-     return (lref_tag_t) ((iptr) ref & LREF1_TAG_MASK);
+     return (lref_tag_t) ((iptr_t) ref & LREF1_TAG_MASK);
 }
 
 INLINE lref_tag_t LREF2_TAG(LRef ref)
 {
-     return (lref_tag_t) ((iptr) ref & LREF2_TAG_MASK);
+     return (lref_tag_t) ((iptr_t) ref & LREF2_TAG_MASK);
 }
 
-INLINE iptr LREF1_VAL(LRef ref)
+INLINE iptr_t LREF1_VAL(LRef ref)
 {
-     return ((iptr) ref & ~LREF1_TAG_MASK) >> LREF1_TAG_SHIFT;
+     return ((iptr_t) ref & ~LREF1_TAG_MASK) >> LREF1_TAG_SHIFT;
 }
 
-INLINE iptr LREF2_VAL(LRef ref)
+INLINE iptr_t LREF2_VAL(LRef ref)
 {
-     return ((iptr) ref & ~LREF2_TAG_MASK) >> LREF2_TAG_SHIFT;
+     return ((iptr_t) ref & ~LREF2_TAG_MASK) >> LREF2_TAG_SHIFT;
 }
 
 INLINE bool LREF_IMMEDIATE_P(LRef ref)
@@ -317,7 +317,7 @@ struct LObject
           struct
           {
                size_t _dim;
-               u8 *_data;
+               u8_t *_data;
           } bytevec;
           struct
           {
@@ -909,7 +909,7 @@ INLINE LRef SET_NEXT_FREE_CELL(LRef x, LRef next)
   /*** fix/flonum **/
 #define fixabs labs
 
-LRef fixcons(u32 high, u32 low);
+LRef fixcons(u32_t high, u32_t low);
 LRef fixcons(fixnum_t x);
 LRef flocons(double x);
 LRef cmplxcons(flonum_t re, flonum_t im);
@@ -1382,13 +1382,13 @@ INLINE void SET_BYTE_VECTOR_DIM(LRef x, size_t dim)
      ((*x).storage_as.bytevec._dim) = dim;
 }
 
-INLINE u8 *BYTE_VECTOR_DATA(LRef x)
+INLINE u8_t *BYTE_VECTOR_DATA(LRef x)
 {
      checked_assert(BYTE_VECTOR_P(x));
      return ((*x).storage_as.bytevec._data);
 }
 
-INLINE u8 *SET_BYTE_VECTOR_DATA(LRef x, u8 * data)
+INLINE u8_t *SET_BYTE_VECTOR_DATA(LRef x, u8_t * data)
 {
      checked_assert(BYTE_VECTOR_P(x));
      return ((*x).storage_as.bytevec._data) = data;
@@ -1968,7 +1968,7 @@ LRef vmsignal(const _TCHAR * signal_name, long n, ...);
 LRef vmerror_wrong_type(LRef new_errobj);
 LRef vmerror_wrong_type(int which_argument, LRef new_errobj);
 LRef vmerror_unbound(LRef v);
-void vmerror_stack_overflow(u8 * obj);
+void vmerror_stack_overflow(u8_t * obj);
 
   /****** Memory management */
 
@@ -2373,16 +2373,16 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 void __frame_set_top(frame_record_t * f);
 
-typedef bool(*frame_predicate) (frame_record_t * frame, uptr info);
+typedef bool(*frame_predicate) (frame_record_t * frame, uptr_t info);
 
-frame_record_t *__frame_find(frame_predicate pred, uptr info);
+frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
-  /* C++-style exception handling
-   *
-   * (A guard is a special sort of try block that catches all
-   * exceptions. It's used to avoid puking and dying when an
-   * uncaught exception is thrown.)
-   **/
+/* C++-style exception handling
+ *
+ * (A guard is a special sort of try block that catches all
+ * exceptions. It's used to avoid puking and dying when an
+ * uncaught exception is thrown.)
+ */
 
 #define ENTER_TRY(tag)                                          \
     ENTER_TRY_1(tag, FRAME_EX_TRY)

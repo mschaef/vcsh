@@ -51,7 +51,7 @@ LRef lexternal_data(LRef x)
      if (!EXTERNALP(x))
           vmerror_wrong_type(1, x);
 
-     return fixcons((uptr) EXTERNAL_DATA(x));
+     return fixcons((uptr_t) EXTERNAL_DATA(x));
 }
 
 LRef lexternal_desc(LRef x)

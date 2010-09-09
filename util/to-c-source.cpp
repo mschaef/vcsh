@@ -24,7 +24,7 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
           if ((ws->_bytes_transferred % 8) == 0)
                fprintf(ws->_out, "\n   ");
 
-          fprintf(ws->_out, "0x%02x, ", ((u8 *) buf)[ii]);
+          fprintf(ws->_out, "0x%02x, ", ((u8_t *) buf)[ii]);
 
           ws->_bytes_transferred++;
      }
@@ -41,7 +41,7 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
 
      fprintf(out, "unsigned char %s[]= {", varname);
 
-     u8 buf[BLOCK_SIZE];
+     u8_t buf[BLOCK_SIZE];
 
      size_t total = 0;
 

@@ -555,7 +555,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
      assert(PORTP(port));
      assert(PORT_BINARYP(port));
 
-     u8 bytes[sizeof(fixnum_t)];
+     u8_t bytes[sizeof(fixnum_t)];
      size_t fixnums_read = read_raw(bytes, (size_t) length, 1, port);
 
      if (!fixnums_read)
@@ -565,17 +565,17 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
      switch (length)
      {
      case 1:
-          result = (signedp ? (fixnum_t) (*(i8 *) bytes) : (fixnum_t) (*(u8 *) bytes));
+          result = (signedp ? (fixnum_t) (*(i8_t *) bytes) : (fixnum_t) (*(u8_t *) bytes));
           break;
      case 2:
-          result = (signedp ? (fixnum_t) (*(i16 *) bytes) : (fixnum_t) (*(u16 *) bytes));
+          result = (signedp ? (fixnum_t) (*(i16_t *) bytes) : (fixnum_t) (*(u16_t *) bytes));
           break;
      case 4:
-          result = (signedp ? (fixnum_t) (*(i32 *) bytes) : (fixnum_t) (*(u32 *) bytes));
+          result = (signedp ? (fixnum_t) (*(i32_t *) bytes) : (fixnum_t) (*(u32_t *) bytes));
           break;
 #ifdef FIXNUM_64BIT
      case 8:
-          result = (signedp ? (fixnum_t) (*(i64 *) bytes) : (fixnum_t) (*(u64 *) bytes));
+          result = (signedp ? (fixnum_t) (*(i64_t *) bytes) : (fixnum_t) (*(u64_t *) bytes));
           break;
 #endif
      }
@@ -623,7 +623,7 @@ bool read_binary_flonum(LRef port, flonum_t & result)
      assert(PORTP(port));
      assert(PORT_BINARYP(port));
 
-     u8 bytes[sizeof(flonum_t)];
+     u8_t bytes[sizeof(flonum_t)];
      size_t flonums_read = read_raw(bytes, sizeof(flonum_t), 1, port);
 
      if (!flonums_read)
@@ -884,7 +884,7 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
 
      fixnum_t val = FIXNM(v);
 
-     u8 bytes[sizeof(fixnum_t)];
+     u8_t bytes[sizeof(fixnum_t)];
 
 
      bool in_range = false;
@@ -895,12 +895,12 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
           if (signedp)
           {
                in_range = (val >= I8_MIN) && (val <= I8_MAX);
-               *(i8 *) bytes = (i8) val;
+               *(i8_t *) bytes = (i8_t) val;
           }
           else
           {
                in_range = (val >= U8_MIN) && (val <= U8_MAX);
-               *(u8 *) bytes = (u8) val;
+               *(u8_t *) bytes = (u8_t) val;
           }
           break;
 
@@ -908,12 +908,12 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
           if (signedp)
           {
                in_range = (val >= I16_MIN) && (val <= I16_MAX);
-               *(i16 *) bytes = (i16) val;
+               *(i16_t *) bytes = (i16_t) val;
           }
           else
           {
                in_range = (val >= U16_MIN) && (val <= U16_MAX);
-               *(u16 *) bytes = (u16) val;
+              *(u16_t *) bytes = (u16_t) val;
           }
           break;
 
@@ -921,12 +921,12 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
           if (signedp)
           {
                in_range = (val >= I32_MIN) && (val <= I32_MAX);
-               *(i32 *) bytes = (i32) val;
+               *(i32_t *) bytes = (i32_t) val;
           }
           else
           {
                in_range = (val >= U32_MIN) && (val <= U32_MAX);
-               *(u32 *) bytes = (u32) val;
+               *(u32_t *) bytes = (u32_t) val;
           }
           break;
 
@@ -935,12 +935,12 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
           if (signedp)
           {
                in_range = (val >= I64_MIN) && (val <= I64_MAX);
-               *(i64 *) bytes = (i64) val;
+               *(i64_t *) bytes = (i64_t) val;
           }
           else
           {
-               in_range = ((u64) val >= U64_MIN) && ((u64) val <= U64_MAX);
-               *(u64 *) bytes = (u64) val;
+               in_range = ((u64_t) val >= U64_MIN) && ((u64_t) val <= U64_MAX);
+               *(u64_t *) bytes = (u64_t) val;
           }
           break;
 #endif
@@ -974,7 +974,7 @@ LRef lbinary_write_flonum(LRef v, LRef port)
 
      flonum_t val = get_c_double(v);
 
-     u8 bytes[sizeof(flonum_t)];
+     u8_t bytes[sizeof(flonum_t)];
 
      *(flonum_t *) bytes = val;
 
@@ -1821,7 +1821,7 @@ struct blocking_input_port_state
      blocking_input_close_port_fn_t _close_port;
      size_t _buffer_size;
      size_t _buffer_pos;
-     u8 *_buffer;
+     u8_t *_buffer;
      void *_userdata;
      bool _more_data;
 };
@@ -1866,7 +1866,7 @@ size_t blocking_input_port_read(void *buf, size_t size, size_t count, LRef port)
 
           if (bytes_available)
           {
-               memcpy(&((u8 *) buf)[bytes_read], &((u8 *) ps->_buffer)[ps->_buffer_pos],
+               memcpy(&((u8_t *) buf)[bytes_read], &((u8_t *) ps->_buffer)[ps->_buffer_pos],
                       bytes_available);
 
                bytes_read += bytes_available;
@@ -1913,7 +1913,7 @@ void blocking_input_post_data(LRef port, void *data, size_t size)
           ps->_buffer = NULL;
      }
 
-     ps->_buffer = (u8 *) safe_malloc(size);
+     ps->_buffer = (u8_t *) safe_malloc(size);
 
      memcpy(ps->_buffer, data, size);
 
@@ -2158,7 +2158,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                     if (return_next_value)
                          return_value = fixcons(ulong_arg_value);
 
-                    _sntprintf(buf, STACK_STRBUF_LEN, _T("%03o"), (u32) ulong_arg_value);
+                    _sntprintf(buf, STACK_STRBUF_LEN, _T("%03o"), (u32_t) ulong_arg_value);
                     write_text(buf, _tcslen(buf), port);
                     break;
 
@@ -2168,7 +2168,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                     if (return_next_value)
                          return_value = fixcons(ulong_arg_value);
 
-                    _sntprintf(buf, STACK_STRBUF_LEN, _T("0x%02x"), (u32) ulong_arg_value);
+                    _sntprintf(buf, STACK_STRBUF_LEN, _T("0x%02x"), (u32_t) ulong_arg_value);
                     write_text(buf, _tcslen(buf), port);
                     break;
 

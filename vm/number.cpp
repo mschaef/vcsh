@@ -24,7 +24,7 @@ BEGIN_NAMESPACE(scan)
 /**************************************************************
  * Number constructors
  */
-LRef fixcons(u32 high, u32 low)
+LRef fixcons(u32_t high, u32_t low)
 {
      return fixcons(((fixnum_t) high << 32) + (fixnum_t) low);
 }
@@ -32,7 +32,7 @@ LRef fixcons(u32 high, u32 low)
 LRef fixcons(fixnum_t x)
 {
      if ((x <= MAX_LREF_FIXNUM) && (x >= MIN_LREF_FIXNUM))
-          return LREF1_CONS(LREF1_FIXNUM, (iptr) x);
+          return LREF1_CONS(LREF1_FIXNUM, (iptr_t) x);
 
      LRef retval = new_cell(TC_FIXNUM);
      _FIXNM(retval) = x;
@@ -579,7 +579,7 @@ LRef lto_ieee754_bits(LRef x)
 
      unsigned_fixnum_t bits = 0;
 
-     for (u8 * loc = (u8 *) & value; loc < (u8 *) & ((&value)[1]); loc++)
+     for (u8_t * loc = (u8_t *) & value; loc < (u8_t *) & ((&value)[1]); loc++)
      {
           bits <<= 8;
           bits |= *loc;
@@ -597,9 +597,9 @@ LRef lieee754_bits_to(LRef x)
 
      double value = 0;
 
-     for (u8 * loc = ((u8 *) & ((&value)[1])) - 1; loc >= (u8 *) & value; loc--)
+     for (u8_t * loc = ((u8_t *) & ((&value)[1])) - 1; loc >= (u8_t *) & value; loc--)
      {
-          *loc = (u8) (bits & 0xFF);
+          *loc = (u8_t) (bits & 0xFF);
           bits >>= 8;
      }
 

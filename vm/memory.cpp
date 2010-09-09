@@ -184,7 +184,7 @@ static bool possible_heap_pointer_p(LRef p)
                continue;
 
           /*  Pointers are aligned at LObject boundaries */
-          if (((((u8 *) p) - ((u8 *) h)) % sizeof(LObject)) != 0)
+          if (((((u8_t *) p) - ((u8_t *) h)) % sizeof(LObject)) != 0)
                continue;
 
           /*  Pointers have types */
@@ -462,7 +462,7 @@ static void gc_mark_stack()
 
      setjmp(registers);
 
-     gc_mark_range((LRef *) registers, (LRef *) (((u8 *) registers) + sizeof(registers)));
+     gc_mark_range((LRef *) registers, (LRef *) (((u8_t *) registers) + sizeof(registers)));
 
      gc_mark_range((LRef *) sys_get_stack_start(), (LRef *) & stack_end);
 }

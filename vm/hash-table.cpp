@@ -106,9 +106,9 @@ fixnum_t sxhash_eq(LRef obj)
       * homogeneous. */
 
      if (LREF1_TAG(obj) == LREF1_SPECIAL)
-          return ((uptr) obj) >> LREF2_TAG_SHIFT;
+          return ((uptr_t) obj) >> LREF2_TAG_SHIFT;
      else
-          return ((uptr) obj) >> LREF1_TAG_SHIFT;
+          return ((uptr_t) obj) >> LREF1_TAG_SHIFT;
 }
 
 fixnum_t sxhash(LRef obj)
