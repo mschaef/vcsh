@@ -412,16 +412,6 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
     exit(1);
   }
 
-  extern "C" const char *strchrnul(const char *s, int c)
-  {
-    char *loc = (char *)s;
-
-    while((*loc != '\0') && ((int)*loc != c))
-      loc++;
-
-    return loc;
-  }
-
   void output_debug_string(const _TCHAR *str)
   {
     OutputDebugString(str);

@@ -54,9 +54,6 @@ typedef char _TCHAR;
 #      endif
 #    endif
 #  endif
-
-extern "C" char *strchrnul(const char *s, int c);
-
 #endif                          /* SCAN_WINDOWS */
 
 #endif                          /* __UTIL_TCHAR */

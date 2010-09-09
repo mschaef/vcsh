@@ -289,10 +289,10 @@ void *sys_set_stack_limit(size_t new_size_limit);
 void sys_sleep(uintptr_t duration_ms);
 
 /*** String Utilities ***/
+extern "C" const _TCHAR *strchrnul(const _TCHAR *s, int c);
 
+END_NAMESPACE;
 
-extern "C" const char *strchrnul(const char *s, int c);
-
-END_NAMESPACE extern char **environ;
+ extern char **environ;
 
 #endif                          /*  __SYS_H */

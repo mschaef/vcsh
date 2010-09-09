@@ -289,8 +289,8 @@ static void show_debug_flags()
           dscwritef("* ~cs\n", debug_flag_env_names[ii].df_env_name);
 }
 
-#if defined(__CYGWIN__)
-static char *strchrnul(char *string, int c)
+#if defined(__CYGWIN__) || defined(SCAN_UNIX)
+extern "C" const _TCHAR *strchrnul(const _TCHAR *string, int c)
 {
      for (; *string; string++)
           if (*string == c)

@@ -594,8 +594,7 @@ void *sys_set_stack_limit(size_t new_size_limit)
       * a stack limit violation at the next check. This clamp keeps that
       * from happening.
       */
-     if (new_size_limit > (uptr_t
-) sys_stack_start)
+     if (new_size_limit > (uptr_t) sys_stack_start)
           new_size_limit = 0;
 
      if (new_size_limit == 0)
@@ -614,19 +613,5 @@ void sys_sleep(uintptr_t duration_ms)
 }
 
 
-/****************************************************************
- * String utilities
- */
-
-#if defined(__CYGWIN__) || defined (SCAN_UNIX)
-extern "C" const char *strchrnul(const char *string, int c)     /*  REVISIT: Also implmented in windows-sys.cpp... consolidate */
-{
-     for (; *string; string++)
-          if (*string == c)
-               break;
-
-     return string;
-}
-#endif
 
 END_NAMESPACE
