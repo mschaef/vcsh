@@ -10,16 +10,12 @@
 
 #ifdef SCAN_UNIX
 
-#  ifdef __cplusplus
-extern "C"
-{
-#  endif
-
 #  ifdef _UNICODE
 #    error Unicode unsupported on GNU C
 #  endif
 
-     typedef char _TCHAR;
+typedef char _TCHAR;
+
 #  define _T(x)     x
 
 #  define _vsntprintf  vsnprintf
@@ -42,11 +38,6 @@ extern "C"
 #  define _tprintf  printf
 
 #  define _tmain main
-
-#ifdef __cplusplus
-}                               /* extern "C" */
-#endif
-
 #endif                          /* SCAN_UNIX */
 
 #ifdef SCAN_WINDOWS

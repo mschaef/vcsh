@@ -8,12 +8,6 @@
 #ifndef __BASE_TYPES_H
 #define __BASE_TYPES_H
 
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <stddef.h>
 #include <limits.h>
 
@@ -31,39 +25,28 @@ extern "C"
 /*** Standard, useful types ***/
 
 #if defined(__GNUC__)
-     /* REVISIT: bad form */
-
-     /* typedef unsigned int uintptr_t; */
-     /* typedef int intptr_t; */
+typedef unsigned long long int u64;
+#elif defined(_MSC_VER)
+typedef unsigned __int64 u64;
 #endif
+typedef unsigned int u32;
+typedef unsigned short u16;
+typedef unsigned char u8;
+typedef uintptr_t uptr;
+typedef u32 usys;               /* The 'natural' size for integers on the platform */
 
 #if defined(__GNUC__)
-     typedef unsigned long long int u64;
+typedef long long int i64;
 #elif defined(_MSC_VER)
-     typedef unsigned __int64 u64;
+typedef __int64 i64;
 #endif
-     typedef unsigned int u32;
-     typedef unsigned short u16;
-     typedef unsigned char u8;
-
-     typedef uintptr_t uptr;
-     typedef u32 usys;          /* The 'natural' size for integers on the platform */
-
-#if defined(__GNUC__)
-     typedef long long int i64;
-#elif defined(_MSC_VER)
-     typedef __int64 i64;
-#endif
-
-     typedef int i32;
-     typedef short i16;
-     typedef signed char i8;
-
-     typedef intptr_t iptr;
-     typedef i32 isys;          /* The 'natural' size for integers on the platform */
-
-     typedef float f32;
-     typedef double f64;
+typedef int i32;
+typedef short i16;
+typedef signed char i8;
+typedef intptr_t iptr;
+typedef i32 isys;               /* The 'natural' size for integers on the platform */
+typedef float f32;
+typedef double f64;
 
 #ifndef TRUE
 #   define TRUE   (1==1)
@@ -90,102 +73,76 @@ extern "C"
 #define U32_MAX UINT_MAX
 
 #if defined(__GNUC__)
-
-#  define I64_MAX LONG_LONG_MAX
-#  define I64_MIN LONG_LONG_MIN
-#  define I64(val) (val##LL)
-
-#  define U64_MAX ULONG_LONG_MAX
-#  define U64_MIN (0ULL)
-#  define U64(val) (val##ULL)
-
-#  define INT64_PRINTF_PREFIX "%ll"
-
+#   define I64_MAX LONG_LONG_MAX
+#   define I64_MIN LONG_LONG_MIN
+#   define I64(val) (val##LL)
+#   define U64_MAX ULONG_LONG_MAX
+#   define U64_MIN (0ULL)
+#   define U64(val) (val##ULL)
+#   define INT64_PRINTF_PREFIX "%ll"
 #elif defined(_MSC_VER)
-
-#  define I64_MAX _I64_MAX
-#  define I64_MIN _I64_MIN
-#  define I64(val) (val##i64)
-
-#  define U64_MAX _UI64_MAX
-#  define U64_MIN (0ui64)
-#  define U64(val) (val##ui64)
-
-#  define INT64_PRINTF_PREFIX "%I64"
+#   define I64_MAX _I64_MAX
+#   define I64_MIN _I64_MIN
+#   define I64(val) (val##i64)
+#   define U64_MAX _UI64_MAX
+#   define U64_MIN (0ui64)
+#   define U64(val) (val##ui64)
+#   define INT64_PRINTF_PREFIX "%I64"
 #endif
 
 /* Couldn't find a better definition for these in the standard header files... */
 #ifdef _UNICODE
-#	define _TCHAR_MIN WCHAR_MIN
-#	define _TCHAR_MAX WCHAR_MAX
+#   define _TCHAR_MIN WCHAR_MIN
+#   define _TCHAR_MAX WCHAR_MAX
 #else
-#	define _TCHAR_MIN CHAR_MIN
-#	define _TCHAR_MAX CHAR_MAX
+#   define _TCHAR_MIN CHAR_MIN
+#   define _TCHAR_MAX CHAR_MAX
 #endif
 
 #if !defined(__GNUC__)
-#  define strtoll _strtoi64
+#   define strtoll _strtoi64
 #endif
 
-     int debug_printf(const _TCHAR *, ...);
 
 /* Declare a variable otherwise unreferenced... */
 #define UNREFERENCED(x) ((void)x)
 
-
 #ifdef _MSC_VER
-
-/* Disable the warning about the constants we use to configure the build. */
-#  pragma warning (disable : 4127)
-
-/* Disable the warning about structure padding */
-#  pragma warning (disable : 4820)
-
-/* Disable the warning about enumerations unhandled by explicit case */
-#  pragma warning (disable : 4061)
+#  pragma warning (disable : 4127) /* ...warning about the constants used to configure the build. */
+#  pragma warning (disable : 4820) /* ...warning about structure padding */
+#  pragma warning (disable : 4061) /* ...warning about enumerations unhandled by explicit case */
 #endif
 
 #ifdef _DEBUG
-     enum
-     { DEBUGGING_BUILD = TRUE };
-#define REFERENCED_BY_DEBUG_BUILD(x)
+enum
+{ DEBUGGING_BUILD = TRUE };
+#   define REFERENCED_BY_DEBUG_BUILD(x)
 #else
-     enum
-     { DEBUGGING_BUILD = FALSE };
-#define REFERENCED_BY_DEBUG_BUILD(x) UNREFERENCED(x)
+enum
+{ DEBUGGING_BUILD = FALSE };
+#   define REFERENCED_BY_DEBUG_BUILD(x) UNREFERENCED(x)
 #endif
 
 
 #ifdef CHECKED
-     enum
-     { CHECKED_BUILD = TRUE };
-#define REFERENCED_BY_CHECKED_BUILD(x)
+enum
+{ CHECKED_BUILD = TRUE };
+#   define REFERENCED_BY_CHECKED_BUILD(x)
 #else
-     enum
-     { CHECKED_BUILD = FALSE };
-#define REFERENCED_BY_CHECKED_BUILD(x) UNREFERENCED(x)
+enum
+{ CHECKED_BUILD = FALSE };
+#   define REFERENCED_BY_CHECKED_BUILD(x) UNREFERENCED(x)
 #endif
 
 /*** Minimum and Maximum ***/
 
 #ifndef MIN2
-#  define MIN2(x, y) ((x) < (y) ? (x) : (y))
+#   define MIN2(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
 #ifndef MAX2
-#  define MAX2(x, y) ((x) > (y) ? (x) : (y))
+#   define MAX2(x, y) ((x) > (y) ? (x) : (y))
 #endif
-
-
-     INLINE i64 make_i64(i64 high, i64 low)
-     {
-          return ((i64) high << 32) + (i64) low;
-     }
-
-     INLINE u64 make_u64(u64 high, u64 low)
-     {
-          return ((u64) high << 32) + (u64) low;
-     }
 
 #if defined(_MSC_VER)
 #  include <float.h>
@@ -198,42 +155,34 @@ extern "C"
 
 /*** Interpreter specific types ***/
 
-/* FIXNUM_64BIT
- *
- * Define this to enable support for Visual C++ style 64-bit
- * integers */
-#define FIXNUM_64BIT
+#define FIXNUM_64BIT /* Support for MSC style 64-bit integers */
 
 /*** Global data types ***/
 
 #ifdef FIXNUM_64BIT
-     typedef i64 fixnum_t;
-     typedef u64 unsigned_fixnum_t;
+typedef i64 fixnum_t;
+typedef u64 unsigned_fixnum_t;
 
 #   define FIXNUM_BITS (64)
-
 #   define FIXNUM_MAX           I64_MAX
 #   define FIXNUM_MIN           I64_MIN
 #   define FIXNUM_UNSIGNED_MAX  U64_MAX
 #   define FIXNUM_UNSIGNED_MIN  U64_MIN
-
 #   define FIXNUM_PRINTF_PREFIX  INT64_PRINTF_PREFIX
 
 #else
-     typedef i32 fixnum_t;
-     typedef u32 unsigned_fixnum_t;
+typedef i32 fixnum_t;
+typedef u32 unsigned_fixnum_t;
 
 #   define FIXNUM_BITS (32)
-
 #   define FIXNUM_MAX           I32_MAX
 #   define FIXNUM_MIN           I32_MIN
 #   define FIXNUM_UNSIGNED_MAX  U32_MAX
 #   define FIXNUM_UNSIGNED_MIN  U32_MIN
 #   define FIXNUM_PRINTF_PREFIX    "%"
-
 #endif
 
-     typedef double flonum_t;
+typedef double flonum_t;
 
 #define FLONUM_MAX DBL_MAX
 #define FLONUM_MIN -DBL_MAX
@@ -245,8 +194,16 @@ extern "C"
 #define BEGIN_NAMESPACE(name) namespace name {
 #define END_NAMESPACE }
 
-#ifdef __cplusplus
-}                               /* extern "C" */
-#endif
+extern "C" int debug_printf(const _TCHAR *, ...);
+
+extern "C" INLINE i64 make_i64(i64 high, i64 low)
+{
+     return ((i64) high << 32) + (i64) low;
+}
+
+extern "C" INLINE u64 make_u64(u64 high, u64 low)
+{
+     return ((u64) high << 32) + (u64) low;
+}
 
 #endif

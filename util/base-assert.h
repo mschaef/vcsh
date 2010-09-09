@@ -27,4 +27,4 @@ void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno);
 #endif
 
 END_NAMESPACE
-#endif                          /* __ASSERT_H */
+#endif                          /* __BASE_ASSERT_H */

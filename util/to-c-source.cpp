@@ -1,5 +1,5 @@
 
-/* to-c-source
+/* to-c-source.cpp
  * July 4th, 2007
  *
  * A utility for dumping the contents of a file into something that can
@@ -16,7 +16,6 @@ struct write_state
      FILE *_out;
      size_t _bytes_transferred;
 };
-
 
 void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
 {
