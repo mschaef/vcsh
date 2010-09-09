@@ -71,19 +71,6 @@ LRef lvector(size_t argc, LRef argv[])
      return result;
 }
 
-
-/**************************************************************
- * vector-ref <vec> <index> [<default>]
- *
- * Input:
- *	<vec> - The vector being indexed into
- *  <index> - The zero based of the element to be retrived
- *  <default> - An optional default value, if the index to be
- *    retrieved is beyond the array limit.
- *
- * Output: The value of the <index> element of the array.
- */
-
 static INLINE size_t get_c_vector_index(LRef i)
 {
      fixnum_t index;

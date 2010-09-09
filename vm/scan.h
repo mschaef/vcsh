@@ -2468,6 +2468,13 @@ void free_gc_heap();
 void init_debugger_output();
 void init_stdio_ports();
 
+extern port_class_t stderr_port_class;
+
+LRef initialize_port(LRef s,
+                     port_class_t * cls,
+                     LRef port_name, port_mode_t mode, LRef user_object, void *user_data);
+
+
 size_t object_length(LRef obj);
 size_t hash_length(LRef hash);
 size_t port_length(LRef port);
