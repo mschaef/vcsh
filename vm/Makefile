@@ -17,7 +17,7 @@ SH0_OBJS=scansh0${OBJ_EXT}
 
 SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.cpp)
 
-VM_OBJS=vector${OBJ_EXT} structure${OBJ_EXT} debug-tools${OBJ_EXT} debug-printer${OBJ_EXT} \
+VM_OBJS=byte-vector${OBJ_EXT} vector${OBJ_EXT} structure${OBJ_EXT} debug-tools${OBJ_EXT} debug-printer${OBJ_EXT} \
         error${OBJ_EXT} evaluator${OBJ_EXT} fasl${OBJ_EXT} fasl-utils${OBJ_EXT} hash-table${OBJ_EXT} \
         instance${OBJ_EXT} io${OBJ_EXT} list${OBJ_EXT} macro${OBJ_EXT} main${OBJ_EXT} memory${OBJ_EXT} \
         malloc${OBJ_EXT} mt19937${OBJ_EXT} number${OBJ_EXT} oblist${OBJ_EXT} text-data${OBJ_EXT} \
