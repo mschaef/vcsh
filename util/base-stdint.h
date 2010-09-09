@@ -1,3 +1,4 @@
+
 /* base-stdint.h
  * September 14th, 2006
  */
@@ -19,4 +20,4 @@
 #  endif
 #endif
 
-#endif /* __UTIL_TCHAR */
+#endif                          /* __UTIL_TCHAR */

@@ -1,3 +1,4 @@
+
 /* base-tchar.h
  * September 14th, 2006
  * 
@@ -10,14 +11,15 @@
 #ifdef SCAN_UNIX
 
 #  ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #  endif
 
 #  ifdef _UNICODE
 #    error Unicode unsupported on GNU C
 #  endif
-  
-typedef char      _TCHAR;
+
+     typedef char _TCHAR;
 #  define _T(x)     x
 
 #  define _vsntprintf  vsnprintf
@@ -40,12 +42,12 @@ typedef char      _TCHAR;
 #  define _tprintf  printf
 
 #  define _tmain main
-  
+
 #ifdef __cplusplus
-} /* extern "C" */
+}                               /* extern "C" */
 #endif
 
-#endif /* SCAN_UNIX */
+#endif                          /* SCAN_UNIX */
 
 #ifdef SCAN_WINDOWS
 #  if defined(_MSC_VER)
@@ -64,6 +66,6 @@ typedef char      _TCHAR;
 
 extern "C" char *strchrnul(const char *s, int c);
 
-#endif /* SCAN_WINDOWS */
+#endif                          /* SCAN_WINDOWS */
 
-#endif /* __UTIL_TCHAR */
+#endif                          /* __UTIL_TCHAR */

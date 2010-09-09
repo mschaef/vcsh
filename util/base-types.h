@@ -1,3 +1,4 @@
+
 /* base-types.h
  * August 14th, 2006
  * 
@@ -9,12 +10,13 @@
 
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include <stddef.h>
 #include <limits.h>
- 
+
 #include "base-stdint.h"
 #include "base-tchar.h"
 
@@ -33,35 +35,35 @@ extern "C" {
 
      /* typedef unsigned int uintptr_t; */
      /* typedef int intptr_t; */
-#endif 
-
-#if defined(__GNUC__)
-  typedef unsigned long long int u64;
-#elif defined(_MSC_VER)
-  typedef unsigned __int64	u64;
-#endif
-  typedef unsigned int		 u32;
-  typedef unsigned short	 u16;
-  typedef unsigned char		 u8;
-
-  typedef uintptr_t		 uptr;
-     typedef u32			 usys; /* The 'natural' size for integers on the platform */
-
-#if defined(__GNUC__)
-  typedef long long int		 i64;
-#elif defined(_MSC_VER)
-  typedef __int64                i64;
 #endif
 
-  typedef int			 i32;
-  typedef short			 i16;
-  typedef signed char		 i8;
+#if defined(__GNUC__)
+     typedef unsigned long long int u64;
+#elif defined(_MSC_VER)
+     typedef unsigned __int64 u64;
+#endif
+     typedef unsigned int u32;
+     typedef unsigned short u16;
+     typedef unsigned char u8;
 
-  typedef intptr_t		 iptr; 
-     typedef i32			 isys; /* The 'natural' size for integers on the platform */
+     typedef uintptr_t uptr;
+     typedef u32 usys;          /* The 'natural' size for integers on the platform */
 
-  typedef float			 f32;
-  typedef double		 f64;
+#if defined(__GNUC__)
+     typedef long long int i64;
+#elif defined(_MSC_VER)
+     typedef __int64 i64;
+#endif
+
+     typedef int i32;
+     typedef short i16;
+     typedef signed char i8;
+
+     typedef intptr_t iptr;
+     typedef i32 isys;          /* The 'natural' size for integers on the platform */
+
+     typedef float f32;
+     typedef double f64;
 
 #ifndef TRUE
 #   define TRUE   (1==1)
@@ -98,7 +100,7 @@ extern "C" {
 #  define U64(val) (val##ULL)
 
 #  define INT64_PRINTF_PREFIX "%ll"
-  
+
 #elif defined(_MSC_VER)
 
 #  define I64_MAX _I64_MAX
@@ -109,8 +111,8 @@ extern "C" {
 #  define U64_MIN (0ui64)
 #  define U64(val) (val##ui64)
 
-#  define INT64_PRINTF_PREFIX "%I64" 
-#endif 
+#  define INT64_PRINTF_PREFIX "%I64"
+#endif
 
 /* Couldn't find a better definition for these in the standard header files... */
 #ifdef _UNICODE
@@ -125,37 +127,42 @@ extern "C" {
 #  define strtoll _strtoi64
 #endif
 
-int debug_printf(const _TCHAR *, ...);
+     int debug_printf(const _TCHAR *, ...);
 
 /* Declare a variable otherwise unreferenced... */
 #define UNREFERENCED(x) ((void)x)
 
 
 #ifdef _MSC_VER
+
 /* Disable the warning about the constants we use to configure the build. */
-#  pragma warning (disable : 4127) 
+#  pragma warning (disable : 4127)
 
 /* Disable the warning about structure padding */
-#  pragma warning (disable : 4820) 
+#  pragma warning (disable : 4820)
 
 /* Disable the warning about enumerations unhandled by explicit case */
 #  pragma warning (disable : 4061)
 #endif
 
 #ifdef _DEBUG
-  enum { DEBUGGING_BUILD = TRUE };
-#define REFERENCED_BY_DEBUG_BUILD(x) 
+     enum
+     { DEBUGGING_BUILD = TRUE };
+#define REFERENCED_BY_DEBUG_BUILD(x)
 #else
-  enum { DEBUGGING_BUILD = FALSE };
+     enum
+     { DEBUGGING_BUILD = FALSE };
 #define REFERENCED_BY_DEBUG_BUILD(x) UNREFERENCED(x)
 #endif
 
 
 #ifdef CHECKED
-  enum { CHECKED_BUILD = TRUE };
-#define REFERENCED_BY_CHECKED_BUILD(x) 
+     enum
+     { CHECKED_BUILD = TRUE };
+#define REFERENCED_BY_CHECKED_BUILD(x)
 #else
-  enum { CHECKED_BUILD = FALSE };
+     enum
+     { CHECKED_BUILD = FALSE };
 #define REFERENCED_BY_CHECKED_BUILD(x) UNREFERENCED(x)
 #endif
 
@@ -170,15 +177,15 @@ int debug_printf(const _TCHAR *, ...);
 #endif
 
 
-  INLINE i64 make_i64(i64 high, i64 low)
-  {
-    return ((i64)high << 32) + (i64)low;
-  }
+     INLINE i64 make_i64(i64 high, i64 low)
+     {
+          return ((i64) high << 32) + (i64) low;
+     }
 
-  INLINE u64 make_u64(u64 high, u64 low)
-  {
-    return ((u64)high << 32) + (u64)low;
-  }
+     INLINE u64 make_u64(u64 high, u64 low)
+     {
+          return ((u64) high << 32) + (u64) low;
+     }
 
 #if defined(_MSC_VER)
 #  include <float.h>
@@ -200,8 +207,8 @@ int debug_printf(const _TCHAR *, ...);
 /*** Global data types ***/
 
 #ifdef FIXNUM_64BIT
-  typedef i64 fixnum_t;
-  typedef u64 unsigned_fixnum_t;
+     typedef i64 fixnum_t;
+     typedef u64 unsigned_fixnum_t;
 
 #   define FIXNUM_BITS (64)
 
@@ -213,8 +220,8 @@ int debug_printf(const _TCHAR *, ...);
 #   define FIXNUM_PRINTF_PREFIX  INT64_PRINTF_PREFIX
 
 #else
-  typedef i32 fixnum_t;
-  typedef u32 unsigned_fixnum_t;
+     typedef i32 fixnum_t;
+     typedef u32 unsigned_fixnum_t;
 
 #   define FIXNUM_BITS (32)
 
@@ -226,7 +233,7 @@ int debug_printf(const _TCHAR *, ...);
 
 #endif
 
-  typedef double flonum_t;
+     typedef double flonum_t;
 
 #define FLONUM_MAX DBL_MAX
 #define FLONUM_MIN -DBL_MAX
@@ -239,10 +246,7 @@ int debug_printf(const _TCHAR *, ...);
 #define END_NAMESPACE }
 
 #ifdef __cplusplus
-} /* extern "C" */
+}                               /* extern "C" */
 #endif
 
 #endif
-
-
-
