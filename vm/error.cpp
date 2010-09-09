@@ -1,5 +1,5 @@
 
-/* slib_err.c
+/* error.cpp
  *
  * SIOD error handling code.
  *

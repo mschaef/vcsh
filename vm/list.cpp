@@ -1,4 +1,3 @@
-
 /* list.cpp
  *
  * SIOD list support
@@ -9,7 +8,6 @@
 
 BEGIN_NAMESPACE(scan)
 
-/**** Cons Cell */
 LRef lcons(LRef x, LRef y)
 {
      LRef z = new_cell(TC_CONS);
@@ -68,7 +66,6 @@ LRef lsetcdr(LRef cell, LRef value)
      return value;
 }
 
-  /**** list library functions */
 LRef lmap1(LRef fcn, LRef in)
 {
      LRef res, obj, l;

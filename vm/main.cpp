@@ -1,5 +1,5 @@
 
-/* slib.c
+/* main.cpp
  *
  * The core scan interpreter
  */
@@ -10,19 +10,14 @@
 
 BEGIN_NAMESPACE(scan)
 
-/**************************************************************
- * Interpreter globals
- */
-interpreter_t interp;
+interpreter_t interp; /* Interpreter globals */
 
 LRef liimmediate_p(LRef obj)
 {
      return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
 }
 
-/**************************************************************
- * Boolean
- */
+/*** Boolean ***/
 LRef boolcons(bool val)
 {
      return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
@@ -38,11 +33,8 @@ LRef lnotp(LRef x)
      return boolcons(!TRUEP(x));
 }
 
-/**************************************************************
- * C-Pointers
- */
-
-LRef externalcons(void *data, LRef desc, external_meta_t * meta /* = NULL */ )
+/*** C-pointers ***/
+LRef externalcons(void *data, LRef desc, external_meta_t *meta /* = NULL */ )
 {
      LRef z = new_cell(TC_EXTERNAL);
 

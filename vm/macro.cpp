@@ -1,5 +1,5 @@
 
-/* slib_mac.c
+/* macro.cpp
  *
  * scan Common Lisp macro code
  */
@@ -8,9 +8,6 @@
 
 BEGIN_NAMESPACE(scan)
 
-/**************************************************************
- * Macro type implementation
- */
 LRef macrocons(LRef t)          /*  TODO: Macros should be moved entirely to Lisp... */
 {
      LRef z = new_cell(TC_MACRO);

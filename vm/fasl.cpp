@@ -1,5 +1,5 @@
 
-/* fasl_loader.cpp
+/* fasl.cpp
  * Februrary 26th, 2006
  *
  * This is the FASL loader: it reads FASL format objects from a binary port.
@@ -665,9 +665,11 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_NIL:
                *retval = NIL;
                break;
+
           case FASL_OP_TRUE:
                *retval = boolcons(true);
                break;
+
           case FASL_OP_FALSE:
                *retval = boolcons(false);
                break;
@@ -679,6 +681,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_LIST:
                fast_read_list(port, false, retval);
                break;
+
           case FASL_OP_LISTD:
                fast_read_list(port, true, retval);
                break;
@@ -686,12 +689,15 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_FIX8:
                fast_read_integer(port, 1, retval);
                break;
+
           case FASL_OP_FIX16:
                fast_read_integer(port, 2, retval);
                break;
+
           case FASL_OP_FIX32:
                fast_read_integer(port, 4, retval);
                break;
+
           case FASL_OP_FIX64:
                fast_read_integer(port, 8, retval);
                break;
@@ -699,6 +705,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_FLOAT:
                fast_read_float(port, false, retval);
                break;
+
           case FASL_OP_COMPLEX:
                fast_read_float(port, true, retval);
                break;
@@ -706,9 +713,11 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_STRING:
                fast_read_string(port, retval);
                break;
+
           case FASL_OP_PACKAGE:
                fast_read_package(port, retval);
                break;
+
           case FASL_OP_VECTOR:
                fast_read_vector(port, retval);
                break;
@@ -716,6 +725,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_INSTANCE:
                fast_read_instance(port, retval);
                break;
+
           case FASL_OP_HASH:
                fast_read_hash(port, retval);
                break;
@@ -723,18 +733,23 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_CLOSURE:
                fast_read_closure(port, retval);
                break;
+
           case FASL_OP_MACRO:
                fast_read_macro(port, retval);
                break;
+
           case FASL_OP_SYMBOL:
                fast_read_symbol(port, retval);
                break;
+
           case FASL_OP_SUBR:
                fast_read_subr(port, retval);
                break;
+
           case FASL_OP_STRUCTURE:
                fast_read_structure(port, retval);
                break;
+
           case FASL_OP_STRUCTURE_LAYOUT:
                fast_read_structure_layout(port, retval);
                break;
@@ -742,12 +757,15 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_FAST_OP_0:
                fast_read_fast_op(0, port, retval);
                break;
+
           case FASL_OP_FAST_OP_1:
                fast_read_fast_op(1, port, retval);
                break;
+
           case FASL_OP_FAST_OP_2:
                fast_read_fast_op(2, port, retval);
                break;
+
           case FASL_OP_FAST_OP_3:
                fast_read_fast_op(3, port, retval);
                break;
@@ -795,7 +813,6 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           case FASL_OP_EOF:
                *retval = lmake_eof();
                break;
-
 
           case FASL_OP_LOADER_DEFINEQ:
           case FASL_OP_LOADER_DEFINEA0:
@@ -859,7 +876,6 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
      }
 }
 
-
 LRef lfast_read(LRef port)
 {
      LRef retval;
@@ -868,7 +884,6 @@ LRef lfast_read(LRef port)
 
      return retval;
 }
-
 
 LRef lifasl_load(LRef fname_or_port)
 {

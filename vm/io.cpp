@@ -1,5 +1,5 @@
 
-/* slib_io.c
+/* io.cpp
  *
  * Slib Input/Output code. This file contains the implementation
  * for ports in general, as well as ports for console I/O, string

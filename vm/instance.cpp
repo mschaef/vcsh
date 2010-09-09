@@ -15,6 +15,7 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
+
 static void instance_reallocate_in_place(LRef inst, size_t new_size)
 {
      LRef *new_data = NULL;
@@ -84,8 +85,6 @@ static void instance_map_set(LRef inst, LRef key, LRef new_value)
      lhash_set(map, key, new_value);
 }
 
-/* 'equal?' support */
-
 bool instance_equal(LRef a, LRef b)
 {
      assert(INSTANCEP(a));
@@ -141,7 +140,6 @@ LRef lmake_instance(LRef args)
      return new_instance;
 }
 
-
 LRef lclone_instance(LRef inst)
 {
      if (!INSTANCEP(inst))
@@ -161,7 +159,6 @@ LRef lclone_instance(LRef inst)
 
      return z;
 }
-
 
 LRef liinstance_map(LRef inst)
 {

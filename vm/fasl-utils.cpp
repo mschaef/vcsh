@@ -9,6 +9,7 @@
 #include "fasl-file.h"
 
 BEGIN_NAMESPACE(scan)
+
 const _TCHAR *fasl_opcode_name(FaslOpcode opcode)
 {
      /*  Returns NULL for invalid opcodes */

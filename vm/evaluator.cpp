@@ -1162,10 +1162,6 @@ LRef lhandler_frames()
      return CURRENT_TIB()->handler_frames;
 }
 
-/**************************************************************
- * Exception Scheme Bindings
- **************************************************************/
-
 /* TODO: Refactor implementation of catch/throw:
  *
  * 2) catch should match catch tags on eqv?
@@ -1259,15 +1255,6 @@ LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
           return napply(fcn, 3, a1, a2, NIL);
      }
 }
-
-
-/**************************************************************
- * Exception Internal Implementation
- *
- * These functions implement the internal exception handling
- * logic. They are intended to be called via the wrapper macros
- * in the header file.
- **************************************************************/
 
 
 /**************************************************************

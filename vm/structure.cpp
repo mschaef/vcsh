@@ -8,8 +8,10 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-    /*  REVISIT %structure-become */
-LRef lcopy_structure(LRef st)   /*  REVISIT how much of this can be shared with lstructurecons? */
+
+/*  TODO: %structure-become */
+
+LRef lcopy_structure(LRef st)  /* REVISIT: how much of this can be shared with lstructurecons? */
 {
      if (!STRUCTUREP(st))
           return vmerror_wrong_type(1, st);
