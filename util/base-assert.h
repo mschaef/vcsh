@@ -10,7 +10,7 @@
 #include <assert.h>
 #include "base-tchar.h"
 
-namespace scan {
+BEGIN_NAMESPACE(scan)
 
 typedef void (*panic_handler_t)(void);
 
@@ -26,6 +26,6 @@ void _panic(const _TCHAR *str, const _TCHAR *filename, long lineno);
 #	define checked_assert(exp) 
 #endif
 
-} // namespace scan
+END_NAMESPACE
 
 #endif /* __ASSERT_H */

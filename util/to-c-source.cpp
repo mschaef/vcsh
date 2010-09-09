@@ -57,7 +57,7 @@ void write_file_as_c_source(FILE *in, FILE *out, _TCHAR *varname)
   fprintf(out, "};\n\nunsigned int %s_bytes = %zi;\n", varname, s._bytes_transferred);
 }
 
-int main(int argc, char *argv[]) // REVISIT: Enhance to map n files to 1 source file
+int main(int argc, char *argv[]) /* REVISIT: Enhance to map n files to 1 source file */
 {
   if (argc != 3) {
     fprintf(stderr, "Usage: %s <filename> <varname>\n", argv[0]);

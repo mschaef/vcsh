@@ -9,7 +9,7 @@
 
 #include "base-types.h"
 
-int main(int argc, char *argv[]) // !! Enhance to map n files to 1 source file
+int main(int argc, char *argv[])
 {
   if (argc != 2)
     {

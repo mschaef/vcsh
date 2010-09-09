@@ -18,10 +18,7 @@ extern "C" {
 #include "base-stdint.h"
 #include "base-tchar.h"
 
-
-  /**************************************************************
-   * Definitions for inlining
-   */
+/*** Definitions for inlining ***/
 
 #if defined(__GNUC__)
 #  define INLINE inline __attribute__((always_inline))
@@ -29,14 +26,13 @@ extern "C" {
 #  define INLINE __forceinline
 #endif
 
-  /**************************************************************
-   * Standard, useful types
-   */
+/*** Standard, useful types ***/
 
 #if defined(__GNUC__)
-  // REVISIT: bad form
-  //typedef unsigned int uintptr_t;
-  //typedef int intptr_t;
+     /* REVISIT: bad form */
+
+     /* typedef unsigned int uintptr_t; */
+     /* typedef int intptr_t; */
 #endif 
 
 #if defined(__GNUC__)
@@ -49,7 +45,7 @@ extern "C" {
   typedef unsigned char		 u8;
 
   typedef uintptr_t		 uptr;
-  typedef u32			 usys; // The 'natural' size for integers on the platform
+     typedef u32			 usys; /* The 'natural' size for integers on the platform */
 
 #if defined(__GNUC__)
   typedef long long int		 i64;
@@ -62,7 +58,7 @@ extern "C" {
   typedef signed char		 i8;
 
   typedef intptr_t		 iptr; 
-  typedef i32			 isys; // The 'natural' size for integers on the platform
+     typedef i32			 isys; /* The 'natural' size for integers on the platform */
 
   typedef float			 f32;
   typedef double		 f64;
@@ -116,7 +112,7 @@ extern "C" {
 #  define INT64_PRINTF_PREFIX "%I64" 
 #endif 
 
-  // Couldn't find a better definition for these in the standard header files...
+/* Couldn't find a better definition for these in the standard header files... */
 #ifdef _UNICODE
 #	define _TCHAR_MIN WCHAR_MIN
 #	define _TCHAR_MAX WCHAR_MAX
@@ -131,18 +127,18 @@ extern "C" {
 
 int debug_printf(const _TCHAR *, ...);
 
-  /* Declare a variable otherwise unreferenced... */
+/* Declare a variable otherwise unreferenced... */
 #define UNREFERENCED(x) ((void)x)
 
 
 #ifdef _MSC_VER
-// Disable the warning about the constants we use to configure the build.
+/* Disable the warning about the constants we use to configure the build. */
 #  pragma warning (disable : 4127) 
 
-// Disable the warning about structure padding
+/* Disable the warning about structure padding */
 #  pragma warning (disable : 4820) 
 
-// Disable the warning about enumerations unhandled by explicit case 
+/* Disable the warning about enumerations unhandled by explicit case */
 #  pragma warning (disable : 4061)
 #endif
 
@@ -163,9 +159,7 @@ int debug_printf(const _TCHAR *, ...);
 #define REFERENCED_BY_CHECKED_BUILD(x) UNREFERENCED(x)
 #endif
 
-  /****************************************************************
-   * Minimum and Maximum 
-   */
+/*** Minimum and Maximum ***/
 
 #ifndef MIN2
 #  define MIN2(x, y) ((x) < (y) ? (x) : (y))
@@ -195,19 +189,15 @@ int debug_printf(const _TCHAR *, ...);
 #  define ecvt _ecvt
 #endif
 
-  /****************************************************************
-   * Interpreter specific types
-   */ 
+/*** Interpreter specific types ***/
 
-  /* FIXNUM_64BIT
-   *
-   * Define this to enable support for Visual C++ style 64-bit
-   * integers */
+/* FIXNUM_64BIT
+ *
+ * Define this to enable support for Visual C++ style 64-bit
+ * integers */
 #define FIXNUM_64BIT
 
-  /****************************************************************
-                     Global Data Types
-  ****************************************************************/
+/*** Global data types ***/
 
 #ifdef FIXNUM_64BIT
   typedef i64 fixnum_t;
@@ -242,7 +232,6 @@ int debug_printf(const _TCHAR *, ...);
 #define FLONUM_MIN -DBL_MAX
 #define FLONUM_EPSILON DBL_EPSILON
 
-
 /* Add macros for beginning and ending C++ namespaces. These are used to keep
  * namespace blocks from confusing indent. If the namespace declarations are
  * there, indent doesn't recognize function declarations as function declarations. */
@@ -250,7 +239,7 @@ int debug_printf(const _TCHAR *, ...);
 #define END_NAMESPACE }
 
 #ifdef __cplusplus
-} // extern "C"
+} /* extern "C" */
 #endif
 
 #endif

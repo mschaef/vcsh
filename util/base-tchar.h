@@ -42,20 +42,17 @@ typedef char      _TCHAR;
 #  define _tmain main
   
 #ifdef __cplusplus
-} // extern "C"
+} /* extern "C" */
 #endif
 
-#endif // SCAN_UNIX
+#endif /* SCAN_UNIX */
 
 #ifdef SCAN_WINDOWS
-
 #  if defined(_MSC_VER)
 #    include <tchar.h>
 #  endif
-
 #  if defined(__GNUC__)
 #    include "tchar.h"
-
 #    if !defined( __TEXT)
 #      if defined(_UNICODE)
 #        define __TEXT(string) L##string
@@ -67,6 +64,6 @@ typedef char      _TCHAR;
 
 extern "C" char *strchrnul(const char *s, int c);
 
-#endif // SCAN_WINDOWS
+#endif /* SCAN_WINDOWS */
 
-#endif // __UTIL_TCHAR
+#endif /* __UTIL_TCHAR */
