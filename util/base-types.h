@@ -24,29 +24,31 @@
 
 /*** Standard, useful types ***/
 
+/* *INDENT-OFF* */
 #if defined(__GNUC__)
 typedef unsigned long long int u64;
 #elif defined(_MSC_VER)
-typedef unsigned __int64 u64;
+typedef unsigned __int64       u64;
 #endif
-typedef unsigned int u32;
-typedef unsigned short u16;
-typedef unsigned char u8;
-typedef uintptr_t uptr;
-typedef u32 usys;               /* The 'natural' size for integers on the platform */
+typedef unsigned int           u32;
+typedef unsigned short         u16;
+typedef unsigned char          u8;
+typedef uintptr_t              uptr;
+typedef u32                    usys;  /* The 'natural' size for integers on the platform */
 
 #if defined(__GNUC__)
-typedef long long int i64;
+typedef long long int          i64;
 #elif defined(_MSC_VER)
-typedef __int64 i64;
+typedef __int64                i64;
 #endif
-typedef int i32;
-typedef short i16;
-typedef signed char i8;
-typedef intptr_t iptr;
-typedef i32 isys;               /* The 'natural' size for integers on the platform */
-typedef float f32;
-typedef double f64;
+typedef int                    i32;
+typedef short                  i16;
+typedef signed char            i8;
+typedef intptr_t               iptr;
+typedef i32                    isys;  /* The 'natural' size for integers on the platform */
+typedef float                  f32;
+typedef double                 f64;
+/* *INDENT-ON* */
 
 #ifndef TRUE
 #   define TRUE   (1==1)
