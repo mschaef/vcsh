@@ -9,7 +9,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 static void debug_print_flonum(LRef object, LRef port, bool machine_readable)
 {
      _TCHAR buf[STACK_STRBUF_LEN];

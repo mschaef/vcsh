@@ -1,3 +1,4 @@
+
 /* list.cpp
  *
  * SIOD list support
@@ -7,7 +8,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 LRef lcons(LRef x, LRef y)
 {
      LRef z = new_cell(TC_CONS);

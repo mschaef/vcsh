@@ -9,8 +9,7 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
-interpreter_t interp; /* Interpreter globals */
+interpreter_t interp;           /* Interpreter globals */
 
 LRef liimmediate_p(LRef obj)
 {
@@ -34,7 +33,7 @@ LRef lnotp(LRef x)
 }
 
 /*** C-pointers ***/
-LRef externalcons(void *data, LRef desc, external_meta_t *meta /* = NULL */ )
+LRef externalcons(void *data, LRef desc, external_meta_t * meta /* = NULL */ )
 {
      LRef z = new_cell(TC_EXTERNAL);
 

@@ -1032,7 +1032,7 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-                                                                                                                     /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
+                                                                                                                                        /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
 
 INLINE size_t STRUCTURE_DIM(LRef obj)
 {

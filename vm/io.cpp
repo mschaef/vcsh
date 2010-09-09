@@ -1155,14 +1155,14 @@ size_t port_length(LRef port)
  * extended_state = Scheme object containing file name
  */
 
-INLINE void SET_PORT_FILE(LRef port, FILE *file)
+INLINE void SET_PORT_FILE(LRef port, FILE * file)
 {
      PORT_PINFO(port)->_user_data = file;
 }
 
 INLINE FILE *PORT_FILE(LRef port)
 {
-     return (FILE *)(PORT_PINFO(port)->_user_data);
+     return (FILE *) (PORT_PINFO(port)->_user_data);
 }
 
 LRef fileportcons(port_class_t * cls, port_mode_t mode, LRef filename)
@@ -1550,7 +1550,7 @@ size_t string_port_write(const void *buf, size_t size, size_t count, LRef obj)
      assert(size == sizeof(_TCHAR));
 
      if (NULLP(PORT_STRING(obj)))
-          SET_PORT_STRING(obj, strcons(count, (_TCHAR *) buf));    /*  REVISIT: fails if buf has embedded nulls */
+          SET_PORT_STRING(obj, strcons(count, (_TCHAR *) buf)); /*  REVISIT: fails if buf has embedded nulls */
      else
           str_append_str(PORT_STRING(obj), (_TCHAR *) buf, count);
 

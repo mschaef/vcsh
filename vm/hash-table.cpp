@@ -222,6 +222,7 @@ LRef lsxhash(LRef obj, LRef hash)       /*  if hash is bound, lsxhash matches it
      return fixcons(hashed);
 
 }
+
 static size_t round_up_to_power_of_two(size_t val)
 {
      size_t rounded = 1;
@@ -474,7 +475,7 @@ LRef hash_set(LRef hash, LRef key, LRef value, bool check_for_expand)
 {
      assert(HASHP(hash));
 
-     hash_entry_t *entry = hash_lookup_entry(hash, key);       /*  REVISIT: double lookup/hash */
+     hash_entry_t *entry = hash_lookup_entry(hash, key);        /*  REVISIT: double lookup/hash */
 
      if (entry != NULL)
      {
