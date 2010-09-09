@@ -1,5 +1,7 @@
 # Makefile for Build Utilities
 
+.PHONY: indented
+
 TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT}
 
 include ../build-settings
@@ -20,6 +22,9 @@ show-retval${EXE_EXT}: $(SHOW_RETVAL_OBJS)
 
 depend: $(VM_SRCS) $(SHO_SRCS)
 	$(CC) -MM $(CCFLAGS) $(DEFINES) $^ 1>.depend
+
+indented:
+	gnuindent ${SHOW_RETVAL_SRCS} ${TO_C_SOURCE_SRCS} base-assert.h base-stdint.h base-tchar.h base-types.h chemeris-stdint.h 
 
 %${OBJ_EXT}: %.cpp Makefile
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
