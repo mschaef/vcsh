@@ -14,11 +14,8 @@ BEGIN_NAMESPACE(scan)
 /*  TODO: add char-ready? */
 
 
-/* End-of-file object ****************************************
- *
- * This is the unreadable object that the R5RS specification talks
- * about using to mark the end of a file.
- */
+/*** End-of-file object ***/
+
 LRef lmake_eof()
 {
      return LREF2_CONS(LREF2_EOF, 0);
@@ -29,9 +26,7 @@ LRef leof_objectp(LRef obj)
      return EOFP(obj) ? obj : boolcons(false);
 }
 
-/* Port object ************************************************
- *
- * This represents a standard input or output port.  */
+/*** Port object ***/
 
 LRef port_gc_mark(LRef obj)
 {
@@ -120,20 +115,15 @@ LRef initialize_port(LRef s,
      return (s);
 }
 
-LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_object,
-              void *user_data)
+size_t port_length(LRef port)
 {
-     LRef s = new_cell(TC_PORT);
+     assert(PORTP(port));
 
-     return initialize_port(s, cls, port_name, mode, user_object, user_data);
+     if (PORT_CLASS(port)->_length)
+          return PORT_CLASS(port)->_length(port);
+
+     return 0;
 }
-
-
-/*
- * Fundamental Port I/O Primatives - All I/O goes through these
- * two functions. They basically write and read raw streams of
- * bytes to and from ports.
- */
 
 size_t write_raw(const void *buf, size_t size, size_t count, LRef port)
 {
@@ -163,11 +153,343 @@ size_t read_raw(void *buf, size_t size, size_t count, LRef port)
      return actual_count;
 }
 
+LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_object,
+              void *user_data)
+{
+     LRef s = new_cell(TC_PORT);
+
+     return initialize_port(s, cls, port_name, mode, user_object, user_data);
+}
 
 
-/*
- * Lisp-visible port functions
- */
+
+/***** C I/O functions *****/
+
+int read_char(LRef port)
+{
+     int ch = EOF;
+
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+
+     assert(!NULLP(port));
+
+     if (!(PORT_MODE(port) & PORT_INPUT))
+          return ch;
+
+     /* Read the next character, perhaps from the unread buffer... */
+     if (!PORT_BINARYP(port) && (PORT_TEXT_INFO(port)->_unread_valid > 0))
+     {
+          PORT_TEXT_INFO(port)->_unread_valid--;
+
+          ch = PORT_TEXT_INFO(port)->_unread_buffer[PORT_TEXT_INFO(port)->_unread_valid];
+     }
+     else
+     {
+          _TCHAR tch;
+
+          if (read_raw(&tch, sizeof(_TCHAR), 1, port) == 0)
+               ch = EOF;
+          else
+               ch = tch;
+
+          /* ... Text ports get special processing. */
+          if (!PORT_BINARYP(port))
+          {
+               /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
+               if (PORT_TEXT_INFO(port)->_crlf_translate)
+               {
+                    if (ch == '\r')
+                    {
+                         ch = '\n';
+                         PORT_TEXT_INFO(port)->_needs_lf = TRUE;
+                    }
+                    else if (PORT_TEXT_INFO(port)->_needs_lf)
+                    {
+                         PORT_TEXT_INFO(port)->_needs_lf = FALSE;
+
+                         /*  Notice: this _returns_ from read_char, to avoid double
+                          *  counting ch in the position counters. */
+                         if (ch == '\n')
+                              return read_char(port);
+                    }
+               }
+          }
+     }
+
+     if (!PORT_BINARYP(port))
+     {
+          /* Update the text position indicators */
+          if (ch == '\n')
+          {
+               PORT_TEXT_INFO(port)->_row++;
+               PORT_TEXT_INFO(port)->_previous_line_length = PORT_TEXT_INFO(port)->_column;
+               PORT_TEXT_INFO(port)->_column = 0;
+          }
+          else
+               PORT_TEXT_INFO(port)->_column++;
+     }
+
+     return ch;
+}
+
+static int flush_whitespace(LRef port, bool skip_lisp_comments = true)
+{
+     int c = '\0';
+
+     bool commentp = false;
+     bool reading_whitespace = true;
+
+     while (reading_whitespace)
+     {
+          /*  We can never be in a comment if we're not skipping them... */
+          assert(skip_lisp_comments ? true : !commentp);
+
+          c = read_char(port);
+
+          if (c == EOF)
+               break;
+          else if (commentp)
+          {
+               if (c == _T('\n'))
+                    commentp = FALSE;
+          }
+          else if ((c == _T(';')) && skip_lisp_comments)
+          {
+               commentp = TRUE;
+          }
+          else if (!_istspace(c) && (c != _T('\0')))
+               break;
+     }
+
+     if (c != EOF)
+          unread_char(c, port);
+
+     return c;
+}
+
+bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result)
+{
+#ifdef FIXNUM_64BIT
+     assert((length == 1) || (length == 2) || (length == 4) || (length == 8));
+#else
+     assert((length == 1) || (length == 2) || (length == 4));
+#endif
+
+     assert(PORTP(port));
+     assert(PORT_BINARYP(port));
+
+     u8_t bytes[sizeof(fixnum_t)];
+     size_t fixnums_read = read_raw(bytes, (size_t) length, 1, port);
+
+     if (!fixnums_read)
+          return false;
+
+
+     switch (length)
+     {
+     case 1:
+          result = (signedp ? (fixnum_t) (*(i8_t *) bytes) : (fixnum_t) (*(u8_t *) bytes));
+          break;
+     case 2:
+          result = (signedp ? (fixnum_t) (*(i16_t *) bytes) : (fixnum_t) (*(u16_t *) bytes));
+          break;
+     case 4:
+          result = (signedp ? (fixnum_t) (*(i32_t *) bytes) : (fixnum_t) (*(u32_t *) bytes));
+          break;
+#ifdef FIXNUM_64BIT
+     case 8:
+          result = (signedp ? (fixnum_t) (*(i64_t *) bytes) : (fixnum_t) (*(u64_t *) bytes));
+          break;
+#endif
+     }
+
+     return true;
+}
+
+
+bool read_binary_flonum(LRef port, flonum_t & result)
+{
+     assert(PORTP(port));
+     assert(PORT_BINARYP(port));
+
+     u8_t bytes[sizeof(flonum_t)];
+     size_t flonums_read = read_raw(bytes, sizeof(flonum_t), 1, port);
+
+     if (!flonums_read)
+          return false;
+
+     result = *(flonum_t *) bytes;
+
+     return true;
+}
+
+
+int unread_char(int ch, LRef port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+
+     assert(!NULLP(port));
+
+     if (PORT_BINARYP(port))
+          vmerror("Unread not supported on binary ports!", port);
+
+     switch (ch)
+     {
+     case '\n':
+          PORT_TEXT_INFO(port)->_row--;
+          PORT_TEXT_INFO(port)->_column = PORT_TEXT_INFO(port)->_previous_line_length;
+          break;
+
+     case '\r':
+          break;
+
+     default:
+          PORT_TEXT_INFO(port)->_column--;
+          break;
+     }
+
+     if (PORT_TEXT_INFO(port)->_unread_valid >= PORT_UNGET_BUFFER_SIZE)
+          vmerror("unget buffer exceeded!", port);
+
+     PORT_TEXT_INFO(port)->_unread_buffer[PORT_TEXT_INFO(port)->_unread_valid] = ch;
+     PORT_TEXT_INFO(port)->_unread_valid++;
+
+     return ch;
+}
+
+int peek_char(LRef port)
+{
+     int ch = EOF;
+
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+
+     assert(!NULLP(port));
+
+     ch = read_char(port);
+     unread_char(ch, port);
+
+     return ch;
+}
+
+
+void write_char(int ch, LRef port)
+{
+     _TCHAR tch = (_TCHAR) ch;
+
+     if (NULLP(port))
+          port = CURRENT_OUTPUT_PORT();
+
+     assert(!NULLP(port));
+
+     write_text(&tch, 1, port);
+
+     if (!PORT_BINARYP(port) && (tch == _T('\n')))
+          lflush_port(port);
+}
+
+
+size_t write_text(const _TCHAR * buf, size_t count, LRef port)
+{
+     if (NULLP(port))
+          port = CURRENT_OUTPUT_PORT();
+
+     assert(PORTP(port));
+
+     if ((PORT_PINFO(port)->_mode & PORT_OUTPUT) != PORT_OUTPUT)
+          return 0;
+
+     if (PORT_BINARYP(port))
+     {
+          return write_raw(buf, sizeof(_TCHAR), count, port);
+     }
+     else if (!PORT_TEXT_INFO(port)->_crlf_translate)
+     {
+          for (size_t ii = 0; ii < count; ii++)
+          {
+               if (buf[ii] == _T('\n'))
+               {
+                    PORT_TEXT_INFO(port)->_row++;
+                    PORT_TEXT_INFO(port)->_column = 0;
+               }
+               else
+                    PORT_TEXT_INFO(port)->_column++;
+          }
+
+          return write_raw(buf, sizeof(_TCHAR), count, port);
+     }
+     else
+     {
+          /* This code divides the text to be written into blocks seperated
+           * by line seperators. raw_write is called for each block to
+           * actually do the write, and line seperators are correctly
+           * translated to CR+LF pairs. */
+
+          for (size_t next_char_to_write = 0; next_char_to_write < count;)
+          {
+               unsigned int c = _T('\0');
+               size_t next_eoln_char;
+
+               /* Scan for the next eoln character, it ends the block... */
+               for (next_eoln_char = next_char_to_write; (next_eoln_char < count); next_eoln_char++)
+               {
+                    c = buf[next_eoln_char];
+
+                    if ((c == '\n') || (c == '\r') || PORT_TEXT_INFO(port)->_needs_lf)
+                         break;
+               }
+
+               if (PORT_TEXT_INFO(port)->_needs_lf)
+               {
+                    assert(next_eoln_char - next_char_to_write == 0);
+
+                    if (buf[next_eoln_char] == _T('\n'))
+                         next_eoln_char++;
+
+                    write_raw(_T("\n"), sizeof(_TCHAR), 1, port);
+
+                    PORT_TEXT_INFO(port)->_needs_lf = false;
+                    PORT_TEXT_INFO(port)->_row++;
+               }
+               else if (next_eoln_char - next_char_to_write == 0)
+               {
+                    switch (c)
+                    {
+                    case _T('\n'):
+                         write_raw(_T("\r\n"), sizeof(_TCHAR), 2, port);
+                         PORT_TEXT_INFO(port)->_column = 0;
+                         PORT_TEXT_INFO(port)->_row++;
+                         break;
+
+                    case _T('\r'):
+                         write_raw(_T("\r"), sizeof(_TCHAR), 1, port);
+                         PORT_TEXT_INFO(port)->_column = 0;
+                         PORT_TEXT_INFO(port)->_needs_lf = true;
+                         break;
+
+                    default:
+                         panic("Invalid case in write_text");
+                    }
+
+                    next_eoln_char++;
+               }
+               else
+               {
+                    PORT_TEXT_INFO(port)->_column += (next_eoln_char - next_char_to_write);
+                    write_raw(&(buf[next_char_to_write]), sizeof(_TCHAR),
+                              next_eoln_char - next_char_to_write, port);
+               }
+
+               next_char_to_write = next_eoln_char;
+          }
+     }
+
+     return count;
+}
+
+/***** Lisp-visible port functions *****/
 
 LRef linput_portp(LRef obj)
 {
@@ -314,78 +636,6 @@ LRef lflush_port(LRef port)
 }
 
 
-/* Text I/O ***************************************************
- *
- * The Text I/O translation state machine resides below. */
-
-int read_char(LRef port)
-{
-     int ch = EOF;
-
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-
-     assert(!NULLP(port));
-
-     if (!(PORT_MODE(port) & PORT_INPUT))
-          return ch;
-
-     /* Read the next character, perhaps from the unread buffer... */
-     if (!PORT_BINARYP(port) && (PORT_TEXT_INFO(port)->_unread_valid > 0))
-     {
-          PORT_TEXT_INFO(port)->_unread_valid--;
-
-          ch = PORT_TEXT_INFO(port)->_unread_buffer[PORT_TEXT_INFO(port)->_unread_valid];
-     }
-     else
-     {
-          _TCHAR tch;
-
-          if (read_raw(&tch, sizeof(_TCHAR), 1, port) == 0)
-               ch = EOF;
-          else
-               ch = tch;
-
-          /* ... Text ports get special processing. */
-          if (!PORT_BINARYP(port))
-          {
-               /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
-               if (PORT_TEXT_INFO(port)->_crlf_translate)
-               {
-                    if (ch == '\r')
-                    {
-                         ch = '\n';
-                         PORT_TEXT_INFO(port)->_needs_lf = TRUE;
-                    }
-                    else if (PORT_TEXT_INFO(port)->_needs_lf)
-                    {
-                         PORT_TEXT_INFO(port)->_needs_lf = FALSE;
-
-                         /*  Notice: this _returns_ from read_char, to avoid double
-                          *  counting ch in the position counters. */
-                         if (ch == '\n')
-                              return read_char(port);
-                    }
-               }
-          }
-     }
-
-     if (!PORT_BINARYP(port))
-     {
-          /* Update the text position indicators */
-          if (ch == '\n')
-          {
-               PORT_TEXT_INFO(port)->_row++;
-               PORT_TEXT_INFO(port)->_previous_line_length = PORT_TEXT_INFO(port)->_column;
-               PORT_TEXT_INFO(port)->_column = 0;
-          }
-          else
-               PORT_TEXT_INFO(port)->_column++;
-     }
-
-     return ch;
-}
-
 LRef lchar_readyp(LRef port)
 {
      if (NULLP(port))
@@ -410,40 +660,6 @@ LRef lchar_readyp(LRef port)
      }
 }
 
-static int flush_whitespace(LRef port, bool skip_lisp_comments = true)
-{
-     int c = '\0';
-
-     bool commentp = false;
-     bool reading_whitespace = true;
-
-     while (reading_whitespace)
-     {
-          /*  We can never be in a comment if we're not skipping them... */
-          assert(skip_lisp_comments ? true : !commentp);
-
-          c = read_char(port);
-
-          if (c == EOF)
-               break;
-          else if (commentp)
-          {
-               if (c == _T('\n'))
-                    commentp = FALSE;
-          }
-          else if ((c == _T(';')) && skip_lisp_comments)
-          {
-               commentp = TRUE;
-          }
-          else if (!_istspace(c) && (c != _T('\0')))
-               break;
-     }
-
-     if (c != EOF)
-          unread_char(c, port);
-
-     return c;
-}
 
 LRef lflush_whitespace(LRef port, LRef slc)
 {
@@ -545,45 +761,6 @@ LRef lread_binary_string(LRef l, LRef port)
      return new_str;
 }
 
-bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result)
-{
-#ifdef FIXNUM_64BIT
-     assert((length == 1) || (length == 2) || (length == 4) || (length == 8));
-#else
-     assert((length == 1) || (length == 2) || (length == 4));
-#endif
-
-     assert(PORTP(port));
-     assert(PORT_BINARYP(port));
-
-     u8_t bytes[sizeof(fixnum_t)];
-     size_t fixnums_read = read_raw(bytes, (size_t) length, 1, port);
-
-     if (!fixnums_read)
-          return false;
-
-
-     switch (length)
-     {
-     case 1:
-          result = (signedp ? (fixnum_t) (*(i8_t *) bytes) : (fixnum_t) (*(u8_t *) bytes));
-          break;
-     case 2:
-          result = (signedp ? (fixnum_t) (*(i16_t *) bytes) : (fixnum_t) (*(u16_t *) bytes));
-          break;
-     case 4:
-          result = (signedp ? (fixnum_t) (*(i32_t *) bytes) : (fixnum_t) (*(u32_t *) bytes));
-          break;
-#ifdef FIXNUM_64BIT
-     case 8:
-          result = (signedp ? (fixnum_t) (*(i64_t *) bytes) : (fixnum_t) (*(u64_t *) bytes));
-          break;
-#endif
-     }
-
-     return true;
-}
-
 
 LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
 {
@@ -618,23 +795,6 @@ LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
      else
           return lmake_eof();
 }
-
-bool read_binary_flonum(LRef port, flonum_t & result)
-{
-     assert(PORTP(port));
-     assert(PORT_BINARYP(port));
-
-     u8_t bytes[sizeof(flonum_t)];
-     size_t flonums_read = read_raw(bytes, sizeof(flonum_t), 1, port);
-
-     if (!flonums_read)
-          return false;
-
-     result = *(flonum_t *) bytes;
-
-     return true;
-}
-
 LRef lread_binary_flonum(LRef port)
 {
      if (NULLP(port))
@@ -681,40 +841,6 @@ LRef lread_line(LRef port)
      return lget_output_string(op);
 }
 
-int unread_char(int ch, LRef port)
-{
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-
-     assert(!NULLP(port));
-
-     if (PORT_BINARYP(port))
-          vmerror("Unread not supported on binary ports!", port);
-
-     switch (ch)
-     {
-     case '\n':
-          PORT_TEXT_INFO(port)->_row--;
-          PORT_TEXT_INFO(port)->_column = PORT_TEXT_INFO(port)->_previous_line_length;
-          break;
-
-     case '\r':
-          break;
-
-     default:
-          PORT_TEXT_INFO(port)->_column--;
-          break;
-     }
-
-     if (PORT_TEXT_INFO(port)->_unread_valid >= PORT_UNGET_BUFFER_SIZE)
-          vmerror("unget buffer exceeded!", port);
-
-     PORT_TEXT_INFO(port)->_unread_buffer[PORT_TEXT_INFO(port)->_unread_valid] = ch;
-     PORT_TEXT_INFO(port)->_unread_valid++;
-
-     return ch;
-}
-
 LRef lunread_char(LRef ch, LRef port)
 {
      if (NULLP(port))
@@ -730,21 +856,6 @@ LRef lunread_char(LRef ch, LRef port)
      unread_char(CHARV(ch), port);
 
      return port;
-}
-
-int peek_char(LRef port)
-{
-     int ch = EOF;
-
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-
-     assert(!NULLP(port));
-
-     ch = read_char(port);
-     unread_char(ch, port);
-
-     return ch;
 }
 
 LRef lpeek_char(LRef port)
@@ -764,22 +875,6 @@ LRef lpeek_char(LRef port)
      else
           return charcons((_TCHAR) ch);
 }
-
-void write_char(int ch, LRef port)
-{
-     _TCHAR tch = (_TCHAR) ch;
-
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-
-     assert(!NULLP(port));
-
-     write_text(&tch, 1, port);
-
-     if (!PORT_BINARYP(port) && (tch == _T('\n')))
-          lflush_port(port);
-}
-
 LRef lwrite_char(LRef ch, LRef port)
 {
      if (!CHARP(ch))
@@ -987,103 +1082,6 @@ LRef lbinary_write_flonum(LRef v, LRef port)
      return fixcons(flonums_written);
 }
 
-size_t write_text(const _TCHAR * buf, size_t count, LRef port)
-{
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-
-     assert(PORTP(port));
-
-     if ((PORT_PINFO(port)->_mode & PORT_OUTPUT) != PORT_OUTPUT)
-          return 0;
-
-     if (PORT_BINARYP(port))
-     {
-          return write_raw(buf, sizeof(_TCHAR), count, port);
-     }
-     else if (!PORT_TEXT_INFO(port)->_crlf_translate)
-     {
-          for (size_t ii = 0; ii < count; ii++)
-          {
-               if (buf[ii] == _T('\n'))
-               {
-                    PORT_TEXT_INFO(port)->_row++;
-                    PORT_TEXT_INFO(port)->_column = 0;
-               }
-               else
-                    PORT_TEXT_INFO(port)->_column++;
-          }
-
-          return write_raw(buf, sizeof(_TCHAR), count, port);
-     }
-     else
-     {
-          /* This code divides the text to be written into blocks seperated
-           * by line seperators. raw_write is called for each block to
-           * actually do the write, and line seperators are correctly
-           * translated to CR+LF pairs. */
-
-          for (size_t next_char_to_write = 0; next_char_to_write < count;)
-          {
-               unsigned int c = _T('\0');
-               size_t next_eoln_char;
-
-               /* Scan for the next eoln character, it ends the block... */
-               for (next_eoln_char = next_char_to_write; (next_eoln_char < count); next_eoln_char++)
-               {
-                    c = buf[next_eoln_char];
-
-                    if ((c == '\n') || (c == '\r') || PORT_TEXT_INFO(port)->_needs_lf)
-                         break;
-               }
-
-               if (PORT_TEXT_INFO(port)->_needs_lf)
-               {
-                    assert(next_eoln_char - next_char_to_write == 0);
-
-                    if (buf[next_eoln_char] == _T('\n'))
-                         next_eoln_char++;
-
-                    write_raw(_T("\n"), sizeof(_TCHAR), 1, port);
-
-                    PORT_TEXT_INFO(port)->_needs_lf = false;
-                    PORT_TEXT_INFO(port)->_row++;
-               }
-               else if (next_eoln_char - next_char_to_write == 0)
-               {
-                    switch (c)
-                    {
-                    case _T('\n'):
-                         write_raw(_T("\r\n"), sizeof(_TCHAR), 2, port);
-                         PORT_TEXT_INFO(port)->_column = 0;
-                         PORT_TEXT_INFO(port)->_row++;
-                         break;
-
-                    case _T('\r'):
-                         write_raw(_T("\r"), sizeof(_TCHAR), 1, port);
-                         PORT_TEXT_INFO(port)->_column = 0;
-                         PORT_TEXT_INFO(port)->_needs_lf = true;
-                         break;
-
-                    default:
-                         panic("Invalid case in write_text");
-                    }
-
-                    next_eoln_char++;
-               }
-               else
-               {
-                    PORT_TEXT_INFO(port)->_column += (next_eoln_char - next_char_to_write);
-                    write_raw(&(buf[next_char_to_write]), sizeof(_TCHAR),
-                              next_eoln_char - next_char_to_write, port);
-               }
-
-               next_char_to_write = next_eoln_char;
-          }
-     }
-
-     return count;
-}
 
 LRef lrich_write(LRef obj, LRef machine_readable, LRef port)
 {
@@ -1134,23 +1132,10 @@ LRef lfresh_line(LRef port)
      return boolcons(false);
 }
 
-size_t port_length(LRef port)
-{
-     assert(PORTP(port));
-
-     if (PORT_CLASS(port)->_length)
-          return PORT_CLASS(port)->_length(port);
-
-     return 0;
-}
-
-/* Null port **************************************************
+/* Null port
  *
  * Input port - Always reads out EOF.
- * Output port - Accepts all writes. */
-
-/*
- * Input port
+ * Output port - Accepts all writes.
  */
 
 size_t null_port_read(void *buf, size_t size, size_t count, LRef obj)
@@ -1193,8 +1178,9 @@ port_class_t null_port_class = {
 
 LRef lopen_null_port()
 {
-     return portcons(&null_port_class, NIL, (scan::port_mode_t) (PORT_INPUT_OUTPUT | PORT_BINARY),
+     return portcons(&null_port_class, NIL, (port_mode_t) (PORT_INPUT_OUTPUT | PORT_BINARY),
                      NIL, NULL);
 }
+
 
 END_NAMESPACE
