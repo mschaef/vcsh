@@ -1,6 +1,8 @@
 
 # Makefile for Scan VM
 
+.PHONY: indented
+
 TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT}
 
 include ../build-settings
@@ -58,6 +60,9 @@ clean-scheme:
 
 depend: vcsh${EXE_EXT} grovel-dependancies.scm scheme.scm
 	./vcsh grovel-dependancies.scm scheme.scm 1> .depend
+
+indented:
+	gnuindent ${VCSH_SRCS} ${LIB_SRCS}
 
 ifneq ($(wildcard .depend),)
 include .depend
