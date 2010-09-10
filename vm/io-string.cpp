@@ -7,7 +7,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 INLINE void SET_PORT_STRING(LRef port, LRef string)
 {
      assert(STRINGP(string));

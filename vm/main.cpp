@@ -9,7 +9,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 interpreter_t interp;           /* Interpreter globals */
 
 const _TCHAR *build_id_string()

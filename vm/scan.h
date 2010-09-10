@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 
 BEGIN_NAMESPACE(scan)
-extern i64_t malloc_bytes; /* REVISIT: Should this be u64_t? */
+extern i64_t malloc_bytes;      /* REVISIT: Should this be u64_t? */
 
 /*** Interpreter Paramaters ***/
 
@@ -1024,7 +1024,7 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-                                                                                                                                        /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
+                                                                                                                                                                              /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
 
 INLINE size_t STRUCTURE_DIM(LRef obj)
 {
@@ -2291,7 +2291,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
 bool read_binary_flonum(LRef port, flonum_t & result);
 double round(double n);
 void dump_current_frames(LRef oport);
- 
+
 /***** Debugging tools *****/
 
 INLINE bool DEBUG_FLAG(debug_flag_t flag)
@@ -2509,7 +2509,7 @@ INLINE LRef new_cell(typecode_t type)
 
 END_NAMESPACE;
 
-extern unsigned char scmSCore[];  /*  REVISIT: need to change this to _TCHAR */
+extern unsigned char scmSCore[];        /*  REVISIT: need to change this to _TCHAR */
 extern unsigned int scmSCore_bytes;
 
 

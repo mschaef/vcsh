@@ -110,9 +110,9 @@ typedef double                 f64_t;
 #define UNREFERENCED(x) ((void)x)
 
 #ifdef _MSC_VER
-#  pragma warning (disable : 4127) /* ...warning about the constants used to configure the build. */
-#  pragma warning (disable : 4820) /* ...warning about structure padding */
-#  pragma warning (disable : 4061) /* ...warning about enumerations unhandled by explicit case */
+#  pragma warning (disable : 4127)      /* ...warning about the constants used to configure the build. */
+#  pragma warning (disable : 4820)      /* ...warning about structure padding */
+#  pragma warning (disable : 4061)      /* ...warning about enumerations unhandled by explicit case */
 #endif
 
 #ifdef _DEBUG
@@ -157,7 +157,7 @@ enum
 
 /*** Interpreter specific types ***/
 
-#define FIXNUM_64BIT /* Support for MSC style 64-bit integers */
+#define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
 
 /*** Global data types ***/
 

@@ -1327,13 +1327,12 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
      UNREFERENCED(already_pending);
 
      /* Check to see if we have a matching catch block... */
-     frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t)tag);
+     frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
 
      /* ...If we do, start unwinding the stack... */
      if (next_try)
      {
-          frame_record_t *next_catcher =
-               __frame_find(__ex_next_frame_to_catch, (uptr_t)tag);
+          frame_record_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
 
           next_catcher->frame_as.dynamic_escape.pending = TRUE;
           next_catcher->frame_as.dynamic_escape.unwinding = TRUE;

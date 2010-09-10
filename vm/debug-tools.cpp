@@ -290,7 +290,7 @@ static void show_debug_flags()
 }
 
 #if defined(__CYGWIN__) || defined(SCAN_UNIX)
-extern "C" const _TCHAR *strchrnul(const _TCHAR *string, int c)
+extern "C" const _TCHAR *strchrnul(const _TCHAR * string, int c)
 {
      for (; *string; string++)
           if (*string == c)

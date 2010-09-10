@@ -7,7 +7,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 LRef byteveccons(size_t dim)
 {
      LRef z = new_cell(TC_BYTE_VECTOR);

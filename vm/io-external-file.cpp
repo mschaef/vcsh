@@ -19,7 +19,6 @@ BEGIN_NAMESPACE(scan)
  * state = FILE *
  * extended_state = Scheme object containing file name
  */
-
 INLINE void SET_PORT_FILE(LRef port, FILE * file)
 {
      PORT_PINFO(port)->_user_data = file;

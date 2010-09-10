@@ -9,11 +9,12 @@
 BEGIN_NAMESPACE(scan)
 
 /*  REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports. */
+
 /*  REVISIT: Do we need to restrict bootup NULL I/O */
+
 /*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
 
 /*** End-of-file object ***/
-
 LRef lmake_eof()
 {
      return LREF2_CONS(LREF2_EOF, 0);
@@ -1008,7 +1009,7 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
           else
           {
                in_range = (val >= U16_MIN) && (val <= U16_MAX);
-              *(u16_t *) bytes = (u16_t) val;
+               *(u16_t *) bytes = (u16_t) val;
           }
           break;
 

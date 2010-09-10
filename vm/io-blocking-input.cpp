@@ -12,7 +12,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 size_t blocking_input_port_read(void *buf, size_t size, size_t count, LRef port);
 void blocking_input_port_close(LRef port);
 bool blocking_input_read_readyp(LRef port);

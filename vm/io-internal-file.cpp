@@ -8,7 +8,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 struct c_data_port_state
 {
      size_t _bytes_transferred;

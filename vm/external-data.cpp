@@ -10,7 +10,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 LRef externalcons(void *data, LRef desc, external_meta_t * meta /* = NULL */ )
 {
      LRef z = new_cell(TC_EXTERNAL);

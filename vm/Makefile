@@ -9,7 +9,6 @@ include ../build-settings
 
 SCC0=scc0/scc0
 
-
 scansh0${EXE_EXT}: scan-vm${LIB_EXT} scansh0${OBJ_EXT}
 	${CC} ${LDFLAGS} ${NAMOBJFL}scansh0${EXE_EXT} scansh0${OBJ_EXT} scan-vm${LIB_EXT}
 
@@ -17,12 +16,35 @@ SH0_OBJS=scansh0${OBJ_EXT}
 
 SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.cpp)
 
-VM_OBJS=byte-vector${OBJ_EXT} vector${OBJ_EXT} structure${OBJ_EXT} debug-tools${OBJ_EXT} debug-printer${OBJ_EXT} \
-        error${OBJ_EXT} evaluator${OBJ_EXT} fasl${OBJ_EXT} fasl-utils${OBJ_EXT} hash-table${OBJ_EXT} \
-        io-string${OBJ_EXT} list${OBJ_EXT} macro${OBJ_EXT} main${OBJ_EXT} memory${OBJ_EXT} malloc${OBJ_EXT} mt19937${OBJ_EXT} \
-        instance${OBJ_EXT} io${OBJ_EXT} io-external-file${OBJ_EXT} io-internal-file${OBJ_EXT} io-blocking-input${OBJ_EXT} \
-        number${OBJ_EXT} oblist${OBJ_EXT} text-data${OBJ_EXT} system${OBJ_EXT} external-data${OBJ_EXT} $(PLATFORM)-sys${OBJ_EXT} \
-        core${OBJ_EXT}
+VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
+       byte-vector${OBJ_EXT} \
+       core${OBJ_EXT} \
+       debug-printer${OBJ_EXT} \
+       debug-tools${OBJ_EXT} \
+       error${OBJ_EXT} \
+       evaluator${OBJ_EXT} \
+       external-data${OBJ_EXT} \
+       fasl${OBJ_EXT} \
+       fasl-utils${OBJ_EXT} \
+       hash-table${OBJ_EXT} \
+       instance${OBJ_EXT} \
+       io${OBJ_EXT} \
+       io-blocking-input${OBJ_EXT} \
+       io-external-file${OBJ_EXT} \
+       io-internal-file${OBJ_EXT} \
+       io-string${OBJ_EXT} \
+       list${OBJ_EXT} \
+       macro${OBJ_EXT} \
+       main${OBJ_EXT} \
+       malloc${OBJ_EXT} \
+       memory${OBJ_EXT} \
+       mt19937${OBJ_EXT} \
+       number${OBJ_EXT} \
+       oblist${OBJ_EXT} \
+       structure${OBJ_EXT} \
+       system${OBJ_EXT} \
+       text-data${OBJ_EXT} \
+       vector${OBJ_EXT}
 
 VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.cpp)
 

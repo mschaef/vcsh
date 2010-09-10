@@ -9,7 +9,6 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-
 LRef liimmediate_p(LRef obj)
 {
      return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
