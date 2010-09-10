@@ -332,6 +332,7 @@ static void init_base_scheme_objects(void)
 static void register_main_subrs()
 {
 /* *INDENT-OFF* */
+    register_subr(_T("%arm-gc-trip-wires"),               SUBR_1,     (void*)liarm_gc_trip_wires                 );
     register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
     register_subr(_T("%catch-apply0"),                    SUBR_2,     (void*)lcatch_apply0                       );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
@@ -340,14 +341,17 @@ static void register_main_subrs()
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
+    register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
     register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
-
-    /*  TODO: one of these is not necessary */
-    register_subr(_T("%fast-op-cons"),                    SUBR_4,     (void*)lfast_op                            );
+    register_subr(_T("%fasl-load"),                       SUBR_1,     (void*)lifasl_load                         );
     register_subr(_T("%fast-op"),                         SUBR_4,     (void*)lfast_op                            );
-
+    register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
+    register_subr(_T("%fast-op-cons"),                    SUBR_4,     (void*)lfast_op                            );     /*  TODO: one of these is not necessary */
+    register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
+    register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
+    register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%handler-frames"),                  SUBR_0,     (void*)lhandler_frames                     );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
@@ -355,9 +359,10 @@ static void register_main_subrs()
     register_subr(_T("%instance-map"),                    SUBR_1,     (void*)liinstance_map                      );
     register_subr(_T("%instance-proto"),                  SUBR_1,     (void*)liinstance_proto                    );
     register_subr(_T("%instance-slots"),                  SUBR_1,     (void*)liinstance_slots                    );
+    register_subr(_T("%list->values"),                    SUBR_1,     (void*)lvalues                             );
     register_subr(_T("%macro-transformer"),               SUBR_1,     (void*)lmacro_transformer                  );
-    register_subr(_T("%make-eof"),                        SUBR_0,     (void*)lmake_eof                           );
     register_subr(_T("%macrocons"),                       SUBR_1,     (void*)limacrocons                         );
+    register_subr(_T("%make-eof"),                        SUBR_0,     (void*)lmake_eof                           );
     register_subr(_T("%memref"),                          SUBR_1,     (void*)lmemref_byte                        );
     register_subr(_T("%obaddr"),                          SUBR_1,     (void*)lobaddr                             );
     register_subr(_T("%package-bindings"),                SUBR_1,     (void*)lpackage_bindings                   );
@@ -378,14 +383,13 @@ static void register_main_subrs()
     register_subr(_T("%set-property-list!"),              SUBR_2,     (void*)lset_property_list                  );
     register_subr(_T("%set-stack-limit"),                 SUBR_1,     (void*)lset_stack_limit                    );
     register_subr(_T("%show-type-stats"),                 SUBR_0,     (void*)lshow_type_stats                    );
-    register_subr(_T("%time-apply0"),                     SUBR_1,     (void*)ltime_apply0                        );
-    register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
-    register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
+    register_subr(_T("%slot-ref"),                        SUBR_2,     (void*)lislot_ref                          );
+    register_subr(_T("%slot-set!"),                       SUBR_3,     (void*)lislot_set                          );
     register_subr(_T("%stress-c-heap"),                   SUBR_2,     (void*)lstress_c_heap                      );
     register_subr(_T("%stress-lisp-heap"),                SUBR_1,     (void*)lstress_lisp_heap                   );
-    register_subr(_T("%structure-meta")  ,                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-layout"),                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-length"),                SUBR_1,     (void*)lstructure_length                   );
+    register_subr(_T("%structure-meta")  ,                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-ref"),                   SUBR_2,     (void*)lstructure_ref                      );
     register_subr(_T("%structure-set!"),                  SUBR_3,     (void*)lstructure_set                      );
     register_subr(_T("%structure?"),                      SUBR_2,     (void*)lstructurep                         );
@@ -393,10 +397,10 @@ static void register_main_subrs()
     register_subr(_T("%symbol-value"),                    SUBR_3,     (void*)lisymbol_value                      );
     register_subr(_T("%sysob"),                           SUBR_1,     (void*)lsysob                              );
     register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );
-    register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
-    register_subr(_T("%arm-gc-trip-wires"),               SUBR_1,     (void*)liarm_gc_trip_wires                 );
-
+    register_subr(_T("%time-apply0"),                     SUBR_1,     (void*)ltime_apply0                        );
     register_subr(_T("%unbound-marker"),                  SUBR_0,     (void*)lunbound_marker                     );
+    register_subr(_T("%values"),                          SUBR_N,     (void*)lvalues                             );
+    register_subr(_T("%values->list"),                    SUBR_3,     (void*)lvalues2list                        );
     register_subr(_T("*"),                                SUBR_2N,    (void*)lmultiply                           );
     register_subr(_T("+"),                                SUBR_2N,    (void*)ladd                                );
     register_subr(_T("-"),                                SUBR_2N,    (void*)lsubtract                           );
@@ -408,6 +412,7 @@ static void register_main_subrs()
     register_subr(_T(">"),                                SUBR_ARGC,  (void*)lnum_gt                             );
     register_subr(_T(">="),                               SUBR_ARGC,  (void*)lnum_ge                             );
     register_subr(_T("acos"),                             SUBR_1,     (void*)lacos                               );
+    register_subr(_T("add-symbol-to-package"),            SUBR_2,     (void*)ladd_symbol_to_package              );
     register_subr(_T("angle"),                            SUBR_1,     (void*)langle                              );
     register_subr(_T("append!"),                          SUBR_ARGC,  (void*)lappendd                            );
     register_subr(_T("append"),                           SUBR_ARGC,  (void*)lappend                             );
@@ -418,7 +423,6 @@ static void register_main_subrs()
     register_subr(_T("assq"),                             SUBR_2,     (void*)lassq                               );
     register_subr(_T("assv"),                             SUBR_2,     (void*)lassv                               );
     register_subr(_T("atan"),                             SUBR_2,     (void*)latan                               );
-    register_subr(_T("add-symbol-to-package"),            SUBR_2,     (void*)ladd_symbol_to_package              );
     register_subr(_T("binary-port?"),                     SUBR_1,     (void*)lbinary_portp                       );
     register_subr(_T("bitwise-and"),                      SUBR_2N,    (void*)lbitwise_and                        );
     register_subr(_T("bitwise-arithmatic-shift-right"),   SUBR_2,     (void*)lbitwise_ashr                       );
@@ -430,10 +434,6 @@ static void register_main_subrs()
     register_subr(_T("boolean?"),                         SUBR_1,     (void*)lbooleanp                           );
     register_subr(_T("byte-vector->vector"),              SUBR_1,     (void*)lbyte_vector2vector                 );
     register_subr(_T("byte-vector?"),                     SUBR_1,     (void*)lbyte_vector_p                      );
-    register_subr(_T("external-data"),                    SUBR_1,     (void*)lexternal_data                      );
-    register_subr(_T("external-desc"),                    SUBR_1,     (void*)lexternal_desc                      );
-    register_subr(_T("external?"),                        SUBR_1,     (void*)lexternalp                          );
-    register_subr(_T("external-type-name"),               SUBR_1,     (void*)lexternal_type_name                 );
     register_subr(_T("car"),                              SUBR_1,     (void*)lcar                                );
     register_subr(_T("cdr"),                              SUBR_1,     (void*)lcdr                                );
     register_subr(_T("ceiling"),                          SUBR_1,     (void*)lceiling                            );
@@ -462,9 +462,11 @@ static void register_main_subrs()
     register_subr(_T("exact?"),                           SUBR_1,     (void*)lexactp                             );
     register_subr(_T("exp"),                              SUBR_1,     (void*)lexp                                );
     register_subr(_T("expt"),                             SUBR_2,     (void*)lexpt                               );
-    register_subr(_T("%fasl-load"),                       SUBR_1,     (void*)lifasl_load                         );
+    register_subr(_T("external-data"),                    SUBR_1,     (void*)lexternal_data                      );
+    register_subr(_T("external-desc"),                    SUBR_1,     (void*)lexternal_desc                      );
+    register_subr(_T("external-type-name"),               SUBR_1,     (void*)lexternal_type_name                 );
+    register_subr(_T("external?"),                        SUBR_1,     (void*)lexternalp                          );
     register_subr(_T("fast-read"),                        SUBR_1,     (void*)lfast_read                          );
-    register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
     register_subr(_T("find-package"),                     SUBR_1,     (void*)lfind_package                       );
     register_subr(_T("floor"),                            SUBR_1,     (void*)lfloor                              );
     register_subr(_T("flush-port"),                       SUBR_1,     (void*)lflush_port                         );
@@ -473,8 +475,8 @@ static void register_main_subrs()
     register_subr(_T("fresh-line"),                       SUBR_1,     (void*)lfresh_line                         );
     register_subr(_T("gc"),                               SUBR_0,     (void*)lgc                                 );
     register_subr(_T("gc-info"),                          SUBR_0,     (void*)lgc_info                            );
-    register_subr(_T("gc-status"),                        SUBR_1,     (void*)lgc_status                          );
     register_subr(_T("gc-runtime"),                       SUBR_0,     (void*)lgc_runtime                         );
+    register_subr(_T("gc-status"),                        SUBR_1,     (void*)lgc_status                          );
     register_subr(_T("get-output-string"),                SUBR_1,     (void*)lget_output_string                  );
     register_subr(_T("has-slot?"),                        SUBR_2,     (void*)lhas_slotp                          );
     register_subr(_T("hash->a-list"),                     SUBR_1,     (void*)lhash2alist                         );
@@ -483,7 +485,6 @@ static void register_main_subrs()
     register_subr(_T("hash-copy"),                        SUBR_1,     (void*)lhash_copy                          );
     register_subr(_T("hash-for-each"),                    SUBR_2,     (void*)lhash_foreach                       );
     register_subr(_T("hash-has?"),                        SUBR_2,     (void*)lhash_hasp                          );
-    register_subr(_T("sxhash"),                           SUBR_2,     (void*)lsxhash                             );
     register_subr(_T("hash-ref"),                         SUBR_3,     (void*)lhash_ref                           );
     register_subr(_T("hash-ref*"),                        SUBR_2,     (void*)lhash_refs                          );
     register_subr(_T("hash-remove!"),                     SUBR_2,     (void*)lhash_remove                        );
@@ -560,7 +561,6 @@ static void register_main_subrs()
     register_subr(_T("remainder"),                        SUBR_2,     (void*)lremainder                          );
     register_subr(_T("rich-write"),                       SUBR_3,     (void*)lrich_write                         );
     register_subr(_T("round"),                            SUBR_1,     (void*)lround                              );
-    register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
     register_subr(_T("runtime"),                          SUBR_0,     (void*)lruntime                            );
     register_subr(_T("send"),                             SUBR_N,     (void*)lsend                               );
     register_subr(_T("set-car!"),                         SUBR_2,     (void*)lsetcar                             );
@@ -568,10 +568,10 @@ static void register_main_subrs()
     register_subr(_T("set-environment-variable!"),        SUBR_2,     (void*)lset_environment_variable           );
     register_subr(_T("set-port-translate-mode!"),         SUBR_2,     (void*)lport_set_translate_mode            );
     register_subr(_T("set-random-seed!"),                 SUBR_1,     (void*)lset_random_seed                    );
+    register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
     register_subr(_T("set-symbol-value!"),                SUBR_4,     (void*)lsetvar                             );
     register_subr(_T("sin"),                              SUBR_1,     (void*)lsin                                );
-    register_subr(_T("%slot-ref"),                        SUBR_2,     (void*)lislot_ref                          );
-    register_subr(_T("%slot-set!"),                       SUBR_3,     (void*)lislot_set                          );
+    register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
     register_subr(_T("sqrt"),                             SUBR_1,     (void*)lsqrt                               );
     register_subr(_T("strcmp"),                           SUBR_2,     (void*)lisp_strcmp                         );
     register_subr(_T("string->number"),                   SUBR_2,     (void*)lstring2number                      );
@@ -595,10 +595,10 @@ static void register_main_subrs()
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );
+    register_subr(_T("sxhash"),                           SUBR_2,     (void*)lsxhash                             );
     register_subr(_T("symbol-bound?"),                    SUBR_3,     (void*)lsymbol_boundp                      );
     register_subr(_T("symbol-name"),                      SUBR_1,     (void*)lsymbol_name                        );
     register_subr(_T("symbol-package"),                   SUBR_1,     (void*)lsymbol_package                     );
-    register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
     register_subr(_T("symbol-value"),                     SUBR_3,     (void*)lsymbol_value                       );
     register_subr(_T("symbol?"),                          SUBR_1,     (void*)lsymbolp                            );
     register_subr(_T("system"),                           SUBR_ARGC,  (void*)lsystem                             );
@@ -615,20 +615,16 @@ static void register_main_subrs()
     register_subr(_T("vector->list"),                     SUBR_1,     (void*)lvector2list                        );
     register_subr(_T("vector-copy"),                      SUBR_1,     (void*)lvector_copy                        );
     register_subr(_T("vector-fill!"),                     SUBR_2,     (void*)lvector_fill                        );
-    register_subr(_T("%values"),                          SUBR_N,     (void*)lvalues                             );
-    register_subr(_T("%list->values"),                    SUBR_1,     (void*)lvalues                             );
-    register_subr(_T("%values->list"),                    SUBR_3,     (void*)lvalues2list                        );
     register_subr(_T("vector-ref"),                       SUBR_3,     (void*)lvector_ref                         );
     register_subr(_T("vector-resize!"),                   SUBR_3,     (void*)lvector_resized                     );
     register_subr(_T("vector-resize"),                    SUBR_3,     (void*)lvector_resize                      );
     register_subr(_T("vector-set!"),                      SUBR_3,     (void*)lvector_set                         );
     register_subr(_T("vector?"),                          SUBR_1,     (void*)lvectorp                            );
-    register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
     register_subr(_T("write-binary-fixnum"),              SUBR_4,     (void*)lwrite_binary_fixnum                );
     register_subr(_T("write-binary-flonum"),              SUBR_2,     (void*)lbinary_write_flonum                );
-    register_subr(_T("write-strings"),                    SUBR_ARGC,  (void*)lwrite_strings                      );
     register_subr(_T("write-binary-string"),              SUBR_2,     (void*)lwrite_binary_string                );
     register_subr(_T("write-char"),                       SUBR_2,     (void*)lwrite_char                         );
+    register_subr(_T("write-strings"),                    SUBR_ARGC,  (void*)lwrite_strings                      );
 /* *INDENT-ON* */
 }
 

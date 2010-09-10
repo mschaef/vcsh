@@ -1978,326 +1978,321 @@ void safe_free(void *block);
 
 void set_global_env(LRef genv);
 
-  /****** Time */
+/***** Time *****/
 flonum_t time_since_launch();
 
-  /**************************************************************
-                     C Primitive Functions
-  **************************************************************/
+/***** Prototypes for C Primitives *****/
 
+LRef get_current_frames(fixnum_t skip_count);
+LRef lacos(LRef x);
+LRef ladd(LRef x, LRef y);
 LRef ladd_symbol_to_package(LRef symbol, LRef package);
-LRef lbyte_vector_p(LRef x);
-LRef lbyte_vector2vector(LRef bytevec);
-LRef lvector2byte_vector(LRef vec);
-LRef lset_closure_code(LRef exp, LRef code);
-LRef lclone_instance(LRef inst);
-LRef lclosure_code(LRef exp);
-LRef lset_closure_env(LRef exp, LRef env);
-LRef lclosure_env(LRef exp);
-LRef lsubr_kind(LRef subr);
-LRef lprimitivep(LRef obj);
-LRef lclosurep(LRef obj);
-LRef lconsp(LRef x);
-LRef lsetcar(LRef cell, LRef value);
-LRef lsetcdr(LRef cell, LRef value);
-LRef lcar(LRef x);
-LRef lcdr(LRef x);
-LRef lequal(LRef, LRef);
-LRef leq(LRef x, LRef y);
-LRef leql(LRef x, LRef y);
-bool equalp(LRef, LRef);
-LRef lfuncall1(LRef fcn, LRef a1);
-LRef lfuncall2(LRef fcn, LRef a1, LRef a2);
-LRef lmap(size_t argc, LRef argv[]);
-LRef lmap_pair(size_t argc, LRef argv[]);
-LRef lforeach(size_t argc, LRef argv[]);
-LRef llist2vector(LRef l);
-LRef llist2hash(LRef obj);
-LRef llist(LRef l);
-LRef llist_copy(LRef xs);
-LRef lbutlast(LRef);
-LRef llast(LRef);
-LRef llast_pair(LRef xs);
-LRef lsubset(LRef fcn, LRef l);
-LRef ldelq(LRef elem, LRef l);
+LRef langle(LRef cmplx);
+LRef lappend(size_t argc, LRef argv[]);
+LRef lappendd(size_t argc, LRef argv[]);
+LRef lapply(size_t argc, LRef argv[]);
+LRef lasin(LRef x);
+LRef lass(LRef x, LRef alist, LRef fcn);
 LRef lassoc(LRef x, LRef alist);
 LRef lassq(LRef x, LRef alist);
 LRef lassv(LRef x, LRef alist);
-LRef lass(LRef x, LRef alist, LRef fcn);
-LRef lappend(size_t argc, LRef argv[]);
-LRef lappendd(size_t argc, LRef argv[]);
-LRef lbooleanp(LRef x);
-LRef llength(LRef obj);
-LRef lmake_list(LRef dim, LRef initial);
-LRef lqsort(LRef l, LRef f, LRef g);
-LRef liimmediate_p(LRef obj);
-LRef liload(LRef fname);
-LRef limacrocons(LRef t);
-LRef lmacro_transformer(LRef mac);
-LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
-LRef lmake_package(LRef name);
-LRef lfind_package(LRef obj);
-LRef lpackagep(LRef x);
-LRef lnotp(LRef x);
-LRef lnullp(LRef x);
-LRef lpackage_name(LRef p);
-LRef lset_package_name(LRef p, LRef new_name);
-LRef lpackage_bindings(LRef p);
-LRef lpackage_use_list(LRef p);
-LRef lset_package_use_list(LRef p, LRef use_list);
-LRef lstring2uninterned_symbol(LRef str);
-LRef lcurrent_global_environment();
-LRef lcall_with_global_environment(LRef fn, LRef new_global_env);
-LRef ldo_symbols(LRef args, LRef env);
-LRef ldo_external_symbols(LRef args, LRef env);
-LRef lsymbolp(LRef x);
-LRef lkeywordp(LRef x);
-LRef lsymbol_package(LRef sym);
-LRef lset_symbol_package(LRef sym, LRef package);
-LRef lsymbol_name(LRef sym);
-LRef lsymbol_name(LRef sym);
-LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv);
-LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
-LRef lsymbol_value(LRef x, LRef lenv, LRef genv);
-LRef lsymbol_boundp(LRef x, LRef lenv, LRef genv);
-LRef lunbound_marker();
-LRef lmake_eof();
-LRef leof_objectp(LRef obj);
-LRef linput_portp(LRef obj);
-LRef loutput_portp(LRef obj);
+LRef latan(LRef x, LRef y);
 LRef lbinary_portp(LRef obj);
-LRef lport_mode(LRef obj);
-LRef lport_name(LRef port);
-LRef lport_location(LRef port);
-LRef lport_translate_mode(LRef port);
-LRef lport_set_translate_mode(LRef port, LRef mode);
-LRef lport_io_counts(LRef port);
-LRef lchar_readyp(LRef port);
-LRef lchar2integer(LRef s);
-LRef lcharp(LRef x);
-LRef lread_char(LRef port);
-LRef lread_binary_string(LRef l, LRef port);
-bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result);
-LRef lread_binary_fixnum(LRef l, LRef sp, LRef port);
-bool read_binary_flonum(LRef port, flonum_t & result);
-LRef lread_binary_flonum(LRef port);
-LRef lread_line(LRef port);
-LRef lrich_write(LRef obj, LRef machine_readable, LRef port);
-LRef lunread_char(LRef ch, LRef port);
-LRef lpeek_char(LRef port);
-LRef lwrite_char(LRef ch, LRef port);
-LRef lwrite_strings(size_t argc, LRef argv[]);
-LRef lwrite_binary_string(LRef string, LRef port);
-LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port);
 LRef lbinary_write_flonum(LRef v, LRef port);
-LRef lnewline(LRef);
-LRef lfresh_line(LRef port);
-LRef lflush_whitespace(LRef port, LRef slc);
-LRef lclose_port(LRef port);
-LRef lflush_port(LRef port);
-LRef lopen_input_file(LRef filename, LRef mode);
-LRef lopen_output_file(LRef filename, LRef mode);
-LRef lopen_input_string(LRef string);
-LRef lopen_output_string();
-LRef lget_output_string(LRef port);
-LRef lread_port_to_string(LRef port);
-LRef lopen_debug_port();
-LRef lopen_null_port();
-LRef lopen_c_data_output(LRef destination, LRef var_name, LRef mode);
-LRef lclone_c_data_port(LRef port);
-LRef lopen_des_input(LRef source, LRef key, LRef encoding, LRef mode);
-LRef lopen_des_output(LRef dest, LRef key, LRef encoding, LRef mode);
-LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p);
-LRef lwrite_to_string(LRef exp);
-LRef ldisplay_to_string(LRef exp);
-LRef ldebug_write(LRef form);
-LRef linfo(LRef args);
-LRef lvectorp(LRef obj);
-LRef lmake_vector(LRef dim, LRef initial);
-LRef lvector(size_t argc, LRef argv[]);
-LRef lvector_ref(LRef a, LRef i, LRef d);
-LRef lvector_set(LRef a, LRef i, LRef v);
-LRef lvector2list(LRef vec);
-LRef lvector_fill(LRef vec, LRef v);
-LRef lvector_copy(LRef vec);
-LRef lvector_resize(LRef vec, LRef new_size, LRef new_element);
-LRef lvector_resized(LRef vec, LRef new_size, LRef new_element);
-LRef lnumberp(LRef x);
-LRef lrealp(LRef x);
-LRef lintegerp(LRef x);
-LRef linteger2char(LRef s);     /*  REVISIT: rename to exact->char */
-LRef lrationalp(LRef x);
-LRef lcomplexp(LRef x);
-LRef lnanp(LRef x);
-LRef linfinitep(LRef x);
-LRef lexactp(LRef x);
-LRef linexactp(LRef x);
-LRef lexact2inexact(LRef x);
-LRef linexact2exact(LRef x);
-LRef lnum_eq(size_t argc, LRef argv[]);
-LRef lnum_gt(size_t argc, LRef argv[]);
-LRef lnum_lt(size_t argc, LRef argv[]);
-LRef lnum_ge(size_t argc, LRef argv[]);
-LRef lnum_le(size_t argc, LRef argv[]);
-LRef ladd(LRef x, LRef y);
-LRef lmultiply(LRef x, LRef y);
-LRef lsubtract(LRef x, LRef y);
-LRef ldivide(LRef x, LRef y);
-LRef lquotient(LRef x, LRef y);
-LRef lremainder(LRef x, LRef y);
-LRef lmodulo(LRef x, LRef y);
-LRef lfloor(LRef x);
-LRef lceiling(LRef x);
-LRef ltruncate(LRef x);
-double round(double n);
-LRef lround(LRef x);
-LRef lto_ieee754_bits(LRef x);
-LRef lieee754_bits_to(LRef x);
 LRef lbitwise_and(LRef x, LRef y);
-LRef lbitwise_or(LRef x, LRef y);
-LRef lbitwise_xor(LRef x, LRef y);
+LRef lbitwise_ashr(LRef x, LRef n);
 LRef lbitwise_not(LRef x);
+LRef lbitwise_or(LRef x, LRef y);
 LRef lbitwise_shl(LRef x, LRef n);
 LRef lbitwise_shr(LRef x, LRef n);
-LRef lbitwise_ashr(LRef x, LRef n);
+LRef lbitwise_xor(LRef x, LRef y);
+LRef lbooleanp(LRef x);
+LRef lbutlast(LRef);
+LRef lbyte_vector2vector(LRef bytevec);
+LRef lbyte_vector_p(LRef x);
+LRef lcall_with_global_environment(LRef fn, LRef new_global_env);
+LRef lcar(LRef x);
+LRef lcatch_apply0(LRef tag, LRef fn);
+LRef lcdr(LRef x);
+LRef lceiling(LRef x);
+LRef lchar2integer(LRef s);
+LRef lchar_readyp(LRef port);
+LRef lcharacter2string(LRef obj);
+LRef lcharp(LRef x);
+LRef lclone_c_data_port(LRef port);
+LRef lclone_instance(LRef inst);
+LRef lclose_port(LRef port);
+LRef lclosure_code(LRef exp);
+LRef lclosure_env(LRef exp);
+LRef lclosurecons(LRef env, LRef code, LRef property_list);
+LRef lclosurep(LRef obj);
+LRef lcomplexp(LRef x);
+LRef lconsp(LRef x);
+LRef lcopy_structure(LRef st);
+LRef lcos(LRef x);
+LRef lcurrent_global_environment();
+LRef ldebug_flags();
+LRef ldebug_write(LRef form);
+LRef ldelete_file(LRef filename);
+LRef ldelq(LRef elem, LRef l);
+LRef ldisplay_to_string(LRef exp);
+LRef ldivide(LRef x, LRef y);
+LRef ldo_external_symbols(LRef args, LRef env);
+LRef ldo_symbols(LRef args, LRef env);
+LRef ldump_heap_state(LRef port);
+LRef lenlarge_heap(LRef count);
+LRef lenvironment();
+LRef lenvlookup(LRef var, LRef env);
+LRef leof_objectp(LRef obj);
+LRef leq(LRef x, LRef y);
+LRef leql(LRef x, LRef y);
+LRef lequal(LRef, LRef);
+LRef lexact2inexact(LRef x);
+LRef lexactp(LRef x);
 LRef lexp(LRef x);
 LRef lexpt(LRef x, LRef y);
-LRef llog(LRef x);
-LRef lmake_rectangular(LRef re, LRef im);
-LRef lmake_polar(LRef r, LRef theta);
-LRef lreal_part(LRef cmplx);
-LRef limag_part(LRef cmplx);
-LRef langle(LRef cmplx);
-LRef lmagnitude(LRef cmplx);
-LRef lsin(LRef x);
-LRef lcos(LRef x);
-LRef ltan(LRef x);
-LRef lasin(LRef x);
-LRef lacos(LRef x);
-LRef latan(LRef x, LRef y);
-LRef lsqrt(LRef x);
-LRef lrandom(LRef n);
-LRef lset_random_seed(LRef s);
-LRef lcharacter2string(LRef obj);
+LRef lexternal_data(LRef x);
+LRef lexternal_desc(LRef x);
+LRef lexternal_type_name(LRef x);
+LRef lexternalp(LRef x);
+LRef lfast_read(LRef port);
+LRef lfind_package(LRef obj);
+LRef lfloor(LRef x);
+LRef lflush_port(LRef port);
+LRef lflush_whitespace(LRef port, LRef slc);
+LRef lforeach(size_t argc, LRef argv[]);
+LRef lfresh_line(LRef port);
+LRef lfuncall1(LRef fcn, LRef a1);
+LRef lfuncall2(LRef fcn, LRef a1, LRef a2);
+LRef lgc();
+LRef lgc_info();
+LRef lgc_runtime();
+LRef lgc_status(LRef new_gc_status);
+LRef lget_current_frames(LRef skip_count);
+LRef lget_output_string(LRef port);
+LRef lhandler_frames();
 LRef lhas_slotp(LRef this_obj, LRef key);
-LRef lhash_key(LRef obj);
-LRef lmake_hash(LRef key_type);
-LRef lhashp(LRef obj);
-LRef lhash_refs(LRef table, LRef key);
-LRef lhash_ref(LRef table, LRef key, LRef defaultValue);
-LRef lhash_hasp(LRef table, LRef key);
-LRef lhash_set(LRef table, LRef key, LRef value);
-LRef lhash_remove(LRef table, LRef key);
-LRef lhash_clear(LRef hash);
 LRef lhash2alist(LRef hash);
 LRef lhash2list(LRef hash);
-LRef lhash_type(LRef hash);
+LRef lhash_clear(LRef hash);
 LRef lhash_copy(LRef hash);
 LRef lhash_foreach(LRef closure, LRef hash);
+LRef lhash_hasp(LRef table, LRef key);
+LRef lhash_key(LRef obj);
+LRef lhash_ref(LRef table, LRef key, LRef defaultValue);
+LRef lhash_refs(LRef table, LRef key);
+LRef lhash_remove(LRef table, LRef key);
+LRef lhash_set(LRef table, LRef key, LRef value);
+LRef lhash_type(LRef hash);
+LRef lhashp(LRef obj);
+LRef liarm_gc_trip_wires(LRef f);
+LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p);
+LRef lidirectory(LRef dirname, LRef mode);
+LRef lieee754_bits_to(LRef x);
+LRef lifasl_load(LRef fname_or_port);
+LRef lifile_details(LRef path, LRef existance_onlyp);
+LRef ligc_trip_wire();
 LRef lihash_binding_vector(LRef hash);
-LRef lmake_instance(LRef args);
+LRef liimmediate_p(LRef obj);
 LRef liinstance_map(LRef inst);
 LRef liinstance_proto(LRef instance);
 LRef liinstance_slots(LRef instance);
-LRef liset_instance_proto(LRef instance, LRef new_proto);
+LRef liload(LRef fname);
+LRef limacrocons(LRef t);
+LRef limag_part(LRef cmplx);
+LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s);
+LRef linexact2exact(LRef x);
+LRef linexactp(LRef x);
+LRef linfinitep(LRef x);
+LRef linfo(LRef args);
+LRef linput_portp(LRef obj);
 LRef linstancep(LRef obj);
+LRef linteger2char(LRef s);     /*  REVISIT: rename to exact->char */
+LRef lintegerp(LRef x);
+LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
+LRef liset_instance_proto(LRef instance, LRef new_proto);
 LRef lislot_ref(LRef obj, LRef key);
 LRef lislot_set(LRef obj, LRef key, LRef value);
-LRef lsend(LRef args);
-LRef lstring_append(size_t argc, LRef argv[]);
-LRef lstring_length(LRef string);
+LRef lisp_strcmp(LRef s1, LRef s2);
+LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
+LRef lkeywordp(LRef x);
+LRef llast(LRef);
+LRef llast_pair(LRef xs);
+LRef llength(LRef obj);
+LRef llisp_heap_stress_thread(LRef t, LRef c, LRef s);
+LRef llist(LRef l);
+LRef llist2hash(LRef obj);
+LRef llist2vector(LRef l);
+LRef llist_copy(LRef xs);
+LRef llog(LRef x);
+LRef lmacro_transformer(LRef mac);
+LRef lmacrop(LRef obj);
+LRef lmagnitude(LRef cmplx);
+LRef lmake_eof();
+LRef lmake_hash(LRef key_type);
+LRef lmake_instance(LRef args);
+LRef lmake_list(LRef dim, LRef initial);
+LRef lmake_package(LRef name);
+LRef lmake_polar(LRef r, LRef theta);
+LRef lmake_rectangular(LRef re, LRef im);
+LRef lmake_vector(LRef dim, LRef initial);
+LRef lmap(size_t argc, LRef argv[]);
+LRef lmap_pair(size_t argc, LRef argv[]);
+LRef lmemref_byte(LRef addr);
+LRef lmodulo(LRef x, LRef y);
+LRef lmultiply(LRef x, LRef y);
+LRef lnanp(LRef x);
+LRef lnewline(LRef);
+LRef lnotp(LRef x);
+LRef lnullp(LRef x);
+LRef lnum_eq(size_t argc, LRef argv[]);
+LRef lnum_ge(size_t argc, LRef argv[]);
+LRef lnum_gt(size_t argc, LRef argv[]);
+LRef lnum_le(size_t argc, LRef argv[]);
+LRef lnum_lt(size_t argc, LRef argv[]);
 LRef lnumber2string(LRef x, LRef r, LRef s, LRef p);
-LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s);
+LRef lnumberp(LRef x);
+LRef lobaddr(LRef object);
+LRef lopen_c_data_output(LRef destination, LRef var_name, LRef mode);
+LRef lopen_debug_port();
+LRef lopen_des_input(LRef source, LRef key, LRef encoding, LRef mode);
+LRef lopen_des_output(LRef dest, LRef key, LRef encoding, LRef mode);
+LRef lopen_input_file(LRef filename, LRef mode);
+LRef lopen_input_string(LRef string);
+LRef lopen_null_port();
+LRef lopen_output_file(LRef filename, LRef mode);
+LRef lopen_output_string();
+LRef loutput_portp(LRef obj);
+LRef lpackage_bindings(LRef p);
+LRef lpackage_name(LRef p);
+LRef lpackage_use_list(LRef p);
+LRef lpackagep(LRef x);
+LRef lpanic(LRef msg);
+LRef lpeek_char(LRef port);
+LRef lport_io_counts(LRef port);
+LRef lport_location(LRef port);
+LRef lport_mode(LRef obj);
+LRef lport_name(LRef port);
+LRef lport_set_translate_mode(LRef port, LRef mode);
+LRef lport_translate_mode(LRef port);
+LRef lprimitivep(LRef obj);
+LRef lprint_external_details(LRef obj, LRef port);
+LRef lprocedurep(LRef exp);
+LRef lproperty_list(LRef exp);
+LRef lqsort(LRef l, LRef f, LRef g);
+LRef lquotient(LRef x, LRef y);
+LRef lrandom(LRef n);
+LRef lrationalp(LRef x);
+LRef lread_binary_fixnum(LRef l, LRef sp, LRef port);
+LRef lread_binary_flonum(LRef port);
+LRef lread_binary_string(LRef l, LRef port);
+LRef lread_char(LRef port);
+LRef lread_line(LRef port);
+LRef lread_port_to_string(LRef port);
+LRef lreal_part(LRef cmplx);
+LRef lrealp(LRef x);
+LRef lrealtime(void);
+LRef lrealtime_time_zone_offset();
+LRef lremainder(LRef x, LRef y);
+LRef lrepresentation_of(LRef obj);
+LRef lrich_write(LRef obj, LRef machine_readable, LRef port);
+LRef lround(LRef x);
+LRef lruntime(void);
+LRef lsend(LRef args);
+LRef lset_closure_code(LRef exp, LRef code);
+LRef lset_closure_env(LRef exp, LRef env);
+LRef lset_debug_flags(LRef c);
+LRef lset_environment_variable(LRef varname, LRef value);
+LRef lset_handler_frames(LRef new_frames);
+LRef lset_interrupt_mask(LRef new_mask);
+LRef lset_package_name(LRef p, LRef new_name);
+LRef lset_package_use_list(LRef p, LRef use_list);
+LRef lset_property_list(LRef exp, LRef property_list);
+LRef lset_random_seed(LRef s);
+LRef lset_stack_limit(LRef);
+LRef lset_symbol_package(LRef sym, LRef package);
+LRef lsetcar(LRef cell, LRef value);
+LRef lsetcdr(LRef cell, LRef value);
+LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv);
+LRef lshow_type_stats();
+LRef lsin(LRef x);
+LRef lsleep(LRef ms);
+LRef lsqrt(LRef x);
+LRef lstress_c_heap(LRef c, LRef s);
+LRef lstress_lisp_heap(LRef c);
 LRef lstring2number(LRef, LRef);
-LRef lsubstring(LRef, LRef, LRef);
+LRef lstring2uninterned_symbol(LRef str);
+LRef lstring_append(size_t argc, LRef argv[]);
+LRef lstring_copy(LRef string);
+LRef lstring_downcase(LRef);
+LRef lstring_downcased(LRef);
+LRef lstring_first_char(LRef string, LRef char_set, LRef initial_ofs);
+LRef lstring_first_substring(LRef string, LRef char_set, LRef initial_ofs);
+LRef lstring_fold(LRef kons, LRef knil, LRef str);
+LRef lstring_length(LRef string);
+LRef lstring_ref(LRef a, LRef i);
 LRef lstring_search(LRef token, LRef str, LRef maybe_from);
 LRef lstring_search_from_right(LRef tok, LRef str, LRef maybe_from);
-LRef lstring_fold(LRef kons, LRef knil, LRef str);
+LRef lstring_set(LRef a, LRef i, LRef v);
 LRef lstring_trim(LRef, LRef);
 LRef lstring_trim_left(LRef, LRef);
 LRef lstring_trim_right(LRef, LRef);
-LRef lstring_upcased(LRef);
-LRef lstring_downcased(LRef);
 LRef lstring_upcase(LRef);
-LRef lstring_downcase(LRef);
-LRef lisp_strcmp(LRef s1, LRef s2);
-LRef lstring_ref(LRef a, LRef i);
-LRef lstring_set(LRef a, LRef i, LRef v);
+LRef lstring_upcased(LRef);
 LRef lstringp(LRef x);
-LRef lstring_first_char(LRef string, LRef char_set, LRef initial_ofs);
-LRef lstring_first_substring(LRef string, LRef char_set, LRef initial_ofs);
-LRef lstring_copy(LRef string);
-LRef lenvlookup(LRef var, LRef env);
-LRef lclosurecons(LRef env, LRef code, LRef property_list);
-LRef lproperty_list(LRef exp);
-LRef lset_property_list(LRef exp, LRef property_list);
-LRef lprocedurep(LRef exp);
-LRef lapply(size_t argc, LRef argv[]);
-LRef lthrow(LRef tag, LRef value);
-LRef lunbind_symbol(LRef var);
-LRef lunwind_protect(LRef thunk, LRef after);
-LRef lrepresentation_of(LRef obj);
-void dump_current_frames(LRef oport);
-LRef get_current_frames(fixnum_t skip_count);
-LRef lget_current_frames(LRef skip_count);
-LRef lmacrop(LRef obj);
-LRef lset_handler_frames(LRef new_frames);
-LRef lhandler_frames();
-LRef lcatch_apply0(LRef tag, LRef fn);
-LRef ltime_apply0(LRef fn);
-LRef lpanic(LRef msg);
-LRef lexternal_data(LRef x);
-LRef lexternal_desc(LRef x);
-LRef lexternalp(LRef x);
-LRef lexternal_type_name(LRef x);
-LRef lprint_external_details(LRef obj, LRef port);
-LRef lset_stack_limit(LRef);
-LRef lset_interrupt_mask(LRef new_mask);
-LRef lgc_status(LRef new_gc_status);
-LRef lgc_runtime();
-LRef lgc_info();
-LRef lgc();
-LRef lenlarge_heap(LRef count);
-LRef lsleep(LRef ms);
-LRef lruntime(void);
-LRef lrealtime(void);
-LRef lrealtime_time_zone_offset();
-LRef lsystem_info();
-LRef lsystem(size_t argc, LRef argv[]);
-LRef lenvironment();
-LRef lset_environment_variable(LRef varname, LRef value);
-LRef lidirectory(LRef dirname, LRef mode);
-LRef lifile_details(LRef path, LRef existance_onlyp);
-LRef ltemporary_file_name(LRef prefix);
-LRef ldelete_file(LRef filename);
-LRef lsubr_name(LRef subr);
-LRef lfast_read(LRef port);
-LRef lifasl_load(LRef fname_or_port);
-
-LRef lcopy_structure(LRef st);
-LRef lstructurecons(LRef slots, LRef layout);
-LRef lstructurep(LRef st, LRef expected_layout);
 LRef lstructure_layout(LRef st);
 LRef lstructure_length(LRef st);
 LRef lstructure_ref(LRef st, LRef index);
 LRef lstructure_set(LRef st, LRef index, LRef value);
-
-  /*  Diagnostics support */
-LRef ldump_heap_state(LRef port);
-LRef lshow_type_stats();
-LRef lmemref_byte(LRef addr);
-LRef lstress_lisp_heap(LRef c);
-LRef lstress_c_heap(LRef c, LRef s);
-LRef llisp_heap_stress_thread(LRef t, LRef c, LRef s);
+LRef lstructurecons(LRef slots, LRef layout);
+LRef lstructurep(LRef st, LRef expected_layout);
+LRef lsubr_kind(LRef subr);
+LRef lsubr_name(LRef subr);
+LRef lsubset(LRef fcn, LRef l);
+LRef lsubstring(LRef, LRef, LRef);
+LRef lsubtract(LRef x, LRef y);
+LRef lsymbol_boundp(LRef x, LRef lenv, LRef genv);
+LRef lsymbol_name(LRef sym);
+LRef lsymbol_name(LRef sym);
+LRef lsymbol_package(LRef sym);
+LRef lsymbol_value(LRef x, LRef lenv, LRef genv);
+LRef lsymbolp(LRef x);
 LRef lsysob(LRef addr);
-LRef lobaddr(LRef object);
-LRef lset_debug_flags(LRef c);
-LRef ldebug_flags();
+LRef lsystem(size_t argc, LRef argv[]);
+LRef lsystem_info();
+LRef ltan(LRef x);
+LRef ltemporary_file_name(LRef prefix);
 LRef ltest_blocking_input(LRef block_size, LRef length, LRef binary);
-LRef ligc_trip_wire();
-LRef liarm_gc_trip_wires(LRef f);
-
-  /**** Debugging tools ****/
+LRef lthrow(LRef tag, LRef value);
+LRef ltime_apply0(LRef fn);
+LRef lto_ieee754_bits(LRef x);
+LRef ltruncate(LRef x);
+LRef lunbind_symbol(LRef var);
+LRef lunbound_marker();
+LRef lunread_char(LRef ch, LRef port);
+LRef lunwind_protect(LRef thunk, LRef after);
+LRef lvector(size_t argc, LRef argv[]);
+LRef lvector2byte_vector(LRef vec);
+LRef lvector2list(LRef vec);
+LRef lvector_copy(LRef vec);
+LRef lvector_fill(LRef vec, LRef v);
+LRef lvector_ref(LRef a, LRef i, LRef d);
+LRef lvector_resize(LRef vec, LRef new_size, LRef new_element);
+LRef lvector_resized(LRef vec, LRef new_size, LRef new_element);
+LRef lvector_set(LRef a, LRef i, LRef v);
+LRef lvectorp(LRef obj);
+LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port);
+LRef lwrite_binary_string(LRef string, LRef port);
+LRef lwrite_char(LRef ch, LRef port);
+LRef lwrite_strings(size_t argc, LRef argv[]);
+LRef lwrite_to_string(LRef exp);
+bool equalp(LRef, LRef);
+bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result);
+bool read_binary_flonum(LRef port, flonum_t & result);
+double round(double n);
+void dump_current_frames(LRef oport);
+ 
+/***** Debugging tools *****/
 
 INLINE bool DEBUG_FLAG(debug_flag_t flag)
 {
@@ -2306,17 +2301,15 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
      return DEBUGGING_BUILD && (interp.debug_flags & (fixnum_t) flag);
 }
 
-
-  /****************************************************************
-   * Frames and exceptions
-   *
-   * Frames are basically annotations on the dynamic stack. Each
-   * frame has an "frame record" stored in an auto variable
-   * local to a newly created scope. When the frame is entered,
-   * the frame's frame record is registered on a global stack.
-   * When the frame is left, the frame record is popped off of
-   * the stack.
-   */
+/* Frames and exceptions
+ *
+ * Frames are basically annotations on the dynamic stack. Each
+ * frame has an "frame record" stored in an auto variable
+ * local to a newly created scope. When the frame is entered,
+ * the frame's frame record is registered on a global stack.
+ * When the frame is left, the frame record is popped off of
+ * the stack.
+ */
 
 #define ENTER_FRAME()                                               \
 {                                                                   \
@@ -2419,7 +2412,7 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
 #define LEAVE_UNWIND_PROTECT()                                  \
       if (!__block_successful)                                  \
-         RETHROW_DYNAMIC_ESCAPE();                                      \
+         RETHROW_DYNAMIC_ESCAPE();                              \
    }                                                            \
    LEAVE_FRAME();
 
@@ -2439,6 +2432,7 @@ void __ex_rethrow_dynamic_escape();
 bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result);
 
 /* Structure base metaclass operations */
+
 bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols);
 
 void port_gc_free(LRef port);
@@ -2513,7 +2507,9 @@ INLINE LRef new_cell(typecode_t type)
      return retval;
 }
 
-END_NAMESPACE extern unsigned char scmSCore[];  /*  REVISIT: need to change this to _TCHAR */
+END_NAMESPACE;
+
+extern unsigned char scmSCore[];  /*  REVISIT: need to change this to _TCHAR */
 extern unsigned int scmSCore_bytes;
 
 
