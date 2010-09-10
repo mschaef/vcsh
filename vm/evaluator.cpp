@@ -477,17 +477,8 @@ LRef lenvlookup(LRef var, LRef env)
 {
      LRef frame, al, fl, tmp;
 
-#ifdef ENVLOOKUP_STATS
-     interp.total_env_lookups++;
-#endif
-
      for (frame = env; CONSP(frame); frame = CDR(frame))
      {
-
-#ifdef ENVLOOKUP_STATS
-          interp.env_lookup_frames++;
-#endif
-
           tmp = CAR(frame);
 
           if (!CONSP(tmp))
@@ -513,25 +504,8 @@ LRef lenvlookup(LRef var, LRef env)
      if (!NULLP(frame))
           vmerror("damaged env", env);
 
-#ifdef ENVLOOKUP_STATS
-     interp.global_env_lookups++;
-#endif
-
-     return (NIL);
+     return NIL;
 }
-
-#ifdef ENVLOOKUP_STATS
-LRef lshow_env_lookup_stats()
-{
-     LRef obj = hashcons(true);
-
-     lhash_set(obj, keyword_intern(_T("total-lookups")), fixcons(interp.total_env_lookups));
-     lhash_set(obj, keyword_intern(_T("global-lookups")), fixcons(interp.global_env_lookups));
-     lhash_set(obj, keyword_intern(_T("lookup-frames")), fixcons(interp.env_lookup_frames));
-
-     return obj;
-}
-#endif
 
 
 void signal_break()

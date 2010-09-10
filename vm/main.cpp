@@ -453,9 +453,6 @@ static void register_main_subrs()
     register_subr(_T("delq"),                             SUBR_2,     (void*)ldelq                               );
     register_subr(_T("enlarge-heap"),                     SUBR_1,     (void*)lenlarge_heap                       );
     register_subr(_T("env-lookup"),                       SUBR_2,     (void*)lenvlookup                          );
-#ifdef ENVLOOKUP_STATS
-    register_subr(_T("%show-env-lookup-stats"),           SUBR_0,     (void*)lshow_env_lookup_stats              );
-#endif
     register_subr(_T("environment"),                      SUBR_0,     (void*)lenvironment                        );
     register_subr(_T("eof-object?"),                      SUBR_1,     (void*)leof_objectp                        );
     register_subr(_T("eq?"),                              SUBR_2,     (void*)leq                                 );
@@ -723,12 +720,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.gc_total_run_time = 0.0;
      interp.gc_run_time = 0.0;
      interp.gc_count = 0;
-
-#ifdef ENVLOOKUP_STATS
-     interp.total_env_lookups = 0;
-     interp.global_env_lookups = 0;
-     interp.env_lookup_frames = 0;
-#endif
 
      process_vm_arguments(argc, argv);
 

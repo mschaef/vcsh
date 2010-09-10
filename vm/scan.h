@@ -25,8 +25,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#define ENVLOOKUP_STATS
-
 BEGIN_NAMESPACE(scan)
 extern i64_t malloc_bytes; /* REVISIT: Should this be u64_t? */
 
@@ -645,12 +643,6 @@ struct interpreter_t
      flonum_t gc_total_run_time;
      flonum_t gc_run_time;
      int gc_count;
-
-#ifdef ENVLOOKUP_STATS
-     size_t total_env_lookups;
-     size_t global_env_lookups;
-     size_t env_lookup_frames;
-#endif
 
      debug_flag_t debug_flags;
 
@@ -2236,9 +2228,6 @@ LRef lstring_first_char(LRef string, LRef char_set, LRef initial_ofs);
 LRef lstring_first_substring(LRef string, LRef char_set, LRef initial_ofs);
 LRef lstring_copy(LRef string);
 LRef lenvlookup(LRef var, LRef env);
-#ifdef ENVLOOKUP_STATS
-LRef lshow_env_lookup_stats();
-#endif
 LRef lclosurecons(LRef env, LRef code, LRef property_list);
 LRef lproperty_list(LRef exp);
 LRef lset_property_list(LRef exp, LRef property_list);
@@ -2284,7 +2273,6 @@ LRef ldelete_file(LRef filename);
 LRef lsubr_name(LRef subr);
 LRef lfast_read(LRef port);
 LRef lifasl_load(LRef fname_or_port);
-LRef open_des_port(LRef port, port_mode_t mode, fixnum_t key, bool encoding, bool binary);
 
 LRef lcopy_structure(LRef st);
 LRef lstructurecons(LRef slots, LRef layout);
