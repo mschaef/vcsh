@@ -1,5 +1,5 @@
 
-.PHONY: vcalc ectworks tested vcsh vm util clean
+.PHONY: vcalc ectworks tested vcsh vm util clean indented
 
 ifeq (${BUILD_VCALC}, YES)
 all: vcalc
@@ -24,6 +24,11 @@ vm: util
 
 util:
 	$(MAKE) -r -C util
+
+indented:
+	$(MAKE) -r -C vm indented
+	$(MAKE) -r -C util indented
+	$(MAKE) -r -C scheme-core indented
 
 clean:
 	$(MAKE) -r -C vm clean
