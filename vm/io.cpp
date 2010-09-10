@@ -11,8 +11,6 @@ BEGIN_NAMESPACE(scan)
 /*  REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports. */
 /*  REVISIT: Do we need to restrict bootup NULL I/O */
 /*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
-/*  TODO: add char-ready? */
-
 
 /*** End-of-file object ***/
 
@@ -161,8 +159,6 @@ LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_ob
      return initialize_port(s, cls, port_name, mode, user_object, user_data);
 }
 
-
-
 /***** C I/O functions *****/
 
 int read_char(LRef port)
@@ -233,98 +229,6 @@ int read_char(LRef port)
      return ch;
 }
 
-static int flush_whitespace(LRef port, bool skip_lisp_comments = true)
-{
-     int c = '\0';
-
-     bool commentp = false;
-     bool reading_whitespace = true;
-
-     while (reading_whitespace)
-     {
-          /*  We can never be in a comment if we're not skipping them... */
-          assert(skip_lisp_comments ? true : !commentp);
-
-          c = read_char(port);
-
-          if (c == EOF)
-               break;
-          else if (commentp)
-          {
-               if (c == _T('\n'))
-                    commentp = FALSE;
-          }
-          else if ((c == _T(';')) && skip_lisp_comments)
-          {
-               commentp = TRUE;
-          }
-          else if (!_istspace(c) && (c != _T('\0')))
-               break;
-     }
-
-     if (c != EOF)
-          unread_char(c, port);
-
-     return c;
-}
-
-bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result)
-{
-#ifdef FIXNUM_64BIT
-     assert((length == 1) || (length == 2) || (length == 4) || (length == 8));
-#else
-     assert((length == 1) || (length == 2) || (length == 4));
-#endif
-
-     assert(PORTP(port));
-     assert(PORT_BINARYP(port));
-
-     u8_t bytes[sizeof(fixnum_t)];
-     size_t fixnums_read = read_raw(bytes, (size_t) length, 1, port);
-
-     if (!fixnums_read)
-          return false;
-
-
-     switch (length)
-     {
-     case 1:
-          result = (signedp ? (fixnum_t) (*(i8_t *) bytes) : (fixnum_t) (*(u8_t *) bytes));
-          break;
-     case 2:
-          result = (signedp ? (fixnum_t) (*(i16_t *) bytes) : (fixnum_t) (*(u16_t *) bytes));
-          break;
-     case 4:
-          result = (signedp ? (fixnum_t) (*(i32_t *) bytes) : (fixnum_t) (*(u32_t *) bytes));
-          break;
-#ifdef FIXNUM_64BIT
-     case 8:
-          result = (signedp ? (fixnum_t) (*(i64_t *) bytes) : (fixnum_t) (*(u64_t *) bytes));
-          break;
-#endif
-     }
-
-     return true;
-}
-
-
-bool read_binary_flonum(LRef port, flonum_t & result)
-{
-     assert(PORTP(port));
-     assert(PORT_BINARYP(port));
-
-     u8_t bytes[sizeof(flonum_t)];
-     size_t flonums_read = read_raw(bytes, sizeof(flonum_t), 1, port);
-
-     if (!flonums_read)
-          return false;
-
-     result = *(flonum_t *) bytes;
-
-     return true;
-}
-
-
 int unread_char(int ch, LRef port)
 {
      if (NULLP(port))
@@ -374,7 +278,6 @@ int peek_char(LRef port)
      return ch;
 }
 
-
 void write_char(int ch, LRef port)
 {
      _TCHAR tch = (_TCHAR) ch;
@@ -389,7 +292,6 @@ void write_char(int ch, LRef port)
      if (!PORT_BINARYP(port) && (tch == _T('\n')))
           lflush_port(port);
 }
-
 
 size_t write_text(const _TCHAR * buf, size_t count, LRef port)
 {
@@ -488,6 +390,98 @@ size_t write_text(const _TCHAR * buf, size_t count, LRef port)
 
      return count;
 }
+
+static int flush_whitespace(LRef port, bool skip_lisp_comments = true)
+{
+     int c = '\0';
+
+     bool commentp = false;
+     bool reading_whitespace = true;
+
+     while (reading_whitespace)
+     {
+          /*  We can never be in a comment if we're not skipping them... */
+          assert(skip_lisp_comments ? true : !commentp);
+
+          c = read_char(port);
+
+          if (c == EOF)
+               break;
+          else if (commentp)
+          {
+               if (c == _T('\n'))
+                    commentp = FALSE;
+          }
+          else if ((c == _T(';')) && skip_lisp_comments)
+          {
+               commentp = TRUE;
+          }
+          else if (!_istspace(c) && (c != _T('\0')))
+               break;
+     }
+
+     if (c != EOF)
+          unread_char(c, port);
+
+     return c;
+}
+
+bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result)
+{
+#ifdef FIXNUM_64BIT
+     assert((length == 1) || (length == 2) || (length == 4) || (length == 8));
+#else
+     assert((length == 1) || (length == 2) || (length == 4));
+#endif
+
+     assert(PORTP(port));
+     assert(PORT_BINARYP(port));
+
+     u8_t bytes[sizeof(fixnum_t)];
+     size_t fixnums_read = read_raw(bytes, (size_t) length, 1, port);
+
+     if (!fixnums_read)
+          return false;
+
+
+     switch (length)
+     {
+     case 1:
+          result = (signedp ? (fixnum_t) (*(i8_t *) bytes) : (fixnum_t) (*(u8_t *) bytes));
+          break;
+     case 2:
+          result = (signedp ? (fixnum_t) (*(i16_t *) bytes) : (fixnum_t) (*(u16_t *) bytes));
+          break;
+     case 4:
+          result = (signedp ? (fixnum_t) (*(i32_t *) bytes) : (fixnum_t) (*(u32_t *) bytes));
+          break;
+#ifdef FIXNUM_64BIT
+     case 8:
+          result = (signedp ? (fixnum_t) (*(i64_t *) bytes) : (fixnum_t) (*(u64_t *) bytes));
+          break;
+#endif
+     }
+
+     return true;
+}
+
+
+bool read_binary_flonum(LRef port, flonum_t & result)
+{
+     assert(PORTP(port));
+     assert(PORT_BINARYP(port));
+
+     u8_t bytes[sizeof(flonum_t)];
+     size_t flonums_read = read_raw(bytes, sizeof(flonum_t), 1, port);
+
+     if (!flonums_read)
+          return false;
+
+     result = *(flonum_t *) bytes;
+
+     return true;
+}
+
 
 /***** Lisp-visible port functions *****/
 
@@ -636,6 +630,107 @@ LRef lflush_port(LRef port)
 }
 
 
+
+LRef lread_char(LRef port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+     else if (!PORTP(port))
+          vmerror_wrong_type(1, port);
+
+     assert(PORTP(port));
+
+     int ch = read_char(port);
+
+     if (ch == EOF)
+          return lmake_eof();
+     else
+          return charcons((_TCHAR) ch);
+}
+
+LRef lunread_char(LRef ch, LRef port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+     else if (!PORTP(port))
+          vmerror_wrong_type(1, port);
+
+     if (!CHARP(ch))
+          vmerror_wrong_type(2, ch);
+
+     assert(PORTP(port));
+
+     unread_char(CHARV(ch), port);
+
+     return port;
+}
+
+
+LRef lpeek_char(LRef port)
+{
+     int ch;
+
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+
+     if (!PORTP(port))
+          vmerror_wrong_type(1, port);
+
+     ch = peek_char(port);
+
+     if (ch == EOF)
+          return lmake_eof();
+     else
+          return charcons((_TCHAR) ch);
+}
+
+LRef lwrite_char(LRef ch, LRef port)
+{
+     if (!CHARP(ch))
+          vmerror_wrong_type(1, ch);
+
+     if (NULLP(port))
+          port = CURRENT_OUTPUT_PORT();
+
+     if (!PORTP(port))
+          vmerror_wrong_type(2, port);
+
+     write_char(CHARV(ch), port);
+
+     return port;
+}
+
+
+LRef lwrite_strings(size_t argc, LRef argv[])
+{
+     if (argc < 1)
+          vmerror(_T("insufficient arguments."), NIL);
+
+     LRef port = argv[0];
+
+     if (!PORTP(port))
+          vmerror_wrong_type(1, port);
+
+     for (size_t ii = 1; ii < argc; ii++)
+     {
+          LRef str = argv[ii];
+
+          if (STRINGP(str))
+               write_text(STRING_DATA(str), STRING_DIM(str), port);
+          else if (CHARP(str))
+          {
+               _TCHAR ch = CHARV(str);
+
+               write_text(&ch, 1, port);
+          }
+          else
+               vmerror_wrong_type(ii, str);
+     }
+
+     return port;
+}
+
+
 LRef lchar_readyp(LRef port)
 {
      if (NULLP(port))
@@ -692,24 +787,6 @@ LRef lflush_whitespace(LRef port, LRef slc)
      else
           return charcons((_TCHAR) ch);
 }
-
-LRef lread_char(LRef port)
-{
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
-          vmerror_wrong_type(1, port);
-
-     assert(PORTP(port));
-
-     int ch = read_char(port);
-
-     if (ch == EOF)
-          return lmake_eof();
-     else
-          return charcons((_TCHAR) ch);
-}
-
 
 
 LRef lread_binary_string(LRef l, LRef port)
@@ -795,6 +872,7 @@ LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
      else
           return lmake_eof();
 }
+
 LRef lread_binary_flonum(LRef port)
 {
      if (NULLP(port))
@@ -839,85 +917,6 @@ LRef lread_line(LRef port)
           return lmake_eof();
 
      return lget_output_string(op);
-}
-
-LRef lunread_char(LRef ch, LRef port)
-{
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
-          vmerror_wrong_type(1, port);
-
-     if (!CHARP(ch))
-          vmerror_wrong_type(2, ch);
-
-     assert(PORTP(port));
-
-     unread_char(CHARV(ch), port);
-
-     return port;
-}
-
-LRef lpeek_char(LRef port)
-{
-     int ch;
-
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-
-     if (!PORTP(port))
-          vmerror_wrong_type(1, port);
-
-     ch = peek_char(port);
-
-     if (ch == EOF)
-          return lmake_eof();
-     else
-          return charcons((_TCHAR) ch);
-}
-LRef lwrite_char(LRef ch, LRef port)
-{
-     if (!CHARP(ch))
-          vmerror_wrong_type(1, ch);
-
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-
-     if (!PORTP(port))
-          vmerror_wrong_type(2, port);
-
-     write_char(CHARV(ch), port);
-
-     return port;
-}
-
-LRef lwrite_strings(size_t argc, LRef argv[])
-{
-     if (argc < 1)
-          vmerror(_T("insufficient arguments."), NIL);
-
-     LRef port = argv[0];
-
-     if (!PORTP(port))
-          vmerror_wrong_type(1, port);
-
-     for (size_t ii = 1; ii < argc; ii++)
-     {
-          LRef str = argv[ii];
-
-          if (STRINGP(str))
-               write_text(STRING_DATA(str), STRING_DIM(str), port);
-          else if (CHARP(str))
-          {
-               _TCHAR ch = CHARV(str);
-
-               write_text(&ch, 1, port);
-          }
-          else
-               vmerror_wrong_type(ii, str);
-     }
-
-     return port;
 }
 
 LRef lwrite_binary_string(LRef string, LRef port)
