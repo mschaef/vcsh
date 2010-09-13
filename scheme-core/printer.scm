@@ -361,16 +361,6 @@
       (write-strings port "binary "))
     (print (port-mode obj) port machine-readable? #f)))
 
-(define-method (print-object (obj external) port machine-readable? shared-structure-map)
-  (print-unreadable-object obj port
-   (write-strings port ":#x" (%obaddr-string (external-data obj)))
-   (awhen (string? (external-type-name obj))
-     (write-strings port " type-name:" it))
-   (unless (print-external-details obj port)
-     (unless (null? (external-desc obj))
-       (write-strings port " ")
-       (print (external-desc obj) port machine-readable? #f)))))
-
 (define (print-hash-elements obj port machine-readable? shared-structure-map)
   (catch 'abort-hash-element-print
     (let ((count 0))

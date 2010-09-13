@@ -22,7 +22,7 @@
            "begin" "documentation"
 
            ;; Type names
-           "boolean" "byte-vector" "external" "character" "closure"
+           "boolean" "character" "closure"
            "cons"  "end-of-file" "errobj" "fast-op" "fixnum"
            "flonum" "free-cell" "hash" "instance" "macro" "name" "nil" "package"
            "port" "string" "structure" "subr" "symbol" "values-tuple" "vector"
@@ -179,8 +179,6 @@
            break-lines
            build-symbol
            butlast
-           byte-vector->vector
-           byte-vector?
            caaaar
            caaadr
            caaar
@@ -363,8 +361,6 @@
            exported-package-symbols
            exported?
            expt
-           external-desc
-           external?
            fasl-load
            fasl-write
            fasl-write-op
@@ -890,7 +886,6 @@
            user-break
            values
            values-bind
-           vector->byte-vector
            vector->list
            vector-copy
            vector-fill!
