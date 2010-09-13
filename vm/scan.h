@@ -123,24 +123,21 @@ enum typecode_t
      TC_CLOSURE = 10,
      TC_MACRO = 11,
 
-     TC_BYTE_VECTOR = 12,
-     TC_STRING = 13,
-     TC_VECTOR = 14,
-     TC_STRUCTURE = 15,
+     TC_STRING = 12,
+     TC_VECTOR = 13,
+     TC_STRUCTURE = 14,
+     TC_HASH = 15,
 
-     TC_HASH = 16,
-     TC_PORT = 17,
-     TC_END_OF_FILE = 18,
-     TC_EXTERNAL = 19,
+     TC_PORT = 16,
+     TC_END_OF_FILE = 17,
+     TC_VALUES_TUPLE = 18,
+     TC_INSTANCE = 19,
 
-     TC_VALUES_TUPLE = 20,
-     TC_INSTANCE = 21,
-     TC_UNBOUND_MARKER = 22,
-     TC_GC_TRIP_WIRE = 23,
+     TC_UNBOUND_MARKER = 20,
+     TC_GC_TRIP_WIRE = 21,
+     TC_FAST_OP = 22,
 
-     TC_FAST_OP = 24,
-
-     LAST_INTERNAL_TYPEC = 24,
+     LAST_INTERNAL_TYPEC = 22,
 };
 
 enum subr_arity_t
@@ -227,19 +224,6 @@ INLINE bool LREF_IMMEDIATE_P(LRef ref)
      return LREF1_TAG(ref) != LREF1_REF;
 }
 
-typedef void (*external_mark_proc_t) (LRef obj);
-typedef void (*external_free_proc_t) (LRef obj);
-typedef LRef(*external_print_details_proc_t) (LRef obj, LRef port);
-
-struct external_meta_t
-{
-     const _TCHAR *_name;
-
-     external_mark_proc_t _mark;
-     external_free_proc_t _free;
-     external_print_details_proc_t _print_details;
-};
-
 typedef LRef(*f_0_t) (void);
 typedef LRef(*f_1_t) (LRef);
 typedef LRef(*f_2_t) (LRef, LRef);
@@ -315,11 +299,6 @@ struct LObject
           struct
           {
                size_t _dim;
-               u8_t *_data;
-          } bytevec;
-          struct
-          {
-               size_t _dim;
                size_t _ofs;
                _TCHAR *_data;
           } string;
@@ -341,12 +320,6 @@ struct LObject
                port_class_t *_class;
                port_info_t *_pinf;
           } port;
-          struct
-          {
-               void *data;
-               LRef desc;
-               external_meta_t *meta;
-          } external;
           struct
           {
                void *p1;
@@ -754,19 +727,9 @@ INLINE bool PROCEDUREP(LRef x)
      return CLOSUREP(x) || SUBRP(x);
 }
 
-INLINE bool BYTE_VECTOR_P(LRef x)
-{
-     return TYPEP(x, TC_BYTE_VECTOR);
-}
-
 INLINE bool MACROP(LRef x)
 {
      return TYPEP(x, TC_MACRO);
-}
-
-INLINE bool EXTERNALP(LRef x)
-{
-     return TYPEP(x, TC_EXTERNAL);
 }
 
 INLINE bool VALUES_TUPLE_P(LRef x)
@@ -1358,34 +1321,6 @@ INLINE void SET_MACRO_TRANSFORMER(LRef x, LRef transformer)
      (((*x).storage_as.macro.transformer)) = transformer;
 }
 
-  /*** byte-vector **/
-
-LRef byteveccons(size_t dim);
-
-INLINE size_t BYTE_VECTOR_DIM(LRef x)
-{
-     checked_assert(BYTE_VECTOR_P(x));
-     return ((*x).storage_as.bytevec._dim);
-}
-
-INLINE void SET_BYTE_VECTOR_DIM(LRef x, size_t dim)
-{
-     checked_assert(BYTE_VECTOR_P(x));
-     ((*x).storage_as.bytevec._dim) = dim;
-}
-
-INLINE u8_t *BYTE_VECTOR_DATA(LRef x)
-{
-     checked_assert(BYTE_VECTOR_P(x));
-     return ((*x).storage_as.bytevec._data);
-}
-
-INLINE u8_t *SET_BYTE_VECTOR_DATA(LRef x, u8_t * data)
-{
-     checked_assert(BYTE_VECTOR_P(x));
-     return ((*x).storage_as.bytevec._data) = data;
-}
-
   /*** string **/
 LRef strcons();
 LRef strcons(_TCHAR ch);
@@ -1669,47 +1604,6 @@ INLINE bool PORT_BINARYP(LRef x)
 {
      return (PORT_TEXT_INFO(x) == NULL);
 }
-
-  /*** external data **/
-LRef externalcons(void *data, LRef desc, external_meta_t * meta /* = NULL */ );
-
-INLINE void *EXTERNAL_DATA(LRef x)
-{
-     checked_assert(EXTERNALP(x));
-     return ((*x).storage_as.external.data);
-}
-
-INLINE void *SET_EXTERNAL_DATA(LRef x, void *data)
-{
-     checked_assert(EXTERNALP(x));
-     return ((*x).storage_as.external.data) = data;
-}
-
-INLINE LRef EXTERNAL_DESC(LRef x)
-{
-     checked_assert(EXTERNALP(x));
-     return ((*x).storage_as.external.desc);
-}
-
-INLINE void SET_EXTERNAL_DESC(LRef x, LRef desc)
-{
-     checked_assert(EXTERNALP(x));
-     ((*x).storage_as.external.desc) = desc;
-}
-
-INLINE external_meta_t *EXTERNAL_META(LRef x)
-{
-     checked_assert(EXTERNALP(x));
-     return ((*x).storage_as.external.meta);
-}
-
-INLINE void SET_EXTERNAL_META(LRef x, external_meta_t * meta)
-{
-     checked_assert(EXTERNALP(x));
-     ((*x).storage_as.external.meta) = meta;
-}
-
-LRef external_cons(void *data, LRef desc, external_meta_t * meta);
 
   /*** values-tuple ***/
 INLINE LRef VALUES_TUPLE_VALUES(LRef vt)
@@ -2008,8 +1902,6 @@ LRef lbitwise_shr(LRef x, LRef n);
 LRef lbitwise_xor(LRef x, LRef y);
 LRef lbooleanp(LRef x);
 LRef lbutlast(LRef);
-LRef lbyte_vector2vector(LRef bytevec);
-LRef lbyte_vector_p(LRef x);
 LRef lcall_with_global_environment(LRef fn, LRef new_global_env);
 LRef lcar(LRef x);
 LRef lcatch_apply0(LRef tag, LRef fn);
@@ -2051,10 +1943,6 @@ LRef lexact2inexact(LRef x);
 LRef lexactp(LRef x);
 LRef lexp(LRef x);
 LRef lexpt(LRef x, LRef y);
-LRef lexternal_data(LRef x);
-LRef lexternal_desc(LRef x);
-LRef lexternal_type_name(LRef x);
-LRef lexternalp(LRef x);
 LRef lfast_read(LRef port);
 LRef lfind_package(LRef obj);
 LRef lfloor(LRef x);
@@ -2176,7 +2064,6 @@ LRef lport_name(LRef port);
 LRef lport_set_translate_mode(LRef port, LRef mode);
 LRef lport_translate_mode(LRef port);
 LRef lprimitivep(LRef obj);
-LRef lprint_external_details(LRef obj, LRef port);
 LRef lprocedurep(LRef exp);
 LRef lproperty_list(LRef exp);
 LRef lqsort(LRef l, LRef f, LRef g);
@@ -2272,7 +2159,6 @@ LRef lunbound_marker();
 LRef lunread_char(LRef ch, LRef port);
 LRef lunwind_protect(LRef thunk, LRef after);
 LRef lvector(size_t argc, LRef argv[]);
-LRef lvector2byte_vector(LRef vec);
 LRef lvector2list(LRef vec);
 LRef lvector_copy(LRef vec);
 LRef lvector_fill(LRef vec, LRef v);

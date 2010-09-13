@@ -262,13 +262,6 @@ void gc_mark(LRef initial_obj)
                obj = port_gc_mark(obj);
                break;
 
-          case TC_EXTERNAL:
-               if (EXTERNAL_META(obj) && EXTERNAL_META(obj)->_mark)
-                    (EXTERNAL_META(obj)->_mark) (obj);
-
-               obj = EXTERNAL_DESC(obj);
-               break;
-
           case TC_VECTOR:
                for (size_t jj = 0; jj < VECTOR_DIM(obj); ++jj)
                     gc_mark(VECTOR_ELEM(obj, jj));
@@ -353,18 +346,10 @@ static void gc_clear_cell(LRef obj)
           safe_free(VECTOR_DATA(obj));
           break;
 
-     case TC_BYTE_VECTOR:
-          safe_free(BYTE_VECTOR_DATA(obj));
-          break;
-
      case TC_HASH:
           safe_free(HASH_DATA(obj));
           break;
 
-     case TC_EXTERNAL:
-          if (EXTERNAL_META(obj) && EXTERNAL_META(obj)->_free)
-               (EXTERNAL_META(obj)->_free) (obj);
-          break;
 
      case TC_PORT:
           port_gc_free(obj);

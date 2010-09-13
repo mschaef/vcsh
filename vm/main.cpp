@@ -218,21 +218,18 @@ const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
      _T("closure"),
      _T("macro"),
 
-     _T("byte-vector"),
      _T("string"),
      _T("vector"),
      _T("structure"),
-
      _T("hash"),
+
      _T("port"),
      _T("end-of-file"),
-     _T("external"),
-
      _T("values-tuple"),
      _T("instance"),
+
      _T("unbound-marker"),
      _T("gc-trip-wire"),
-
      _T("fast-op"),
 };
 

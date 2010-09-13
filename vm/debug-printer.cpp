@@ -370,10 +370,6 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
                scwritef("~u", port, (LRef) obj);
           break;
 
-     case TC_BYTE_VECTOR:
-          scwritef("~u", port, (LRef) obj);
-          break;
-
      case TC_VALUES_TUPLE:
           scwritef("~u ~s", port, (LRef) obj, VALUES_TUPLE_VALUES(obj));
           break;
@@ -387,11 +383,6 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
 
      case TC_END_OF_FILE:
           scwritef("~u", port, (LRef) obj);
-          break;
-
-     case TC_EXTERNAL:
-          scwritef("~u, points-to=~c& is-a=~a ",
-                   port, (LRef) obj, EXTERNAL_DATA(obj), EXTERNAL_DESC(obj));
           break;
 
      case TC_PORT:
