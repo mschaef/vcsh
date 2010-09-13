@@ -289,7 +289,6 @@ static void show_debug_flags()
           dscwritef("* ~cs\n", debug_flag_env_names[ii].df_env_name);
 }
 
-#if defined(__CYGWIN__) || defined(SCAN_UNIX)
 extern "C" const _TCHAR *strchrnul(const _TCHAR * string, int c)
 {
      for (; *string; string++)
@@ -298,7 +297,6 @@ extern "C" const _TCHAR *strchrnul(const _TCHAR * string, int c)
 
      return string;
 }
-#endif
 
 debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source_name,
                                      const _TCHAR * str)
