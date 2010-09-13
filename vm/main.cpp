@@ -431,8 +431,6 @@ static void register_main_subrs()
     register_subr(_T("bitwise-shift-right"),              SUBR_2,     (void*)lbitwise_shr                        );
     register_subr(_T("bitwise-xor"),                      SUBR_2N,    (void*)lbitwise_xor                        );
     register_subr(_T("boolean?"),                         SUBR_1,     (void*)lbooleanp                           );
-    register_subr(_T("byte-vector->vector"),              SUBR_1,     (void*)lbyte_vector2vector                 );
-    register_subr(_T("byte-vector?"),                     SUBR_1,     (void*)lbyte_vector_p                      );
     register_subr(_T("car"),                              SUBR_1,     (void*)lcar                                );
     register_subr(_T("cdr"),                              SUBR_1,     (void*)lcdr                                );
     register_subr(_T("ceiling"),                          SUBR_1,     (void*)lceiling                            );
@@ -461,10 +459,6 @@ static void register_main_subrs()
     register_subr(_T("exact?"),                           SUBR_1,     (void*)lexactp                             );
     register_subr(_T("exp"),                              SUBR_1,     (void*)lexp                                );
     register_subr(_T("expt"),                             SUBR_2,     (void*)lexpt                               );
-    register_subr(_T("external-data"),                    SUBR_1,     (void*)lexternal_data                      );
-    register_subr(_T("external-desc"),                    SUBR_1,     (void*)lexternal_desc                      );
-    register_subr(_T("external-type-name"),               SUBR_1,     (void*)lexternal_type_name                 );
-    register_subr(_T("external?"),                        SUBR_1,     (void*)lexternalp                          );
     register_subr(_T("fast-read"),                        SUBR_1,     (void*)lfast_read                          );
     register_subr(_T("find-package"),                     SUBR_1,     (void*)lfind_package                       );
     register_subr(_T("floor"),                            SUBR_1,     (void*)lfloor                              );
@@ -543,7 +537,6 @@ static void register_main_subrs()
     register_subr(_T("port-name"),                        SUBR_1,     (void*)lport_name                          );
     register_subr(_T("port-translate-mode"),              SUBR_1,     (void*)lport_translate_mode                );
     register_subr(_T("primitive?"),                       SUBR_1,     (void*)lprimitivep                         );
-    register_subr(_T("print-external-details"),           SUBR_2,     (void*)lprint_external_details             );
     register_subr(_T("procedure?"),                       SUBR_1,     (void*)lprocedurep                         );
     register_subr(_T("quotient"),                         SUBR_2,     (void*)lquotient                           );
     register_subr(_T("random"),                           SUBR_1,     (void*)lrandom                             );
@@ -610,7 +603,6 @@ static void register_main_subrs()
     register_subr(_T("unread-char"),                      SUBR_2,     (void*)lunread_char                        );
     register_subr(_T("unwind-protect"),                   SUBR_2,     (void*)lunwind_protect                     );
     register_subr(_T("vector"),                           SUBR_ARGC,  (void*)lvector                             );
-    register_subr(_T("vector->byte-vector"),              SUBR_1,     (void*)lvector2byte_vector                 );
     register_subr(_T("vector->list"),                     SUBR_1,     (void*)lvector2list                        );
     register_subr(_T("vector-copy"),                      SUBR_1,     (void*)lvector_copy                        );
     register_subr(_T("vector-fill!"),                     SUBR_2,     (void*)lvector_fill                        );

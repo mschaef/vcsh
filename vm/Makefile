@@ -17,13 +17,11 @@ SH0_OBJS=scansh0${OBJ_EXT}
 SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.cpp)
 
 VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
-       byte-vector${OBJ_EXT} \
        core${OBJ_EXT} \
        debug-printer${OBJ_EXT} \
        debug-tools${OBJ_EXT} \
        error${OBJ_EXT} \
        evaluator${OBJ_EXT} \
-       external-data${OBJ_EXT} \
        fasl${OBJ_EXT} \
        fasl-utils${OBJ_EXT} \
        hash-table${OBJ_EXT} \
