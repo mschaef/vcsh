@@ -82,6 +82,7 @@ typedef double                 f64_t;
 #   define U64_MIN (0ULL)
 #   define U64(val) (val##ULL)
 #   define INT64_PRINTF_PREFIX "%ll"
+#   define SIZE_T_PRINTF_PREFIX "%zi"
 #elif defined(_MSC_VER)
 #   define I64_MAX _I64_MAX
 #   define I64_MIN _I64_MIN
@@ -90,6 +91,7 @@ typedef double                 f64_t;
 #   define U64_MIN (0ui64)
 #   define U64(val) (val##ui64)
 #   define INT64_PRINTF_PREFIX "%I64"
+#   define SIZE_T_PRINTF_PREFIX "%u"
 #endif
 
 /* Couldn't find a better definition for these in the standard header files... */
