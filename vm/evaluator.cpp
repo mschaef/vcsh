@@ -7,61 +7,14 @@
 
 BEGIN_NAMESPACE(scan)
 
-/**************************************************************
- * SUBR
- *
- * Subrs are the basic building block of a SIOD program. They
- * represent executable code in compiled C. */
-const _TCHAR *subr_kind_str(subr_arity_t n)
-{
-     switch (n)
-     {
-     case SUBR_0:
-          return _T("subr-0");
-     case SUBR_1:
-          return _T("subr-1");
-     case SUBR_2:
-          return _T("subr-2");
-     case SUBR_2N:
-          return _T("subr-2n");
-     case SUBR_3:
-          return _T("subr-3");
-     case SUBR_4:
-          return _T("subr-4");
-     case SUBR_5:
-          return _T("subr-5");
-     case SUBR_6:
-          return _T("subr-6");
-     case SUBR_N:
-          return _T("subr-n");
-     case SUBR_ARGC:
-          return _T("subr-argc");
-     default:
-          return _T("???");
-     }
-}
+/***** subrs *****/
 
-LRef lsubr_kind(LRef subr)
+LRef lsubr_type_code(LRef subr)
 {
      if (!SUBRP(subr))
           vmerror_wrong_type(1, subr);
 
-     return keyword_intern(subr_kind_str(SUBR_TYPE(subr)));
-}
-
-LRef lsubr_name(LRef subr)
-{
-     assert(SUBRP(subr) || NULLP(subr));
-
-     LRef name_cell = NIL;
-
-     if (SUBRP(subr))
-          name_cell = lassq(interp.sym_name, SUBR_PROPERTY_LIST(subr));
-
-     if (CONSP(name_cell))
-          return lcdr(name_cell);
-     else
-          return strcons(_T("<unknown>"));
+     return fixcons(SUBR_TYPE(subr));
 }
 
 LRef subrcons(subr_arity_t type, LRef name, void *implementation)

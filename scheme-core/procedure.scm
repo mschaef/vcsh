@@ -227,6 +227,21 @@
         (#t
          (error "Invalid syntax for define: ~a" (cons name defn)))))
 
+(define (%primitive-kind subr)
+  (check primitive? subr)
+  (case (%subr-type-code subr)
+    ((0) :subr-0)
+    ((1) :subr-1)
+    ((2) :subr-2)
+    ((3) :subr-2n)
+    ((4) :subr-3)
+    ((5) :subr-4)
+    ((6) :subr-5)
+    ((7) :subr-6)
+    ((8) :subr-argc)
+    ((9) :subr-n)
+    (#t :???)))
+
 (define (procedure-lambda-list procedure)
   "Returns two values, the first is the run time lambda list of <procedure>, the
    second value is the original source lambda list, if available. If the source

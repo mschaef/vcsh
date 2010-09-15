@@ -365,7 +365,6 @@ static void register_main_subrs()
     register_subr(_T("%package-use-list"),                SUBR_1,     (void*)lpackage_use_list                   );
     register_subr(_T("%packagecons"),                     SUBR_3,     (void*)lipackagecons                       );
     register_subr(_T("%panic"),                           SUBR_1,     (void*)lpanic                              );
-    register_subr(_T("%primitive-kind"),                  SUBR_1,     (void*)lsubr_kind                          );
     register_subr(_T("%property-list"),                   SUBR_1,     (void*)lproperty_list                      );
     register_subr(_T("%representation-of"),               SUBR_1,     (void*)lrepresentation_of                  );
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );
@@ -583,6 +582,7 @@ static void register_main_subrs()
     register_subr(_T("string-upcase!"),                   SUBR_1,     (void*)lstring_upcased                     );
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );
+    register_subr(_T("%subr-type-code"),                  SUBR_1,     (void*)lsubr_type_code                     );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );
     register_subr(_T("sxhash"),                           SUBR_2,     (void*)lsxhash                             );
     register_subr(_T("symbol-bound?"),                    SUBR_3,     (void*)lsymbol_boundp                      );

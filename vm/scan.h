@@ -1272,8 +1272,6 @@ INLINE f_argc_t SUBR_FARGC(LRef x)
      return ((*x).storage_as.subr.code.f_argc);
 }
 
-const _TCHAR *subr_kind_str(subr_arity_t n);
-
   /*** closure **/
 INLINE LRef CLOSURE_CODE(LRef x)
 {
@@ -2138,8 +2136,7 @@ LRef lstructure_ref(LRef st, LRef index);
 LRef lstructure_set(LRef st, LRef index, LRef value);
 LRef lstructurecons(LRef slots, LRef layout);
 LRef lstructurep(LRef st, LRef expected_layout);
-LRef lsubr_kind(LRef subr);
-LRef lsubr_name(LRef subr);
+LRef lsubr_type_code(LRef subr);
 LRef lsubset(LRef fcn, LRef l);
 LRef lsubstring(LRef, LRef, LRef);
 LRef lsubtract(LRef x, LRef y);
