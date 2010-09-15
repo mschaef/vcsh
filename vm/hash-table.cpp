@@ -150,7 +150,7 @@ fixnum_t sxhash(LRef obj)
           break;
 
      case TC_SUBR:
-          hash = sxhash(lsubr_name(obj));
+          hash = (fixnum_t)SUBR_CODE(obj);
           break;
 
      case TC_STRING:

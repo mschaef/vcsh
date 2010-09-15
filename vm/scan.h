@@ -1227,6 +1227,11 @@ INLINE void SET_SUBR_CODE(LRef x, void *code)
      ((*x).storage_as.subr.code.ptr) = code;
 }
 
+INLINE void *SUBR_CODE(LRef x)
+{
+     return (void *)(*x).storage_as.subr.code.ptr;
+}
+
 INLINE f_0_t SUBR_F0(LRef x)
 {
      return ((*x).storage_as.subr.code.f_0);
