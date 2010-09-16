@@ -2,14 +2,14 @@
 ;;;;
 ;;;; The form compiler entry points.
 
-(define (compile-closure form :optional (genv #f) (at-toplevel? #f))
-  (assemble-closure
+(define (compile-form form :optional (genv #f) (at-toplevel? #f))
+  "Accept a <form> and compile it into the corresponding closure or literal. <form>
+   must be a form that either explicitly defines a closure or a literal."
+  (assemble
    (expanded-form-meaning
     (expand-form form genv at-toplevel?) () genv at-toplevel?)))
 
-(define (compile-toplevel-form->closure form :optional (genv #f) (at-toplevel? #f))
-  (compile-closure `(%toplevel-lambda ,form) genv at-toplevel?))
-
-(define (compile-form form :optional (genv #f) (at-toplevel? #f))
-  ;; REVISIT: Do we need to apply in genv? Currently, we apply in the caller's global environment
-  (apply (compile-toplevel-form->closure form genv at-toplevel?)))
+(define (toplevel-form->thunk form :optional (genv #f))
+  "Accept a <form> and compile it into a closure that can be invoked to produce the
+  effect of evaluating that form at toplevel."
+  (compile-form `(compiler::%toplevel-lambda ,form) genv #t))

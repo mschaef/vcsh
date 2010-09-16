@@ -2,7 +2,7 @@
 ;;;;
 ;;;; The assembler. This maps fast-op assembly trees into closures.
 
-(define (assemble-closure outer-form)
+(define (assemble outer-form)
   (define (asm form)
     (let ((opcode (car form)))
       (case opcode ; REVISIT: can this be driven off of opcode metadata?
@@ -27,12 +27,18 @@
          (apply scheme::assemble-fast-op opcode
                 (map asm (cdr form)))))))
 
-  (unless (and (list? outer-form)
-               (eq? (car outer-form) :close-env))
-    (error "Expected a closure definition to assemble: ~s" outer-form))
+  (unless  (list? outer-form)
+    (error "assembler imput must be a proper list of fast-op definitions: ~s" outer-form))
 
-  (dbind (opcode l-list src p-list) outer-form
-    (scheme::%closure ()
-                      (cons l-list (asm src))
-                      p-list)))
+  (case (car outer-form)
+    ((:close-env)
+     (dbind (opcode l-list src p-list) outer-form
+       (scheme::%closure ()
+                         (cons l-list (asm src))
+                         p-list)))
+    ((:literal)
+     (dbind (opcode literal) outer-form
+       literal))
+    (#t
+     (error "assemble expects to assemble either a literal or a closure: ~s") outer-form)))
 

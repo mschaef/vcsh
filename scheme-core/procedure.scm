@@ -11,7 +11,6 @@
   (ensure-package! "fasl-compiler")
   (ensure-package! "compiler"))
 
-
 (define (eval form :optional (lenv ()) (genv #f))
   ;; TODO: Add support to the inspector for passing in lenvs when this
   ;; gets enabled
@@ -46,14 +45,12 @@
                    (compiler::compile-warning
                     (lambda (context-form message args)
                       (compiler::compiler-message context-form :warning message args))))
-      (let ((form-fn (compiler::compile-form form genv #t)))
-        (if (procedure? form-fn)
-            (locally-capture (apply)
-              (if (vector? genv) ;; TODO: vector? -> global-environment?.
-                  (with-global-environment genv
-                    (apply form-fn))
-                  (apply form-fn)))
-            form-fn)))))
+      (let ((form-fn (compiler::toplevel-form->thunk form genv)))
+        (locally-capture (apply)
+          (if (vector? genv) ;; TODO: vector? -> global-environment?.
+              (with-global-environment genv
+                (apply form-fn))
+              (apply form-fn)))))))
 
 (define (valid-lambda-list? lambda-list)
   (or (symbol? lambda-list)
