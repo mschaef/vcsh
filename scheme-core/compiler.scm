@@ -29,6 +29,6 @@
             "*initial-package*"
             "*cross-compile*"
             "compile-form"
-            "compile-toplevel-form->closure"
+            "toplevel-form->thunk"
             ))
 
