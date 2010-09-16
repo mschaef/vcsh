@@ -46,11 +46,10 @@
                     (lambda (context-form message args)
                       (compiler::compiler-message context-form :warning message args))))
       (let ((form-fn (compiler::toplevel-form->thunk form genv)))
-        (locally-capture (apply)
-          (if (vector? genv) ;; TODO: vector? -> global-environment?.
-              (with-global-environment genv
-                (apply form-fn))
-              (apply form-fn)))))))
+        (if (vector? genv) ;; TODO: vector? -> global-environment?.
+            (with-global-environment genv
+              (form-fn))
+            (form-fn))))))
 
 (define (valid-lambda-list? lambda-list)
   (or (symbol? lambda-list)
