@@ -1802,9 +1802,8 @@ void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...);
 
 LRef debug_print_object(LRef exp, LRef port, bool machine_readable);
 
-void register_internal_file(const _TCHAR * filename, bool binary_data, unsigned char *data,
-                            size_t bytes);
-LRef open_c_data_input(bool binary_data, unsigned char *source, size_t bytes);
+void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data);
+LRef open_c_data_input(bool binary_data, data_block_t *data);
 
 typedef bool(*blocking_input_read_data_fn_t) (LRef port, void *userdata);
 typedef void (*blocking_input_close_port_fn_t) (LRef port, void *userdata);
@@ -2396,9 +2395,5 @@ INLINE LRef new_cell(typecode_t type)
 }
 
 END_NAMESPACE;
-
-extern unsigned char scmSCore[];        /*  REVISIT: need to change this to _TCHAR */
-extern unsigned int scmSCore_bytes;
-
 
 #endif
