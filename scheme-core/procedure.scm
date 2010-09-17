@@ -6,9 +6,8 @@
 
 ;;; Eval
 
-;; Need this to support forward reference to fasl-compiler::compile-form
+;; Need this to support forward reference to compiler::compile-form
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (ensure-package! "fasl-compiler")
   (ensure-package! "compiler"))
 
 (define (eval form :optional (lenv ()) (genv #f))

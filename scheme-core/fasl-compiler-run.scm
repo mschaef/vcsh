@@ -6,7 +6,7 @@
 
 (define-package "fasl-compiler-run"
   (:uses "scheme"
-         "fasl-compiler"))
+         "compiler"))
 
 ;;;; Startup Code
 
