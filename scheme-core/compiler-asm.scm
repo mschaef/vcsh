@@ -22,8 +22,9 @@
          (apply scheme::assemble-fast-op :apply
                 (assemble/inner (cadr asm)) (cons (map assemble/inner (cddr asm)))))
         ((:macro)
-         (error "Macro definition ~s in unexpected place within ~s."
-                asm outermost-asm))
+         (scheme::assemble-fast-op :literal
+                                   (dbind (opcode macro-fn) asm
+                                     (apply scheme::%macro (assemble/outer macro-fn) ()))))
         (#t
          (apply scheme::assemble-fast-op opcode
                 (map assemble/inner (cdr asm)))))))
