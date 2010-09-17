@@ -17,23 +17,23 @@ LRef ldump_heap_state(LRef port)
 {
      for (size_t heap_no = 0; heap_no < interp.gc_max_heap_segments; heap_no++)
      {
-          if (interp.gc_heap_segments[heap_no])
+          if (interp.gc_heap_segments[heap_no] == NULL)
+               continue;
+
+          LRef obj;
+          LRef org = interp.gc_heap_segments[heap_no];
+          LRef end = org + interp.gc_heap_segment_size;
+          fixnum_t ii;
+          
+          for (obj = org, ii = 0; obj < end; obj++, ii++)
           {
-               LRef obj;
-               LRef org = interp.gc_heap_segments[heap_no];
-               LRef end = org + interp.gc_heap_segment_size;
-               fixnum_t ii;
-
-               for (obj = org, ii = 0; obj < end; obj++, ii++)
+               if (ii % 256 == 0)
                {
-                    if (ii % 256 == 0)
-                    {
-                         lnewline(port);
-                         ii = 0;
-                    }
-
-                    scwritef(_T("~cd, "), port, TYPE(obj));
+                    lnewline(port);
+                    ii = 0;
                }
+
+               scwritef(_T("~cd, "), port, TYPE(obj));
           }
      }
 
@@ -62,17 +62,17 @@ LRef lshow_type_stats()
      /* Traverse the heaps, counting each type */
      for (size_t heap_no = 0; heap_no < interp.gc_max_heap_segments; heap_no++)
      {
-          if (interp.gc_heap_segments[heap_no])
+          if (interp.gc_heap_segments[heap_no] == NULL)
+               continue;
+
+          org = interp.gc_heap_segments[heap_no];
+          end = org + interp.gc_heap_segment_size;
+
+          for (obj = org; obj < end; ++obj)
           {
-               org = interp.gc_heap_segments[heap_no];
-               end = org + interp.gc_heap_segment_size;
+               type = TYPE(obj);
 
-               for (obj = org; obj < end; ++obj)
-               {
-                    type = TYPE(obj);
-
-                    internal_type_counts[type]++;
-               }
+               internal_type_counts[type]++;
           }
      }
 
