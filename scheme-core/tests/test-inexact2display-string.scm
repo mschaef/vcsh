@@ -1,21 +1,6 @@
-; These test cases were generated with the following expresison
-;
-; (set! *flonum-print-precision* 15)
-;   (map (lambda (args)
-;          `(test-case (equal? ,(apply inexact->display-string args)
-;                          (inexact->display-string ,@args))))
-;        (list-combinations '((3.141592653589793
-;                              -3.141592653589793
-;                              0 #inan #iposinf #ineginf
-;                              8675309 497.5512 98421.3)
-;                             (0 1 2 5 10 12)
-;                             (#t #f)
-;                             (:none :us :euro))))
-
-
 (use-package! "unit-test")
 
-(define-test inexact->display-string
+(define-test inexact->display-string/pos-pi
   (test-case (equal? "3.e0" (inexact->display-string 3.141592653589793 0 #t :none)))
   (test-case (equal? "3.e0" (inexact->display-string 3.141592653589793 0 #t :us)))
   (test-case (equal? "3,e0" (inexact->display-string 3.141592653589793 0 #t :euro)))
@@ -51,7 +36,9 @@
   (test-case (equal? "3,141592653590e0" (inexact->display-string 3.141592653589793 12 #t :euro)))
   (test-case (equal? "3.141592653590" (inexact->display-string 3.141592653589793 12 #f :none)))
   (test-case (equal? "3.141592653590" (inexact->display-string 3.141592653589793 12 #f :us)))
-  (test-case (equal? "3,141592653590" (inexact->display-string 3.141592653589793 12 #f :euro)))
+  (test-case (equal? "3,141592653590" (inexact->display-string 3.141592653589793 12 #f :euro))))
+
+(define-test inexact->display-string/neg-pi
   (test-case (equal? "-3.e0" (inexact->display-string -3.141592653589793 0 #t :none)))
   (test-case (equal? "-3.e0" (inexact->display-string -3.141592653589793 0 #t :us)))
   (test-case (equal? "-3,e0" (inexact->display-string -3.141592653589793 0 #t :euro)))
@@ -87,7 +74,9 @@
   (test-case (equal? "-3,141592653590e0" (inexact->display-string -3.141592653589793 12 #t :euro)))
   (test-case (equal? "-3.141592653590" (inexact->display-string -3.141592653589793 12 #f :none)))
   (test-case (equal? "-3.141592653590" (inexact->display-string -3.141592653589793 12 #f :us)))
-  (test-case (equal? "-3,141592653590" (inexact->display-string -3.141592653589793 12 #f :euro)))
+  (test-case (equal? "-3,141592653590" (inexact->display-string -3.141592653589793 12 #f :euro))))
+
+(define-test inexact->display-string/zero
   (test-case (equal? "0.e0" (inexact->display-string 0 0 #t :none)))
   (test-case (equal? "0.e0" (inexact->display-string 0 0 #t :us)))
   (test-case (equal? "0,e0" (inexact->display-string 0 0 #t :euro)))
@@ -123,7 +112,9 @@
   (test-case (equal? "0,000000000000e0" (inexact->display-string 0 12 #t :euro)))
   (test-case (equal? "0.000000000000" (inexact->display-string 0 12 #f :none)))
   (test-case (equal? "0.000000000000" (inexact->display-string 0 12 #f :us)))
-  (test-case (equal? "0,000000000000" (inexact->display-string 0 12 #f :euro)))
+  (test-case (equal? "0,000000000000" (inexact->display-string 0 12 #f :euro))))
+
+(define-test inexact->display-string/nan
   (test-case (equal? "<not-a-number>" (inexact->display-string #inan 0 #t :none)))
   (test-case (equal? "<not-a-number>" (inexact->display-string #inan 0 #t :us)))
   (test-case (equal? "<not-a-number>" (inexact->display-string #inan 0 #t :euro)))
@@ -159,7 +150,9 @@
   (test-case (equal? "<not-a-number>" (inexact->display-string #inan 12 #t :euro)))
   (test-case (equal? "<not-a-number>" (inexact->display-string #inan 12 #f :none)))
   (test-case (equal? "<not-a-number>" (inexact->display-string #inan 12 #f :us)))
-  (test-case (equal? "<not-a-number>" (inexact->display-string #inan 12 #f :euro)))
+  (test-case (equal? "<not-a-number>" (inexact->display-string #inan 12 #f :euro))))
+
+(define-test inexact->display-string/pos-inf
   (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 0 #t :none)))
   (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 0 #t :us)))
   (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 0 #t :euro)))
@@ -195,7 +188,9 @@
   (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 12 #t :euro)))
   (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 12 #f :none)))
   (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 12 #f :us)))
-  (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 12 #f :euro)))
+  (test-case (equal? "<positive-infinity>" (inexact->display-string #iposinf 12 #f :euro))))
+
+(define-test inexact->display-string/neg-inf
   (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 0 #t :none)))
   (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 0 #t :us)))
   (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 0 #t :euro)))
@@ -231,7 +226,9 @@
   (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 12 #t :euro)))
   (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 12 #f :none)))
   (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 12 #f :us)))
-  (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 12 #f :euro)))
+  (test-case (equal? "<negative-infinity>" (inexact->display-string #ineginf 12 #f :euro))))
+
+(define-test inexact->display-string/jenny
   (test-case (equal? "8.e6" (inexact->display-string 8675309 0 #t :none)))
   (test-case (equal? "8.e6" (inexact->display-string 8675309 0 #t :us)))
   (test-case (equal? "8,e6" (inexact->display-string 8675309 0 #t :euro)))
@@ -267,7 +264,10 @@
   (test-case (equal? "8,675309000000e6" (inexact->display-string 8675309 12 #t :euro)))
   (test-case (equal? "8675309.000000000???" (inexact->display-string 8675309 12 #f :none)))
   (test-case (equal? "8,675,309.000000000???" (inexact->display-string 8675309 12 #f :us)))
-  (test-case (equal? "8.675.309,000000000???" (inexact->display-string 8675309 12 #f :euro)))
+  (test-case (equal? "8.675.309,000000000???" (inexact->display-string 8675309 12 #f :euro))))
+
+
+(define-test inexact->display-string/497*
   (test-case (equal? "4.e2" (inexact->display-string 497.551199999999994 0 #t :none)))
   (test-case (equal? "4.e2" (inexact->display-string 497.551199999999994 0 #t :us)))
   (test-case (equal? "4,e2" (inexact->display-string 497.551199999999994 0 #t :euro)))
@@ -303,7 +303,9 @@
   (test-case (equal? "4,975512000000e2" (inexact->display-string 497.551199999999994 12 #t :euro)))
   (test-case (equal? "497.551200000000" (inexact->display-string 497.551199999999994 12 #f :none)))
   (test-case (equal? "497.551200000000" (inexact->display-string 497.551199999999994 12 #f :us)))
-  (test-case (equal? "497,551200000000" (inexact->display-string 497.551199999999994 12 #f :euro)))
+  (test-case (equal? "497,551200000000" (inexact->display-string 497.551199999999994 12 #f :euro))))
+
+(define-test inexact->display-string/98421
   (test-case (equal? "9.e4" (inexact->display-string 98421.300000000002910 0 #t :none)))
   (test-case (equal? "9.e4" (inexact->display-string 98421.300000000002910 0 #t :us)))
   (test-case (equal? "9,e4" (inexact->display-string 98421.300000000002910 0 #t :euro)))
@@ -337,8 +339,6 @@
   (test-case (equal? "9.842130000000e4" (inexact->display-string 98421.300000000002910 12 #t :none)))
   (test-case (equal? "9.842130000000e4" (inexact->display-string 98421.300000000002910 12 #t :us)))
   (test-case (equal? "9,842130000000e4" (inexact->display-string 98421.300000000002910 12 #t :euro)))
-  ;; These three test cases fail in gcc builds due to incorrect rounding on the part of
-  ;; the standard library.
   (test-case (equal? "98421.30000000000?" (inexact->display-string 98421.300000000002910 12 #f :none)))
   (test-case (equal? "98,421.30000000000?" (inexact->display-string 98421.300000000002910 12 #f :us)))
   (test-case (equal? "98.421,30000000000?" (inexact->display-string 98421.300000000002910 12 #f :euro))))
