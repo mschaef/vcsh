@@ -8,8 +8,9 @@
 
 #include "../vm/scan.h"
 
-extern unsigned char scmFaslCompilerRun[];      // REVISIT: need to change this to _TCHAR
-extern unsigned int scmFaslCompilerRun_bytes;
+extern data_block_t scf_fasl_compiler_run;
+extern data_block_t scf_scheme;
+
 
 BEGIN_NAMESPACE(scan)
 void scanlib_register_internal_files();
@@ -18,14 +19,12 @@ void init1()
 {
      /* Load and evaluate the .scm initialization code */
 
-     register_internal_file(_T("fasl-compiler-run"), true,
-                            scmFaslCompilerRun, scmFaslCompilerRun_bytes);
-
-     register_internal_file(_T("s-core"), true, scmSCore, scmSCore_bytes);
+     register_internal_file(_T("fasl-compiler-run"), true, &scf_fasl_compiler_run);
+     register_internal_file(_T("s-core"), true, &scf_scheme);
 
      ENTER_TRY(NIL)
      {
-          lifasl_load(open_c_data_input(true, scmSCore, scmSCore_bytes));
+          lifasl_load(open_c_data_input(true, &scf_scheme));
      } ON_ERROR()
      {
           assert(SYMBOLP(interp.sym_errobj));

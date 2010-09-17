@@ -36,14 +36,16 @@ ifdef ${RANLIB}
 endif
 
 scheme${OBJ_EXT}: scheme.scf
-	../util/to-c-source scheme.scf scmSCore > scheme.cpp
+	echo \#include \"../util/base-types.h\" > scheme.cpp
+	../util/to-c-source scheme.scf scf_scheme >> scheme.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}scheme${OBJ_EXT} scheme.cpp
 
 scheme.scf:
 	$(SCC0) --cross-compile --initial-package:scheme scheme.scm
 
 fasl-compiler-run${OBJ_EXT}: fasl-compiler-run.scf
-	../util/to-c-source fasl-compiler-run.scf scmFaslCompilerRun > fasl-compiler-run.cpp
+	echo \#include \"../util/base-types.h\" > fasl-compiler-run.cpp
+	../util/to-c-source fasl-compiler-run.scf scf_fasl_compiler_run >> fasl-compiler-run.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}fasl-compiler-run${OBJ_EXT} fasl-compiler-run.cpp
 
 fasl-compiler-run.scf: fasl-compiler-run.scm

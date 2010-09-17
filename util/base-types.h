@@ -210,4 +210,10 @@ extern "C" INLINE u64_t make_u64_t(u64_t high, u64_t low)
      return ((u64_t) high << 32) + (u64_t) low;
 }
 
+struct data_block_t
+{
+     u8_t *_bytes;
+     size_t _length;    
+};
+
 #endif
