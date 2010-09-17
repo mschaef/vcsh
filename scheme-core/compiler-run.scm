@@ -24,8 +24,7 @@
   "Enables support for debugging the compiler itself. Mainly detailed logging messages"
   (set! *verbose* #t)
   (set! *debug* #t)
-  (set! *enter-repl-on-runtime-error* #t)
-  )
+  (set! *enter-repl-on-runtime-error* #t))
 
 (define-command-argument ("show-all")
   "Causes all status messages to be displayed."

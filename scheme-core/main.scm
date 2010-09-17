@@ -323,7 +323,7 @@
 (define-command-argument ("c" "compile")
   "Run in compiler mode. (Request help with this flag specified for more
    help on compiler-specific options.)"
-  (load-internal "fasl-compiler-run")) ; REVISIT: loading this without fasl-compiler throws a malformed package list error
+  (load-internal "compiler-run"))
 
 (define-file-argument-handling
   (handler-bind ((runtime-error
