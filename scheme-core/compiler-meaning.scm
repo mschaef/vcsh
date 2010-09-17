@@ -86,7 +86,7 @@
                        ,(recur (cdr args)))))))
 
 (define (meaning/if form cenv genv at-toplevel?)
-  `(:if-true .(expanded-form-meaning (second form) cenv genv at-toplevel?)
+  `(:if-true ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
              ,(expanded-form-meaning (third form) cenv genv at-toplevel?)
              ,(expanded-form-meaning (fourth form) cenv genv at-toplevel?)))
 

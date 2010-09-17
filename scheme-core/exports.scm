@@ -579,7 +579,6 @@
            nconc
            negate
            negative?
-           neval
            newline
            normalize-whitespace
            not
