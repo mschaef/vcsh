@@ -42,7 +42,6 @@
 (include "fast-op.scm")
 (include "date-time.scm")
 (include "exports.scm")
-(include "fasl-compiler.scm")
 (include "compiler.scm")
 (include "deferred-execution.scm")
 (include "repl.scm")
