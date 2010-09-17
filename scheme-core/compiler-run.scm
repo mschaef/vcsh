@@ -1,6 +1,8 @@
 ;;;; compiler-run.scm
-;;;;
-;;;; Code to invoke the FASL compiler from the command line
+;;;; August 18th, 2007
+;;;; Mike Schaeffer
+;;
+;; Code to invoke the FASL compiler from the command line
 
 (define-package "compiler-run"
   (:uses "scheme"
@@ -22,7 +24,8 @@
   "Enables support for debugging the compiler itself. Mainly detailed logging messages"
   (set! *verbose* #t)
   (set! *debug* #t)
-  (set! *enter-repl-on-runtime-error* #t))
+  (set! *enter-repl-on-runtime-error* #t)
+  )
 
 (define-command-argument ("show-all")
   "Causes all status messages to be displayed."
@@ -53,7 +56,7 @@
   (let ((mode (if (= 0 (length cross-compiler-mode))
                   :environment
                   (intern-keyword! cross-compiler-mode))))
-    (unless (memq mode '(:environment
+    (unless (memq mode '(:environment 
                          :package-renaming
                          ))
        (bad-command-argument-value 'cross-compiler-mode

@@ -8,8 +8,8 @@
 
 #include "../vm/scan.h"
 
-extern unsigned char scmFaslCompilerRun[];      // REVISIT: need to change this to _TCHAR
-extern unsigned int scmFaslCompilerRun_bytes;
+extern unsigned char scmCompilerRun[];      // REVISIT: need to change this to _TCHAR
+extern unsigned int scmCompilerRun_bytes;
 
 BEGIN_NAMESPACE(scan)
 void scanlib_register_internal_files();
@@ -18,8 +18,8 @@ void init1()
 {
      /* Load and evaluate the .scm initialization code */
 
-     register_internal_file(_T("fasl-compiler-run"), true,
-                            scmFaslCompilerRun, scmFaslCompilerRun_bytes);
+     register_internal_file(_T("compiler-run"), true,
+                            scmCompilerRun, scmCompilerRun_bytes);
 
      register_internal_file(_T("s-core"), true, scmSCore, scmSCore_bytes);
 
