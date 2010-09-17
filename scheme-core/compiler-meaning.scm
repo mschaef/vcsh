@@ -103,7 +103,7 @@
 (define (meaning/%define form cenv genv at-toplevel?)
   (dbind (fn-pos name defn) form
     `(:global-def ,name
-                  ,(compile-form defn genv at-toplevel?)
+                  ,((toplevel-form->thunk defn genv))
                   ,genv)))
 
 (define (meaning/quote form cenv genv at-toplevel?)
