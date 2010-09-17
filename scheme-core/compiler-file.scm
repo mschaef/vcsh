@@ -99,8 +99,9 @@
       (pair? obj)))
 
 (define (process-toplevel-define form output-fasl-stream genv)
-  (let ((var (second form))
-        (val (compile-form (third form) genv #t)))
+  (let* ((var (second form))
+         (val-thunk (toplevel-form->thunk (third form) genv))
+         (val (val-thunk)))
 
     (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" var val)
     (trace-message *verbose* "; defining ~a\n" var)
@@ -108,9 +109,7 @@
     ;; error checking here???
     (scheme::%define-global var val genv)
 
-    (if (evaluated-object? val)
-        (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var val) output-fasl-stream)
-        (fasl-write-op scheme::FASL-OP-LOADER-DEFINEQ (list var val) output-fasl-stream))))
+    (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var val-thunk) output-fasl-stream)))
 
 (define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
