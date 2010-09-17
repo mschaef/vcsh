@@ -114,7 +114,7 @@
 
 (define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (compile-form form genv #t)) output-fasl-stream))
+  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (toplevel-form->thunk form genv)) output-fasl-stream))
 
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream genv)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
