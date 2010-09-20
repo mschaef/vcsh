@@ -1,4 +1,3 @@
-
 # Makefile for Scan VM
 
 .PHONY: indented
@@ -36,14 +35,16 @@ ifdef ${RANLIB}
 endif
 
 scheme${OBJ_EXT}: scheme.scf
-	../util/to-c-source scheme.scf scmSCore > scheme.cpp
+	echo \#include \"../util/base-types.h\" > scheme.cpp
+	../util/to-c-source scheme.scf scf_scheme >> scheme.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}scheme${OBJ_EXT} scheme.cpp
 
 scheme.scf:
 	$(SCC0) --cross-compile --initial-package:scheme scheme.scm
 
 compiler-run${OBJ_EXT}: compiler-run.scf
-	../util/to-c-source compiler-run.scf scmCompilerRun > compiler-run.cpp
+	echo \#include \"../util/base-types.h\" > compiler-run.cpp
+	../util/to-c-source compiler-run.scf scf_compiler_run >> compiler-run.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}compiler-run${OBJ_EXT} compiler-run.cpp
 
 compiler-run.scf: compiler-run.scm
@@ -67,4 +68,3 @@ indented:
 ifneq ($(wildcard .depend),)
 include .depend
 endif
-

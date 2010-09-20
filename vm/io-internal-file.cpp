@@ -98,22 +98,21 @@ LRef lopen_c_data_output(LRef destination, LRef var_name, LRef mode)
                      (port_mode_t) (PORT_OUTPUT | (binary ? PORT_BINARY : 0)), destination, ps);
 }
 
-void register_internal_file(const _TCHAR * filename, bool binary_data, unsigned char *data,
-                            size_t bytes)
+void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data)
 {
-     LRef file_record = lcons(strcons(filename), open_c_data_input(binary_data, data, bytes));
+     LRef file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
 
      SET_SYMBOL_VCELL(interp.sym_internal_files,
                       lcons(file_record, SYMBOL_VCELL(interp.sym_internal_files)));
 }
 
-LRef open_c_data_input(bool binary_data, unsigned char *source, size_t bytes)
+LRef open_c_data_input(bool binary_data, data_block_t *data)
 {
      c_data_port_state *ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));
 
-     ps->_bytes_transferred = 0;
-     ps->_input_buffer = source;
-     ps->_input_buffer_bytes = bytes;
+     ps->_bytes_transferred  = 0;
+     ps->_input_buffer       = data->_bytes;
+     ps->_input_buffer_bytes = data->_length;
 
      return portcons(&c_data_port_class, NIL,
                      (port_mode_t) (PORT_INPUT | (binary_data ? PORT_BINARY : 0)), NIL, ps);

@@ -22,7 +22,7 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
      for (size_t ii = 0; ii < bytes; ii++)
      {
           if ((ws->_bytes_transferred % 8) == 0)
-               fprintf(ws->_out, "\n   ");
+               fprintf(ws->_out, "\n          ");
 
           fprintf(ws->_out, "0x%02x, ", ((u8_t *) buf)[ii]);
 
@@ -39,7 +39,9 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
      s._out = out;
      s._bytes_transferred = 0;
 
-     fprintf(out, "unsigned char %s[]= {", varname);
+     fprintf(out, "struct data_block_t %s = \n", varname);
+     fprintf(out, "{\n");
+     fprintf(out, "     (u8_t []){");
 
      u8_t buf[BLOCK_SIZE];
 
@@ -57,7 +59,9 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
           total += bytes;
      }
 
-     fprintf(out, "};\n\nunsigned int %s_bytes = " SIZE_T_PRINTF_PREFIX ";\n", varname, s._bytes_transferred);
+     fprintf(out, "\n     },\n");
+     fprintf(out, "     " SIZE_T_PRINTF_PREFIX "\n", s._bytes_transferred);
+     fprintf(out, "};\n");
 }
 
 int main(int argc, char *argv[])        /* REVISIT: Enhance to map n files to 1 source file */
