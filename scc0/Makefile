@@ -11,7 +11,7 @@ all: update
 
 update:
 	cp ${SCHEME_PATH}/scheme.scf .
-	cp ${SCHEME_PATH}/fasl-compiler-run.scf .
+	cp ${SCHEME_PATH}/compiler-run.scf .
 
 %.scf: %.scm Makefile
 	$(SCC) --cross-compile --output:$@ $<
@@ -20,4 +20,4 @@ clean:
 	rm -f *.scf *~
 
 revert:
-	git checkout fasl-compiler-run.scf scheme.scf
+	git checkout compiler-run.scf scheme.scf
