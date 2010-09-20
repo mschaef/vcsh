@@ -10,6 +10,8 @@
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (ensure-package! "compiler"))
 
+(define compiler::toplevel-form->thunk) ;; Forward decl
+
 (define (eval form :optional (lenv ()) (genv #f))
   ;; TODO: Add support to the inspector for passing in lenvs when this
   ;; gets enabled
