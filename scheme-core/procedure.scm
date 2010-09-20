@@ -12,6 +12,12 @@
 
 (define compiler::toplevel-form->thunk) ;; Forward decl
 
+(define (maybe-call-with-global-environment fn genv)
+  (if (vector? genv) ;; TODO: vector? -> global-environment?.
+      (with-global-environment genv
+        (fn))
+      (fn)))
+
 (define (eval form :optional (lenv ()) (genv #f))
   ;; TODO: Add support to the inspector for passing in lenvs when this
   ;; gets enabled
@@ -26,10 +32,7 @@
                     (lambda (context-form message args)
                       (compiler::compiler-message context-form :warning message args))))
       (let ((form-fn (compiler::toplevel-form->thunk form genv)))
-        (if (vector? genv) ;; TODO: vector? -> global-environment?.
-            (with-global-environment genv
-              (form-fn))
-            (form-fn))))))
+        (maybe-call-with-global-environment form-fn genv)))))
 
 (define (valid-lambda-list? lambda-list)
   (or (symbol? lambda-list)
