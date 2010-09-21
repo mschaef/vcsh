@@ -450,9 +450,6 @@
 (define (call-with-values proc vals)
   (apply proc (%values->list vals)))
 
-(defmacro (values-bind form vars . body)
-  `(call-with-values (lambda ,vars ,@body) ,form))
-
 (defmacro (mvbind vars form . body)
   `(call-with-values (lambda ,vars ,@body) ,form))
 

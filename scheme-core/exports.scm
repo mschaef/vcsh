@@ -887,7 +887,6 @@
            use-package!
            user-break
            values
-           values-bind
            vector->list
            vector-copy
            vector-fill!
