@@ -111,7 +111,7 @@
     (let recur ((code code))
       (trace-indent port)
       (cond ((fast-op? code)
-             (values-bind (parse-fast-op code) (opcode args)
+             (mvbind (opcode args) (parse-fast-op code)
                (case opcode
                  ((:global-ref :local-ref :literal)
                   (format port "~s ~s\n" opcode (car args)))
@@ -355,7 +355,7 @@
 (define (apropos-description obj)
   "Describes the object <obj> by returning the associated documentation string."
   (define (description-lambda-list obj)
-    (values-bind (procedure-lambda-list obj) (lambda-list source-lambda-list)
+    (mvbind (lambda-list source-lambda-list) (procedure-lambda-list obj)
       (if source-lambda-list  source-lambda-list  lambda-list)))
   (define (macro-lambda-list obj)
     (let ((transformer (%macro-transformer obj)))
@@ -578,7 +578,7 @@
                                       (format (current-error-port) "; Watch Print Error: ~I" message args)
                                       (throw 'abort-watch-print))))
         (format (current-debug-port) "; ~s " watch)
-        (values-bind (catch-all (eval watch)) values
+        (mvbind values (catch-all (eval watch))
           (case (length values)
             ((0) (newline  (current-debug-port)))
             ((1) (format (current-debug-port) "=> ~s\n" (car values)))

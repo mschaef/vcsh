@@ -110,8 +110,8 @@
         (rest-arg (if (atom? l-list) l-list (cdr (last-pair l-list)))))
     (awhen (find #L(and (keyword? _) (not (memq _ '(:optional :keyword)))) explicit-args)
            (error "Unknown argument type ~s in lambda list: ~s" it explicit-args))
-    (values-bind (span #L(not (memq _ '(:optional :keyword))) explicit-args) (n-args o/k-args)
-       (values-bind (span #L(not (eq? _ :keyword)) o/k-args) (o-args k-args)
+    (mvbind (n-args o/k-args) (span #L(not (memq _ '(:optional :keyword))) explicit-args)
+       (mvbind (o-args k-args) (span #L(not (eq? _ :keyword)) o/k-args)
             (when (memq :optional k-args)
                   (error ":optional arguments may not follow keyword arguments in lambda list: ~s"
                          explicit-args))
@@ -157,7 +157,7 @@
     (if (null? r-arg)
         `(%lambda ,p-list ,l-list ,@code)
         (with-gensyms (immutable-rest)
-          (values-bind (parse-code-body code) (doc-string decls code)
+          (mvbind (doc-string decls code) (parse-code-body code)
              `(%lambda ,p-list (,@n-args . ,immutable-rest)
                 ,@(if doc-string `(,doc-string) ())
                 ,@(if decls `(,decls) ())
@@ -179,7 +179,7 @@
   (let ((p-list (list (cons 'lambda-list l-list))))
     (unless (or (eq? name #f) (null? name))
       (push! `(name . ,name) p-list))
-    (values-bind (parse-lambda-list l-list) (n-args o-args k-args r-args special?)
+    (mvbind (n-args o-args k-args r-args special?) (parse-lambda-list l-list)
       (awhen (duplicates? (append n-args (map car o-args) (map car k-args) r-args))
         (error "Duplicate formal arguments ~s in lambda list ~s" it l-list))
       (let ((rest-arg (cond ((not (null? r-args))
@@ -202,7 +202,7 @@
               ()
               `((check-keywords ,rest-arg ',(map second k-args)))))
 
-        (values-bind (parse-code-body code) (doc-string decls code)
+        (mvbind (doc-string decls code) (parse-code-body code)
           (when doc-string
             (push! `(documentation . ,doc-string) p-list))
 
@@ -284,7 +284,7 @@
   (if (generic-function? procedure)
       (values (get-property procedure 'generic-function-arity -1)
               #f)
-      (values-bind (procedure-lambda-list procedure) (lambda-list)
+      (mvbind (lambda-list) (procedure-lambda-list procedure)
         (lambda-list-arity lambda-list))))
 
 (define (get-property obj key :optional (default #f))
@@ -369,11 +369,11 @@
   established to <block-name> that allows the body forms to recursively
   call the body of the let."
   (define (expand-named-let name variables code)
-    (values-bind (parse-let-variables variables) (variable-names variable-binding-forms)
+    (mvbind (variable-names variable-binding-forms) (parse-let-variables variables)
       `(letrec ((,name (lambda ,variable-names ,@code)))
          (,name ,@variable-binding-forms))))
   (define (expand-simple-let variables forms)
-    (values-bind (parse-let-variables variables) (variable-names variable-binding-forms)
+    (mvbind (variable-names variable-binding-forms) (parse-let-variables variables)
       `((lambda ,variable-names ,@forms) ,@variable-binding-forms)))
   (cond ((null? forms) (error "Incomplete let"))
         ((symbol? (car forms)) (expand-named-let (first forms) (second forms) (cddr forms)))

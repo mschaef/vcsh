@@ -147,9 +147,8 @@
    calling all-iterate-sequence-types."
   (check symbol? loop-name)
   (check list? seqs)
-  (values-bind (parse-let-variables user-state-vars)
-      (user-state-var-names user-state-var-init-forms)
-    (define (validate-expansion expansion)
+  (mvbind (user-state-var-names user-state-var-init-forms) (parse-let-variables user-state-vars)
+   (define (validate-expansion expansion)
       ;; REVISIT: Add expansion validation here, for custom sequence developers
       expansion)
     (define (expand-iterate-sequence-clause sequence-clause)

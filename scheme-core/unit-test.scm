@@ -342,15 +342,15 @@
            (test xs ys)))))
 
 (define (values-eq? actual-values . expecteds)
-  (let ((values (values-bind actual-values xs xs)))
+  (let ((values (mvbind xs actual-values xs)))
     (shallow-list=? values expecteds eq?)))
 
 (define (values-equal? actual-values . expecteds)
-  (let ((values (values-bind actual-values xs xs)))
+  (let ((values (mvbind xs actual-values xs)))
     (shallow-list=? values expecteds equal?)))
 
 (define (dtu-lambda-list procedure)
-  (values-bind (procedure-lambda-list procedure) (real-ll source-ll)
+  (mvbind (real-ll source-ll) (procedure-lambda-list procedure)
     (if source-ll source-ll real-ll)))
 
 

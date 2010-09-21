@@ -43,9 +43,9 @@
           (format *compiler-output-port* " ~s"arg))
         (newline *compiler-output-port*)))
     (if trace?
-        (values-bind (parse-label) (from-label to-label)
+        (mvbind (from-label to-label) (parse-label)
           (message ">" from-label args)
-          (values-bind (in-trace-level (apply fn args)) results
+          (mvbind results (in-trace-level (apply fn args))
             (message "<" to-label results)
             (apply values results)))
         (apply fn args))))

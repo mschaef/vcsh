@@ -143,7 +143,7 @@
            (values (first proto-name) (second proto-name)))
           (#t
            (error "Invalid proto name specification, must be either <name> or ( <name> <base> ): ~s" proto-name))))
-  (values-bind (parse-proto-name) (name base)
+  (mvbind (name base) (parse-proto-name)
     (unless (symbol? name)
       (error "Proto names must be symbols: ~s" name))
     (unless (or (null? name) (symbol? name))
@@ -251,7 +251,7 @@
   (and (instance-with-slot? obj message-name)
        (aand (slot-ref obj message-name)
              (procedure? it)
-             (values-bind (procedure-arity it) (arity rest?)
+             (mvbind (arity rest?) (procedure-arity it)
                (> arity 0)))))
 
 ;;; Generic Functions
@@ -342,7 +342,7 @@
     (unless (every? symbol? fn-args)
       (error "Generic function argument names must be symbols: ~a" fn-args))
 
-    (values-bind (parse-code-body code) (doc-string declarations code)
+    (mvbind (doc-string declarations code) (parse-code-body code)
       (with-gensyms (function-sym)
         `(begin
            (%define-global ',fn-name (%generic-function ',fn-name ,(length fn-args) ,doc-string))

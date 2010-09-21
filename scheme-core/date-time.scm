@@ -25,7 +25,7 @@
 
 
 (defmacro (receive formals expression . body)
-  `(values-bind ,expression ,formals ,@body))
+  `(mvbind ,formals ,expression ,@body))
 
 ;;; -- we want receive later on for a couple of small things
 ;;

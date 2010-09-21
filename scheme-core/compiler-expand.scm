@@ -28,7 +28,7 @@
        (values #f form)))
 
 (define (compiler-macroexpand form genv at-toplevel?)
-  (values-bind (compiler-macroexpand-1 form genv at-toplevel?) (expanded? expanded-form)
+  (mvbind (expanded? expanded-form) (compiler-macroexpand-1 form genv at-toplevel?)
     (if expanded?
         (compiler-macroexpand expanded-form genv at-toplevel?)
         form)))
@@ -159,7 +159,7 @@
     (values situations forms)))
 
 (define (expand/eval-when form genv at-toplevel?)
-  (values-bind (parse-eval-when form) (situations forms)
+  (mvbind (situations forms) (parse-eval-when form)
     (if (member :load-toplevel situations)
         `(begin ,@(translate-form-sequence forms #t genv at-toplevel?))
         #f)))
@@ -181,7 +181,7 @@
            ((begin)               (expand/begin       form genv at-toplevel?))
            ((eval-when)           (expand/eval-when   form genv at-toplevel?))
            (#t
-            (values-bind (maybe-expand-user-macro form genv at-toplevel?) (expanded? expanded-form)
+            (mvbind (expanded? expanded-form) (maybe-expand-user-macro form genv at-toplevel?)
               (cond (expanded?
                      (expand-form expanded-form genv at-toplevel?))
                     ((atom? expanded-form)

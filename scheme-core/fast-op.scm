@@ -56,7 +56,7 @@
           (values opcode args)))))
 
 (define (fast-op-args fast-op)
-  (values-bind (parse-fast-op fast-op) (opcode args)
+  (mvbind (opcode args) (parse-fast-op fast-op)
      args))
 
 (define (assemble-fast-op op . args)

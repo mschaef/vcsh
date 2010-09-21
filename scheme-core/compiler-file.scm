@@ -58,7 +58,7 @@
 (define process-toplevel-forms) ; forward
 
 (define (process-toplevel-eval-when form load-time-eval? compile-time-eval? *toplevel-forms* genv)
-  (values-bind (parse-eval-when form) (situations forms)
+  (mvbind (situations forms) (parse-eval-when form)
     (let ((load-time-eval? (and load-time-eval? (member :load-toplevel situations)))
           (compile-time-eval? (or (member :compile-toplevel situations)
                                   (and compile-time-eval?
@@ -132,7 +132,7 @@
       ((eval-when)
        (process-toplevel-eval-when form load-time-eval? compile-time-eval? output-fasl-stream genv))
       (#t
-       (values-bind (maybe-expand-user-macro form genv #t) (expanded? expanded-form)
+       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form genv #t)
          (cond (expanded?
                 (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream genv))
                (#t

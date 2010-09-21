@@ -199,7 +199,7 @@
  "Splits <string> at each delimiter <delim>, returning a list of all
   substrings between each delimiter. There is an implicit delimiter
   at the end of the string."
- (values-bind (split-string-once string delim) (before after)
+ (mvbind (before after) (split-string-once string delim)
    (if after
        (cons before (split-string after delim))
        (cons before))))

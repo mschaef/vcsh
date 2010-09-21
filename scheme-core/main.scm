@@ -32,10 +32,10 @@
      or #\\=, with the option value following. All non-option arguments
      are lumped into a list, keyed by the symbol 'filenames."
     (define (split-option-arg arg)
-      (values-bind (split-string-once arg #\:) (var val)
+      (mvbind (var val) (split-string-once arg #\:)
          (if val
              (cons var val)
-             (values-bind (split-string-once arg #\=) (var val)
+             (mvbind (var val) (split-string-once arg #\=)
                 (cons var val)))))
 
     (map (lambda (arg)
@@ -101,7 +101,7 @@
                (unless (valid-lambda-list? args)
                  (error "Invalid arguments ~s in command argument lambda-list: ~s." args original))
                (values (car l-list) (cdr l-list)))))))
-  (values-bind (parse-command-argument-lambda-list l-list) (names args)
+  (mvbind (names args) (parse-command-argument-lambda-list l-list)
      (when (> (length args) 1)
        (error "Command arguments taking more than one argument are currently unsupported: ~s" names)) ; TODO: Fix this
      `(extend-command-argument-bindings! ',names (lambda ,args ,@code))))
@@ -280,7 +280,7 @@
 (define (show-command-help)
   "Shows command line help listing all current command line option bindings."
   (define (show-option-handler-lambda-list option-handler)
-    (values-bind (procedure-lambda-list option-handler) (rt-l-list source-l-list)
+    (mvbind (rt-l-list source-l-list) (procedure-lambda-list option-handler)
       (cond ((eq? source-l-list #f) "--- Unknown Argument List ---") ;; Should only happen when the lambda-list procedure prop is stripped off
             ((null? source-l-list) ())
             (#t (format #t "=<~a>" (symbol-name (car source-l-list)))))))

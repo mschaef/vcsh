@@ -217,7 +217,7 @@
   "Evaluates <form> in environment <env>, suppressing errors and returning
   return values as a list, rather than as multiple values."
   (with-repl-error-handling "evaluation"
-   (values-bind (time (eval `(scheme::%mark-stack 'system-stack-boundary ,form) env)) results
+   (mvbind results (time (eval `(scheme::%mark-stack 'system-stack-boundary ,form) env))
      results)))
 
 (define *repl-pre-read-hook* ())

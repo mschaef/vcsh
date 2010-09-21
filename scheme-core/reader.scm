@@ -463,7 +463,7 @@
              (if (or (eq? package-qualifier :private-symbol)
                      (eq? *package* sym-package))
                  (intern! segment-2 sym-package)
-                 (values-bind (find-symbol segment-2 sym-package) (sym status)
+                 (mvbind (sym status) (find-symbol segment-2 sym-package)
                    (unless sym
                      (read-error :read-error-symbol-not-found-in-package error-port error-location segment-2 sym-package))
                    (unless (eq? status :external)

@@ -374,7 +374,7 @@
    package (:internal, :external, or :inherited). If the symbol
    is not found, both values are returned as #f."
   (let ((package (->package package)))
-    (values-bind (find-symbol-record name package) (srec spkg)
+    (mvbind (srec spkg) (find-symbol-record name package)
       (cond ((not srec)
              (values #f #f))
             ((not (eq? spkg package))
@@ -384,7 +384,7 @@
 
 (define (intern! name :optional (package *package*))
   (let ((package (->package package #L(error "Target package for intern! not found: ~a" _))))
-    (values-bind (find-symbol-record name package) (srec spkg)
+    (mvbind (srec spkg) (find-symbol-record name package)
       (if (and srec (or (cdr srec) (eq? spkg package)))
           (car srec)
           (let ((sym (string->uninterned-symbol name)))
@@ -442,7 +442,7 @@
    If <symbol> is not a symbol, throws an error."
   (check symbol? symbol)
   (aif (symbol-package symbol)
-       (values-bind (find-symbol (symbol-name symbol) it) (sym status)
+       (mvbind (sym status) (find-symbol (symbol-name symbol) it)
          (eq? status :external))
        #f))
 
@@ -455,7 +455,7 @@
    symbol or <package> is not a package."
   (check symbol? sym)
   (let ((package (->package package #L(error "Target package for unintern not found: ~a" _))))
-    (values-bind (find-symbol sym package) (psym visibility)
+    (mvbind (psym visibility) (find-symbol sym package)
       (when (and (eq? psym sym)
                  (not (eq? visibility :inherited)))
         (hash-remove! (%package-bindings package) (symbol-name sym))

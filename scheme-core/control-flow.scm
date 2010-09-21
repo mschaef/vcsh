@@ -120,7 +120,7 @@
 
   (if (null? clauses)
       '(values)
-      (values-bind (parse-cond-clause (car clauses)) (guard body)
+      (mvbind (guard body) (parse-cond-clause (car clauses))
         (cond ((provably-always-true? guard)
                ;; In this case, clauses after an 'always' clause will
                ;; always get ignored. Does this warrant a warning?

@@ -237,7 +237,7 @@
        (fast-write-integer (char->integer object) 1 #f port))
 
       ((cons)
-       (values-bind (length-excluding-shared object shared-structure-table) (len dotted?)
+       (mvbind (len dotted?) (length-excluding-shared object shared-structure-table)
 	 (fast-write-opcode (if dotted? FASL-OP-LISTD FASL-OP-LIST) port)
 	 (check-sharing-and-write len)
 	 (let loop ((i 0) (xs object))
@@ -325,7 +325,7 @@
            (check-sharing-and-write (%structure-ref object ii)))))
 
       ((fast-op)
-       (values-bind (parse-fast-op object #f) (fop-opcode args)
+       (mvbind (fop-opcode args) (parse-fast-op object #f)
           (fast-write-opcode (case (length args)
                                ((0) FASL-OP-FAST-OP-0)
                                ((1) FASL-OP-FAST-OP-1)

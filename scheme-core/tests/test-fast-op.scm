@@ -20,7 +20,7 @@
 
     (test-case (equal? '() (scheme::fast-op-args op-0)))
 
-    (values-bind (scheme::parse-fast-op op-0) (op args)
+    (mvbind (op args) (scheme::parse-fast-op op-0)
        (test-case (eq? :test-fast-op/arity-0 op))
        (test-case (equal? '() args))))
 
@@ -36,7 +36,7 @@
 
     (test-case (equal? '(:operand-1) (scheme::fast-op-args op-1)))
 
-    (values-bind (scheme::parse-fast-op op-1) (op args)
+    (mvbind (op args) (scheme::parse-fast-op op-1)
        (test-case (eq? :test-fast-op/arity-1 op))
        (test-case (equal? '(:operand-1) args))))
 
@@ -53,7 +53,7 @@
 
     (test-case (equal? '(:operand-1 :operand-2) (scheme::fast-op-args op-2)))
 
-    (values-bind (scheme::parse-fast-op op-2) (op args)
+    (mvbind (op args) (scheme::parse-fast-op op-2)
        (test-case (eq? :test-fast-op/arity-2 op))
        (test-case (equal? '(:operand-1 :operand-2) args))))
 
@@ -71,7 +71,7 @@
 
     (test-case (equal? '(:operand-1 :operand-2 :operand-3) (scheme::fast-op-args op-3)))
 
-    (values-bind (scheme::parse-fast-op op-3) (op args)
+    (mvbind (op args) (scheme::parse-fast-op op-3)
        (test-case (eq? :test-fast-op/arity-3 op))
        (test-case (equal? '(:operand-1 :operand-2 :operand-3) args))))
 

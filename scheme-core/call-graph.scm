@@ -9,7 +9,7 @@
 (define (closure-global-bindings fn)
   (list->set/eq
    (let recur ((fast-op (cdr (scheme::%closure-code fn))))
-     (values-bind (scheme::parse-fast-op fast-op) (opcode args)
+     (mvbind (opcode args) (scheme::parse-fast-op fast-op)
        (case opcode
          ((:literal :local-ref :get-env)
           ())

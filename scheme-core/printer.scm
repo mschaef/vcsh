@@ -219,7 +219,7 @@
          (when *print-addresses*
            (write-strings port "@#x" (%obaddr-string obj))))
         ((and (not *print-packages-always*)
-              (values-bind (find-symbol (symbol-name obj) *package*) (found-sym status)
+              (mvbind (found-sym status) (find-symbol (symbol-name obj) *package*)
                 (eq? found-sym obj)))
          (write-symbol-string port (symbol-name obj)))
         ((keyword? obj)
@@ -308,7 +308,7 @@
 
 (define-method (print-object (obj values-tuple) port machine-readable? shared-structure-map)
   (print-unreadable-object obj port
-    (print (values-bind obj vals vals) port machine-readable? #f)))
+    (print (mvbind vals obj vals) port machine-readable? #f)))
 
 (define-method (print-object (obj string) port machine-readable? shared-structure-map)
   (define (print-machine-string string port)
@@ -345,7 +345,7 @@
   (unreadable (write-strings port "#<UNBOUND-MARKER>")))
 
 (define-method (print-object (obj fast-op) port machine-readable? shared-structure-map)
-  (values-bind (parse-fast-op obj) (op-name args)
+  (mvbind (op-name args) (parse-fast-op obj)
      (print-unreadable-object obj port
        (print op-name port machine-readable? shared-structure-map)
        (dolist (arg args)

@@ -638,7 +638,7 @@
         (values '() '())
         (let ((x (car xs)))
           (if (pred? x)
-              (values-bind (recur (cdr xs)) (prefix suffix)
+              (mvbind (prefix suffix) (recur (cdr xs))
                 (values (cons x prefix) suffix))
               (values '() xs))))))
 
