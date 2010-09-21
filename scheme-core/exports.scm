@@ -488,6 +488,7 @@
            key-list->hash
            keyword?
            lambda
+           lambda-list-arity
            last
            last-pair
            leap-year?

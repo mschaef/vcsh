@@ -5,7 +5,6 @@
   name
   arity)
 
-
 (define *fast-op-names* (make-hash :eq))
 (define *fast-op-opcodes* (make-hash :eq))
 

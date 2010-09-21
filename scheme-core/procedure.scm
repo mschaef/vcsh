@@ -269,18 +269,23 @@
         (#t
          (error "Expected procedure, ~a" procedure))))
 
+(define (lambda-list-arity lambda-list)
+  "Returns two values, the first is the arity of <lambda-list>, the second
+   is a boolean indicating if <lambda-list> accepts a rest argument."
+  (let loop ((arg-count 0) (lambda-list lambda-list))
+    (cond ((null? lambda-list) (values arg-count #f))
+          ((symbol? lambda-list) (values arg-count #t))
+          (#t
+           (loop (+ 1 arg-count) (cdr lambda-list))))))
+
 (define (procedure-arity procedure)
   "Returns two values, the first is the arity of <procedure>, the second
-   is a boolean indicating if <procedurer> takes a rest argument."
+   is a boolean indicating if <procedure> takes a rest argument."
   (if (generic-function? procedure)
       (values (get-property procedure 'generic-function-arity -1)
               #f)
       (values-bind (procedure-lambda-list procedure) (lambda-list)
-        (let loop ((arg-count 0) (lambda-list lambda-list))
-          (cond ((null? lambda-list) (values arg-count #f))
-                ((symbol? lambda-list) (values arg-count #t))
-                (#t
-                 (loop (+ 1 arg-count) (cdr lambda-list))))))))
+        (lambda-list-arity lambda-list))))
 
 (define (get-property obj key :optional (default #f))
   "Given <procdure>, determine the value of the property named by <key>. If the
