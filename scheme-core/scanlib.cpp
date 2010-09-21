@@ -8,17 +8,18 @@
 
 #include "../vm/scan.h"
 
-extern data_block_t scf_fasl_compiler_run;
+extern data_block_t scf_compiler_run;
 extern data_block_t scf_scheme;
 
 BEGIN_NAMESPACE(scan)
+
 void scanlib_register_internal_files();
 
 void init1()
 {
      /* Load and evaluate the .scm initialization code */
 
-     register_internal_file(_T("fasl-compiler-run"), true, &scf_fasl_compiler_run);
+     register_internal_file(_T("compiler-run"), true, &scf_compiler_run);
      register_internal_file(_T("s-core"), true, &scf_scheme);
 
      ENTER_TRY(NIL)
