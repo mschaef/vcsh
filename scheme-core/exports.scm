@@ -574,6 +574,7 @@
            modified-julian-day->time-tai
            modified-julian-day->time-utc
            modulo
+           mvbind
            name->string
            name?
            nan?

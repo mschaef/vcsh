@@ -453,6 +453,9 @@
 (defmacro (values-bind form vars . body)
   `(call-with-values (lambda ,vars ,@body) ,form))
 
+(defmacro (mvbind vars form . body)
+  `(call-with-values (lambda ,vars ,@body) ,form))
+
 ;;; A way to place markers on the frame stack
 
 (defmacro (with-stack-marker tag . code)
