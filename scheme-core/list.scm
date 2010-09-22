@@ -1059,6 +1059,36 @@
 ;;               xs
 ;;               (cons x new-tail))))))
 
+
+(defmacro (dbind-matches? binding value)
+  (define (find-dbind-match-predicates binding value)
+    ;; REVISIT: no dbind specific typechecking. Does this matter?
+    (cond ((symbol? binding)
+           ())
+          ((pair? binding)
+           `((pair? ,value)
+             ;; REVISIT: this generates inefficient code with repeated calls to cdr
+             ,@(find-dbind-match-predicates (car binding) `(car ,value))
+             ,@(find-dbind-match-predicates (cdr binding) `(cdr ,value))))
+          ((vector? binding)
+           `((vector? ,value)
+             (= (length ,value) ,(length binding))
+
+             ,@(let loop ((ii 0))
+                 (if (= ii (length binding))
+                     ()
+                     `(,@(find-dbind-match-predicates (vector-ref binding ii) `(vector-ref ,value ,ii))
+                       ,@(loop (+ ii 1)))))
+             ))
+          ((null? binding)
+           ())
+          (#t
+           (error "Invalid dbind binding: ~s" binding))))
+
+  (with-gensyms (value-sym)
+    `(let ((,value-sym ,value))
+       (and ,@(find-dbind-match-predicates binding value-sym)))))
+
 (defmacro (dbind binding value . code)
   (define (find-dbind-binding-forms binding value)
     ;; REVISIT: no dbind specific typechecking. Does this matter?
@@ -1078,7 +1108,7 @@
            ())
           (#t
            (error "Invalid dbind binding: ~s" binding))))
-  (with-gensyms(value-sym)
+  (with-gensyms (value-sym)
    `(let ((,value-sym ,value))
       (let (,@(find-dbind-binding-forms binding value-sym))
         ,@code))))
