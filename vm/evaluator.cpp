@@ -54,7 +54,11 @@ LRef find_subr_by_name(LRef subr_name)
      assert(STRINGP(subr_name));
      assert(HASHP(subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
 
-     return lhash_ref(subr_table, subr_name, NIL);
+     LRef argv[2];
+     argv[0] = subr_table;
+     argv[1] = subr_name;
+
+     return lhash_ref(2, argv);
 }
 
 /**************************************************************

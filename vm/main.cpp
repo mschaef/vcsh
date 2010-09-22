@@ -474,7 +474,7 @@ static void register_main_subrs()
     register_subr(_T("hash-copy"),                        SUBR_1,     (void*)lhash_copy                          );
     register_subr(_T("hash-for-each"),                    SUBR_2,     (void*)lhash_foreach                       );
     register_subr(_T("hash-has?"),                        SUBR_2,     (void*)lhash_hasp                          );
-    register_subr(_T("hash-ref"),                         SUBR_3,     (void*)lhash_ref                           );
+    register_subr(_T("hash-ref"),                         SUBR_ARGC,  (void*)lhash_ref                           );
     register_subr(_T("hash-ref*"),                        SUBR_2,     (void*)lhash_refs                          );
     register_subr(_T("hash-remove!"),                     SUBR_2,     (void*)lhash_remove                        );
     register_subr(_T("hash-set!"),                        SUBR_3,     (void*)lhash_set                           );

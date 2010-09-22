@@ -19,10 +19,7 @@
 
 (define (hash-push! hash key value)
   "Push <value> onto the list in hash table <hash>, referred to by <key>."
-  (let ((previous-list (if (hash-has? hash key)
-                           (hash-ref hash key)
-                           ())))
-    (hash-set! hash key (cons value previous-list))))
+  (hash-set! hash key (cons value (hash-ref hash key ()))))
 
 (defmacro (dohash head . body)
   (unless (list? head)

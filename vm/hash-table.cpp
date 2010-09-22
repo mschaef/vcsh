@@ -443,11 +443,21 @@ LRef lhash_refs(LRef hash, LRef key)
      return lcons(entry->_key, entry->_val);
 }
 
-/*  TODO: Switch lhash_ref to SUBR_ARGS, so that it can return () for a lookup failure. */
-LRef lhash_ref(LRef hash, LRef key, LRef defaultValue)
+
+LRef lhash_ref(size_t argc, LRef argv[])
 {
-     if (NULLP(defaultValue))
-          defaultValue = boolcons(false);
+     LRef hash = NIL;
+     LRef key = NIL;
+     LRef defaultValue = boolcons(false);
+
+     if (argc > 0)
+          hash = argv[0];
+
+     if (argc > 1)
+          key = argv[1];
+
+     if (argc > 2)
+          defaultValue = argv[2];
 
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);

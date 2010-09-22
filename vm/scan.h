@@ -1969,7 +1969,7 @@ LRef lhash_copy(LRef hash);
 LRef lhash_foreach(LRef closure, LRef hash);
 LRef lhash_hasp(LRef table, LRef key);
 LRef lhash_key(LRef obj);
-LRef lhash_ref(LRef table, LRef key, LRef defaultValue);
+LRef lhash_ref(size_t argc, LRef argv[]);
 LRef lhash_refs(LRef table, LRef key);
 LRef lhash_remove(LRef table, LRef key);
 LRef lhash_set(LRef table, LRef key, LRef value);
