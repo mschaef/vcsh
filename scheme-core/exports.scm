@@ -163,6 +163,7 @@
            begin-1
            begin-2
            binary-port?
+           bind-if-match
            bit-set?
            bits->exact
            bitwise-and
@@ -559,6 +560,7 @@
            map
            map-pair
            match?
+           match-pattern-variables
            matches-glob?
            max
            member

@@ -909,6 +909,56 @@
 ;; REVISIT: need configurable equal?/eq? predicate for match? ?
 ;; REVISIT: Add ?? ?? key/value pattern var for matching 'extra slots'
 
+(define (match-pattern-var? var)
+  (and (symbol? var)
+       (char=? (string-ref (symbol-name var) 0) #\?)))
+
+(define (match-universal-pattern-var? var)
+  (and (match-pattern-var? var)
+       (equal? (symbol-name var) "??")))
+
+
+(define (match-pattern-variables pat)
+  "Returns the list of match variables in match pattern <pat>. See match?
+   for more details on matching patterns."
+  (define (maybe-extend-var-list var vars)
+    (aif (memq var vars)
+         vars
+         (cons var vars)))
+
+  (let recur ((pat pat) (vars ()))
+    (cond ((match-pattern-var? pat)
+           (maybe-extend-var-list pat vars))
+
+          ((pair? pat)
+           (recur (cdr pat) (recur (car pat) vars)))
+
+          ((structure? pat)
+           (let loop ((slots (structure-slots pat)) (vars vars))
+             (if (null? slots)
+                 vars
+                 (loop (cdr slots) (recur (structure-slot-by-name pat (car slots)) vars)))))
+
+          ((hash? pat) 
+           (let ((keys (hash-keys pat)))
+             (let loop ((keys keys) (vars vars))
+               (cond ((null? keys)
+                      vars)
+                     ((match-pattern-var? (car keys))
+                      (error "Match pattern variables not allowed in hash keys: ~s" pat))
+                     ((hash-has? pat (car keys))
+                      (loop (cdr keys) (recur (hash-ref pat (car keys)) vars)))
+                     (#t
+                      #f)))))
+
+          ((vector? pat)
+           (let loop ((ii 0) (vars vars))
+             (if (>= ii (length pat))
+                 vars
+                 (loop (+ ii 1) (recur (vector-ref pat ii) vars)))))
+          (#t
+           vars))))
+
 (define (match? pat form)
   "Determines if <form> matches pattern <pat>.  A form matches a pattern if
    it can be equal? to the pattern with a consistent set of pattern variable
@@ -919,12 +969,6 @@
    are special pattern variables that do not establish a binding; These pattern
    variables are universal and can match anything anywere.  Returns an a-list
    ((<var> . <val>) ... ) if <form> matches, and #f otherwise."
-  (define (pattern-var? var)
-    (and (symbol? var)
-         (char=? (string-ref (symbol-name var) 0) #\?)))
-  (define (universal-pattern-var? var)
-    (and (pattern-var? var)
-         (equal? (symbol-name var) "??")))
   (define (maybe-extend-env? env var val)
     (aif (assq var env)
          (if (equal? val (cdr it))
@@ -934,8 +978,8 @@
   (let recur ((pat pat) (form form) (env ()))
     (cond ((not env)
            #f)
-          ((pattern-var? pat)
-           (if (universal-pattern-var? pat)
+          ((match-pattern-var? pat)
+           (if (match-universal-pattern-var? pat)
                env
                (maybe-extend-env? env pat form)))
           ((and (pair? pat) (pair? form))
@@ -955,7 +999,7 @@
                       (eq? (hash-type pat) (hash-type form)))
                  (let loop ((keys pat-keys) (nenv env))
                    (cond ((null? keys) nenv)
-                         ((pattern-var? (car keys))
+                         ((match-pattern-var? (car keys))
                           (error "Match pattern variables not allowed in hash keys: ~s" pat))
                          ((hash-has? form (car keys))
                           (loop (cdr keys)
@@ -977,6 +1021,14 @@
           (#t
            #f))))
 
+(defmacro (bind-if-match pat val if-true-form if-false-form)
+  (with-gensyms (match-var)
+     (let ((pat-vars (match-pattern-variables pat)))
+       `(let ((,match-var (match? ',pat ,val)))
+          (if ,match-var
+              (let (,@(map #L(list _ `(cdr (assq ',_ ,match-var))) pat-vars))
+                ,if-true-form)
+              ,if-false-form)))))
 
 (define (p-list-fold kons knil l)
   "The fundamental list iterator, for Common Lisp style property lists. (Lists
