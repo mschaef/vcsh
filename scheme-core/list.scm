@@ -1112,6 +1112,28 @@
 ;;               (cons x new-tail))))))
 
 
+(define (dbind-match-variables binding)
+  "Returns the list of all match variables in the dbind pattern
+   <binding>. If a variable appears more than once in the pattern,
+   it will appear more than once in the list of variables."
+  (let recur ((binding binding))
+    (cond ((symbol? binding)
+           `(,binding))
+          ((pair? binding)
+           `(,@(recur (car binding))
+             ,@(recur (cdr binding))))
+          ((vector? binding)
+           `(,@(let loop ((ii 0))
+                 (if (= ii (length binding))
+                     ()
+                     `(,@(loop (+ ii 1))
+                       ,@(recur (vector-ref binding ii)))))
+             ))
+          ((null? binding)
+           ())
+          (#t
+           (error "Invalid dbind binding: ~s" binding)))))
+
 (defmacro (dbind-matches? binding value)
   (define (find-dbind-match-predicates binding value)
     ;; REVISIT: no dbind specific typechecking. Does this matter?
