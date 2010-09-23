@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 
 #define CONST_C_HEADER
-#include "constants.h"
+#include "constants.i"
 #undef CONST_C_HEADER
 
 BEGIN_NAMESPACE(scan)

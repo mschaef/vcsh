@@ -1,5 +1,5 @@
 /*
- * constants.h
+ * constants.i
  * 
  * Constant tables. This file is pre-processed twice: once to get the
  * constants defined in the VM, and a second time to generate scheme
