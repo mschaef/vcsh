@@ -6,8 +6,6 @@
 
 #include "scan.h"
 
-#include "fasl-file.h"
-
 /*  REVISIT: It would be nice if this emitted something directly loadable via the scheme reader */
 
 /*  REVISIT: There are a few places where size_t's are printed with %08zx, which truncates on */

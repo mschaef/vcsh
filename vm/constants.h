@@ -7,18 +7,24 @@
  */
 
 #ifdef CONST_SCHEME
-#  define BEGIN_VM_CONSTANT_TABLE(table_name)
+#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name)
 #  define VM_CONSTANT(name, value) (define system::name value)
 #  define END_VM_CONSTANT_TABLE
 #endif
 
-#ifdef CONST_C
-#  define BEGIN_VM_CONSTANT_TABLE(table_name) enum table_name {
+#ifdef CONST_C_HEADER
+#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) enum table_name {
 #  define VM_CONSTANT(name, value) name = value,
 #  define END_VM_CONSTANT_TABLE };
 #endif
 
-BEGIN_VM_CONSTANT_TABLE(fast_op_t)
+#ifdef CONST_C_IMPL
+#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) const _TCHAR *name_fn_name(table_name val) { switch(val) {
+#  define VM_CONSTANT(name, value)  case name: return _T("name");
+#  define END_VM_CONSTANT_TABLE default: return NULL; } }
+#endif
+
+BEGIN_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_NIL,                  1  )
     VM_CONSTANT(FASL_OP_TRUE,                 2  )
     VM_CONSTANT(FASL_OP_FALSE,                3  )
@@ -58,13 +64,16 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_t)
     VM_CONSTANT(FASL_OP_READER_DEFINITION,    193)
     VM_CONSTANT(FASL_OP_READER_REFERENCE,     194)
     VM_CONSTANT(FASL_OP_LOADER_DEFINEQ,       208)
+     /*  209 is the former FASL_OP_LOADER_DEFINE (which invoked the evaluator to determine the definition value.) */
     VM_CONSTANT(FASL_OP_LOADER_DEFINEA0,      210)
     VM_CONSTANT(FASL_OP_LOADER_APPLY0,        216)
     VM_CONSTANT(FASL_OP_BEGIN_LOAD_UNIT,      224)
     VM_CONSTANT(FASL_OP_END_LOAD_UNIT,        225)
+    VM_CONSTANT(FASL_OP_EOF,                  253)
+    /*  254, 255 reserved for Unicode Byte Order Marker */
 END_VM_CONSTANT_TABLE
 
-BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t)
+BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
     VM_CONSTANT(FOP_LITERAL,                  8  )
     VM_CONSTANT(FOP_GLOBAL_REF,               16 )
     VM_CONSTANT(FOP_GLOBAL_SET,               17 )

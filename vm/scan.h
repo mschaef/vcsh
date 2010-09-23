@@ -25,6 +25,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#define CONST_C_HEADER
+#include "constants.h"
+#undef CONST_C_HEADER
+
 BEGIN_NAMESPACE(scan)
 extern i64_t malloc_bytes;      /* REVISIT: Should this be u64_t? */
 
