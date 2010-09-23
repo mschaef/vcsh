@@ -17,7 +17,6 @@ BEGIN_NAMESPACE(scan)
 enum
 {
      MAX_READER_DEFINITIONS = 200000, /*  REVISIT: MAX_READER_DEFINITIONS should be dynamic */
-
      STRBUF_SIZE = 256,
 };
 

@@ -17,13 +17,13 @@ SH0_OBJS=scansh0${OBJ_EXT}
 SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.cpp)
 
 VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
+       constants${OBJ_EXT} \
        core${OBJ_EXT} \
        debug-printer${OBJ_EXT} \
        debug-tools${OBJ_EXT} \
        error${OBJ_EXT} \
        evaluator${OBJ_EXT} \
        fasl${OBJ_EXT} \
-       fasl-utils${OBJ_EXT} \
        hash-table${OBJ_EXT} \
        instance${OBJ_EXT} \
        io${OBJ_EXT} \
@@ -46,7 +46,7 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
 
 VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.cpp)
 
-FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} fasl-utils${OBJ_EXT} $(PLATFORM)-sys${OBJ_EXT} malloc${OBJ_EXT}
+FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} constants${OBJ_EXT} $(PLATFORM)-sys${OBJ_EXT} malloc${OBJ_EXT}
 
 FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:${OBJ_EXT}=.cpp)
 
@@ -63,7 +63,7 @@ depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 indented:
-	gnuindent ${VM_SRCS} fasl-file.h mt19937.h scan.h sys.h constants.i
+	gnuindent ${VM_SRCS} mt19937.h scan.h sys.h constants.i
 
 %${OBJ_EXT}: %.cpp Makefile scan.h
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<

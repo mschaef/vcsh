@@ -2,29 +2,31 @@
 /*
  * constants.i
  * 
- * Constant tables. This file is pre-processed twice: once to get the
- * constants defined in the VM, and a second time to generate scheme
- * code that's incorporated into the scheme image.
+ * Constant tables. This file is processed multiple times, with different
+ * CONST_* flags set each time. 
  */
 
 /* *INDENT-OFF* */
 
-#ifdef CONST_SCHEME
-#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name)
-#  define VM_CONSTANT(name, value) (define system::name value)
-#  define END_VM_CONSTANT_TABLE
-#endif
-
+/* Defined when included as a header file to emit enumerations and prototypes. */
 #ifdef CONST_C_HEADER
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) enum table_name {
 #  define VM_CONSTANT(name, value) name = value,
-#  define END_VM_CONSTANT_TABLE };
+#  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) }; const _TCHAR *name_fn_name(const table_name val); 
 #endif
 
+/* Defined when included as a source file to emit const->string mapping functions. */
 #ifdef CONST_C_IMPL
-#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) const _TCHAR *name_fn_name(table_name val) { switch(val) {
-#  define VM_CONSTANT(name, value)  case name: return _T("name");
-#  define END_VM_CONSTANT_TABLE default: return NULL; } }
+#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) const _TCHAR *name_fn_name(const table_name val) { switch(val) {
+#  define VM_CONSTANT(name, value)  case name: return _T(#name);
+#  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) default: return NULL; } }
+#endif
+
+/* Defined to scheme source included by the scheme-core compile. */
+#ifdef CONST_SCHEME
+#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name)
+#  define VM_CONSTANT(name, value) (define system::name value)
+#  define END_VM_CONSTANT_TABLE(table_name, name_fn_name)
 #endif
 
 BEGIN_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
@@ -74,7 +76,7 @@ BEGIN_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_END_LOAD_UNIT,        225)
     VM_CONSTANT(FASL_OP_EOF,                  253)
     /*  254, 255 reserved for Unicode Byte Order Marker */
-END_VM_CONSTANT_TABLE
+END_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
 
 BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
     VM_CONSTANT(FOP_LITERAL,                  8  )
@@ -91,6 +93,10 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
     VM_CONSTANT(FOP_GET_ENV,                  224)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
     VM_CONSTANT(FOP_MARK_STACK,               248)
-END_VM_CONSTANT_TABLE
+END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
+
+#undef BEGIN_VM_CONSTANT_TABLE
+#undef VM_CONSTANT
+#undef END_VM_CONSTANT_TABLE
 
 /* *INDENT-ON */

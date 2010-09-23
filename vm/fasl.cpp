@@ -5,9 +5,7 @@
  * This is the FASL loader: it reads FASL format objects from a binary port.
  */
 
-
 #include "scan.h"
-#include "fasl-file.h"
 
 /* REVISIT: Possible improvement to FASL read/write
  *

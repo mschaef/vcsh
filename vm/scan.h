@@ -25,11 +25,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+BEGIN_NAMESPACE(scan)
+
 #define CONST_C_HEADER
 #include "constants.i"
 #undef CONST_C_HEADER
 
-BEGIN_NAMESPACE(scan)
 extern i64_t malloc_bytes;      /* REVISIT: Should this be u64_t? */
 
 /*** Interpreter Paramaters ***/
@@ -1683,36 +1684,8 @@ LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3);
 LRef lfast_op_opcode(LRef fastop);
 LRef lfast_op_args(LRef fastop);
 
-enum fast_op_opcode_t
-{
-     FOP_LITERAL = 8,
-     FOP_GLOBAL_REF = 16,
-     FOP_GLOBAL_SET = 17,
-     FOP_LOCAL_REF = 18,
-     FOP_LOCAL_SET = 19,
-
-     FOP_APPLY = 24,
-
-     FOP_IF_TRUE = 32,
-
-     FOP_AND2 = 64,
-     FOP_OR2 = 65,
-
-     FOP_SEQUENCE = 96,
-
-     FOP_CLOSE_ENV = 128,
-
-     FOP_GET_ENV = 224,
-
-     FOP_GLOBAL_DEF = 240,
-
-     FOP_MARK_STACK = 248,
-};
-
 /**** Input/Output ****/
 const LRef DEFAULT_PORT = NIL;
-
-
 
 INLINE LRef CURRENT_TIMER_EVENT_HANDLER()
 {
