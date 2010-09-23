@@ -1,3 +1,4 @@
+
 /*
  * constants.i
  * 
@@ -5,6 +6,8 @@
  * constants defined in the VM, and a second time to generate scheme
  * code that's incorporated into the scheme image.
  */
+
+/* *INDENT-OFF* */
 
 #ifdef CONST_SCHEME
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name)
@@ -89,3 +92,5 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
     VM_CONSTANT(FOP_MARK_STACK,               248)
 END_VM_CONSTANT_TABLE
+
+/* *INDENT-ON */

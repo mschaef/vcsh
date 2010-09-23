@@ -63,7 +63,7 @@ depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 indented:
-	gnuindent ${VM_SRCS} fasl-file.h mt19937.h scan.h sys.h
+	gnuindent ${VM_SRCS} fasl-file.h mt19937.h scan.h sys.h constants.i
 
 %${OBJ_EXT}: %.cpp Makefile scan.h
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
