@@ -10,7 +10,7 @@
 
 (define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (compile-form form genv #t)) output-fasl-stream))
+  (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (compile-form form genv #t)) output-fasl-stream))
 
 ;;; The file reader
 
@@ -109,11 +109,11 @@
     ;; error checking here???
     (scheme::%define-global var val genv)
 
-    (fasl-write-op scheme::FASL-OP-LOADER-DEFINEA0 (list var val-thunk) output-fasl-stream)))
+    (fasl-write-op system::FASL_OP_LOADER_DEFINEA0 (list var val-thunk) output-fasl-stream)))
 
 (define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op scheme::FASL-OP-LOADER-APPLY0 (list (toplevel-form->thunk form genv)) output-fasl-stream))
+  (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (toplevel-form->thunk form genv)) output-fasl-stream))
 
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream genv)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
@@ -182,9 +182,9 @@
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
-          (fasl-write-op scheme::FASL-OP-BEGIN-LOAD-UNIT (list filename) output-fasl-stream)
+          (fasl-write-op system::FASL_OP_BEGIN_LOAD_UNIT (list filename) output-fasl-stream)
           (compile-port-forms input-port output-fasl-stream genv)
-          (fasl-write-op scheme::FASL-OP-END-LOAD-UNIT (list filename) output-fasl-stream)))
+          (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream)))
     (set-symbol-value! '*package* original-package () genv)))
 
 (define (compile-file/checked filename output-fasl-stream genv)

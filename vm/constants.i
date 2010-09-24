@@ -29,7 +29,28 @@
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name)
 #endif
 
+/*
+ * There are some subtleties in this assignment of opcode numbers:
+ *
+ * 1. To allow textual comments to be incorporated in FASL files, the #\;
+ *    character is interpreted as a 'skip until #\newline or #\cr' opcode.
+ *
+ * 2. Since we don't know what our end of line convention is, we treat both
+ *    #\newline and #\cr as no-ops. That way, no matter how a textual comment
+ *    string ends, we can still read past the line terminator.
+ *
+ * 3. #\# is treated the same way as #\;. to allow FASL files on Unix machines
+ *    to point to an interpreter, like a shell script.
+ *
+ * 4. Control+Z is a no-op, since it's useful to cause DOS machines to stop
+ *   typing a file to the screen.
+ *
+ * 5. #\nul is also a no-op, since it seems too important to use for arbitrary
+ *    reasons.
+ */
+
 BEGIN_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
+    /* 0 reserved to allow for Unicode double byte characters, somehow */
     VM_CONSTANT(FASL_OP_NIL,                  1  )
     VM_CONSTANT(FASL_OP_TRUE,                 2  )
     VM_CONSTANT(FASL_OP_FALSE,                3  )

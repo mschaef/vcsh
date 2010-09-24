@@ -62,69 +62,6 @@
       (fast-write-characters text port)
       (fast-write-characters "\n" port))))
 
-;; There are some subtleties in this assignment of opcode numbers:
-;;
-;; 1. To allow textual comments to be incorporated in FASL files, the #\;
-;;    character is interpreted as a 'skip until #\newline or #\cr' opcode.
-;;
-;; 2. Since we don't know what our end of line convention is, we treat both
-;;    #\newline and #\cr as no-ops. That way, no matter how a textual comment
-;;    string ends, we can still read past the line terminator.
-;;
-;; 3. #\# is treated the same way as #\;. to allow FASL files on Unix machines
-;;    to point to an interpreter, like a shell script.
-;;
-;; 4. Control+Z is a no-op, since it's useful to cause DOS machines to stop
-;;   typing a file to the screen.
-;;
-;; 5. #\nul is also a no-op, since it seems too important to use for arbitrary
-;;    reasons.
-
-;; 0 reserved to allow for Unicode double byte characters, somehow
-(define FASL-OP-NIL                  1  )
-(define FASL-OP-TRUE                 2  )
-(define FASL-OP-FALSE                3  )
-(define FASL-OP-CHARACTER            4  )
-(define FASL-OP-LIST                 8  )
-(define FASL-OP-LISTD                9  )
-(define FASL-OP-NOP-1                10 ) ; #\newline
-(define FASL-OP-NOP-2                13 ) ; #\cr
-(define FASL-OP-FIX8                 16 )
-(define FASL-OP-FIX16                17 )
-(define FASL-OP-FIX32                18 )
-(define FASL-OP-FIX64                19 )
-(define FASL-OP-FLOAT                21 )
-(define FASL-OP-COMPLEX              22 )
-(define FASL-OP-STRING               24 )
-(define FASL-OP-NOP-3                26 ) ; Control+Z
-(define FASL-OP-PACKAGE              28 )
-(define FASL-OP-RSYMBOL              29 )
-(define FASL-OP-VECTOR               30 )
-(define FASL-OP-BASE-INSTANCE        32 )
-(define FASL-OP-INSTANCE             33 )
-(define FASL-OP-HASH                 34 )
-(define FASL-OP-COMMENT-1            35 ) ; #\#
-(define FASL-OP-CLOSURE              36 )
-(define FASL-OP-MACRO                37 )
-(define FASL-OP-SYMBOL               48 )
-(define FASL-OP-SUBR                 50 )
-(define FASL-OP-COMMENT-2            59 ) ; #\;
-(define FASL-OP-STRUCTURE            60 )
-(define FASL-OP-STRUCTURE-LAYOUT     61 )
-(define FASL-OP-FAST-OP-0            64 )
-(define FASL-OP-FAST-OP-1            65 )
-(define FASL-OP-FAST-OP-2            66 )
-(define FASL-OP-FAST-OP-3            67 )
-(define FASL-OP-INSTANCE-MAP         96 )
-(define FASL-OP-RESET-READER-DEFS    192)
-(define FASL-OP-READER-DEFINITION    193)
-(define FASL-OP-READER-REFERENCE     194)
-(define FASL-OP-LOADER-DEFINEQ       208)
-(define FASL-OP-LOADER-DEFINEA0      210)
-(define FASL-OP-LOADER-APPLY0        216)
-(define FASL-OP-BEGIN-LOAD-UNIT      224)
-(define FASL-OP-END-LOAD-UNIT        225)
-;; 254, 255 reserved for Unicode Byte Order Marker
 
 ;; Note: these next symbols are generated at load/compile time, and used by the
 ;; FASL writer to keep track of shared object indices and a table of shared
@@ -165,14 +102,14 @@
         (aif (hash-ref shared-structure-table object)
              (begin
                (when *fasl-write-debugging* (newline))
-               (fast-write-opcode FASL-OP-READER-REFERENCE port)
+               (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                (fast-write-object it))
              (begin
                (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
                  (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
                  (hash-set! shared-structure-table object next-index)
                  (when *fasl-write-debugging* (newline))
-                 (fast-write-opcode FASL-OP-READER-DEFINITION port)
+                 (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                  (fast-write-object next-index)
                  (fast-write-object object))))
 	(fast-write-object object)))
@@ -180,7 +117,7 @@
   (define (check-sharing-and-write-instance-map inst)
     (let ((inst-map (%instance-map inst)))
       (define (write-map)
-        (fast-write-opcode FASL-OP-INSTANCE-MAP port)
+        (fast-write-opcode system::FASL_OP_INSTANCE_MAP port)
         (check-sharing-and-write (%instance-proto inst))
         (fast-write-object (direct-instance-slots inst)))
       (if (and shared-structure-table
@@ -188,35 +125,35 @@
           (aif (hash-ref shared-structure-table inst-map)
                (begin
                  (when *fasl-write-debugging* (newline))
-                 (fast-write-opcode FASL-OP-READER-REFERENCE port)
+                 (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
                  (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
                    (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
                    (hash-set! shared-structure-table inst-map next-index)
                    (when *fasl-write-debugging* (newline))
-                   (fast-write-opcode FASL-OP-READER-DEFINITION port)
+                   (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
                    (write-map))))
           (write-map))))
 
   (define (fast-write-structure-layout layout)
     (define (do-write)
-      (fast-write-opcode FASL-OP-STRUCTURE-LAYOUT port)
+      (fast-write-opcode system::FASL_OP_STRUCTURE_LAYOUT port)
       (check-sharing-and-write layout))
     (if shared-structure-table
         (let ((layout-table (hash-ref shared-structure-table  *fasl-structure-layout-key*)))
           (aif (hash-ref layout-table layout)
                (begin
                  (when *fasl-write-debugging* (newline))
-                 (fast-write-opcode FASL-OP-READER-REFERENCE port)
+                 (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
                  (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
                    (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
                    (hash-set! layout-table layout next-index)
                    (when *fasl-write-debugging* (newline))
-                   (fast-write-opcode FASL-OP-READER-DEFINITION port)
+                   (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
                    (do-write)))))
           (do-write)))
@@ -227,18 +164,18 @@
 
     (case (%representation-of object)
       ((nil)
-       (fast-write-opcode FASL-OP-NIL port))
+       (fast-write-opcode system::FASL_OP_NIL port))
 
       ((boolean)
-       (fast-write-opcode (if object FASL-OP-TRUE FASL-OP-FALSE) port))
+       (fast-write-opcode (if object system::FASL_OP_TRUE system::FASL_OP_FALSE) port))
 
       ((character)
-       (fast-write-opcode FASL-OP-CHARACTER port) ; 4 for UCS 16, 5 for UCS 32
+       (fast-write-opcode system::FASL_OP_CHARACTER port) ; 4 for UCS 16, 5 for UCS 32
        (fast-write-integer (char->integer object) 1 #f port))
 
       ((cons)
        (mvbind (len dotted?) (length-excluding-shared object shared-structure-table)
-	 (fast-write-opcode (if dotted? FASL-OP-LISTD FASL-OP-LIST) port)
+	 (fast-write-opcode (if dotted? system::FASL_OP_LISTD system::FASL_OP_LIST) port)
 	 (check-sharing-and-write len)
 	 (let loop ((i 0) (xs object))
 	   (cond ((< i len)
@@ -250,74 +187,74 @@
       ((fixnum)
        (cond
 	((and (>= object -128) (<= object 127))
-	 (fast-write-opcode FASL-OP-FIX8 port)
+	 (fast-write-opcode system::FASL_OP_FIX8 port)
 	 (fast-write-integer object 1 #t port))
 	((and (>= object -32768) (<= object 32767))
-	 (fast-write-opcode FASL-OP-FIX16 port)
+	 (fast-write-opcode system::FASL_OP_FIX16 port)
 	 (fast-write-integer object 2 #t port))
 	((and (>= object -2147483648) (<= object 2147483647))
-	 (fast-write-opcode FASL-OP-FIX32 port)
+	 (fast-write-opcode system::FASL_OP_FIX32 port)
 	 (fast-write-integer object 4 #t port))
 	(#t
-	 (fast-write-opcode FASL-OP-FIX64 port)
+	 (fast-write-opcode system::FASL_OP_FIX64 port)
 	 (fast-write-integer object 8 #t port))))
 
       ((flonum)
-       (fast-write-opcode FASL-OP-FLOAT port)
+       (fast-write-opcode system::FASL_OP_FLOAT port)
        (fast-write-float object port))
 
       ((complex)
-       (fast-write-opcode FASL-OP-COMPLEX port)
+       (fast-write-opcode system::FASL_OP_COMPLEX port)
        (fast-write-float (real-part object) port)
        (fast-write-float (imag-part object) port))
 
       ((string)
-       (fast-write-opcode FASL-OP-STRING port)
+       (fast-write-opcode system::FASL_OP_STRING port)
        (check-sharing-and-write (length object))
        (fast-write-characters object port))
 
       ((package)
-       (fast-write-opcode FASL-OP-PACKAGE port)
+       (fast-write-opcode system::FASL_OP_PACKAGE port)
        (check-sharing-and-write (package-name object)))
 
       ((symbol)
-       (fast-write-opcode FASL-OP-SYMBOL port)
+       (fast-write-opcode system::FASL_OP_SYMBOL port)
        (check-sharing-and-write (symbol-name object))
        (check-sharing-and-write (symbol-package object)))
 
       ((vector)
-       (fast-write-opcode FASL-OP-VECTOR port)
+       (fast-write-opcode system::FASL_OP_VECTOR port)
        (check-sharing-and-write (length object))
        (dolist (x object)
          (check-sharing-and-write x)))
 
       ((instance)
-       (fast-write-opcode FASL-OP-INSTANCE port)
+       (fast-write-opcode system::FASL_OP_INSTANCE port)
        (check-sharing-and-write-instance-map object)
        (check-sharing-and-write (map #L(slot-ref object _)
                                      (direct-instance-slots object))))
 
       ((hash)
-       (fast-write-opcode FASL-OP-HASH port)
+       (fast-write-opcode system::FASL_OP_HASH port)
        (check-sharing-and-write (eq? :eq (hash-type object)))
        (check-sharing-and-write (hash->a-list object)))
 
       ((subr)
-       (fast-write-opcode FASL-OP-SUBR port)
+       (fast-write-opcode system::FASL_OP_SUBR port)
        (check-sharing-and-write (procedure-name object)))
 
       ((closure)
-       (fast-write-opcode FASL-OP-CLOSURE port)
+       (fast-write-opcode system::FASL_OP_CLOSURE port)
        (check-sharing-and-write (%closure-env object))
        (check-sharing-and-write (%closure-code object))
        (check-sharing-and-write (%property-list object)))
 
       ((macro)
-       (fast-write-opcode FASL-OP-MACRO port)
+       (fast-write-opcode system::FASL_OP_MACRO port)
        (check-sharing-and-write (%macro-transformer object)))
 
       ((structure)
-       (fast-write-opcode FASL-OP-STRUCTURE port)
+       (fast-write-opcode system::FASL_OP_STRUCTURE port)
        (fast-write-structure-layout (%structure-layout object))
        (let ((len (%structure-length object)))
          (check-sharing-and-write len)
@@ -327,10 +264,10 @@
       ((fast-op)
        (mvbind (fop-opcode args) (parse-fast-op object #f)
           (fast-write-opcode (case (length args)
-                               ((0) FASL-OP-FAST-OP-0)
-                               ((1) FASL-OP-FAST-OP-1)
-                               ((2) FASL-OP-FAST-OP-2)
-                               ((3) FASL-OP-FAST-OP-3)
+                               ((0) system::FASL_OP_FAST_OP_0)
+                               ((1) system::FASL_OP_FAST_OP_1)
+                               ((2) system::FASL_OP_FAST_OP_2)
+                               ((3) system::FASL_OP_FAST_OP_3)
                                (#t (error "Unsupported fast-op arity: ~s" object)))
                              port)
           (check-sharing-and-write fop-opcode)
@@ -477,7 +414,7 @@
     (hash-set! shared-structure-table *fasl-index-key* 0)
 
     (when *fasl-write-check-structure-sharing*
-      (fast-write-opcode FASL-OP-RESET-READER-DEFS (fasl-stream-target-port stream)))
+      (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (fasl-stream-target-port stream)))
 
     (dolist (obj (reverse (fasl-stream-objects-to-write stream)))
       (cond ((fasl-op? obj)
