@@ -16,6 +16,7 @@
 
 ;;; The build is composed of the following files:
 
+(include "../vm/constants.scm")
 (include "subrs.scm")
 (include "character.scm")
 (include "class-graph.scm")
