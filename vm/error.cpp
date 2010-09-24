@@ -53,9 +53,6 @@ void vmerror_stack_overflow(u8_t * obj)
 
      in_stack_overflow = true;
 
-     if (DEBUGGING_BUILD)
-          dump_current_frames(CURRENT_DEBUG_PORT());
-
      panic("Stack Overflow!");
 
      /* TODO: Stack overflow should throw out to a catch block and then

@@ -2154,7 +2154,7 @@ bool equalp(LRef, LRef);
 bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result);
 bool read_binary_flonum(LRef port, flonum_t & result);
 double round(double n);
-void dump_current_frames(LRef oport);
+void scan_postmortem_dump();
 
 /***** Debugging tools *****/
 

@@ -242,8 +242,10 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
 }
 
 
-void dump_current_frames(LRef oport)
+void scan_postmortem_dump()
 {
+     LRef oport = CURRENT_DEBUG_PORT();
+
      frame_record_t *loc = TOP_FRAME;
 
      while (loc)
