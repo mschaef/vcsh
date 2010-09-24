@@ -3,7 +3,7 @@
 
 .PHONY: indented
 
-TARGETS=scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} TAGS
+TARGETS=scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} constants.scm TAGS
 
 include ../build-settings
 
@@ -59,11 +59,17 @@ ifdef ${RANLIB}
 	${RANLIB} scan-vm${LIB_EXT}
 endif
 
+constants.scm: constants.i
+	cpp -DCONST_SCHEME -P $< $@
+
 depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 indented:
 	gnuindent ${VM_SRCS} mt19937.h scan.h sys.h constants.i
+
+clean-local:
+	rm -f constants.scm
 
 %${OBJ_EXT}: %.cpp Makefile scan.h
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<

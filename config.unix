@@ -78,7 +78,9 @@ todo:
 clean-cov:
 	${RM_F} *.gcda *.gcov
 
-clean: clean-cov
+clean-local:
+
+clean: clean-cov clean-local
 	${RM_F} *.pdb *.ilk
 	${RM_F} *.o *.obj *.scf TAGS *~ *.ii *.exe *.s ${TARGETS}
 	${RM_F} scheme/*~ gmon${OBJ_EXT}ut *.gcno
