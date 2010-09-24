@@ -49,7 +49,7 @@
  *    reasons.
  */
 
-BEGIN_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
+BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     /* 0 reserved to allow for Unicode double byte characters, somehow */
     VM_CONSTANT(FASL_OP_NIL,                  1  )
     VM_CONSTANT(FASL_OP_TRUE,                 2  )
@@ -97,7 +97,7 @@ BEGIN_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_END_LOAD_UNIT,        225)
     VM_CONSTANT(FASL_OP_EOF,                  253)
     /*  254, 255 reserved for Unicode Byte Order Marker */
-END_VM_CONSTANT_TABLE(FaslOpcode, fasl_opcode_name)
+END_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
 
 BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
     VM_CONSTANT(FOP_LITERAL,                  8  )

@@ -88,12 +88,12 @@ static LRef fast_read_error(const _TCHAR * message, LRef port, LRef details = NI
      return vmerror(buf, lcons(port, details));
 }
 
-static FaslOpcode fast_read_opcode(LRef port)
+static fasl_opcode_t fast_read_opcode(LRef port)
 {
      fixnum_t opcode = FASL_OP_EOF;
 
      if (read_binary_fixnum(1, false, port, opcode))
-          return (FaslOpcode) opcode;
+          return (fasl_opcode_t) opcode;
      else
           return FASL_OP_EOF;
 }
@@ -574,7 +574,7 @@ static fixnum_t fast_read_table_index(LRef port)
      return FIXNM(index);
 }
 
-void fast_read_loader_definition(LRef port, FaslOpcode opcode)
+void fast_read_loader_definition(LRef port, fasl_opcode_t opcode)
 {
      LRef symbol_to_define;
 
@@ -645,7 +645,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           if (DEBUG_FLAG(DF_FASL_SHOW_OPCODES))
                opcode_location = lport_location(port);
 
-          FaslOpcode opcode = fast_read_opcode(port);
+          fasl_opcode_t opcode = fast_read_opcode(port);
           fixnum_t index = 0;
           LRef name;
 

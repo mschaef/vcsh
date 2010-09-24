@@ -20,7 +20,7 @@ enum
      STRBUF_SIZE = 256,
 };
 
-FaslOpcode g_reader_definition_ops[MAX_READER_DEFINITIONS];
+fasl_opcode_t g_reader_definition_ops[MAX_READER_DEFINITIONS];
 fixnum_t g_reader_definition_fixnums[MAX_READER_DEFINITIONS];
 
 FILE *g_file = NULL;
@@ -46,7 +46,7 @@ void indent()
 
 size_t last_definition_offset = 0;
 
-void show_opcode(size_t offset, FaslOpcode opcode, const _TCHAR *desc)
+void show_opcode(size_t offset, fasl_opcode_t opcode, const _TCHAR *desc)
 {
   const _TCHAR *opcode_name = fasl_opcode_name(opcode);
 
@@ -144,7 +144,7 @@ bool read_binary_flonum(flonum_t &result)
  *    to update the return value prior to reading any component objects.
  */
 
-static FaslOpcode dump_next_object(const _TCHAR *desc = NULL, fixnum_t *fixnum_value = NULL);
+static fasl_opcode_t dump_next_object(const _TCHAR *desc = NULL, fixnum_t *fixnum_value = NULL);
 
 static void dump_error(const _TCHAR *message)
 {
@@ -154,12 +154,12 @@ static void dump_error(const _TCHAR *message)
   panic(buf);
 }
 
-static FaslOpcode fast_read_opcode(size_t *ofs = NULL)
+static fasl_opcode_t fast_read_opcode(size_t *ofs = NULL)
 {
   fixnum_t opcode = FASL_OP_EOF;
 
   if (read_binary_fixnum(1, false, opcode, ofs))
-    return (FaslOpcode)opcode;
+    return (fasl_opcode_t)opcode;
   else
     return FASL_OP_EOF;
 }
@@ -169,7 +169,7 @@ static void dump_list(bool read_listd)
   fixnum_t length;
   _TCHAR buf[STRBUF_SIZE];
 
-  FaslOpcode op = dump_next_object(_T("length"), &length);
+  fasl_opcode_t op = dump_next_object(_T("length"), &length);
 
   if (!FIXNUM_OP_P(op))
     dump_error("lists must have a fixnum length");
@@ -243,7 +243,7 @@ static void dump_string()
 {
   fixnum_t length;
 
-  FaslOpcode op = dump_next_object(_T("length"), &length);
+  fasl_opcode_t op = dump_next_object(_T("length"), &length);
 
   if (!FIXNUM_OP_P(op))
     dump_error("strings must have a fixnum length");
@@ -265,7 +265,7 @@ static void dump_string()
 
 static void dump_package()
 {
-  FaslOpcode op = dump_next_object(_T("package-name"));
+  fasl_opcode_t op = dump_next_object(_T("package-name"));
 
   if (op != FASL_OP_STRING)
     dump_error("packages must have string names");
@@ -273,7 +273,7 @@ static void dump_package()
 
 static void dump_symbol()
 {
-  FaslOpcode op = dump_next_object(_T("pname"));
+  fasl_opcode_t op = dump_next_object(_T("pname"));
 
   if (op != FASL_OP_STRING)
     dump_error("symbols must have string print names");
@@ -286,7 +286,7 @@ static void dump_symbol()
 
 static void dump_subr()
 {
-  FaslOpcode op = dump_next_object(_T("name"));
+  fasl_opcode_t op = dump_next_object(_T("name"));
 
   if (op != FASL_OP_STRING)
     dump_error("subrs must have string print names");
@@ -297,7 +297,7 @@ static void dump_vector()
   fixnum_t length;
   _TCHAR buf[STRBUF_SIZE];
 
-  FaslOpcode op = dump_next_object(_T("length"), &length);
+  fasl_opcode_t op = dump_next_object(_T("length"), &length);
 
   if (!FIXNUM_OP_P(op))
     dump_error("Expected fixnum for vector length");
@@ -315,7 +315,7 @@ static void dump_vector()
 
 static void dump_instance_map()
 {
-  FaslOpcode op = dump_next_object(_T("proto"));
+  fasl_opcode_t op = dump_next_object(_T("proto"));
 
   if ((op != FASL_OP_FALSE) && (op != FASL_OP_INSTANCE) && (op != FASL_OP_SYMBOL))
     dump_error("malformed proto in instance map");
@@ -328,7 +328,7 @@ static void dump_instance_map()
 
 static void dump_instance()
 {
-  FaslOpcode op = dump_next_object(_T("map"));
+  fasl_opcode_t op = dump_next_object(_T("map"));
 
   if (op != FASL_OP_INSTANCE_MAP)
     dump_error("missing instance map in instance.");
@@ -341,7 +341,7 @@ static void dump_instance()
 
 static void dump_hash()
 {
-  FaslOpcode op = dump_next_object(_T("shallow?"));
+  fasl_opcode_t op = dump_next_object(_T("shallow?"));
 
   if ((op != FASL_OP_TRUE) && (op != FASL_OP_FALSE))
     dump_error("expected boolean for hash table shallow");
@@ -354,7 +354,7 @@ static void dump_hash()
 
 static void dump_closure()
 {
-  FaslOpcode op = dump_next_object(_T("env"));
+  fasl_opcode_t op = dump_next_object(_T("env"));
 
   if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST) && (op != FASL_OP_LISTD))
     dump_error("malformed closure, bad environment");
@@ -384,7 +384,7 @@ void dump_to_newline()
 
 void dump_macro()
 {
-  FaslOpcode op = dump_next_object(_T("transformer"));
+  fasl_opcode_t op = dump_next_object(_T("transformer"));
 
   if (op != FASL_OP_CLOSURE)
     dump_error("malformed macro, bad transformer");
@@ -392,7 +392,7 @@ void dump_macro()
 
 static void dump_structure_layout()
 {
-  FaslOpcode op = dump_next_object(_T("layout-data"));
+  fasl_opcode_t op = dump_next_object(_T("layout-data"));
 
   if (op != FASL_OP_LIST)
     dump_error("Expected list for structure layout");
@@ -402,7 +402,7 @@ static void dump_fast_op(int arity)
 {
   fixnum_t opcode;
 
-  FaslOpcode op = dump_next_object(_T("opcode"), &opcode); /*  TODO: parse opcode to print name */
+  fasl_opcode_t op = dump_next_object(_T("opcode"), &opcode); /*  TODO: parse opcode to print name */
 
   _TCHAR buf[STRBUF_SIZE];
 
@@ -419,7 +419,7 @@ static void dump_structure()
   fixnum_t length;
   _TCHAR buf[STRBUF_SIZE];
 
-  FaslOpcode op = dump_next_object(_T("layout"));
+  fasl_opcode_t op = dump_next_object(_T("layout"));
 
   if (op != FASL_OP_STRUCTURE_LAYOUT)
     dump_error("Expected structure layout");
@@ -444,7 +444,7 @@ fixnum_t dump_table_index()
 {
   fixnum_t index;
 
-  FaslOpcode op = dump_next_object(_T("index"), &index);
+  fasl_opcode_t op = dump_next_object(_T("index"), &index);
 
   if (!FIXNUM_OP_P(op))
     dump_error("Expected fixnum for FASL table index");
@@ -454,7 +454,7 @@ fixnum_t dump_table_index()
 
 void dump_loader_definition()
 {
-  FaslOpcode op = dump_next_object(_T("symbol"));
+  fasl_opcode_t op = dump_next_object(_T("symbol"));
 
   if (op != FASL_OP_SYMBOL)
     dump_error("Expected symbol for definition");
@@ -464,13 +464,13 @@ void dump_loader_definition()
 
 void  dump_loader_apply0()
 {
-  FaslOpcode op = dump_next_object(_T("fn"));
+  fasl_opcode_t op = dump_next_object(_T("fn"));
 
   if ((op != FASL_OP_CLOSURE) && (op != FASL_OP_SUBR))
     dump_error("Expected function for apply");
 }
 
-void dump_load_unit_boundary(FaslOpcode op)
+void dump_load_unit_boundary(fasl_opcode_t op)
 {
   newline();
 
@@ -484,10 +484,10 @@ void dump_load_unit_boundary(FaslOpcode op)
 }
 
 
-static FaslOpcode dump_next_object(const _TCHAR *desc /* = NULL*/,
+static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
                                    fixnum_t *fixnum_value /* = NULL*/)
 {
-  FaslOpcode opcode = FASL_OP_NIL;
+  fasl_opcode_t opcode = FASL_OP_NIL;
   size_t offset;
   fixnum_t index;
   fixnum_t reader_defn_fixnum;
