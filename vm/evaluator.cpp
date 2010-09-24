@@ -351,12 +351,13 @@ LRef lset_stack_limit(LRef amount)
 
      if (!new_size_limit)
      {
-          info("stack limit disabled!");
+          dscwritef(DF_SHOW_GC, "stack limit disabled!");
+
           return boolcons(false);
      }
 
-     info("stack_size = ~cd bytes, [~c&,~c&]\n",
-          new_size_limit, new_limit_obj, sys_get_stack_start());
+     dscwritef(DF_SHOW_GC, "stack_size = ~cd bytes, [~c&,~c&]\n",
+               new_size_limit, new_limit_obj, sys_get_stack_start());
 
      return fixcons(new_size_limit);
 }

@@ -63,27 +63,6 @@ void vmerror_stack_overflow(u8_t * obj)
      THROW_ESCAPE(interp.sym_stack_overflow, NIL);
 }
 
-bool infop()                    /* REVISIT: still used? */
-{
-     assert(SYMBOLP(interp.sym_msglvl_info));
-
-     return TRUEP(SYMBOL_VCELL(interp.sym_msglvl_info));
-}
-
-
-void info(const _TCHAR * message, ...)
-{
-     va_list arglist;
-     va_start(arglist, message);
-
-     if (infop())               /*  this is the call in info (for find in files) */
-     {
-          WRITE_TEXT_CONSTANT(_T("; Info: "), CURRENT_ERROR_PORT());
-          scvwritef(message, CURRENT_ERROR_PORT(), arglist);
-          lnewline(CURRENT_ERROR_PORT());
-     }
-}
-
 LRef vmsignal(const _TCHAR * signal_name, long n, ...)
 {
      va_list args;

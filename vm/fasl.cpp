@@ -219,8 +219,8 @@ static void fast_read_package(LRef port, LRef * package)
 
      if (FALSEP(*package))
      {
-          info(_T("PACKAGE ~s@~a NOT FOUND, DEFAULTING TO ~a!"),        /*  REVISIT: should this be allowable? */
-               name, lport_location(port), CURRENT_PACKAGE);
+          scwritef(_T("PACKAGE ~s@~a NOT FOUND, DEFAULTING TO ~a!"), CURRENT_ERROR_PORT(),      /*  REVISIT: should this be allowable? */
+                   name, lport_location(port), CURRENT_PACKAGE);
 
           *package = CURRENT_PACKAGE();
 
