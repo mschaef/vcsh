@@ -1163,6 +1163,13 @@
     `(let ((,value-sym ,value))
        (and ,@(find-dbind-match-predicates binding value-sym)))))
 
+(defmacro (dbind-if-match binding value if-true-form if-false-form)
+  (with-gensyms (value-sym)
+     `(let ((,value-sym ,value))
+        (if (dbind-matches? ,binding ,value-sym)
+            (dbind ,binding ,value-sym ,if-true-form)
+            ,if-false-form))))
+
 (defmacro (dbind binding value . code)
   (define (find-dbind-binding-forms binding value)
     ;; REVISIT: no dbind specific typechecking. Does this matter?

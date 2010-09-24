@@ -296,6 +296,7 @@
            date-week-number
            date-year-day
            dbind
+           dbind-if-match
            dbind-matches?
            debug-write
            defalias
