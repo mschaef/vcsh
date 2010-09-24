@@ -74,6 +74,7 @@
                       (%panic (format #f "Unhandled Abort: ~s, args=~s" condition args)))))
 
 
+(define *info* #t)
 (define *error* #t)
 
 (define (show-runtime-error message args)

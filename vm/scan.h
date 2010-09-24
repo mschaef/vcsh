@@ -1971,7 +1971,6 @@ LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s);
 LRef linexact2exact(LRef x);
 LRef linexactp(LRef x);
 LRef linfinitep(LRef x);
-LRef linfo(LRef args);
 LRef linput_portp(LRef obj);
 LRef linstancep(LRef obj);
 LRef linteger2char(LRef s);     /*  REVISIT: rename to exact->char */

@@ -42,11 +42,13 @@
            *default-tab-stop-interval*
            *default-width*
            *enter-repl-on-runtime-error*
+           *error*
            *filename-delimiter*
            *flonum-print-precision*
            *global-define-hook*
            *global-readsharp-table*
            *idle-hook*
+           *info*
            *location-mapping*
            *memoize-results?*
            *number-of-characters*
