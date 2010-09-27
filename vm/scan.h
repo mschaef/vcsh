@@ -576,7 +576,6 @@ struct interpreter_t
      LRef sym_after_gc;
      LRef sym_args;
      LRef sym_current_package;
-     LRef sym_progn;
      LRef sym_errobj;
      LRef sym_documentation;
      LRef sym_name;

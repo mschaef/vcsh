@@ -313,8 +313,6 @@ static void init_base_scheme_objects(void)
 
      temp_sym = simple_intern(_T("*pi*"), interp.system_package);
      lidefine_global(temp_sym, flocons(atan(1.0) * 4), NIL);
-
-     gc_protect_sym(&interp.sym_progn, _T("begin"), interp.system_package);
 }
 
 
@@ -678,7 +676,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.sym_after_gc = NIL;
      interp.sym_args = NIL;
      interp.sym_current_package = NIL;
-     interp.sym_progn = NIL;
      interp.sym_errobj = NIL;
      interp.sym_global_define_hook = NIL;
 
