@@ -218,14 +218,7 @@ static void fast_read_package(LRef port, LRef * package)
      *package = lfind_package(name);
 
      if (FALSEP(*package))
-     {
-          scwritef(_T("PACKAGE ~s@~a NOT FOUND, DEFAULTING TO ~a!"), CURRENT_ERROR_PORT(),      /*  REVISIT: should this be allowable? */
-                   name, lport_location(port), CURRENT_PACKAGE);
-
-          *package = CURRENT_PACKAGE();
-
-          /* fast_read_error("package not found", port, name); */
-     }
+          fast_read_error("package not found", port, name);
 }
 
 static void fast_read_symbol(LRef port, LRef * retval)
