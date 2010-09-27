@@ -574,9 +574,6 @@ struct interpreter_t
      /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
      LRef syms_internal_type_names[LAST_INTERNAL_TYPEC + 1];
      LRef sym_after_gc;
-     LRef sym_msglvl_info;
-     LRef sym_msglvl_warnings;
-     LRef sym_msglvl_errors;
      LRef sym_args;
      LRef sym_current_package;
      LRef sym_progn;

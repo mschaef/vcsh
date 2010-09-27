@@ -249,13 +249,6 @@ static void init_base_scheme_objects(void)
      gc_protect_sym(&interp.sym_after_gc, _T("*after-gc*"), interp.system_package);
      lidefine_global(interp.sym_after_gc, NIL, NIL);
 
-     gc_protect_sym(&interp.sym_msglvl_info, _T("*info*"), interp.system_package);
-     /*  Info messages are too slow when we're GC'ing with every new_cell */
-     lidefine_global(interp.sym_msglvl_info, boolcons(!ALWAYS_GC), NIL);
-
-     gc_protect_sym(&interp.sym_msglvl_errors, _T("*error*"), interp.system_package);
-     lidefine_global(interp.sym_msglvl_errors, boolcons(true), NIL);
-
      gc_protect_sym(&interp.sym_args, _T("*args*"), interp.system_package);
 
      gc_protect_sym(&interp.sym_port_current_in, _T("*current-input-port*"), interp.system_package);
@@ -683,8 +676,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      /*  Standard symbols */
      interp.sym_after_gc = NIL;
-     interp.sym_msglvl_info = NIL;
-     interp.sym_msglvl_errors = NIL;
      interp.sym_args = NIL;
      interp.sym_current_package = NIL;
      interp.sym_progn = NIL;
