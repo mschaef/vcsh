@@ -675,15 +675,15 @@ void dscwritef(const _TCHAR * format_str, ...)
 
 void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...)
 {
-     if (DEBUG_FLAG(flag))
-     {
-          va_list arglist;
+     if (!DEBUG_FLAG(flag))
+          return;
 
-          va_start(arglist, format_str);
+     va_list arglist;
 
-          scvwritef(format_str, VM_DEBUG_PORT(), arglist);
-          lflush_port(VM_DEBUG_PORT());
-     }
+     va_start(arglist, format_str);
+     
+     scvwritef(format_str, VM_DEBUG_PORT(), arglist);
+     lflush_port(VM_DEBUG_PORT());
 }
 
 
