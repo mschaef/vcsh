@@ -101,15 +101,14 @@
     (format #t "; Done loading compiler load file: ~s\n" file))) ; REVISIT: error check this?
 
 (define (run)
-  (dynamic-let ((*info* #f))
-    (enlarge-heap 50)
-    (scheme::%set-stack-limit #f))
+  (enlarge-heap 50)
+  (scheme::%set-stack-limit #f)
   (show-compiler-settings)
   (scheme::initialize-user-package)
   (time
    (let ((pkg (find-package *initial-package*)))
      (unless pkg
-        (error "Initial package not found: ~s" pkg))
+       (error "Initial package not found: ~s" pkg))
      (dynamic-let ((*package* pkg))
        ;; Play nice with batch files launching the compiler...
        ;; we never want to be interactive.
