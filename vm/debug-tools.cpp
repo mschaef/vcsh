@@ -41,6 +41,48 @@ LRef ldump_heap_state(LRef port)
 }
 
 
+void scan_postmortem_dump()
+{
+     LRef oport = CURRENT_DEBUG_PORT();
+
+     frame_record_t *loc = TOP_FRAME;
+
+     while (loc)
+     {
+          switch (loc->type)
+          {
+          case FRAME_EVAL:
+               scwritef(_T("eval > ~s in ~s\n"), oport, *loc->frame_as.eval.form,
+                        loc->frame_as.eval.initial_form);
+               break;
+
+          case FRAME_EX_TRY:
+               scwritef(_T("try > ~s\n"), oport, loc->frame_as.dynamic_escape.tag);
+               break;
+
+          case FRAME_EX_UNWIND:
+               scwritef(_T("unwind-protect >\n"), oport);
+               break;
+
+          case FRAME_PRIMITIVE:
+               scwritef(_T("primitive > ~s\n"), oport, loc->frame_as.primitive.function);
+               break;
+
+          case FRAME_MARKER:
+               scwritef(_T("marker > ~s\n"), oport, loc->frame_as.marker.tag);
+               break;
+
+          default:
+               scwritef(_T("<< INVALID-FRAME-TYPE >>\n"), oport);
+               break;
+          }
+
+          lflush_port(oport);
+
+          loc = loc->previous;
+     }
+}
+
 /* lshow_type_stats
  *
  * Traverse the heap segments, counting each instance of each type.
