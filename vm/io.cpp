@@ -35,6 +35,8 @@ LRef port_gc_mark(LRef obj)
      for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)
           gc_mark(PORT_PINFO(obj)->_fasl_stack[ii]);
 
+     gc_mark(PORT_PINFO(obj)->_fasl_accum);
+
      return PORT_PINFO(obj)->_fasl_table;
 }
 
@@ -72,7 +74,8 @@ LRef initialize_port(LRef s,
      PORT_PINFO(s)->_user_data = user_data;
      PORT_PINFO(s)->_user_object = user_object;
      PORT_PINFO(s)->_fasl_table = NIL;
-
+     PORT_PINFO(s)->_fasl_accum = NIL;
+     
      PORT_PINFO(s)->_fasl_stack_ptr = 0;
 
      for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)

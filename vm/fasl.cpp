@@ -631,6 +631,10 @@ static LRef fast_loader_stack_pop(LRef port)
 
 void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
 {
+     assert(PORTP(port) && PORT_BINARYP(port));
+
+     port_info_t *pinfo = PORT_PINFO(port);
+
      size_t argc = 0;
      LRef argv[FAST_LOAD_STACK_DEPTH];
 
@@ -661,7 +665,7 @@ void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL applying ~s (argc=~cd)\n"), argv[0], argc);
 
-     lapply(argc + 1, argv);
+     pinfo->_fasl_accum = lapply(argc + 1, argv);
 }
 
 static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false */ )
@@ -913,7 +917,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                break;
 
           case FASL_OP_PUSH:
-               panic("FASL_OP_PUSH unimplemented"); /* XXX */
+               fast_loader_stack_push(port, pinfo->_fasl_accum);
                break;
 
           case FASL_OP_DROP:

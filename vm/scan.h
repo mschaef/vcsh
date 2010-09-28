@@ -1526,6 +1526,7 @@ struct port_info_t
 
      LRef _fasl_stack[FAST_LOAD_STACK_DEPTH];
      size_t _fasl_stack_ptr;
+     LRef _fasl_accum;
 
      port_mode_t _mode;
 
