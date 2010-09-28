@@ -823,6 +823,10 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                fast_read_loader_application(port);
                break;
 
+          case FASL_OP_LOADER_APPLYN:
+               panic("FASL_OP_APPLYN unimplemented"); /* XXX */
+               break;
+
           case FASL_OP_BEGIN_LOAD_UNIT:
                if (!allow_loader_ops)
                     fast_read_error(_T("load units are not allowed outside loader"), port,
@@ -861,6 +865,15 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = NULL;
                break;
 
+          case FASL_OP_PUSH:
+               panic("FASL_OP_PUSH unimplemented"); /* XXX */
+               break;
+
+          case FASL_OP_DROP:
+               panic("FASL_OP_DROP unimplemented"); /* XXX */
+               break;
+
+               
           default:
                fast_read_error("invalid opcode", port, fixcons(opcode));
           }
