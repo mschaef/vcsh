@@ -68,7 +68,7 @@ BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_STRING,               24 )
     VM_CONSTANT(FASL_OP_NOP_3,                26 ) /* Control+Z */
     VM_CONSTANT(FASL_OP_PACKAGE,              28 )
-    VM_CONSTANT(FASL_OP_RSYMBOL,              29 )
+    /* Former RSYMBOL at 29. */
     VM_CONSTANT(FASL_OP_VECTOR,               30 )
     VM_CONSTANT(FASL_OP_BASE_INSTANCE,        32 )
     VM_CONSTANT(FASL_OP_INSTANCE,             33 )

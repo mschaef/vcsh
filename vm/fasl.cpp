@@ -625,7 +625,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
 
      /* The core of this function is wrapped in a giant while loop to remove
       * tail recursive calls. Some opcodes don't directly return anything:
-      * they just tail recursivelyl read the next opcode after performing their
+      * they just tail recursively read the next opcode after performing their
       * action via side effect. */
      bool current_read_complete = false;
      while (!current_read_complete)
