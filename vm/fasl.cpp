@@ -597,16 +597,6 @@ void fast_read_loader_definition(LRef port, fasl_opcode_t opcode)
      lidefine_global(symbol_to_define, definition, NIL);
 }
 
-void fast_read_loader_application(LRef port)
-{
-     LRef fn;
-     fast_read(port, &fn);
-
-     dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL applying ~s\n"), fn);
-
-     napply(fn, 0);
-}
-
 static void fast_loader_stack_push(LRef port, LRef val)
 {
      assert(PORTP(port) && PORT_BINARYP(port));
@@ -637,6 +627,41 @@ static LRef fast_loader_stack_pop(LRef port)
      pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = NULL;
 
      return val;
+}
+
+void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
+{
+     size_t argc = 0;
+     LRef argv[FAST_LOAD_STACK_DEPTH];
+
+     fast_read(port, &argv[0]);
+
+     if (!(SUBRP(argv[0]) || CLOSUREP(argv[0])))
+          fast_read_error(_T("Invalid function to apply"), port, lport_location(port));
+
+     if (opcode == FASL_OP_LOADER_APPLYN)
+     {
+          LRef ac;
+
+          fast_read(port, &ac);
+
+          if (!FIXNUMP(ac))
+               fast_read_error("Expected fixnum for loader application argc", port, ac);
+
+          argc = (size_t)FIXNM(ac);
+
+          if (argc > FAST_LOAD_STACK_DEPTH)
+               fast_read_error("Loader application argc too high", port, ac);
+
+          for(size_t ii = 0; ii < argc; ii++)
+               argv[ii + 1] = fast_loader_stack_pop(port);
+     }
+     else if (opcode != FASL_OP_LOADER_APPLY0)
+          panic("invalid opcode in fast_read_loader_application");
+
+     dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL applying ~s (argc=~cd)\n"), argv[0], argc);
+
+     lapply(argc + 1, argv);
 }
 
 static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false */ )
@@ -849,15 +874,12 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                break;
 
           case FASL_OP_LOADER_APPLY0:
+          case FASL_OP_LOADER_APPLYN:
                if (!allow_loader_ops)
                     fast_read_error(_T("loader function applications not allowed outside loader"),
                                     port, lport_location(port));
 
-               fast_read_loader_application(port);
-               break;
-
-          case FASL_OP_LOADER_APPLYN:
-               panic("FASL_OP_APPLYN unimplemented"); /* XXX */
+               fast_read_loader_application(port, opcode);
                break;
 
           case FASL_OP_BEGIN_LOAD_UNIT:
@@ -895,7 +917,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                break;
 
           case FASL_OP_DROP:
-               panic("FASL_OP_DROP unimplemented"); /* XXX */
+               fast_loader_stack_pop(port);
                break;
 
                
