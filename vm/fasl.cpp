@@ -616,10 +616,10 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
-     port_info_t *pinfo = PORT_PINFO(port);
-
-     if (PORT_TEXT_INFO(port) != NULL)
+     if (!PORT_BINARYP(port))
           vmerror("Fast I/O requires a binary port", port);
+
+     port_info_t *pinfo = PORT_PINFO(port);
 
      assert(NULLP(pinfo->_fasl_table) || VECTORP(pinfo->_fasl_table));
 
