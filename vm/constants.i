@@ -99,7 +99,7 @@ BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     /*  254, 255 reserved for Unicode Byte Order Marker */
 END_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
 
-BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
+BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_LITERAL,                  8  )
     VM_CONSTANT(FOP_GLOBAL_REF,               16 )
     VM_CONSTANT(FOP_GLOBAL_SET,               17 )
@@ -114,7 +114,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
     VM_CONSTANT(FOP_GET_ENV,                  224)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
     VM_CONSTANT(FOP_MARK_STACK,               248)
-END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_name)
+END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
 #undef BEGIN_VM_CONSTANT_TABLE
 #undef VM_CONSTANT

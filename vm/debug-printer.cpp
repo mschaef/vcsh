@@ -234,6 +234,7 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
      LRef tmp;
      size_t ii;
      LRef slots;
+     const _TCHAR *fast_op_name;
 
      switch (TYPE(obj))
      {
@@ -394,8 +395,14 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
           break;
 
      case TC_FAST_OP:
-          scwritef("#<FOP@~c&:~cd ~s ~s>", port, (LRef) obj,
-                   FAST_OP_OPCODE(obj), FAST_OP_ARG1(obj), FAST_OP_ARG2(obj), FAST_OP_ARG3(obj));
+          fast_op_name = fast_op_opcode_name((fast_op_opcode_t)FAST_OP_OPCODE(obj));
+
+          if (fast_op_name)
+               scwritef("#<FOP@~c&:~cs ~s ~s>", port, (LRef) obj,
+                        fast_op_name, FAST_OP_ARG1(obj), FAST_OP_ARG2(obj), FAST_OP_ARG3(obj));
+          else
+               scwritef("#<FOP@~c&:~cd ~s ~s>", port, (LRef) obj,
+                        FAST_OP_OPCODE(obj), FAST_OP_ARG1(obj), FAST_OP_ARG2(obj), FAST_OP_ARG3(obj));
           break;
 
      case TC_UNBOUND_MARKER:

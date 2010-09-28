@@ -2026,6 +2026,7 @@ LRef lopen_null_port();
 LRef lopen_output_file(LRef filename, LRef mode);
 LRef lopen_output_string();
 LRef loutput_portp(LRef obj);
+LRef lpackagcons(LRef name);
 LRef lpackage_bindings(LRef p);
 LRef lpackage_name(LRef p);
 LRef lpackage_use_list(LRef p);
