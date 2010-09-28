@@ -607,6 +607,38 @@ void fast_read_loader_application(LRef port)
      napply(fn, 0);
 }
 
+static void fast_loader_stack_push(LRef port, LRef val)
+{
+     assert(PORTP(port) && PORT_BINARYP(port));
+
+     port_info_t *pinfo = PORT_PINFO(port);
+
+     if (pinfo->_fasl_stack_ptr == FAST_LOAD_STACK_DEPTH - 1)
+          fast_read_error(_T("Fast loader stack overflow."), port, lport_location(port));
+
+     pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = val;
+     pinfo->_fasl_stack_ptr++;
+}
+
+static LRef fast_loader_stack_pop(LRef port)
+{
+     LRef val = NIL;
+
+     assert(PORTP(port) && PORT_BINARYP(port));
+
+     port_info_t *pinfo = PORT_PINFO(port);
+
+     if (pinfo->_fasl_stack_ptr == 0)
+          fast_read_error(_T("Fast loader stack underflow."), port, lport_location(port));
+
+     pinfo->_fasl_stack_ptr--;
+
+     val = pinfo->_fasl_stack[pinfo->_fasl_stack_ptr];
+     pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = NULL;
+
+     return val;
+}
+
 static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false */ )
 {
      LRef *fasl_table_entry = NULL;
@@ -641,6 +673,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           fasl_opcode_t opcode = fast_read_opcode(port);
           fixnum_t index = 0;
           LRef name;
+          LRef package;
 
           if (DEBUG_FLAG(DF_FASL_SHOW_OPCODES))
           {
@@ -836,11 +869,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
 
                dscwritef(DF_SHOW_FAST_LOAD_UNITS, "; DEBUG: FASL entering unit ~s\n", name);
 
-               if (pinfo->_fasl_stack_ptr == FAST_LOAD_STACK_DEPTH - 1)
-                    fast_read_error(_T("Package stack overflow."), port, lport_location(port));
-
-               pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = CURRENT_PACKAGE();
-               pinfo->_fasl_stack_ptr++;
+               fast_loader_stack_push(port, CURRENT_PACKAGE());
                break;
 
           case FASL_OP_END_LOAD_UNIT:
@@ -852,17 +881,13 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
 
                dscwritef(DF_SHOW_FAST_LOAD_UNITS, "; DEBUG: FASL leaving unit ~s\n", name);
 
-               if (pinfo->_fasl_stack_ptr == 0)
-                    fast_read_error(_T("Package stack underflow."), port, lport_location(port));
+               package = fast_loader_stack_pop(port);
 
-               pinfo->_fasl_stack_ptr--;
-
-               if (!PACKAGEP(pinfo->_fasl_stack[pinfo->_fasl_stack_ptr]))
-                    fast_read_error(_T("Non-package on package stack."), port,
+               if (!PACKAGEP(package))
+                    fast_read_error(_T("Non-package on fast loader stack."), port,
                                     lport_location(port));
 
-               SET_CURRENT_PACKAGE(pinfo->_fasl_stack[pinfo->_fasl_stack_ptr]);
-               pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = NULL;
+               SET_CURRENT_PACKAGE(package);
                break;
 
           case FASL_OP_PUSH:
