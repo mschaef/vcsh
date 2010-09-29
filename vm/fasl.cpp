@@ -916,11 +916,11 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                SET_CURRENT_PACKAGE(package);
                break;
 
-          case FASL_OP_PUSH:
+          case FASL_OP_LOADER_PUSH:
                fast_loader_stack_push(port, pinfo->_fasl_accum);
                break;
 
-          case FASL_OP_DROP:
+          case FASL_OP_LOADER_DROP:
                fast_loader_stack_pop(port);
                break;
 

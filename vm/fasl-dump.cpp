@@ -472,22 +472,10 @@ void  dump_loader_apply(fasl_opcode_t op)
   if (op == FASL_OP_LOADER_APPLYN)
   {
        fixnum_t argc;
-       _TCHAR buf[STRBUF_SIZE];
-
        fasl_opcode_t argcOp = dump_next_object(_T("argc"), &argc);
 
        if (!FIXNUM_OP_P(argcOp))
             dump_error("Expected fixnum for FASL applyn argc");
-
-       for(fixnum_t ii = 0; ii < argc; ii++)
-       {
-            _sntprintf(buf, STRBUF_SIZE, _T("argv["FIXNUM_PRINTF_PREFIX "i]"), ii);
-            
-            op = dump_next_object(buf);
-
-            if (op == FASL_OP_EOF)
-                 dump_error("incomplete argv");
-       }
   }
 }
 
@@ -625,8 +613,8 @@ static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
       dump_load_unit_boundary(opcode);
       break;
 
-    case FASL_OP_PUSH:
-    case FASL_OP_DROP:
+    case FASL_OP_LOADER_PUSH:
+    case FASL_OP_LOADER_DROP:
          break;
 
     default:
