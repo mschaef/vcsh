@@ -64,7 +64,7 @@ enum
      GLOBAL_ENV_BLOCK_SIZE = 4096,
 
      /*  The depth of the stack the FASL loader uses to store load unit state */
-     FAST_LOAD_STACK_DEPTH = 8,
+     FAST_LOAD_STACK_DEPTH = 16,
 
      /*  The number of arguments contained in argment buffers */
      ARG_BUF_LEN = 32,
