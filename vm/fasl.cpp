@@ -654,11 +654,16 @@ void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
 
           argc = (size_t)FIXNM(ac);
 
-          if (argc > FAST_LOAD_STACK_DEPTH)
+          if (argc >= FAST_LOAD_STACK_DEPTH - 2)
                fast_read_error("Loader application argc too high", port, ac);
 
           for(size_t ii = 0; ii < argc; ii++)
                argv[ii + 1] = fast_loader_stack_pop(port);
+
+          /* Fake a final NIL argument so that we can pass in the argv arguments
+           * as scalars rather than as a list. */
+          argc++;
+          argv[argc] = NIL;
      }
      else if (opcode != FASL_OP_LOADER_APPLY0)
           panic("invalid opcode in fast_read_loader_application");
