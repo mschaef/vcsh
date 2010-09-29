@@ -174,17 +174,30 @@
 
 ;; TODO: dynamic-let in a specific global environment
 
+(define (load-time-get-package)
+  *package*)
+
+(define (load-time-set-package! package)
+  (set! *package* package))
+
 (define (compile-file/simple filename output-fasl-stream genv)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
+  (define (begin-load-unit)
+    (fasl-write-op system::FASL_OP_BEGIN_LOAD_UNIT (list filename) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list load-time-get-package) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_LOADER_PUSH () output-fasl-stream))
+  (define (end-load-unit)
+    (fasl-write-op system::FASL_OP_LOADER_APPLYN (list load-time-set-package! 1) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream))
   (let ((original-package (symbol-value '*package* () genv)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
-          (fasl-write-op system::FASL_OP_BEGIN_LOAD_UNIT (list filename) output-fasl-stream)
-          (compile-port-forms input-port output-fasl-stream genv)
-          (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream)))
+        (begin-load-unit)
+        (compile-port-forms input-port output-fasl-stream genv)
+        (end-load-unit)))
     (set-symbol-value! '*package* original-package () genv)))
 
 (define (compile-file/checked filename output-fasl-stream genv)

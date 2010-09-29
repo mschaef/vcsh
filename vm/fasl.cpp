@@ -654,7 +654,7 @@ void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
 
           argc = (size_t)FIXNM(ac);
 
-          if (argc >= FAST_LOAD_STACK_DEPTH - 2)
+          if (argc > FAST_LOAD_STACK_DEPTH) /* Assuming FAST_LOAD_STACK_DEPTH <= ARG_BUF_LEN - 2 */
                fast_read_error("Loader application argc too high", port, ac);
 
           for(size_t ii = 0; ii < argc; ii++)
