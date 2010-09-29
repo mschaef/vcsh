@@ -462,12 +462,33 @@ void dump_loader_definition()
   dump_next_object(_T("definition"));
 }
 
-void  dump_loader_apply0()
+void  dump_loader_apply(fasl_opcode_t op)
 {
-  fasl_opcode_t op = dump_next_object(_T("fn"));
+  fasl_opcode_t fnOp = dump_next_object(_T("fn"));
 
-  if ((op != FASL_OP_CLOSURE) && (op != FASL_OP_SUBR))
+  if ((fnOp != FASL_OP_CLOSURE) && (fnOp != FASL_OP_SUBR))
     dump_error("Expected function for apply");
+
+  if (op == FASL_OP_LOADER_APPLYN)
+  {
+       fixnum_t argc;
+       _TCHAR buf[STRBUF_SIZE];
+
+       fasl_opcode_t argcOp = dump_next_object(_T("argc"), &argc);
+
+       if (!FIXNUM_OP_P(argcOp))
+            dump_error("Expected fixnum for FASL applyn argc");
+
+       for(fixnum_t ii = 0; ii < argc; ii++)
+       {
+            _sntprintf(buf, STRBUF_SIZE, _T("argv["FIXNUM_PRINTF_PREFIX "i]"), ii);
+            
+            op = dump_next_object(buf);
+
+            if (op == FASL_OP_EOF)
+                 dump_error("incomplete argv");
+       }
+  }
 }
 
 void dump_load_unit_boundary(fasl_opcode_t op)
@@ -595,7 +616,8 @@ static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
       break;
 
     case FASL_OP_LOADER_APPLY0:
-      dump_loader_apply0();
+    case FASL_OP_LOADER_APPLYN:
+      dump_loader_apply(opcode);
       break;
 
     case FASL_OP_BEGIN_LOAD_UNIT:
@@ -603,6 +625,9 @@ static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
       dump_load_unit_boundary(opcode);
       break;
 
+    case FASL_OP_PUSH:
+    case FASL_OP_DROP:
+         break;
 
     default:
       dump_error("invalid opcode");
