@@ -899,8 +899,6 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                fast_read(port, &name, allow_loader_ops);
 
                dscwritef(DF_SHOW_FAST_LOAD_UNITS, "; DEBUG: FASL entering unit ~s\n", name);
-
-               fast_loader_stack_push(port, CURRENT_PACKAGE());
                break;
 
           case FASL_OP_END_LOAD_UNIT:
@@ -911,14 +909,6 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                fast_read(port, &name, allow_loader_ops);
 
                dscwritef(DF_SHOW_FAST_LOAD_UNITS, "; DEBUG: FASL leaving unit ~s\n", name);
-
-               package = fast_loader_stack_pop(port);
-
-               if (!PACKAGEP(package))
-                    fast_read_error(_T("Non-package on fast loader stack."), port,
-                                    lport_location(port));
-
-               SET_CURRENT_PACKAGE(package);
                break;
 
           case FASL_OP_LOADER_PUSH:
