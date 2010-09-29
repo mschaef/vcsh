@@ -174,11 +174,19 @@
 
 ;; TODO: dynamic-let in a specific global environment
 
-(define (load-time-get-package)
-  *package*)
-
-(define (load-time-set-package! package)
-  (set! *package* package))
+;; These two functions are very unusual... they are directly written into
+;; compiled FASL output as arguments to APPLY0 and APPLYN and are used
+;; to protect *package* at load unit boundaries. *-GET-PACKAGE is literally
+;; the first intepreted code run by the VM on image startup, so it has to load
+;; and run with virtually no facilities from the image. (No subrs!
+;; No compiler package!) The net of this is that they're defined in the 
+;; system package so that the lambda name for the functions can be loaded
+;; at startup time. Also... you can do virtually nothing in these functions
+;; since they have to run in such a minimal environment.
+;;
+;; Like I said... these are unusual.
+(define (system::LOAD-TIME-GET-PACKAGE) *package*)
+(define (system::LOAD-TIME-SET-PACKAGE! package) (set! *package* package))
 
 (define (compile-file/simple filename output-fasl-stream genv)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
@@ -186,10 +194,10 @@
   ;; relates to the way we do cross-compilation.
   (define (begin-load-unit)
     (fasl-write-op system::FASL_OP_BEGIN_LOAD_UNIT (list filename) output-fasl-stream)
-    (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list load-time-get-package) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list system::LOAD-TIME-GET-PACKAGE) output-fasl-stream)
     (fasl-write-op system::FASL_OP_LOADER_PUSH () output-fasl-stream))
   (define (end-load-unit)
-    (fasl-write-op system::FASL_OP_LOADER_APPLYN (list load-time-set-package! 1) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_LOADER_APPLYN (list system::LOAD-TIME-SET-PACKAGE! 1) output-fasl-stream)
     (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream))
   (let ((original-package (symbol-value '*package* () genv)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
