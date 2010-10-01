@@ -210,10 +210,22 @@ extern "C" INLINE u64_t make_u64_t(u64_t high, u64_t low)
      return ((u64_t) high << 32) + (u64_t) low;
 }
 
+/* Microsoft C and gcc appear to have differing opinions on how to
+ * initialize a structure with an indefinate sized array at the end. */
+
+#if defined(_MSC_VER)
+typedef u8_t data_block_data_t[];
+#define DATA_BLOCK_DATA_CAST
+#else
+typedef u8_t *data_block_data_t;
+#define DATA_BLOCK_DATA_CAST (u8_t [])
+typedef unsigned long          size_t;
+#endif
+
 struct data_block_t
 {
-     u8_t *_bytes;
      size_t _length;    
+     data_block_data_t _bytes;
 };
 
 #endif

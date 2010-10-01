@@ -32,6 +32,27 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
 
 #define BLOCK_SIZE (256)
 
+size_t file_length(FILE * in)
+{
+     u8_t buf[BLOCK_SIZE];
+
+     size_t total = 0;
+
+     for (;;)
+     {
+          size_t bytes = fread(buf, 1, BLOCK_SIZE, in);
+
+          if (bytes == 0)
+               break;
+
+          total += bytes;
+     }
+
+     rewind(in);
+
+     return total;
+}
+
 void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
 {
      write_state s;
@@ -41,7 +62,9 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
 
      fprintf(out, "struct data_block_t %s = \n", varname);
      fprintf(out, "{\n");
-     fprintf(out, "     (u8_t []){");
+     fprintf(out, "     " SIZE_T_PRINTF_PREFIX ", \n", file_length(in));
+
+     fprintf(out, "     DATA_BLOCK_DATA_CAST {");
 
      u8_t buf[BLOCK_SIZE];
 
@@ -59,8 +82,8 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
           total += bytes;
      }
 
-     fprintf(out, "\n     },\n");
-     fprintf(out, "     " SIZE_T_PRINTF_PREFIX "\n", s._bytes_transferred);
+     fprintf(out, "\n     }\n");
+
      fprintf(out, "};\n");
 }
 
