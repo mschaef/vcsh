@@ -238,7 +238,7 @@ static void init_base_scheme_objects(void)
 {
      size_t ii;
 
-     gc_protect(_T("type-name-symbols"), interp.syms_internal_type_names, LAST_INTERNAL_TYPEC);
+     gc_protect(_T("type-name-symbols"), interp.syms_internal_type_names, LAST_INTERNAL_TYPEC + 1);
 
      for (ii = 0; ii < LAST_INTERNAL_TYPEC + 1; ii++)
           interp.syms_internal_type_names[ii] =
@@ -370,6 +370,7 @@ static void register_main_subrs()
     register_subr(_T("%set-package-name"),                SUBR_2,     (void*)lset_package_name                   );
     register_subr(_T("%set-package-use-list!"),           SUBR_2,     (void*)lset_package_use_list               );
     register_subr(_T("%set-property-list!"),              SUBR_2,     (void*)lset_property_list                  );
+    register_subr(_T("%set-trap-handler!"),               SUBR_2,     (void*)liset_trap_handler                  );
     register_subr(_T("%set-stack-limit"),                 SUBR_1,     (void*)lset_stack_limit                    );
     register_subr(_T("%show-type-stats"),                 SUBR_0,     (void*)lshow_type_stats                    );
     register_subr(_T("%slot-ref"),                        SUBR_2,     (void*)lislot_ref                          );
@@ -387,6 +388,7 @@ static void register_main_subrs()
     register_subr(_T("%sysob"),                           SUBR_1,     (void*)lsysob                              );
     register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );
     register_subr(_T("%time-apply0"),                     SUBR_1,     (void*)ltime_apply0                        );
+    register_subr(_T("%trap-handler"),                    SUBR_1,     (void*)litrap_handler                      );
     register_subr(_T("%unbound-marker"),                  SUBR_0,     (void*)lunbound_marker                     );
     register_subr(_T("%values"),                          SUBR_N,     (void*)lvalues                             );
     register_subr(_T("%values->list"),                    SUBR_3,     (void*)lvalues2list                        );

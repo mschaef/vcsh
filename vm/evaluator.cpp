@@ -331,6 +331,36 @@ LRef lset_interrupt_mask(LRef new_mask)
      return boolcons(previous_mask);
 }
 
+/*** Trap handling ***/
+
+static size_t get_trap_id(LRef trap_id)
+{
+     if (!FIXNUMP(trap_id))
+          vmerror_wrong_type(1, trap_id);
+
+     size_t id = (size_t)FIXNM(trap_id);
+
+     if ((id < 0) || (id > TRAP_LAST))
+          vmerror("Invalid trap ID: ~s", trap_id);
+
+     return id;
+}
+
+LRef liset_trap_handler(LRef trap_id, LRef new_handler)
+{
+     if (!PROCEDUREP(new_handler))
+          vmerror_wrong_type(2, new_handler);
+
+     interp.trap_handlers[get_trap_id(trap_id)] = new_handler;
+
+     return new_handler;
+}
+
+LRef litrap_handler(LRef trap_id)
+{
+     return interp.trap_handlers[get_trap_id(trap_id)];
+}
+
 /**************************************************************
  * The Evaluator
  */

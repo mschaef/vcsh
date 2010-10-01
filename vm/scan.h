@@ -1960,10 +1960,12 @@ LRef linteger2char(LRef s);     /*  REVISIT: rename to exact->char */
 LRef lintegerp(LRef x);
 LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
 LRef liset_instance_proto(LRef instance, LRef new_proto);
+LRef liset_trap_handler(LRef trap_id, LRef new_handler);
 LRef lislot_ref(LRef obj, LRef key);
 LRef lislot_set(LRef obj, LRef key, LRef value);
 LRef lisp_strcmp(LRef s1, LRef s2);
 LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
+LRef litrap_handler(LRef trap_id);
 LRef lkeywordp(LRef x);
 LRef llast(LRef);
 LRef llast_pair(LRef xs);
