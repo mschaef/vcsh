@@ -453,7 +453,6 @@ static void register_main_subrs()
     register_subr(_T("gc"),                               SUBR_0,     (void*)lgc                                 );
     register_subr(_T("gc-info"),                          SUBR_0,     (void*)lgc_info                            );
     register_subr(_T("gc-runtime"),                       SUBR_0,     (void*)lgc_runtime                         );
-    register_subr(_T("gc-status"),                        SUBR_1,     (void*)lgc_status                          );
     register_subr(_T("get-output-string"),                SUBR_1,     (void*)lget_output_string                  );
     register_subr(_T("has-slot?"),                        SUBR_2,     (void*)lhas_slotp                          );
     register_subr(_T("hash->a-list"),                     SUBR_1,     (void*)lhash2alist                         );
@@ -659,8 +658,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.gc_current_heap_segments = 0;
      interp.gc_heap_segments = NULL;
 
-     interp.gc_status_flag = 0;
-
      interp.launch_realtime = sys_runtime();
 
      interp.sym_package_list = NIL;
@@ -708,8 +705,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));
 
      accept_command_line_arguments(argc, argv);
-
-     interp.gc_status_flag = 1;
 
      load_init_load_files();
 }

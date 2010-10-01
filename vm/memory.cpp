@@ -645,26 +645,6 @@ static size_t gc_heap_freelist_length(void)
 
      return n;
 }
-
-LRef lgc_status(LRef new_gc_status)
-{
-     if (!NULLP(new_gc_status))
-          interp.gc_status_flag = TRUEP(new_gc_status) ? 1 : 0;
-
-     if (interp.gc_status_flag)
-          dscwritef(DF_SHOW_GC, "garbage collection verbose");
-     else
-          dscwritef(DF_SHOW_GC, "garbage collection silent");
-
-     size_t m = count_active_gc_heap_segments();
-     size_t n = gc_heap_freelist_length();
-
-     dscwritef(DF_SHOW_GC, "~cd of ~cd heap segs, ~cd allocated ~cd free\n", m, interp.gc_max_heap_segments,
-               m * interp.gc_heap_segment_size - n, n);
-
-     return boolcons(interp.gc_status_flag != 0);
-}
-
 LRef lgc_info()
 {
      LRef argv[8];

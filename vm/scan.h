@@ -560,8 +560,6 @@ struct interpreter_t
 
      LRef global_freelist;
 
-     long gc_status_flag;
-
      flonum_t launch_realtime;
 
      LRef sym_package_list;

@@ -135,7 +135,6 @@
 (%define gc #.(scheme::%subr-by-name "gc"))
 (%define gc-info #.(scheme::%subr-by-name "gc-info"))
 (%define gc-runtime #.(scheme::%subr-by-name "gc-runtime"))
-(%define gc-status #.(scheme::%subr-by-name "gc-status"))
 (%define get-output-string #.(scheme::%subr-by-name "get-output-string"))
 (%define has-slot? #.(scheme::%subr-by-name "has-slot?"))
 (%define hash->a-list #.(scheme::%subr-by-name "hash->a-list"))
