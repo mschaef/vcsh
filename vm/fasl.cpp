@@ -707,7 +707,6 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           fasl_opcode_t opcode = fast_read_opcode(port);
           fixnum_t index = 0;
           LRef name;
-          LRef package;
 
           if (DEBUG_FLAG(DF_FASL_SHOW_OPCODES))
           {

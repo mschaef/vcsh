@@ -582,8 +582,6 @@ struct interpreter_t
      LRef sym_global_bad_apply_handler;
      LRef sym_global_define_hook;
      LRef sym_internal_files;
-     LRef sym_reader_defaults_to_flonum;
-     LRef sym_reader_quotes_literal_lists;
      LRef sym_vm_runtime_error_handler;
      LRef sym_vm_signal_handler;
      LRef sym_stack_overflow;
@@ -1742,16 +1740,6 @@ INLINE LRef CURRENT_PACKAGE_LIST()
 INLINE void SET_CURRENT_PACKAGE_LIST(LRef ps)
 {
      SET_SYMBOL_VCELL(interp.sym_package_list, ps);
-}
-
-INLINE bool READER_DEFAULTS_TO_FLONUM_P()
-{
-     return (TRUEP(SYMBOL_VCELL(interp.sym_reader_defaults_to_flonum)));
-}
-
-INLINE bool READER_QUOTES_LITERAL_LISTS_P()
-{
-     return TRUEP(SYMBOL_VCELL(interp.sym_reader_quotes_literal_lists));
 }
 
 LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_object,
