@@ -291,19 +291,7 @@ static void init_base_scheme_objects(void)
      gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
      lidefine_global(interp.sym_internal_files, NIL, NIL);
 
-     gc_protect_sym(&interp.sym_vm_signal_handler, _T("*vm-signal-handler*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_vm_signal_handler, NIL, NIL);
-
      gc_protect_sym(&interp.sym_stack_overflow, _T("stack-overflow-escape"), interp.system_package);
-
-     gc_protect_sym(&interp.sym_timer_event_handler, _T("*timer-event-handler*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_timer_event_handler, NIL, NIL);
-
-     gc_protect_sym(&interp.sym_user_break_handler, _T("*user-break-handler*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_user_break_handler, NIL, NIL);
 
      gc_protect_sym(&interp.sym_subr_table, _T("*subr-table*"), interp.system_package);
      lidefine_global(interp.sym_subr_table, hashcons(false), NIL);
