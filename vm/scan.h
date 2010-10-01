@@ -581,7 +581,6 @@ struct interpreter_t
      LRef sym_global_bad_apply_handler;
      LRef sym_global_define_hook;
      LRef sym_internal_files;
-     LRef sym_vm_runtime_error_handler;
      LRef sym_vm_signal_handler;
      LRef sym_stack_overflow;
      LRef sym_timer_event_handler;
@@ -1719,11 +1718,6 @@ INLINE LRef VM_DEBUG_PORT()
 INLINE LRef CURRENT_GLOBAL_DEFINE_HOOK()
 {
      return (SYMBOL_VCELL(interp.sym_global_define_hook));
-}
-
-INLINE LRef CURRENT_VM_RUNTIME_ERROR_HANDLER()
-{
-     return (SYMBOL_VCELL(interp.sym_vm_runtime_error_handler));
 }
 
 INLINE LRef CURRENT_VM_SIGNAL_HANDLER()

@@ -12,7 +12,7 @@
 
            ;; Handler binding variables
            "*after-gc*" "*global-bad-apply-handler*" "*global-define-hook*" "*timer-event-handler*"
-           "*user-break-handler*" "*vm-runtime-error-handler*"
+           "*user-break-handler*"
            "*vm-signal-handler*"
 
            ;; Escapes

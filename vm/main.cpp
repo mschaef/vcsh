@@ -291,10 +291,6 @@ static void init_base_scheme_objects(void)
      gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
      lidefine_global(interp.sym_internal_files, NIL, NIL);
 
-     gc_protect_sym(&interp.sym_vm_runtime_error_handler, _T("*vm-runtime-error-handler*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_vm_runtime_error_handler, NIL, NIL);
-
      gc_protect_sym(&interp.sym_vm_signal_handler, _T("*vm-signal-handler*"),
                     interp.system_package);
      lidefine_global(interp.sym_vm_signal_handler, NIL, NIL);
