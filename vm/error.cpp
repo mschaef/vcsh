@@ -95,14 +95,8 @@ LRef vmerror(const _TCHAR * message, LRef new_errobj)
      dscwritef(DF_SHOW_VMERRORS,
                _T("; DEBUG: runtime error: ~cS : errobj=~s\n"), message, new_errobj);
 
-     if (NULLP(CURRENT_VM_RUNTIME_ERROR_HANDLER()))
-          panic("VM runtime error without registered handler.\n");
 
-     if (!CLOSUREP(CURRENT_VM_RUNTIME_ERROR_HANDLER())
-         && !SUBRP(CURRENT_VM_RUNTIME_ERROR_HANDLER()))
-          panic("Invalid VM error handler, must be a procedure.\n");
-
-     napply(CURRENT_VM_RUNTIME_ERROR_HANDLER(), 4, strcons(message), err_primitive, new_errobj,
+     napply(TRAP_HANDLER(TRAP_RUNTIME_ERROR), 4, strcons(message), err_primitive, new_errobj,
             NIL);
 
      /* Execution should never get to this point...

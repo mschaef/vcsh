@@ -126,10 +126,12 @@
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
 
-(define (*vm-runtime-error-handler* message primitive new-error-object)
+(define (vm-runtime-error-handler message primitive new-error-object)
   (set! *last-error-stack-trace* (reverse (%get-current-frames 6))) ; dynamic-let would complicate the stack trace
   (error (format #f "in ~a, ~S" (procedure-name primitive) message new-error-object) new-error-object))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler))
 
 (define *vm-signal-handler* abort)
 

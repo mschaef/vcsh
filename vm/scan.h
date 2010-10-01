@@ -1755,6 +1755,7 @@ size_t write_text(const _TCHAR * buf, size_t count, LRef port);
 
 #define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
 
+
 LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist);
 void scwritef(const _TCHAR * format_str, LRef port, ...);
 void dscwritef(const _TCHAR * format_str, ...);
@@ -1805,6 +1806,20 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
 LRef lidefine_global(LRef var, LRef val, LRef genv);
 
   /****** Error handling and control */
+
+
+void panic_on_bad_trap_handler(trap_type_t trap);
+
+INLINE LRef TRAP_HANDLER(trap_type_t trap)
+{
+     LRef handler = interp.trap_handlers[trap];
+
+     if (!PROCEDUREP(handler))
+          panic_on_bad_trap_handler(trap);
+
+     return handler;
+}
+
 
 bool infop();                   /*  REVISIT: still used? */
 void info(const _TCHAR * message, ...);
@@ -2149,7 +2164,6 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
      return DEBUGGING_BUILD && (interp.debug_flags & (fixnum_t) flag);
 }
-
 /* Frames and exceptions
  *
  * Frames are basically annotations on the dynamic stack. Each
