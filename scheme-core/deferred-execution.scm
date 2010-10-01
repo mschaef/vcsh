@@ -70,8 +70,11 @@
    (%schedule-all-deferred-events)))
 
 
-(define (*timer-event-handler*)
+(define (timer-event-handler)
   (process-scheduled-events))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_TIMER_EVENT timer-event-handler))
 
 ;;; !! Remove deferred scheduled events
 ;;;

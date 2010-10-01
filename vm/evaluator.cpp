@@ -500,13 +500,10 @@ static void process_break_event()
 {
      interp.break_pending = false;
 
-     if (!CLOSUREP(CURRENT_USER_BREAK_HANDLER()))
-          panic("Bad user break handler");
-
      LRef val = NIL;
      LRef tag = NIL;
 
-     if (call_lisp_procedure(CURRENT_USER_BREAK_HANDLER(), &val, &tag, 0))
+     if (call_lisp_procedure(TRAP_HANDLER(TRAP_USER_BREAK), &val, &tag, 0))
      {
           THROW_ESCAPE(tag, val);
      }
@@ -516,10 +513,7 @@ static void process_timer_event()
 {
      interp.timer_event_pending = false;
 
-     if (!CLOSUREP(CURRENT_TIMER_EVENT_HANDLER()))
-          panic("Bad timer event handler");
-
-     if (call_lisp_procedure(CURRENT_TIMER_EVENT_HANDLER(), NULL, NULL, 0))
+     if (call_lisp_procedure(TRAP_HANDLER(TRAP_TIMER_EVENT), NULL, NULL, 0))
           panic(_T("Error evaluating timer event handler"));
 }
 

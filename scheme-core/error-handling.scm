@@ -100,10 +100,6 @@
         (repl)))
     (throw 'error-escape)))
 
-(define (*user-break-handler*)
-  (catch 'ignore-user-break
-    (signal 'user-break)))
-
 (define (ignore-user-break)
   (throw 'ignore-user-break))
 
@@ -130,10 +126,15 @@
   (set! *last-error-stack-trace* (reverse (%get-current-frames 6))) ; dynamic-let would complicate the stack trace
   (error (format #f "in ~a, ~S" (procedure-name primitive) message new-error-object) new-error-object))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler))
 
-(define *vm-signal-handler* abort)
+(define (user-break-handler)
+  (catch 'ignore-user-break
+    (signal 'user-break)))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
+  (%set-trap-handler! system::TRAP_SIGNAL abort)
+  (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler))
 
 (define *show-system-frames* #f)
 

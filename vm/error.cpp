@@ -76,13 +76,7 @@ LRef vmsignal(const _TCHAR * signal_name, long n, ...)
 
      dscwritef(DF_SHOW_VMSIGNALS, _T("; DEBUG: vm-signal :~cS : ~s\n"), signal_name, signal_args);
 
-     if (NULLP(CURRENT_VM_SIGNAL_HANDLER()))
-          panic("VM condition signaled without registered handler.\n");
-
-     if (!PROCEDUREP(CURRENT_VM_SIGNAL_HANDLER()))
-          panic("Invalid VM signal handler, must be a procedure.\n");
-
-     return napply(CURRENT_VM_SIGNAL_HANDLER(), 1, signal_args);
+     return napply(TRAP_HANDLER(TRAP_SIGNAL), 1, signal_args);
 }
 
 /*  REVISIT: lots of errors could be improved by adding ~s to print the error object */
@@ -104,7 +98,7 @@ LRef vmerror(const _TCHAR * message, LRef new_errobj)
       * Every extant call to error (at the beginnning of 2006) was written
       * with the assumption that it would abort the current primitive.
       * However, with the signal-based error handling logic, if the
-      * CURRENT_VM_RUNTIME_ERROR_HANDLER does not ultimately result in
+      * runtime error trap handler does not ultimately result in
       * an escape, this assumption will be violated. Thusly, we panic
       * if that ever happens.
       */

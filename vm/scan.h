@@ -1679,16 +1679,6 @@ LRef lfast_op_args(LRef fastop);
 /**** Input/Output ****/
 const LRef DEFAULT_PORT = NIL;
 
-INLINE LRef CURRENT_TIMER_EVENT_HANDLER()
-{
-     return SYMBOL_VCELL(interp.sym_timer_event_handler);
-}
-
-INLINE LRef CURRENT_USER_BREAK_HANDLER()
-{
-     return SYMBOL_VCELL(interp.sym_user_break_handler);
-}
-
 INLINE LRef CURRENT_INPUT_PORT()
 {
      return SYMBOL_VCELL(interp.sym_port_current_in);
@@ -1718,11 +1708,6 @@ INLINE LRef VM_DEBUG_PORT()
 INLINE LRef CURRENT_GLOBAL_DEFINE_HOOK()
 {
      return (SYMBOL_VCELL(interp.sym_global_define_hook));
-}
-
-INLINE LRef CURRENT_VM_SIGNAL_HANDLER()
-{
-     return (SYMBOL_VCELL(interp.sym_vm_signal_handler));
 }
 
 INLINE LRef CURRENT_PACKAGE_LIST()
