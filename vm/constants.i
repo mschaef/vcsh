@@ -12,6 +12,7 @@
 #ifdef CONST_C_HEADER
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) enum table_name {
 #  define VM_CONSTANT(name, value) name = value,
+#  define VM_ANON_CONSTANT(name, value) VM_CONSTANT(name, value)
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) }; const _TCHAR *name_fn_name(const table_name val); 
 #endif
 
@@ -19,6 +20,7 @@
 #ifdef CONST_C_IMPL
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) const _TCHAR *name_fn_name(const table_name val) { switch(val) {
 #  define VM_CONSTANT(name, value)  case name: return _T(#name);
+#  define VM_ANON_CONSTANT(name, value)
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) default: return NULL; } }
 #endif
 
@@ -26,6 +28,7 @@
 #ifdef CONST_SCHEME
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name)
 #  define VM_CONSTANT(name, value) (define system::name value)
+#  define VM_ANON_CONSTANT(name, value) VM_CONSTANT(name, value)
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name)
 #endif
 
@@ -119,8 +122,21 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_MARK_STACK,               248)
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
+BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
+    VM_CONSTANT(TRAP_BAD_APPLY,               0  )
+    VM_CONSTANT(TRAP_DEFINE,                  1  )
+    VM_CONSTANT(TRAP_RUNTIME_ERROR,           2  )
+    VM_CONSTANT(TRAP_SIGNAL,                  3  )
+    VM_CONSTANT(TRAP_TIMER_EVENT,             4  )
+    VM_CONSTANT(TRAP_USER_BREAK,              5  )
+    VM_CONSTANT(TRAP_DO_NOT_UNDERSTAND,       6  )
+
+    VM_ANON_CONSTANT(TRAP_LAST,               6  )
+END_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
+
 #undef BEGIN_VM_CONSTANT_TABLE
 #undef VM_CONSTANT
+#undef VM_ANON_CONSTANT
 #undef END_VM_CONSTANT_TABLE
 
 /* *INDENT-ON */

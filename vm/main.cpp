@@ -236,11 +236,17 @@ const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
   /**** Interpreter Initialization and Shutdown */
 static void init_base_scheme_objects(void)
 {
+     size_t ii;
+
      gc_protect(_T("type-name-symbols"), interp.syms_internal_type_names, LAST_INTERNAL_TYPEC);
 
-     for (size_t ii = 0; ii < LAST_INTERNAL_TYPEC + 1; ii++)
+     for (ii = 0; ii < LAST_INTERNAL_TYPEC + 1; ii++)
           interp.syms_internal_type_names[ii] =
               simple_intern(system_type_names[ii], interp.system_package);
+     
+     gc_protect(_T("trap-handlers"), interp.trap_handlers, TRAP_LAST + 1);
+     for(ii = 0; ii < TRAP_LAST; ii++)
+          interp.trap_handlers[ii] = NIL;
 
      /*  REVISIT: These package paramaters should be explicit */
      LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
