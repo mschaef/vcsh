@@ -1785,12 +1785,15 @@ LRef lidefine_global(LRef var, LRef val, LRef genv);
 
 void panic_on_bad_trap_handler(trap_type_t trap);
 
-INLINE LRef TRAP_HANDLER(trap_type_t trap)
+INLINE LRef TRAP_HANDLER(trap_type_t trap, bool allow_nil)
 {
      LRef handler = interp.trap_handlers[trap];
 
      if (!PROCEDUREP(handler))
-          panic_on_bad_trap_handler(trap);
+     {
+          if (!(NULLP(handler) && allow_nil))
+               panic_on_bad_trap_handler(trap);
+     }
 
      return handler;
 }

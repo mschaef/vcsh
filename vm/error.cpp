@@ -76,7 +76,7 @@ LRef vmsignal(const _TCHAR * signal_name, long n, ...)
 
      dscwritef(DF_SHOW_VMSIGNALS, _T("; DEBUG: vm-signal :~cS : ~s\n"), signal_name, signal_args);
 
-     return napply(TRAP_HANDLER(TRAP_SIGNAL), 1, signal_args);
+     return napply(TRAP_HANDLER(TRAP_SIGNAL, false), 1, signal_args);
 }
 
 /*  REVISIT: lots of errors could be improved by adding ~s to print the error object */
@@ -90,7 +90,7 @@ LRef vmerror(const _TCHAR * message, LRef new_errobj)
                _T("; DEBUG: runtime error: ~cS : errobj=~s\n"), message, new_errobj);
 
 
-     napply(TRAP_HANDLER(TRAP_RUNTIME_ERROR), 4, strcons(message), err_primitive, new_errobj,
+     napply(TRAP_HANDLER(TRAP_RUNTIME_ERROR, false), 4, strcons(message), err_primitive, new_errobj,
             NIL);
 
      /* Execution should never get to this point...
