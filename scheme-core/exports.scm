@@ -11,7 +11,7 @@
            "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
 
            ;; Handler binding variables
-           "*after-gc*" "*global-bad-apply-handler*" "*global-define-hook*"
+           "*global-define-hook*"
 
            ;; Escapes
            "stack-overflow-escape"

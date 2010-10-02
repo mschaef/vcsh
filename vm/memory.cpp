@@ -521,16 +521,6 @@ static fixnum_t gc_collect_garbage(void)
 
      return cells_freed;
 }
-
-static void invoke_after_gc_hook(fixnum_t cells_freed)
-{
-     LRef after_gc_hook = SYMBOL_VCELL(interp.sym_after_gc);
-
-     if (!NULLP(after_gc_hook))
-          call_lisp_procedure(after_gc_hook, NULL, NULL,
-                              2, fixcons(cells_freed), fixcons(interp.gc_heap_segment_size));
-}
-
 /*** Global freelist enqueue and dequeue */
 
 void gc_release_freelist(LRef new_freelist)
@@ -555,6 +545,7 @@ LRef gc_claim_freelist()
          || ALWAYS_GC)
           cells_freed = gc_collect_garbage();
 
+     // TODO: Add automatic heap enlarge policy
      assert(!NULLP(interp.global_freelist));
 
      new_freelist = interp.global_freelist;
@@ -562,9 +553,6 @@ LRef gc_claim_freelist()
      interp.global_freelist = NEXT_FREE_LIST(interp.global_freelist);
 
      SET_NEXT_FREE_LIST(new_freelist, NIL);
-
-     if (cells_freed > 0)
-          invoke_after_gc_hook(cells_freed);
 
      return new_freelist;
 }
@@ -617,9 +605,7 @@ LRef make_type_name(typecode_t type_code)
 
 LRef lgc()
 {
-     fixnum_t cells_freed = gc_collect_garbage();
-
-     invoke_after_gc_hook(cells_freed);
+     gc_collect_garbage();
 
      return NIL;
 }

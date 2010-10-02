@@ -340,20 +340,6 @@
   (load-file filename)) ; REVISIT: the fasl-compiler version of this option has validity checks... necessary here too?
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; GC policy
-
-;; Without a re-entrant interpreter, it is not safe to set an
-;; *after-gc* hook in the presence of multiple threads.
-;;
-;; (define (*after-gc* free-cells default-heap-size)
-;;   "Default garbage collection policy is to add a heap if we
-;;    run a garbage collection cycle and end up with less than
-;;    a quarter-heap's worth of free cells.  If this is true,
-;;    we're not getting enough value out of each GC run, and
-;;    need more breathing room."
-;;   (when (< free-cells (/ default-heap-size 4))
-;;     (enlarge-heap)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; We need the compiler around

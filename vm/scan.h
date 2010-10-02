@@ -572,7 +572,6 @@ struct interpreter_t
      LRef trap_handlers[TRAP_LAST + 1];
      /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
      LRef syms_internal_type_names[LAST_INTERNAL_TYPEC + 1];
-     LRef sym_after_gc;
      LRef sym_args;
      LRef sym_current_package;
      LRef sym_errobj;

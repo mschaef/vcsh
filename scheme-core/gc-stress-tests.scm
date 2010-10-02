@@ -8,9 +8,6 @@
             "gc-stress-test-5"
             ))
 
-;; Currently, the interpreter itself is not re-entrant.
-;(set! *after-gc* ())
-
 ;; (%lisp-heap-stress-thread type count sleep-duration)
 ;;
 ;; type - The type of stress thread to create:
