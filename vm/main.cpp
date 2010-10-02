@@ -281,10 +281,6 @@ static void init_base_scheme_objects(void)
                     interp.system_package);
      lidefine_global(interp.sym_global_bad_apply_handler, NIL, NIL);
 
-     gc_protect_sym(&interp.sym_global_define_hook, _T("*global-define-hook*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_global_define_hook, NIL, NIL);
-
      gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
      lidefine_global(interp.sym_internal_files, NIL, NIL);
 
@@ -659,7 +655,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.sym_args = NIL;
      interp.sym_current_package = NIL;
      interp.sym_errobj = NIL;
-     interp.sym_global_define_hook = NIL;
 
      /*  Statistics Counters */
      interp.forms_evaluated = 0;

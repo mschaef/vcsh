@@ -578,7 +578,6 @@ struct interpreter_t
      LRef sym_name;
      LRef sym_do_not_understand;
      LRef sym_global_bad_apply_handler;
-     LRef sym_global_define_hook;
      LRef sym_internal_files;
      LRef sym_stack_overflow;
      LRef sym_subr_table;
@@ -1699,11 +1698,6 @@ INLINE LRef CURRENT_DEBUG_PORT()
 INLINE LRef VM_DEBUG_PORT()
 {
      return (&interp.debugger_output);
-}
-
-INLINE LRef CURRENT_GLOBAL_DEFINE_HOOK()
-{
-     return (SYMBOL_VCELL(interp.sym_global_define_hook));
 }
 
 INLINE LRef CURRENT_PACKAGE_LIST()

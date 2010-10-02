@@ -10,9 +10,6 @@
            ;; Port bindings
            "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
 
-           ;; Handler binding variables
-           "*global-define-hook*"
-
            ;; Escapes
            "stack-overflow-escape"
 
@@ -43,7 +40,6 @@
            *error*
            *filename-delimiter*
            *flonum-print-precision*
-           *global-define-hook*
            *global-readsharp-table*
            *idle-hook*
            *info*
