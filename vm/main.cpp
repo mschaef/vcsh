@@ -546,6 +546,7 @@ static void register_main_subrs()
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );
     register_subr(_T("%subr-type-code"),                  SUBR_1,     (void*)lsubr_type_code                     );
+    register_subr(_T("%subr-name"),                       SUBR_1,     (void*)lsubr_name                          );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );
     register_subr(_T("sxhash"),                           SUBR_2,     (void*)lsxhash                             );
     register_subr(_T("symbol-bound?"),                    SUBR_3,     (void*)lsymbol_boundp                      );

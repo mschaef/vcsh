@@ -17,6 +17,14 @@ LRef lsubr_type_code(LRef subr)
      return fixcons(SUBR_TYPE(subr));
 }
 
+LRef lsubr_name(LRef subr)
+{
+     if (!SUBRP(subr))
+          vmerror_wrong_type(1, subr);
+
+     return boolcons(false);
+}
+
 LRef subrcons(subr_arity_t type, LRef name, void *implementation)
 {
      LRef z = new_cell(TC_SUBR);

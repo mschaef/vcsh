@@ -329,7 +329,11 @@
    that is not a procedure or macro, or does not have a procedure name, #f is
    returned."
   (typecase procedure
-    ((closure subr)
+    ((subr)
+     (aif (%subr-name procedure)
+          it
+          (get-property procedure 'name)))
+    ((closure)
      (get-property procedure 'name))
     ((macro)
      (procedure-name (%macro-transformer procedure)))

@@ -88,6 +88,8 @@
 
 (define *enter-repl-on-runtime-error* #f)
 
+(define errobj #f)
+
 (define (handle-runtime-error message args)
   (handler-bind
       ((runtime-error (lambda (msg-2 args-2)

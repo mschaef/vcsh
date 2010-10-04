@@ -2084,6 +2084,7 @@ LRef lstructure_ref(LRef st, LRef index);
 LRef lstructure_set(LRef st, LRef index, LRef value);
 LRef lstructurecons(LRef slots, LRef layout);
 LRef lstructurep(LRef st, LRef expected_layout);
+LRef lsubr_name(LRef subr);
 LRef lsubr_type_code(LRef subr);
 LRef lsubset(LRef fcn, LRef l);
 LRef lsubstring(LRef, LRef, LRef);
