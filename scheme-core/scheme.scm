@@ -14,9 +14,6 @@
 
 (define *scheme-build-version* "Scheme 0.50")
 
-(define system::*info* #f)
-(define system::*error* #f)
-
 ;;; The build is composed of the following files:
 
 (include "../vm/constants.scm")
