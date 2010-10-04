@@ -274,8 +274,7 @@ static void init_base_scheme_objects(void)
      gc_protect(_T("sym-do-not-understand"), &interp.sym_do_not_understand, 1);
      interp.sym_do_not_understand = keyword_intern(_T("do-not-understand"));
 
-     gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
-     lidefine_global(interp.sym_internal_files, NIL, NIL);
+     gc_protect(_T("internal-files"), &interp.internal_files, 1);
 
      gc_protect_sym(&interp.sym_stack_overflow, _T("stack-overflow-escape"), interp.system_package);
 

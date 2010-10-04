@@ -569,6 +569,8 @@ struct interpreter_t
 
      LRef base_instance;
 
+     LRef internal_files;
+
      LRef trap_handlers[TRAP_LAST + 1];
      /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
      LRef syms_internal_type_names[LAST_INTERNAL_TYPEC + 1];
@@ -576,7 +578,6 @@ struct interpreter_t
      LRef sym_current_package;
      LRef sym_name;
      LRef sym_do_not_understand;
-     LRef sym_internal_files;
      LRef sym_stack_overflow;
      LRef sym_subr_table;
 

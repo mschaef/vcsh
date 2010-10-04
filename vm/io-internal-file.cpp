@@ -102,13 +102,13 @@ void register_internal_file(const _TCHAR * filename, bool binary_data, data_bloc
 {
      LRef file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
 
-     SET_SYMBOL_VCELL(interp.sym_internal_files,
-                      lcons(file_record, SYMBOL_VCELL(interp.sym_internal_files)));
+     interp.internal_files = lcons(file_record, interp.internal_files);
+                     
 }
 
 LRef liinternal_files()
 {
-     return SYMBOL_VCELL(interp.sym_internal_files);
+     return interp.internal_files;
 }
 
 LRef open_c_data_input(bool binary_data, data_block_t *data)
