@@ -577,7 +577,6 @@ struct interpreter_t
      LRef sym_errobj;
      LRef sym_name;
      LRef sym_do_not_understand;
-     LRef sym_global_bad_apply_handler;
      LRef sym_internal_files;
      LRef sym_stack_overflow;
      LRef sym_subr_table;

@@ -277,10 +277,6 @@ static void init_base_scheme_objects(void)
      gc_protect_sym(&interp.sym_errobj, _T("errobj"), interp.system_package);
      lidefine_global(interp.sym_errobj, NIL, NIL);
 
-     gc_protect_sym(&interp.sym_global_bad_apply_handler, _T("*global-bad-apply-handler*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_global_bad_apply_handler, NIL, NIL);
-
      gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
      lidefine_global(interp.sym_internal_files, NIL, NIL);
 
