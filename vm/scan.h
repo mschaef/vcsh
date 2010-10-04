@@ -574,7 +574,6 @@ struct interpreter_t
      LRef syms_internal_type_names[LAST_INTERNAL_TYPEC + 1];
      LRef sym_args;
      LRef sym_current_package;
-     LRef sym_errobj;
      LRef sym_name;
      LRef sym_do_not_understand;
      LRef sym_internal_files;

@@ -274,9 +274,6 @@ static void init_base_scheme_objects(void)
      gc_protect(_T("sym-do-not-understand"), &interp.sym_do_not_understand, 1);
      interp.sym_do_not_understand = keyword_intern(_T("do-not-understand"));
 
-     gc_protect_sym(&interp.sym_errobj, _T("errobj"), interp.system_package);
-     lidefine_global(interp.sym_errobj, NIL, NIL);
-
      gc_protect_sym(&interp.sym_internal_files, _T("*internal-files*"), interp.system_package);
      lidefine_global(interp.sym_internal_files, NIL, NIL);
 
@@ -650,7 +647,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      /*  Standard symbols */
      interp.sym_args = NIL;
      interp.sym_current_package = NIL;
-     interp.sym_errobj = NIL;
 
      /*  Statistics Counters */
      interp.forms_evaluated = 0;

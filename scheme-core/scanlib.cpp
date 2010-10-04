@@ -27,10 +27,7 @@ void init1()
           lifasl_load(open_c_data_input(true, &scf_scheme));
      } ON_ERROR()
      {
-          assert(SYMBOLP(interp.sym_errobj));
-
-          scwritef("\nError loading sinit, errobj = ~a\n",
-                   DEFAULT_PORT, SYMBOL_VCELL(interp.sym_errobj));
+          scwritef("\nError loading sinit.\n", DEFAULT_PORT);
      } LEAVE_TRY();
 }
 
