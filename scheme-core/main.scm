@@ -12,13 +12,6 @@
 (define *file-argument-handler* #f)
 (define *program-launch-name* #f)
 
-(define (safe-args)
-  "Return the value of args safely... return () is *args* is unbound.  This
-   happens during scansh0 startup."
-  (if (symbol-bound? '*args*)
-      *args*
-      '()))
-
 (define (bad-command-argument-value parameter-name message value)
   (abort 'invalid-command-argument parameter-name message value))
 
@@ -67,7 +60,7 @@
                    (format (current-error-port)
                            "Unknown command line argument: ~a\n" (car arg-binding))))))))
 
-  (let ((args (safe-args)))
+  (let ((args (%startup-args)))
     (when first-arg-is-launch-name?
       (set! *program-launch-name* (car args)))
     (for-each process-argument (split-arg-list (if first-arg-is-launch-name?

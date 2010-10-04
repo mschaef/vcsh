@@ -202,6 +202,11 @@ static void accept_command_line_arguments(int argc, _TCHAR * argv[])
      lidefine_global(interp.sym_args, arg_list, NIL);
 }
 
+LRef listartup_args()
+{
+     return SYMBOL_VCELL(interp.sym_args);
+}
+
 const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
      _T("free-cell"),
      _T("nil"),
@@ -340,6 +345,7 @@ static void register_main_subrs()
     register_subr(_T("%show-type-stats"),                 SUBR_0,     (void*)lshow_type_stats                    );
     register_subr(_T("%slot-ref"),                        SUBR_2,     (void*)lislot_ref                          );
     register_subr(_T("%slot-set!"),                       SUBR_3,     (void*)lislot_set                          );
+    register_subr(_T("%startup-args"),                    SUBR_0,     (void*)listartup_args                      );
     register_subr(_T("%stress-c-heap"),                   SUBR_2,     (void*)lstress_c_heap                      );
     register_subr(_T("%stress-lisp-heap"),                SUBR_1,     (void*)lstress_lisp_heap                   );
     register_subr(_T("%structure-layout"),                SUBR_1,     (void*)lstructure_layout                   );

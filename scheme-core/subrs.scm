@@ -57,6 +57,7 @@
 (%define %show-type-stats #.(scheme::%subr-by-name "%show-type-stats"))
 (%define %slot-ref #.(scheme::%subr-by-name "%slot-ref"))
 (%define %slot-set! #.(scheme::%subr-by-name "%slot-set!"))
+(%define %startup-args #.(scheme::%subr-by-name "%startup-args"))
 (%define %stress-c-heap #.(scheme::%subr-by-name "%stress-c-heap"))
 (%define %stress-lisp-heap #.(scheme::%subr-by-name "%stress-lisp-heap"))
 (%define %structure-layout #.(scheme::%subr-by-name "%structure-layout"))
