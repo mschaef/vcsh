@@ -22,7 +22,7 @@ LRef lsubr_name(LRef subr)
      if (!SUBRP(subr))
           vmerror_wrong_type(1, subr);
 
-     return boolcons(false);
+     return SUBR_NAME(subr);
 }
 
 LRef subrcons(subr_arity_t type, LRef name, void *implementation)
@@ -30,7 +30,7 @@ LRef subrcons(subr_arity_t type, LRef name, void *implementation)
      LRef z = new_cell(TC_SUBR);
 
      SET_SUBR_TYPE(z, type);
-     SET_SUBR_PROPERTY_LIST(z, lcons(lcons(interp.sym_name, name), NIL));
+     SET_SUBR_NAME(z, name);
      SET_SUBR_CODE(z, implementation);
 
      return (z);
@@ -128,8 +128,6 @@ LRef lset_property_list(LRef exp, LRef property_list)
 {
      if (CLOSUREP(exp))
           SET_CLOSURE_PROPERTY_LIST(exp, property_list);
-     else if (SUBRP(exp))
-          SET_SUBR_PROPERTY_LIST(exp, property_list);
      else if (SYMBOLP(exp))
           SET_SYMBOL_PROPS(exp, property_list);
      else
@@ -146,7 +144,7 @@ LRef lproperty_list(LRef exp)
      if (CLOSUREP(exp))
           return CLOSURE_PROPERTY_LIST(exp);
      else if (SUBRP(exp))
-          return SUBR_PROPERTY_LIST(exp);
+          return NIL;
      else if (SYMBOLP(exp))
           return SYMBOL_PROPS(exp);
      else

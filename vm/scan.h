@@ -356,7 +356,7 @@ struct LObject
 
           struct
           {
-               LRef property_list;
+               LRef name;
                subr_arity_t type;
                union
                {
@@ -1200,16 +1200,17 @@ INLINE void SET_SUBR_TYPE(LRef x, subr_arity_t type)
      (((*x).storage_as.subr.type)) = type;
 }
 
-INLINE LRef SUBR_PROPERTY_LIST(LRef x)
+INLINE LRef SUBR_NAME(LRef x)
 {
      checked_assert(SUBRP(x));
-     return (((*x).storage_as.subr.property_list));
+     return (((*x).storage_as.subr.name));
 }
 
-INLINE void SET_SUBR_PROPERTY_LIST(LRef x, LRef property_list)
+INLINE void SET_SUBR_NAME(LRef x, LRef name)
 {
      checked_assert(SUBRP(x));
-     (((*x).storage_as.subr.property_list)) = property_list;
+     checked_assert(STRINGP(x));
+     (((*x).storage_as.subr.name)) = name;
 }
 
 INLINE void SET_SUBR_CODE(LRef x, void *code)

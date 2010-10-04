@@ -245,7 +245,7 @@ void gc_mark(LRef initial_obj)
                break;
 
           case TC_SUBR:
-               obj = SUBR_PROPERTY_LIST(obj);
+               obj = SUBR_NAME(obj);
                break;
 
           case TC_HASH:

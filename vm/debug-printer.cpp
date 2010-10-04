@@ -358,7 +358,7 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
           break;
 
      case TC_SUBR:
-          scwritef("~u,~cd:~a", port, (LRef) obj, SUBR_TYPE(obj), SUBR_PROPERTY_LIST(obj));
+          scwritef("~u,~cd:~a", port, (LRef) obj, SUBR_TYPE(obj), SUBR_NAME(obj));
           break;
 
      case TC_CLOSURE:
