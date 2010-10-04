@@ -330,9 +330,7 @@
    returned."
   (typecase procedure
     ((subr)
-     (aif (%subr-name procedure)
-          it
-          (get-property procedure 'name)))
+     (%subr-name procedure))
     ((closure)
      (get-property procedure 'name))
     ((macro)
