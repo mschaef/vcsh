@@ -268,9 +268,6 @@ static void init_base_scheme_objects(void)
      gc_protect_sym(&interp.sym_port_debug, _T("*current-debug-port*"), interp.system_package);
      lidefine_global(interp.sym_port_debug, NIL, NIL);
 
-     gc_protect_sym(&interp.sym_name, _T("name"), interp.system_package);
-     lidefine_global(interp.sym_name, NIL, NIL);
-
      gc_protect(_T("sym-do-not-understand"), &interp.sym_do_not_understand, 1);
      interp.sym_do_not_understand = keyword_intern(_T("do-not-understand"));
 

@@ -578,7 +578,6 @@ struct interpreter_t
      LRef sym_current_package;
      LRef sym_name;
      LRef sym_do_not_understand;
-     LRef sym_stack_overflow;
      LRef sym_subr_table;
 
      /*  Standard ports */
