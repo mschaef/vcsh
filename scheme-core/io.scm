@@ -5,13 +5,13 @@
 ;;; I/O functions
 
 (define (internal-files)
-  (map car system::*internal-files*))
+  (map car (%internal-files)))
 
 (define (find-internal-file filename)
   "Searched for <filename> in the current list of internal files. Returns
    either the c-data port associated with the file if the file exists,  or #f
    if the file does not exist."
-  (aif (assoc filename system::*internal-files*)
+  (aif (assoc filename (%internal-files))
        (cdr it)
        #f))
 
