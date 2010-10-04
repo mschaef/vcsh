@@ -437,7 +437,7 @@
   "Returns a subr named <name>, returning <default> if not found. If
    <default> is not specified, panics if <name> is not found."
   (check string? name)
-  (let ((subr (hash-ref system::*subr-table* name default)))
+  (let ((subr (hash-ref (%subr-table) name default)))
     (if (eq? subr :NOT-FOUND-SO-PANIC)
        (%panic (string-append "Undefined SUBR in %subr-by-name: " name))
        subr)))
