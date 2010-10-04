@@ -349,6 +349,7 @@ static void register_main_subrs()
     register_subr(_T("%structure-set!"),                  SUBR_3,     (void*)lstructure_set                      );
     register_subr(_T("%structure?"),                      SUBR_2,     (void*)lstructurep                         );
     register_subr(_T("%structurecons"),                   SUBR_2,     (void*)lstructurecons                      );
+    register_subr(_T("%subr-table"),                      SUBR_0,     (void*)lisubr_table                        );
     register_subr(_T("%symbol-value"),                    SUBR_3,     (void*)lisymbol_value                      );
     register_subr(_T("%sysob"),                           SUBR_1,     (void*)lsysob                              );
     register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );

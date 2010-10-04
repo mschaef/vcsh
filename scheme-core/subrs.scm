@@ -66,6 +66,7 @@
 (%define %structure? #.(scheme::%subr-by-name "%structure?"))
 (%define %structurecons #.(scheme::%subr-by-name "%structurecons"))
 (%define %subr-name #.(scheme::%subr-by-name "%subr-name"))
+(%define %subr-table #.(scheme::%subr-by-name "%subr-table"))
 (%define %subr-type-code #.(scheme::%subr-by-name "%subr-type-code"))
 (%define %symbol-value #.(scheme::%subr-by-name "%symbol-value"))
 (%define %sysob #.(scheme::%subr-by-name "%sysob"))

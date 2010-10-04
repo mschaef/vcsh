@@ -44,9 +44,7 @@ LRef subrcons(subr_arity_t type, LRef name, void *implementation)
 void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation)
 {
      if (implementation == NULL)
-          dscwritef
-              (";;;; NULL SUBR IMPLEMENTATION: \"~cs\"! (Any attempt to use this subr will fail!)\n",
-               name);
+          dscwritef(";;;; NULL SUBR IMPLEMENTATION: \"~cs\"!\n", name);
 
      assert(name != NULL);
 
@@ -67,6 +65,11 @@ LRef find_subr_by_name(LRef subr_name)
      argv[1] = subr_name;
 
      return lhash_ref(2, argv);
+}
+
+LRef lisubr_table()
+{
+     return SYMBOL_VCELL(interp.sym_subr_table);
 }
 
 /**************************************************************

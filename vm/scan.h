@@ -1951,6 +1951,7 @@ LRef liset_trap_handler(LRef trap_id, LRef new_handler);
 LRef lislot_ref(LRef obj, LRef key);
 LRef lislot_set(LRef obj, LRef key, LRef value);
 LRef lisp_strcmp(LRef s1, LRef s2);
+LRef lisubr_table();
 LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
 LRef litrap_handler(LRef trap_id);
 LRef lkeywordp(LRef x);
