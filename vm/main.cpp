@@ -199,12 +199,12 @@ static void accept_command_line_arguments(int argc, _TCHAR * argv[])
           }
      }
 
-     lidefine_global(interp.sym_args, arg_list, NIL);
+     interp.startup_args = arg_list;
 }
 
 LRef listartup_args()
 {
-     return SYMBOL_VCELL(interp.sym_args);
+     return interp.startup_args;
 }
 
 const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
@@ -253,11 +253,10 @@ static void init_base_scheme_objects(void)
      for(ii = 0; ii < TRAP_LAST; ii++)
           interp.trap_handlers[ii] = NIL;
 
-     /*  REVISIT: These package paramaters should be explicit */
      LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
      lidefine_global(nil_sym, NIL, NIL);
 
-     gc_protect_sym(&interp.sym_args, _T("*args*"), interp.system_package);
+     gc_protect(_T("startup-args"), &interp.startup_args, 1);
 
      gc_protect_sym(&interp.sym_port_current_in, _T("*current-input-port*"), interp.system_package);
      lidefine_global(interp.sym_port_current_in, NIL, NIL);
@@ -648,7 +647,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.keyword_package = NIL;
 
      /*  Standard symbols */
-     interp.sym_args = NIL;
      interp.sym_current_package = NIL;
 
      /*  Statistics Counters */
