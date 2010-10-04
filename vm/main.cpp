@@ -273,8 +273,8 @@ static void init_base_scheme_objects(void)
 
      gc_protect(_T("internal-files"), &interp.internal_files, 1);
 
-     gc_protect_sym(&interp.sym_subr_table, _T("*subr-table*"), interp.system_package);
-     lidefine_global(interp.sym_subr_table, hashcons(false), NIL);
+     interp.subr_table = hashcons(false);
+     gc_protect(_T("subr-table"), &interp.subr_table, 1);
 
      LRef temp_sym;
 

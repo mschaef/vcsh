@@ -43,25 +43,26 @@ LRef subrcons(subr_arity_t type, LRef name, void *implementation)
 
 void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation)
 {
+     assert(HASHP(interp.subr_table));
+     assert(name != NULL);
+
      if (implementation == NULL)
           dscwritef(";;;; NULL SUBR IMPLEMENTATION: \"~cs\"!\n", name);
 
-     assert(name != NULL);
+     LRef subr_name = strcons(name);
 
-     LRef subr = subrcons(arity, strcons(name), implementation);
+     LRef subr = subrcons(arity, subr_name, implementation);
 
-     lhash_set(SYMBOL_VCELL(interp.sym_subr_table), strcons(name), subr);
+     lhash_set(interp.subr_table, subr_name, subr);
 }
 
 LRef find_subr_by_name(LRef subr_name)
 {
-     LRef subr_table = SYMBOL_VCELL(interp.sym_subr_table);
-
      assert(STRINGP(subr_name));
-     assert(HASHP(subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
+     assert(HASHP(interp.subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
 
      LRef argv[2];
-     argv[0] = subr_table;
+     argv[0] = interp.subr_table;
      argv[1] = subr_name;
 
      return lhash_ref(2, argv);
@@ -69,7 +70,7 @@ LRef find_subr_by_name(LRef subr_name)
 
 LRef lisubr_table()
 {
-     return SYMBOL_VCELL(interp.sym_subr_table);
+     return interp.subr_table;
 }
 
 /**************************************************************

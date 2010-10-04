@@ -570,6 +570,7 @@ struct interpreter_t
      LRef base_instance;
 
      LRef internal_files;
+     LRef subr_table;
 
      LRef trap_handlers[TRAP_LAST + 1];
      /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
@@ -578,7 +579,7 @@ struct interpreter_t
      LRef sym_current_package;
      LRef sym_name;
      LRef sym_do_not_understand;
-     LRef sym_subr_table;
+
 
      /*  Standard ports */
      LRef sym_port_current_in;
