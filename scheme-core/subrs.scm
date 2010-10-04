@@ -29,6 +29,7 @@
 (%define %instance-map #.(scheme::%subr-by-name "%instance-map"))
 (%define %instance-proto #.(scheme::%subr-by-name "%instance-proto"))
 (%define %instance-slots #.(scheme::%subr-by-name "%instance-slots"))
+(%define %internal-files #.(scheme::%subr-by-name "%internal-files"))
 (%define %list->values #.(scheme::%subr-by-name "%list->values"))
 (%define %macro #.(scheme::%subr-by-name "%macrocons"))
 (%define %macro-transformer #.(scheme::%subr-by-name "%macro-transformer"))

@@ -1932,6 +1932,7 @@ LRef liimmediate_p(LRef obj);
 LRef liinstance_map(LRef inst);
 LRef liinstance_proto(LRef instance);
 LRef liinstance_slots(LRef instance);
+LRef liinternal_files();
 LRef liload(LRef fname);
 LRef limacrocons(LRef t);
 LRef limag_part(LRef cmplx);

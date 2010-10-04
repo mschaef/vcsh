@@ -106,6 +106,11 @@ void register_internal_file(const _TCHAR * filename, bool binary_data, data_bloc
                       lcons(file_record, SYMBOL_VCELL(interp.sym_internal_files)));
 }
 
+LRef liinternal_files()
+{
+     return SYMBOL_VCELL(interp.sym_internal_files);
+}
+
 LRef open_c_data_input(bool binary_data, data_block_t *data)
 {
      c_data_port_state *ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));
