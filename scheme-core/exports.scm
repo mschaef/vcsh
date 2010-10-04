@@ -10,9 +10,6 @@
            ;; Port bindings
            "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
 
-           ;; Escapes
-           "stack-overflow-escape"
-
            ;; Procedure rewrite symbols
            "begin" "documentation"
 

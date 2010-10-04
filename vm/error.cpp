@@ -42,16 +42,9 @@ LRef topmost_primitive()
 }
 
 
-static bool in_stack_overflow = false;
-
 void vmerror_stack_overflow(u8_t * obj)
 {
      UNREFERENCED(obj);
-
-     if (in_stack_overflow)
-          return;
-
-     in_stack_overflow = true;
 
      panic("Stack Overflow!");
 
@@ -59,8 +52,6 @@ void vmerror_stack_overflow(u8_t * obj)
       * invoke a overflow handler.
       * 
       * REVISIT: Should the user be allowed to continue after an overflow? */
-
-     THROW_ESCAPE(interp.sym_stack_overflow, NIL);
 }
 
 LRef vmsignal(const _TCHAR * signal_name, long n, ...)

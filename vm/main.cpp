@@ -276,8 +276,6 @@ static void init_base_scheme_objects(void)
 
      gc_protect(_T("internal-files"), &interp.internal_files, 1);
 
-     gc_protect_sym(&interp.sym_stack_overflow, _T("stack-overflow-escape"), interp.system_package);
-
      gc_protect_sym(&interp.sym_subr_table, _T("*subr-table*"), interp.system_package);
      lidefine_global(interp.sym_subr_table, hashcons(false), NIL);
 
