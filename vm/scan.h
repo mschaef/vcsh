@@ -109,56 +109,6 @@ enum
  * This is the structure of a Lisp cell. The root of every Lisp
  * object is one of these... */
 
-/* ...Each boxed object has a type field... */
-
-enum typecode_t
-{
-     TC_FREE_CELL = 0,
-     TC_NIL = 1,
-     TC_BOOLEAN = 2,
-     TC_CONS = 3,
-
-     TC_FIXNUM = 4,
-     TC_FLONUM = 5,
-     TC_CHARACTER = 6,
-     TC_SYMBOL = 7,
-
-     TC_PACKAGE = 8,
-     TC_SUBR = 9,
-     TC_CLOSURE = 10,
-     TC_MACRO = 11,
-
-     TC_STRING = 12,
-     TC_VECTOR = 13,
-     TC_STRUCTURE = 14,
-     TC_HASH = 15,
-
-     TC_PORT = 16,
-     TC_END_OF_FILE = 17,
-     TC_VALUES_TUPLE = 18,
-     TC_INSTANCE = 19,
-
-     TC_UNBOUND_MARKER = 20,
-     TC_GC_TRIP_WIRE = 21,
-     TC_FAST_OP = 22,
-
-     LAST_INTERNAL_TYPEC = 22,
-};
-
-enum subr_arity_t
-{
-     SUBR_0 = 0,
-     SUBR_1 = 1,
-     SUBR_2 = 2,
-     SUBR_2N = 3,               /*  2 or more homogenous arguments */
-     SUBR_3 = 4,
-     SUBR_4 = 5,
-     SUBR_5 = 6,
-     SUBR_6 = 7,
-     SUBR_ARGC = 8,             /*  Arbitrary number of paramaters, passed as array */
-     SUBR_N = 9,                /*  Arbitrary number of paramaters, passed as list */
-};
-
 /* ...Forward declarations and typedefs... */
 
 struct port_class_t;

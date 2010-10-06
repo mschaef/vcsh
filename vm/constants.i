@@ -135,6 +135,47 @@ BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
     VM_ANON_CONSTANT(TRAP_LAST,               7  )
 END_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
 
+BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)
+    VM_CONSTANT(TC_FREE_CELL,                 0  )
+    VM_CONSTANT(TC_NIL,                       1  )
+    VM_CONSTANT(TC_BOOLEAN,                   2  )
+    VM_CONSTANT(TC_CONS,                      3  )
+    VM_CONSTANT(TC_FIXNUM,                    4  )
+    VM_CONSTANT(TC_FLONUM,                    5  )
+    VM_CONSTANT(TC_CHARACTER,                 6  )
+    VM_CONSTANT(TC_SYMBOL,                    7  )
+    VM_CONSTANT(TC_PACKAGE,                   8  )
+    VM_CONSTANT(TC_SUBR,                      9  )
+    VM_CONSTANT(TC_CLOSURE,                   10 )
+    VM_CONSTANT(TC_MACRO,                     11 )
+    VM_CONSTANT(TC_STRING,                    12 )
+    VM_CONSTANT(TC_VECTOR,                    13 )
+    VM_CONSTANT(TC_STRUCTURE,                 14 )
+    VM_CONSTANT(TC_HASH,                      15 )
+    VM_CONSTANT(TC_PORT,                      16 )
+    VM_CONSTANT(TC_END_OF_FILE,               17 )
+    VM_CONSTANT(TC_VALUES_TUPLE,              18 )
+    VM_CONSTANT(TC_INSTANCE,                  19 )
+    VM_CONSTANT(TC_UNBOUND_MARKER,            20 )
+    VM_CONSTANT(TC_GC_TRIP_WIRE,              21 )
+    VM_CONSTANT(TC_FAST_OP,                   22 )
+
+    VM_ANON_CONSTANT(LAST_INTERNAL_TYPEC,     22 )
+END_VM_CONSTANT_TABLE(typecode_t, typecode_name)
+
+BEGIN_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
+    VM_CONSTANT(SUBR_0,                       0  )
+    VM_CONSTANT(SUBR_1,                       1  )
+    VM_CONSTANT(SUBR_2,                       2  )
+    VM_CONSTANT(SUBR_2N,                      3  )  /*  2 or more homogenous argument, */
+    VM_CONSTANT(SUBR_3,                       4  )
+    VM_CONSTANT(SUBR_4,                       5  )
+    VM_CONSTANT(SUBR_5,                       6  )
+    VM_CONSTANT(SUBR_6,                       7  )
+    VM_CONSTANT(SUBR_ARGC,                    8  )  /*  Arbitrary number of paramaters, passed as array. */
+    VM_CONSTANT(SUBR_N,                       9  )  /*  Arbitrary number of paramaters, passed as list. */
+END_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
+
 #undef BEGIN_VM_CONSTANT_TABLE
 #undef VM_CONSTANT
 #undef VM_ANON_CONSTANT
