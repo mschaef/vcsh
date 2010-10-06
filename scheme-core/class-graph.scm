@@ -4,6 +4,34 @@
 ;;;
 ;;; The class inheritance graph.
 
+;; (define (%representation-of obj)
+;;   (let ((tc (%typecode obj)))
+;;     (case tc
+;;       ((#.system::TC_FREE_CELL)      'free-cell)  
+;;       ((#.system::TC_NIL)            'nil)  
+;;       ((#.system::TC_BOOLEAN)        'boolean)  
+;;       ((#.system::TC_CONS)           'cons)  
+;;       ((#.system::TC_FIXNUM)         'fixnum)  
+;;       ((#.system::TC_FLONUM)         (if (imag-part obj #f) 'complex 'flonum))  
+;;       ((#.system::TC_CHARACTER)      'character)  
+;;       ((#.system::TC_SYMBOL)         'symbol)  
+;;       ((#.system::TC_PACKAGE)        'package)  
+;;       ((#.system::TC_SUBR)           'subr)  
+;;       ((#.system::TC_CLOSURE)        'closure) 
+;;       ((#.system::TC_MACRO)          'macro) 
+;;       ((#.system::TC_STRING)         'string) 
+;;       ((#.system::TC_VECTOR)         'vector) 
+;;       ((#.system::TC_STRUCTURE)      'structure) 
+;;       ((#.system::TC_HASH)           'hash) 
+;;       ((#.system::TC_PORT)           'port) 
+;;       ((#.system::TC_END_OF_FILE)    'end-of-file) 
+;;       ((#.system::TC_VALUES_TUPLE)   'values-typle) 
+;;       ((#.system::TC_INSTANCE)       'instance) 
+;;       ((#.system::TC_UNBOUND_MARKER) 'unbound-arker) 
+;;       ((#.system::TC_GC_TRIP_WIRE)   'trip-wire) 
+;;       ((#.system::TC_FAST_OP)        'fast-op)
+;;       (#t (error "Bad typecode: ~s for ~s" tc obj)))))
+
 (define *class-graph* (make-hash))
 
 (define (valid-class-name? maybe-class-name)
