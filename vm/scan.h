@@ -1904,6 +1904,7 @@ LRef lisp_strcmp(LRef s1, LRef s2);
 LRef lisubr_table();
 LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
 LRef litrap_handler(LRef trap_id);
+LRef litypecode(LRef obj);
 LRef lkeywordp(LRef x);
 LRef llast(LRef);
 LRef llast_pair(LRef xs);

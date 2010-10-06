@@ -138,4 +138,9 @@ LRef lrepresentation_of(LRef obj)
      return make_type_name(TYPE(obj));
 }
 
+LRef litypecode(LRef obj)
+{
+     return fixcons(TYPE(obj));
+}
+
 END_NAMESPACE

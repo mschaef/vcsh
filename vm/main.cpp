@@ -358,6 +358,7 @@ static void register_main_subrs()
     register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );
     register_subr(_T("%time-apply0"),                     SUBR_1,     (void*)ltime_apply0                        );
     register_subr(_T("%trap-handler"),                    SUBR_1,     (void*)litrap_handler                      );
+    register_subr(_T("%typecode"),                        SUBR_1,     (void*)litypecode                          );
     register_subr(_T("%unbound-marker"),                  SUBR_0,     (void*)lunbound_marker                     );
     register_subr(_T("%values"),                          SUBR_N,     (void*)lvalues                             );
     register_subr(_T("%values->list"),                    SUBR_3,     (void*)lvalues2list                        );
