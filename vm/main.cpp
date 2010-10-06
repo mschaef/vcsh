@@ -446,7 +446,7 @@ static void register_main_subrs()
     register_subr(_T("hash-type"),                        SUBR_1,     (void*)lhash_type                          );
     register_subr(_T("hash?"),                            SUBR_1,     (void*)lhashp                              );
     register_subr(_T("ieee-754-bits->"),                  SUBR_1,     (void*)lieee754_bits_to                    );
-    register_subr(_T("imag-part"),                        SUBR_1,     (void*)limag_part                          );
+    register_subr(_T("imag-part"),                        SUBR_ARGC,  (void*)limag_part                          );
     register_subr(_T("inexact->display-string"),          SUBR_4,     (void*)linexact2display_string             );
     register_subr(_T("inexact->exact"),                   SUBR_1,     (void*)linexact2exact                      );
     register_subr(_T("inexact?"),                         SUBR_1,     (void*)linexactp                           );

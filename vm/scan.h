@@ -1885,7 +1885,7 @@ LRef liinstance_slots(LRef instance);
 LRef liinternal_files();
 LRef liload(LRef fname);
 LRef limacrocons(LRef t);
-LRef limag_part(LRef cmplx);
+LRef limag_part(size_t argc, LRef argv[]);
 LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s);
 LRef linexact2exact(LRef x);
 LRef linexactp(LRef x);

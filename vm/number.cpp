@@ -875,16 +875,21 @@ LRef lreal_part(LRef cmplx)
 
 }
 
-LRef limag_part(LRef cmplx)
+LRef limag_part(size_t argc, LRef argv[])
 {
+     if (argc < 1)
+          vmerror_wrong_type(NIL);
+
+     LRef cmplx = argv[0];
+
      if (FIXNUMP(cmplx))
-          return fixcons(0);
+          return (argc > 1) ? argv[1] : fixcons(0);
 
      if (!FLONUMP(cmplx))
           vmerror_wrong_type(cmplx);
 
      if (NULLP(FLOIM(cmplx)))
-          return flocons(0.0);
+          return (argc > 1) ? argv[1] :flocons(0.0);
      else
           return FLOIM(cmplx);
 }

@@ -14,10 +14,10 @@
            "begin" "documentation"
 
            ;; Type names
-           "boolean" "character" "closure"
-           "cons"  "end-of-file" "errobj" "fast-op" "fixnum"
-           "flonum" "free-cell" "hash" "instance" "macro" "name" "nil" "package"
-           "port" "string" "structure" "subr" "symbol" "values-tuple" "vector"
+        "boolean" "character" "closure"
+        "cons"  "end-of-file" "errobj" "fast-op" "fixnum"
+        "flonum" "free-cell" "hash" "instance" "macro" "name" "nil" "package"
+        "port" "string" "structure" "subr" "symbol" "values-tuple" "vector"
            )
          (find-package "system"))
 
