@@ -129,9 +129,10 @@ BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
     VM_CONSTANT(TRAP_SIGNAL,                  3  )
     VM_CONSTANT(TRAP_TIMER_EVENT,             4  )
     VM_CONSTANT(TRAP_USER_BREAK,              5  )
-    VM_CONSTANT(TRAP_DO_NOT_UNDERSTAND,       6  )
+    VM_CONSTANT(TRAP_MSG_NOT_UNDERSTOOD,      6  )
+    VM_CONSTANT(TRAP_PRIMITIVE_INSTANCE,      7  )
 
-    VM_ANON_CONSTANT(TRAP_LAST,               6  )
+    VM_ANON_CONSTANT(TRAP_LAST,               7  )
 END_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
 
 #undef BEGIN_VM_CONSTANT_TABLE

@@ -388,8 +388,8 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
 
      if (!TRUEP(message_handler))
      {
-          message_handler = llookup_message_handler(lookup_ctx_inst, interp.sym_do_not_understand);
-
+          message_handler = napply(TRAP_HANDLER(TRAP_MSG_NOT_UNDERSTOOD, false), 3, lookup_ctx_inst, message_name, NIL);
+          
           args = lcons(message_name, args);
      }
 
@@ -414,7 +414,7 @@ LRef lsend(LRef args)
      LRef lookup_ctx = self;
 
      if (!INSTANCEP(lookup_ctx))
-          lookup_ctx = SYMBOL_VCELL(lrepresentation_of(self));
+          lookup_ctx = napply(TRAP_HANDLER(TRAP_PRIMITIVE_INSTANCE, false), 2, self, NIL);
 
      args = CDR(args);
 

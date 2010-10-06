@@ -124,7 +124,15 @@
 
 ;;; Method definition
 
+(define (message-not-understood-handler instance message-name)
+  (error "Message ~s not understood by ~s" message-name instance))
 
+(define (primitive-instance-handler primitive)
+  (error "Cannot send message to primitive: ~s" primitive))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_MSG_NOT_UNDERSTOOD message-not-understood-handler)
+  (%set-trap-handler! system::TRAP_PRIMITIVE_INSTANCE primitive-instance-handler))
 
 (define (is-a? object type)
   "Determines if <object> is of the type specified by <type>."
