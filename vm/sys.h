@@ -31,7 +31,7 @@ BEGIN_NAMESPACE(scan)
 enum
 {
 
-     DEFAULT_STACK_SIZE = 512 * 1024,   /* The default stack size for a newly created thread */
+     DEFAULT_STACK_SIZE = 1024 * 1024,   /* The default stack size for a newly created thread */
 
      SECONDS_PER_MINUTE = 60    /* bar */
 };
