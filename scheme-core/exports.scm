@@ -14,10 +14,7 @@
            "begin" "documentation"
 
            ;; Type names
-        "boolean" "character" "closure"
-        "cons"  "end-of-file" "errobj" "fast-op" "fixnum"
-        "flonum" "free-cell" "hash" "instance" "macro" "name" "nil" "package"
-        "port" "string" "structure" "subr" "symbol" "values-tuple" "vector"
+
            )
          (find-package "system"))
 
@@ -26,7 +23,58 @@
 ;; the scheme package contains a full set of symbols required for the languauge.
 (import-package! (find-package "system") #t (find-package "scheme"))
 
+;; (eval-when (:compile-toplevel :load-toplevel :execute)
+
+;;   (dolist (sym '(           boolean
+;;                             character
+;;                             closure
+;;                             cons
+;;                             end-of-file
+;;                             errobj
+;;                             fast-op
+;;                             fixnum
+;;                             flonum
+;;                             free-cell
+;;                             hash
+;;                             instance
+;;                             macro
+;;                             name
+;;                             nil
+;;                             package
+;;                             port
+;;                             string
+;;                             structure
+;;                             subr
+;;                             symbol
+;;                             values-tuple
+;;                             vector
+;;                             ))
+;;     (set-symbol-package! sym (find-package "scheme"))))
+
 (export! '(*
+         boolean
+                            character
+                            closure
+                            cons
+                            end-of-file
+                            errobj
+                            fast-op
+                            fixnum
+                            flonum
+                            free-cell
+                            hash
+                            instance
+                            macro
+                            name
+                            nil
+                            package
+                            port
+                            string
+                            structure
+                            subr
+                            symbol
+                            values-tuple
+                            vector
            *allow-rich-writes*
            *arg-values*
            *bits*
