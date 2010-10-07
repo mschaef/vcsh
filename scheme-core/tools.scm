@@ -533,17 +533,9 @@
     `(string-quasiquote ,*package* ,(read port))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *readsharp-syntax* #\L read-short-lambda)
+  (set-char-syntax! *readsharp-syntax* #\L 'read-short-lambda)
 
-  (set-char-syntax! *readsharp-syntax* #\. (lambda (port)
-                                              (read-char port)
-                                              (eval (read port))))
-
-  (set-char-syntax! *readsharp-syntax* #\! (lambda (port)
-                                              (read-line port)
-                                              (read port)))
-
-  (set-char-syntax! *readsharp-syntax* #\" read-string-quasiquote))
+  (set-char-syntax! *readsharp-syntax* #\" 'read-string-quasiquote))
 
 (define (%get-free-cell)
   "Return a pointer to an unallocated free cell on the heap."
