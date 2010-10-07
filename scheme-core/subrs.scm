@@ -42,7 +42,6 @@
 (%define %packagecons #.(scheme::%subr-by-name "%packagecons"))
 (%define %panic #.(scheme::%subr-by-name "%panic"))
 (%define %property-list #.(scheme::%subr-by-name "%property-list"))
-(%define %representation-of #.(scheme::%subr-by-name "%representation-of"))
 (%define %set-closure-code #.(scheme::%subr-by-name "%set-closure-code"))
 (%define %set-closure-env #.(scheme::%subr-by-name "%set-closure-env"))
 (%define %set-debug-flags #.(scheme::%subr-by-name "%set-debug-flags"))
