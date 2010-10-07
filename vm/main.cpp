@@ -207,48 +207,12 @@ LRef listartup_args()
      return interp.startup_args;
 }
 
-const _TCHAR *system_type_names[LAST_INTERNAL_TYPEC + 1] = {
-     _T("free-cell"),
-     _T("nil"),
-     _T("boolean"),
-     _T("cons"),
-
-     _T("fixnum"),
-     _T("flonum"),
-     _T("character"),
-     _T("symbol"),
-
-     _T("package"),
-     _T("subr"),
-     _T("closure"),
-     _T("macro"),
-
-     _T("string"),
-     _T("vector"),
-     _T("structure"),
-     _T("hash"),
-
-     _T("port"),
-     _T("end-of-file"),
-     _T("values-tuple"),
-     _T("instance"),
-
-     _T("unbound-marker"),
-     _T("gc-trip-wire"),
-     _T("fast-op"),
-};
 
   /**** Interpreter Initialization and Shutdown */
 static void init_base_scheme_objects(void)
 {
      size_t ii;
 
-     gc_protect(_T("type-name-symbols"), interp.syms_internal_type_names, LAST_INTERNAL_TYPEC + 1);
-
-     for (ii = 0; ii < LAST_INTERNAL_TYPEC + 1; ii++)
-          interp.syms_internal_type_names[ii] =
-              simple_intern(system_type_names[ii], interp.system_package);
-     
      gc_protect(_T("trap-handlers"), interp.trap_handlers, TRAP_LAST + 1);
      for(ii = 0; ii < TRAP_LAST; ii++)
           interp.trap_handlers[ii] = NIL;

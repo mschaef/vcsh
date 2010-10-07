@@ -119,12 +119,10 @@ LRef lshow_type_stats()
      }
 
      /* Build the result list */
-     result = NIL;
+     result = vectorcons(LAST_INTERNAL_TYPEC + 1, NIL);
 
      for (int i = 0; i <= LAST_INTERNAL_TYPEC; i++)
-          result =
-              lcons(lcons(make_type_name((typecode_t) i), fixcons(internal_type_counts[i])),
-                    result);
+          SET_VECTOR_ELEM(result, i, fixcons(internal_type_counts[i]));
 
      return result;
 }
