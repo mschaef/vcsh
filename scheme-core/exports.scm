@@ -12,9 +12,6 @@
 
            ;; Procedure rewrite symbols
            "begin" "documentation"
-
-           ;; Type names
-
            )
          (find-package "system"))
 
@@ -23,58 +20,8 @@
 ;; the scheme package contains a full set of symbols required for the languauge.
 (import-package! (find-package "system") #t (find-package "scheme"))
 
-;; (eval-when (:compile-toplevel :load-toplevel :execute)
-
-;;   (dolist (sym '(           boolean
-;;                             character
-;;                             closure
-;;                             cons
-;;                             end-of-file
-;;                             errobj
-;;                             fast-op
-;;                             fixnum
-;;                             flonum
-;;                             free-cell
-;;                             hash
-;;                             instance
-;;                             macro
-;;                             name
-;;                             nil
-;;                             package
-;;                             port
-;;                             string
-;;                             structure
-;;                             subr
-;;                             symbol
-;;                             values-tuple
-;;                             vector
-;;                             ))
-;;     (set-symbol-package! sym (find-package "scheme"))))
 
 (export! '(*
-         boolean
-                            character
-                            closure
-                            cons
-                            end-of-file
-                            errobj
-                            fast-op
-                            fixnum
-                            flonum
-                            free-cell
-                            hash
-                            instance
-                            macro
-                            name
-                            nil
-                            package
-                            port
-                            string
-                            structure
-                            subr
-                            symbol
-                            values-tuple
-                            vector
            *allow-rich-writes*
            *arg-values*
            *bits*
@@ -91,10 +38,10 @@
            *location-mapping*
            *memoize-results?*
            *number-of-characters*
+           *post-load-hook*
+           *pre-load-hook*
            *precision*
            *pretty-print-syntax*
-           *pre-load-hook*
-           *post-load-hook*
            *print-addresses*
            *print-depth*
            *print-length*
@@ -105,9 +52,9 @@
            *read-syntax*
            *readsharp-syntax*
            *repl-abbreviations-enabled*
-           *repl-pre-read-hook*
            *repl-post-hook*
            *repl-pre-print-value-hook*
+           *repl-pre-read-hook*
            *show-system-frames*
            *shutdown-hook*
            *silent*
@@ -215,6 +162,7 @@
            bitwise-shift-right
            bitwise-xor
            block
+           boolean
            boolean?
            break
            break!
@@ -290,6 +238,7 @@
            char>=?
            char>?
            char?
+           character
            character->string
            check
            circular-list
@@ -307,12 +256,14 @@
            close-input-port
            close-output-port
            close-port
+           closure
            closure-bindings
            closure?
            columns->instance
            complex
            complex?
            cond
+           cons
            cons*
            copy-global-environment
            copy-structure
@@ -377,6 +328,7 @@
            duplicates?
            duration
            dynamic-let
+           end-of-file
            end-of-list?
            enlarge-heap
            ensure-package!
@@ -387,6 +339,7 @@
            eq?
            equal?
            eqv?
+           errobj
            error
            error-escape
            etypecase
@@ -408,6 +361,7 @@
            fasl-load
            fasl-write
            fasl-write-op
+           fast-op
            fast-read
            fifth
            file-details
@@ -434,8 +388,10 @@
            find-symbol
            find-tail
            first
+           fixnum
            flatten
            flatten-instance
+           flonum
            floor
            flush-port
            flush-whitespace
@@ -447,6 +403,7 @@
            format
            formatter
            fourth
+           free-cell
            fresh-line
            gc
            gc-info
@@ -464,6 +421,7 @@
            handle-runtime-error
            handler-bind
            has-slot?
+           hash
            hash->a-list
            hash->list
            hash-clear!
@@ -504,6 +462,7 @@
            insert-ordered
            inspect
            inspect-analyze-object
+           instance
            instance-proto
            instance-understands?
            instance-with-slot?
@@ -578,6 +537,7 @@
            local-package-variables
            log
            log10
+           macro
            macro?
            macroexpand
            macroexpand!
@@ -601,8 +561,8 @@
            make-vector
            map
            map-pair
-           match?
            match-pattern-variables
+           match?
            matches-glob?
            max
            member
@@ -620,6 +580,7 @@
            modified-julian-day->time-utc
            modulo
            mvbind
+           name
            name->string
            name?
            nan?
@@ -627,6 +588,7 @@
            negate
            negative?
            newline
+           nil
            normalize-whitespace
            not
            nth
@@ -650,6 +612,7 @@
            output-port?
            p-list->a-list
            p-list-fold
+           package
            package-copy
            package-name
            package-provided?
@@ -668,6 +631,7 @@
            platform-windows?
            pop!
            population-count
+           port
            port-at-end?
            port-bandwidth
            port-io-counts
@@ -797,6 +761,7 @@
            stable
            stats-list?
            strcmp
+           string
            string!=
            string!=-ci
            string->date
@@ -842,15 +807,18 @@
            string>=
            string>=-ci
            string?
+           structure
            structure-has-slot?
            structure-slot-by-name
            structure-slots
            structure-type
            structure?
+           subr
            substring
            subtract-duration
            subtract-duration!
            sxhash
+           symbol
            symbol-bound?
            symbol-name
            symbol-package
@@ -932,6 +900,8 @@
            use-package!
            user-break
            values
+           values-tuple
+           vector
            vector->list
            vector-copy
            vector-fill!
