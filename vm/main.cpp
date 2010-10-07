@@ -327,7 +327,6 @@ static void register_main_subrs()
     register_subr(_T("%packagecons"),                     SUBR_3,     (void*)lipackagecons                       );
     register_subr(_T("%panic"),                           SUBR_1,     (void*)lpanic                              );
     register_subr(_T("%property-list"),                   SUBR_1,     (void*)lproperty_list                      );
-    register_subr(_T("%representation-of"),               SUBR_1,     (void*)lrepresentation_of                  );
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );
     register_subr(_T("%set-closure-env"),                 SUBR_2,     (void*)lset_closure_env                    );
     register_subr(_T("%set-debug-flags"),                 SUBR_1,     (void*)lset_debug_flags                    );

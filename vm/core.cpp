@@ -127,17 +127,6 @@ LRef lnullp(LRef x)
      return boolcons(NULLP(x));
 }
 
-LRef lrepresentation_of(LRef obj)
-{
-     if (COMPLEXP(obj))
-          return simple_intern(_T("complex"), interp.scheme_package);
-
-     if (INSTANCEP(obj))
-          return simple_intern(_T("instance"), interp.scheme_package);
-
-     return make_type_name(TYPE(obj));
-}
-
 LRef litypecode(LRef obj)
 {
      return fixcons(TYPE(obj));

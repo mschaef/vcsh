@@ -528,10 +528,10 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                     return_value = unprintable_object;
 
                if (DEBUG_FLAG(DF_PRINT_FOR_DIFF))
-                    scwritef("#<~a@(no-addr)", port, lrepresentation_of(unprintable_object));
+                    scwritef("#<~cs@(no-addr)", port, typecode_name(TYPE(unprintable_object)));
                else
-                    scwritef("#<~a@~c&", port,
-                             lrepresentation_of(unprintable_object), unprintable_object);
+                    scwritef("#<~cs@~c&", port,
+                             typecode_name(TYPE(unprintable_object)), unprintable_object);
                break;
 
           case '~':
