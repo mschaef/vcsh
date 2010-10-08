@@ -295,7 +295,7 @@ static struct
      { "show-global-defines", DF_SHOW_GLOBAL_DEFINES},
      { "show-local-defines", DF_SHOW_LOCAL_DEFINES},
      { "show-throws", DF_SHOW_THROWS},
-     { "show-vmsignals", DF_SHOW_VMSIGNALS},
+     { "show-traps", DF_SHOW_TRAPS},
      { "show-vmerrors", DF_SHOW_VMERRORS},
      { "show-gc", DF_SHOW_GC},
      { "show-gc-details", DF_SHOW_GC_DETAILS},

@@ -69,6 +69,8 @@ LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc
 {
      assert((trap > 0) && (trap <= TRAP_LAST));
 
+     dscwritef(DF_SHOW_TRAPS, _T("; DEBUG: trap : ~cS\n"), trap_type_name(trap));
+
      va_list args;
      va_start(args, argc);
      
@@ -102,8 +104,6 @@ LRef vmsignal(const _TCHAR * signal_name, long n, ...)
      va_end(args);
 
      signal_args = lcons(simple_intern(signal_name, interp.scheme_package), signal_args);
-
-     dscwritef(DF_SHOW_VMSIGNALS, _T("; DEBUG: vm-signal :~cS : ~s\n"), signal_name, signal_args);
 
      return invoke_trap_handler(TRAP_SIGNAL, false, 2, signal_args, NIL);
 }
