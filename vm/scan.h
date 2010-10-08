@@ -1713,6 +1713,7 @@ LRef run();
 
   /****** Evaluator and Loader */
 
+LRef napplyv(LRef closure, size_t argc, va_list args);
 LRef napply(LRef closure, size_t argc, ...);
 bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,
                           size_t n, va_list args);
@@ -1742,6 +1743,7 @@ INLINE LRef TRAP_HANDLER(trap_type_t trap, bool allow_nil)
 bool infop();                   /*  REVISIT: still used? */
 void info(const _TCHAR * message, ...);
 
+LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc, ...);
 
 LRef vmerror(const _TCHAR * message, LRef new_errobj);
 LRef vmsignal(const _TCHAR * signal_name, long n, ...);

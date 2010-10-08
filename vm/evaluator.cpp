@@ -510,21 +510,14 @@ static void process_break_event()
 {
      interp.break_pending = false;
 
-     LRef val = NIL;
-     LRef tag = NIL;
-
-     if (call_lisp_procedure(TRAP_HANDLER(TRAP_USER_BREAK, false), &val, &tag, 0))
-     {
-          THROW_ESCAPE(tag, val);
-     }
+     invoke_trap_handler(TRAP_USER_BREAK, false, 0);
 }
 
 static void process_timer_event()
 {
      interp.timer_event_pending = false;
 
-     if (call_lisp_procedure(TRAP_HANDLER(TRAP_TIMER_EVENT, false), NULL, NULL, 0))
-          panic(_T("Error evaluating timer event handler"));
+     invoke_trap_handler(TRAP_TIMER_EVENT, false, 0);
 }
 
 /* REVISIT interrupt processing rewrite
@@ -906,15 +899,11 @@ LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
      return val;
 }
 
-LRef napply(LRef closure, size_t argc, ...)
+LRef napplyv(LRef closure, size_t argc, va_list args)
 {
-     va_list args;
-
      LRef argv[ARG_BUF_LEN];
 
      argv[0] = closure;
-
-     va_start(args, argc);
 
      for (size_t ii = 0; ii < argc; ii++)
      {
@@ -923,9 +912,19 @@ LRef napply(LRef closure, size_t argc, ...)
           argv[ii + 1] = va_arg(args, LRef);
      }
 
+     return lapply(argc + 1, argv);
+}
+
+LRef napply(LRef closure, size_t argc, ...)
+{
+     va_list args;
+     va_start(args, argc);
+
+     LRef result = napplyv(closure, argc, args);
+
      va_end(args);
 
-     return lapply(argc + 1, argv);
+     return result;
 }
 
 bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,
@@ -1039,13 +1038,7 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
 
      SET_SYMBOL_VCELL(var, val);
 
-     LRef define_handler = TRAP_HANDLER(TRAP_DEFINE, true);
-
-     if (!NULLP(define_handler))
-     {
-          if (call_lisp_procedure(define_handler, NULL, NULL, 2, var, val))
-               panic(_T("Error in *global-define-hook*"));
-     }
+     invoke_trap_handler(TRAP_DEFINE, true, 3, var, val, NIL);
 
      interp.global_env = old_genv;
 

@@ -54,6 +54,23 @@ void vmerror_stack_overflow(u8_t * obj)
       * REVISIT: Should the user be allowed to continue after an overflow? */
 }
 
+LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc, ...)
+{
+     va_list args;
+     va_start(args, argc);
+
+     LRef handler = TRAP_HANDLER(trap, allow_empty_handler);
+
+     if (NULLP(handler))
+          return NIL;
+
+     LRef retval = napplyv(handler, argc, args);
+
+     va_end(args);
+
+     return retval;
+}
+
 LRef vmsignal(const _TCHAR * signal_name, long n, ...)
 {
      va_list args;
@@ -67,7 +84,7 @@ LRef vmsignal(const _TCHAR * signal_name, long n, ...)
 
      dscwritef(DF_SHOW_VMSIGNALS, _T("; DEBUG: vm-signal :~cS : ~s\n"), signal_name, signal_args);
 
-     return napply(TRAP_HANDLER(TRAP_SIGNAL, false), 1, signal_args);
+     return invoke_trap_handler(TRAP_SIGNAL, false, 2, signal_args, NIL);
 }
 
 /*  REVISIT: lots of errors could be improved by adding ~s to print the error object */
