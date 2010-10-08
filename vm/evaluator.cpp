@@ -371,15 +371,6 @@ LRef litrap_handler(LRef trap_id)
      return interp.trap_handlers[get_trap_id(trap_id)];
 }
 
-void panic_on_bad_trap_handler(trap_type_t trap)
-{
-     _TCHAR buf[STACK_STRBUF_LEN];
-
-     _sntprintf(buf, STACK_STRBUF_LEN, _T("Trap with bad handler: %s"), trap_type_name(trap));
-
-     panic(buf);
-}
-
 /**************************************************************
  * The Evaluator
  */

@@ -54,17 +54,38 @@ void vmerror_stack_overflow(u8_t * obj)
       * REVISIT: Should the user be allowed to continue after an overflow? */
 }
 
+
+
+void panic_on_bad_trap_handler(trap_type_t trap)
+{
+     _TCHAR buf[STACK_STRBUF_LEN];
+
+     _sntprintf(buf, STACK_STRBUF_LEN, _T("Trap with bad handler: %s"), trap_type_name(trap));
+
+     panic(buf);
+}
+
 LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc, ...)
 {
+     assert((trap > 0) && (trap <= TRAP_LAST));
+
      va_list args;
      va_start(args, argc);
+     
+     LRef handler = interp.trap_handlers[trap];
+     LRef retval = NIL;
 
-     LRef handler = TRAP_HANDLER(trap, allow_empty_handler);
+     if (!PROCEDUREP(handler))
+     {
+          if (!(NULLP(handler) && allow_empty_handler))
+          {
+               va_end(args);
+               panic_on_bad_trap_handler(trap);
+          }
+     }
 
-     if (NULLP(handler))
-          return NIL;
-
-     LRef retval = napplyv(handler, argc, args);
+     if (!NULLP(handler))
+          retval = napplyv(handler, argc, args);
 
      va_end(args);
 
@@ -98,8 +119,7 @@ LRef vmerror(const _TCHAR * message, LRef new_errobj)
                _T("; DEBUG: runtime error: ~cS : errobj=~s\n"), message, new_errobj);
 
 
-     napply(TRAP_HANDLER(TRAP_RUNTIME_ERROR, false), 4, strcons(message), err_primitive, new_errobj,
-            NIL);
+     invoke_trap_handler(TRAP_RUNTIME_ERROR, false, 4, strcons(message), err_primitive, new_errobj,  NIL);
 
      /* Execution should never get to this point...
       *

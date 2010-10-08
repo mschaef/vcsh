@@ -1724,22 +1724,6 @@ LRef lidefine_global(LRef var, LRef val, LRef genv);
   /****** Error handling and control */
 
 
-void panic_on_bad_trap_handler(trap_type_t trap);
-
-INLINE LRef TRAP_HANDLER(trap_type_t trap, bool allow_nil)
-{
-     LRef handler = interp.trap_handlers[trap];
-
-     if (!PROCEDUREP(handler))
-     {
-          if (!(NULLP(handler) && allow_nil))
-               panic_on_bad_trap_handler(trap);
-     }
-
-     return handler;
-}
-
-
 bool infop();                   /*  REVISIT: still used? */
 void info(const _TCHAR * message, ...);
 
