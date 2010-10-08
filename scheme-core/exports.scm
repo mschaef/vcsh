@@ -5,7 +5,7 @@
 ;;;; Long lists of symbols exported from scheme and system
 
 (export! '(;; Control variables
-           "*error*" "*package*" "*pi*"
+           "*package*" "*pi*"
 
            ;; Port bindings
            "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
