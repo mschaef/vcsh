@@ -133,10 +133,14 @@
   (catch 'ignore-user-break
     (signal 'user-break)))
 
+(define (uncaught-throw-handler tag retval)
+  (abort 'scheme::uncaught-throw tag retval))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
   (%set-trap-handler! system::TRAP_SIGNAL abort)
-  (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler))
+  (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
+  (%set-trap-handler! system::TRAP_UNCAUGHT_THROW uncaught-throw-handler))
 
 (define *show-system-frames* #f)
 

@@ -1289,6 +1289,8 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
           longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
      }
 
+     napply(TRAP_HANDLER(TRAP_UNCAUGHT_THROW, false), 2, tag, retval);
+
      /* ...If we don't, signal the event... */
      vmsignal(_T("uncaught-throw"), 2, tag, retval);
 
