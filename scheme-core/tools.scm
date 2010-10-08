@@ -640,17 +640,24 @@
 
 (push! '(:sts show-type-stats) *repl-abbreviations*)
 
+(define (type-stats)
+  (let ((ts (scheme::%show-type-stats))
+        (rv ()))
+    (dotimes (ii (length ts))
+      (push! (cons (typecode->name ii) (vector-ref ts ii)) rv))
+    rv))
+
 (define (show-type-stats)
-  (write-type-stats-table (scheme::%show-type-stats) (current-debug-port))
+  (write-type-stats-table (type-stats) (current-debug-port))
   (values))
 
 (push! '(:std show-type-delta) *repl-abbreviations*)
 
 (defmacro (show-type-delta expr)
   (with-gensyms (initial-ts-sym)
-    `(let ((,initial-ts-sym (scheme::%show-type-stats)))
+    `(let ((,initial-ts-sym (type-stats)))
        (begin-1
         ,expr
-        (let ((final-ts (scheme::%show-type-stats)))
+        (let ((final-ts (type-stats)))
           (format (current-debug-port) "; Type stats delta (note that this reflects GC's)\n;\n")
           (write-type-stats-table (type-stats-delta final-ts ,initial-ts-sym) (current-debug-port)))))))

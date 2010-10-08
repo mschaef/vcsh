@@ -583,24 +583,6 @@ void free_gc_heap()
 
 }
 
-/**** The type manager
- *
- * All supported types are registered with the interpreter. This
- * is done for a couple reasons:
- *
- * - Make it easier to perform sanity checks on the heap
- * - Make it possible to look up type information by FASL code
- */
-
-LRef make_type_name(typecode_t type_code)
-{
-     LRef name = interp.syms_internal_type_names[type_code];
-
-     assert(SYMBOLP(name));
-
-     return name;
-}
-
 /**** Scheme interface functions */
 
 LRef lgc()

@@ -317,6 +317,7 @@
            display
            display-packages
            do
+           documentation
            dohash
            doiterate
            dolist

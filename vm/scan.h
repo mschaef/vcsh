@@ -710,8 +710,6 @@ INLINE bool FALSEP(LRef x)
      return !TRUEP(x);
 }
 
-LRef make_type_name(typecode_t type_code);
-
 
 /*** Boxed object accessors and constructors ***/
 
