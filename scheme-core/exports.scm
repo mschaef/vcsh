@@ -5,13 +5,13 @@
 ;;;; Long lists of symbols exported from scheme and system
 
 (export! '(;; Control variables
-           "*info*" "*error*" "*package*" "*pi*"
+           "*error*" "*package*" "*pi*"
 
            ;; Port bindings
            "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
 
            ;; Procedure rewrite symbols
-           "begin" "documentation"
+           "begin" 
            )
          (find-package "system"))
 
