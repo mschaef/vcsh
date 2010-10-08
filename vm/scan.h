@@ -2002,7 +2002,7 @@ LRef lset_symbol_package(LRef sym, LRef package);
 LRef lsetcar(LRef cell, LRef value);
 LRef lsetcdr(LRef cell, LRef value);
 LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv);
-LRef lshow_type_stats();
+LRef lheap_cell_count_by_typecode();
 LRef lsin(LRef x);
 LRef lsleep(LRef ms);
 LRef lsqrt(LRef x);

@@ -302,7 +302,7 @@ static void register_main_subrs()
     register_subr(_T("%set-property-list!"),              SUBR_2,     (void*)lset_property_list                  );
     register_subr(_T("%set-trap-handler!"),               SUBR_2,     (void*)liset_trap_handler                  );
     register_subr(_T("%set-stack-limit"),                 SUBR_1,     (void*)lset_stack_limit                    );
-    register_subr(_T("%show-type-stats"),                 SUBR_0,     (void*)lshow_type_stats                    );
+    register_subr(_T("%heap-cell-count-by-typecode"),     SUBR_0,     (void*)lheap_cell_count_by_typecode        );
     register_subr(_T("%slot-ref"),                        SUBR_2,     (void*)lislot_ref                          );
     register_subr(_T("%slot-set!"),                       SUBR_3,     (void*)lislot_set                          );
     register_subr(_T("%startup-args"),                    SUBR_0,     (void*)listartup_args                      );

@@ -83,14 +83,7 @@ void scan_postmortem_dump()
      }
 }
 
-/* lshow_type_stats
- *
- * Traverse the heap segments, counting each instance of each type.
- * Returns a list with a node for each type containing a count
- * of the number of instances, by type.
- */
-
-LRef lshow_type_stats()
+LRef lheap_cell_count_by_typecode()
 {
      LRef obj, org, end;
      typecode_t type;
