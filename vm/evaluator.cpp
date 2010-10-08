@@ -1291,9 +1291,6 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
 
      invoke_trap_handler(TRAP_UNCAUGHT_THROW, false, 3, tag, retval, NIL);
 
-     /* ...If we don't, signal the event... */
-     vmsignal(_T("uncaught-throw"), 2, tag, retval);
-
      /* ...if nobody cares, then we start to panic. */
      panic("Uncaught throw!");
 }

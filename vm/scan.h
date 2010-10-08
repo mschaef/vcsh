@@ -1730,7 +1730,6 @@ void info(const _TCHAR * message, ...);
 LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc, ...);
 
 LRef vmerror(const _TCHAR * message, LRef new_errobj);
-LRef vmsignal(const _TCHAR * signal_name, long n, ...);
 
 LRef vmerror_wrong_type(LRef new_errobj);
 LRef vmerror_wrong_type(int which_argument, LRef new_errobj);

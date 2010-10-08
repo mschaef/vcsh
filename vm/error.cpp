@@ -94,20 +94,6 @@ LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc
      return retval;
 }
 
-LRef vmsignal(const _TCHAR * signal_name, long n, ...)
-{
-     va_list args;
-     va_start(args, n);
-
-     LRef signal_args = listv(n, args);
-
-     va_end(args);
-
-     signal_args = lcons(simple_intern(signal_name, interp.scheme_package), signal_args);
-
-     return invoke_trap_handler(TRAP_SIGNAL, false, 2, signal_args, NIL);
-}
-
 /*  REVISIT: lots of errors could be improved by adding ~s to print the error object */
 LRef vmerror(const _TCHAR * message, LRef new_errobj)
 {
