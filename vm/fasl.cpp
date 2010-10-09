@@ -939,8 +939,6 @@ LRef lifasl_load(LRef fname_or_port)
      LRef result = NIL;
      LRef port = NIL;
 
-     LRef previous_package = CURRENT_PACKAGE();
-
      if (STRINGP(fname_or_port))
           port = lopen_input_file(fname_or_port, keyword_intern(_T("binary")));
      else if (PORTP(fname_or_port))
@@ -950,8 +948,7 @@ LRef lifasl_load(LRef fname_or_port)
 
      ENTER_UNWIND_PROTECT()
      {
-          dscwritef(DF_SHOW_FAST_LOAD_FORMS,
-                    _T("; DEBUG: FASL from : ~a, *package* = ~a\n"), port, CURRENT_PACKAGE);
+          dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL from : ~a\n"), port);
 
           LRef form = NIL;
 
@@ -962,8 +959,6 @@ LRef lifasl_load(LRef fname_or_port)
      }
      ON_UNWIND()
      {
-          SET_CURRENT_PACKAGE(previous_package);
-
           dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: done FASL from port: ~a\n"), port);
           dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL result: ~s\n"), result);
 
