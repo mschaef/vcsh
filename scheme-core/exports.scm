@@ -9,16 +9,19 @@
 
            ;; Port bindings
            "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
-
-           ;; Procedure rewrite symbols
-           "begin" 
            )
          (find-package "system"))
 
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (set-symbol-package! 'begin (find-package "scheme"))
+  (import! 'begin (find-package "scheme"))
+  )
+
 ;; All of the exported symbols in system are also exported from scheme, so that
 ;; the scheme package contains a full set of symbols required for the languauge.
 (import-package! (find-package "system") #t (find-package "scheme"))
+
 
 
 (export! '(*
