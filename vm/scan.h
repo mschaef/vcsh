@@ -524,12 +524,9 @@ struct interpreter_t
      LRef startup_args;
 
      LRef trap_handlers[TRAP_LAST + 1];
-     /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
-     LRef syms_internal_type_names[LAST_INTERNAL_TYPEC + 1];
-     LRef sym_current_package;
-     LRef sym_name;
 
-     /*  Standard ports */
+     /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
+     LRef sym_current_package;
      LRef sym_port_current_in;
      LRef sym_port_current_out;
      LRef sym_port_current_err;

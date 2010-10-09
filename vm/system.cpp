@@ -395,6 +395,7 @@ LRef lsystem_info()
      lhash_set(obj, keyword_intern(_T("argument-buffer-len")), fixcons(ARG_BUF_LEN));
      lhash_set(obj, keyword_intern(_T("most-postive-character")), charcons(_TCHAR_MAX));
 
+     lhash_set(obj, keyword_intern(_T("interpreter-state-size")), fixcons(sizeof(interpreter_t)));
 
      return obj;
 }
