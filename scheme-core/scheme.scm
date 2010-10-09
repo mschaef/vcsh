@@ -18,6 +18,9 @@
 
 (include "../vm/constants.scm")
 (include "subrs.scm")
+
+(define *package* (find-package "scheme"))
+
 (include "character.scm")
 (include "class-graph.scm")
 (include "control-flow.scm")

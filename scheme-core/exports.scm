@@ -12,6 +12,9 @@
            )
          (find-package "system"))
 
+;; (eval-when (:compile-toplevel :load-toplevel :execute)
+;;   (set-symbol-package! '*package* (find-package "scheme"))
+;;   (import! '*package* (find-package "scheme")))
 
 ;; All of the exported symbols in system are also exported from scheme, so that
 ;; the scheme package contains a full set of symbols required for the languauge.

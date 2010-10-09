@@ -427,7 +427,7 @@ void create_initial_packages()
      /* From here on out, we assume that we're working in the scheme package
       * This call will have the net effect of storing the package into
       * the scheme::*package* symbol we just created. */
-     SET_CURRENT_PACKAGE(interp.scheme_package);
+     //SET_CURRENT_PACKAGE(interp.scheme_package);
 
      /* By default, we also have a keyword package. */
      interp.keyword_package = lmake_package(strcons("keyword"));
