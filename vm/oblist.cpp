@@ -421,13 +421,11 @@ void create_initial_packages()
 
 
      /* The *package* symbol needs to be created in the scheme namespace. */
-     gc_protect_sym(&interp.sym_current_package, "*package*", interp.system_package);
+     gc_protect_sym(&interp.sym_current_package, "*package*", interp.scheme_package);
      lidefine_global(interp.sym_current_package, NIL, NIL);
 
-     /* From here on out, we assume that we're working in the scheme package
-      * This call will have the net effect of storing the package into
-      * the scheme::*package* symbol we just created. */
-     //SET_CURRENT_PACKAGE(interp.scheme_package);
+     ladd_symbol_to_package(interp.sym_current_package, interp.system_package);
+
 
      /* By default, we also have a keyword package. */
      interp.keyword_package = lmake_package(strcons("keyword"));
