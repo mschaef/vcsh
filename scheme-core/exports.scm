@@ -5,16 +5,12 @@
 ;;;; Long lists of symbols exported from scheme and system
 
 (export! '(;; Control variables
-           "*package*" "*pi*"
+           "*pi*"
 
            ;; Port bindings
            "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
            )
          (find-package "system"))
-
-;; (eval-when (:compile-toplevel :load-toplevel :execute)
-;;   (set-symbol-package! '*package* (find-package "scheme"))
-;;   (import! '*package* (find-package "scheme")))
 
 ;; All of the exported symbols in system are also exported from scheme, so that
 ;; the scheme package contains a full set of symbols required for the languauge.
@@ -37,6 +33,7 @@
            *location-mapping*
            *memoize-results?*
            *number-of-characters*
+           *package*
            *post-load-hook*
            *pre-load-hook*
            *precision*
