@@ -5,6 +5,7 @@
 
 (define *cross-compile* #f)
 (define *initial-package* "user")
+(define *disable-load-unit-boundaries* #f)
 
 ;;; FASL file generaiton
 
@@ -189,24 +190,28 @@
 (define (system::LOAD-TIME-GET-PACKAGE) *package*)
 (define (system::LOAD-TIME-SET-PACKAGE! package) (set! *package* package))
 
+(define (begin-load-unit filename output-fasl-stream)
+  (unless  *disable-load-unit-boundaries*
+    (fasl-write-op system::FASL_OP_BEGIN_LOAD_UNIT (list filename) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list system::LOAD-TIME-GET-PACKAGE) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_LOADER_PUSH () output-fasl-stream)))
+
+(define (end-load-unit filename output-fasl-stream)
+  (unless *disable-load-unit-boundaries*
+    (fasl-write-op system::FASL_OP_LOADER_APPLYN (list system::LOAD-TIME-SET-PACKAGE! 1) output-fasl-stream)
+    (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream)))
+
 (define (compile-file/simple filename output-fasl-stream genv)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
-  (define (begin-load-unit)
-    (fasl-write-op system::FASL_OP_BEGIN_LOAD_UNIT (list filename) output-fasl-stream)
-    (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list system::LOAD-TIME-GET-PACKAGE) output-fasl-stream)
-    (fasl-write-op system::FASL_OP_LOADER_PUSH () output-fasl-stream))
-  (define (end-load-unit)
-    (fasl-write-op system::FASL_OP_LOADER_APPLYN (list system::LOAD-TIME-SET-PACKAGE! 1) output-fasl-stream)
-    (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream))
   (let ((original-package (symbol-value '*package* () genv)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
-        (begin-load-unit)
+        (begin-load-unit filename output-fasl-stream)
         (compile-port-forms input-port output-fasl-stream genv)
-        (end-load-unit)))
+        (end-load-unit filename output-fasl-stream)))
     (set-symbol-value! '*package* original-package () genv)))
 
 (define (compile-file/checked filename output-fasl-stream genv)

@@ -62,6 +62,11 @@
                                    "Bad cross compiler mode, valid options are \"environment\" and \"package-renaming\"." mode))
     (set! *cross-compile* mode)))
 
+(define-command-argument ("no-load-unit-boundaries")
+  "Disable generation of load unit boundary code. Normally, the compiler generates
+   code to preserve *package* across load units. This turns that facility off."
+  (set! *disable-load-unit-boundaries* #t))
+
 (define *compiler-load-files* ())
 
 (define-command-argument ("load-file" filename)

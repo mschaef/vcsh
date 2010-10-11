@@ -48,6 +48,7 @@ compiler-run${OBJ_EXT}: compiler-run.scf
 	../util/to-c-source compiler-run.scf scf_compiler_run >> compiler-run.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}compiler-run${OBJ_EXT} compiler-run.cpp
 
+# TODO: This compiles against the scc0 version of the scheme image and not the current version. Fix this.
 compiler-run.scf: compiler-run.scm
 	$(SCC0) --cross-compile --initial-package:scheme compiler-run.scm
 
