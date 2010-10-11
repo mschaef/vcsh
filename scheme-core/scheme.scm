@@ -2,7 +2,7 @@
 ;;;;
 ;;;; The main file defining the standard scheme image.
 ;;;;
-;;;; Compile with: ..\vcsh -c scheme.scm --cross-compile --initial-package:scheme --output:scheme.scf
+;;;; Compile with: <vcsh> -c scheme.scm --cross-compile --initial-package:scheme --output:scheme.scf --no-load-unit-boundaries
 
 ;; Capture some relevent attriutes of the image build.
 
@@ -20,6 +20,8 @@
 (include "subrs.scm")
 
 (define *package* (find-package "scheme"))
+
+(compiler::%%begin-load-unit-boundaries "scheme")
 
 (include "character.scm")
 (include "class-graph.scm")
