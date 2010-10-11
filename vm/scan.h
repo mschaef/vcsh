@@ -1082,18 +1082,6 @@ INLINE void SET_SYMBOL_HOME(LRef x, LRef home)
 
 
   /*** package **/
-INLINE LRef CURRENT_PACKAGE()
-{
-     return SYMBOL_VCELL(interp.sym_current_package);
-}
-
-INLINE void SET_CURRENT_PACKAGE(LRef package)
-{
-     assert(PACKAGEP(package));
-
-     SET_SYMBOL_VCELL(interp.sym_current_package, package);
-}
-
 INLINE LRef PACKAGE_NAME(LRef x)
 {
      checked_assert(PACKAGEP(x));
