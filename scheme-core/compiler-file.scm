@@ -125,6 +125,8 @@
   ;; Forms that aren't lists evaluate to themselves and can be ignored
   (when (pair? form)
     (case (car form)
+      ((%%begin-load-unit-boundaries)
+       (process-%%begin-load-unit-boundaries form output-fasl-stream))
       ((scheme::%define)
        (process-toplevel-define form output-fasl-stream genv))
       ((begin)
@@ -200,6 +202,16 @@
   (unless *disable-load-unit-boundaries*
     (fasl-write-op system::FASL_OP_LOADER_APPLYN (list system::LOAD-TIME-SET-PACKAGE! 1) output-fasl-stream)
     (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream)))
+
+(define (process-%%begin-load-unit-boundaries form output-fasl-stream)
+  (dbind (fn filename) form
+    (unless *disable-load-unit-boundaries*
+      (error "Cannot begin load unit boundaries unless they have already been disabled on the command line."))
+    (unless (string? filename)
+      (error "Bad filename for beginning load unit boundaries: ~s" filename))
+    (trace-message #t "; Beginning load unit boundaries with filename: ~a\n" filename)
+    (set! *disable-load-unit-boundaries* #f)
+    (begin-load-unit filename output-fasl-stream)))
 
 (define (compile-file/simple filename output-fasl-stream genv)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
