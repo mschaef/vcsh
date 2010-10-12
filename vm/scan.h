@@ -386,53 +386,6 @@ INLINE bool TYPEP(LRef object, typecode_t typeCode)
 }
 
 /*** Debugging flags ***/
-
-enum debug_flag_t
-{
-     DF_SHOW_GLOBAL_DEFINES = 0x00000010,
-     DF_SHOW_LOCAL_DEFINES = 0x00000020,
-
-     DF_SHOW_THROWS = 0x00000100,
-     DF_SHOW_TRAPS = 0x00000400,
-     DF_SHOW_VMERRORS = 0x00000800,
-
-     DF_SHOW_GC = 0x00002000,
-     DF_SHOW_GC_DETAILS = 0x00004000,
-
-     DF_PRINT_SYMBOL_PACKAGES = 0x00010000,
-     DF_PRINT_FOR_DIFF = 0x00020000,
-     DF_PRINT_CLOSURE_CODE = 0x00040000,
-     DF_PRINT_ADDRESSES = 0x00080000,
-
-     DF_DEBUGGER_TO_ODS = 0x08000000,
-
-     DF_SHOW_LOAD_FORMS = 0x10000010,
-     DF_FASL_SHOW_OPCODES = 0x20000000,
-     DF_SHOW_FAST_LOAD_FORMS = 0x40000000,
-     DF_SHOW_FAST_LOAD_UNITS = 0x80000000,
-
-     DF_NO_STARTUP = 0x40000000,
-     DF_TEMP = 0x80000000,
-
-     DF_NONE = 0x00000000,
-     DF_ALL = 0xFFFFFFFF
-};
-
-
-/* The interpreter maintains a stack of frames annotating the C
- * stack. These are used to implement try/catch as well as some
- * debugging support. */
-enum frame_type_t
-{
-     FRAME_PRIMITIVE = 0,
-     FRAME_EVAL = 1,
-
-     FRAME_EX_TRY = 3,
-     FRAME_EX_UNWIND = 4,
-
-     FRAME_MARKER = 8,
-};
-
 struct frame_record_t
 {
      frame_record_t *previous;

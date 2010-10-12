@@ -177,6 +177,46 @@ BEGIN_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
     VM_CONSTANT(SUBR_N,                       9  )  /*  Arbitrary number of paramaters, passed as list. */
 END_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
 
+BEGIN_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
+    VM_CONSTANT(DF_SHOW_GLOBAL_DEFINES  , 0x00000010)
+    VM_CONSTANT(DF_SHOW_LOCAL_DEFINES   , 0x00000020)
+
+    VM_CONSTANT(DF_SHOW_THROWS          , 0x00000100)
+    VM_CONSTANT(DF_SHOW_TRAPS           , 0x00000400)
+    VM_CONSTANT(DF_SHOW_VMERRORS        , 0x00000800)
+
+    VM_CONSTANT(DF_SHOW_GC              , 0x00002000)
+    VM_CONSTANT(DF_SHOW_GC_DETAILS      , 0x00004000)
+
+    VM_CONSTANT(DF_PRINT_SYMBOL_PACKAGES, 0x00010000)
+    VM_CONSTANT(DF_PRINT_FOR_DIFF       , 0x00020000)
+    VM_CONSTANT(DF_PRINT_CLOSURE_CODE   , 0x00040000)
+    VM_CONSTANT(DF_PRINT_ADDRESSES      , 0x00080000)
+
+    VM_CONSTANT(DF_SHOW_LOAD_FORMS      , 0x01000000)
+    VM_CONSTANT(DF_FASL_SHOW_OPCODES    , 0x02000000)
+    VM_CONSTANT(DF_SHOW_FAST_LOAD_FORMS , 0x04000000)
+    VM_CONSTANT(DF_SHOW_FAST_LOAD_UNITS , 0x08000000)
+
+    VM_CONSTANT(DF_DEBUGGER_TO_ODS      , 0x10000000)
+    VM_CONSTANT(DF_NO_STARTUP           , 0x20000000)
+    VM_CONSTANT(DF_TEMP                 , 0x40000000)
+
+    VM_CONSTANT(DF_NONE                 , 0x00000000)
+    VM_CONSTANT(DF_ALL                  , 0xFFFFFFFF)
+END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
+
+/* The interpreter maintains a stack of frames annotating the C
+ * stack. These are used to implement try/catch as well as some
+ * debugging support. */
+BEGIN_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
+    VM_CONSTANT(FRAME_PRIMITIVE, 0)
+    VM_CONSTANT(FRAME_EVAL     , 1)
+    VM_CONSTANT(FRAME_EX_TRY   , 3)
+    VM_CONSTANT(FRAME_EX_UNWIND, 4)
+    VM_CONSTANT(FRAME_MARKER   , 8)
+END_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
+
 #undef BEGIN_VM_CONSTANT_TABLE
 #undef VM_CONSTANT
 #undef VM_ANON_CONSTANT
