@@ -263,12 +263,18 @@
                (get-output-string buf)))))
     (non-escaped)))
 
+
+(define (accept-fixnum-with-radix port radix error-port error-location :optional (error-return :throw-error))
+  (aif (string->number (read-token port) radix)
+       it
+       (if (eq? error-return :throw-error)
+           (read-error :reader-bad-number-syntax-syntax error-port error-location)
+           error-return)))
+
 (define (read-fixnum-with-radix port radix)
   (let ((location (port-location port)))
     (read-char port) ; skip radix char
-    (aif (string->number (read-token port) radix)
-         it
-         (read-error :reader-bad-number-syntax-syntax port location))))
+    (accept-fixnum-with-radix port radix port location)))
 
 (define (read-fixnum-with-radix-2  port)
   (read-fixnum-with-radix port 2))
@@ -519,14 +525,29 @@
 ;; An internal marker value used internally to signal that a 'dot' has been read.
 (define *reader-dot-marker* (gensym "reader-dot-marker"))
 
+(define (accept-c-number port error-port error-location)
+  (if (eq? #\0 (peek-char port))
+      (begin
+        (read-char port)
+        (if (port-at-end? port)
+            0
+            (if (eq? #\x (char-downcase (peek-char port)))
+                (begin
+                  (read-char port)
+                  (accept-fixnum-with-radix port 16 error-port error-location #f))
+                (accept-fixnum-with-radix port 8 error-port error-location #f))))
+      #f))
+
 (define (read-number-or-symbol port)
   (let* ((location (port-location port))
          (tok (read-token port)))
     (if (equal? tok ".")
         *reader-dot-marker*
-        (aif (accept-number (open-input-string tok) port location)
+        (aif (accept-c-number (open-input-string tok) port location)
              it
-             (accept-symbol (open-input-string tok) port location)))))
+             (aif (accept-number (open-input-string tok) port location)
+                  it
+                  (accept-symbol (open-input-string tok) port location))))))
 
 (define (read-unexpected-close port)
   ;; Skip the unexpected close, in order to make progress
