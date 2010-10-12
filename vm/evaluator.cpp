@@ -371,6 +371,45 @@ LRef litrap_handler(LRef trap_id)
      return interp.trap_handlers[get_trap_id(trap_id)];
 }
 
+
+void panic_on_bad_trap_handler(trap_type_t trap)
+{
+     _TCHAR buf[STACK_STRBUF_LEN];
+
+     _sntprintf(buf, STACK_STRBUF_LEN, _T("Trap with bad handler: %s"), trap_type_name(trap));
+
+     panic(buf);
+}
+
+LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc, ...)
+{
+     assert((trap > 0) && (trap <= TRAP_LAST));
+
+     dscwritef(DF_SHOW_TRAPS, _T("; DEBUG: trap : ~cS\n"), trap_type_name(trap));
+
+     va_list args;
+     va_start(args, argc);
+     
+     LRef handler = interp.trap_handlers[trap];
+     LRef retval = NIL;
+
+     if (!PROCEDUREP(handler))
+     {
+          if (!(NULLP(handler) && allow_empty_handler))
+          {
+               va_end(args);
+               panic_on_bad_trap_handler(trap);
+          }
+     }
+
+     if (!NULLP(handler))
+          retval = napplyv(handler, argc, args);
+
+     va_end(args);
+
+     return retval;
+}
+
 /**************************************************************
  * The Evaluator
  */
@@ -474,7 +513,6 @@ void signal_timer()
 {
      interp.timer_event_pending = true;
 }
-
 
 /**************************************************************
  * leval(x, env, eval_option)

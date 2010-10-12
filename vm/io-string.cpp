@@ -110,22 +110,4 @@ LRef lget_output_string(LRef port)
           return PORT_STRING(port);
 }
 
-LRef lread_port_to_string(LRef port)
-{
-     LRef os = lopen_output_string();
-
-     for (;;)
-     {
-          int ch = read_char(port);
-
-          if (ch == EOF)
-               break;
-
-          write_char(ch, os);
-     }
-
-     return lget_output_string(os);
-}
-
-
 END_NAMESPACE
