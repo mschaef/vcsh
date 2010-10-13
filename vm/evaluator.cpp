@@ -371,7 +371,6 @@ LRef litrap_handler(LRef trap_id)
      return interp.trap_handlers[get_trap_id(trap_id)];
 }
 
-
 static void vmtrap_panic(trap_type_t trap, const _TCHAR *msg)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
@@ -386,26 +385,26 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
      assert((trap > 0) && (trap <= TRAP_LAST));
 
      dscwritef(DF_SHOW_TRAPS, _T("; DEBUG: trap : ~cS\n"), trap_type_name(trap));
-
-     va_list args;
-     va_start(args, argc);
      
      LRef handler = interp.trap_handlers[trap];
-     LRef retval = NIL;
 
      if (!PROCEDUREP(handler))
      {
-          if(NULLP(handler))
-          {
-               if (!(options & VMT_OPTIONAL_TRAP))
-                    vmtrap_panic(trap, "missing trap handler");
-          }
-          else
+          if(!NULLP(handler))
                vmtrap_panic(trap, "bad trap handler");
+
+          if (!(options & VMT_OPTIONAL_TRAP))
+               vmtrap_panic(trap, "missing trap handler");
+
+          return NIL;
      }
 
-     if (!NULLP(handler))
-          retval = napplyv(handler, argc, args);
+     LRef retval = NIL;
+     va_list args;
+
+     va_start(args, argc);
+
+     retval = napplyv(handler, argc, args);
 
      va_end(args);
 
@@ -940,18 +939,14 @@ LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
 
 LRef napplyv(LRef closure, size_t argc, va_list args)
 {
+     assert(argc <= ARG_BUF_LEN);
+
      LRef argv[ARG_BUF_LEN];
 
-     argv[0] = closure;
-
      for (size_t ii = 0; ii < argc; ii++)
-     {
-          assert(ii + 1 < ARG_BUF_LEN);
+          argv[ii] = va_arg(args, LRef);
 
-          argv[ii + 1] = va_arg(args, LRef);
-     }
-
-     return lapply(argc + 1, argv);
+     return apply1(closure, argc, argv);
 }
 
 LRef napply(LRef closure, size_t argc, ...)
