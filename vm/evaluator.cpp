@@ -838,8 +838,10 @@ static LRef leval(LRef form, LRef env)
 }
 
 
-static LRef apply1(LRef fn, size_t argc, LRef argv[])
+LRef apply1(LRef fn, size_t argc, LRef argv[])
 {
+     assert((argc == 0) || (argv != NULL));
+
      LRef retval = NIL;
 
      STACK_CHECK(&fn);
@@ -949,18 +951,6 @@ LRef napplyv(LRef closure, size_t argc, va_list args)
      return apply1(closure, argc, argv);
 }
 
-LRef napply(LRef closure, size_t argc, ...)
-{
-     va_list args;
-     va_start(args, argc);
-
-     LRef result = napplyv(closure, argc, args);
-
-     va_end(args);
-
-     return result;
-}
-
 bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,
                           size_t n, va_list args)
 {
@@ -994,7 +984,10 @@ bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag
 
      ENTER_TRY(NULL)
      {
-          retval = napply(closure, 1, dummy_form);
+          LRef argv[1];
+          argv[0] = dummy_form;
+
+          retval = apply1(closure, 1, argv);
           failed = false;
      }
      ON_ERROR()
@@ -1095,7 +1088,7 @@ LRef ltime_apply0(LRef fn)
 
      LRef argv[8];
 
-     argv[0] = napply(fn, 0);
+     argv[0] = apply1(fn, 0, NULL);
 
      argv[1] = flocons(sys_runtime() - t);
      argv[2] = flocons(interp.gc_total_run_time - gc_t);
@@ -1141,7 +1134,7 @@ LRef lcatch_apply0(LRef tag, LRef fn)
 
      ENTER_TRY(tag)
      {
-          retval = napply(fn, 0);
+          retval = apply1(fn, 0, NULL);
      }
      ON_ERROR()
      {
@@ -1165,11 +1158,11 @@ LRef lunwind_protect(LRef thunk, LRef after)
 
      ENTER_UNWIND_PROTECT()
      {
-          rc = napply(thunk, 0);
+          rc = apply1(thunk, 0, NULL);
      }
      ON_UNWIND()
      {
-          napply(after, 0);
+          apply1(after, 0, NULL);
      }
      LEAVE_UNWIND_PROTECT();
 
@@ -1200,7 +1193,10 @@ LRef lfuncall1(LRef fcn, LRef a1)
           return (SUBR_F2(CLOSURE_CODE(fcn)) (CLOSURE_ENV(fcn), a1));
      else
      {
-          return (napply(fcn, 2, a1, NIL));
+          LRef argv[1];
+          argv[0] = a1;
+
+          return apply1(fcn, 1, argv);
      }
 }
 
@@ -1214,7 +1210,11 @@ LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
      }
      else
      {
-          return napply(fcn, 3, a1, a2, NIL);
+          LRef argv[2];
+          argv[0] = a1;
+          argv[1] = a2;
+
+          return apply1(fcn, 2, argv);
      }
 }
 
@@ -1427,7 +1427,7 @@ LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
 
           check_global_environment_size();
 
-          retval = napply(fn, 0);
+          retval = apply1(fn, 0, NULL);
 
      }
      ON_UNWIND()

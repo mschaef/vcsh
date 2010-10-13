@@ -587,7 +587,7 @@ void fast_read_loader_definition(LRef port, fasl_opcode_t opcode)
      case FASL_OP_LOADER_DEFINEQ:      /* quoted definition, do nothing. */
           break;
      case FASL_OP_LOADER_DEFINEA0:
-          definition = napply(definition, 0);
+          definition = apply1(definition, 0, NULL);
           break;
      default:
           panic("invalid opcode in fast_read_loader_definition");

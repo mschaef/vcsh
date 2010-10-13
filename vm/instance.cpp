@@ -401,7 +401,11 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
      if (!PROCEDUREP(message_handler))
           vmerror("Improper message handler in instance.", lcons(lookup_ctx_inst, message_name));
 
-     return napply(message_handler, 2, self, args);
+     LRef argv[2];
+     argv[0] = self;
+     argv[1] = args;
+
+     return apply1(message_handler, 2, argv);
 }
 
 LRef lsend(LRef args)
