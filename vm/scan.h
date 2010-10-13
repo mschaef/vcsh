@@ -1665,7 +1665,16 @@ LRef lidefine_global(LRef var, LRef val, LRef genv);
 bool infop();                   /*  REVISIT: still used? */
 void info(const _TCHAR * message, ...);
 
-LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc, ...);
+enum vmt_options_t {
+     /* Use one of these... */
+     VMT_MANDATORY_TRAP      = 0x0,
+     VMT_OPTIONAL_TRAP       = 0x1,
+
+     /* ...and optionally this. */
+     VMT_HANDLER_MUST_ESCAPE = 0x2
+};
+
+LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...);
 
 LRef vmerror(const _TCHAR * message, LRef new_errobj);
 

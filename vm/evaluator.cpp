@@ -372,16 +372,16 @@ LRef litrap_handler(LRef trap_id)
 }
 
 
-void panic_on_bad_trap_handler(trap_type_t trap)
+static void vmtrap_panic(trap_type_t trap, const _TCHAR *msg)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
-     _sntprintf(buf, STACK_STRBUF_LEN, _T("Trap with bad handler: %s"), trap_type_name(trap));
+     _sntprintf(buf, STACK_STRBUF_LEN, _T("Trap error for %s: %s"), trap_type_name(trap), msg);
 
      panic(buf);
 }
 
-LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc, ...)
+LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 {
      assert((trap > 0) && (trap <= TRAP_LAST));
 
@@ -395,17 +395,22 @@ LRef invoke_trap_handler(trap_type_t trap, bool allow_empty_handler, size_t argc
 
      if (!PROCEDUREP(handler))
      {
-          if (!(NULLP(handler) && allow_empty_handler))
+          if(NULLP(handler))
           {
-               va_end(args);
-               panic_on_bad_trap_handler(trap);
+               if (!(options & VMT_OPTIONAL_TRAP))
+                    vmtrap_panic(trap, "missing trap handler");
           }
+          else
+               vmtrap_panic(trap, "bad trap handler");
      }
 
      if (!NULLP(handler))
           retval = napplyv(handler, argc, args);
 
      va_end(args);
+
+     if (options & VMT_HANDLER_MUST_ESCAPE)
+          vmtrap_panic(trap, "trap handler must escape");
 
      return retval;
 }
@@ -539,14 +544,14 @@ static void process_break_event()
 {
      interp.break_pending = false;
 
-     invoke_trap_handler(TRAP_USER_BREAK, false, 0);
+     vmtrap(TRAP_USER_BREAK, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
 }
 
 static void process_timer_event()
 {
      interp.timer_event_pending = false;
 
-     invoke_trap_handler(TRAP_TIMER_EVENT, false, 0);
+     vmtrap(TRAP_TIMER_EVENT, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
 }
 
 /* REVISIT interrupt processing rewrite
@@ -1067,7 +1072,7 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
 
      SET_SYMBOL_VCELL(var, val);
 
-     invoke_trap_handler(TRAP_DEFINE, true, 3, var, val, NIL);
+     vmtrap(TRAP_DEFINE, VMT_OPTIONAL_TRAP, 3, var, val, NIL);
 
      interp.global_env = old_genv;
 
@@ -1327,7 +1332,8 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
           longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
      }
 
-     invoke_trap_handler(TRAP_UNCAUGHT_THROW, false, 3, tag, retval, NIL);
+     vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            3, tag, retval, NIL);
 
      /* ...if nobody cares, then we start to panic. */
      panic("Uncaught throw!");

@@ -65,17 +65,9 @@ LRef vmerror(const _TCHAR * message, LRef new_errobj)
                _T("; DEBUG: runtime error: ~cS : errobj=~s\n"), message, new_errobj);
 
 
-     invoke_trap_handler(TRAP_RUNTIME_ERROR, false, 4, strcons(message), err_primitive, new_errobj,  NIL);
+     vmtrap(TRAP_RUNTIME_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            4, strcons(message), err_primitive, new_errobj,  NIL);
 
-     /* Execution should never get to this point...
-      *
-      * Every extant call to error (at the beginnning of 2006) was written
-      * with the assumption that it would abort the current primitive.
-      * However, with the signal-based error handling logic, if the
-      * runtime error trap handler does not ultimately result in
-      * an escape, this assumption will be violated. Thusly, we panic
-      * if that ever happens.
-      */
      panic("VM errors must result in a non-local escape out of the signaling primitive.");
 
      return NIL;
