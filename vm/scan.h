@@ -1652,7 +1652,6 @@ LRef run();
   /****** Evaluator and Loader */
 
 LRef apply1(LRef fn, size_t argc, LRef argv[]);
-LRef napplyv(LRef closure, size_t argc, va_list args);
 
 bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,
                           size_t n, va_list args);
@@ -1676,7 +1675,6 @@ enum vmt_options_t {
 };
 
 LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...);
-
 LRef vmerror(const _TCHAR * message, LRef new_errobj);
 
 LRef vmerror_wrong_type(LRef new_errobj);

@@ -380,6 +380,8 @@ static void vmtrap_panic(trap_type_t trap, const _TCHAR *msg)
      panic(buf);
 }
 
+LRef napplyv(LRef closure, size_t argc, va_list args);
+
 LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 {
      assert((trap > 0) && (trap <= TRAP_LAST));
@@ -1166,7 +1168,6 @@ LRef lunwind_protect(LRef thunk, LRef after)
      }
      LEAVE_UNWIND_PROTECT();
 
-
      return rc;
 }
 
@@ -1181,43 +1182,22 @@ LRef lthrow(LRef tag, LRef value)
 }
 
 
-
 LRef lfuncall1(LRef fcn, LRef a1)
 {
-     STACK_CHECK(&fcn);
+     LRef argv[1];
+     argv[0] = a1;
 
-     if ((TYPE(fcn) == TC_SUBR) && (SUBR_TYPE(fcn) == SUBR_1))
-          return (SUBR_F1(fcn) (a1));
-     else if ((TYPE(fcn) == TC_CLOSURE)
-              && (SUBRP(CLOSURE_CODE(fcn))) && (SUBR_TYPE(CLOSURE_CODE(fcn)) == SUBR_2))
-          return (SUBR_F2(CLOSURE_CODE(fcn)) (CLOSURE_ENV(fcn), a1));
-     else
-     {
-          LRef argv[1];
-          argv[0] = a1;
-
-          return apply1(fcn, 1, argv);
-     }
+     return apply1(fcn, 1, argv);
 }
 
 LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
 {
-     if ((TYPE(fcn) == TC_SUBR) && ((SUBR_TYPE(fcn) == SUBR_2) || (SUBR_TYPE(fcn) == SUBR_2N)))
-     {
-          STACK_CHECK(&fcn);
+     LRef argv[2];
+     argv[0] = a1;
+     argv[1] = a2;
 
-          return (SUBR_F2(fcn) (a1, a2));
-     }
-     else
-     {
-          LRef argv[2];
-          argv[0] = a1;
-          argv[1] = a2;
-
-          return apply1(fcn, 2, argv);
-     }
+     return apply1(fcn, 2, argv);
 }
-
 
 /**************************************************************
  * __ex_current_catch_retval()
