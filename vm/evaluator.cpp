@@ -838,6 +838,22 @@ static LRef leval(LRef form, LRef env)
      return retval;
 }
 
+
+static LRef apply1(LRef fn, size_t argc, LRef argv[])
+{
+     LRef retval = NIL;
+
+     STACK_CHECK(&fn);
+
+     LRef env = NIL;
+     LRef next_form = apply(fn, argc, argv, &env, &retval);
+
+     if (NULLP(next_form))
+          return retval;
+     else
+          return leval(next_form, env);
+}
+
 /*  REVISIT: lapply should be tail recursive */
 LRef lapply(size_t argc, LRef argv[])
 {
@@ -870,24 +886,13 @@ LRef lapply(size_t argc, LRef argv[])
           args = CDR(args);
      }
 
-
      if (fn_argc >= ARG_BUF_LEN)
           vmerror("too many arguments in call to apply: ~s", lcons(fn, NIL));
 
      if (!NULLP(args))
           vmerror("bad argument list in call to apply: ~s", lcons(fn, args));
 
-     LRef retval = NIL;
-
-     STACK_CHECK(&args);
-
-     LRef env = NIL;
-     LRef next_form = apply(fn, fn_argc, fn_argv, &env, &retval);
-
-     if (NULLP(next_form))
-          return retval;
-     else
-          return leval(next_form, env);
+     return apply1(fn, fn_argc, fn_argv);
 }
 
 LRef lunbind_symbol(LRef var)
