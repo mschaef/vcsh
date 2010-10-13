@@ -73,7 +73,7 @@ enum
      SUB_FREELIST_SIZE = 1024,
 
      /*  The maximum number of GC roots per thread */
-     MAX_GC_ROOTS = 512,
+     MAX_GC_ROOTS = 32,
 
      /*  The debug printer's flonum precisionn */
      DEBUG_FLONUM_PRINT_PRECISION = 8,
