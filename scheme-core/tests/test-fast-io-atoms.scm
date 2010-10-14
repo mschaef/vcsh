@@ -50,7 +50,6 @@
   (test-case (can-fast-io-round-trip? -1.0))
   (test-case (can-fast-io-round-trip? 0.0))
   (test-case (can-fast-io-round-trip? 1.0))
-  (test-case (can-fast-io-round-trip? *pi*))
   (test-case (can-fast-io-round-trip? #inan))
   (test-case (can-fast-io-round-trip? #iposinf))
   (test-case (can-fast-io-round-trip? #ineginf))

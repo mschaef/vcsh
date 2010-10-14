@@ -225,16 +225,16 @@
   (equal? "#ineginf" (write-to-string (/ -1 0)))
 
   (dynamic-let ((*flonum-print-precision* -1))
-               (test-case (runtime-error? (write-to-string *pi*))))
+               (test-case (runtime-error? (write-to-string 3.14))))
 
   (dynamic-let ((*flonum-print-precision* 17))
-               (test-case (runtime-error? (write-to-string *pi*))))
+               (test-case (runtime-error? (write-to-string 3.14))))
 
   (dynamic-let ((*flonum-print-precision* #f))
-               (test-case (runtime-error? (write-to-string *pi*))))
+               (test-case (runtime-error? (write-to-string 3.14))))
 
   (dynamic-let ((*flonum-print-precision* 2))
-               (test-case (equal? "3.14" (write-to-string *pi*)))
+               (test-case (equal? "3.14" (write-to-string 3.14)))
                (test-case (equal? "0.00+2.00i" (write-to-string 2i)))
                (test-case (equal? "0.00-2.00i" (write-to-string -2i)))
 

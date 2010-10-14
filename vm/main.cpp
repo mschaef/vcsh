@@ -228,11 +228,6 @@ static void init_base_scheme_objects(void)
 
      interp.subr_table = hashcons(false);
      gc_protect(_T("subr-table"), &interp.subr_table, 1);
-
-     LRef temp_sym;
-
-     temp_sym = simple_intern(_T("*pi*"), interp.system_package);
-     lidefine_global(temp_sym, flocons(atan(1.0) * 4), NIL);
 }
 
 
