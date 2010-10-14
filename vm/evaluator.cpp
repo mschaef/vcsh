@@ -408,11 +408,10 @@ static void vmtrap_panic(trap_type_t trap, const _TCHAR *msg)
      panic(buf);
 }
 
-LRef napplyv(LRef closure, size_t argc, va_list args);
-
 LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 {
      assert((trap > 0) && (trap <= TRAP_LAST));
+     assert(argc < ARG_BUF_LEN);
 
      dscwritef(DF_SHOW_TRAPS, _T("; DEBUG: trap : ~cS\n"), trap_type_name(trap));
      
@@ -434,9 +433,15 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 
      va_start(args, argc);
 
-     retval = napplyv(handler, argc, args);
+     LRef argv[ARG_BUF_LEN];
+
+     argv[0] = fixcons(trap);
+     for (size_t ii = 1; ii < argc + 1; ii++)
+          argv[ii] = va_arg(args, LRef);
 
      va_end(args);
+
+     retval = apply1(handler, argc, argv);
 
      if (options & VMT_HANDLER_MUST_ESCAPE)
           vmtrap_panic(trap, "trap handler must escape");
@@ -967,18 +972,6 @@ LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
 
      SET_CAR(tmp, val);
      return val;
-}
-
-LRef napplyv(LRef closure, size_t argc, va_list args)
-{
-     assert(argc <= ARG_BUF_LEN);
-
-     LRef argv[ARG_BUF_LEN];
-
-     for (size_t ii = 0; ii < argc; ii++)
-          argv[ii] = va_arg(args, LRef);
-
-     return apply1(closure, argc, argv);
 }
 
 bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,

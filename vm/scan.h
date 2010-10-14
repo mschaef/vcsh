@@ -468,6 +468,7 @@ struct interpreter_t
      LRef control_fields[VMCTRL_LAST + 1];
 
      LRef sym_package_list;
+
      LRef system_package;
      LRef scheme_package;
      LRef keyword_package;
@@ -479,7 +480,6 @@ struct interpreter_t
      LRef startup_args;
 
      LRef trap_handlers[TRAP_LAST + 1];
-
 
      /*  A statically allocated LObject used to hold a debugger output port.
       *  This is intended to be available before the GC heap is operational,

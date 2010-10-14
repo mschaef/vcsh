@@ -124,21 +124,24 @@
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
 
-(define (vm-runtime-error-handler message primitive new-error-object)
+(define (vm-runtime-error-handler trapno message primitive new-error-object)
   (set! *last-error-stack-trace* (reverse (%get-current-frames 6))) ; dynamic-let would complicate the stack trace
   (error (format #f "in ~a, ~S" (procedure-name primitive) message new-error-object) new-error-object))
 
 
-(define (user-break-handler)
+(define (user-break-handler trapno)
   (catch 'ignore-user-break
     (signal 'user-break)))
 
-(define (uncaught-throw-handler tag retval)
+(define (uncaught-throw-handler trapno tag retval)
   (abort 'scheme::uncaught-throw tag retval))
+
+(define (trap-signal trapno tag retval)
+  (abort tag retval))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
-  (%set-trap-handler! system::TRAP_SIGNAL abort)
+  (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
   (%set-trap-handler! system::TRAP_UNCAUGHT_THROW uncaught-throw-handler))
 

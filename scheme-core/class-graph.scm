@@ -157,10 +157,10 @@
 
 ;;; Method definition
 
-(define (message-not-understood-handler instance message-name)
+(define (message-not-understood-handler trapno instance message-name)
   (error "Message ~s not understood by ~s" message-name instance))
 
-(define (primitive-instance-handler primitive)
+(define (primitive-instance-handler trapno primitive)
   (error "Cannot send message to primitive: ~s" primitive))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

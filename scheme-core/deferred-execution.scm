@@ -70,7 +70,7 @@
    (%schedule-all-deferred-events)))
 
 
-(define (timer-event-handler)
+(define (timer-event-handler trapno)
   (process-scheduled-events))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
