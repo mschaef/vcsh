@@ -390,7 +390,7 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
      {
           // TODO: This protocol probably doesn't work...
           message_handler = vmtrap(TRAP_MSG_NOT_UNDERSTOOD, VMT_MANDATORY_TRAP,
-                                   3, lookup_ctx_inst, message_name, NIL);
+                                   2, lookup_ctx_inst, message_name);
           
           args = lcons(message_name, args);
      }
@@ -420,7 +420,7 @@ LRef lsend(LRef args)
      LRef lookup_ctx = self;
 
      if (!INSTANCEP(lookup_ctx))
-          lookup_ctx = vmtrap(TRAP_PRIMITIVE_INSTANCE, VMT_MANDATORY_TRAP, 2, self, NIL);
+          lookup_ctx = vmtrap(TRAP_PRIMITIVE_INSTANCE, VMT_MANDATORY_TRAP, 1, self);
 
      args = CDR(args);
 

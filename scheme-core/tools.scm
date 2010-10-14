@@ -273,7 +273,7 @@
 
 ;; TODO: The define handler ought to be stub that calls into a hook. (and the retrace facility
 ;; needs to be implemented with this hook.)
-(define (global-define-handler symbol new-definition)
+(define (global-define-handler trapno symbol new-definition)
   (awhen (trace-record-for symbol)
     (establish-trace-on-function (car it) (cdr it))))
 

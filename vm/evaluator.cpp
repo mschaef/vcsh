@@ -1088,7 +1088,7 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
 
      SET_SYMBOL_VCELL(var, val);
 
-     vmtrap(TRAP_DEFINE, VMT_OPTIONAL_TRAP, 3, var, val, NIL);
+     vmtrap(TRAP_DEFINE, VMT_OPTIONAL_TRAP, 2, var, val);
 
      interp.global_env = old_genv;
 
@@ -1334,7 +1334,7 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
      }
 
      vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            3, tag, retval, NIL);
+            2, tag, retval);
 
      /* ...if nobody cares, then we start to panic. */
      panic("Uncaught throw!");
