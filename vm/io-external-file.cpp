@@ -244,15 +244,19 @@ port_class_t stderr_port_class = {
 
 void init_stdio_ports()
 {
-     lidefine_global(interp.sym_port_current_in, fileportcons(&stdin_port_class, PORT_INPUT, NIL),
-                     NIL);
-     lidefine_global(interp.sym_port_current_out,
-                     fileportcons(&stdout_port_class, PORT_OUTPUT, NIL), NIL);
-
+     LRef stdin_port = fileportcons(&stdin_port_class, PORT_INPUT, NIL);
+     LRef stdout_port = fileportcons(&stdout_port_class, PORT_OUTPUT, NIL);
      LRef stderr_port = fileportcons(&stderr_port_class, PORT_OUTPUT, NIL);
 
+     lidefine_global(interp.sym_port_current_in , stdin_port , NIL);
+     lidefine_global(interp.sym_port_current_out, stdout_port, NIL);
      lidefine_global(interp.sym_port_current_err, stderr_port, NIL);
-     lidefine_global(interp.sym_port_debug, stderr_port, NIL);
+     lidefine_global(interp.sym_port_debug      , stderr_port, NIL);
+
+     interp.control_fields[VMCTRL_CURRENT_INPUT_PORT] = stdin_port;
+     interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT] = stdout_port;
+     interp.control_fields[VMCTRL_CURRENT_ERROR_PORT] = stderr_port;
+     interp.control_fields[VMCTRL_CURRENT_DEBUG_PORT] = stderr_port;
 }
 
 

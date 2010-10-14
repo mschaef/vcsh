@@ -258,6 +258,7 @@ static void register_main_subrs()
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
+    register_subr(_T("%control-field"),                   SUBR_1,     (void*)licontrol_field                     );
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
@@ -293,6 +294,7 @@ static void register_main_subrs()
     register_subr(_T("%property-list"),                   SUBR_1,     (void*)lproperty_list                      );
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );
     register_subr(_T("%set-closure-env"),                 SUBR_2,     (void*)lset_closure_env                    );
+    register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
     register_subr(_T("%set-debug-flags"),                 SUBR_1,     (void*)lset_debug_flags                    );
     register_subr(_T("%set-handler-frames"),              SUBR_1,     (void*)lset_handler_frames                 );
     register_subr(_T("%set-instance-proto!"),             SUBR_2,     (void*)liset_instance_proto                );

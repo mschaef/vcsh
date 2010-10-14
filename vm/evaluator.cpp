@@ -341,6 +341,34 @@ LRef lset_interrupt_mask(LRef new_mask)
      return boolcons(previous_mask);
 }
 
+/*** Control Fields ***/
+
+static size_t get_control_field_id(LRef control_field_id)
+{
+     if (!FIXNUMP(control_field_id))
+          vmerror_wrong_type(1, control_field_id);
+
+     size_t id = (size_t)FIXNM(control_field_id);
+
+     if ((id < 0) || (id > VMCTRL_LAST))
+          vmerror("Invalid control field ID: ~s", control_field_id);
+
+     return id;
+}
+
+LRef liset_control_field(LRef control_field_id, LRef new_value)
+{
+     interp.control_fields[get_control_field_id(control_field_id)] = new_value;
+
+     return new_value;
+}
+
+LRef licontrol_field(LRef control_field_id)
+{
+     return interp.control_fields[get_control_field_id(control_field_id)];
+}
+
+
 /*** Trap handling ***/
 
 static size_t get_trap_id(LRef trap_id)

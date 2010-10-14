@@ -465,6 +465,8 @@ struct interpreter_t
 
      flonum_t launch_realtime;
 
+     LRef control_fields[VMCTRL_LAST + 1];
+
      LRef sym_package_list;
      LRef system_package;
      LRef scheme_package;
@@ -1560,22 +1562,22 @@ const LRef DEFAULT_PORT = NIL;
 
 INLINE LRef CURRENT_INPUT_PORT()
 {
-     return SYMBOL_VCELL(interp.sym_port_current_in);
+     return interp.control_fields[VMCTRL_CURRENT_INPUT_PORT];
 }
 
 INLINE LRef CURRENT_OUTPUT_PORT()
 {
-     return SYMBOL_VCELL(interp.sym_port_current_out);
+     return interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT];
 }
 
 INLINE LRef CURRENT_ERROR_PORT()
 {
-     return SYMBOL_VCELL(interp.sym_port_current_err);
+     return interp.control_fields[VMCTRL_CURRENT_ERROR_PORT];
 }
 
 INLINE LRef CURRENT_DEBUG_PORT()
 {
-     return SYMBOL_VCELL(interp.sym_port_debug);
+     return interp.control_fields[VMCTRL_CURRENT_DEBUG_PORT];
 }
 
 /*  This is the 'universally availble' debugger output port. */
@@ -1799,7 +1801,9 @@ LRef lhash_remove(LRef table, LRef key);
 LRef lhash_set(LRef table, LRef key, LRef value);
 LRef lhash_type(LRef hash);
 LRef lhashp(LRef obj);
+LRef lheap_cell_count_by_typecode();
 LRef liarm_gc_trip_wires(LRef f);
+LRef licontrol_field(LRef control_field_id);
 LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p);
 LRef lidirectory(LRef dirname, LRef mode);
 LRef lieee754_bits_to(LRef x);
@@ -1824,12 +1828,13 @@ LRef linstancep(LRef obj);
 LRef linteger2char(LRef s);     /*  REVISIT: rename to exact->char */
 LRef lintegerp(LRef x);
 LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
+LRef liset_control_field(LRef control_field_id, LRef new_value);
 LRef liset_instance_proto(LRef instance, LRef new_proto);
 LRef liset_trap_handler(LRef trap_id, LRef new_handler);
 LRef lislot_ref(LRef obj, LRef key);
 LRef lislot_set(LRef obj, LRef key, LRef value);
-LRef listartup_args();
 LRef lisp_strcmp(LRef s1, LRef s2);
+LRef listartup_args();
 LRef lisubr_table();
 LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
 LRef litrap_handler(LRef trap_id);
@@ -1933,7 +1938,6 @@ LRef lset_symbol_package(LRef sym, LRef package);
 LRef lsetcar(LRef cell, LRef value);
 LRef lsetcdr(LRef cell, LRef value);
 LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv);
-LRef lheap_cell_count_by_typecode();
 LRef lsin(LRef x);
 LRef lsleep(LRef ms);
 LRef lsqrt(LRef x);
