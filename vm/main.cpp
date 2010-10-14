@@ -222,20 +222,7 @@ static void init_base_scheme_objects(void)
 
      gc_protect(_T("startup-args"), &interp.startup_args, 1);
 
-     gc_protect_sym(&interp.sym_port_current_in, _T("*current-input-port*"), interp.system_package);
-     lidefine_global(interp.sym_port_current_in, NIL, NIL);
-
-     gc_protect_sym(&interp.sym_port_current_out, _T("*current-output-port*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_port_current_out, NIL, NIL);
-
-     gc_protect_sym(&interp.sym_port_current_err, _T("*current-error-port*"),
-                    interp.system_package);
-     lidefine_global(interp.sym_port_current_err, NIL, NIL);
-
-     gc_protect_sym(&interp.sym_port_debug, _T("*current-debug-port*"), interp.system_package);
-     lidefine_global(interp.sym_port_debug, NIL, NIL);
-
+     gc_protect(_T("control-fields"), interp.control_fields, sizeof(interp.control_fields) / sizeof(interp.control_fields[0]));
 
      gc_protect(_T("internal-files"), &interp.internal_files, 1);
 
@@ -609,9 +596,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.system_package = NIL;
      interp.scheme_package = NIL;
      interp.keyword_package = NIL;
-
-     /*  Standard symbols */
-     interp.sym_current_package = NIL;
 
      /*  Statistics Counters */
      interp.forms_evaluated = 0;

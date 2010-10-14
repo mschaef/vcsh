@@ -28,8 +28,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
   fprintf(stderr, ";;; scansh0 - %s\n", scan::build_id_string());
 
-  SET_SYMBOL_VCELL(scan::interp.sym_port_current_err, SYMBOL_VCELL(scan::interp.sym_port_current_out));
-  SET_SYMBOL_VCELL(scan::interp.sym_port_debug, SYMBOL_VCELL(scan::interp.sym_port_current_err));
+  scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_OUTPUT_PORT];
+  scan::interp.control_fields[scan::VMCTRL_CURRENT_DEBUG_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT];
 
   scan::LRef retval = scan::run();
 

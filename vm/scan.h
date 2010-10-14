@@ -480,12 +480,6 @@ struct interpreter_t
 
      LRef trap_handlers[TRAP_LAST + 1];
 
-     /*  Standard symbols (REVISIT: How many of these are still used? useful?) */
-     LRef sym_current_package;
-     LRef sym_port_current_in;
-     LRef sym_port_current_out;
-     LRef sym_port_current_err;
-     LRef sym_port_debug;
 
      /*  A statically allocated LObject used to hold a debugger output port.
       *  This is intended to be available before the GC heap is operational,

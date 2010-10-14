@@ -81,7 +81,7 @@
   (when *error*
     (dynamic-let ((*print-readably* #f))
       (if *last-error-stack-trace*
-          (show-frames *last-error-stack-trace* *current-error-port*)
+          (show-frames *last-error-stack-trace* (current-error-port))
           (format (current-error-port) "--- NO STACK TRACE ---"))
       (format (current-error-port) "; Error: ~I\n" message args))))
 

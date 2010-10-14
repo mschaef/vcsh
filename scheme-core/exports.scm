@@ -7,8 +7,7 @@
 (export! '(;; Control variables
            "*pi*"
 
-           ;; Port bindings
-           "*current-input-port*" "*current-output-port*" "*current-error-port*" "*current-debug-port*"
+
            )
          (find-package "system"))
 
