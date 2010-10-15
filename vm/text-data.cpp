@@ -592,7 +592,7 @@ LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
      if (!NULLP(p))
      {
           if (!FIXNUMP(p))
-               vmerror(_T("exact number expected for precision"), p);
+               vmerror_wrong_type(4, p);
 
           digits = (int) get_c_fixnum(p);
 

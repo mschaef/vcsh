@@ -76,7 +76,7 @@ LRef lipackagecons(LRef name, LRef bindings, LRef use_list)
           vmerror_wrong_type(2, bindings);
 
      if (!list_of_packages_p(use_list))
-          vmerror("Bad package use list", use_list);
+          vmerror("Bad package use list: ~s", use_list);
 
      return packagecons(name, bindings, use_list);
 }
@@ -124,7 +124,7 @@ LRef lset_package_use_list(LRef p, LRef use_list)
           vmerror_wrong_type(1, p);
 
      if (!list_of_packages_p(use_list))
-          vmerror("Malformed package list. ~s", use_list);
+          vmerror("Bad package use list: ~s", use_list);
 
      SET_PACKAGE_USE_LIST(p, use_list);
 

@@ -367,7 +367,7 @@ LRef lappend(size_t argc, LRef argv[])
           if (ii < argc - 1)
           {
                if (!CONSP(next_list))
-                    vmerror_wrong_type(next_list);
+                    vmerror_wrong_type(ii + 1, next_list);
 
                next_list = llist_copy(next_list);
           }
