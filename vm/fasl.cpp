@@ -191,7 +191,7 @@ static void fast_read_string(LRef port, LRef * retval)
      fast_read(port, &l);
 
      if (!FIXNUMP(l))
-          vmerror("strings must have a fixnum length", l); // TODO: Convert this to fast_read_error
+          fast_read_error("strings must have a fixnum length", port);
 
      fixnum_t expected_length = FIXNM(l);
 
