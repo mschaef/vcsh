@@ -206,10 +206,10 @@ LRef strcons_transfer_buffer(size_t length, _TCHAR * buffer)
 LRef lstring_ref(LRef a, LRef i)
 {
      if (!STRINGP(a))
-          return vmerror("not a string", a);
+          vmerror_wrong_type(1, a);
 
      if (!FIXNUMP(i))
-          vmerror("bad index to aref", i);
+          vmerror_wrong_type(2, i);
 
      fixnum_t k = get_c_fixnum(i);
 
@@ -225,10 +225,10 @@ LRef lstring_ref(LRef a, LRef i)
 LRef lstring_set(LRef a, LRef i, LRef v)
 {
      if (!STRINGP(a))
-          return vmerror("not a string", a);
+          vmerror_wrong_type(1, a);
 
      if (!FIXNUMP(i))
-          vmerror("bad index to string-set!", i);
+          vmerror_wrong_type(2, i);
 
      fixnum_t k = get_c_fixnum(i);
 
@@ -239,17 +239,11 @@ LRef lstring_set(LRef a, LRef i, LRef v)
           return vmerror("index to string-set too large", i);
 
      if (FIXNUMP(v))
-     {
           STRING_DATA(a)[k] = (_TCHAR) FIXNM(v);
-     }
      else if (CHARP(v))
-     {
           STRING_DATA(a)[k] = CHARV(v);
-     }
      else
-     {
-          vmerror("bad value to store in string", v);
-     }
+          vmerror_wrong_type(3, v);
 
      return (a);
 }
@@ -947,11 +941,11 @@ _TCHAR *get_c_string(LRef x)
      _TCHAR *str = try_get_c_string(x);
 
      if (str)
-          return (str);
-     else
-          vmerror("not a symbol or string", x);
+          return str;
 
-     return (NULL);
+     vmerror_wrong_type(x);
+
+     return NULL;
 }
 
 _TCHAR *get_c_string_dim(LRef x, size_t * len)

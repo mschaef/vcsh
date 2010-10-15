@@ -517,7 +517,7 @@ LRef lenvlookup(LRef var, LRef env)
           tmp = CAR(frame);
 
           if (!CONSP(tmp))
-               vmerror("damaged frame", tmp);
+               panic("damaged frame");
 
           for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
           {
@@ -536,8 +536,9 @@ LRef lenvlookup(LRef var, LRef env)
           }
 #endif
      }
+
      if (!NULLP(frame))
-          vmerror("damaged env", env);
+          panic("damaged env");
 
      return NIL;
 }
@@ -859,10 +860,11 @@ static LRef leval(LRef form, LRef env)
           {
                retval = leval(FAST_OP_ARG2(form), env);
           }
-          LEAVE_FRAME()break;
+          LEAVE_FRAME();
+          break;
 
      default:
-          vmerror("Unsupported fast-op: ~s", form);
+          panic("Unsupported fast-op");
      }
 
 #ifdef _DEBUG
@@ -958,7 +960,7 @@ LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
                set_global_env(genv);
 
           if (UNBOUND_MARKER_P(SYMBOL_VCELL(var)))
-               vmerror("undefined symbol: ~s", var);
+               vmerror_unbound(var);
 
           if (SYMBOL_HOME(var) == interp.keyword_package)
                vmerror("Cannot rebind keywords: ~s", var);
