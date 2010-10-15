@@ -31,20 +31,22 @@ LRef lcar(LRef x)
 {
      if (NULLP(x))
           return NIL;
-     else if (CONSP(x))
-          return CAR(x);
 
-     return vmerror_wrong_type(1, x);
+     if (!CONSP(x))
+          vmerror_wrong_type(1, x);
+
+     return CAR(x);
 };
 
 LRef lcdr(LRef x)
 {
      if (NULLP(x))
           return NIL;
-     else if (CONSP(x))
-          return CDR(x);
 
-     return vmerror_wrong_type(1, x);
+     if (!CONSP(x))
+          vmerror_wrong_type(1, x);
+
+     return CDR(x);
 };
 
 
@@ -472,7 +474,7 @@ LRef make_list(size_t dim, LRef initial)
 LRef lmake_list(LRef d, LRef initial)
 {
      if (!NUMBERP(d))
-          return vmerror_wrong_type(1, d);
+          vmerror_wrong_type(1, d);
 
      fixnum_t dim = get_c_fixnum(d);
 

@@ -13,7 +13,7 @@ BEGIN_NAMESPACE(scan)
 LRef lcopy_structure(LRef st)   /* REVISIT: how much of this can be shared with lstructurecons? */
 {
      if (!STRUCTUREP(st))
-          return vmerror_wrong_type(1, st);
+          vmerror_wrong_type(1, st);
 
      LRef new_st = new_cell(TC_STRUCTURE);
 
@@ -90,7 +90,7 @@ LRef lstructurep(LRef st, LRef expected_layout)
 LRef lstructure_layout(LRef st)
 {
      if (!STRUCTUREP(st))
-          return vmerror_wrong_type(1, st);
+          vmerror_wrong_type(1, st);
 
      return STRUCTURE_LAYOUT(st);
 }
@@ -98,7 +98,7 @@ LRef lstructure_layout(LRef st)
 LRef lstructure_length(LRef st)
 {
      if (!STRUCTUREP(st))
-          return vmerror_wrong_type(1, st);
+           vmerror_wrong_type(1, st);
 
      return fixcons(STRUCTURE_DIM(st));
 }

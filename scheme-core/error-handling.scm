@@ -139,8 +139,16 @@
 (define (trap-signal trapno tag retval)
   (abort tag retval))
 
+(define (trap-vmerror-wrong-type trapno subr argno errval)
+  (if (< argno 0)
+      (error "Invalid argument ~a to ~a: ~s" argno (%subr-name subr) errval)
+      (error "Invalid argument to ~a: ~s" (%subr-name subr) errval)))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
+
+  (%set-trap-handler! system::TRAP_VMERROR_WRONG_TYPE trap-vmerror-wrong-type)
+
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
   (%set-trap-handler! system::TRAP_UNCAUGHT_THROW uncaught-throw-handler))

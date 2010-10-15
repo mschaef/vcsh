@@ -133,7 +133,9 @@ BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
     VM_CONSTANT(TRAP_PRIMITIVE_INSTANCE,      7  )
     VM_CONSTANT(TRAP_UNCAUGHT_THROW,          8  )
 
-    VM_ANON_CONSTANT(TRAP_LAST,               8  )
+    VM_CONSTANT(TRAP_VMERROR_WRONG_TYPE,      9  )
+
+    VM_ANON_CONSTANT(TRAP_LAST,               9  )
 END_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
 
 BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)

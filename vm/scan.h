@@ -1673,8 +1673,8 @@ enum vmt_options_t {
 LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...);
 LRef vmerror(const _TCHAR * message, LRef new_errobj);
 
-LRef vmerror_wrong_type(LRef new_errobj);
-LRef vmerror_wrong_type(int which_argument, LRef new_errobj);
+void vmerror_wrong_type(LRef new_errobj);
+void vmerror_wrong_type(int which_argument, LRef new_errobj);
 LRef vmerror_unbound(LRef v);
 void vmerror_stack_overflow(u8_t * obj);
 

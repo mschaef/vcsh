@@ -73,43 +73,15 @@ LRef vmerror(const _TCHAR * message, LRef new_errobj)
      return NIL;
 }
 
-LRef vmerror_wrong_type(LRef new_errobj)
+void vmerror_wrong_type(LRef new_errobj)
 {
-
-     return vmerror_wrong_type(-1, new_errobj);
+     vmerror_wrong_type(-1, new_errobj);
 }
 
-LRef vmerror_wrong_type(int which_argument, LRef new_errobj)
+void vmerror_wrong_type(int which_argument, LRef new_errobj)
 {
-     _TCHAR buffer[STACK_STRBUF_LEN];
-
-     const _TCHAR *msg = NULL;
-
-     switch (which_argument)
-     {
-     case 1:
-          msg = _T(", 1st argument");
-          break;
-     case 2:
-          msg = _T(", 2nd argument");
-          break;
-     case 3:
-          msg = _T(", 3rd argument");
-          break;
-     case 4:
-          msg = _T(", 4th argument");
-          break;
-     case 5:
-          msg = _T(", 5th argument");
-          break;
-     default:
-          msg = _T("");
-          break;
-     }
-
-     _sntprintf(buffer, STACK_STRBUF_LEN, "Argument type mismatch%s", msg);
-
-     return vmerror(buffer, new_errobj);
+     vmtrap(TRAP_VMERROR_WRONG_TYPE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            3, topmost_primitive(), fixcons(which_argument), new_errobj);
 }
 
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */

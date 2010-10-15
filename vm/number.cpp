@@ -326,12 +326,15 @@ MAKE_NUMBER_COMPARISON_FN(lnum_lt, <, "<");
 LRef ladd(LRef x, LRef y)
 {
      if (!NUMBERP(x))
-          return vmerror_wrong_type(1, x);
-     else if (NULLP(y))
+          vmerror_wrong_type(1, x);
+     
+     if (NULLP(y))
           return x;
-     else if (!NUMBERP(y))
-          return vmerror_wrong_type(2, y);
-     else if (COMPLEXP(x) || COMPLEXP(y))
+
+     if (!NUMBERP(y))
+          vmerror_wrong_type(2, y);
+     
+     if (COMPLEXP(x) || COMPLEXP(y))
           return cmplxcons(get_c_flonum(x) + get_c_flonum(y),
                            get_c_flonum_im(x) + get_c_flonum_im(y));
      else if (FLONUMP(x) || FLONUMP(y))
@@ -340,17 +343,20 @@ LRef ladd(LRef x, LRef y)
           return fixcons(get_c_fixnum(x) + get_c_fixnum(y));
 
      /*  TODO add overflow */
-};
+}
 
 LRef lmultiply(LRef x, LRef y)
 {
      if (!NUMBERP(x))
-          return vmerror_wrong_type(1, x);
-     else if (NULLP(y))
+          vmerror_wrong_type(1, x);
+
+     if (NULLP(y))
           return x;
-     else if (!NUMBERP(y))
-          return vmerror_wrong_type(2, y);
-     else if (COMPLEXP(x) || COMPLEXP(y))
+
+     if (!NUMBERP(y))
+          vmerror_wrong_type(2, y);
+
+     if (COMPLEXP(x) || COMPLEXP(y))
      {
           flonum_t xr = get_c_flonum(x);
           flonum_t yr = get_c_flonum(y);
@@ -370,8 +376,9 @@ LRef lmultiply(LRef x, LRef y)
 LRef lsubtract(LRef x, LRef y)
 {
      if (!NUMBERP(x))
-          return vmerror_wrong_type(1, x);
-     else if (NULLP(y))
+          vmerror_wrong_type(1, x);
+
+     if (NULLP(y))
      {
           if (COMPLEXP(x))
                return cmplxcons(-get_c_flonum(x), -get_c_flonum_im(x));
@@ -380,9 +387,11 @@ LRef lsubtract(LRef x, LRef y)
           else
                return fixcons(-get_c_fixnum(x));
      }
-     else if (!NUMBERP(y))
-          return vmerror_wrong_type(2, y);
-     else if (COMPLEXP(x) || COMPLEXP(y))
+     
+     if (!NUMBERP(y))
+          vmerror_wrong_type(2, y);
+     
+     if (COMPLEXP(x) || COMPLEXP(y))
           return cmplxcons(get_c_flonum(x) - get_c_flonum(y),
                            get_c_flonum_im(x) - get_c_flonum_im(y));
      else if (FLONUMP(x) || FLONUMP(y))
@@ -396,8 +405,9 @@ LRef lsubtract(LRef x, LRef y)
 LRef ldivide(LRef x, LRef y)
 {
      if (!NUMBERP(x))
-          return vmerror_wrong_type(1, x);
-     else if (NULLP(y))
+          vmerror_wrong_type(1, x);
+     
+     if (NULLP(y))
      {
           if (COMPLEXP(x))
           {
@@ -411,9 +421,11 @@ LRef ldivide(LRef x, LRef y)
           else
                return flocons(1 / get_c_flonum(x));
      }
-     else if (!NUMBERP(y))
-          return vmerror_wrong_type(2, y);
-     else if (COMPLEXP(x) || COMPLEXP(y))
+
+     if (!NUMBERP(y))
+          vmerror_wrong_type(2, y);
+
+     if (COMPLEXP(x) || COMPLEXP(y))
      {
           flonum_t xr = get_c_flonum(x);
           flonum_t yr = get_c_flonum(y);
@@ -867,12 +879,10 @@ LRef lreal_part(LRef cmplx)
      if (FIXNUMP(cmplx) || REALP(cmplx))
           return cmplx;
 
-     if (COMPLEXP(cmplx))
-          return flocons(FLONM(cmplx));
-     else
-          return vmerror_wrong_type(1, cmplx);
+     if (!COMPLEXP(cmplx))
+          vmerror_wrong_type(1, cmplx);
 
-
+     return flocons(FLONM(cmplx));
 }
 
 LRef limag_part(size_t argc, LRef argv[])
@@ -897,10 +907,10 @@ LRef limag_part(size_t argc, LRef argv[])
 
 LRef langle(LRef cmplx)
 {
-     if (NUMBERP(cmplx))
-          return flocons(atan2(get_c_flonum_im(cmplx), get_c_flonum(cmplx)));
-     else
-          return vmerror_wrong_type(1, cmplx);
+     if (!NUMBERP(cmplx))
+          vmerror_wrong_type(1, cmplx);
+
+     return flocons(atan2(get_c_flonum_im(cmplx), get_c_flonum(cmplx)));
 }
 
 LRef lmagnitude(LRef cmplx)
@@ -909,27 +919,22 @@ LRef lmagnitude(LRef cmplx)
           return (FIXNM(cmplx) < 0) ? fixcons(-FIXNM(cmplx)) : cmplx;
      else if (REALP(cmplx))
           return (FLONM(cmplx) < 0) ? flocons(-FLONM(cmplx)) : cmplx;
-     else if (COMPLEXP(cmplx))
-     {
-          flonum_t xr = get_c_flonum(cmplx);
-          flonum_t xi = get_c_flonum_im(cmplx);
+     else if (!COMPLEXP(cmplx))
+          vmerror_wrong_type(1, cmplx);
 
-          return flocons(sqrt(xr * xr + xi * xi));
-     }
-     else
-          return vmerror_wrong_type(1, cmplx);
+     flonum_t xr = get_c_flonum(cmplx);
+     flonum_t xi = get_c_flonum_im(cmplx);
 
+     return flocons(sqrt(xr * xr + xi * xi));
 }
-
 
 /* Random number generator ************************************/
 
 LRef lrandom(LRef n)            /*  TESTTHIS */
 {
      if (NULLP(n))
-     {
           return flocons(mt19937_real2());
-     }
+
      if (FIXNUMP(n))
      {
           fixnum_t range = FIXNM(n);
@@ -939,21 +944,19 @@ LRef lrandom(LRef n)            /*  TESTTHIS */
 
           return fixcons(mt19937_int64() % range);
      }
-     else if (FLONUMP(n))
-     {
-          flonum_t re_range = get_c_flonum(n);
-          flonum_t im_range = get_c_flonum_im(n);
+     else if (!FLONUMP(n))
+          vmerror_wrong_type(1, n);
 
-          if (re_range == 0.0)
-               vmerror("Invalid random range", n);
+     flonum_t re_range = get_c_flonum(n);
+     flonum_t im_range = get_c_flonum_im(n);
 
-          if (im_range == 0.0)
-               return flocons(mt19937_real2() * re_range);
-          else
-               return cmplxcons(mt19937_real2() * re_range, mt19937_real2() * im_range);
-     }
+     if (re_range == 0.0)
+          vmerror("Invalid random range", n);
 
-     return vmerror_wrong_type(1, n);
+     if (im_range == 0.0)
+          return flocons(mt19937_real2() * re_range);
+     else
+          return cmplxcons(mt19937_real2() * re_range, mt19937_real2() * im_range);
 }
 
 

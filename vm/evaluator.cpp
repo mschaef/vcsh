@@ -441,7 +441,7 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 
      va_end(args);
 
-     retval = apply1(handler, argc, argv);
+     retval = apply1(handler, argc + 1, argv);
 
      if (options & VMT_HANDLER_MUST_ESCAPE)
           vmtrap_panic(trap, "trap handler must escape");
