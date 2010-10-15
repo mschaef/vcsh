@@ -94,5 +94,4 @@ LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
      return NIL;
 }
 
-
 END_NAMESPACE

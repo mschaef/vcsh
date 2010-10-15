@@ -641,13 +641,13 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                     break;
 
                default:
-                    vmerror(_T("Invalid C object format character in scwritef"), charcons(ch));
+                    panic(_T("Invalid C object format character in scwritef"));
                     break;
                };
                break;
 
           default:
-               vmerror(_T("Invalid format character in scwritef"), charcons(ch));
+               panic(_T("Invalid format character in scwritef"));
                break;
           }
 
