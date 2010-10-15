@@ -161,8 +161,9 @@ LRef lfind_package(LRef name)
           LRef p = CAR(l);
 
           if (!PACKAGEP(p))
-               vmerror("damaged package list", CURRENT_PACKAGE_LIST());
-          else if (_tcscmp(n, get_c_string(PACKAGE_NAME(p))) == 0)
+               panic("damaged package list");
+
+          if (_tcscmp(n, get_c_string(PACKAGE_NAME(p))) == 0)
                return p;
      }
 

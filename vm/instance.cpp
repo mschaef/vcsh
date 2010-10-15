@@ -129,7 +129,7 @@ LRef lmake_instance(LRef args)
      }
 
      if (!(FALSEP(proto) || INSTANCEP(proto) || SYMBOLP(proto)))
-          vmerror("expected instance, symbol, or #f for proto", proto);
+          vmerror_wrong_type(1, proto);
 
      LRef new_instance = instancecons(proto);
 

@@ -618,12 +618,6 @@ void process_interrupts()
      _process_interrupts();
 }
 
-
-LRef vmerror_unbound(LRef v)
-{
-     return vmerror("unbound variable: ~s", v);
-}
-
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
 
 INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
@@ -712,7 +706,7 @@ INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * re
           return CDR(c_code);   /*  tail call */
      }
 
-     vmerror("Cannot apply: ~s", function);
+     vmerror_wrong_type(function);
 
      return NIL;                /*  avoid a warning, since the error case returns nothing. */
 }

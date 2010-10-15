@@ -1871,7 +1871,6 @@ LRef lnum_lt(size_t argc, LRef argv[]);
 LRef lnumber2string(LRef x, LRef r, LRef s, LRef p);
 LRef lnumberp(LRef x);
 LRef lobaddr(LRef object);
-LRef lopen_c_data_output(LRef destination, LRef var_name, LRef mode);
 LRef lopen_debug_port();
 LRef lopen_des_input(LRef source, LRef key, LRef encoding, LRef mode);
 LRef lopen_des_output(LRef dest, LRef key, LRef encoding, LRef mode);

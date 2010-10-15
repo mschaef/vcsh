@@ -84,6 +84,11 @@ void vmerror_wrong_type(int which_argument, LRef new_errobj)
             3, topmost_primitive(), fixcons(which_argument), new_errobj);
 }
 
+LRef vmerror_unbound(LRef v)
+{
+     return vmerror("unbound variable: ~s", v);
+}
+
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
 {
      if (STRINGP(msg))

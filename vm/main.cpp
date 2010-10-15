@@ -427,7 +427,6 @@ static void register_main_subrs()
     register_subr(_T("null?"),                            SUBR_1,     (void*)lnullp                              );
     register_subr(_T("number->string"),                   SUBR_4,     (void*)lnumber2string                      );
     register_subr(_T("number?"),                          SUBR_1,     (void*)lnumberp                            );
-    register_subr(_T("open-c-data-output"),               SUBR_3,     (void*)lopen_c_data_output                 );
     register_subr(_T("open-debug-port"),                  SUBR_0,     (void*)lopen_debug_port                    );
     register_subr(_T("open-input-file"),                  SUBR_2,     (void*)lopen_input_file                    );
     register_subr(_T("open-input-string"),                SUBR_1,     (void*)lopen_input_string                  );

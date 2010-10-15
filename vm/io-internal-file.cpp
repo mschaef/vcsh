@@ -72,31 +72,6 @@ port_class_t c_data_port_class = {
      c_data_port_length,
 };
 
-LRef lopen_c_data_output(LRef destination, LRef var_name, LRef mode)
-{
-     bool binary = get_c_port_mode(mode);
-
-     if (!PORTP(destination))
-          vmerror_wrong_type(1, destination);
-
-     if (!STRINGP(var_name))
-          vmerror_wrong_type(2, var_name);
-
-     if (!TRUEP(loutput_portp(destination)))
-          vmerror("Cannot write c-data to input-only ports", destination);
-
-     if (TRUEP(lbinary_portp(destination)))
-          vmerror("Cannot write c-data to binary ports", destination);
-
-     c_data_port_state *ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));
-
-     ps->_bytes_transferred = 0;
-     ps->_input_buffer = NULL;
-     ps->_input_buffer_bytes = 0;
-
-     return portcons(&c_data_port_class, var_name,
-                     (port_mode_t) (PORT_OUTPUT | (binary ? PORT_BINARY : 0)), destination, ps);
-}
 
 void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data)
 {

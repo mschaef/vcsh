@@ -199,7 +199,6 @@
 (%define null? #.(scheme::%subr-by-name "null?"))
 (%define number->string #.(scheme::%subr-by-name "number->string"))
 (%define number? #.(scheme::%subr-by-name "number?"))
-(%define open-c-data-output #.(scheme::%subr-by-name "open-c-data-output"))
 (%define open-debug-port #.(scheme::%subr-by-name "open-debug-port"))
 (%define open-input-file #.(scheme::%subr-by-name "open-input-file"))
 (%define open-input-string #.(scheme::%subr-by-name "open-input-string"))
