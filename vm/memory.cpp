@@ -456,7 +456,6 @@ static void gc_mark_stack()
 static void gc_begin_stats(void)
 {
      interp.gc_run_time = sys_runtime();
-     interp.gc_count++;
      interp.gc_cells_collected = 0;
 
      if (DEBUG_FLAG(DF_SHOW_GC))
