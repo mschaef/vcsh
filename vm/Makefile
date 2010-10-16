@@ -24,6 +24,7 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        error${OBJ_EXT} \
        evaluator${OBJ_EXT} \
        fasl${OBJ_EXT} \
+       global-env${OBJ_EXT} \
        hash-table${OBJ_EXT} \
        instance${OBJ_EXT} \
        io${OBJ_EXT} \
