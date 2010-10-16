@@ -461,8 +461,6 @@ static LRef arg_list_from_buffer(size_t argc, LRef argv[])
      for (size_t ii = argc; ii > 0; ii--)
           result = lcons(argv[ii - 1], result);
 
-     interp.gc_total_environment_cells_allocated += argc;
-
      return result;
 }
 
@@ -496,15 +494,9 @@ static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LR
 static LRef extend_env(LRef actuals, LRef formals, LRef env)
 {
      if (SYMBOLP(formals))
-     {
-          interp.gc_total_environment_cells_allocated += 4;
           return lcons(lcons(lcons(formals, NIL), lcons(actuals, NIL)), env);
-     }
      else
-     {
-          interp.gc_total_environment_cells_allocated += 2;
           return lcons(lcons(formals, actuals), env);
-     }
 }
 
 #define ENVLOOKUP_TRICK 1
@@ -722,8 +714,6 @@ static LRef leval(LRef form, LRef env)
      ENTER_EVAL_FRAME(&form, env)
 #endif
    loop:
-     interp.forms_evaluated++;
-
      _process_interrupts();
 
      checked_assert(TYPE(form) == TC_FAST_OP);
@@ -1099,26 +1089,22 @@ LRef ltime_apply0(LRef fn)
           vmerror_wrong_type(1, fn);
 
      fixnum_t cells = interp.gc_total_cells_allocated;
-     fixnum_t env_cells = interp.gc_total_environment_cells_allocated;
      fixnum_t c_blocks = malloc_blocks;
      fixnum_t c_bytes = malloc_bytes;
      flonum_t t = sys_runtime();
      flonum_t gc_t = interp.gc_total_run_time;
-     size_t forms = interp.forms_evaluated;
 
-     LRef argv[8];
+     LRef argv[6];
 
      argv[0] = apply1(fn, 0, NULL);
 
      argv[1] = flocons(sys_runtime() - t);
      argv[2] = flocons(interp.gc_total_run_time - gc_t);
      argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
-     argv[4] = fixcons(interp.gc_total_environment_cells_allocated - env_cells);
-     argv[5] = fixcons(malloc_blocks - c_blocks);
-     argv[6] = fixcons(malloc_bytes - c_bytes);
-     argv[7] = fixcons(interp.forms_evaluated - forms);
+     argv[4] = fixcons(malloc_blocks - c_blocks);
+     argv[5] = fixcons(malloc_bytes - c_bytes);
 
-     return lvector(8, argv);
+     return lvector(6, argv);
 }
 
 /**************************************************************

@@ -592,9 +592,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.keyword_package = NIL;
 
      /*  Statistics Counters */
-     interp.forms_evaluated = 0;
      interp.gc_total_cells_allocated = 0;
-     interp.gc_total_environment_cells_allocated = 0;
      interp.gc_cells_collected = 0;
 
      interp.malloc_bytes_at_last_gc = 0;

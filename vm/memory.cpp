@@ -619,7 +619,7 @@ LRef lgc_info()
      argv[0] = fixcons(count_active_gc_heap_segments());
      argv[1] = fixcons(gc_heap_freelist_length());
      argv[2] = fixcons(interp.gc_total_cells_allocated);
-     argv[3] = fixcons(interp.gc_total_environment_cells_allocated);
+     argv[3] = fixcons(0);
      argv[4] = fixcons(malloc_bytes);
      argv[5] = fixcons(interp.malloc_bytes_at_last_gc);
      argv[6] = fixcons(malloc_blocks);

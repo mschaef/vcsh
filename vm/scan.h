@@ -487,10 +487,7 @@ struct interpreter_t
      LObject debugger_output;
 
      /*  Statistics Counters */
-     size_t forms_evaluated;
-
      fixnum_t gc_total_cells_allocated;
-     fixnum_t gc_total_environment_cells_allocated;
      fixnum_t gc_cells_collected;
 
      fixnum_t malloc_bytes_at_last_gc;
