@@ -496,7 +496,6 @@ struct interpreter_t
 
      flonum_t gc_total_run_time;
      flonum_t gc_run_time;
-     int gc_count;
 
      debug_flag_t debug_flags;
 
@@ -506,8 +505,6 @@ struct interpreter_t
 extern interpreter_t interp;    /*  One interpter... one global state variable. */
 
 /**** Boxed types ****/
-
-#define TYPEDECL
 
 /* ...Type Predicates... */
 
