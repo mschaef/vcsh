@@ -254,53 +254,54 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
 LRef lget_current_frames(LRef sc)
 {
      fixnum_t skip_count = get_c_fixnum(sc);
-     LRef frame_obj;
-     LRef l = NIL;
-     frame_record_t *loc = TOP_FRAME;
-     fixnum_t frame_count = 0;
 
-     while (loc)
+     LRef frames = NIL;
+
+     fixnum_t frame_count = 0;
+     
+     for(frame_record_t *loc = TOP_FRAME; loc; loc = loc->previous)
      {
+          LRef frame_obj = NIL;
+
           frame_count++;
 
           switch (loc->type)
           {
           case FRAME_EVAL:
-               frame_obj = listn(4, keyword_intern(_T("eval")),
+               frame_obj = listn(3,
                                  *loc->frame_as.eval.form,
-                                 loc->frame_as.eval.initial_form, loc->frame_as.eval.env);
+                                 loc->frame_as.eval.initial_form,
+                                 loc->frame_as.eval.env);
                break;
 
           case FRAME_EX_TRY:
-               frame_obj = listn(3, keyword_intern(_T("dynamic-escape-try")),
-                                 NIL, loc->frame_as.dynamic_escape.tag);
+               frame_obj = listn(1, loc->frame_as.dynamic_escape.tag);
                break;
 
           case FRAME_EX_UNWIND:
-               frame_obj = listn(2, keyword_intern(_T("dynamic-escape-unwind-protect")), NIL);
+               frame_obj = NIL;
                break;
 
           case FRAME_PRIMITIVE:
-               frame_obj = listn(3, keyword_intern(_T("primitive")),
-                                 NIL, loc->frame_as.primitive.function);
+               frame_obj = listn(1, loc->frame_as.primitive.function);
                break;
 
           case FRAME_MARKER:
-               frame_obj = listn(2, keyword_intern(_T("marker")), loc->frame_as.marker.tag);
+               frame_obj = listn(1, loc->frame_as.marker.tag);
                break;
 
           default:
-               frame_obj = keyword_intern(_T("invalid"));
+               panic("invalid frame type.");
                break;
           }
 
-          if (frame_count >= skip_count)
-               l = lcons(frame_obj, l);
+          frame_obj = lcons(fixcons(loc->type), frame_obj);
 
-          loc = loc->previous;
+          if (frame_count >= skip_count)
+               frames = lcons(frame_obj, frames);
      }
 
-     return l;
+     return frames;
 }
 
 /**************************************************************

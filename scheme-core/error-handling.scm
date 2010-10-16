@@ -159,10 +159,10 @@
   (define (maybe-remove-system-frames frame-list)
     (if *show-system-frames*
         frame-list
-        (take-while #L(not (and (eq? (car _) :marker)
+        (take-while #L(not (and (= (car _) system::FRAME_MARKER)
                                 (eq? (cadr _) 'system-stack-boundary)))
                     frame-list)))
-  (let ((frame-list (filter (lambda (frame) (eq? (car frame) :eval))
+  (let ((frame-list (filter (lambda (frame) (= (car frame) system::FRAME_EVAL))
                             (maybe-remove-system-frames frame-list))))
     (doiterate ((list frame (reverse frame-list))
                 (count frame-index))
