@@ -73,10 +73,7 @@ LRef lisubr_table()
      return interp.subr_table;
 }
 
-/**************************************************************
- * Closures
- */
-
+/***** closures *****/
 
 LRef lclosurecons(LRef env, LRef code, LRef property_list)
 {
@@ -179,134 +176,7 @@ LRef lprocedurep(LRef exp)
           return boolcons(false);
 }
 
-/**************************************************************
- * Frame manager
- *
- * Frames are basically annotations on the dynamic stack. Each
- * frame has an "frame record" stored in an auto variable
- * local to a newly created scope. When the frame is entered,
- * the frame's frame record is registered on a global stack.
- * When the frame is left, the frame record is popped off of
- * the stack.
- */
-
-
-
-/* __frame_set_top(f)
- *
- * Sets the top frame of the frame stack.
- *
- * Parameters:
- *   f - New top of the frame stack.
- *
- * Return value:
- *
- * Notes:
- *   The passed in frame is expected to be somewhere on the
- *   current frame stack.
- */
-void __frame_set_top(frame_record_t * f)
-{
-#ifdef _DEBUG
-     frame_record_t *loc = CURRENT_TIB()->frame_stack;
-
-     while (loc)
-     {
-          if (loc == f)
-               break;
-          loc = loc->previous;
-     }
-
-     assert(loc);               /*  The frame ought to be on the stack already. */
-#endif
-
-     CURRENT_TIB()->frame_stack = f;
-}
-
-/* __frame_find(pred, info)
- *
- * Finds a frame satisfying the inpassed predicate.
- *
- * Parameters:
- *   pred - A C predicate function.
- *   info - A uptr passed, along with the current frame, into the
- *    predicate function.
- *
- * Return value:
- *   A pointer to the first (topmost) frame satisfying the predicate.
- *   NULL, if none found.
- */
-frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
-{
-     frame_record_t *loc = CURRENT_TIB()->frame_stack;
-
-     while (loc)
-     {
-          if (pred(loc, info))
-               return loc;
-
-          loc = loc->previous;
-     }
-
-     return loc;
-}
-
-LRef lget_current_frames(LRef sc)
-{
-     fixnum_t skip_count = get_c_fixnum(sc);
-
-     LRef frames = NIL;
-
-     fixnum_t frame_count = 0;
-     
-     for(frame_record_t *loc = TOP_FRAME; loc; loc = loc->previous)
-     {
-          LRef frame_obj = NIL;
-
-          frame_count++;
-
-          switch (loc->type)
-          {
-          case FRAME_EVAL:
-               frame_obj = listn(3,
-                                 *loc->frame_as.eval.form,
-                                 loc->frame_as.eval.initial_form,
-                                 loc->frame_as.eval.env);
-               break;
-
-          case FRAME_EX_TRY:
-               frame_obj = listn(1, loc->frame_as.dynamic_escape.tag);
-               break;
-
-          case FRAME_EX_UNWIND:
-               frame_obj = NIL;
-               break;
-
-          case FRAME_PRIMITIVE:
-               frame_obj = listn(1, loc->frame_as.primitive.function);
-               break;
-
-          case FRAME_MARKER:
-               frame_obj = listn(1, loc->frame_as.marker.tag);
-               break;
-
-          default:
-               panic("invalid frame type.");
-               break;
-          }
-
-          frame_obj = lcons(fixcons(loc->type), frame_obj);
-
-          if (frame_count >= skip_count)
-               frames = lcons(frame_obj, frames);
-     }
-
-     return frames;
-}
-
-/**************************************************************
- * Stack limit checking
- */
+/***** stack limit checking *****/
 
 LRef lset_stack_limit(LRef amount)
 {
@@ -330,6 +200,8 @@ LRef lset_stack_limit(LRef amount)
      return fixcons(new_size_limit);
 }
 
+/***** Interrupts *****/
+
 LRef lset_interrupt_mask(LRef new_mask)
 {
      if (!BOOLP(new_mask))
@@ -342,7 +214,50 @@ LRef lset_interrupt_mask(LRef new_mask)
      return boolcons(previous_mask);
 }
 
-/*** Control Fields ***/
+
+
+void signal_break()
+{
+     interp.break_pending = true;
+}
+
+void signal_timer()
+{
+     interp.timer_event_pending = true;
+}
+
+static void process_break_event()
+{
+     interp.break_pending = false;
+
+     vmtrap(TRAP_USER_BREAK, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
+}
+
+static void process_timer_event()
+{
+     interp.timer_event_pending = false;
+
+     vmtrap(TRAP_TIMER_EVENT, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
+}
+
+INLINE void _process_interrupts()
+{
+     if (interp.interrupts_masked)
+          return;
+
+     if (interp.break_pending)
+          process_break_event();
+
+     if (interp.timer_event_pending)
+          process_timer_event();
+}
+
+void process_interrupts()
+{
+     _process_interrupts();
+}
+
+/***** Control Fields *****/
 
 static size_t get_control_field_id(LRef control_field_id)
 {
@@ -370,7 +285,7 @@ LRef licontrol_field(LRef control_field_id)
 }
 
 
-/*** Trap handling ***/
+/***** Trap handling *****/
 
 static size_t get_trap_id(LRef trap_id)
 {
@@ -450,9 +365,9 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
      return retval;
 }
 
-/**************************************************************
- * The Evaluator
- */
+/***** The evaluator *****/
+
+static LRef leval(LRef form, LRef env);
 
 static LRef arg_list_from_buffer(size_t argc, LRef argv[])
 {
@@ -463,8 +378,6 @@ static LRef arg_list_from_buffer(size_t argc, LRef argv[])
 
      return result;
 }
-
-static LRef leval(LRef form, LRef env);
 
 static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LRef argv[])
 {
@@ -536,81 +449,6 @@ LRef lenvlookup(LRef var, LRef env)
      return NIL;
 }
 
-
-void signal_break()
-{
-     interp.break_pending = true;
-}
-
-void signal_timer()
-{
-     interp.timer_event_pending = true;
-}
-
-/**************************************************************
- * leval(x, env, eval_option)
- *
- * Evaluates a Scheme form.
- *
- * Parameters:
- *   form - The form to be evaluated.
- *   env - The environment in which the form will be evaluated
- *
- * Options:
- *
- * Return value:
- *   The result of the evaluation
- *
- * Implementation notes:
- *   A basic idiom of this evaluator is that all the object-specific
- *   callbacks return a bool value. The value returned is TRUE in
- *   the case that the invoked object performed a tail-call, and needs
- *   to avoid returning.
- */
-
-static void process_break_event()
-{
-     interp.break_pending = false;
-
-     vmtrap(TRAP_USER_BREAK, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
-}
-
-static void process_timer_event()
-{
-     interp.timer_event_pending = false;
-
-     vmtrap(TRAP_TIMER_EVENT, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
-}
-
-/* REVISIT interrupt processing rewrite
- *
- * There are a number of things that need to be done here:
- *
- * 1. Verify that performance impact of processing interrupts in an
- *    inline function isn't too terrible.
- * 2. Allow selective masking of individual interrupts.
- * 3. Switch both the interrupt flags and the mask to a usys bitmap,
- *    one bit per interrupt.
- * 4. Confirm that it really makes sense to process interrupts seperately
- *    from the normal signal handling mechanism.
- */
-INLINE void _process_interrupts()
-{
-     if (interp.interrupts_masked)
-          return;
-
-     if (interp.break_pending)
-          process_break_event();
-
-     if (interp.timer_event_pending)
-          process_timer_event();
-}
-
-void process_interrupts()
-{
-     _process_interrupts();
-}
-
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
 
 INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
@@ -679,7 +517,6 @@ INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef
 
      return NIL;
 }
-
 
 INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
 {
@@ -858,8 +695,6 @@ static LRef leval(LRef form, LRef env)
 
      return retval;
 }
-
-
 LRef apply1(LRef fn, size_t argc, LRef argv[])
 {
      assert((argc == 0) || (argv != NULL));
@@ -918,47 +753,21 @@ LRef lapply(size_t argc, LRef argv[])
      return apply1(fn, fn_argc, fn_argv);
 }
 
-LRef lunbind_symbol(LRef var)
+LRef lfuncall1(LRef fcn, LRef a1)
 {
-     if (!SYMBOLP(var))
-          vmerror_wrong_type(1, var);
+     LRef argv[1];
+     argv[0] = a1;
 
-     SET_SYMBOL_VCELL(var, UNBOUND_MARKER);
-
-     return NIL;
+     return apply1(fcn, 1, argv);
 }
 
-LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
+LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
 {
-     LRef tmp;
+     LRef argv[2];
+     argv[0] = a1;
+     argv[1] = a2;
 
-     if (!SYMBOLP(var))
-          vmerror_wrong_type(1, var);
-
-     tmp = lenvlookup(var, lenv);
-
-     if (NULLP(tmp))
-     {
-          LRef old_genv = interp.global_env;
-
-          if (TRUEP(genv) && !NULLP(genv))
-               set_global_env(genv);
-
-          if (UNBOUND_MARKER_P(SYMBOL_VCELL(var)))
-               vmerror_unbound(var);
-
-          if (SYMBOL_HOME(var) == interp.keyword_package)
-               vmerror("Cannot rebind keywords: ~s", var);
-
-          SET_SYMBOL_VCELL(var, val);
-
-          interp.global_env = old_genv;
-
-          return val;
-     }
-
-     SET_CAR(tmp, val);
-     return val;
+     return apply1(fcn, 2, argv);
 }
 
 bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,
@@ -1030,11 +839,7 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
      return failed;
 }
 
-/**************************************************************
- * The evaluator inner functions
- *
- * These implement particular special forms within the evaluator
- */
+/***** Global Environment *****/
 
 static void check_global_environment_size()
 {
@@ -1082,34 +887,91 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
      return val;
 }
 
-
-LRef ltime_apply0(LRef fn)
+LRef lunbind_symbol(LRef var)
 {
-     if (!PROCEDUREP(fn))
-          vmerror_wrong_type(1, fn);
+     if (!SYMBOLP(var))
+          vmerror_wrong_type(1, var);
 
-     fixnum_t cells = interp.gc_total_cells_allocated;
-     fixnum_t c_blocks = malloc_blocks;
-     fixnum_t c_bytes = malloc_bytes;
-     flonum_t t = sys_runtime();
-     flonum_t gc_t = interp.gc_total_run_time;
+     SET_SYMBOL_VCELL(var, UNBOUND_MARKER);
 
-     LRef argv[6];
-
-     argv[0] = apply1(fn, 0, NULL);
-
-     argv[1] = flocons(sys_runtime() - t);
-     argv[2] = flocons(interp.gc_total_run_time - gc_t);
-     argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
-     argv[4] = fixcons(malloc_blocks - c_blocks);
-     argv[5] = fixcons(malloc_bytes - c_bytes);
-
-     return lvector(6, argv);
+     return NIL;
 }
 
-/**************************************************************
- * Handler Bindings
- **************************************************************/
+LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
+{
+     LRef tmp;
+
+     if (!SYMBOLP(var))
+          vmerror_wrong_type(1, var);
+
+     tmp = lenvlookup(var, lenv);
+
+     if (NULLP(tmp))
+     {
+          LRef old_genv = interp.global_env;
+
+          if (TRUEP(genv) && !NULLP(genv))
+               set_global_env(genv);
+
+          if (UNBOUND_MARKER_P(SYMBOL_VCELL(var)))
+               vmerror_unbound(var);
+
+          if (SYMBOL_HOME(var) == interp.keyword_package)
+               vmerror("Cannot rebind keywords: ~s", var);
+
+          SET_SYMBOL_VCELL(var, val);
+
+          interp.global_env = old_genv;
+
+          return val;
+     }
+
+     SET_CAR(tmp, val);
+     return val;
+}
+
+LRef lcurrent_global_environment()
+{
+     return interp.global_env;
+}
+
+void set_global_env(LRef genv)
+{
+     if (!VECTORP(genv))
+          vmerror_wrong_type(genv);
+
+     interp.global_env = genv;
+     check_global_environment_size();
+}
+
+LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
+{
+     if (!VECTORP(new_global_env))
+          vmerror_wrong_type(new_global_env);
+
+     LRef old_global_env = interp.global_env;
+     LRef retval = NIL;
+
+     ENTER_UNWIND_PROTECT()
+     {
+
+          interp.global_env = new_global_env;
+
+          check_global_environment_size();
+
+          retval = apply1(fn, 0, NULL);
+
+     }
+     ON_UNWIND()
+     {
+          interp.global_env = old_global_env;
+     }
+     LEAVE_UNWIND_PROTECT();
+
+     return retval;
+}
+
+/***** Handlers *****/
 
 LRef lset_handler_frames(LRef new_frames)
 {
@@ -1185,32 +1047,101 @@ LRef lthrow(LRef tag, LRef value)
      return (NIL);
 }
 
-
-LRef lfuncall1(LRef fcn, LRef a1)
-{
-     LRef argv[1];
-     argv[0] = a1;
-
-     return apply1(fcn, 1, argv);
-}
-
-LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
-{
-     LRef argv[2];
-     argv[0] = a1;
-     argv[1] = a2;
-
-     return apply1(fcn, 2, argv);
-}
-
-/**************************************************************
- * __ex_current_catch_retval()
+/***** Frame Managment *****
  *
- * Returns the current catch frame's retval.
- *
- * Return value:
- *   The return value of the current stack frame.
+ * Frames are basically annotations on the dynamic stack. Each
+ * frame has an "frame record" stored in an auto variable
+ * local to a newly created scope. When the frame is entered,
+ * the frame's frame record is registered on a global stack.
+ * When the frame is left, the frame record is popped off of
+ * the stack.
  */
+
+void __frame_set_top(frame_record_t * f)
+{
+#ifdef _DEBUG
+     frame_record_t *loc = CURRENT_TIB()->frame_stack;
+
+     while (loc)
+     {
+          if (loc == f)
+               break;
+          loc = loc->previous;
+     }
+
+     assert(loc);               /*  The frame ought to be on the stack already. */
+#endif
+
+     CURRENT_TIB()->frame_stack = f;
+}
+
+frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
+{
+     frame_record_t *loc = CURRENT_TIB()->frame_stack;
+
+     while (loc)
+     {
+          if (pred(loc, info))
+               return loc;
+
+          loc = loc->previous;
+     }
+
+     return loc;
+}
+
+LRef lget_current_frames(LRef sc)
+{
+     fixnum_t skip_count = get_c_fixnum(sc);
+
+     LRef frames = NIL;
+
+     fixnum_t frame_count = 0;
+     
+     for(frame_record_t *loc = TOP_FRAME; loc; loc = loc->previous)
+     {
+          LRef frame_obj = NIL;
+
+          frame_count++;
+
+          switch (loc->type)
+          {
+          case FRAME_EVAL:
+               frame_obj = listn(3,
+                                 *loc->frame_as.eval.form,
+                                 loc->frame_as.eval.initial_form,
+                                 loc->frame_as.eval.env);
+               break;
+
+          case FRAME_EX_TRY:
+               frame_obj = listn(1, loc->frame_as.dynamic_escape.tag);
+               break;
+
+          case FRAME_EX_UNWIND:
+               frame_obj = NIL;
+               break;
+
+          case FRAME_PRIMITIVE:
+               frame_obj = listn(1, loc->frame_as.primitive.function);
+               break;
+
+          case FRAME_MARKER:
+               frame_obj = listn(1, loc->frame_as.marker.tag);
+               break;
+
+          default:
+               panic("invalid frame type.");
+               break;
+          }
+
+          frame_obj = lcons(fixcons(loc->type), frame_obj);
+
+          if (frame_count >= skip_count)
+               frames = lcons(frame_obj, frames);
+     }
+
+     return frames;
+}
 
 LRef __ex_current_catch_retval()
 {
@@ -1233,26 +1164,6 @@ LRef __ex_current_catch_tag()
 
      return TOP_FRAME->frame_as.dynamic_escape.tag;
 }
-
-/**************************************************************
- * __ex_throw_dynamic_escape(tag, retval, already_pending)
- *
- * Searches for the first matching stack frame, popping off
- * stack frames along the way. The matching stack frame
- * is left on the stack, with the return value specified.
- * longjmp is called to restore execution at that execution
- * context:
- *
- * Parameters:
- *   tag - The tag of the exception frame to be thrown to.
- *   retval - The return value for the catch frame
- *   already_pending - True, if the exception is already in the
- *     process of being handled
- *
- * Return value:
- *   None.
- */
-
 /* These two predicates find the next exception frame in the list
  * of frame handlers.  next_frame_to_catch is used to calculate
  * the next frame that needs to process the current exception, including
@@ -1293,7 +1204,6 @@ bool __ex_next_try_frame(frame_record_t * rec, uptr_t tag)
      return __ex_matching_frame_1(rec, tag, TRUE);
 }
 
-
 void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
 {
      UNREFERENCED(already_pending);
@@ -1301,33 +1211,24 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
      /* Check to see if we have a matching catch block... */
      frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
 
-     /* ...If we do, start unwinding the stack... */
-     if (next_try)
-     {
-          frame_record_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
+     /* ...If not, we have a problem and need to invoke a trap. */
+     if (next_try == NULL)
+          vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+                 2, tag, retval);
 
-          next_catcher->frame_as.dynamic_escape.pending = TRUE;
-          next_catcher->frame_as.dynamic_escape.unwinding = TRUE;
-          next_catcher->frame_as.dynamic_escape.tag = tag;
-          next_catcher->frame_as.dynamic_escape.retval = retval;
-
-          __frame_set_top(next_catcher);
-
-          longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
-     }
-
-     vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            2, tag, retval);
-
-     /* ...if nobody cares, then we start to panic. */
-     panic("Uncaught throw!");
+     /* ...if we do, start unwinding the stack. */
+     frame_record_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
+          
+     next_catcher->frame_as.dynamic_escape.pending = TRUE;
+     next_catcher->frame_as.dynamic_escape.unwinding = TRUE;
+     next_catcher->frame_as.dynamic_escape.tag = tag;
+     next_catcher->frame_as.dynamic_escape.retval = retval;
+     
+     __frame_set_top(next_catcher);
+          
+     longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
 }
 
-/**************************************************************
- * __ex_rethrow_dynamic_escape
- *
- * Rethrows the exception matching the current catch frame
- */
 void __ex_rethrow_dynamic_escape()
 {
      LRef retval;
@@ -1346,9 +1247,7 @@ void __ex_rethrow_dynamic_escape()
      __ex_throw_dynamic_escape(tag, retval, TRUE);
 }
 
-/****************************************************************
- * Values tuples
- */
+/***** Values tuples *****/
 
 LRef lvalues(LRef values)
 {
@@ -1380,48 +1279,7 @@ LRef lvalues2list(LRef obj)
      return lcons(obj, NIL);
 }
 
-
-LRef lcurrent_global_environment()
-{
-     return interp.global_env;
-}
-
-
-void set_global_env(LRef genv)
-{
-     if (!VECTORP(genv))
-          vmerror_wrong_type(genv);
-
-     interp.global_env = genv;
-     check_global_environment_size();
-}
-
-LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
-{
-     if (!VECTORP(new_global_env))
-          vmerror_wrong_type(new_global_env);
-
-     LRef old_global_env = interp.global_env;
-     LRef retval = NIL;
-
-     ENTER_UNWIND_PROTECT()
-     {
-
-          interp.global_env = new_global_env;
-
-          check_global_environment_size();
-
-          retval = apply1(fn, 0, NULL);
-
-     }
-     ON_UNWIND()
-     {
-          interp.global_env = old_global_env;
-     }
-     LEAVE_UNWIND_PROTECT();
-
-     return retval;
-}
+/***** Fast-Ops *****/
 
 LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3)
 {

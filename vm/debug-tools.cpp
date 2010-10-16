@@ -386,4 +386,29 @@ debug_flag_t debug_flags_from_environment(debug_flag_t initial)
      return debug_flags_from_string(initial, _T("VCSH_DEBUG_FLAGS"), getenv("VCSH_DEBUG_FLAGS"));
 }
 
+
+LRef ltime_apply0(LRef fn)
+{
+     if (!PROCEDUREP(fn))
+          vmerror_wrong_type(1, fn);
+
+     fixnum_t cells = interp.gc_total_cells_allocated;
+     fixnum_t c_blocks = malloc_blocks;
+     fixnum_t c_bytes = malloc_bytes;
+     flonum_t t = sys_runtime();
+     flonum_t gc_t = interp.gc_total_run_time;
+
+     LRef argv[6];
+
+     argv[0] = apply1(fn, 0, NULL);
+
+     argv[1] = flocons(sys_runtime() - t);
+     argv[2] = flocons(interp.gc_total_run_time - gc_t);
+     argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
+     argv[4] = fixcons(malloc_blocks - c_blocks);
+     argv[5] = fixcons(malloc_bytes - c_bytes);
+
+     return lvector(6, argv);
+}
+
 END_NAMESPACE
