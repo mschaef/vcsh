@@ -308,7 +308,7 @@ LRef lmake_hash(LRef key_type)
      else if (key_type == keyword_intern(_T("eq")))
           shallow = true;
      else
-          vmerror("invalid hash key type", key_type);
+          vmerror_arg_out_of_range(key_type, _T(":equal or :eq"));
 
      return hashcons(shallow);
 }

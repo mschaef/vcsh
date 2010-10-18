@@ -43,7 +43,7 @@ LRef linteger2char(LRef s)
      fixnum_t c = get_c_fixnum(s);
 
      if ((c < 0) || (c > 255))
-          vmerror("integer out of range [0..255] to integer->char", s);
+          vmerror_arg_out_of_range(s, _T("[0,255]"));
 
      return charcons((_TCHAR) c);
 }
@@ -263,7 +263,7 @@ LRef lstring_append(size_t argc, LRef argv[])
           else if (FIXNUMP(current_string))
           {
                if ((FIXNM(current_string) < 0x00) || (FIXNM(current_string) > 0xFF))
-                    vmerror("out of range, invalid character code", current_string);
+                    vmerror_arg_out_of_range(current_string, _T("[0,255]"));
                else
                     size += 1;
           }
@@ -325,7 +325,7 @@ LRef lsubstring(LRef str, LRef start, LRef end)
           vmerror_index_out_of_bounds(end, str);
 
      if (s > e)
-          vmerror("start index after end index", start);
+          vmerror_arg_out_of_range(start, _T("start<=end"));
 
      return strcons(e - s, &(STRING_DATA(str)[s]));
 }
@@ -343,7 +343,7 @@ size_t get_string_offset(LRef maybe_ofs)
      long ofs = get_c_long(maybe_ofs);
 
      if (ofs < 0)
-          vmerror("String offsets cannot be <0: ~s", maybe_ofs);
+          vmerror_arg_out_of_range(maybe_ofs, _T(">=0"));
 
      return (size_t) ofs;
 }
@@ -591,13 +591,13 @@ LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
           digits = (int) get_c_fixnum(p);
 
           if ((digits < 0) || (digits > 16))
-               vmerror(_T("print precision out of range [0, 16]"), p);
+               vmerror_arg_out_of_range(p, _T("[0,16]"));
      }
 
      if (FLONUMP(x))
      {
           if (radix != 10)
-               vmerror("inexact numbers require a radix of 10 in number->string", r);
+               vmerror_arg_out_of_range(r, _T("=10 (with inexact arg)"));
 
           /* Nothing is as easy as it seems...
            *
@@ -730,7 +730,7 @@ LRef lstring2number(LRef s, LRef r)
      }
 
      if ((radix > 36) || (radix < 2))
-          vmerror("Invalid radix for string->number, expected [2, 36]", r);
+          vmerror_arg_out_of_range(r, _T("[2,36]"));
 
      string = get_c_string(s);
 
@@ -1139,7 +1139,7 @@ LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s)
           vmerror_wrong_type(4, s);
 
      if (FIXNM(sf) < 0)
-          vmerror("Invalid significant figure count to inexact->display-string", sf);
+          vmerror_arg_out_of_range(sf, _T(">=0"));
 
      if (keyword_intern(_T("none")) == s)
           sep = NO_SEPERATOR;
@@ -1148,7 +1148,7 @@ LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s)
      else if (keyword_intern(_T("euro")) == s)
           sep = EURO_SEPERATOR;
      else
-          vmerror("Invalid seperator description to inexact->display-string", s);
+          vmerror_arg_out_of_range(s, _T(":none, :us, or :euro"));
 
      float_format(buf, STACK_STRBUF_LEN, get_c_double(n), (int) get_c_fixnum(sf), true, BOOLV(sci),
                   sep);

@@ -813,7 +813,7 @@ LRef lread_binary_string(LRef l, LRef port)
      fixnum_t remaining_length = get_c_fixnum(l);
 
      if (remaining_length <= 0)
-          vmerror("Invalid length to read", l);
+          vmerror_arg_out_of_range(l, _T(">0"));
 
      LRef new_str = strcons();
      size_t total_read = 0;
@@ -863,10 +863,10 @@ LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
 
 #ifdef FIXNUM_64BIT
      if ((length != 1) && (length != 2) && (length != 4) && (length != 8))
-          vmerror("Bad integer length, must be 1, 2, 4, or 8.", l);
+          vmerror_arg_out_of_range(l, _T("1, 2, 4, or 8"));
 #else
      if ((length != 1) && (length != 2) && (length != 4))
-          vmerror("Bad integer length, must be 1, 2, or 4.", l);
+          vmerror_arg_out_of_range(l, _T("1, 2, or 4"));
 #endif
 
      fixnum_t result = 0;
@@ -975,10 +975,10 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
 
 #ifdef FIXNUM_64BIT
      if ((length != 1) && (length != 2) && (length != 4) && (length != 8))
-          vmerror("Bad integer length, must be 1, 2, 4, or 8.", l);
+          vmerror_arg_out_of_range(l, _T("1, 2, 4, or 8"));
 #else
      if ((length != 1) && (length != 2) && (length != 4))
-          error("Bad integer length, must be 1, 2, or 4.", l);
+          vmerror_arg_out_of_range(l, _T("1, 2, or 4"));
 #endif
 
      fixnum_t val = FIXNM(v);

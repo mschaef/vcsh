@@ -940,7 +940,7 @@ LRef lrandom(LRef n)            /*  TESTTHIS */
           fixnum_t range = FIXNM(n);
 
           if (range == 0)
-               vmerror("Invalid random range", n);
+               vmerror_arg_out_of_range(n, _T(">0"));
 
           return fixcons(mt19937_int64() % range);
      }
@@ -951,7 +951,7 @@ LRef lrandom(LRef n)            /*  TESTTHIS */
      flonum_t im_range = get_c_flonum_im(n);
 
      if (re_range == 0.0)
-          vmerror("Invalid random range", n);
+          vmerror_arg_out_of_range(n, _T("<>0.0"));
 
      if (im_range == 0.0)
           return flocons(mt19937_real2() * re_range);

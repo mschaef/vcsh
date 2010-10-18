@@ -397,7 +397,7 @@ LRef lstring2uninterned_symbol(LRef str)
           vmerror_wrong_type(1, str);
 
      if (STRING_DIM(str) <= 0)
-          vmerror("Symbol names must have a length >0.", str);
+          vmerror_arg_out_of_range(str, _T("length > 0"));
 
      _TCHAR *sname = get_c_string(str);
 

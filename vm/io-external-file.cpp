@@ -134,7 +134,7 @@ bool get_c_port_mode(LRef mode)
      else if (keyword_intern(_T("text")) == mode)
           return false;
      else
-          vmerror("Invalid file mode.", mode);
+          vmerror_arg_out_of_range(mode, _T(":binary or :text"));
 
      return false;
 }

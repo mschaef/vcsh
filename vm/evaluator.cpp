@@ -97,7 +97,7 @@ static size_t get_trap_id(LRef trap_id)
      size_t id = (size_t)FIXNM(trap_id);
 
      if ((id < 0) || (id > TRAP_LAST))
-          vmerror("Invalid trap ID: ~s", trap_id);
+          vmerror_arg_out_of_range(trap_id, _T("[0,TRAP_LAST]"));
 
      return id;
 }
