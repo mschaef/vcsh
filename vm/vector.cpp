@@ -48,7 +48,7 @@ LRef lmake_vector(LRef dim, LRef initial)
      fixnum_t d = get_c_fixnum(dim);
 
      if ((d < 0) || ((size_t)d > SIZE_MAX))
-          vmerror_arg_out_of_range(dim);
+          vmerror_arg_out_of_range(dim, _T("[0,SIZE_MAX]"));
 
      return vectorcons(d, initial);
 }
@@ -250,7 +250,7 @@ LRef lvector_resize(LRef vec, LRef ns, LRef new_element)
      fixnum_t new_size = get_c_fixnum(ns);
 
      if ((new_size < 0) || ((size_t)new_size > SIZE_MAX))
-          vmerror_arg_out_of_range(ns);
+          vmerror_arg_out_of_range(ns, _T("[0,SIZE_MAX]"));
 
      return vector_resize(vec, (size_t)new_size, new_element);
 }
@@ -265,7 +265,7 @@ LRef lvector_resized(LRef vec, LRef ns, LRef new_element)
      fixnum_t new_size = get_c_fixnum(ns);
 
      if ((new_size < 0) || ((size_t)new_size > SIZE_MAX))
-          vmerror_arg_out_of_range(ns);
+          vmerror_arg_out_of_range(ns, _T("[0,SIZE_MAX]"));
 
      return vector_reallocate_in_place(vec, (size_t)new_size, new_element);
 }

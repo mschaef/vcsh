@@ -246,10 +246,10 @@ LRef ltest_blocking_input(LRef block_size, LRef length, LRef binary)
           vmerror_wrong_type(1, length);
 
      if (FIXNM(block_size) > BLOCKIN_MAX_BLOCK_SIZE)
-          vmerror("Block size out of range", block_size);
+          vmerror_arg_out_of_range(block_size);
 
      if (FIXNM(length) < 0)
-          vmerror("Length out of range", length);
+          vmerror_arg_out_of_range(length, _T(">0"));
 
      if (NULLP(binary))
           binary = boolcons(false);

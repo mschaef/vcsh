@@ -1671,7 +1671,7 @@ void vmerror_wrong_type(LRef new_errobj);
 void vmerror_wrong_type(int which_argument, LRef new_errobj);
 LRef vmerror_unbound(LRef v);
 void vmerror_index_out_of_bounds(LRef index, LRef obj);
-void vmerror_arg_out_of_range(LRef arg, LRef lower = NIL, LRef upper = NIL);
+void vmerror_arg_out_of_range(LRef arg, const _TCHAR *range_desc = NULL);
 void vmerror_stack_overflow(u8_t * obj);
 
   /****** Memory management */

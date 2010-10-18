@@ -866,7 +866,7 @@ LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
           vmerror("Bad integer length, must be 1, 2, 4, or 8.", l);
 #else
      if ((length != 1) && (length != 2) && (length != 4))
-          error("Bad integer length, must be 1, 2, or 4.", l);
+          vmerror("Bad integer length, must be 1, 2, or 4.", l);
 #endif
 
      fixnum_t result = 0;
