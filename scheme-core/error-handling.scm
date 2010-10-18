@@ -144,10 +144,14 @@
       (error "Invalid argument ~a to ~a: ~s" argno (%subr-name subr) errval)
       (error "Invalid argument to ~a: ~s" (%subr-name subr) errval)))
 
+(define (trap-vmerror-index-out-of-bounds trapno bad-index obj)
+  (error "Index ~a out of bounds while accessing ~s" bad-index obj))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
 
   (%set-trap-handler! system::TRAP_VMERROR_WRONG_TYPE trap-vmerror-wrong-type)
+  (%set-trap-handler! system::TRAP_VMERROR_INDEX_OUT_OF_BOUNDS trap-vmerror-index-out-of-bounds)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)

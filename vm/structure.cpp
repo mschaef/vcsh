@@ -116,7 +116,9 @@ LRef lstructure_ref(LRef st, LRef index)
      if ((idx >= 0) && ((size_t) idx < STRUCTURE_DIM(st)))
           return STRUCTURE_ELEM(st, idx);
 
-     return vmerror("Structure index out of bounds.", lcons(st, index));
+     vmerror_index_out_of_bounds(index, st);
+
+     return NIL; // unreached
 }
 
 LRef lstructure_set(LRef st, LRef index, LRef value)
@@ -136,7 +138,9 @@ LRef lstructure_set(LRef st, LRef index, LRef value)
           return st;
      }
 
-     return vmerror("Structure index out of bounds.", lcons(st, index));
+     vmerror_index_out_of_bounds(index, st);
+
+     return NIL;
 }
 
 bool structure_equal(LRef sta, LRef stb)

@@ -601,7 +601,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.gc_total_run_time = 0.0;
      interp.gc_run_time = 0.0;
-     interp.gc_count = 0;
 
      process_vm_arguments(argc, argv);
 

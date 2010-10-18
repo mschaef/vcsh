@@ -497,6 +497,7 @@ static LRef leval(LRef form, LRef env)
 
      return retval;
 }
+
 LRef apply1(LRef fn, size_t argc, LRef argv[])
 {
      assert((argc == 0) || (argv != NULL));
@@ -640,6 +641,7 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
 
      return failed;
 }
+
 /***** Handlers *****/
 
 LRef lset_handler_frames(LRef new_frames)

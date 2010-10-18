@@ -89,6 +89,12 @@ LRef vmerror_unbound(LRef v)
      return vmerror("unbound variable: ~s", v);
 }
 
+void vmerror_index_out_of_bounds(LRef index, LRef obj)
+{
+     vmtrap(TRAP_VMERROR_INDEX_OUT_OF_BOUNDS, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            2, index, obj);
+}
+
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
 {
      if (STRINGP(msg))

@@ -43,7 +43,7 @@ bool vector_equal(LRef veca, LRef vecb)
 LRef lmake_vector(LRef dim, LRef initial)
 {
      if (!NUMBERP(dim))
-          return vmerror("Vector dimensions must be numbers: ~s", dim);
+          vmerror_wrong_type(1, dim);
 
      if (FIXNM(dim) < 0)
           return vmerror("Vector dimensions must be non-negative: ~s", dim);
@@ -73,17 +73,14 @@ LRef lvector(size_t argc, LRef argv[])
 
 static INLINE size_t get_c_vector_index(LRef i)
 {
-     fixnum_t index;
+     fixnum_t index = 0;
 
      if (NUMBERP(i))
           index = get_c_fixnum(i);
      else if (CHARP(i))
           index = (fixnum_t) (CHARV(i));
      else
-     {
           vmerror_wrong_type(i);
-          return 0;             /*  never reached... vmerror_wrong_type will throw out */
-     }
 
      if (index < 0)
      {
@@ -105,7 +102,7 @@ LRef lvector_ref(LRef vec, LRef i, LRef default_value)
           return VECTOR_ELEM(vec, index);
 
      if (NULLP(default_value))
-          vmerror("Vector index out of bounds.", lcons(i, vec));
+          vmerror_index_out_of_bounds(i, vec);
 
      return default_value;
 }
@@ -124,7 +121,9 @@ LRef lvector_set(LRef vec, LRef i, LRef v)
           return vec;
      }
 
-     return vmerror("Vector index out of bounds.", lcons(vec, i));
+     vmerror_index_out_of_bounds(i, vec);
+
+     return NIL; // unreached
 }
 
 LRef lvector2list(LRef vec)
