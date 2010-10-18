@@ -95,6 +95,12 @@ void vmerror_index_out_of_bounds(LRef index, LRef obj)
             2, index, obj);
 }
 
+void vmerror_arg_out_of_range(LRef arg, LRef lower, LRef upper)
+{
+     vmtrap(TRAP_VMERROR_ARG_OUT_OF_RANGE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            3, arg, lower, upper);
+}
+
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
 {
      if (STRINGP(msg))

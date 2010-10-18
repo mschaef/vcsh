@@ -147,11 +147,17 @@
 (define (trap-vmerror-index-out-of-bounds trapno bad-index obj)
   (error "Index ~a out of bounds while accessing ~s" bad-index obj))
 
+(define (trap-vmerror-arg-out-of-range trapno bad-arg low high)
+  (if (null? bad-arg)
+      (error "Argument out of range: ~s" bad-arg)
+      (error "Argument out of range [~a,~a]: ~s" low high bad-arg)))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
 
   (%set-trap-handler! system::TRAP_VMERROR_WRONG_TYPE trap-vmerror-wrong-type)
   (%set-trap-handler! system::TRAP_VMERROR_INDEX_OUT_OF_BOUNDS trap-vmerror-index-out-of-bounds)
+  (%set-trap-handler! system::TRAP_VMERROR_ARG_OUT_OF_RANGE trap-vmerror-arg-out-of-range)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
