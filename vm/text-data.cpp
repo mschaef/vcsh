@@ -213,11 +213,8 @@ LRef lstring_ref(LRef a, LRef i)
 
      fixnum_t k = get_c_fixnum(i);
 
-     if (k < 0)
-          vmerror("negative index to string-ref", i);
-
-     if ((size_t) k >= STRING_DIM(a))
-          vmerror("index too large", i);
+     if ((k < 0) || ((size_t) k >= STRING_DIM(a)))
+          vmerror_index_out_of_bounds(i, a);
 
      return charcons(STRING_DATA(a)[k]);
 }
@@ -232,11 +229,8 @@ LRef lstring_set(LRef a, LRef i, LRef v)
 
      fixnum_t k = get_c_fixnum(i);
 
-     if (k < 0)
-          vmerror("negative index to string-set!", i);
-
-     if ((size_t) k >= STRING_DIM(a))
-          return vmerror("index to string-set too large", i);
+     if ((k < 0) || ((size_t) k >= STRING_DIM(a)))
+          vmerror_index_out_of_bounds(i, a);
 
      if (FIXNUMP(v))
           STRING_DATA(a)[k] = (_TCHAR) FIXNM(v);
@@ -324,11 +318,11 @@ LRef lsubstring(LRef str, LRef start, LRef end)
      e = NULLP(end) ? STRING_DIM(str) : get_c_long(end);
 
      if ((s < 0) || (s > STRING_DIM(str)))
-          vmerror("bad start index", start);
+          vmerror_index_out_of_bounds(start, str);
 
      /*  REVISIT: it would be more permissive for substring to coerce e <= STRING_DIM. Is this desirable? */
      if ((e < 0) || (e > STRING_DIM(str)))
-          vmerror("bad end index", end);
+          vmerror_index_out_of_bounds(end, str);
 
      if (s > e)
           vmerror("start index after end index", start);
