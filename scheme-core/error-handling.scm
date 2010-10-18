@@ -148,7 +148,7 @@
   (error "Index ~a out of bounds while accessing ~s" bad-index obj))
 
 (define (trap-vmerror-arg-out-of-range trapno bad-arg low high)
-  (if (null? bad-arg)
+  (if (null? low)
       (error "Argument out of range: ~s" bad-arg)
       (error "Argument out of range [~a,~a]: ~s" low high bad-arg)))
 
