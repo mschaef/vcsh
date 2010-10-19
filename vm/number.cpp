@@ -765,7 +765,7 @@ LRef llog(LRef x)
 LRef lsin(LRef x)
 {
      if (COMPLEXP(x))
-          vmerror("sin Unimplemented for complex numbers.", x);
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      return (flocons(sin(get_c_double(x))));
 }
@@ -773,7 +773,7 @@ LRef lsin(LRef x)
 LRef lcos(LRef x)
 {
      if (COMPLEXP(x))
-          vmerror("cos Unimplemented for complex numbers.", x);
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      return (flocons(cos(get_c_double(x))));
 }
@@ -781,7 +781,7 @@ LRef lcos(LRef x)
 LRef ltan(LRef x)
 {
      if (COMPLEXP(x))
-          vmerror("tan Unimplemented for complex numbers.", x);
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      return (flocons(tan(get_c_double(x))));
 }
@@ -789,7 +789,7 @@ LRef ltan(LRef x)
 LRef lasin(LRef x)
 {
      if (COMPLEXP(x))
-          vmerror("asin Unimplemented for complex numbers.", x);
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      return (flocons(asin(get_c_double(x))));
 }
@@ -797,7 +797,7 @@ LRef lasin(LRef x)
 LRef lacos(LRef x)
 {
      if (COMPLEXP(x))
-          vmerror("acos Unimplemented for complex numbers.", x);
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      return (flocons(acos(get_c_double(x))));
 }
@@ -805,7 +805,7 @@ LRef lacos(LRef x)
 LRef latan(LRef x, LRef y)
 {
      if (COMPLEXP(x) || COMPLEXP(y))
-          vmerror("atan Unimplemented for complex numbers.", lcons(x, y));
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      if (!NULLP(y))
           return (flocons(atan2(get_c_double(x), get_c_double(y))));
@@ -837,7 +837,7 @@ LRef lsqrt(LRef x)
 LRef lexpt(LRef x, LRef y)
 {
      if (COMPLEXP(x) || COMPLEXP(y))
-          vmerror("expt Unimplemented for complex numbers.", lcons(x, y));
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      if (!NUMBERP(x))
           vmerror_wrong_type(1, x);

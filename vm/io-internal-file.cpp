@@ -104,7 +104,7 @@ LRef lclone_c_data_port(LRef port)
           vmerror_wrong_type(1, port);
 
      if (!(PORT_MODE(port) & PORT_INPUT) || (PORT_CLASS(port) != &c_data_port_class))
-          vmerror("Cannot clone any kind of port other than a c-data input port.", port);
+          vmerror_unsupported(_T("only c-data ports may be cloned"));
 
      c_data_port_state *old_ps = (c_data_port_state *) (PORT_PINFO(port)->_user_data);
      c_data_port_state *new_ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));

@@ -106,6 +106,18 @@ void vmerror_arg_out_of_range(LRef arg, const _TCHAR *range_desc /* = NULL */)
             2, arg, range);
 }
 
+void vmerror_unsupported(const _TCHAR *desc)
+{
+     vmtrap(TRAP_VMERROR_UNSUPPORTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            1, strcons(desc));
+}
+
+void vmerror_unimplemented(const _TCHAR *desc)
+{
+     vmtrap(TRAP_VMERROR_UNIMPLEMENTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            1, strcons(desc));
+}
+
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
 {
      if (STRINGP(msg))

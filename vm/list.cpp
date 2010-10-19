@@ -119,8 +119,10 @@ LRef lmap(size_t argc, LRef argv[])
      case 3:
           return lmap2(argv[0], argv[1], argv[2]);
      default:
-          return vmerror("map case not handled", fixcons(argc));
+          vmerror_unimplemented(_T("map only implemented for 1 and 2 lists."));
      }
+
+     return NIL;
 }
 
 
@@ -174,8 +176,10 @@ LRef lmap_pair(size_t argc, LRef argv[])
      case 3:
           return lmap_pair2(argv[0], argv[1], argv[2]);
      default:
-          return vmerror("map-pair case not handled", fixcons(argc));
+          vmerror_unimplemented(_T("map-pair only implemented for 1 and 2 lists."));
      }
+
+     return NIL;
 }
 
 LRef lforeach1(LRef fcn, LRef in)
@@ -218,8 +222,10 @@ LRef lforeach(size_t argc, LRef argv[])
      case 3:
           return lforeach2(argv[0], argv[1], argv[2]);
      default:
-          return vmerror("foreach case not handled", fixcons(argc));
+          vmerror_unimplemented(_T("foreach only implemented for 1 and 2 lists."));
      }
+
+     return NIL;
 }
 
 LRef lass(LRef x, LRef alist, LRef fcn)
@@ -479,7 +485,7 @@ LRef lmake_list(LRef d, LRef initial)
      fixnum_t dim = get_c_fixnum(d);
 
      if (dim < 0)
-          return vmerror("bad dimension to make-list", d);
+          vmerror_arg_out_of_range(d, _T(">=0"));
 
      return make_list((size_t) dim, initial);
 }

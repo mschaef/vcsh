@@ -152,12 +152,20 @@
       (error "Argument out of range: ~s" bad-arg)
       (error "Argument out of range ~a: ~s" range-desc bad-arg)))
 
+(define (trap-vmerror-unimplemented trapno desc)
+  (error "Operation not yet implemented: ~a" desc))
+
+(define (trap-vmerror-unsupported trapno desc)
+  (error "Operation unsupported: ~a" desc))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
 
   (%set-trap-handler! system::TRAP_VMERROR_WRONG_TYPE trap-vmerror-wrong-type)
   (%set-trap-handler! system::TRAP_VMERROR_INDEX_OUT_OF_BOUNDS trap-vmerror-index-out-of-bounds)
   (%set-trap-handler! system::TRAP_VMERROR_ARG_OUT_OF_RANGE trap-vmerror-arg-out-of-range)
+  (%set-trap-handler! system::TRAP_VMERROR_UNSUPPORTED trap-vmerror-unsupported)
+  (%set-trap-handler! system::TRAP_VMERROR_UNIMPLEMENTED trap-vmerror-unimplemented)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)

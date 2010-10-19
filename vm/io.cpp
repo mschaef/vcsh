@@ -241,7 +241,7 @@ int unread_char(int ch, LRef port)
      assert(!NULLP(port));
 
      if (PORT_BINARYP(port))
-          vmerror("Unread not supported on binary ports!", port);
+          vmerror_unsupported(_T("cannot unread on binary ports."));
 
      switch (ch)
      {
@@ -580,7 +580,7 @@ LRef lport_set_translate_mode(LRef port, LRef mode)
           vmerror_wrong_type(2, mode);
 
      if (PORT_BINARYP(port))
-          vmerror("Cannot set translation mode of binary ports!", port);
+          vmerror_unsupported(_T("cannot set translation mode of binary ports"));
 
      lflush_port(port);
 
@@ -753,7 +753,7 @@ LRef lchar_readyp(LRef port)
            *  bypassing the C RTL I/O logic, which will have to wait. */
 
           if (PORT_BINARYP(port))
-               vmerror("char-ready? not supported on port", port);
+               vmerror_unsupported(_T("char-ready? not supported on binary ports"));
 
           return boolcons(peek_char(port) != EOF);
      }
@@ -805,7 +805,7 @@ LRef lread_binary_string(LRef l, LRef port)
      assert(PORTP(port));
 
      if (!PORT_BINARYP(port))
-          vmerror(_T("Raw port operations not allowed on text ports."), port);
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (!NUMBERP(l))
           vmerror_wrong_type(1, l);
@@ -851,7 +851,7 @@ LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
           vmerror_wrong_type(3, port);
 
      if (!PORT_BINARYP(port))
-          vmerror(_T("Raw port operations not allowed on text ports."), port);
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (!NUMBERP(l))
           vmerror_wrong_type(1, l);
@@ -885,7 +885,7 @@ LRef lread_binary_flonum(LRef port)
           vmerror_wrong_type(3, port);
 
      if (!PORT_BINARYP(port))
-          vmerror(_T("Raw port operations not allowed on text ports."), port);
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      flonum_t result = 0;
 
@@ -933,7 +933,7 @@ LRef lwrite_binary_string(LRef string, LRef port)
      assert(PORTP(port));
 
      if (!PORT_BINARYP(port))
-          vmerror(_T("Raw port operations not allowed on text ports."), port);
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (!STRINGP(string))
           vmerror_wrong_type(1, string);
@@ -959,7 +959,7 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
      assert(PORTP(port));
 
      if (!PORT_BINARYP(port))
-          vmerror(_T("Raw port operations not allowed on text ports."), port);
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (!FIXNUMP(v))
           vmerror_wrong_type(1, v);
@@ -1066,7 +1066,7 @@ LRef lbinary_write_flonum(LRef v, LRef port)
      assert(PORTP(port));
 
      if (!PORT_BINARYP(port))
-          vmerror(_T("Raw port operations not allowed on text ports."), port);
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (!NUMBERP(v))
           vmerror_wrong_type(1, v);

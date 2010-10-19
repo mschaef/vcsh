@@ -671,7 +671,7 @@ LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
           default:
                /* REVISIT: Implement alternate radixes in number->string */
                /* REVISIT: Implement precision/width in number->string */
-               vmerror(_T("unimplemented radix in number->string"), r);
+               vmerror_unimplemented(_T("unimplemented radix (2, 8, 10, and 16 are allowed)"));
                break;
           }
      }
