@@ -312,7 +312,7 @@ static size_t get_control_field_id(LRef control_field_id)
      size_t id = (size_t)FIXNM(control_field_id);
 
      if ((id < 0) || (id > VMCTRL_LAST))
-          vmerror("Invalid control field ID: ~s", control_field_id);
+          vmerror_arg_out_of_range(control_field_id, _T("[0,VMCTRL_LAST"));
 
      return id;
 }

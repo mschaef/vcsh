@@ -142,13 +142,8 @@ LRef lenlarge_heap(LRef c)
      {
           fixnum_t r = get_c_fixnum(c);
 
-          if (r < 1)
-               return vmerror("Heap size requests cannot be < 1", c);
-
-          if ((size_t) r >= interp.gc_max_heap_segments)
-               return
-                   vmerror("Heap size requests cannot be larger than the maximum number of heaps.",
-                           c);
+          if ((r < 1) || ((size_t) r >= interp.gc_max_heap_segments))
+               vmerror_arg_out_of_range(c, _T("[1,MAX_HEAPS]"));
 
           requested = (size_t) r - interp.gc_current_heap_segments;
      }
