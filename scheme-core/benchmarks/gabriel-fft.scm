@@ -9,7 +9,7 @@
 ; Status:       Public Domain
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  
-(define pi (atan 0 -1))
+(define *pi* (atan 0 -1))
 
 ;;; FFT -- This is an FFT benchmark written by Harry Barrow.
 ;;; It tests a variety of floating point operations,
