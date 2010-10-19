@@ -462,7 +462,7 @@ LRef lquotient(LRef x, LRef y)
           fixnum_t yf = get_c_fixnum(y);
 
           if (yf == 0)
-               vmerror("Division by zero", y);
+               vmerror_divide_by_zero();
 
           return fixcons(get_c_fixnum(x) / yf);
      }
@@ -470,7 +470,7 @@ LRef lquotient(LRef x, LRef y)
      flonum_t yf = get_c_flonum(y);
 
      if (yf == 0.0)
-          vmerror("Divison by zero", y);
+          vmerror_divide_by_zero();
 
      return flocons(truncate(get_c_flonum(x) / yf));
 }
@@ -489,7 +489,7 @@ LRef lremainder(LRef x, LRef y)
           fixnum_t yf = fixabs(get_c_fixnum(y));
 
           if (yf == 0)
-               vmerror("Division by zero", y);
+               vmerror_divide_by_zero();
 
           return fixcons(xf - ((xf / yf) * yf));
      }
@@ -498,7 +498,7 @@ LRef lremainder(LRef x, LRef y)
      flonum_t yf = get_c_flonum(y);
 
      if (yf == 0.0)
-          vmerror("Divison by zero", y);
+          vmerror_divide_by_zero();
 
      return flocons(xf - (truncate(xf / yf) * yf));
 }
@@ -515,7 +515,7 @@ LRef lmodulo(LRef x, LRef y)
      fixnum_t xf = get_c_fixnum(x);
 
      if (yf == 0)
-          vmerror("Division by zero", y);
+          vmerror_divide_by_zero();
 
      fixnum_t mod = fixabs(xf) % fixabs(yf);
 

@@ -138,8 +138,9 @@ BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
     VM_CONSTANT(TRAP_VMERROR_ARG_OUT_OF_RANGE,        11 )
     VM_CONSTANT(TRAP_VMERROR_UNSUPPORTED,             12 )
     VM_CONSTANT(TRAP_VMERROR_UNIMPLEMENTED,           13 )
+    VM_CONSTANT(TRAP_VMERROR_DIVIDE_BY_ZERO,          14 )
 
-    VM_ANON_CONSTANT(TRAP_LAST,               13 )
+    VM_ANON_CONSTANT(TRAP_LAST,               14 )
 END_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
 
 BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)

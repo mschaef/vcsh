@@ -118,6 +118,12 @@ void vmerror_unimplemented(const _TCHAR *desc)
             1, strcons(desc));
 }
 
+void vmerror_divide_by_zero()
+{
+     vmtrap(TRAP_VMERROR_DIVIDE_BY_ZERO, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            0);
+}
+
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
 {
      if (STRINGP(msg))

@@ -158,6 +158,9 @@
 (define (trap-vmerror-unsupported trapno desc)
   (error "Operation unsupported: ~a" desc))
 
+(define (trap-vmerror-divide-by-zero trapno)
+  (error "Divide by zero"))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
 
@@ -166,6 +169,7 @@
   (%set-trap-handler! system::TRAP_VMERROR_ARG_OUT_OF_RANGE trap-vmerror-arg-out-of-range)
   (%set-trap-handler! system::TRAP_VMERROR_UNSUPPORTED trap-vmerror-unsupported)
   (%set-trap-handler! system::TRAP_VMERROR_UNIMPLEMENTED trap-vmerror-unimplemented)
+  (%set-trap-handler! system::TRAP_VMERROR_DIVIDE_BY_ZERO trap-vmerror-divide-by-zero)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
