@@ -59,7 +59,7 @@ void file_port_open(LRef obj)
      else
      {
           SET_PORT_MODE(obj, PORT_CLOSED);
-          vmerror("Cannot open file", PORT_PINFO(obj)->_port_name);
+          vmerror_io_error(_T("cannot open file"), PORT_PINFO(obj)->_port_name);
      }
 }
 

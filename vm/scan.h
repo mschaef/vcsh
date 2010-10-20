@@ -1675,6 +1675,7 @@ void vmerror_arg_out_of_range(LRef arg, const _TCHAR *range_desc = NULL);
 void vmerror_unsupported(const _TCHAR *desc);
 void vmerror_unimplemented(const _TCHAR *desc);
 void vmerror_divide_by_zero();
+void vmerror_io_error(const _TCHAR *desc, LRef info);
 
 void vmerror_stack_overflow(u8_t * obj);
 

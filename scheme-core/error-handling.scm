@@ -161,6 +161,11 @@
 (define (trap-vmerror-divide-by-zero trapno)
   (error "Divide by zero"))
 
+(define (trap-vmerror-io-error trapno desc info)
+  (if (null? info)
+      (error "Input/Output error: ~a" desc)
+      (error "Input/Output error: ~a (~s)" desc info)))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
 
@@ -170,6 +175,7 @@
   (%set-trap-handler! system::TRAP_VMERROR_UNSUPPORTED trap-vmerror-unsupported)
   (%set-trap-handler! system::TRAP_VMERROR_UNIMPLEMENTED trap-vmerror-unimplemented)
   (%set-trap-handler! system::TRAP_VMERROR_DIVIDE_BY_ZERO trap-vmerror-divide-by-zero)
+  (%set-trap-handler! system::TRAP_VMERROR_IO_ERROR trap-vmerror-io-error)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)

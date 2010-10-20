@@ -124,6 +124,12 @@ void vmerror_divide_by_zero()
             0);
 }
 
+void vmerror_io_error(const _TCHAR *desc, LRef info)
+{
+     vmtrap(TRAP_VMERROR_IO_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            2, strcons(desc), info);
+}
+
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
 {
      if (STRINGP(msg))

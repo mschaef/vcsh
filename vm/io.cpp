@@ -259,7 +259,7 @@ int unread_char(int ch, LRef port)
      }
 
      if (PORT_TEXT_INFO(port)->_unread_valid >= PORT_UNGET_BUFFER_SIZE)
-          vmerror("unget buffer exceeded!", port);
+          vmerror_io_error(_T("unget buffer exceeded."), port);
 
      PORT_TEXT_INFO(port)->_unread_buffer[PORT_TEXT_INFO(port)->_unread_valid] = ch;
      PORT_TEXT_INFO(port)->_unread_valid++;
@@ -944,7 +944,7 @@ LRef lwrite_binary_string(LRef string, LRef port)
      size_t chars_written = write_raw(strdata, sizeof(_TCHAR), length, port);
 
      if (chars_written < length)
-          vmerror("Error writing to port.", port);
+          vmerror_io_error(_T("error writing to port."), port);
 
      return fixcons(chars_written);
 }
@@ -1051,7 +1051,7 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
      size_t fixnums_written = write_raw(bytes, (size_t) length, 1, port);
 
      if (fixnums_written < 1)
-          vmerror("Error writing to port.", port);
+          vmerror_io_error(_T("error writing to port."), port);
 
      return fixcons(fixnums_written);
 }
@@ -1080,7 +1080,7 @@ LRef lbinary_write_flonum(LRef v, LRef port)
      size_t flonums_written = write_raw(bytes, sizeof(flonum_t), 1, port);
 
      if (flonums_written < 1)
-          vmerror("Error writing to port.", port);
+          vmerror_io_error(_T("error writing to port."), port);
 
      return fixcons(flonums_written);
 }

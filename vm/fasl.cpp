@@ -683,7 +683,8 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           vmerror_wrong_type(1, port);
 
      if (!PORT_BINARYP(port))
-          vmerror("Fast I/O requires a binary port", port);
+          vmerror_unsupported(_T("cannot perform fast I/O on text ports."));
+
 
      port_info_t *pinfo = PORT_PINFO(port);
 

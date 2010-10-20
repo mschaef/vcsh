@@ -79,7 +79,9 @@ LRef lset_environment_variable(LRef varname, LRef value)
 
      /*  TODO: parse retcode */
 
-     return vmerror("Error setting environment variable", varname);
+     vmerror_io_error(_T("Error setting environment variable"), varname);
+
+     return NIL;
 }
 
 LRef ltemporary_file_name(LRef p)       /*  REVISIT: This is a generally bad way to create temp files */
@@ -96,7 +98,9 @@ LRef ltemporary_file_name(LRef p)       /*  REVISIT: This is a generally bad way
      if (rc == SYS_OK)
           return strcons(buf);
 
-     return vmerror("Could not allocate temporary file name", p);
+     vmerror_io_error(_T("Could not allocate temporary file name"), p);
+
+     return NIL;
 }
 
 LRef ldelete_file(LRef filename)
@@ -109,7 +113,9 @@ LRef ldelete_file(LRef filename)
      if (rc == SYS_OK)
           return boolcons(true);
 
-     return vmerror("Error deleting file: ~s", filename);
+     vmerror_io_error(_T("Error deleting file"), filename);
+
+     return NIL;
 
      /*  REVISIT: delete_file should detect directories and call RemoveDirectory */
      /*  TODO: parse errno */
@@ -228,7 +234,7 @@ LRef lidirectory(LRef dn, LRef m)
                include_files = true;
           }
           else if (keyword_intern("all") != m)
-               vmerror("Invalid directory mode: ~s", m);
+               vmerror_arg_out_of_range(m, _T(":directories, :files, or :all"));
      }
      else if (!NULLP(m))
           vmerror_wrong_type(2, m);
@@ -242,7 +248,10 @@ LRef lidirectory(LRef dn, LRef m)
      sys_retcode_t rc;
 
      if ((rc = sys_opendir(dirname, &d)) != SYS_OK)
-          return vmerror("Error opening directory", dn);
+     {
+          vmerror_io_error(_T("Error opening directory"), dn);
+          return NIL;
+     }
 
      LRef filenames = NULL;
 
@@ -277,10 +286,15 @@ LRef lidirectory(LRef dn, LRef m)
      sys_retcode_t cdrc = sys_closedir(d);
 
      if (rc != SYS_OK)          /* rc from sys_readdir, to report errors from scan. */
-          vmerror("Error reading directory", dn);
+     {
+          vmerror_io_error(_T("Error reading directory"), dn);
+          return NIL;
+     }
 
      if (cdrc != SYS_OK)
-          vmerror("Error closing directory", dn);
+     {
+          vmerror_io_error(_T("Error closing directory"), dn);
+     }
 
      return filenames;
 }
