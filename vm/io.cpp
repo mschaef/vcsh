@@ -707,10 +707,7 @@ LRef lwrite_char(LRef ch, LRef port)
 
 LRef lwrite_strings(size_t argc, LRef argv[])
 {
-     if (argc < 1)
-          vmerror(_T("insufficient arguments."), NIL);
-
-     LRef port = argv[0];
+     LRef port = (argc < 1) ? NIL : argv[0];
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);

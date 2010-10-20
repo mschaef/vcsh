@@ -134,7 +134,7 @@ LRef lmake_instance(LRef args)
      LRef new_instance = instancecons(proto);
 
      if (init_slots(new_instance, args, true))
-          vmerror("Error initializing instance, malformed initialization list", args);
+          vmerror_arg_out_of_range(args, _T("bad instance initialization list"));
 
      return new_instance;
 }
@@ -254,7 +254,7 @@ LRef lislot_ref(LRef inst, LRef key)
      LRef val = NIL;
 
      if (!try_slot_ref(inst, key, &val))
-          vmerror("Slot not found in instance. ~s", lcons(inst, key));
+          vmerror_arg_out_of_range(lcons(inst, key), _T("slot not found"));
 
      return val;
 }
@@ -379,10 +379,10 @@ static LRef llookup_message_handler(LRef lookup_context, LRef message)
 static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LRef args)
 {
      if (!INSTANCEP(lookup_ctx_inst))
-          vmerror("Invalid message lookup context: ~s", lookup_ctx_inst);
+          vmerror_arg_out_of_range(lookup_ctx_inst, _T("bad message lookup context"));
 
      if (!SYMBOLP(message_name))
-          vmerror("Invalid message: ~s", message_name);
+          vmerror_arg_out_of_range(message_name, _T("bad message name"));
 
      LRef message_handler = llookup_message_handler(lookup_ctx_inst, message_name);
 
@@ -396,10 +396,10 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
      }
 
      if (!TRUEP(message_handler))
-          vmerror("Message not understood. (instance . message) = ~s", lcons(self, args));
+          vmerror_arg_out_of_range(lcons(self, args), _T("message not understood"));
 
      if (!PROCEDUREP(message_handler))
-          vmerror("Improper message handler in instance.", lcons(lookup_ctx_inst, message_name));
+          vmerror_arg_out_of_range(lcons(lookup_ctx_inst, message_name), _T("bad message name"));
 
      LRef argv[2];
      argv[0] = self;

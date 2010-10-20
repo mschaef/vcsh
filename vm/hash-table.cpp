@@ -597,7 +597,7 @@ LRef llist2hash(LRef obj)
      LRef hash = lmake_hash(key_type);
 
      if (init_slots(hash, bindings, false))     /*  REVISIT: should this really be init_slots? */
-          vmerror("Invalid hash binding", bindings);
+          vmerror_arg_out_of_range(bindings, _T("Invalid hash binding"));
 
      return hash;
 }
