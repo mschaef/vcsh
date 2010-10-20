@@ -37,21 +37,23 @@ static void validate_structure_layout(size_t slots, LRef layout)
      size_t len = (size_t) get_c_long(llength(layout));
 
      if (len != 2)
-          vmerror("Malformed structure layout, bad length: ~s", layout);
+          vmerror_arg_out_of_range(layout, _T("bad structure layout, length<>2"));
 
      LRef slot_layout = CAR(CDR(layout));
 
      if (get_c_long(llength(slot_layout)) != (long) slots)
-          vmerror("Wrong number of slots in structure layout: ~s",
-                  lcons(slot_layout, fixcons(slots)));
+          vmerror_arg_out_of_range(lcons(slot_layout, fixcons(slots)),
+                                   _T("bad structure layout, wrong number of slots"));
 
      for (; CONSP(slot_layout); slot_layout = CDR(slot_layout))
      {
           if (!CONSP(CAR(slot_layout)))
-               vmerror("Bad slot layout in structure layout", lcons(slot_layout, layout));
+               vmerror_arg_out_of_range(lcons(slot_layout, layout),
+                                        _T("bad structure layout, bad slot layout"));
 
           if (!SYMBOLP(CAR(CAR(slot_layout))))
-               vmerror("Missing slot name from structure layout", layout);
+               vmerror_arg_out_of_range(layout,
+                                        _T("bad structure layout, missing slot name"));
      }
 }
 

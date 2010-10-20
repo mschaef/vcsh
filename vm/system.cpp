@@ -16,9 +16,7 @@ LRef lsystem(size_t argc, LRef argv[])
      _TCHAR *command_line = get_c_string_dim(lstring_append(argc, argv), &len);
 
      if (len == 0)
-          vmerror("Empty commmand line", NIL);
-
-     /*  return fixcons(_tsystem(command_line)); */
+          vmerror_arg_out_of_range(NIL, _T("empty command line"));
 
      return fixcons(system(command_line));
 }

@@ -82,7 +82,7 @@ LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
                vmerror_unbound(var);
 
           if (SYMBOL_HOME(var) == interp.keyword_package)
-               vmerror("Cannot rebind keywords: ~s", var);
+               vmerror_arg_out_of_range(var, _T("cannot rebind keywords"));
 
           SET_SYMBOL_VCELL(var, val);
 

@@ -241,8 +241,10 @@ LRef lass(LRef x, LRef alist, LRef fcn)
 
      if (NULLP(l))
           return NIL;
-     else
-          return vmerror("improper list to ass", alist);
+
+     vmerror_arg_out_of_range(alist, _T("improper list"));
+
+     return NIL;
 }
 
 
@@ -261,7 +263,9 @@ LRef lassq(LRef x, LRef alist)
      if (NULLP(l))
           return boolcons(false);
 
-     return vmerror("improper list to assq", alist);
+     vmerror_arg_out_of_range(alist, _T("improper list"));
+     
+     return NIL;
 }
 
 LRef ldelq(LRef elem, LRef l)
@@ -296,7 +300,9 @@ LRef lassoc(LRef x, LRef alist)
      if (NULLP(l))
           return boolcons(false);
 
-     return vmerror("improper list to assoc", alist);
+     vmerror_arg_out_of_range(alist, _T("improper list"));
+
+     return NIL;
 }
 
 LRef lassv(LRef x, LRef alist)
@@ -314,7 +320,9 @@ LRef lassv(LRef x, LRef alist)
      if (NULLP(l))
           return boolcons(false);
 
-     return vmerror("improper list to assv", alist);
+     vmerror_arg_out_of_range(alist, _T("improper list"));
+
+     return NIL;
 }
 
 
