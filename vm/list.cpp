@@ -388,15 +388,12 @@ LRef lappend(size_t argc, LRef argv[])
 
           if (!NULLP(result))
           {
-               if (!(NULLP(result_bud) || CONSP(result_bud)))
-                    vmerror("Bad args to append: ~s", lista(argc, argv));
+               assert(CONSP(result_bud));
 
                SET_CDR(result_bud, next_list);
           }
           else
-          {
                result = next_list;
-          }
 
           result_bud = llast_pair(next_list);
      }
@@ -420,15 +417,12 @@ LRef lappendd(size_t argc, LRef argv[])
 
           if (!NULLP(result))
           {
-               if (!(NULLP(result_bud) || CONSP(result_bud)))
-                    vmerror("Bad args to append: ~s", lista(argc, argv));
+               assert(CONSP(result_bud));
 
                SET_CDR(result_bud, argv[ii]);
           }
           else
-          {
                result = argv[ii];
-          }
 
           result_bud = llast_pair(argv[ii]);
      }
