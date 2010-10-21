@@ -142,7 +142,7 @@
 (define (trap-vmerror-wrong-type trapno subr argno errval)
   (if (< argno 0)
       (error "Invalid argument ~a to ~a: ~s" argno subr errval)
-      (error "Invalid argument to ~a: ~s" errval)))
+      (error "Invalid argument to ~a: ~s" subr errval)))
 
 (define (trap-vmerror-index-out-of-bounds trapno subr bad-index obj)
   (error "Index ~a out of bounds while accessing ~s with ~s" bad-index obj subr))
