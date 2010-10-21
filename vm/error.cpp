@@ -84,9 +84,10 @@ void vmerror_wrong_type(int which_argument, LRef new_errobj)
             3, topmost_primitive(), fixcons(which_argument), new_errobj);
 }
 
-LRef vmerror_unbound(LRef v)
+void vmerror_unbound(LRef v)
 {
-     return vmerror("unbound variable: ~s", v);
+     vmtrap(TRAP_VMERROR_UNBOUND_GLOBAL, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            1, v);
 }
 
 void vmerror_index_out_of_bounds(LRef index, LRef obj)

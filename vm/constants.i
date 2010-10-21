@@ -139,8 +139,9 @@ BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
     VM_CONSTANT(TRAP_VMERROR_UNIMPLEMENTED      , 13)
     VM_CONSTANT(TRAP_VMERROR_DIVIDE_BY_ZERO     , 14)
     VM_CONSTANT(TRAP_VMERROR_IO_ERROR           , 15)
+    VM_CONSTANT(TRAP_VMERROR_UNBOUND_GLOBAL     , 16)
 
-    VM_ANON_CONSTANT(TRAP_LAST                  , 15)
+    VM_ANON_CONSTANT(TRAP_LAST                  , 16)
 END_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
 
 BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)

@@ -166,6 +166,9 @@
       (error "Input/Output error: ~a" desc)
       (error "Input/Output error: ~a (~s)" desc info)))
 
+(define (trap-vmerror-unbound-global trapno var)
+  (error "unbound global: ~s" var))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
 
@@ -176,6 +179,7 @@
   (%set-trap-handler! system::TRAP_VMERROR_UNIMPLEMENTED trap-vmerror-unimplemented)
   (%set-trap-handler! system::TRAP_VMERROR_DIVIDE_BY_ZERO trap-vmerror-divide-by-zero)
   (%set-trap-handler! system::TRAP_VMERROR_IO_ERROR trap-vmerror-io-error)
+  (%set-trap-handler! system::TRAP_VMERROR_UNBOUND_GLOBAL trap-vmerror-unbound-global)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
