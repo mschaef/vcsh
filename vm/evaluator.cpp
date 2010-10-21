@@ -190,7 +190,7 @@ static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LR
      {
           if (argc >= max_argc)
           {
-               vmerror("too many actual arguments: ~s", l);
+               vmerror_unsupported(_T("too many actual arguments"));
                break;
           }
 
@@ -201,7 +201,7 @@ static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LR
      }
 
      if (!NULLP(args))
-          vmerror("bad syntax argument list: ~s", l);
+          vmerror_arg_out_of_range(l, _T("bad formal argument list"));
 
      return argc;
 }
@@ -230,7 +230,7 @@ LRef lenvlookup(LRef var, LRef env)
           for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
           {
                if (!CONSP(al))
-                    vmerror("too few arguments", tmp);
+                    vmerror_arg_out_of_range(NIL, _T("too few arguments"));
 
                if (EQ(CAR(fl), var))
                     return (al);
@@ -521,10 +521,10 @@ LRef lapply(size_t argc, LRef argv[])
      size_t fn_argc = 0;
      LRef fn_argv[ARG_BUF_LEN];
 
-     if (argc == 0)
-          vmerror("apply requires a function to apply.", NIL);
+     LRef fn = (argc > 0) ? argv[0] : NIL;
 
-     LRef fn = argv[0];
+     if (!PROCEDUREP(fn))
+          vmerror_wrong_type(1, fn);
 
      for (size_t ii = 1; ii < argc - 1; ii++)
      {
@@ -548,10 +548,10 @@ LRef lapply(size_t argc, LRef argv[])
      }
 
      if (fn_argc >= ARG_BUF_LEN)
-          vmerror("too many arguments in call to apply: ~s", lcons(fn, NIL));
+          vmerror_unsupported(_T("too many actual arguments in call to apply"));
 
      if (!NULLP(args))
-          vmerror("bad argument list in call to apply: ~s", lcons(fn, args));
+          vmerror_arg_out_of_range(args, _T("bad formal argument list"));
 
      return apply1(fn, fn_argc, fn_argv);
 }
