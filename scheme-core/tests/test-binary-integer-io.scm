@@ -3,7 +3,6 @@
 (define-test binary-integer-io
   (let ((test-filename (temporary-file-name "sct")))
     (with-port p (open-output-file test-filename :binary)
-      (test-case (runtime-error? (write-binary-fixnum -200 1 #t p))) ; <min - 1s
       (test-case (not (runtime-error? (write-binary-fixnum -128 1 #t p)))) ; min - 1s
       (test-case (not (runtime-error? (write-binary-fixnum -34 1 #t p)))) ; -n - 1s
       (test-case (not (runtime-error? (write-binary-fixnum -2 1 #t p)))) ; -2 - 1s
@@ -13,14 +12,6 @@
       (test-case (not (runtime-error? (write-binary-fixnum 2 1 #t p)))) ; 2 - 1s
       (test-case (not (runtime-error? (write-binary-fixnum 34 1 #t p)))) ; n - 1s
       (test-case (not (runtime-error? (write-binary-fixnum 127 1 #t p)))) ; max-s - 1s
-      (test-case (runtime-error? (write-binary-fixnum 130 1 #t p))) ; >max-s - 1s
-      (test-case (runtime-error? (write-binary-fixnum 255 1 #t p))) ; max-u - 1s
-      (test-case (runtime-error? (write-binary-fixnum 300 1 #t p))) ; >max-u - 1s
-      (test-case (runtime-error? (write-binary-fixnum -200 1 #f p))) ; <min - 1u
-      (test-case (runtime-error? (write-binary-fixnum -128 1 #f p))) ; min - 1u
-      (test-case (runtime-error? (write-binary-fixnum -34 1 #f p))) ; -n - 1u
-      (test-case (runtime-error? (write-binary-fixnum -2 1 #f p))) ; -2 - 1u
-      (test-case (runtime-error? (write-binary-fixnum -1 1 #f p))) ; -1 - 1u
       (test-case (not (runtime-error? (write-binary-fixnum 0 1 #f p)))) ; 0 - 1u
       (test-case (not (runtime-error? (write-binary-fixnum 1 1 #f p)))) ; 1 - 1u
       (test-case (not (runtime-error? (write-binary-fixnum 2 1 #f p)))) ; 2 - 1u
@@ -28,8 +19,6 @@
       (test-case (not (runtime-error? (write-binary-fixnum 127 1 #f p)))) ; max-s - 1u
       (test-case (not (runtime-error? (write-binary-fixnum 130 1 #f p)))) ; >max-s - 1u
       (test-case (not (runtime-error? (write-binary-fixnum 255 1 #f p)))) ; max-u - 1u
-      (test-case (runtime-error? (write-binary-fixnum 300 1 #f p))) ; >max-u - 1u
-      (test-case (runtime-error? (write-binary-fixnum -40000 2 #t p))) ; <min - 2s
       (test-case (not (runtime-error? (write-binary-fixnum -32768 2 #t p)))) ; min - 2s
       (test-case (not (runtime-error? (write-binary-fixnum -18273 2 #t p)))) ; -n - 2s
       (test-case (not (runtime-error? (write-binary-fixnum -2 2 #t p)))) ; -2 - 2s
@@ -39,14 +28,6 @@
       (test-case (not (runtime-error? (write-binary-fixnum 2 2 #t p)))) ; 2 - 2s
       (test-case (not (runtime-error? (write-binary-fixnum 12726 2 #t p)))) ; n - 2s
       (test-case (not (runtime-error? (write-binary-fixnum 32767 2 #t p)))) ; max-s - 2s
-      (test-case (runtime-error? (write-binary-fixnum 35000 2 #t p))) ; >max-s - 2s
-      (test-case (runtime-error? (write-binary-fixnum 65535 2 #t p))) ; max-u - 2s
-      (test-case (runtime-error? (write-binary-fixnum 70000 2 #t p))) ; >max-u - 2s
-      (test-case (runtime-error? (write-binary-fixnum -40000 2 #f p))) ; <min - 2u
-      (test-case (runtime-error? (write-binary-fixnum -32768 2 #f p))) ; min - 2u
-      (test-case (runtime-error? (write-binary-fixnum -18273 2 #f p))) ; -n - 2u
-      (test-case (runtime-error? (write-binary-fixnum -2 2 #f p))) ; -2 - 2u
-      (test-case (runtime-error? (write-binary-fixnum -1 2 #f p))) ; -1 - 2u
       (test-case (not (runtime-error? (write-binary-fixnum 0 2 #f p)))) ; 0 - 2u
       (test-case (not (runtime-error? (write-binary-fixnum 1 2 #f p)))) ; 1 - 2u
       (test-case (not (runtime-error? (write-binary-fixnum 2 2 #f p)))) ; 2 - 2u
@@ -54,8 +35,6 @@
       (test-case (not (runtime-error? (write-binary-fixnum 32767 2 #f p)))) ; max-s - 2u
       (test-case (not (runtime-error? (write-binary-fixnum 35000 2 #f p)))) ; >max-s - 2u
       (test-case (not (runtime-error? (write-binary-fixnum 65535 2 #f p)))) ; max-u - 2u
-      (test-case (runtime-error? (write-binary-fixnum 70000 2 #f p))) ; >max-u - 2u
-      (test-case (runtime-error? (write-binary-fixnum -3000000000 4 #t p))) ; <min - 4s
       (test-case (not (runtime-error? (write-binary-fixnum -2147483648 4 #t p)))) ; min - 4s
       (test-case (not (runtime-error? (write-binary-fixnum -23443555 4 #t p)))) ; -n - 4s
       (test-case (not (runtime-error? (write-binary-fixnum -2 4 #t p)))) ; -2 - 4s
@@ -65,14 +44,6 @@
       (test-case (not (runtime-error? (write-binary-fixnum 2 4 #t p)))) ; 2 - 4s
       (test-case (not (runtime-error? (write-binary-fixnum 34548374 4 #t p)))) ; n - 4s
       (test-case (not (runtime-error? (write-binary-fixnum 2147483647 4 #t p)))) ; max-s - 4s
-      (test-case (runtime-error? (write-binary-fixnum 2500000000 4 #t p))) ; >max-s - 4s
-      (test-case (runtime-error? (write-binary-fixnum 4294967295 4 #t p))) ; max-u - 4s
-      (test-case (runtime-error? (write-binary-fixnum 5000000000 4 #t p))) ; >max-u - 4s
-      (test-case (runtime-error? (write-binary-fixnum -3000000000 4 #f p))) ; <min - 4u
-      (test-case (runtime-error? (write-binary-fixnum -2147483648 4 #f p))) ; min - 4u
-      (test-case (runtime-error? (write-binary-fixnum -23443555 4 #f p))) ; -n - 4u
-      (test-case (runtime-error? (write-binary-fixnum -2 4 #f p))) ; -2 - 4u
-      (test-case (runtime-error? (write-binary-fixnum -1 4 #f p))) ; -1 - 4u
       (test-case (not (runtime-error? (write-binary-fixnum 0 4 #f p)))) ; 0 - 4u
       (test-case (not (runtime-error? (write-binary-fixnum 1 4 #f p)))) ; 1 - 4u
       (test-case (not (runtime-error? (write-binary-fixnum 2 4 #f p)))) ; 2 - 4u
@@ -80,7 +51,6 @@
       (test-case (not (runtime-error? (write-binary-fixnum 2147483647 4 #f p)))) ; max-s - 4u
       (test-case (not (runtime-error? (write-binary-fixnum 2500000000 4 #f p)))) ; >max-s - 4u
       (test-case (not (runtime-error? (write-binary-fixnum 4294967295 4 #f p)))) ; max-u - 4u
-      (test-case (runtime-error? (write-binary-fixnum 5000000000 4 #f p))) ; >max-u - 4u
       )
     (test-case (file-exists? test-filename))
     (with-port p (open-input-file test-filename :binary)

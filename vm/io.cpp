@@ -982,68 +982,38 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
 
      u8_t bytes[sizeof(fixnum_t)];
 
-
-     bool in_range = false;
-
      switch (length)
      {
      case 1:
           if (signedp)
-          {
-               in_range = (val >= I8_MIN) && (val <= I8_MAX);
                *(i8_t *) bytes = (i8_t) val;
-          }
           else
-          {
-               in_range = (val >= U8_MIN) && (val <= U8_MAX);
                *(u8_t *) bytes = (u8_t) val;
-          }
           break;
 
      case 2:
           if (signedp)
-          {
-               in_range = (val >= I16_MIN) && (val <= I16_MAX);
                *(i16_t *) bytes = (i16_t) val;
-          }
           else
-          {
-               in_range = (val >= U16_MIN) && (val <= U16_MAX);
                *(u16_t *) bytes = (u16_t) val;
-          }
           break;
 
      case 4:
           if (signedp)
-          {
-               in_range = (val >= I32_MIN) && (val <= I32_MAX);
                *(i32_t *) bytes = (i32_t) val;
-          }
           else
-          {
-               in_range = (val >= U32_MIN) && (val <= U32_MAX);
                *(u32_t *) bytes = (u32_t) val;
-          }
           break;
 
 #ifdef FIXNUM_64BIT
      case 8:
           if (signedp)
-          {
-               in_range = (val >= I64_MIN) && (val <= I64_MAX);
                *(i64_t *) bytes = (i64_t) val;
-          }
           else
-          {
-               in_range = ((u64_t) val >= U64_MIN) && ((u64_t) val <= U64_MAX);
                *(u64_t *) bytes = (u64_t) val;
-          }
           break;
 #endif
      }
-
-     if (!in_range)
-          vmerror("Range check violation writing binary integer.", v);
 
      size_t fixnums_written = write_raw(bytes, (size_t) length, 1, port);
 
