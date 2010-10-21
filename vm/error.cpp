@@ -54,25 +54,6 @@ void vmerror_stack_overflow(u8_t * obj)
       * REVISIT: Should the user be allowed to continue after an overflow? */
 }
 
-/*  REVISIT: lots of errors could be improved by adding ~s to print the error object */
-LRef vmerror(const _TCHAR * message, LRef new_errobj)
-{
-     assert(message);
-
-     LRef err_primitive = topmost_primitive();
-
-     dscwritef(DF_SHOW_VMERRORS,
-               _T("; DEBUG: runtime error: ~cS : errobj=~s\n"), message, new_errobj);
-
-
-     vmtrap(TRAP_RUNTIME_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            4, strcons(message), err_primitive, new_errobj,  NIL);
-
-     panic("VM errors must result in a non-local escape out of the signaling primitive.");
-
-     return NIL;
-}
-
 void vmerror_wrong_type(LRef new_errobj)
 {
      vmerror_wrong_type(-1, new_errobj);
@@ -87,13 +68,13 @@ void vmerror_wrong_type(int which_argument, LRef new_errobj)
 void vmerror_unbound(LRef v)
 {
      vmtrap(TRAP_VMERROR_UNBOUND_GLOBAL, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            1, v);
+            2, topmost_primitive(), v);
 }
 
 void vmerror_index_out_of_bounds(LRef index, LRef obj)
 {
      vmtrap(TRAP_VMERROR_INDEX_OUT_OF_BOUNDS, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            2, index, obj);
+            3, topmost_primitive(), index, obj);
 }
 
 void vmerror_arg_out_of_range(LRef arg, const _TCHAR *range_desc /* = NULL */)
@@ -104,32 +85,44 @@ void vmerror_arg_out_of_range(LRef arg, const _TCHAR *range_desc /* = NULL */)
           range = strcons(range_desc);
 
      vmtrap(TRAP_VMERROR_ARG_OUT_OF_RANGE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            2, arg, range);
+            3, topmost_primitive(), arg, range);
 }
 
 void vmerror_unsupported(const _TCHAR *desc)
 {
      vmtrap(TRAP_VMERROR_UNSUPPORTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            1, strcons(desc));
+            2,  topmost_primitive(),  strcons(desc));
 }
 
 void vmerror_unimplemented(const _TCHAR *desc)
 {
      vmtrap(TRAP_VMERROR_UNIMPLEMENTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            1, strcons(desc));
+            2, topmost_primitive(), strcons(desc));
 }
 
 void vmerror_divide_by_zero()
 {
      vmtrap(TRAP_VMERROR_DIVIDE_BY_ZERO, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            0);
+            1, topmost_primitive());
 }
 
 void vmerror_io_error(const _TCHAR *desc, LRef info)
 {
      vmtrap(TRAP_VMERROR_IO_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            2, strcons(desc), info);
+            3, topmost_primitive(), strcons(desc), info);
 }
+
+void fast_read_error(const _TCHAR * message, LRef port, LRef details /* = NIL */)
+{
+     /*  REVISIT: fast_read_errors don't always show valid port locations */
+     assert(PORTP(port));
+
+     LRef location = lport_location(port);
+
+     vmtrap(TRAP_VMERROR_FAST_READ_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            5, topmost_primitive(), strcons(message), port, location, details);
+}
+
 
 LRef lpanic(LRef msg)           /*  If everything goes to hell, call this... */
 {

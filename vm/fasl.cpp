@@ -71,26 +71,6 @@ BEGIN_NAMESPACE(scan)
  *  currently, the CONS will stay put even if the enderlying table is resized. */
 static void fast_read(LRef port, LRef * retval, bool allow_loader_ops = false);
 
-static LRef fast_read_error(const _TCHAR * message, LRef port, LRef details = NIL)
-{
-     /*  REVISIT: fast_read_errors not always displayed */
-     /*  REVISIT: fast_read_errors don't always show valid port locations */
-     assert(PORTP(port));
-
-     LRef location = lport_location(port);
-
-     assert(FIXNUMP(location));
-
-     _TCHAR buf[STACK_STRBUF_LEN];
-     _sntprintf(buf, STACK_STRBUF_LEN, "Error Reading FASL File: %s @ 0x%08x.",
-                message, (unsigned int) get_c_fixnum(location));
-
-     vmtrap(TRAP_VMERROR_FAST_READ_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            3, strcons(message), port, location, details);
-
-     return NIL;
-}
-
 static fasl_opcode_t fast_read_opcode(LRef port)
 {
      fixnum_t opcode = FASL_OP_EOF;

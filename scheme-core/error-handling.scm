@@ -141,35 +141,35 @@
 
 (define (trap-vmerror-wrong-type trapno subr argno errval)
   (if (< argno 0)
-      (error "Invalid argument ~a to ~a: ~s" argno (%subr-name subr) errval)
-      (error "Invalid argument to ~a: ~s" (%subr-name subr) errval)))
+      (error "Invalid argument ~a to ~a: ~s" argno subr errval)
+      (error "Invalid argument to ~a: ~s" errval)))
 
-(define (trap-vmerror-index-out-of-bounds trapno bad-index obj)
-  (error "Index ~a out of bounds while accessing ~s" bad-index obj))
+(define (trap-vmerror-index-out-of-bounds trapno subr bad-index obj)
+  (error "Index ~a out of bounds while accessing ~s with ~s" bad-index obj subr))
 
-(define (trap-vmerror-arg-out-of-range trapno bad-arg range-desc)
+(define (trap-vmerror-arg-out-of-range trapno subr bad-arg range-desc)
   (if (null? range-desc)
-      (error "Argument out of range: ~s" bad-arg)
-      (error "Argument out of range ~a: ~s" range-desc bad-arg)))
+      (error "Argument to ~s out of range: ~s"  subr bad-arg)
+      (error "Argument to ~s out of range (~a): ~s" subr range-desc bad-arg)))
 
-(define (trap-vmerror-unimplemented trapno desc)
-  (error "Operation not yet implemented: ~a" desc))
+(define (trap-vmerror-unimplemented trapno subr desc)
+  (error "Operation in ~s not yet implemented: ~a" subr desc))
 
-(define (trap-vmerror-unsupported trapno desc)
-  (error "Operation unsupported: ~a" desc))
+(define (trap-vmerror-unsupported trapno subr desc)
+  (error "Operation in ~s unsupported: ~a" subr desc))
 
-(define (trap-vmerror-divide-by-zero trapno)
-  (error "Divide by zero"))
+(define (trap-vmerror-divide-by-zero trapno)subr 
+  (error "Divide by zero in ~s" subr))
 
-(define (trap-vmerror-io-error trapno desc info)
+(define (trap-vmerror-io-error trapno subr desc info)
   (if (null? info)
-      (error "Input/Output error: ~a" desc)
-      (error "Input/Output error: ~a (~s)" desc info)))
+      (error "Input/Output error in ~s: ~a" subr desc)
+      (error "Input/Output error in ~s: ~a (~s)" subr desc info)))
 
-(define (trap-vmerror-unbound-global trapno var)
+(define (trap-vmerror-unbound-global trapno subr var)
   (error "unbound global: ~s" var))
 
-(define (trap-vmerror-fast-read-error trapno desc port location details)
+(define (trap-vmerror-fast-read-error trapno subr desc port location details)
   (error "Error Reading FASL File: ~s @ ~s:~s" desc port location))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
