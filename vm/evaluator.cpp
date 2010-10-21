@@ -107,7 +107,11 @@ LRef liset_trap_handler(LRef trap_id, LRef new_handler)
      if (!PROCEDUREP(new_handler))
           vmerror_wrong_type(2, new_handler);
 
-     interp.trap_handlers[get_trap_id(trap_id)] = new_handler;
+     size_t tid = get_trap_id(trap_id);
+
+     interp.trap_handlers[tid] = new_handler;
+
+     dscwritef(DF_SHOW_TRAPS, _T("; DEBUG: set-trap-handler : ~cS := ~s\n"), trap_type_name((trap_type_t)tid), new_handler);
 
      return new_handler;
 }

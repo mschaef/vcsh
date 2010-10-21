@@ -158,7 +158,7 @@
 (define (trap-vmerror-unsupported trapno subr desc)
   (error "Operation in ~s unsupported: ~a" subr desc))
 
-(define (trap-vmerror-divide-by-zero trapno)subr 
+(define (trap-vmerror-divide-by-zero trapno subr)
   (error "Divide by zero in ~s" subr))
 
 (define (trap-vmerror-io-error trapno subr desc info)
