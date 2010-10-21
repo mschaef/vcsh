@@ -169,6 +169,9 @@
 (define (trap-vmerror-unbound-global trapno var)
   (error "unbound global: ~s" var))
 
+(define (trap-vmerror-fast-read-error trapno desc port location details)
+  (error "Error Reading FASL File: ~s @ ~s:~s" desc port location))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
 
@@ -180,6 +183,7 @@
   (%set-trap-handler! system::TRAP_VMERROR_DIVIDE_BY_ZERO trap-vmerror-divide-by-zero)
   (%set-trap-handler! system::TRAP_VMERROR_IO_ERROR trap-vmerror-io-error)
   (%set-trap-handler! system::TRAP_VMERROR_UNBOUND_GLOBAL trap-vmerror-unbound-global)
+  (%set-trap-handler! system::TRAP_VMERROR_FAST_READ_ERROR trap-vmerror-fast-read-error)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)

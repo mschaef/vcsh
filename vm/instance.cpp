@@ -410,10 +410,8 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
 
 LRef lsend(LRef args)
 {
-     if (NULLP(args))
-          vmerror("insufficient arguments", NIL);
-
-     assert(CONSP(args));
+     if (!CONSP(args))
+          vmerror_wrong_type(1, NIL);
 
      LRef self = CAR(args);
 

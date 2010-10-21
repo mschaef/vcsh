@@ -85,7 +85,10 @@ static LRef fast_read_error(const _TCHAR * message, LRef port, LRef details = NI
      _sntprintf(buf, STACK_STRBUF_LEN, "Error Reading FASL File: %s @ 0x%08x.",
                 message, (unsigned int) get_c_fixnum(location));
 
-     return vmerror(buf, lcons(port, details));
+     vmtrap(TRAP_VMERROR_FAST_READ_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            3, strcons(message), port, location, details);
+
+     return NIL;
 }
 
 static fasl_opcode_t fast_read_opcode(LRef port)
