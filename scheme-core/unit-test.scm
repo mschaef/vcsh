@@ -309,7 +309,7 @@
                         (fasl-write object s)))
     (let ((object ()))
       (when dump-fasl-file?
-        (system (format #f ".\\fasl-dump ~a" test-filename)))
+        (system (format #f "../vm/fasl-dump ~a" test-filename)))
       (with-port p (open-input-file test-filename :binary)
         (set! object (fast-read p)))
       (delete-file test-filename)
