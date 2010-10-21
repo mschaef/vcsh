@@ -181,7 +181,6 @@
 (%define magnitude #.(scheme::%subr-by-name "magnitude"))
 (%define make-hash #.(scheme::%subr-by-name "make-hash"))
 (%define make-instance #.(scheme::%subr-by-name "make-instance"))
-(%define make-list #.(scheme::%subr-by-name "make-list"))
 (%define make-package! #.(scheme::%subr-by-name "make-package!"))
 (%define make-polar #.(scheme::%subr-by-name "make-polar"))
 (%define make-rectangular #.(scheme::%subr-by-name "make-rectangular"))

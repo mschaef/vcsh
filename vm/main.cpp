@@ -409,7 +409,6 @@ static void register_main_subrs()
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
     register_subr(_T("make-hash"),                        SUBR_1,     (void*)lmake_hash                          );
     register_subr(_T("make-instance"),                    SUBR_N,     (void*)lmake_instance                      );
-    register_subr(_T("make-list"),                        SUBR_2,     (void*)lmake_list                          );
     register_subr(_T("make-package!"),                    SUBR_1,     (void*)lmake_package                       );
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );

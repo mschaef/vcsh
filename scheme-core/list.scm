@@ -361,6 +361,13 @@
   (check queue? q)
   (%q-empty? (cdr q)))
 
+(define (make-list count :optional (initial ()))
+  (check (and exact? (>= 0)) count)
+  (let loop ((ii count) (accum ()))
+    (if (= ii 0)
+        accum
+        (loop (- ii 1) (cons initial accum)))))
+
 (define (member x xs)
   "Checks if <x> is a member of the list <xs> based on the equality
    predicate equal?. If <x> is not found returns #f, otherwise returns
