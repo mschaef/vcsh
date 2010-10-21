@@ -124,10 +124,6 @@
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
 
-(define (vm-runtime-error-handler trapno message primitive new-error-object)
-  (set! *last-error-stack-trace* (reverse (%get-current-frames 6))) ; dynamic-let would complicate the stack trace
-  (error (format #f "in ~a, ~S" (procedure-name primitive) message new-error-object) new-error-object))
-
 
 (define (user-break-handler trapno)
   (catch 'ignore-user-break
@@ -173,8 +169,6 @@
   (error "Error Reading FASL File: ~s @ ~s:~s" desc port location))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_RUNTIME_ERROR vm-runtime-error-handler)
-
   (%set-trap-handler! system::TRAP_VMERROR_WRONG_TYPE trap-vmerror-wrong-type)
   (%set-trap-handler! system::TRAP_VMERROR_INDEX_OUT_OF_BOUNDS trap-vmerror-index-out-of-bounds)
   (%set-trap-handler! system::TRAP_VMERROR_ARG_OUT_OF_RANGE trap-vmerror-arg-out-of-range)
