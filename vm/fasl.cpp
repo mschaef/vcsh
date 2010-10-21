@@ -310,26 +310,10 @@ static void fast_read_fast_op(int fast_op_arity, LRef port, LRef * fop)
 static void fast_read_structure(LRef port, LRef * st)
 {
      LRef st_meta;
-     fast_read(port, &st_meta);
+     fast_read(port, &st_meta); // REVISIT: This has to come from the structure layour resolution vmtrap. Find a way to enforce this.
 
      if (!CONSP(st_meta))
           fast_read_error("Expected list for structure metadata", port, st_meta);
-
-     LRef structure_type_name = CAR(st_meta);
-
-     LRef existing_st_meta = lassq(simple_intern(_T("structure-meta"), interp.scheme_package),
-                                   lproperty_list(structure_type_name));
-
-     if (TRUEP(existing_st_meta))
-          existing_st_meta = lcar(lcdr(existing_st_meta));
-
-     bool obsolete_structure = !equalp(st_meta, existing_st_meta);
-
-
-     if (obsolete_structure)
-          SET_CAR(st_meta, listn(2, keyword_intern(_T("orphaned")), CAR(st_meta)));
-     else
-          st_meta = existing_st_meta;
 
      LRef st_length;
      fast_read(port, &st_length);
