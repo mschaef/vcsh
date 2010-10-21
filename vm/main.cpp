@@ -326,10 +326,6 @@ static void register_main_subrs()
     register_subr(_T("append"),                           SUBR_ARGC,  (void*)lappend                             );
     register_subr(_T("apply"),                            SUBR_ARGC,  (void*)lapply                              );
     register_subr(_T("asin"),                             SUBR_1,     (void*)lasin                               );
-    register_subr(_T("ass"),                              SUBR_3,     (void*)lass                                );
-    register_subr(_T("assoc"),                            SUBR_2,     (void*)lassoc                              );
-    register_subr(_T("assq"),                             SUBR_2,     (void*)lassq                               );
-    register_subr(_T("assv"),                             SUBR_2,     (void*)lassv                               );
     register_subr(_T("atan"),                             SUBR_2,     (void*)latan                               );
     register_subr(_T("binary-port?"),                     SUBR_1,     (void*)lbinary_portp                       );
     register_subr(_T("bitwise-and"),                      SUBR_2N,    (void*)lbitwise_and                        );

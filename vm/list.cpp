@@ -228,46 +228,6 @@ LRef lforeach(size_t argc, LRef argv[])
      return NIL;
 }
 
-LRef lass(LRef x, LRef alist, LRef fcn)
-{
-     LRef l, tmp;
-
-     for (l = alist; CONSP(l); l = CDR(l))
-     {
-          tmp = CAR(l);
-          if (CONSP(tmp) && TRUEP(lfuncall2(fcn, CAR(tmp), x)))
-               return tmp;
-     }
-
-     if (NULLP(l))
-          return NIL;
-
-     vmerror_arg_out_of_range(alist, _T("improper list"));
-
-     return NIL;
-}
-
-
-LRef lassq(LRef x, LRef alist)
-{
-     LRef l, tmp;
-
-     for (l = alist; CONSP(l); l = CDR(l))
-     {
-          tmp = CAR(l);
-
-          if (CONSP(tmp) && EQ(CAR(tmp), x))
-               return (tmp);
-     }
-
-     if (NULLP(l))
-          return boolcons(false);
-
-     vmerror_arg_out_of_range(alist, _T("improper list"));
-     
-     return NIL;
-}
-
 LRef ldelq(LRef elem, LRef l)
 {
      if (NULLP(l))
@@ -284,47 +244,6 @@ LRef ldelq(LRef elem, LRef l)
           return l;
      }
 }
-
-LRef lassoc(LRef x, LRef alist)
-{
-     LRef l, tmp;
-
-     for (l = alist; CONSP(l); l = CDR(l))
-     {
-          tmp = CAR(l);
-
-          if (CONSP(tmp) && equalp(CAR(tmp), x))
-               return (tmp);
-     }
-
-     if (NULLP(l))
-          return boolcons(false);
-
-     vmerror_arg_out_of_range(alist, _T("improper list"));
-
-     return NIL;
-}
-
-LRef lassv(LRef x, LRef alist)
-{
-     LRef l, tmp;
-
-     for (l = alist; CONSP(l); l = CDR(l))
-     {
-          tmp = CAR(l);
-
-          if (CONSP(tmp) && TRUEP(leql(CAR(tmp), x)))
-               return (tmp);
-     }
-
-     if (NULLP(l))
-          return boolcons(false);
-
-     vmerror_arg_out_of_range(alist, _T("improper list"));
-
-     return NIL;
-}
-
 
 LRef llast_pair(LRef xs)
 {
