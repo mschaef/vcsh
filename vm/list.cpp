@@ -388,29 +388,6 @@ LRef llength(LRef obj)
      return fixcons(object_length(obj));
 }
 
-LRef make_list(size_t dim, LRef initial)
-{
-     LRef l = NIL;
-
-     for (size_t n = 0; n < dim; n++)
-          l = lcons(initial, l);
-
-     return l;
-}
-
-LRef lmake_list(LRef d, LRef initial)
-{
-     if (!NUMBERP(d))
-          vmerror_wrong_type(1, d);
-
-     fixnum_t dim = get_c_fixnum(d);
-
-     if (dim < 0)
-          vmerror_arg_out_of_range(d, _T(">=0"));
-
-     return make_list((size_t) dim, initial);
-}
-
 LRef listn(long n, ...)
 {
      va_list args;

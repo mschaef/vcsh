@@ -670,7 +670,6 @@ LRef listn(long n, ...);
 LRef listv(long n, va_list args);
 LRef lista(size_t n, LRef args[]);
 
-LRef make_list(size_t dim, LRef initial);
 
 INLINE LRef & _CAR(LRef x)
 {
@@ -1846,7 +1845,6 @@ LRef lmagnitude(LRef cmplx);
 LRef lmake_eof();
 LRef lmake_hash(LRef key_type);
 LRef lmake_instance(LRef args);
-LRef lmake_list(LRef dim, LRef initial);
 LRef lmake_package(LRef name);
 LRef lmake_polar(LRef r, LRef theta);
 LRef lmake_rectangular(LRef re, LRef im);
@@ -2012,6 +2010,8 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
      return DEBUGGING_BUILD && (interp.debug_flags & (fixnum_t) flag);
 }
+
+
 /* Frames and exceptions
  *
  * Frames are basically annotations on the dynamic stack. Each

@@ -577,32 +577,22 @@ LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
      return apply1(fcn, 2, argv);
 }
 
-bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag, LRef leading_args,
-                          size_t n, va_list args)
+bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag, size_t argc, ...)
 {
-     LRef dummy_form = leading_args;
-
      if (!CLOSUREP(closure))
           vmerror_wrong_type(closure);
 
-     if (n)
-     {
-          LRef trailing_args = make_list(n, NIL);
+     assert(argc < ARG_BUF_LEN);
 
-          LRef loc = trailing_args;
-          for (size_t jj = 0; jj < n; ++jj)
-          {
-               lsetcar(loc, va_arg(args, LRef));
-               loc = CDR(loc);
-          }
+     LRef argv[ARG_BUF_LEN];
+     
+     va_list args;
+     va_start(args, argc);
 
+     for(size_t ii = 0; ii < argc; ii++)
+          argv[ii] = va_arg(args, LRef);
 
-          LRef argv[2];
-          argv[0] = dummy_form;
-          argv[1] = trailing_args;
-
-          dummy_form = lappend(2, argv);
-     }
+     va_end(args);
 
      bool failed = true;
 
@@ -610,10 +600,7 @@ bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag
 
      ENTER_TRY(NULL)
      {
-          LRef argv[1];
-          argv[0] = dummy_form;
-
-          retval = apply1(closure, 1, argv);
+          retval = apply1(closure, argc, argv);
           failed = false;
      }
      ON_ERROR()
@@ -624,27 +611,12 @@ bool call_lisp_procedurev(LRef closure, LRef * out_retval, LRef * out_escape_tag
      }
      LEAVE_TRY();
 
-
      if (out_retval)
           *out_retval = retval;
 
      return failed;
 }
 
-bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag, size_t n, ...)
-{
-     assert(PROCEDUREP(closure));
-
-     va_list args;
-
-     va_start(args, n);
-
-     bool failed = call_lisp_procedurev(closure, out_retval, out_escape_tag, NIL, n, args);
-
-     va_end(args);
-
-     return failed;
-}
 
 /***** Handlers *****/
 
