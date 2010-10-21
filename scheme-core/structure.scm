@@ -167,6 +167,20 @@
   (unless (member structure-type-name *global-structure-dictionary*)
     (push! structure-type-name *global-structure-dictionary*)))
 
+(define (trap-resolve-fasl-struct-layout trapno new-layout)
+  (unless (pair? new-layout)
+    (error "Expected list for structure layout ~s" new-layout))
+  (let* ((structure-type-name (car new-layout))
+         (existing-meta (assq 'scheme::structure-meta (%property-list structure-type-name)))
+         (old-layout (if existing-meta (cadr existing-meta) ()))
+         (obsolete? (not (equal? new-layout old-layout))))
+    (if obsolete?
+        (set-car! new-layout (list :orphaned (car new-layout)))
+        old-layout)))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_RESOLVE_FASL_STRUCT_LAYOUT trap-resolve-fasl-struct-layout))
+
 ;; REVISIT: Do we need a way to 'forget' structure types?
 
 (define (slots->layout slots)

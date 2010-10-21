@@ -271,27 +271,7 @@ static void fast_read_structure_layout(LRef port, LRef * st_layout)
      LRef new_st_layout;
      fast_read(port, &new_st_layout);
 
-     if (!CONSP(new_st_layout))
-          fast_read_error("Expected list for structure layout", port, new_st_layout);
-
-     LRef structure_type_name = CAR(new_st_layout);
-
-     LRef existing_st_meta = lassq(simple_intern(_T("structure-meta"), interp.scheme_package),
-                                   lproperty_list(structure_type_name));
-
-     LRef existing_st_layout = NIL;
-
-     if (TRUEP(existing_st_meta))
-          existing_st_layout = lcar(lcdr(existing_st_meta));
-
-     bool obsolete_structure = !equalp(new_st_layout, existing_st_layout);
-
-     if (obsolete_structure)
-          SET_CAR(new_st_layout, listn(2, keyword_intern(_T("orphaned")), CAR(new_st_layout)));
-     else
-          new_st_layout = existing_st_layout;
-
-     *st_layout = new_st_layout;
+     *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, new_st_layout);
 }
 
 static void fast_read_fast_op(int fast_op_arity, LRef port, LRef * fop)
