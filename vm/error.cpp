@@ -61,19 +61,19 @@ void vmerror_wrong_type(LRef new_errobj)
 
 void vmerror_wrong_type(int which_argument, LRef new_errobj)
 {
-     vmtrap(TRAP_VMERROR_WRONG_TYPE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_WRONG_TYPE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             3, topmost_primitive(), fixcons(which_argument), new_errobj);
 }
 
 void vmerror_unbound(LRef v)
 {
-     vmtrap(TRAP_VMERROR_UNBOUND_GLOBAL, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_UNBOUND_GLOBAL, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             2, topmost_primitive(), v);
 }
 
 void vmerror_index_out_of_bounds(LRef index, LRef obj)
 {
-     vmtrap(TRAP_VMERROR_INDEX_OUT_OF_BOUNDS, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_INDEX_OUT_OF_BOUNDS, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             3, topmost_primitive(), index, obj);
 }
 
@@ -84,31 +84,31 @@ void vmerror_arg_out_of_range(LRef arg, const _TCHAR *range_desc /* = NULL */)
      if (range_desc)
           range = strcons(range_desc);
 
-     vmtrap(TRAP_VMERROR_ARG_OUT_OF_RANGE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_ARG_OUT_OF_RANGE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             3, topmost_primitive(), arg, range);
 }
 
 void vmerror_unsupported(const _TCHAR *desc)
 {
-     vmtrap(TRAP_VMERROR_UNSUPPORTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_UNSUPPORTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             2,  topmost_primitive(),  strcons(desc));
 }
 
 void vmerror_unimplemented(const _TCHAR *desc)
 {
-     vmtrap(TRAP_VMERROR_UNIMPLEMENTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_UNIMPLEMENTED, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             2, topmost_primitive(), strcons(desc));
 }
 
 void vmerror_divide_by_zero()
 {
-     vmtrap(TRAP_VMERROR_DIVIDE_BY_ZERO, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_DIVIDE_BY_ZERO, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             1, topmost_primitive());
 }
 
 void vmerror_io_error(const _TCHAR *desc, LRef info)
 {
-     vmtrap(TRAP_VMERROR_IO_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_IO_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             3, topmost_primitive(), strcons(desc), info);
 }
 
@@ -119,7 +119,7 @@ void fast_read_error(const _TCHAR * message, LRef port, LRef details /* = NIL */
 
      LRef location = lport_location(port);
 
-     vmtrap(TRAP_VMERROR_FAST_READ_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+     vmtrap(TRAP_FAST_READ_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             5, topmost_primitive(), strcons(message), port, location, details);
 }
 

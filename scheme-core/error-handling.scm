@@ -124,7 +124,6 @@
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
 
-
 (define (user-break-handler trapno)
   (catch 'ignore-user-break
     (signal 'user-break)))
@@ -135,49 +134,49 @@
 (define (trap-signal trapno tag retval)
   (abort tag retval))
 
-(define (trap-vmerror-wrong-type trapno subr argno errval)
+(define (trap-wrong-type trapno subr argno errval)
   (if (< argno 0)
       (error "Invalid argument ~a to ~a: ~s" argno subr errval)
       (error "Invalid argument to ~a: ~s" subr errval)))
 
-(define (trap-vmerror-index-out-of-bounds trapno subr bad-index obj)
+(define (trap-index-out-of-bounds trapno subr bad-index obj)
   (error "Index ~a out of bounds while accessing ~s with ~s" bad-index obj subr))
 
-(define (trap-vmerror-arg-out-of-range trapno subr bad-arg range-desc)
+(define (trap-arg-out-of-range trapno subr bad-arg range-desc)
   (if (null? range-desc)
       (error "Argument to ~s out of range: ~s"  subr bad-arg)
       (error "Argument to ~s out of range (~a): ~s" subr range-desc bad-arg)))
 
-(define (trap-vmerror-unimplemented trapno subr desc)
+(define (trap-unimplemented trapno subr desc)
   (error "Operation in ~s not yet implemented: ~a" subr desc))
 
-(define (trap-vmerror-unsupported trapno subr desc)
+(define (trap-unsupported trapno subr desc)
   (error "Operation in ~s unsupported: ~a" subr desc))
 
-(define (trap-vmerror-divide-by-zero trapno subr)
+(define (trap-divide-by-zero trapno subr)
   (error "Divide by zero in ~s" subr))
 
-(define (trap-vmerror-io-error trapno subr desc info)
+(define (trap-io-error trapno subr desc info)
   (if (null? info)
       (error "Input/Output error in ~s: ~a" subr desc)
       (error "Input/Output error in ~s: ~a (~s)" subr desc info)))
 
-(define (trap-vmerror-unbound-global trapno subr var)
+(define (trap-unbound-global trapno subr var)
   (error "unbound global: ~s" var))
 
-(define (trap-vmerror-fast-read-error trapno subr desc port location details)
+(define (trap-fast-read-error trapno subr desc port location details)
   (error "Error Reading FASL File: ~s @ ~s:~s" desc port location))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_VMERROR_WRONG_TYPE trap-vmerror-wrong-type)
-  (%set-trap-handler! system::TRAP_VMERROR_INDEX_OUT_OF_BOUNDS trap-vmerror-index-out-of-bounds)
-  (%set-trap-handler! system::TRAP_VMERROR_ARG_OUT_OF_RANGE trap-vmerror-arg-out-of-range)
-  (%set-trap-handler! system::TRAP_VMERROR_UNSUPPORTED trap-vmerror-unsupported)
-  (%set-trap-handler! system::TRAP_VMERROR_UNIMPLEMENTED trap-vmerror-unimplemented)
-  (%set-trap-handler! system::TRAP_VMERROR_DIVIDE_BY_ZERO trap-vmerror-divide-by-zero)
-  (%set-trap-handler! system::TRAP_VMERROR_IO_ERROR trap-vmerror-io-error)
-  (%set-trap-handler! system::TRAP_VMERROR_UNBOUND_GLOBAL trap-vmerror-unbound-global)
-  (%set-trap-handler! system::TRAP_VMERROR_FAST_READ_ERROR trap-vmerror-fast-read-error)
+  (%set-trap-handler! system::TRAP_WRONG_TYPE trap-wrong-type)
+  (%set-trap-handler! system::TRAP_INDEX_OUT_OF_BOUNDS trap-index-out-of-bounds)
+  (%set-trap-handler! system::TRAP_ARG_OUT_OF_RANGE trap-arg-out-of-range)
+  (%set-trap-handler! system::TRAP_UNSUPPORTED trap-unsupported)
+  (%set-trap-handler! system::TRAP_UNIMPLEMENTED trap-unimplemented)
+  (%set-trap-handler! system::TRAP_DIVIDE_BY_ZERO trap-divide-by-zero)
+  (%set-trap-handler! system::TRAP_IO_ERROR trap-io-error)
+  (%set-trap-handler! system::TRAP_UNBOUND_GLOBAL trap-unbound-global)
+  (%set-trap-handler! system::TRAP_FAST_READ_ERROR trap-fast-read-error)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
