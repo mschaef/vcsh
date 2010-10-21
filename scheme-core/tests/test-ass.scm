@@ -18,12 +18,12 @@
     ; (test-case (runtime-error? (ass :test xs fn-1-arg))) ; doesn't fault, just ignores the second argument
     (test-case (runtime-error? (ass :test xs fn-3-argss)))
     
-    (test-case (null? (ass :not-in-xs xs equal?)))
+    (test-case (not (ass :not-in-xs xs equal?)))
     (test-case (eq? (first xs) (ass :test xs equal?)))
     (test-case (eq? (second xs) (ass "including" xs equal?)))
     (test-case (eq? (third xs) (ass () xs equal?)))
     (test-case (eq? (fourth xs) (ass '(composite keys) xs equal?)))
-    (test-case (null? (ass :not-in-xs xs fn-2-args)))
+    (test-case (not (ass :not-in-xs xs fn-2-args)))
     (test-case (eq? (first xs) (ass :test xs fn-2-args)))
     (test-case (eq? (second xs) (ass "including" xs fn-2-args)))
     (test-case (eq? (third xs) (ass () xs fn-2-args)))

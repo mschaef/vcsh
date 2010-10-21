@@ -164,6 +164,26 @@
         (not (null? s)))
       #f))
 
+(define (ass key a-list equality-predicate?)
+  (let loop ((pos a-list))
+    (cond ((null? pos)
+           #f)
+          ((pair? pos)
+           (if (and (pair? (car pos))
+                    (equality-predicate? key (caar pos)))
+               (car pos)
+               (loop (cdr pos))))
+          (#t
+           (error "improper a-list at ~s: ~s" pos a-list)))))
+
+(define (assq key a-list)
+  (ass key a-list eq?))
+
+(define (assv key a-list)
+  (ass key a-list eqv?))
+
+(define (assoc key a-list)
+  (ass key a-list equal?))
 
 (defmacro (%a-list-search-let let-form a-list-search-form a-list bindings . body-forms)
   (define (binding-form binding)
