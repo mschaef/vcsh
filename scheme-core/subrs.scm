@@ -124,7 +124,6 @@
 (%define cos #.(scheme::%subr-by-name "cos"))
 (%define debug-write #.(scheme::%subr-by-name "debug-write"))
 (%define delete-file #.(scheme::%subr-by-name "delete-file"))
-(%define delq #.(scheme::%subr-by-name "delq"))
 (%define enlarge-heap #.(scheme::%subr-by-name "enlarge-heap"))
 (%define env-lookup #.(scheme::%subr-by-name "env-lookup"))
 (%define environment #.(scheme::%subr-by-name "environment"))

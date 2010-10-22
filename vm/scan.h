@@ -1744,7 +1744,6 @@ LRef lcurrent_global_environment();
 LRef ldebug_flags();
 LRef ldebug_write(LRef form);
 LRef ldelete_file(LRef filename);
-LRef ldelq(LRef elem, LRef l);
 LRef ldisplay_to_string(LRef exp);
 LRef ldivide(LRef x, LRef y);
 LRef ldo_external_symbols(LRef args, LRef env);

@@ -228,23 +228,6 @@ LRef lforeach(size_t argc, LRef argv[])
      return NIL;
 }
 
-LRef ldelq(LRef elem, LRef l)
-{
-     if (NULLP(l))
-          return l;
-
-     STACK_CHECK(&elem);
-
-     if (EQ(elem, lcar(l)))
-          return (ldelq(elem, lcdr(l)));
-     else
-     {
-          lsetcdr(l, ldelq(elem, lcdr(l)));
-
-          return l;
-     }
-}
-
 LRef llast_pair(LRef xs)
 {
      while (CONSP(xs) && CONSP(lcdr(xs)))

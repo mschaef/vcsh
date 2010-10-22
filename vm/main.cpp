@@ -352,7 +352,6 @@ static void register_main_subrs()
     register_subr(_T("cos"),                              SUBR_1,     (void*)lcos                                );
     register_subr(_T("debug-write"),                      SUBR_1,     (void*)ldebug_write                        );
     register_subr(_T("delete-file"),                      SUBR_1,     (void*)ldelete_file                        );
-    register_subr(_T("delq"),                             SUBR_2,     (void*)ldelq                               );
     register_subr(_T("enlarge-heap"),                     SUBR_1,     (void*)lenlarge_heap                       );
     register_subr(_T("env-lookup"),                       SUBR_2,     (void*)lenvlookup                          );
     register_subr(_T("environment"),                      SUBR_0,     (void*)lenvironment                        );

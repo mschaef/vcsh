@@ -656,6 +656,18 @@
 
 (UNIMPLEMENTED delete! "Copy from non-destructive (delete...)") ; REVISIT
 
+(define (delq elem xs)
+  (cond ((null? xs)
+         ())
+        ((pair? xs)
+         (if (eq? elem (car xs))
+             (delq elem (cdr xs))
+             (begin
+               (set-cdr! xs (delq elem (cdr xs)))
+               xs)))
+        (#t
+         (error "Improper list: ~s" xs))))
+
 (define (span pred? xs)
   "Returns two lists, the longest initial prefix of <xs> in which every
    item satifies <pred?>, and the rest of the list."
