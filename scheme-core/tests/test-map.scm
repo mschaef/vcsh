@@ -44,8 +44,6 @@
   (test-case (equal? '(1 3 5 7 9) (map identity '(1 3 5 7 9) '(0 -1 -2 -3 -4))))
 
   (test-case (runtime-error? (map ()  '(1 3 5 7 9) '(0 -1 -2 -3 -4))))
-  (test-case (runtime-error? (map even?  #(1 3 5 7 9) '(0 -1 -2 -3 -4))))
-  (test-case (runtime-error? (map even?  '(1 3 5 7 9) #(0 -1 -2 -3 -4))))
 
   (test-case (not (runtime-error? (map (lambda (x) (error "Test Error")) '() '()))))
   (test-case (not (runtime-error? (map (lambda (x) (error "Test Error")) '(1) '()))))
@@ -65,17 +63,6 @@
 
 
 
-(define-test map-n
-  (test-case (runtime-error? (map (lambda (x y z) (list x y z))
-				   )))
-
-  (test-case (runtime-error? (map (lambda (x y z) (list x y z))
-				   '(1 2 3) '(1 2 3) '(1 2 3))))
-
-  (test-case (runtime-error? (map (lambda (x y z) (list x y z))
-				   '(1 2 3) '(1 2 3) '(1 2 3) '(1 2 3) '(1 2 3))))
-
-  )
 
 
 (define-test mapping

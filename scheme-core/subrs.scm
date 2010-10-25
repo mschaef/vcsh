@@ -183,7 +183,6 @@
 (%define make-polar #.(scheme::%subr-by-name "make-polar"))
 (%define make-rectangular #.(scheme::%subr-by-name "make-rectangular"))
 (%define make-vector #.(scheme::%subr-by-name "make-vector"))
-(%define map #.(scheme::%subr-by-name "map"))
 (%define map-pair #.(scheme::%subr-by-name "map-pair"))
 (%define modulo #.(scheme::%subr-by-name "modulo"))
 (%define nan? #.(scheme::%subr-by-name "nan?"))

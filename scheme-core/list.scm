@@ -406,6 +406,19 @@
            (apply fn (map #L(vector-ref _ ii) xss))
            (loop (+ ii 1))))))))
 
+(define (map fn . xss)
+  (case (length xss)
+    ((0) ())
+    ((1) (reverse! (let loop ((xs (car xss)) (accum ()))
+                     (if (null? xs)
+                         accum
+                         (loop (cdr xs) (cons (fn (car xs)) accum))))))
+    (#t  (reverse! (let loop ((xss xss) (accum ()))
+                     (if (every? pair? xss)
+                         (mvbind (cars cdrs) (cars+cdrs xss)
+                           (loop cdrs (cons (apply fn cars) accum)))
+                         accum))))))
+
 (define (member x xs)
   "Checks if <x> is a member of the list <xs> based on the equality
    predicate equal?. If <x> is not found returns #f, otherwise returns
