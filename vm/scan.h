@@ -1847,7 +1847,6 @@ LRef lmake_package(LRef name);
 LRef lmake_polar(LRef r, LRef theta);
 LRef lmake_rectangular(LRef re, LRef im);
 LRef lmake_vector(LRef dim, LRef initial);
-LRef lmap_pair(size_t argc, LRef argv[]);
 LRef lmemref_byte(LRef addr);
 LRef lmodulo(LRef x, LRef y);
 LRef lmultiply(LRef x, LRef y);

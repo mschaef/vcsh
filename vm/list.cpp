@@ -68,62 +68,6 @@ LRef lsetcdr(LRef cell, LRef value)
      return value;
 }
 
-LRef lmap_pair1(LRef fcn, LRef in)
-{
-     LRef res, obj, l;
-
-     if (NULLP(in))
-          return NIL;
-
-     res = obj = lcons(lfuncall1(fcn, in), NIL);
-
-     for (l = lcdr(in); CONSP(l); l = CDR(l))
-     {
-          LRef next_obj = lcons(lfuncall1(fcn, l), CDR(obj));
-
-          SET_CDR(obj, next_obj);
-          obj = next_obj;
-     }
-
-     return res;
-}
-
-LRef lmap_pair2(LRef fcn, LRef in1, LRef in2)
-{
-     LRef res, obj, l1, l2;
-
-     if (NULLP(in1) || NULLP(in2))
-          return (NIL);
-
-     res = obj = lcons(lfuncall2(fcn, in1, in2), NIL);
-
-     for (l1 = lcdr(in1), l2 = lcdr(in2); CONSP(l1) && CONSP(l2); l1 = CDR(l1), l2 = CDR(l2))
-     {
-          LRef next_obj = lcons(lfuncall2(fcn, l1, l2), CDR(obj));
-
-          SET_CDR(obj, next_obj);
-
-          obj = next_obj;
-     }
-
-     return (res);
-}
-
-LRef lmap_pair(size_t argc, LRef argv[])
-{
-     switch (argc)
-     {
-     case 2:
-          return lmap_pair1(argv[0], argv[1]);
-     case 3:
-          return lmap_pair2(argv[0], argv[1], argv[2]);
-     default:
-          vmerror_unimplemented(_T("map-pair only implemented for 1 and 2 lists."));
-     }
-
-     return NIL;
-}
-
 LRef llast_pair(LRef xs)
 {
      while (CONSP(xs) && CONSP(lcdr(xs)))

@@ -411,7 +411,6 @@ static void register_main_subrs()
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );
     register_subr(_T("make-vector"),                      SUBR_2,     (void*)lmake_vector                        );
-    register_subr(_T("map-pair"),                         SUBR_ARGC,  (void*)lmap_pair                           );
     register_subr(_T("modulo"),                           SUBR_2,     (void*)lmodulo                             );
     register_subr(_T("nan?"),                             SUBR_1,     (void*)lnanp                               );
     register_subr(_T("newline"),                          SUBR_1,     (void*)lnewline                            );
