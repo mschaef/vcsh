@@ -150,7 +150,6 @@
 (%define hash->list #.(scheme::%subr-by-name "hash->list"))
 (%define hash-clear! #.(scheme::%subr-by-name "hash-clear!"))
 (%define hash-copy #.(scheme::%subr-by-name "hash-copy"))
-(%define hash-for-each #.(scheme::%subr-by-name "hash-for-each"))
 (%define hash-has? #.(scheme::%subr-by-name "hash-has?"))
 (%define hash-ref #.(scheme::%subr-by-name "hash-ref"))
 (%define hash-ref* #.(scheme::%subr-by-name "hash-ref*"))

@@ -21,6 +21,12 @@
   "Push <value> onto the list in hash table <hash>, referred to by <key>."
   (hash-set! hash key (cons value (hash-ref hash key ()))))
 
+(define (hash-for-each fn hash)
+  (dovec (k/v (%hash-binding-vector hash))
+    (unless (null? k/v)
+      (dbind (k . v) k/v
+        (fn k v)))))
+
 (defmacro (dohash head . body)
   (unless (list? head)
     (error "dolist requires a list for <head>" head))
