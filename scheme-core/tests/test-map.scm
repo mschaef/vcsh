@@ -144,8 +144,6 @@
   (test-case (equal? '((1 3 5 7 9) (3 5 7 9) (5 7 9) (7 9) (9)) (map-pair identity '(1 3 5 7 9) '(0 -1 -2 -3 -4))))
 
   (test-case (runtime-error? (map-pair ()  '(1 3 5 7 9) '(0 -1 -2 -3 -4))))
-  (test-case (runtime-error? (map-pair identity  #(1 3 5 7 9) '(0 -1 -2 -3 -4))))
-  (test-case (runtime-error? (map-pair identify '(1 3 5 7 9) #(0 -1 -2 -3 -4))))
 
   (test-case (not (runtime-error? (map-pair (lambda (x) (error "Test Error")) '() '()))))
   (test-case (not (runtime-error? (map-pair (lambda (x) (error "Test Error")) '(1) '()))))
@@ -164,16 +162,4 @@
   )
 
 
-
-(define-test map-pair-n
-  (test-case (runtime-error? (map-pair (lambda (x y z) (list x y z))
-				   )))
-
-  (test-case (runtime-error? (map-pair (lambda (x y z) (list x y z))
-				   '(1 2 3) '(1 2 3) '(1 2 3))))
-
-  (test-case (runtime-error? (map-pair (lambda (x y z) (list x y z))
-				   '(1 2 3) '(1 2 3) '(1 2 3) '(1 2 3) '(1 2 3))))
-
-  )
 
