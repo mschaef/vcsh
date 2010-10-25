@@ -368,7 +368,6 @@ static void register_main_subrs()
     register_subr(_T("floor"),                            SUBR_1,     (void*)lfloor                              );
     register_subr(_T("flush-port"),                       SUBR_1,     (void*)lflush_port                         );
     register_subr(_T("flush-whitespace"),                 SUBR_2,     (void*)lflush_whitespace                   );
-    register_subr(_T("for-each"),                         SUBR_ARGC,  (void*)lforeach                            );
     register_subr(_T("fresh-line"),                       SUBR_1,     (void*)lfresh_line                         );
     register_subr(_T("gc"),                               SUBR_0,     (void*)lgc                                 );
     register_subr(_T("gc-info"),                          SUBR_0,     (void*)lgc_info                            );

@@ -1765,7 +1765,6 @@ LRef lfind_package(LRef obj);
 LRef lfloor(LRef x);
 LRef lflush_port(LRef port);
 LRef lflush_whitespace(LRef port, LRef slc);
-LRef lforeach(size_t argc, LRef argv[]);
 LRef lfresh_line(LRef port);
 LRef lfuncall1(LRef fcn, LRef a1);
 LRef lfuncall2(LRef fcn, LRef a1, LRef a2);

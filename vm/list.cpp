@@ -182,52 +182,6 @@ LRef lmap_pair(size_t argc, LRef argv[])
      return NIL;
 }
 
-LRef lforeach1(LRef fcn, LRef in)
-{
-
-     if (VECTORP(in))
-     {
-          for (size_t ii = 0; ii < VECTOR_DIM(in); ii++)
-               lfuncall1(fcn, VECTOR_ELEM(in, ii));
-     }
-     else
-          for (LRef l = in; CONSP(l); l = CDR(l))
-               lfuncall1(fcn, CAR(l));
-
-     return boolcons(false);
-}
-
-LRef lforeach2(LRef fcn, LRef in1, LRef in2)
-{
-     LRef l1, l2;
-
-     if (VECTORP(in1) && VECTORP(in2))
-     {
-          for (size_t ii = 0; (ii < VECTOR_DIM(in1)) && (ii < VECTOR_DIM(in2)); ii++)
-               lfuncall2(fcn, VECTOR_ELEM(in1, ii), VECTOR_ELEM(in2, ii));
-     }
-     else
-          for (l1 = in1, l2 = in2; CONSP(l1) && CONSP(l2); l1 = CDR(l1), l2 = CDR(l2))
-               lfuncall2(fcn, CAR(l1), CAR(l2));
-
-     return boolcons(false);
-}
-
-LRef lforeach(size_t argc, LRef argv[])
-{
-     switch (argc)
-     {
-     case 2:
-          return lforeach1(argv[0], argv[1]);
-     case 3:
-          return lforeach2(argv[0], argv[1], argv[2]);
-     default:
-          vmerror_unimplemented(_T("foreach only implemented for 1 and 2 lists."));
-     }
-
-     return NIL;
-}
-
 LRef llast_pair(LRef xs)
 {
      while (CONSP(xs) && CONSP(lcdr(xs)))
