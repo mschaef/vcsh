@@ -368,6 +368,44 @@
         accum
         (loop (- ii 1) (cons initial accum)))))
 
+(define (cars+cdrs xs)
+  (values (map car xs)
+          (map cdr xs)))
+
+(define (for-each fn . xss)
+  (case (length xss)
+    ((0) #f)
+    ((1)
+     (let loop ((xs (car xss)))
+          (when (pair? xs)
+            (fn (car xs))
+                 (loop (cdr xs)))))
+    (#t
+     (let loop ((xss xss))
+          (when (every? pair? xss)
+            (mvbind (cars cdrs) (cars+cdrs xss)
+              (apply fn cars)
+              (loop cdrs)))))))
+
+(define (vector-for-each fn . xss)
+  (case (length xss)
+    ((0) #f)
+    ((1)
+     (let ((xs (car xss)))
+       (check vector? xs)
+       (let loop ((ii 0))
+         (when (< ii (length xs))
+           (fn (vector-ref xs ii))
+           (loop (+ ii 1))))))
+    (#t
+     (unless (every? vector? xss)
+       (error "Bad argument ~s, vector required." xss))
+     (let ((common-length (apply min (map length xss))))
+       (let loop ((ii 0))
+         (when (< ii common-length)
+           (apply fn (map #L(vector-ref _ ii) xss))
+           (loop (+ ii 1))))))))
+
 (define (member x xs)
   "Checks if <x> is a member of the list <xs> based on the equality
    predicate equal?. If <x> is not found returns #f, otherwise returns

@@ -28,15 +28,15 @@
     (test-case (equal? xs '())))
 
   (let ((xs ()))
-    (for-each (lambda (x) (push! x xs)) #(1))
+    (vector-for-each (lambda (x) (push! x xs)) #(1))
     (test-case (equal? xs '(1))))
 
   (let ((xs ()))
-    (for-each (lambda (x) (push! x xs)) #(1 2))
+    (vector-for-each (lambda (x) (push! x xs)) #(1 2))
     (test-case (equal? xs '(2 1))))
 
   (let ((xs ()))
-    (for-each (lambda (x) (push! x xs)) #(1 2 3 4 5))
+    (vector-for-each (lambda (x) (push! x xs)) #(1 2 3 4 5))
     (test-case (equal? xs '(5 4 3 2 1))))
 
   (test-case (not (runtime-error? (for-each (lambda (x) (error "Test Error")) '()))))

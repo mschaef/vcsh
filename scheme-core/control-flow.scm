@@ -95,6 +95,18 @@
        (for-each (lambda (,var) ,@body) ,list-form)
        ,result-form)))
 
+(defmacro (dovec head . body)
+  (unless (list? head)
+    (error "dovec requires a list for <head>" head))
+  (let ((var (car head))
+        (list-form (cadr head))
+        (result-form (caddr head)))
+    (unless (symbol? var)
+      (error "dovec requires a symbol for a variable binding" var))
+    `(begin
+       (vector-for-each (lambda (,var) ,@body) ,list-form)
+       ,result-form)))
+
 (define (provably-always-true? form)
   "Determine if <form> can be proved to be always true when evaluated."
   (or (and (atom? form)

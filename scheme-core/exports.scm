@@ -307,6 +307,7 @@
            dolist
            dotimes
            dotted-list?
+           dovec
            drop
            drop-while
            duplicates
@@ -890,6 +891,7 @@
            vector->list
            vector-copy
            vector-fill!
+           vector-for-each
            vector-index
            vector-ref
            vector-resize

@@ -140,7 +140,6 @@
 (%define floor #.(scheme::%subr-by-name "floor"))
 (%define flush-port #.(scheme::%subr-by-name "flush-port"))
 (%define flush-whitespace #.(scheme::%subr-by-name "flush-whitespace"))
-(%define for-each #.(scheme::%subr-by-name "for-each"))
 (%define fresh-line #.(scheme::%subr-by-name "fresh-line"))
 (%define gc #.(scheme::%subr-by-name "gc"))
 (%define gc-info #.(scheme::%subr-by-name "gc-info"))

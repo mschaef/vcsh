@@ -225,7 +225,7 @@
       ((vector)
        (fast-write-opcode system::FASL_OP_VECTOR port)
        (check-sharing-and-write (length object))
-       (dolist (x object)
+       (dovec (x object)
          (check-sharing-and-write x)))
 
       ((instance)
