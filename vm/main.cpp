@@ -378,7 +378,6 @@ static void register_main_subrs()
     register_subr(_T("hash->list"),                       SUBR_1,     (void*)lhash2list                          );
     register_subr(_T("hash-clear!"),                      SUBR_1,     (void*)lhash_clear                         );
     register_subr(_T("hash-copy"),                        SUBR_1,     (void*)lhash_copy                          );
-    register_subr(_T("hash-for-each"),                    SUBR_2,     (void*)lhash_foreach                       );
     register_subr(_T("hash-has?"),                        SUBR_2,     (void*)lhash_hasp                          );
     register_subr(_T("hash-ref"),                         SUBR_ARGC,  (void*)lhash_ref                           );
     register_subr(_T("hash-ref*"),                        SUBR_2,     (void*)lhash_refs                          );

@@ -665,24 +665,6 @@ LRef lhash_copy(LRef hash)
      return target_hash;
 }
 
-LRef lhash_foreach(LRef closure, LRef hash)
-{
-     if (!CLOSUREP(closure))
-          vmerror_wrong_type(1, closure);
-
-     if (!HASHP(hash))
-          vmerror_wrong_type(2, hash);
-
-     LRef key, val;
-
-     hash_iter_t ii;
-     hash_iter_begin(hash, &ii);
-     while (hash_iter_next(hash, &ii, &key, &val))
-          lfuncall2(closure, key, val);
-
-     return boolcons(false);
-}
-
 size_t hash_length(LRef hash)
 {
      assert(HASHP(hash));

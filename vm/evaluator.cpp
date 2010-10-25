@@ -560,13 +560,6 @@ LRef lapply(size_t argc, LRef argv[])
      return apply1(fn, fn_argc, fn_argv);
 }
 
-LRef lfuncall1(LRef fcn, LRef a1)
-{
-     LRef argv[1];
-     argv[0] = a1;
-
-     return apply1(fcn, 1, argv);
-}
 
 LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
 {
