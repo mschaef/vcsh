@@ -86,6 +86,13 @@
 
 (define (atom? x) (not (pair? x)))
 
+(define (last-pair xs)
+  "Finds the last pair of the list <xs>."
+  (let loop ((xs xs))
+    (if (and (pair? xs) (pair? (cdr xs)))
+        (loop (cdr xs))
+        xs)))
+
 (define (last xs)
   "Returns the last element of <xs>."
   (car (last-pair xs)))
@@ -287,13 +294,17 @@
   "Returns a list of the queue items in the queue <q>."
   `(cdr ,q))
 
-(defmacro (%q-enqueue! x q)
-  "Enqueues a new item <x> into the queue <q>."
-  `(let ((new-q-cons (cons ,x))
+(defmacro (%q-enqueue-cell! x q)
+  "Enqueues a new cell <x> into the queue <q>."
+  `(let ((new-q-cons ,x)
          (q ,q))
      (set-cdr! (car q) new-q-cons)
      (set-car! q new-q-cons)
      q))
+
+(defmacro (%q-enqueue! x q)
+  "Enqueues a new item <x> into the queue <q>."
+  `(%q-enqueue-cell! (cons ,x) ,q))
 
 (defmacro (%q-enqueue-list! xs q)
   "Enqueues a new list of items <xs> into the queue <q>, destructively altering <xs>."
@@ -538,14 +549,7 @@
          (set-cdr! (last-pair xs) ys)
          xs)))
 
-(define (last-pair xs)
-  "Finds the last pair of the list <xs>."
-  (check (or pair? null?) xs)
-  (let loop ((xs xs))
-    (let ((tail (cdr xs)))
-      (if (pair? tail)
-          (loop tail)
-          xs))))
+
 
 (define (list-combinations lists)
   "Given a list of sublists, return a list of every combination of single
@@ -558,6 +562,31 @@
                              (cons list-item cdr-combination))
                            cdr-combinations))
                     (car lists)))))
+
+(define (list-copy xs)
+  "Return a duplicate copy of the list <xs>. Each cons cell in the backbone
+   of the list is copied to form the new list."
+  (let ((items (%make-q)))
+    (let loop ((xs xs))
+      (cond ((pair? xs)
+             (%q-enqueue! (car xs) items)
+             (loop (cdr xs)))
+            ((atom? xs)
+             (%q-enqueue-cell! xs items))))
+    (%q-items items)))
+
+
+(define (append . xss)
+  (let ((items (%make-q)))
+    (dolist (xs xss)
+      (%q-enqueue-list! (list-copy xs) items))
+    (%q-items items)))
+
+(define (append! . xss)
+  (let ((items (%make-q)))
+    (dolist (xs xss)
+      (%q-enqueue-list! xs items))
+    (%q-items items)))
 
 (define (circular-list . xs)
   "Construct a circular list from the argument list."

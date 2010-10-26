@@ -2,10 +2,9 @@
 
 (define-test last-pair
 
-  (test-case (runtime-error? (last-pair 12)))
-  (test-case (runtime-error? (last-pair 'a)))
-  (test-case (runtime-error? (last-pair #\a)))
-  (test-case (runtime-error? (last-pair #(1 2 3))))
+  (test-case (eq? 12 (last-pair 12)))
+  (test-case (eq? 'a (last-pair 'a)))
+  (test-case (eq? #\a (last-pair #\a)))
 
   (test-case (eq? () (last-pair ())))
 
