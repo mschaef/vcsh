@@ -322,8 +322,6 @@ static void register_main_subrs()
     register_subr(_T("acos"),                             SUBR_1,     (void*)lacos                               );
     register_subr(_T("add-symbol-to-package"),            SUBR_2,     (void*)ladd_symbol_to_package              );
     register_subr(_T("angle"),                            SUBR_1,     (void*)langle                              );
-    register_subr(_T("append!"),                          SUBR_ARGC,  (void*)lappendd                            );
-    register_subr(_T("append"),                           SUBR_ARGC,  (void*)lappend                             );
     register_subr(_T("apply"),                            SUBR_ARGC,  (void*)lapply                              );
     register_subr(_T("asin"),                             SUBR_1,     (void*)lasin                               );
     register_subr(_T("atan"),                             SUBR_2,     (void*)latan                               );
@@ -396,11 +394,9 @@ static void register_main_subrs()
     register_subr(_T("integer->char"),                    SUBR_1,     (void*)linteger2char                       );
     register_subr(_T("integer?"),                         SUBR_1,     (void*)lintegerp                           );
     register_subr(_T("keyword?"),                         SUBR_1,     (void*)lkeywordp                           );
-    register_subr(_T("last-pair"),                        SUBR_1,     (void*)llast_pair                          );
     register_subr(_T("length"),                           SUBR_1,     (void*)llength                             );
     register_subr(_T("list->hash"),                       SUBR_1,     (void*)llist2hash                          );
     register_subr(_T("list->vector"),                     SUBR_1,     (void*)llist2vector                        );
-    register_subr(_T("list-copy"),                        SUBR_1,     (void*)llist_copy                          );
     register_subr(_T("log"),                              SUBR_1,     (void*)llog                                );
     register_subr(_T("macro?"),                           SUBR_1,     (void*)lmacrop                             );
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
