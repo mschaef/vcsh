@@ -467,7 +467,6 @@ static void register_main_subrs()
     register_subr(_T("string-downcase"),                  SUBR_1,     (void*)lstring_downcase                    );
     register_subr(_T("string-first-character"),           SUBR_3,     (void*)lstring_first_char                  );
     register_subr(_T("string-first-substring"),           SUBR_3,     (void*)lstring_first_substring             );
-    register_subr(_T("string-fold"),                      SUBR_3,     (void*)lstring_fold                        );
     register_subr(_T("string-length"),                    SUBR_1,     (void*)lstring_length                      );
     register_subr(_T("string-ref"),                       SUBR_2,     (void*)lstring_ref                         );
     register_subr(_T("string-search"),                    SUBR_3,     (void*)lstring_search                      );

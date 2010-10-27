@@ -420,20 +420,6 @@ LRef lstring_search_from_right(LRef tok, LRef str, LRef maybe_from)
      return boolcons(false);
 }
 
-LRef lstring_fold(LRef kons, LRef knil, LRef str)
-{
-     if (!PROCEDUREP(kons))
-          vmerror_wrong_type(1, kons);
-     if (!STRINGP(str))
-          vmerror_wrong_type(3, str);
-
-     LRef result = knil;
-
-     for (size_t str_loc = 0; str_loc < STRING_DIM(str); str_loc++)
-          result = lfuncall2(kons, charcons(STRING_DATA(str)[str_loc]), result);
-
-     return result;
-}
 
 /* string-trim ************************************************
  * string-trim-left

@@ -560,16 +560,6 @@ LRef lapply(size_t argc, LRef argv[])
      return apply1(fn, fn_argc, fn_argv);
 }
 
-
-LRef lfuncall2(LRef fcn, LRef a1, LRef a2)
-{
-     LRef argv[2];
-     argv[0] = a1;
-     argv[1] = a2;
-
-     return apply1(fcn, 2, argv);
-}
-
 bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag, size_t argc, ...)
 {
      if (!CLOSUREP(closure))
