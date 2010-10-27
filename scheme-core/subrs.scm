@@ -239,7 +239,6 @@
 (%define string-downcase! #.(scheme::%subr-by-name "string-downcase!"))
 (%define string-first-character #.(scheme::%subr-by-name "string-first-character"))
 (%define string-first-substring #.(scheme::%subr-by-name "string-first-substring"))
-(%define string-fold #.(scheme::%subr-by-name "string-fold"))
 (%define string-length #.(scheme::%subr-by-name "string-length"))
 (%define string-ref #.(scheme::%subr-by-name "string-ref"))
 (%define string-search #.(scheme::%subr-by-name "string-search"))

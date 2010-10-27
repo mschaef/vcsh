@@ -96,6 +96,13 @@
      spec
      (get-text spec)))
 
+(define (string-fold kons knil str)
+  (check string? str)
+  (let loop ((ii 0) (result knil))
+    (if (= ii (length str))
+        result
+        (loop (+ ii 1) (kons (string-ref str ii) result)))))
+
 (define (string->list string)
  "Converts the string <string> into a list of characters orderd
   as they appear in the string."
