@@ -104,10 +104,14 @@
               `(format #t "WATCH: ~s = ~s\n" ',expr ,expr))
             exprs)))
 
+(define *disassemble-show-fast-op-addresses* #f)
+
 (define (disassemble . functions)
   (define (print-closure-code code port)
     (let recur ((code code))
       (trace-indent port)
+      (when *disassemble-show-fast-op-addresses*
+        (format port "~@ " code))
       (cond ((fast-op? code)
              (mvbind (opcode args) (parse-fast-op code)
                (case opcode
