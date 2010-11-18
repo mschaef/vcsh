@@ -173,7 +173,7 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 
 /***** The evaluator *****/
 
-static LRef leval(LRef form, LRef env);
+static LRef execute_fast_op(LRef form, LRef env);
 
 static LRef arg_list_from_buffer(size_t argc, LRef argv[])
 {
@@ -198,7 +198,7 @@ static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LR
                break;
           }
 
-          argv[argc] = leval(CAR(args), env);
+          argv[argc] = execute_fast_op(CAR(args), env);
 
           args = CDR(args);
           argc++;
@@ -347,7 +347,7 @@ INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * re
      return NIL;                /*  avoid a warning, since the error case returns nothing. */
 }
 
-static LRef leval(LRef form, LRef env)
+static LRef execute_fast_op(LRef form, LRef env)
 {
      LRef retval = NIL;
 
@@ -395,7 +395,7 @@ static LRef leval(LRef form, LRef env)
           if (UNBOUND_MARKER_P(binding))
                vmerror_unbound(sym);
 
-          val = leval(FAST_OP_ARG2(form), env);
+          val = execute_fast_op(FAST_OP_ARG2(form), env);
 
           SET_SYMBOL_VCELL(sym, val);
           retval = val;
@@ -420,7 +420,7 @@ static LRef leval(LRef form, LRef env)
           if (NULLP(binding))
                vmerror_unbound(sym);
 
-          val = leval(FAST_OP_ARG2(form), env);
+          val = execute_fast_op(FAST_OP_ARG2(form), env);
           SET_CAR(binding, val);
 
           retval = val;
@@ -429,7 +429,7 @@ static LRef leval(LRef form, LRef env)
      case FOP_APPLY:
           argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
 
-          form = apply(leval(FAST_OP_ARG1(form), env), argc, argv, &env, &retval);
+          form = apply(execute_fast_op(FAST_OP_ARG1(form), env), argc, argv, &env, &retval);
 
           if (!NULLP(form))
                goto loop;
@@ -437,14 +437,14 @@ static LRef leval(LRef form, LRef env)
           break;
 
      case FOP_IF_TRUE:
-          if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+          if (TRUEP(execute_fast_op(FAST_OP_ARG1(form), env)))
                form = FAST_OP_ARG2(form);
           else
                form = FAST_OP_ARG3(form);
           goto loop;
 
      case FOP_AND2:
-          if (TRUEP(leval(FAST_OP_ARG1(form), env)))
+          if (TRUEP(execute_fast_op(FAST_OP_ARG1(form), env)))
           {
                form = FAST_OP_ARG2(form);
                goto loop;
@@ -454,7 +454,7 @@ static LRef leval(LRef form, LRef env)
           break;
 
      case FOP_OR2:
-          val = leval(FAST_OP_ARG1(form), env);
+          val = execute_fast_op(FAST_OP_ARG1(form), env);
 
           if (TRUEP(val))
           {
@@ -466,7 +466,7 @@ static LRef leval(LRef form, LRef env)
           goto loop;
 
      case FOP_SEQUENCE:
-          leval(FAST_OP_ARG1(form), env);
+          execute_fast_op(FAST_OP_ARG1(form), env);
 
           form = FAST_OP_ARG2(form);
           goto loop;
@@ -484,9 +484,9 @@ static LRef leval(LRef form, LRef env)
           break;
 
      case FOP_MARK_STACK:
-          ENTER_MARKER_FRAME(leval(FAST_OP_ARG1(form), env))
+          ENTER_MARKER_FRAME(execute_fast_op(FAST_OP_ARG1(form), env))
           {
-               retval = leval(FAST_OP_ARG2(form), env);
+               retval = execute_fast_op(FAST_OP_ARG2(form), env);
           }
           LEAVE_FRAME();
           break;
@@ -516,7 +516,7 @@ LRef apply1(LRef fn, size_t argc, LRef argv[])
      if (NULLP(next_form))
           return retval;
      else
-          return leval(next_form, env);
+          return execute_fast_op(next_form, env);
 }
 
 /*  REVISIT: lapply should be tail recursive */

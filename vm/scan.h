@@ -431,8 +431,9 @@ struct interpreter_thread_info_block_t
 {
      LRef freelist;
      void *stack_base;
-     frame_record_t *frame_stack;
      gc_root_t gc_roots[MAX_GC_ROOTS];
+
+     frame_record_t *frame_stack;
      LRef handler_frames;
 };
 

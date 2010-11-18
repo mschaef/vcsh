@@ -119,7 +119,6 @@ LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
 
      ENTER_UNWIND_PROTECT()
      {
-
           interp.global_env = new_global_env;
 
           check_global_environment_size();
