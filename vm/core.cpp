@@ -16,11 +16,6 @@ LRef liimmediate_p(LRef obj)
 
 /***** Boolean *****/
 
-LRef boolcons(bool val)
-{
-     return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
-}
-
 LRef lbooleanp(LRef x)
 {
      return boolcons(BOOLP(x));

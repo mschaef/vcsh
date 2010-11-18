@@ -656,7 +656,11 @@ INLINE bool FALSEP(LRef x)
 /*  REVISIT: Seperate out setter accessors */
 
 /*** boolean **/
-LRef boolcons(bool val);
+INLINE LRef boolcons(bool val)
+{
+     return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
+}
+
 
 INLINE bool BOOLV(LRef x)
 {
