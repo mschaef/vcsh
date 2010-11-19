@@ -882,9 +882,25 @@ LRef lfast_read(LRef port)
      return retval;
 }
 
+LRef liifasl_load(LRef port)
+{
+     if (!PORTP(port))
+          vmerror_wrong_type(1, port);
+
+     dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL from : ~a\n"), port);
+     
+     LRef form = NIL;
+
+     while (!EOFP(form))
+          fast_read(port, &form, true);
+
+     dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: done FASL from port: ~a\n"), port);
+
+     return NIL;
+}
+
 LRef lifasl_load(LRef fname_or_port)
 {
-     LRef result = NIL;
      LRef port = NIL;
 
      if (STRINGP(fname_or_port))
@@ -896,25 +912,15 @@ LRef lifasl_load(LRef fname_or_port)
 
      ENTER_UNWIND_PROTECT()
      {
-          dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL from : ~a\n"), port);
-
-          LRef form = NIL;
-
-          while (!EOFP(form))
-          {
-               fast_read(port, &form, true);
-          }
+          liifasl_load(port);
      }
      ON_UNWIND()
      {
-          dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: done FASL from port: ~a\n"), port);
-          dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL result: ~s\n"), result);
-
           lclose_port(port);
      }
      LEAVE_UNWIND_PROTECT();
 
-     return result;
+     return NIL;
 }
 
 END_NAMESPACE

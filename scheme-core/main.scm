@@ -102,7 +102,10 @@
 (defmacro (define-file-argument-handling . code)
   `(set-file-argument-handler!  (lambda (arg) ,@code)))
 
-(define fasl-load %fasl-load)
+(define (fasl-load filename)
+  (check string? filename)
+  (with-port ip (open-input-file filename :binary)
+    (%%fasl-load ip)))
 
 (define *location-mapping* #f)
 
@@ -170,7 +173,7 @@
   (dynamic-let ((*current-load-file* filename))
     (let ((file-type (string-downcase (filename-extension filename))))
       (cond ((equal? file-type "scf")
-             (do-load %fasl-load filename))
+             (do-load fasl-load filename))
             (#t
              (do-load %text-load filename))))
     filename))
@@ -182,7 +185,7 @@
        (let ((port (clone-c-data-port it)))
          (info "Loading Internal File: ~a" filename)
          (if (binary-port? port)
-             (do-load %fasl-load port)
+             (do-load %%fasl-load port)
              (do-load %text-load port)))
        (error "Internal file not found: ~a\n" filename)))
 

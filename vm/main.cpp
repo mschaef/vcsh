@@ -248,6 +248,7 @@ static void register_main_subrs()
     register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
+    register_subr(_T("%%fasl-load"),                      SUBR_1,     (void*)liifasl_load                        );
     register_subr(_T("%fasl-load"),                       SUBR_1,     (void*)lifasl_load                         );
     register_subr(_T("%fast-op"),                         SUBR_4,     (void*)lfast_op                            );
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
