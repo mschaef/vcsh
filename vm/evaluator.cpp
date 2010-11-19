@@ -218,35 +218,30 @@ static LRef extend_env(LRef actuals, LRef formals, LRef env)
           return lcons(lcons(formals, actuals), env);
 }
 
-#define ENVLOOKUP_TRICK 1
-
 LRef lenvlookup(LRef var, LRef env)
 {
-     LRef frame, al, fl, tmp;
+     LRef frame;
 
      for (frame = env; CONSP(frame); frame = CDR(frame))
      {
-          tmp = CAR(frame);
+          LRef tmp = CAR(frame);
 
           if (!CONSP(tmp))
                panic("damaged frame");
 
+          LRef al, fl;
+     
           for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
           {
                if (!CONSP(al))
                     vmerror_arg_out_of_range(NIL, _T("too few arguments"));
 
                if (EQ(CAR(fl), var))
-                    return (al);
+                    return al;
           }
-          /* suggested by a user. It works for reference (although conses)
-             but doesn't allow for set! to work properly... */
-#if (ENVLOOKUP_TRICK)
+
           if (SYMBOLP(fl) && EQ(fl, var))
-          {
                return lcons(al, NIL);
-          }
-#endif
      }
 
      if (!NULLP(frame))
