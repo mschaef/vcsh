@@ -45,6 +45,7 @@
 (define-fast-op :global-def 240 3)
 
 (define-fast-op :mark-stack 248 2)
+(define-fast-op :apply-with-genv 249 2)
 
 (define (parse-fast-op fast-op :optional (parse-opcode? #t))
   (let ((opcode (%fast-op-opcode fast-op))

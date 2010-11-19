@@ -6,7 +6,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-static void check_global_environment_size()
+void check_global_environment_size()
 {
      if (interp.last_global_env_entry >= VECTOR_DIM(interp.global_env))
           interp.global_env =
@@ -124,7 +124,6 @@ LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
           check_global_environment_size();
 
           retval = apply1(fn, 0, NULL);
-
      }
      ON_UNWIND()
      {

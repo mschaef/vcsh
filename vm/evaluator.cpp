@@ -362,6 +362,7 @@ static LRef execute_fast_op(LRef form, LRef env)
      LRef binding;
      size_t argc;
      LRef argv[ARG_BUF_LEN];
+     LRef old_global_env = NIL;
 
      switch (FAST_OP_OPCODE(form))
      {
@@ -484,6 +485,24 @@ static LRef execute_fast_op(LRef form, LRef env)
                retval = execute_fast_op(FAST_OP_ARG2(form), env);
           }
           LEAVE_FRAME();
+          break;
+
+     case FOP_APPLY_WITH_GENV:
+          ENTER_UNWIND_PROTECT()
+          {
+               old_global_env = interp.global_env;
+     
+               interp.global_env = execute_fast_op(FAST_OP_ARG2(form), env);
+
+               check_global_environment_size();
+
+               retval = apply1(execute_fast_op(FAST_OP_ARG1(form), env), 0, NULL);
+          }
+          ON_UNWIND()
+          {
+               interp.global_env = old_global_env;
+          }
+          LEAVE_UNWIND_PROTECT();
           break;
 
      default:

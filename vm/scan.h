@@ -1001,6 +1001,7 @@ INLINE void SET_SYMBOL_INDEX(LRef sym, size_t index)
      ((*sym).storage_as.symbol.env_index) = index;
 }
 
+
 INLINE LRef SYMBOL_VCELL(LRef sym)
 {
      checked_assert(SYMBOLP(sym));
@@ -1704,6 +1705,7 @@ void *safe_malloc(size_t size);
 void safe_free(void *block);
 
 void set_global_env(LRef genv);
+void check_global_environment_size();
 
 /***** Time *****/
 flonum_t time_since_launch();
