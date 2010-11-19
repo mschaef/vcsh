@@ -24,7 +24,7 @@ void init1()
 
      ENTER_TRY(NIL)
      {
-          lifasl_load(open_c_data_input(true, &scf_scheme));
+          liifasl_load(open_c_data_input(true, &scf_scheme));
      } ON_ERROR()
      {
           scwritef("\nError loading sinit.\n", DEFAULT_PORT);

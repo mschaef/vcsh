@@ -249,7 +249,6 @@ static void register_main_subrs()
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
     register_subr(_T("%%fasl-load"),                      SUBR_1,     (void*)liifasl_load                        );
-    register_subr(_T("%fasl-load"),                       SUBR_1,     (void*)lifasl_load                         );
     register_subr(_T("%fast-op"),                         SUBR_4,     (void*)lfast_op                            );
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
     register_subr(_T("%fast-op-cons"),                    SUBR_4,     (void*)lfast_op                            );     /*  TODO: one of these is not necessary */
@@ -535,7 +534,11 @@ static void load_init_load_files()
 
           dscwritef("; Init Loading ~a...\n", fname);
 
-          lifasl_load(fname);
+          LRef port = lopen_input_file(fname, keyword_intern(_T("binary")));
+
+          liifasl_load(port);
+
+          lclose_port(port);
      }
 }
 

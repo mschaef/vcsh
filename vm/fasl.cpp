@@ -899,28 +899,4 @@ LRef liifasl_load(LRef port)
      return NIL;
 }
 
-LRef lifasl_load(LRef fname_or_port)
-{
-     LRef port = NIL;
-
-     if (STRINGP(fname_or_port))
-          port = lopen_input_file(fname_or_port, keyword_intern(_T("binary")));
-     else if (PORTP(fname_or_port))
-          port = fname_or_port;
-     else
-          vmerror_wrong_type(1, fname_or_port);
-
-     ENTER_UNWIND_PROTECT()
-     {
-          liifasl_load(port);
-     }
-     ON_UNWIND()
-     {
-          lclose_port(port);
-     }
-     LEAVE_UNWIND_PROTECT();
-
-     return NIL;
-}
-
 END_NAMESPACE

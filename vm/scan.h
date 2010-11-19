@@ -1802,7 +1802,6 @@ LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p);
 LRef lidirectory(LRef dirname, LRef mode);
 LRef lieee754_bits_to(LRef x);
 LRef liifasl_load(LRef port);
-LRef lifasl_load(LRef fname_or_port);
 LRef lifile_details(LRef path, LRef existance_onlyp);
 LRef ligc_trip_wire();
 LRef lihash_binding_vector(LRef hash);
