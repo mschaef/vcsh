@@ -302,25 +302,17 @@
 ;    (vector-set! new-global-bindings 0 bindings-name)
     new-global-bindings))
 
-(defmacro (locally-capture vars . code)
-  "Evaluates <code> with the current bindings of <vars> captured in new
-   local variables of the same name."
-  (check scheme::valid-variable-list? vars)
-  `(let ,(map (lambda (var) `(, var, var))  vars) ,@code))
-
 (defmacro (with-global-environment bindings . code)
   "Executes <code> with the global bindings in <bindings>. The previous
    global bindings are restored after the code returns."
-  `(%call-with-global-environment (lambda () ,@code) ,bindings))
+  `(%apply-with-genv (lambda () ,@code) ,bindings))
 
 (define (capture-global-environment fn)
   "Returns a closure of <fn> over the current global environment."
-  (locally-capture (%call-with-global-environment apply)
-                   (let ((genv (%current-global-environment)))
-                     (lambda args
-                       (%call-with-global-environment (lambda ()
-                                                     (apply fn args))
-                                                   genv)))))
+  (let ((apply apply) ;; locally capture apply so that the below function will work, even if genv has a corrupt apply
+        (genv (%current-global-environment)))
+    (lambda args
+      (%apply-with-genv (lambda () (apply fn args)) genv))))
 
 (defmacro (defalias alias procedure)
   "Defines an alias for <procedure> named <alias>. The alias
