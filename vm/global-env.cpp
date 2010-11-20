@@ -6,37 +6,32 @@
 
 BEGIN_NAMESPACE(scan)
 
-LRef vector_reallocate_in_place(LRef vec, size_t new_size, LRef new_element)
+void genv_enlarge(LRef genv, size_t new_size)
 {
-     assert(VECTORP(vec));
+     assert(VECTORP(genv));
+     assert(new_size >= VECTOR_DIM(genv));
 
-     LRef *new_vector_data = (LRef *) safe_malloc(new_size * sizeof(LRef));
+     if (new_size == VECTOR_DIM(genv))
+         return;
 
-     assert(new_vector_data);
+     LRef *old_genv_data = VECTOR_DATA(genv);
+     LRef *new_genv_data = (LRef *) safe_malloc(new_size * sizeof(LRef));
 
      for (size_t ii = 0; ii < new_size; ii++)
-     {
-          if (ii < VECTOR_DIM(vec))
-               new_vector_data[ii] = VECTOR_ELEM(vec, ii);
-          else
-               new_vector_data[ii] = new_element;
-     }
+          new_genv_data[ii] = (ii < VECTOR_DIM(genv)) ? VECTOR_ELEM(genv, ii) : UNBOUND_MARKER;
 
-     safe_free(VECTOR_DATA(vec));
+     safe_free(old_genv_data);
 
-     SET_VECTOR_DIM(vec, new_size);
-     SET_VECTOR_DATA(vec, new_vector_data);
-
-     return vec;
+     SET_VECTOR_DIM(genv, new_size);
+     SET_VECTOR_DATA(genv, new_genv_data);
 }
 
 static void check_global_environment_size()
 {
-     if (interp.last_global_env_entry >= VECTOR_DIM(interp.global_env))
-          interp.global_env =
-              vector_reallocate_in_place(interp.global_env,
-                                         VECTOR_DIM(interp.global_env) + GLOBAL_ENV_BLOCK_SIZE,
-                                         UNBOUND_MARKER);
+     if (interp.last_global_env_entry < VECTOR_DIM(interp.global_env))
+          return;
+
+     genv_enlarge(interp.global_env, VECTOR_DIM(interp.global_env) + GLOBAL_ENV_BLOCK_SIZE);
 }
 
 static void extend_global_environment(LRef sym)
