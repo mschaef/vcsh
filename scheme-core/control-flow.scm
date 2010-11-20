@@ -299,7 +299,7 @@
   (let ((new-global-bindings (%copy-global-environment (%current-global-environment))))
     (unless bindings-name
       (set! bindings-name (gensym "global-bindings")))
-    (vector-set! new-global-bindings 0 bindings-name)
+;    (vector-set! new-global-bindings 0 bindings-name)
     new-global-bindings))
 
 (defmacro (locally-capture vars . code)
