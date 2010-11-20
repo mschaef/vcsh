@@ -142,7 +142,7 @@
              `(:literal ,form))
             (#t
              (case (car form)
-               ((scheme::%macro)            (meaning/%macro           <form cenv genv at-toplevel?))
+               ((scheme::%macro)            (meaning/%macro           form cenv genv at-toplevel?))
                ((scheme::%lambda)           (meaning/%lambda          form cenv genv at-toplevel?))
                ((begin)                     (meaning/begin            form cenv genv at-toplevel?))
                ((or)                        (meaning/or               form cenv genv at-toplevel?))

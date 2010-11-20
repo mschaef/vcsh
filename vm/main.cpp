@@ -242,6 +242,7 @@ static void register_main_subrs()
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
     register_subr(_T("%control-field"),                   SUBR_1,     (void*)licontrol_field                     );
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
+    register_subr(_T("%copy-global-environment"),         SUBR_1,     (void*)lcopy_global_environment            );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
@@ -256,6 +257,7 @@ static void register_main_subrs()
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
+    register_subr(_T("%global-environment?"),             SUBR_1,     (void*)lglobal_environmentp                );
     register_subr(_T("%handler-frames"),                  SUBR_0,     (void*)lhandler_frames                     );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
@@ -501,7 +503,6 @@ static void register_main_subrs()
     register_subr(_T("vector-copy"),                      SUBR_1,     (void*)lvector_copy                        );
     register_subr(_T("vector-fill!"),                     SUBR_2,     (void*)lvector_fill                        );
     register_subr(_T("vector-ref"),                       SUBR_3,     (void*)lvector_ref                         );
-    register_subr(_T("vector-resize!"),                   SUBR_3,     (void*)lvector_resized                     );
     register_subr(_T("vector-resize"),                    SUBR_3,     (void*)lvector_resize                      );
     register_subr(_T("vector-set!"),                      SUBR_3,     (void*)lvector_set                         );
     register_subr(_T("vector?"),                          SUBR_1,     (void*)lvectorp                            );

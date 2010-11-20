@@ -264,6 +264,13 @@ void gc_mark(LRef initial_obj)
                obj = NIL;
                break;
 
+          case TC_GENV:
+               for (size_t jj = 0; jj < GENV_DIM(obj); ++jj)
+                    gc_mark(GENV_ELEM(obj, jj));
+
+               obj = NIL;
+               break;
+
           case TC_STRUCTURE:
                for (size_t jj = 0; jj < STRUCTURE_DIM(obj); ++jj)
                     gc_mark(STRUCTURE_ELEM(obj, jj));
@@ -339,6 +346,10 @@ static void gc_clear_cell(LRef obj)
 
      case TC_VECTOR:
           safe_free(VECTOR_DATA(obj));
+          break;
+
+     case TC_GENV:
+          safe_free(GENV_DATA(obj));
           break;
 
      case TC_HASH:
@@ -563,7 +574,8 @@ void create_gc_heap()
 
      /* Set up space for global bindings. */
      interp.last_global_env_entry = 1;
-     interp.global_env = vectorcons(GLOBAL_ENV_BLOCK_SIZE, UNBOUND_MARKER);
+     interp.global_env = genvcons();
+
      gc_protect(_T("global-environment"), &interp.global_env, 1);
 }
 

@@ -296,10 +296,10 @@
 
 (define (copy-global-environment :optional (bindings-name #f))
   "Returns a unique copy of the current global bindings."
-  (let ((new-global-bindings (vector-copy (%current-global-environment))))
+  (let ((new-global-bindings (%copy-global-environment (%current-global-environment))))
     (unless bindings-name
       (set! bindings-name (gensym "global-bindings")))
-    (vector-set! new-global-bindings 0 bindings-name)
+;    (vector-set! new-global-bindings 0 bindings-name)
     new-global-bindings))
 
 (defmacro (locally-capture vars . code)
