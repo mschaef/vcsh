@@ -19,7 +19,6 @@ LRef genvcons(size_t dim /* = GLOBAL_ENV_BLOCK_SIZE */)
      return genv;
 }
 
-
 LRef lcopy_global_environment(LRef genv)
 {
      if (!GENVP(genv))
@@ -33,6 +32,13 @@ LRef lcopy_global_environment(LRef genv)
      return new_genv;
 }
 
+LRef lglobal_environmentp(LRef genv)
+{
+     if (GENVP(genv))
+          return genv;
+     else
+          return boolcons(false);
+}
 
 void genv_enlarge(LRef genv, size_t new_size)
 {

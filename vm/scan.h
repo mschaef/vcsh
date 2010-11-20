@@ -884,6 +884,7 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
 
 LRef genvcons(size_t dim = GLOBAL_ENV_BLOCK_SIZE);
 LRef lcopy_global_environment(LRef genv);
+LRef lglobal_environmentp(LRef genv);
 
 INLINE size_t GENV_DIM(LRef obj)
 {
