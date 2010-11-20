@@ -652,6 +652,11 @@ INLINE bool FAST_OP_P(LRef x)
      return TYPEP(x, TC_FAST_OP);
 }
 
+INLINE bool GENVP(LRef x)
+{
+     return TYPEP(x, TC_GENV);
+}
+
 INLINE bool TRUEP(LRef x)
 {
      return (x) != LREF2_CONS(LREF2_BOOL, 0);
@@ -877,6 +882,44 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
+LRef genvcons(size_t dim = GLOBAL_ENV_BLOCK_SIZE);
+LRef lcopy_global_environment(LRef genv);
+
+INLINE size_t GENV_DIM(LRef obj)
+{
+     checked_assert(GENVP(obj));
+     return ((obj)->storage_as.genv.dim);
+}
+
+INLINE void SET_GENV_DIM(LRef obj, size_t new_dim)
+{
+     checked_assert(GENVP(obj));
+     ((obj)->storage_as.genv.dim) = new_dim;
+}
+
+INLINE LRef *GENV_DATA(LRef obj)
+{
+     checked_assert(GENVP(obj));
+     return ((obj)->storage_as.genv.data);
+}
+
+INLINE LRef *SET_GENV_DATA(LRef obj, LRef * new_data)
+{
+     checked_assert(GENVP(obj));
+     return ((obj)->storage_as.genv.data) = new_data;
+}
+
+INLINE LRef GENV_ELEM(LRef vec, fixnum_t index)
+{
+     checked_assert(GENVP(vec));
+     return ((vec)->storage_as.genv.data[(index)]);
+}
+
+INLINE void SET_GENV_ELEM(LRef vec, fixnum_t index, LRef new_value)
+{
+     checked_assert(GENVP(vec));
+     ((vec)->storage_as.genv.data[(index)]) = new_value;
+}
                                                                                                                                                                               /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
 
 INLINE size_t STRUCTURE_DIM(LRef obj)
@@ -1012,17 +1055,17 @@ INLINE LRef SYMBOL_VCELL(LRef sym)
      if (SYMBOL_INDEX(sym) == 0)
           return UNBOUND_MARKER;
 
-     checked_assert(interp.last_global_env_entry < VECTOR_DIM(interp.global_env));
+     checked_assert(interp.last_global_env_entry < GENV_DIM(interp.global_env));
 
-     return VECTOR_ELEM(interp.global_env, SYMBOL_INDEX(sym));
+     return GENV_ELEM(interp.global_env, SYMBOL_INDEX(sym));
 }
 
 INLINE void SET_SYMBOL_VCELL(LRef sym, LRef val)
 {
      checked_assert(SYMBOL_INDEX(sym) != 0);
-     checked_assert(interp.last_global_env_entry < VECTOR_DIM(interp.global_env));
+     checked_assert(interp.last_global_env_entry < GENV_DIM(interp.global_env));
 
-     return SET_VECTOR_ELEM(interp.global_env, SYMBOL_INDEX(sym), val);
+     return SET_GENV_ELEM(interp.global_env, SYMBOL_INDEX(sym), val);
 }
 
 INLINE LRef SYMBOL_HOME(LRef x)
