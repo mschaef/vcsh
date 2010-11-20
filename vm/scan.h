@@ -268,6 +268,11 @@ struct LObject
           } vector;
           struct
           {
+               size_t dim;
+               LRef *data;
+          } genv;
+          struct
+          {
                LRef _map;
                size_t _dim;
                LRef *_data;
