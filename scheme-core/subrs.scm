@@ -25,6 +25,7 @@
 (%define %fast-op-opcode #.(scheme::%subr-by-name "%fast-op-opcode"))
 (%define %file-details #.(scheme::%subr-by-name "%file-details"))
 (%define %get-current-frames #.(scheme::%subr-by-name "%get-current-frames"))
+(%define %global-environment? #.(scheme::%subr-by-name "%global-environment?"))
 (%define %handler-frames #.(scheme::%subr-by-name "%handler-frames"))
 (%define %hash-binding-vector #.(scheme::%subr-by-name "%hash-binding-vector"))
 (%define %immediate? #.(scheme::%subr-by-name "%immediate?"))

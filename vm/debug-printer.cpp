@@ -353,6 +353,7 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
      case TC_INSTANCE:
           debug_print_instance(obj, port, machine_readable);
           break;
+
      case TC_PACKAGE:
           scwritef("~u ~a", port, (LRef) obj, PACKAGE_NAME(obj));
           break;

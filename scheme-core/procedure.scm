@@ -13,7 +13,7 @@
 (define compiler::toplevel-form->thunk) ;; Forward decl
 
 (define (maybe-call-with-global-environment fn genv)
-  (if (vector? genv) ;; TODO: vector? -> global-environment?.
+  (if (%global-environment? genv) ;; TODO: vector? -> global-environment?.
       (with-global-environment genv
         (fn))
       (fn)))
