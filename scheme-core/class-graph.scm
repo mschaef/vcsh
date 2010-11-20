@@ -29,6 +29,7 @@
     ((#.system::TC_UNBOUND_MARKER) 'unbound-marker) 
     ((#.system::TC_GC_TRIP_WIRE)   'trip-wire) 
     ((#.system::TC_FAST_OP)        'fast-op)
+    ((#.system::TC_GENV)           'genv)
     (#t (error "Bad typecode: ~s." tc))))
 
 (define (%representation-of obj)
