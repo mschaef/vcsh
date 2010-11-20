@@ -97,6 +97,8 @@ bool equalp(LRef a, LRef b)
           return a == b;
      case TC_VECTOR:
           return vector_equal(a, b);
+     case TC_GENV:
+          return a == b;
      case TC_STRUCTURE:
           return structure_equal(a, b);
      case TC_STRING:
