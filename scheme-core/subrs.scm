@@ -12,6 +12,7 @@
 (%define %closure-env #.(scheme::%subr-by-name "%closure-env"))
 (%define %control-field #.(scheme::%subr-by-name "%control-field"))
 (%define %copy-structure #.(scheme::%subr-by-name "%copy-structure"))
+(%define %copy-global-environment #.(scheme::%subr-by-name "%copy-global-environment"))
 (%define %current-global-environment #.(scheme::%subr-by-name "%current-global-environment"))
 (%define %debug-flags #.(scheme::%subr-by-name "%debug-flags"))
 (%define %debug-printer #.(scheme::%subr-by-name "%debug-printer"))

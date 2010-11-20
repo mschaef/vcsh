@@ -242,6 +242,7 @@ static void register_main_subrs()
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
     register_subr(_T("%control-field"),                   SUBR_1,     (void*)licontrol_field                     );
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
+    register_subr(_T("%copy-global-environment"),         SUBR_1,     (void*)lvector_copy                        );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );

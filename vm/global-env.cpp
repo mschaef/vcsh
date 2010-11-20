@@ -30,7 +30,7 @@ static void check_global_environment_size()
 {
      if (interp.last_global_env_entry < VECTOR_DIM(interp.global_env))
           return;
-
+     
      genv_enlarge(interp.global_env, VECTOR_DIM(interp.global_env) + GLOBAL_ENV_BLOCK_SIZE);
 }
 
