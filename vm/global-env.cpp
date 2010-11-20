@@ -6,6 +6,30 @@
 
 BEGIN_NAMESPACE(scan)
 
+LRef vector_reallocate_in_place(LRef vec, size_t new_size, LRef new_element)
+{
+     assert(VECTORP(vec));
+
+     LRef *new_vector_data = (LRef *) safe_malloc(new_size * sizeof(LRef));
+
+     assert(new_vector_data);
+
+     for (size_t ii = 0; ii < new_size; ii++)
+     {
+          if (ii < VECTOR_DIM(vec))
+               new_vector_data[ii] = VECTOR_ELEM(vec, ii);
+          else
+               new_vector_data[ii] = new_element;
+     }
+
+     safe_free(VECTOR_DATA(vec));
+
+     SET_VECTOR_DIM(vec, new_size);
+     SET_VECTOR_DATA(vec, new_vector_data);
+
+     return vec;
+}
+
 static void check_global_environment_size()
 {
      if (interp.last_global_env_entry >= VECTOR_DIM(interp.global_env))

@@ -501,7 +501,6 @@ static void register_main_subrs()
     register_subr(_T("vector-copy"),                      SUBR_1,     (void*)lvector_copy                        );
     register_subr(_T("vector-fill!"),                     SUBR_2,     (void*)lvector_fill                        );
     register_subr(_T("vector-ref"),                       SUBR_3,     (void*)lvector_ref                         );
-    register_subr(_T("vector-resize!"),                   SUBR_3,     (void*)lvector_resized                     );
     register_subr(_T("vector-resize"),                    SUBR_3,     (void*)lvector_resize                      );
     register_subr(_T("vector-set!"),                      SUBR_3,     (void*)lvector_set                         );
     register_subr(_T("vector?"),                          SUBR_1,     (void*)lvectorp                            );

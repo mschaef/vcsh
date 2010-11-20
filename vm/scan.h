@@ -832,7 +832,6 @@ INLINE _TCHAR CHARV(LRef x)
 
   /*** vector **/
 LRef vector_resize(LRef vec, size_t new_size, LRef new_element);
-LRef vector_reallocate_in_place(LRef vec, size_t new_size, LRef new_element);
 
 LRef vectorcons(fixnum_t n, LRef initial = NIL);
 
@@ -1992,7 +1991,6 @@ LRef lvector_copy(LRef vec);
 LRef lvector_fill(LRef vec, LRef v);
 LRef lvector_ref(LRef a, LRef i, LRef d);
 LRef lvector_resize(LRef vec, LRef new_size, LRef new_element);
-LRef lvector_resized(LRef vec, LRef new_size, LRef new_element);
 LRef lvector_set(LRef a, LRef i, LRef v);
 LRef lvectorp(LRef obj);
 LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port);
