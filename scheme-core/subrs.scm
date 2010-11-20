@@ -272,7 +272,6 @@
 (%define vector-fill! #.(scheme::%subr-by-name "vector-fill!"))
 (%define vector-ref #.(scheme::%subr-by-name "vector-ref"))
 (%define vector-resize #.(scheme::%subr-by-name "vector-resize"))
-(%define vector-resize! #.(scheme::%subr-by-name "vector-resize!"))
 (%define vector-set! #.(scheme::%subr-by-name "vector-set!"))
 (%define vector? #.(scheme::%subr-by-name "vector?"))
 (%define write-binary-fixnum #.(scheme::%subr-by-name "write-binary-fixnum"))
