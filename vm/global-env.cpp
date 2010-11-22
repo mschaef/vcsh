@@ -62,6 +62,8 @@ void genv_enlarge(LRef genv, size_t new_size)
 
 void check_global_environment_size()
 {
+     assert(GENVP(interp.global_env));
+
      if (interp.last_global_env_entry < GENV_DIM(interp.global_env))
           return;
      
