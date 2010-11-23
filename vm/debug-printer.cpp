@@ -406,6 +406,10 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
                         FAST_OP_OPCODE(obj), FAST_OP_ARG1(obj), FAST_OP_ARG2(obj), FAST_OP_ARG3(obj));
           break;
 
+     case TC_GENV:
+          scwritef("#<GENV@~c&:~s n=~cd>", port, (LRef) obj, GENV_NAME(obj), GENV_DIM(obj));
+          break;
+
      case TC_UNBOUND_MARKER:
           scwritef("#<UNBOUND-MARKER>", port);
           break;

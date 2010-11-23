@@ -338,6 +338,9 @@
       (print-machine-string obj port)
       (write-strings port obj)))
 
+(define-method (print-object (obj genv) port machine-readable? shared-structure-map)
+  (unreadable (format port " #<genv:~s n=~a>>" (%global-environment-name obj) (length obj))))
+
 (define-method (print-object (obj free-cell) port machine-readable? shared-structure-map)
   (unreadable (write-strings port "#<FREE-CELL@#x" (%obaddr-string obj) ">")))
 
