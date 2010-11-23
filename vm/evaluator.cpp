@@ -324,21 +324,21 @@ INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * re
      return NIL;                /*  avoid a warning, since the error case returns nothing. */
 }
 
-static LRef execute_fast_op(LRef form, LRef env)
+static LRef execute_fast_op(LRef fop, LRef env)
 {
      LRef retval = NIL;
 
-     STACK_CHECK(&form);
+     STACK_CHECK(&fop);
 
 #ifdef _DEBUG
-     ENTER_EVAL_FRAME(&form, env)
+     ENTER_EVAL_FRAME(&fop, env)
 #endif
    loop:
      _process_interrupts();
 
-     checked_assert(TYPE(form) == TC_FAST_OP);
+     checked_assert(TYPE(fop) == TC_FAST_OP);
 
-     LRef sym = FAST_OP_ARG1(form);
+     LRef sym = FAST_OP_ARG1(fop);
      LRef val;
 
      LRef binding;
@@ -346,10 +346,10 @@ static LRef execute_fast_op(LRef form, LRef env)
      LRef argv[ARG_BUF_LEN];
      LRef old_global_env = NIL;
 
-     switch (FAST_OP_OPCODE(form))
+     switch (FAST_OP_OPCODE(fop))
      {
      case FOP_LITERAL:
-          retval = FAST_OP_ARG1(form);
+          retval = FAST_OP_ARG1(fop);
           break;
 
      case FOP_GLOBAL_REF:
@@ -373,7 +373,7 @@ static LRef execute_fast_op(LRef form, LRef env)
           if (UNBOUND_MARKER_P(binding))
                vmerror_unbound(sym);
 
-          val = execute_fast_op(FAST_OP_ARG2(form), env);
+          val = execute_fast_op(FAST_OP_ARG2(fop), env);
 
           SET_SYMBOL_VCELL(sym, val);
           retval = val;
@@ -398,33 +398,33 @@ static LRef execute_fast_op(LRef form, LRef env)
           if (NULLP(binding))
                vmerror_unbound(sym);
 
-          val = execute_fast_op(FAST_OP_ARG2(form), env);
+          val = execute_fast_op(FAST_OP_ARG2(fop), env);
           SET_CAR(binding, val);
 
           retval = val;
           break;
 
      case FOP_APPLY:
-          argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(form), env, ARG_BUF_LEN, argv);
+          argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
 
-          form = apply(execute_fast_op(FAST_OP_ARG1(form), env), argc, argv, &env, &retval);
+          fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
 
-          if (!NULLP(form))
+          if (!NULLP(fop))
                goto loop;
 
           break;
 
      case FOP_IF_TRUE:
-          if (TRUEP(execute_fast_op(FAST_OP_ARG1(form), env)))
-               form = FAST_OP_ARG2(form);
+          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
+               fop = FAST_OP_ARG2(fop);
           else
-               form = FAST_OP_ARG3(form);
+               fop = FAST_OP_ARG3(fop);
           goto loop;
 
      case FOP_AND2:
-          if (TRUEP(execute_fast_op(FAST_OP_ARG1(form), env)))
+          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
           {
-               form = FAST_OP_ARG2(form);
+               fop = FAST_OP_ARG2(fop);
                goto loop;
           }
 
@@ -432,7 +432,7 @@ static LRef execute_fast_op(LRef form, LRef env)
           break;
 
      case FOP_OR2:
-          val = execute_fast_op(FAST_OP_ARG1(form), env);
+          val = execute_fast_op(FAST_OP_ARG1(fop), env);
 
           if (TRUEP(val))
           {
@@ -440,17 +440,17 @@ static LRef execute_fast_op(LRef form, LRef env)
                break;
           }
 
-          form = FAST_OP_ARG2(form);
+          fop = FAST_OP_ARG2(fop);
           goto loop;
 
      case FOP_SEQUENCE:
-          execute_fast_op(FAST_OP_ARG1(form), env);
+          execute_fast_op(FAST_OP_ARG1(fop), env);
 
-          form = FAST_OP_ARG2(form);
+          fop = FAST_OP_ARG2(fop);
           goto loop;
 
      case FOP_CLOSE_ENV:
-          retval = lclosurecons(env, FAST_OP_ARG1(form), FAST_OP_ARG2(form));
+          retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
           break;
 
      case FOP_GET_ENV:
@@ -458,13 +458,13 @@ static LRef execute_fast_op(LRef form, LRef env)
           break;
 
      case FOP_GLOBAL_DEF:
-          retval = lidefine_global(FAST_OP_ARG1(form), FAST_OP_ARG2(form), FAST_OP_ARG3(form));
+          retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop), FAST_OP_ARG3(fop));
           break;
 
      case FOP_MARK_STACK:
-          ENTER_MARKER_FRAME(execute_fast_op(FAST_OP_ARG1(form), env))
+          ENTER_MARKER_FRAME(execute_fast_op(FAST_OP_ARG1(fop), env))
           {
-               retval = execute_fast_op(FAST_OP_ARG2(form), env);
+               retval = execute_fast_op(FAST_OP_ARG2(fop), env);
           }
           LEAVE_FRAME();
           break;
@@ -474,13 +474,13 @@ static LRef execute_fast_op(LRef form, LRef env)
 
           ENTER_UNWIND_PROTECT()
           {
-               interp.global_env = execute_fast_op(FAST_OP_ARG2(form), env);
+               interp.global_env = execute_fast_op(FAST_OP_ARG2(fop), env);
                
                assert(GENVP(interp.global_env));
                
                check_global_environment_size();
                
-               retval = apply1(execute_fast_op(FAST_OP_ARG1(form), env), 0, NULL);
+               retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
           }
           ON_UNWIND()
           {
