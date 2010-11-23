@@ -451,14 +451,12 @@ struct interpreter_thread_info_block_t
 
 struct interpreter_t
 {
-     /* TODO: This interrupt mechanism can be generalized a bit...
-      *
-      * machine word mask and pending variables
-      * logically and the two and check against zero to see if an interrupt gets raised
-      * raise interrupt by dispatching to one of 32 vectors (closures) */
-     bool break_pending;
-     bool timer_event_pending;
+     // TODO: per-interrupt masking
+     // TODO: interrupt handler per bit.
+     vminterrupt_t interrupts_pending;
+
      bool interrupts_masked;
+
      bool gc_trip_wires_armed;
 
      bool shutting_down;
@@ -1699,10 +1697,10 @@ LRef blocking_input_cons(const _TCHAR * port_name, bool binary,
 void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags);
 void init(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags);
 
-void signal_break();
-void signal_timer();
-void process_interrupts();
+void signal_interrupt(vminterrupt_t intr);
+
 void shutdown();
+
 const _TCHAR *build_id_string();
 
 void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation);

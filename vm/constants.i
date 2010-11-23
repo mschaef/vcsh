@@ -237,6 +237,12 @@ BEGIN_VM_CONSTANT_TABLE(vmctrl_field_t, vmctrl_field_name)
   VM_ANON_CONSTANT(VMCTRL_LAST          , 3)
 END_VM_CONSTANT_TABLE(vmctrl_field_t, vmctrl_field_name)
 
+BEGIN_VM_CONSTANT_TABLE(vminterrupt_t, vminterrupt_name)
+  VM_CONSTANT(VMINTR_NONE  , 0x00000000)
+  VM_CONSTANT(VMINTR_TIMER , 0x00000001)
+  VM_CONSTANT(VMINTR_BREAK , 0x00000002)
+END_VM_CONSTANT_TABLE(vminterrupt_t, vminterrupt_name)
+
 #undef BEGIN_VM_CONSTANT_TABLE
 #undef VM_CONSTANT
 #undef VM_ANON_CONSTANT

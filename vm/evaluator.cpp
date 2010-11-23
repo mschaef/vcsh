@@ -45,47 +45,29 @@ LRef lset_interrupt_mask(LRef new_mask)
      return boolcons(previous_mask);
 }
 
-void signal_break()
+void signal_interrupt(vminterrupt_t intr)
 {
-     interp.break_pending = true;
+     interp.interrupts_pending = (vminterrupt_t)(interp.interrupts_pending | intr);
 }
 
-void signal_timer()
+static void handle_interrupt(vminterrupt_t intr, trap_type_t handler)
 {
-     interp.timer_event_pending = true;
-}
+     interp.interrupts_pending = (vminterrupt_t)(interp.interrupts_pending & ~intr);
 
-static void process_break_event()
-{
-     interp.break_pending = false;
-
-     vmtrap(TRAP_USER_BREAK, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
-}
-
-static void process_timer_event()
-{
-     interp.timer_event_pending = false;
-
-     vmtrap(TRAP_TIMER_EVENT, VMT_MANDATORY_TRAP, 0); // REVISIT: really mandatory?
+     vmtrap(handler, VMT_MANDATORY_TRAP, 0);
 }
 
 INLINE void _process_interrupts()
 {
-     if (interp.interrupts_masked)
+     if (!interp.interrupts_pending || interp.interrupts_masked)
           return;
 
-     if (interp.break_pending)
-          process_break_event();
+     if (interp.interrupts_pending & VMINTR_BREAK)
+          handle_interrupt(VMINTR_BREAK, TRAP_USER_BREAK);
 
-     if (interp.timer_event_pending)
-          process_timer_event();
+     if (interp.interrupts_pending & VMINTR_TIMER)
+          handle_interrupt(VMINTR_TIMER, TRAP_TIMER_EVENT);
 }
-
-void process_interrupts()
-{
-     _process_interrupts();
-}
-
 
 /***** Trap handling *****/
 

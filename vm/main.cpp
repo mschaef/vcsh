@@ -565,9 +565,9 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.init_load_file_count = 0;
 
-     interp.break_pending = false;
-     interp.timer_event_pending = false;
+     interp.interrupts_pending = VMINTR_NONE;
      interp.interrupts_masked = false;
+
      interp.gc_trip_wires_armed = false;
 
      interp.shutting_down = false;

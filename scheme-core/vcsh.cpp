@@ -10,7 +10,7 @@ void sigint_handler(int i)
 {
      UNREFERENCED(i);
 
-     scan::signal_break();
+     scan::signal_interrupt(scan::VMINTR_BREAK);
 
      signal(SIGINT, sigint_handler);
 };
