@@ -550,6 +550,19 @@
 (define (all-package-variables :optional (package *package*))
   (filter symbol-bound? (all-package-symbols package)))
 
+;; TODO: split out the lenv and genv versions of all the symbol-value functions
+;; TODO: the symbol-value functions use genv==#f as the way to signal 'current environment'. This
+;;  is because the compiler depends on this behavior. Fix this.
+
+(define (symbol-bound? sym :optional (lenv ()) (genv #f))
+  (check symbol? sym)
+  (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
+    (if (or (pair? (env-lookup sym lenv))
+            (not (eq? (%global-environment-ref genv (%symbol-index sym))
+                      (%unbound-marker))))
+        sym
+        #f)))
+
 (define (%symbol-value sym :optional (lenv ()) (genv (%current-global-environment)))
   (check symbol? sym)
   (check %global-environment? genv)
@@ -564,20 +577,15 @@
         (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym)
         val)))
 
-;; (define (set-symbol-value! sym val :optional (lenv ()) (genv #f))
-;;   (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
-;;     (aif (pair? (env-lookup sym lenv))
-;;          (begin
-;;            (set-car! it val)
-;;            val)
-         
-;;          ))))
+(define (set-symbol-value! sym val :optional (lenv ()) (genv #f))
+  (check (not keyword?) sym)
+  (aif (pair? (env-lookup sym lenv))
+       (set-car! it val)
+       (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
+         (unless (symbol-bound? sym () genv)
+           (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym))
+         (begin
+           (%global-environment-set! genv (%symbol-index sym) val)
+           val))))
 
-(define (symbol-bound? sym :optional (lenv ()) (genv #f))
-  (check symbol? sym)
-  (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
-    (if (or (pair? (env-lookup sym lenv))
-            (not (eq? (%global-environment-ref genv (%symbol-index sym))
-                      (%unbound-marker))))
-        sym
-        #f)))
+

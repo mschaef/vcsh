@@ -230,7 +230,6 @@
 (%define set-port-translate-mode! #.(scheme::%subr-by-name "set-port-translate-mode!"))
 (%define set-random-seed! #.(scheme::%subr-by-name "set-random-seed!"))
 (%define set-symbol-package! #.(scheme::%subr-by-name "set-symbol-package!"))
-(%define set-symbol-value! #.(scheme::%subr-by-name "set-symbol-value!"))
 (%define sin #.(scheme::%subr-by-name "sin"))
 (%define sleep #.(scheme::%subr-by-name "sleep"))
 (%define sqrt #.(scheme::%subr-by-name "sqrt"))

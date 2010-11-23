@@ -458,7 +458,6 @@ static void register_main_subrs()
     register_subr(_T("set-port-translate-mode!"),         SUBR_2,     (void*)lport_set_translate_mode            );
     register_subr(_T("set-random-seed!"),                 SUBR_1,     (void*)lset_random_seed                    );
     register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
-    register_subr(_T("set-symbol-value!"),                SUBR_4,     (void*)lsetvar                             );
     register_subr(_T("sin"),                              SUBR_1,     (void*)lsin                                );
     register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
     register_subr(_T("sqrt"),                             SUBR_1,     (void*)lsqrt                               );

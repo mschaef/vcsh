@@ -159,39 +159,6 @@ LRef lunbind_symbol(LRef var)
      return NIL;
 }
 
-LRef lsetvar(LRef var, LRef val, LRef lenv, LRef genv)
-{
-     LRef tmp;
-
-     if (!SYMBOLP(var))
-          vmerror_wrong_type(1, var);
-
-     tmp = lenvlookup(var, lenv);
-
-     if (NULLP(tmp))
-     {
-          LRef old_genv = interp.global_env;
-
-          if (TRUEP(genv) && !NULLP(genv))
-               set_global_env(genv);
-
-          if (UNBOUND_MARKER_P(SYMBOL_VCELL(var)))
-               vmerror_unbound(var);
-
-          if (SYMBOL_HOME(var) == interp.keyword_package)
-               vmerror_arg_out_of_range(var, _T("cannot rebind keywords"));
-
-          SET_SYMBOL_VCELL(var, val);
-
-          interp.global_env = old_genv;
-
-          return val;
-     }
-
-     SET_CAR(tmp, val);
-     return val;
-}
-
 LRef lcurrent_global_environment()
 {
      return interp.global_env;
