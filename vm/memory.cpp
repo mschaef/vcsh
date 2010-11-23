@@ -574,7 +574,7 @@ void create_gc_heap()
 
      /* Set up space for global bindings. */
      interp.last_global_env_entry = 1;
-     interp.global_env = genvcons();
+     interp.global_env = genvcons(GLOBAL_ENV_BLOCK_SIZE, boolcons(false));
 
      gc_protect(_T("global-environment"), &interp.global_env, 1);
 }

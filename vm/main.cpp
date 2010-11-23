@@ -242,7 +242,7 @@ static void register_main_subrs()
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
     register_subr(_T("%control-field"),                   SUBR_1,     (void*)licontrol_field                     );
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
-    register_subr(_T("%copy-global-environment"),         SUBR_1,     (void*)lcopy_global_environment            );
+    register_subr(_T("%copy-global-environment"),         SUBR_2,     (void*)lcopy_global_environment            );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
@@ -258,6 +258,9 @@ static void register_main_subrs()
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%global-environment?"),             SUBR_1,     (void*)lglobal_environmentp                );
+    register_subr(_T("%global-environment-name"),         SUBR_1,     (void*)lglobal_environment_name            );
+    register_subr(_T("%global-environment-ref"),          SUBR_2,     (void*)lglobal_environment_ref             );
+    register_subr(_T("%global-environment-set!"),         SUBR_3,     (void*)lglobal_environment_set             );
     register_subr(_T("%handler-frames"),                  SUBR_0,     (void*)lhandler_frames                     );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
@@ -302,6 +305,7 @@ static void register_main_subrs()
     register_subr(_T("%structure?"),                      SUBR_2,     (void*)lstructurep                         );
     register_subr(_T("%structurecons"),                   SUBR_2,     (void*)lstructurecons                      );
     register_subr(_T("%subr-table"),                      SUBR_0,     (void*)lisubr_table                        );
+    register_subr(_T("%symbol-index"),                    SUBR_1,     (void*)lisymbol_index                      );
     register_subr(_T("%symbol-value"),                    SUBR_3,     (void*)lisymbol_value                      );
     register_subr(_T("%sysob"),                           SUBR_1,     (void*)lsysob                              );
     register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );
@@ -606,8 +610,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      register_main_subrs();
 
      gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
-
-     SET_VECTOR_ELEM(interp.global_env, 0, keyword_intern(_T("global-environment")));
 
      accept_command_line_arguments(argc, argv);
 

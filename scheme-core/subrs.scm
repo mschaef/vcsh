@@ -5,7 +5,6 @@
 ;;; Lisp references to native SUBRs.
 
 ;; primitive functions
-(%define %call-with-global-environment #.(scheme::%subr-by-name "%call-with-global-environment"))
 (%define %catch-apply0 #.(scheme::%subr-by-name "%catch-apply0"))
 (%define %closure #.(scheme::%subr-by-name "%closure"))
 (%define %closure-code #.(scheme::%subr-by-name "%closure-code"))
@@ -26,6 +25,9 @@
 (%define %file-details #.(scheme::%subr-by-name "%file-details"))
 (%define %get-current-frames #.(scheme::%subr-by-name "%get-current-frames"))
 (%define %global-environment? #.(scheme::%subr-by-name "%global-environment?"))
+(%define %global-environment-name #.(scheme::%subr-by-name "%global-environment-name"))
+(%define %global-environment-ref #.(scheme::%subr-by-name "%global-environment-ref"))
+(%define %global-environment-set! #.(scheme::%subr-by-name "%global-environment-set!"))
 (%define %handler-frames #.(scheme::%subr-by-name "%handler-frames"))
 (%define %hash-binding-vector #.(scheme::%subr-by-name "%hash-binding-vector"))
 (%define %immediate? #.(scheme::%subr-by-name "%immediate?"))
@@ -72,6 +74,7 @@
 (%define %subr-name #.(scheme::%subr-by-name "%subr-name"))
 (%define %subr-table #.(scheme::%subr-by-name "%subr-table"))
 (%define %subr-type-code #.(scheme::%subr-by-name "%subr-type-code"))
+(%define %symbol-index #.(scheme::%subr-by-name "%symbol-index"))
 (%define %symbol-value #.(scheme::%subr-by-name "%symbol-value"))
 (%define %sysob #.(scheme::%subr-by-name "%sysob"))
 (%define %system-info #.(scheme::%subr-by-name "system-info"))

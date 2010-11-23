@@ -6,25 +6,26 @@
 
 BEGIN_NAMESPACE(scan)
 
-LRef genvcons(size_t dim /* = GLOBAL_ENV_BLOCK_SIZE */)
+LRef genvcons(size_t dim, LRef name)
 {
      LRef genv = new_cell(TC_GENV);
 
      SET_GENV_DIM(genv, dim);
      SET_GENV_DATA(genv, (LRef *) safe_malloc(dim * sizeof(LRef)));
+     SET_GENV_NAME(genv, name);
 
-     for (fixnum_t ii = 0; ii < GLOBAL_ENV_BLOCK_SIZE; ii++)
+     for (size_t ii = 0; ii < dim; ii++)
           SET_GENV_ELEM(genv, ii, UNBOUND_MARKER);
 
      return genv;
 }
 
-LRef lcopy_global_environment(LRef genv)
+LRef lcopy_global_environment(LRef genv, LRef name)
 {
      if (!GENVP(genv))
           vmerror_wrong_type(1, genv);
 
-     LRef new_genv = genvcons(GENV_DIM(genv));
+     LRef new_genv = genvcons(GENV_DIM(genv), name);
 
      for (size_t ii = 0; ii < GENV_DIM(genv); ii++)
           SET_GENV_ELEM(new_genv, ii, GENV_ELEM(genv, ii));
@@ -38,6 +39,47 @@ LRef lglobal_environmentp(LRef genv)
           return genv;
      else
           return boolcons(false);
+}
+
+LRef lglobal_environment_name(LRef genv)
+{
+     if (!GENVP(genv))
+          vmerror_wrong_type(1, genv);
+     
+     return GENV_NAME(genv);
+}
+
+LRef lglobal_environment_ref(LRef genv, LRef i)
+{
+     if (!GENVP(genv))
+          vmerror_wrong_type(1, genv);
+     
+     size_t index = get_c_fixnum(i);
+
+     if ((index >= 0) && (index < GENV_DIM(genv)))
+          return GENV_ELEM(genv, index);
+
+     vmerror_index_out_of_bounds(i, genv);
+
+     return NIL;
+}
+
+LRef lglobal_environment_set(LRef genv, LRef i, LRef v)
+{
+     if (!GENVP(genv))
+          vmerror_wrong_type(1, genv);
+
+     size_t index = get_c_fixnum(i);
+
+     if ((index >= 0) && (index < GENV_DIM(genv)))
+     {
+          SET_GENV_ELEM(genv, index, v);
+          return genv;
+     }
+
+     vmerror_index_out_of_bounds(i, genv);
+
+     return NIL; // unreached
 }
 
 void genv_enlarge(LRef genv, size_t new_size)

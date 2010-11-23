@@ -268,6 +268,7 @@ struct LObject
           } vector;
           struct
           {
+               LRef name;
                size_t dim;
                LRef *data;
           } genv;
@@ -882,9 +883,19 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-LRef genvcons(size_t dim = GLOBAL_ENV_BLOCK_SIZE);
-LRef lcopy_global_environment(LRef genv);
-LRef lglobal_environmentp(LRef genv);
+LRef genvcons(size_t dim, LRef name);
+
+INLINE LRef GENV_NAME(LRef obj)
+{
+     checked_assert(GENVP(obj));
+     return ((obj)->storage_as.genv.name);
+}
+
+INLINE void SET_GENV_NAME(LRef obj, LRef new_name)
+{
+     checked_assert(GENVP(obj));
+     ((obj)->storage_as.genv.name) = new_name;
+}
 
 INLINE size_t GENV_DIM(LRef obj)
 {
@@ -1797,6 +1808,7 @@ LRef lclosurecons(LRef env, LRef code, LRef property_list);
 LRef lclosurep(LRef obj);
 LRef lcomplexp(LRef x);
 LRef lconsp(LRef x);
+LRef lcopy_global_environment(LRef genv, LRef name);
 LRef lcopy_structure(LRef st);
 LRef lcos(LRef x);
 LRef lcurrent_global_environment();
@@ -1831,6 +1843,10 @@ LRef lgc_runtime();
 LRef lgc_status(LRef new_gc_status);
 LRef lget_current_frames(LRef skip_count);
 LRef lget_output_string(LRef port);
+LRef lglobal_environment_name(LRef genv);
+LRef lglobal_environment_ref(LRef genv, LRef i);
+LRef lglobal_environment_set(LRef genv, LRef i, LRef v);
+LRef lglobal_environmentp(LRef genv);
 LRef lhandler_frames();
 LRef lhas_slotp(LRef this_obj, LRef key);
 LRef lhash2alist(LRef hash);
@@ -1851,10 +1867,10 @@ LRef licontrol_field(LRef control_field_id);
 LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p);
 LRef lidirectory(LRef dirname, LRef mode);
 LRef lieee754_bits_to(LRef x);
-LRef liifasl_load(LRef port);
 LRef lifile_details(LRef path, LRef existance_onlyp);
 LRef ligc_trip_wire();
 LRef lihash_binding_vector(LRef hash);
+LRef liifasl_load(LRef port);
 LRef liimmediate_p(LRef obj);
 LRef liinstance_map(LRef inst);
 LRef liinstance_proto(LRef instance);
@@ -1880,6 +1896,7 @@ LRef lislot_set(LRef obj, LRef key, LRef value);
 LRef lisp_strcmp(LRef s1, LRef s2);
 LRef listartup_args();
 LRef lisubr_table();
+LRef lisymbol_index(LRef symbol);
 LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv);
 LRef litrap_handler(LRef trap_id);
 LRef litypecode(LRef obj);

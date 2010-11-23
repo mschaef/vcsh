@@ -349,6 +349,14 @@ LRef lunbound_marker()
      return UNBOUND_MARKER;
 }
 
+LRef lisymbol_index(LRef symbol)
+{
+     if (!SYMBOLP(symbol))
+          vmerror_wrong_type(1, symbol);
+
+     return fixcons(SYMBOL_INDEX(symbol));
+}
+
 LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv)
 {
      if (!SYMBOLP(symbol))
