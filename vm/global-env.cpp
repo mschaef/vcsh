@@ -206,29 +206,4 @@ void set_global_env(LRef genv)
      check_global_environment_size();
 }
 
-LRef lcall_with_global_environment(LRef fn, LRef new_global_env)
-{
-     if (!GENVP(new_global_env))
-          vmerror_wrong_type(new_global_env);
-
-     LRef old_global_env = interp.global_env;
-     LRef retval = NIL;
-
-     ENTER_UNWIND_PROTECT()
-     {
-          interp.global_env = new_global_env;
-
-          check_global_environment_size();
-
-          retval = apply1(fn, 0, NULL);
-     }
-     ON_UNWIND()
-     {
-          interp.global_env = old_global_env;
-     }
-     LEAVE_UNWIND_PROTECT();
-
-     return retval;
-}
-
 END_NAMESPACE

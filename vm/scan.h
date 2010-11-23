@@ -1787,8 +1787,6 @@ LRef lbitwise_shl(LRef x, LRef n);
 LRef lbitwise_shr(LRef x, LRef n);
 LRef lbitwise_xor(LRef x, LRef y);
 LRef lbooleanp(LRef x);
-LRef lbutlast(LRef);
-LRef lcall_with_global_environment(LRef fn, LRef new_global_env);
 LRef lcar(LRef x);
 LRef lcatch_apply0(LRef tag, LRef fn);
 LRef lcdr(LRef x);

@@ -235,7 +235,6 @@ static void register_main_subrs()
 {
 /* *INDENT-OFF* */
     register_subr(_T("%arm-gc-trip-wires"),               SUBR_1,     (void*)liarm_gc_trip_wires                 );
-    register_subr(_T("%call-with-global-environment"),    SUBR_2,     (void*)lcall_with_global_environment       );
     register_subr(_T("%catch-apply0"),                    SUBR_2,     (void*)lcatch_apply0                       );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
