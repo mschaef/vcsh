@@ -276,16 +276,7 @@
     (test-case (eq? 13    (slot-ref ob 'y)))
     (test-case (eq? 20    (slot-ref ob 'r)))
     (test-case (not (has-slot? ob 't)))
-    
-    (test-case (not (non-local-escape? 
-                     (set! ob (read-from-string "#I(base-point x 12 y 13 r 20)")))))
-
-    (test-case (eq? 'base-point (slot-ref ob 'class-name)))
-    (test-case (eq? 12    (slot-ref ob 'x)))
-    (test-case (eq? 13    (slot-ref ob 'y)))
-    (test-case (eq? 20    (slot-ref ob 'r)))
-    (test-case (eq? 20    (slot-ref ob 'r)))
-    (test-case (eq? 'nothing-to-see-here  (slot-ref ob 't)))))
+    ))
 
 (define-test read-quasiquote-syntax
   (test-case (eq? 'quasiquote       (car (read-from-string "`a"))))

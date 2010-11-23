@@ -211,11 +211,8 @@ static bool try_slot_ref(LRef inst, LRef key, LRef * val)
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
 
-     for (;;)
+     for (; INSTANCEP(inst); inst = INSTANCE_PROTO(inst))
      {
-          if (!INSTANCEP(inst))
-               break;
-
           LRef slot_map_index;
 
           if (instance_map_ref(inst, key, slot_map_index))
@@ -226,24 +223,6 @@ static bool try_slot_ref(LRef inst, LRef key, LRef * val)
 
                return true;
           }
-
-          inst = INSTANCE_PROTO(inst);
-
-          if (FALSEP(inst) || NULLP(inst))
-               break;
-
-          if (SYMBOLP(inst))
-               inst = lsymbol_value(inst, NIL, NIL);
-
-          /* If our prototype is not an instance, we abort the search and
-           * don't find the slot, rather than fail with an error. This is to
-           * ensure that instances remain accessible even if they have prototype
-           * symbols erroneously rebound to non-instances. This should ideally
-           * be caught by some kind of user space 'helper' facility that watches
-           * symbol redefinitions for problems.
-           */
-          if (!(INSTANCEP(inst) || NULLP(inst)))
-               break;
      }
 
      return false;
@@ -264,11 +243,8 @@ LRef lhas_slotp(LRef this_inst, LRef key)
      if (!INSTANCEP(this_inst))
           vmerror_wrong_type(1, this_inst);
 
-     for (LRef inst = this_inst;;)
+     for (LRef inst = this_inst; INSTANCEP(inst); inst = INSTANCE_PROTO(inst))
      {
-          if (!INSTANCEP(inst))
-               break;
-
           LRef unused;
 
           if (instance_map_ref(inst, key, unused))
@@ -278,24 +254,6 @@ LRef lhas_slotp(LRef this_inst, LRef key)
                else
                     return keyword_intern(_T("inherited"));
           }
-
-          inst = INSTANCE_PROTO(inst);
-
-          if (FALSEP(inst) || NULLP(inst))
-               break;
-
-          if (SYMBOLP(inst))
-               inst = lsymbol_value(inst, NIL, NIL);
-
-          /* If our prototype is not an instance, we abort the search and
-           * don't find the slot, rather than fail with an error. This is to
-           * ensure that instances remain accessible even if they have prototype
-           * symbols erroneously rebound to non-instances. This should ideally
-           * be caught by some kind of user space 'helper' facility that watches
-           * symbol redefinitions for problems.
-           */
-          if (!(INSTANCEP(inst) || NULLP(inst)))
-               break;
      }
 
      return boolcons(false);
