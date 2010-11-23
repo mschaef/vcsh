@@ -330,174 +330,190 @@ static LRef execute_fast_op(LRef fop, LRef env)
 
      STACK_CHECK(&fop);
 
-#ifdef _DEBUG
      ENTER_EVAL_FRAME(&fop, env)
-#endif
-   loop:
-     _process_interrupts();
-
-     checked_assert(TYPE(fop) == TC_FAST_OP);
-
-     LRef sym = FAST_OP_ARG1(fop);
-     LRef val;
-
-     LRef binding;
-     size_t argc;
-     LRef argv[ARG_BUF_LEN];
-     LRef old_global_env = NIL;
-
-     switch (FAST_OP_OPCODE(fop))
      {
-     case FOP_LITERAL:
-          retval = FAST_OP_ARG1(fop);
-          break;
+     loop:
+          _process_interrupts();
 
-     case FOP_GLOBAL_REF:
-          checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+          checked_assert(TYPE(fop) == TC_FAST_OP);
 
-          binding = SYMBOL_VCELL(sym);
 
-          if (UNBOUND_MARKER_P(binding))
-               vmerror_unbound(sym);
-
-          retval = binding;
-          break;
-
-     case FOP_GLOBAL_SET:
-          checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
-
-          binding = SYMBOL_VCELL(sym);
-
-          if (UNBOUND_MARKER_P(binding))
-               vmerror_unbound(sym);
-
-          val = execute_fast_op(FAST_OP_ARG2(fop), env);
-
-          SET_SYMBOL_VCELL(sym, val);
-          retval = val;
-          break;
-
-     case FOP_LOCAL_REF:
-          checked_assert(SYMBOLP(sym));
-
-          binding = lenvlookup(sym, env);
-
-          if (NULLP(binding))
-               vmerror_unbound(sym);
-
-          retval = CAR(binding);
-          break;
-
-     case FOP_LOCAL_SET:
-          checked_assert(SYMBOLP(sym));
-
-          binding = lenvlookup(sym, env);
-
-          if (NULLP(binding))
-               vmerror_unbound(sym);
-
-          val = execute_fast_op(FAST_OP_ARG2(fop), env);
-          SET_CAR(binding, val);
-
-          retval = val;
-          break;
-
-     case FOP_APPLY:
-          argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
-
-          fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
-
-          if (!NULLP(fop))
-               goto loop;
-
-          break;
-
-     case FOP_IF_TRUE:
-          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
-               fop = FAST_OP_ARG2(fop);
-          else
-               fop = FAST_OP_ARG3(fop);
-          goto loop;
-
-     case FOP_AND2:
-          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
+          switch (FAST_OP_OPCODE(fop))
           {
-               fop = FAST_OP_ARG2(fop);
-               goto loop;
-          }
-
-          retval = boolcons(false);
-          break;
-
-     case FOP_OR2:
-          val = execute_fast_op(FAST_OP_ARG1(fop), env);
-
-          if (TRUEP(val))
-          {
-               retval = val;
+          case FOP_LITERAL:
+               retval = FAST_OP_ARG1(fop);
                break;
-          }
 
-          fop = FAST_OP_ARG2(fop);
+          case FOP_GLOBAL_REF:
+          {
+               LRef sym = FAST_OP_ARG1(fop);
+          
+               checked_assert(SYMBOLP(sym));
+               checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+               
+               LRef binding = SYMBOL_VCELL(sym);
+               
+               if (UNBOUND_MARKER_P(binding))
+                    vmerror_unbound(sym);
+               
+               retval = binding;
+          }
+          break;
+
+          case FOP_GLOBAL_SET:
+          {
+               LRef sym = FAST_OP_ARG1(fop);
+
+               checked_assert(SYMBOLP(sym));
+               checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+               
+               LRef binding = SYMBOL_VCELL(sym);
+               
+               if (UNBOUND_MARKER_P(binding))
+                    vmerror_unbound(sym);
+               
+               LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
+               
+               SET_SYMBOL_VCELL(sym, val);
+               retval = val;
+          }
+          break;
+
+          case FOP_LOCAL_REF:
+          { 
+               LRef sym = FAST_OP_ARG1(fop);
+
+               checked_assert(SYMBOLP(sym));
+               
+               LRef binding = lenvlookup(sym, env);
+               
+               if (NULLP(binding))
+                    vmerror_unbound(sym);
+               
+               retval = CAR(binding);
+          }
+          break;
+
+          case FOP_LOCAL_SET:
+          {
+               LRef sym = FAST_OP_ARG1(fop);
+
+               checked_assert(SYMBOLP(sym));
+               
+               LRef binding = lenvlookup(sym, env);
+               
+               if (NULLP(binding))
+                    vmerror_unbound(sym);
+               
+               LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
+
+               SET_CAR(binding, val);
+               
+               retval = val;
+          }
+          break;
+
+          case FOP_APPLY:
+          {
+               size_t argc;
+               LRef argv[ARG_BUF_LEN];
+
+               argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
+               
+               fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
+               
+               if (!NULLP(fop))
+                    goto loop;
+          }
+          break;
+
+          case FOP_IF_TRUE:
+               if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
+                    fop = FAST_OP_ARG2(fop);
+               else
+                    fop = FAST_OP_ARG3(fop);
+               goto loop;
+
+          case FOP_AND2:
+               if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
+               {
+                    fop = FAST_OP_ARG2(fop);
+                    goto loop;
+               }
+
+               retval = boolcons(false);
+               break;
+
+          case FOP_OR2:
+          {
+               LRef val = execute_fast_op(FAST_OP_ARG1(fop), env);
+               
+               if (TRUEP(val))
+               {
+                    retval = val;
+                    break;
+               }
+               
+               fop = FAST_OP_ARG2(fop);
+          }
           goto loop;
 
-     case FOP_SEQUENCE:
-          execute_fast_op(FAST_OP_ARG1(fop), env);
+          case FOP_SEQUENCE:
+               execute_fast_op(FAST_OP_ARG1(fop), env);
 
-          fop = FAST_OP_ARG2(fop);
-          goto loop;
+               fop = FAST_OP_ARG2(fop);
+               goto loop;
 
-     case FOP_CLOSE_ENV:
-          retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
-          break;
+          case FOP_CLOSE_ENV:
+               retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
+               break;
 
-     case FOP_GET_ENV:
-          retval = env;
-          break;
+          case FOP_GET_ENV:
+               retval = env;
+               break;
 
-     case FOP_GLOBAL_DEF:
-          retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop), FAST_OP_ARG3(fop));
-          break;
+          case FOP_GLOBAL_DEF:
+               retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop), FAST_OP_ARG3(fop));
+               break;
 
-     case FOP_MARK_STACK:
-          ENTER_MARKER_FRAME(execute_fast_op(FAST_OP_ARG1(fop), env))
+          case FOP_MARK_STACK:
+               ENTER_MARKER_FRAME(execute_fast_op(FAST_OP_ARG1(fop), env))
+               {
+                    retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+               }
+               LEAVE_FRAME();
+               break;
+
+          case FOP_APPLY_WITH_GENV:
           {
-               retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+               LRef old_global_env = interp.global_env;
+               
+               ENTER_UNWIND_PROTECT()
+               {
+                    interp.global_env = execute_fast_op(FAST_OP_ARG2(fop), env);
+                    
+                    assert(GENVP(interp.global_env));
+                    
+                    check_global_environment_size();
+               
+                    retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
+               }
+               ON_UNWIND()
+               {
+                    interp.global_env = old_global_env;
+               
+                    assert(GENVP(interp.global_env));
+               }
+               LEAVE_UNWIND_PROTECT();
           }
-          LEAVE_FRAME();
           break;
 
-     case FOP_APPLY_WITH_GENV:
-          old_global_env = interp.global_env;
-
-          ENTER_UNWIND_PROTECT()
-          {
-               interp.global_env = execute_fast_op(FAST_OP_ARG2(fop), env);
-               
-               assert(GENVP(interp.global_env));
-               
-               check_global_environment_size();
-               
-               retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
+          default:
+               panic("Unsupported fast-op");
           }
-          ON_UNWIND()
-          {
-               interp.global_env = old_global_env;
-               
-               assert(GENVP(interp.global_env));
-          }
-          LEAVE_UNWIND_PROTECT();
-          break;
 
-     default:
-          panic("Unsupported fast-op");
      }
-
-#ifdef _DEBUG
      LEAVE_FRAME();
-#endif
 
      return retval;
 }
