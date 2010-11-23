@@ -305,7 +305,6 @@ static void register_main_subrs()
     register_subr(_T("%structurecons"),                   SUBR_2,     (void*)lstructurecons                      );
     register_subr(_T("%subr-table"),                      SUBR_0,     (void*)lisubr_table                        );
     register_subr(_T("%symbol-index"),                    SUBR_1,     (void*)lisymbol_index                      );
-    register_subr(_T("%symbol-value"),                    SUBR_3,     (void*)lisymbol_value                      );
     register_subr(_T("%sysob"),                           SUBR_1,     (void*)lsysob                              );
     register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );
     register_subr(_T("%time-apply0"),                     SUBR_1,     (void*)ltime_apply0                        );
@@ -490,7 +489,6 @@ static void register_main_subrs()
     register_subr(_T("symbol-bound?"),                    SUBR_3,     (void*)lsymbol_boundp                      );
     register_subr(_T("symbol-name"),                      SUBR_1,     (void*)lsymbol_name                        );
     register_subr(_T("symbol-package"),                   SUBR_1,     (void*)lsymbol_package                     );
-    register_subr(_T("symbol-value"),                     SUBR_3,     (void*)lsymbol_value                       );
     register_subr(_T("symbol?"),                          SUBR_1,     (void*)lsymbolp                            );
     register_subr(_T("system"),                           SUBR_ARGC,  (void*)lsystem                             );
     register_subr(_T("system-info"),                      SUBR_0,     (void*)lsystem_info                        );

@@ -357,39 +357,6 @@ LRef lisymbol_index(LRef symbol)
      return fixcons(SYMBOL_INDEX(symbol));
 }
 
-LRef lisymbol_value(LRef symbol, LRef lenv, LRef genv)
-{
-     if (!SYMBOLP(symbol))
-          vmerror_wrong_type(1, symbol);
-
-     LRef binding_cell = lenvlookup(symbol, lenv);
-
-     if (!NULLP(binding_cell))
-          return CAR(binding_cell);
-
-     /* local lookup failed, try global. */
-
-     LRef old_genv = interp.global_env;
-
-     if (TRUEP(genv) && !NULLP(genv))
-          set_global_env(genv);
-
-     LRef value = SYMBOL_VCELL(symbol);
-
-     interp.global_env = old_genv;
-
-     return value;
-}
-
-LRef lsymbol_value(LRef symbol, LRef lenv, LRef genv)
-{
-     LRef value = lisymbol_value(symbol, lenv, genv);
-
-     if (UNBOUND_MARKER_P(value))
-          vmerror_unbound(symbol);
-
-     return value;
-}
 
 LRef lsymbol_name(LRef sym)
 {
