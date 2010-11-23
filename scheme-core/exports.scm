@@ -574,7 +574,6 @@
            negate
            negative?
            newline
-           nil
            normalize-whitespace
            not
            nth

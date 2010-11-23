@@ -264,7 +264,6 @@
 (%define temporary-file-name #.(scheme::%subr-by-name "temporary-file-name"))
 (%define throw #.(scheme::%subr-by-name "throw"))
 (%define truncate #.(scheme::%subr-by-name "truncate"))
-(%define unbind-symbol! #.(scheme::%subr-by-name "unbind-symbol!"))
 (%define unread-char #.(scheme::%subr-by-name "unread-char"))
 (%define unwind-protect #.(scheme::%subr-by-name "unwind-protect"))
 (%define vector #.(scheme::%subr-by-name "vector"))

@@ -217,9 +217,6 @@ static void init_base_scheme_objects(void)
      for(ii = 0; ii < TRAP_LAST; ii++)
           interp.trap_handlers[ii] = NIL;
 
-     LRef nil_sym = simple_intern(_T("nil"), interp.system_package);
-     lidefine_global(nil_sym, NIL, NIL);
-
      gc_protect(_T("startup-args"), &interp.startup_args, 1);
 
      gc_protect(_T("control-fields"), interp.control_fields, sizeof(interp.control_fields) / sizeof(interp.control_fields[0]));
@@ -494,7 +491,6 @@ static void register_main_subrs()
     register_subr(_T("temporary-file-name"),              SUBR_1,     (void*)ltemporary_file_name                );
     register_subr(_T("throw"),                            SUBR_2,     (void*)lthrow                              );
     register_subr(_T("truncate"),                         SUBR_1,     (void*)ltruncate                           );
-    register_subr(_T("unbind-symbol!"),                   SUBR_1,     (void*)lunbind_symbol                      );
     register_subr(_T("unread-char"),                      SUBR_2,     (void*)lunread_char                        );
     register_subr(_T("unwind-protect"),                   SUBR_2,     (void*)lunwind_protect                     );
     register_subr(_T("vector"),                           SUBR_ARGC,  (void*)lvector                             );

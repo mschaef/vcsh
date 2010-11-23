@@ -588,4 +588,11 @@
            (%global-environment-set! genv (%symbol-index sym) val)
            val))))
 
+(define (unbind-symbol! sym :optional (genv (%current-global-environment)))
+  (check (and symbol? (not keyword?)) sym)
+  (let ((idx (%symbol-index sym)))
+    (unless (= idx 0)
+      (%global-environment-set! genv idx (%unbound-marker))))
+  (values))
+
 

@@ -149,16 +149,6 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
      return val;
 }
 
-LRef lunbind_symbol(LRef var)
-{
-     if (!SYMBOLP(var))
-          vmerror_wrong_type(1, var);
-
-     SET_SYMBOL_VCELL(var, UNBOUND_MARKER);
-
-     return NIL;
-}
-
 LRef lcurrent_global_environment()
 {
      return interp.global_env;

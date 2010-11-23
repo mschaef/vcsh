@@ -2036,7 +2036,6 @@ LRef lthrow(LRef tag, LRef value);
 LRef ltime_apply0(LRef fn);
 LRef lto_ieee754_bits(LRef x);
 LRef ltruncate(LRef x);
-LRef lunbind_symbol(LRef var);
 LRef lunbound_marker();
 LRef lunread_char(LRef ch, LRef port);
 LRef lunwind_protect(LRef thunk, LRef after);
