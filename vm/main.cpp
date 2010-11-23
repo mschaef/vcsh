@@ -626,24 +626,7 @@ LRef run()
      if (DEBUG_FLAG(DF_NO_STARTUP))
           return NIL;
 
-     LRef retval = NIL;
-
-     if (PROCEDUREP(interp.trap_handlers[TRAP_RUN0])) {
-          retval = vmtrap(TRAP_RUN0, VMT_MANDATORY_TRAP, 0);
-     }  else {
-          LRef run0_proc = lisymbol_value(simple_intern(_T("%run0"), interp.scheme_package), NIL, NIL);
-
-          if (NULLP(run0_proc))
-               panic("No bootstrap procedure found in scheme::%run0.");
-
-          if (!PROCEDUREP(run0_proc))
-               panic("Invalid bootstrap procedure found in scheme::%run0. (failed PROCEDUREP).");
-
-          if (call_lisp_procedure(run0_proc, &retval, NULL, 0))
-               panic("Failure during interprer launch.");
-     }
-
-     return retval;
+     return vmtrap(TRAP_RUN0, VMT_MANDATORY_TRAP, 0);
 }
 
 void shutdown()
