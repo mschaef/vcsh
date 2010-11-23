@@ -372,6 +372,9 @@
     (invoke-hook '*shutdown-hook* retval)
     retval))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_RUN0 %run0))
+
 (define (display-vcsh-banner :optional (port (current-output-port)))
   "Display the vcsh startup banner on <port>."
   (format port "; Welcome to VCSH\n")
