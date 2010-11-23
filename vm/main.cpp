@@ -486,7 +486,6 @@ static void register_main_subrs()
     register_subr(_T("%subr-name"),                       SUBR_1,     (void*)lsubr_name                          );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );
     register_subr(_T("sxhash"),                           SUBR_2,     (void*)lsxhash                             );
-    register_subr(_T("symbol-bound?"),                    SUBR_3,     (void*)lsymbol_boundp                      );
     register_subr(_T("symbol-name"),                      SUBR_1,     (void*)lsymbol_name                        );
     register_subr(_T("symbol-package"),                   SUBR_1,     (void*)lsymbol_package                     );
     register_subr(_T("symbol?"),                          SUBR_1,     (void*)lsymbolp                            );

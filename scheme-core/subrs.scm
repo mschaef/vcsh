@@ -256,7 +256,6 @@
 (%define string? #.(scheme::%subr-by-name "string?"))
 (%define substring #.(scheme::%subr-by-name "substring"))
 (%define sxhash #.(scheme::%subr-by-name "sxhash"))
-(%define symbol-bound? #.(scheme::%subr-by-name "symbol-bound?"))
 (%define symbol-name #.(scheme::%subr-by-name "symbol-name"))
 (%define symbol-package #.(scheme::%subr-by-name "symbol-package"))
 (%define symbol? #.(scheme::%subr-by-name "symbol?"))

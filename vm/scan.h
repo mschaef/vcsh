@@ -2023,7 +2023,6 @@ LRef lsubr_type_code(LRef subr);
 LRef lsubset(LRef fcn, LRef l);
 LRef lsubstring(LRef, LRef, LRef);
 LRef lsubtract(LRef x, LRef y);
-LRef lsymbol_boundp(LRef x, LRef lenv, LRef genv);
 LRef lsymbol_name(LRef sym);
 LRef lsymbol_name(LRef sym);
 LRef lsymbol_package(LRef sym);

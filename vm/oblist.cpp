@@ -319,31 +319,6 @@ LRef lset_symbol_package(LRef sym, LRef package)
      return sym;
 }
 
-LRef lsymbol_boundp(LRef x, LRef lenv, LRef genv)
-{
-     if (!SYMBOLP(x))
-          vmerror_wrong_type(1, x);
-
-     LRef tmp = lenvlookup(x, lenv);
-
-     if (!NULLP(tmp))
-          return x;
-
-     LRef old_genv = interp.global_env;
-
-     if (TRUEP(genv) && !NULLP(genv))
-          set_global_env(genv);
-
-     bool unboundp = UNBOUND_MARKER_P(SYMBOL_VCELL(x));
-
-     interp.global_env = old_genv;
-
-     if (unboundp)
-          return boolcons(false);
-     else
-          return x;
-}
-
 LRef lunbound_marker()
 {
      return UNBOUND_MARKER;

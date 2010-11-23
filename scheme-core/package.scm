@@ -563,3 +563,21 @@
     (if (eq? val (%unbound-marker))
         (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym)
         val)))
+
+;; (define (set-symbol-value! sym val :optional (lenv ()) (genv #f))
+;;   (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
+;;     (aif (pair? (env-lookup sym lenv))
+;;          (begin
+;;            (set-car! it val)
+;;            val)
+         
+;;          ))))
+
+(define (symbol-bound? sym :optional (lenv ()) (genv #f))
+  (check symbol? sym)
+  (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
+    (if (or (pair? (env-lookup sym lenv))
+            (not (eq? (%global-environment-ref genv (%symbol-index sym))
+                      (%unbound-marker))))
+        sym
+        #f)))
