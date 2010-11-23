@@ -75,7 +75,6 @@
 (%define %subr-table #.(scheme::%subr-by-name "%subr-table"))
 (%define %subr-type-code #.(scheme::%subr-by-name "%subr-type-code"))
 (%define %symbol-index #.(scheme::%subr-by-name "%symbol-index"))
-(%define %symbol-value #.(scheme::%subr-by-name "%symbol-value"))
 (%define %sysob #.(scheme::%subr-by-name "%sysob"))
 (%define %system-info #.(scheme::%subr-by-name "system-info"))
 (%define %test-blocking-input #.(scheme::%subr-by-name "%test-blocking-input"))
@@ -260,7 +259,6 @@
 (%define symbol-bound? #.(scheme::%subr-by-name "symbol-bound?"))
 (%define symbol-name #.(scheme::%subr-by-name "symbol-name"))
 (%define symbol-package #.(scheme::%subr-by-name "symbol-package"))
-(%define symbol-value #.(scheme::%subr-by-name "symbol-value"))
 (%define symbol? #.(scheme::%subr-by-name "symbol?"))
 (%define system #.(scheme::%subr-by-name "system"))
 (%define system-info #.(scheme::%subr-by-name "system-info")) ;; REVISIT: deprecated

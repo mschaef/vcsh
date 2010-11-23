@@ -549,3 +549,17 @@
 
 (define (all-package-variables :optional (package *package*))
   (filter symbol-bound? (all-package-symbols package)))
+
+(define (%symbol-value sym :optional (lenv ()) (genv (%current-global-environment)))
+  (check symbol? sym)
+  (check %global-environment? genv)
+  (aif (pair? (env-lookup sym lenv))
+       (car it)
+       (%global-environment-ref genv (%symbol-index sym))))
+
+(define (symbol-value sym :optional (lenv ()) (genv #f))
+  (let* ((genv (if (eq? #f genv) (%current-global-environment) genv))
+         (val (%symbol-value sym lenv genv)))
+    (if (eq? val (%unbound-marker))
+        (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym)
+        val)))
