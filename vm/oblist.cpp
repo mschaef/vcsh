@@ -144,8 +144,8 @@ LRef lmake_package(LRef name)
 
      LRef new_package = packagecons(name);
 
-     SET_CURRENT_PACKAGE_LIST(lcons(new_package, SYMBOL_VCELL(interp.sym_package_list)));
-
+     lset_current_package_list(lcons(new_package, lcurrent_package_list()));
+                                     
      return new_package;
 }
 
@@ -156,7 +156,7 @@ LRef lfind_package(LRef name)
 
      _TCHAR *n = get_c_string(name);
 
-     for (LRef l = CURRENT_PACKAGE_LIST(); CONSP(l); l = CDR(l))
+     for (LRef l = lcurrent_package_list(); CONSP(l); l = CDR(l))
      {
           LRef p = CAR(l);
 
@@ -354,25 +354,38 @@ LRef lstring2uninterned_symbol(LRef str)
      return symcons(sname, NIL);
 }
 
+LRef lcurrent_package_list()
+{
+     return interp.package_list;
+}
+
+LRef lset_current_package_list(LRef packages)
+{
+     interp.package_list = packages;
+
+     return NIL;
+}
+
 /**** Initialization code ****/
 
 void create_initial_packages()
 {
      interp.system_package = packagecons(strcons("system"));
+     gc_protect(_T("system-package"), &interp.system_package, 1);
 
-     /* Now we create and register the default system package */
      interp.scheme_package = packagecons(strcons("scheme"));
+     gc_protect(_T("scheme-package"), &interp.scheme_package, 1);
+
+     interp.keyword_package = packagecons(strcons("keyword"));
+     gc_protect(_T("keyword-package"), &interp.keyword_package, 1);
+
+     lset_current_package_list(listn(3,
+                                     interp.scheme_package,
+                                     interp.system_package,
+                                     interp.keyword_package));
 
      /* By default, the scheme language package uses the system package. */
      lset_package_use_list(interp.scheme_package, lcons(interp.system_package, NIL));
-
-     gc_protect_sym(&interp.sym_package_list, "*package-list*", interp.system_package);
-     lidefine_global(interp.sym_package_list, lcons(interp.scheme_package,
-                                                    lcons(interp.system_package, NIL)), NIL);
-
-     /* By default, we also have a keyword package. */
-     interp.keyword_package = lmake_package(strcons("keyword"));
-     gc_protect(_T("keyword-package"), &interp.keyword_package, 1);
 }
 
 END_NAMESPACE

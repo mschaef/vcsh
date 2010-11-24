@@ -13,7 +13,7 @@
 (define *finalize-load-hook* ())
 
 (define (list-all-packages)
-  (list-copy system::*package-list*))
+  (list-copy (%current-package-list)))
 
 (define (intern-keyword! keyword-name)
   "Interns a keyword symbol named <keyword-name>. <keyword-name> can be
@@ -241,8 +241,8 @@
               (list-all-packages))
 
     ;; 3. Remove the package from the master package list
-    (set! system::*package-list*
-          (delete package system::*package-list* eq?))))
+    (%set-current-package-list!
+     (delete package (%current-package-list) eq?))))
 
 
 (define (in-package! name)

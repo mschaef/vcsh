@@ -478,11 +478,11 @@ struct interpreter_t
 
      LRef control_fields[VMCTRL_LAST + 1];
 
-     LRef sym_package_list;
-
      LRef system_package;
      LRef scheme_package;
      LRef keyword_package;
+
+     LRef package_list;
 
      LRef base_instance;
 
@@ -1642,16 +1642,6 @@ INLINE LRef VM_DEBUG_PORT()
      return (&interp.debugger_output);
 }
 
-INLINE LRef CURRENT_PACKAGE_LIST()
-{
-     return SYMBOL_VCELL(interp.sym_package_list);
-}
-
-INLINE void SET_CURRENT_PACKAGE_LIST(LRef ps)
-{
-     SET_SYMBOL_VCELL(interp.sym_package_list, ps);
-}
-
 LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_object,
               void *user_data);
 
@@ -1808,6 +1798,7 @@ LRef lcopy_global_environment(LRef genv, LRef name);
 LRef lcopy_structure(LRef st);
 LRef lcos(LRef x);
 LRef lcurrent_global_environment();
+LRef lcurrent_package_list();
 LRef ldebug_flags();
 LRef ldebug_write(LRef form);
 LRef ldelete_file(LRef filename);
@@ -1975,6 +1966,7 @@ LRef lruntime(void);
 LRef lsend(LRef args);
 LRef lset_closure_code(LRef exp, LRef code);
 LRef lset_closure_env(LRef exp, LRef env);
+LRef lset_current_package_list(LRef packages);
 LRef lset_debug_flags(LRef c);
 LRef lset_environment_variable(LRef varname, LRef value);
 LRef lset_handler_frames(LRef new_frames);
