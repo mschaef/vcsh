@@ -1874,7 +1874,7 @@ LRef linput_portp(LRef obj);
 LRef linstancep(LRef obj);
 LRef linteger2char(LRef s);     /*  REVISIT: rename to exact->char */
 LRef lintegerp(LRef x);
-LRef lipackagecons(LRef name, LRef bindings, LRef use_list);
+LRef lipackagecons(LRef name);
 LRef liset_control_field(LRef control_field_id, LRef new_value);
 LRef liset_instance_proto(LRef instance, LRef new_proto);
 LRef liset_trap_handler(LRef trap_id, LRef new_handler);

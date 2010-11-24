@@ -198,14 +198,15 @@
    if not specified."
   (with-package #f (write form port)))
 
-(define (package-copy package)
+(define (package-copy old-package)
   "Creates a duplicate, logically equivalent copy of <package>. The resulting
    package is not placed on the current package list."
-  (let ((bindings (make-hash :equal))
-        (use-list (list-copy (%package-use-list package))))
-    (dohash (sym-name sym-rec (%package-bindings package))
+  (let* ((new-package (%packagecons (package-name old-package)))
+         (bindings (%package-bindings new-package)))
+    (%set-package-use-list! new-package (list-copy (%package-use-list old-package)))
+    (dohash (sym-name sym-rec (%package-bindings old-package))
             (hash-set! bindings sym-name (cons (car sym-rec) (cdr sym-rec))))
-    (%packagecons (package-name package) bindings use-list)))
+    new-package))
 
 (define (rename-package! p new-name)
   "Renames package <p> to <new-name> ensuring that there is no package already

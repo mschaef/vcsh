@@ -273,7 +273,7 @@ static void register_main_subrs()
     register_subr(_T("%obaddr"),                          SUBR_1,     (void*)lobaddr                             );
     register_subr(_T("%package-bindings"),                SUBR_1,     (void*)lpackage_bindings                   );
     register_subr(_T("%package-use-list"),                SUBR_1,     (void*)lpackage_use_list                   );
-    register_subr(_T("%packagecons"),                     SUBR_3,     (void*)lipackagecons                       );
+    register_subr(_T("%packagecons"),                     SUBR_1,     (void*)lipackagecons                       );
     register_subr(_T("%panic"),                           SUBR_1,     (void*)lpanic                              );
     register_subr(_T("%property-list"),                   SUBR_1,     (void*)lproperty_list                      );
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );

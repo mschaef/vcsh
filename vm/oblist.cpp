@@ -67,18 +67,12 @@ LRef lpackagep(LRef x)
           return boolcons(false);
 }
 
-LRef lipackagecons(LRef name, LRef bindings, LRef use_list)
+LRef lipackagecons(LRef name)
 {
      if (!STRINGP(name))
           vmerror_wrong_type(1, name);
 
-     if (!HASHP(bindings))
-          vmerror_wrong_type(2, bindings);
-
-     if (!list_of_packages_p(use_list))
-          vmerror_arg_out_of_range(use_list, _T("bad use list"));
-
-     return packagecons(name, bindings, use_list);
+     return packagecons(name);
 }
 
 LRef lpackage_name(LRef p)      /*  ONLY SCHEME */
