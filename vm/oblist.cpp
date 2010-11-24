@@ -127,22 +127,6 @@ LRef lset_package_use_list(LRef p, LRef use_list)
 
 /*** support primitives for packages ***/
 
-
-LRef lmake_package(LRef name)
-{
-     if (TRUEP(lfind_package(name)))
-          vmerror_arg_out_of_range(name, _T("duplicate package name"));
-
-     if (!STRINGP(name))
-          vmerror_wrong_type(name);
-
-     LRef new_package = packagecons(name);
-
-     lset_current_package_list(lcons(new_package, lcurrent_package_list()));
-                                     
-     return new_package;
-}
-
 LRef lfind_package(LRef name)
 {
      if (PACKAGEP(name))

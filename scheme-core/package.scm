@@ -198,6 +198,27 @@
    if not specified."
   (with-package #f (write form port)))
 
+(define (find-package name)
+  (if (package? name)
+      name
+      (let loop ((packages (%current-package-list)))
+        (if (null? packages)
+            #f
+            (let ((package (car packages)))
+              (unless (package? package)
+                (%panic "damaged package list."))
+              (if (equal? name (package-name package))
+                  package
+                  (loop (cdr packages))))))))
+
+(define (make-package! name)
+  (check string? name)
+  (when (find-package name)
+    (error "Duplicate package name: ~a" name))
+  (let ((new-package (%packagecons name)))
+    (%set-current-package-list! (cons new-package (%current-package-list)))
+    new-package))
+
 (define (package-copy old-package)
   "Creates a duplicate, logically equivalent copy of <package>. The resulting
    package is not placed on the current package list."
