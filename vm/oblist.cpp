@@ -125,30 +125,6 @@ LRef lset_package_use_list(LRef p, LRef use_list)
      return p;
 }
 
-/*** support primitives for packages ***/
-
-LRef lfind_package(LRef name)
-{
-     if (PACKAGEP(name))
-          return name;
-
-     _TCHAR *n = get_c_string(name);
-
-     for (LRef l = lcurrent_package_list(); CONSP(l); l = CDR(l))
-     {
-          LRef p = CAR(l);
-
-          if (!PACKAGEP(p))
-               panic("damaged package list");
-
-          if (_tcscmp(n, get_c_string(PACKAGE_NAME(p))) == 0)
-               return p;
-     }
-
-     return boolcons(false);
-}
-
-
 /*** support primitives for symbols and name mappings  ***/
 
 /* Find a symbol record local to the specified package. */
@@ -334,12 +310,12 @@ LRef lstring2uninterned_symbol(LRef str)
 
 LRef lcurrent_package_list()
 {
-     return interp.package_list;
+     return interp.fasl_package_list;
 }
 
 LRef lset_current_package_list(LRef packages)
 {
-     interp.package_list = packages;
+     interp.fasl_package_list = packages;
 
      return NIL;
 }

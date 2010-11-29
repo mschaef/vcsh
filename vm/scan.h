@@ -478,7 +478,7 @@ struct interpreter_t
 
      LRef control_fields[VMCTRL_LAST + 1];
 
-     LRef package_list;
+     LRef fasl_package_list;
 
      LRef base_instance;
 
@@ -1815,7 +1815,6 @@ LRef lexactp(LRef x);
 LRef lexp(LRef x);
 LRef lexpt(LRef x, LRef y);
 LRef lfast_read(LRef port);
-LRef lfind_package(LRef obj);
 LRef lfloor(LRef x);
 LRef lflush_port(LRef port);
 LRef lflush_whitespace(LRef port, LRef slc);
@@ -1896,7 +1895,6 @@ LRef lmagnitude(LRef cmplx);
 LRef lmake_eof();
 LRef lmake_hash(LRef key_type);
 LRef lmake_instance(LRef args);
-LRef lmake_package(LRef name);
 LRef lmake_polar(LRef r, LRef theta);
 LRef lmake_rectangular(LRef re, LRef im);
 LRef lmake_vector(LRef dim, LRef initial);

@@ -190,6 +190,24 @@ static void fast_read_string(LRef port, LRef * retval)
      *retval = strcons((size_t) actual_length, buf);
 }
 
+static LRef find_package(LRef name)
+{
+     _TCHAR *n = get_c_string(name);
+
+     for (LRef l = lcurrent_package_list(); CONSP(l); l = CDR(l))
+     {
+          LRef p = CAR(l);
+
+          if (!PACKAGEP(p))
+               panic("damaged package list");
+
+          if (_tcscmp(n, get_c_string(PACKAGE_NAME(p))) == 0)
+               return p;
+     }
+
+     return boolcons(false);
+}
+
 static void fast_read_package(LRef port, LRef * package)
 {
      LRef name;
@@ -198,7 +216,7 @@ static void fast_read_package(LRef port, LRef * package)
      if (!STRINGP(name))
           fast_read_error("packages must have string names", port, name);
 
-     *package = lfind_package(name);
+     *package = find_package(name);
 
      if (FALSEP(*package))
           fast_read_error("package not found", port, name);

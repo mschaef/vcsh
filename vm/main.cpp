@@ -281,6 +281,7 @@ static void register_main_subrs()
     register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
     register_subr(_T("%set-current-package-list!"),       SUBR_1,     (void*)lset_current_package_list           );
     register_subr(_T("%set-debug-flags"),                 SUBR_1,     (void*)lset_debug_flags                    );
+    register_subr(_T("%set-fasl-package-list!"),          SUBR_1,     (void*)lset_current_package_list           );
     register_subr(_T("%set-handler-frames"),              SUBR_1,     (void*)lset_handler_frames                 );
     register_subr(_T("%set-instance-proto!"),             SUBR_2,     (void*)liset_instance_proto                );
     register_subr(_T("%set-interrupt-mask!"),             SUBR_1,     (void*)lset_interrupt_mask                 );
@@ -570,8 +571,8 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.launch_realtime = sys_runtime();
 
-     interp.package_list = NIL;
-     gc_protect(_T("package-list"), &interp.package_list, 1);
+     interp.fasl_package_list = NIL;
+     gc_protect(_T("fasl-package-list"), &interp.fasl_package_list, 1);
 
      /*  Statistics Counters */
      interp.gc_total_cells_allocated = 0;
