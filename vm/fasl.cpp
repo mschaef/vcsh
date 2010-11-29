@@ -190,11 +190,19 @@ static void fast_read_string(LRef port, LRef * retval)
      *retval = strcons((size_t) actual_length, buf);
 }
 
+
+LRef lset_fasl_package_list(LRef packages)
+{
+     interp.fasl_package_list = packages;
+
+     return NIL;
+}
+
 static LRef find_package(LRef name)
 {
      _TCHAR *n = get_c_string(name);
 
-     for (LRef l = lcurrent_package_list(); CONSP(l); l = CDR(l))
+     for (LRef l = interp.fasl_package_list; CONSP(l); l = CDR(l))
      {
           LRef p = CAR(l);
 

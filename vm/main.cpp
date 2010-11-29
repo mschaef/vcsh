@@ -240,7 +240,6 @@ static void register_main_subrs()
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
     register_subr(_T("%copy-global-environment"),         SUBR_2,     (void*)lcopy_global_environment            );
     register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
-    register_subr(_T("%current-package-list"),            SUBR_1,     (void*)lcurrent_package_list               );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
     register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
@@ -279,9 +278,8 @@ static void register_main_subrs()
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );
     register_subr(_T("%set-closure-env"),                 SUBR_2,     (void*)lset_closure_env                    );
     register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
-    register_subr(_T("%set-current-package-list!"),       SUBR_1,     (void*)lset_current_package_list           );
     register_subr(_T("%set-debug-flags"),                 SUBR_1,     (void*)lset_debug_flags                    );
-    register_subr(_T("%set-fasl-package-list!"),          SUBR_1,     (void*)lset_current_package_list           );
+    register_subr(_T("%set-fasl-package-list!"),          SUBR_1,     (void*)lset_fasl_package_list              );
     register_subr(_T("%set-handler-frames"),              SUBR_1,     (void*)lset_handler_frames                 );
     register_subr(_T("%set-instance-proto!"),             SUBR_2,     (void*)liset_instance_proto                );
     register_subr(_T("%set-interrupt-mask!"),             SUBR_1,     (void*)lset_interrupt_mask                 );

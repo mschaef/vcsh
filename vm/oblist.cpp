@@ -308,18 +308,6 @@ LRef lstring2uninterned_symbol(LRef str)
      return symcons(sname, NIL);
 }
 
-LRef lcurrent_package_list()
-{
-     return interp.fasl_package_list;
-}
-
-LRef lset_current_package_list(LRef packages)
-{
-     interp.fasl_package_list = packages;
-
-     return NIL;
-}
-
 /**** Initialization code ****/
 
 void create_initial_packages()
@@ -328,10 +316,10 @@ void create_initial_packages()
      interp.control_fields[VMCTRL_PACKAGE_SCHEME] = packagecons(strcons("scheme"));
      interp.control_fields[VMCTRL_PACKAGE_KEYWORD] = packagecons(strcons("keyword"));
 
-     lset_current_package_list(listn(3,
-                                     interp.control_fields[VMCTRL_PACKAGE_SCHEME],
-                                     interp.control_fields[VMCTRL_PACKAGE_SYSTEM],
-                                     interp.control_fields[VMCTRL_PACKAGE_KEYWORD]));
+     interp.fasl_package_list = listn(3,
+                                      interp.control_fields[VMCTRL_PACKAGE_SCHEME],
+                                      interp.control_fields[VMCTRL_PACKAGE_SYSTEM],
+                                      interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
 }
 
 END_NAMESPACE

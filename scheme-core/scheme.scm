@@ -14,10 +14,12 @@
 
 (define *scheme-build-version* "Scheme 0.50")
 
-;;; The build is composed of the following files:
+;;; Load definitions for subrs and VM-specific constants
 
 (include "../vm/constants.scm")
 (include "subrs.scm")
+
+;;; Set up the default package structure
 
 (define *package* (%control-field system::VMCTRL_PACKAGE_SCHEME))
 
@@ -35,7 +37,11 @@
 (%set-package-use-list! (%control-field system::VMCTRL_PACKAGE_SCHEME)
                         (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)))
 
+;;; Now, we're ready to start processing official 'load units'
+
 (compiler::%%begin-load-unit-boundaries "scheme")
+
+;;; A scheme build includes the following files for basic functionality.
 
 (include "character.scm")
 (include "class-graph.scm")
