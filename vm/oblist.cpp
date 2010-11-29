@@ -348,13 +348,13 @@ LRef lset_current_package_list(LRef packages)
 
 void create_initial_packages()
 {
-     interp.system_package = packagecons(strcons("system"));
+     interp.control_fields[VMCTRL_PACKAGE_SYSTEM] = interp.system_package = packagecons(strcons("system"));
      gc_protect(_T("system-package"), &interp.system_package, 1);
 
-     interp.scheme_package = packagecons(strcons("scheme"));
+      interp.control_fields[VMCTRL_PACKAGE_SCHEME] = interp.scheme_package = packagecons(strcons("scheme"));
      gc_protect(_T("scheme-package"), &interp.scheme_package, 1);
 
-     interp.keyword_package = packagecons(strcons("keyword"));
+      interp.control_fields[VMCTRL_PACKAGE_KEYWORD] = interp.keyword_package = packagecons(strcons("keyword"));
      gc_protect(_T("keyword-package"), &interp.keyword_package, 1);
 
      lset_current_package_list(listn(3,
