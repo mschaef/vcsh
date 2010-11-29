@@ -27,13 +27,6 @@
                              (cons (%control-field system::VMCTRL_PACKAGE_SCHEME)
                                    (cons (%control-field system::VMCTRL_PACKAGE_KEYWORD)))))
 
-(define (%current-package-list) *package-list*)
-
-(define (%set-current-package-list! packages)
-  (%set-fasl-package-list! packages)
-  (set! *package-list* packages)
-  packages)
-
 (%set-package-use-list! (%control-field system::VMCTRL_PACKAGE_SCHEME)
                         (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)))
 

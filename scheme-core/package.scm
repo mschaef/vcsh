@@ -13,7 +13,7 @@
 (define *finalize-load-hook* ())
 
 (define (list-all-packages)
-  (list-copy (%current-package-list)))
+  (list-copy *package-list*))
 
 (define (intern-keyword! keyword-name)
   "Interns a keyword symbol named <keyword-name>. <keyword-name> can be
@@ -198,7 +198,7 @@
 (define (find-package name)
   (if (package? name)
       name
-      (let loop ((packages (%current-package-list)))
+      (let loop ((packages *package-list*))
         (if (null? packages)
             #f
             (let ((package (car packages)))
@@ -213,7 +213,8 @@
   (when (find-package name)
     (error "Duplicate package name: ~a" name))
   (let ((new-package (%packagecons name)))
-    (%set-current-package-list! (cons new-package (%current-package-list)))
+    (push! new-package *package-list*)
+    (%set-fasl-package-list! *package-list*)
     new-package))
 
 (define (package-copy old-package)
@@ -260,8 +261,8 @@
               (list-all-packages))
 
     ;; 3. Remove the package from the master package list
-    (%set-current-package-list!
-     (delete package (%current-package-list) eq?))))
+    (set! *package-list* (delete package *package-list* eq?))
+    (%set-fasl-package-list! *package-list*)))
 
 
 (define (in-package! name)
