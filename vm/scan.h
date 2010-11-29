@@ -478,10 +478,6 @@ struct interpreter_t
 
      LRef control_fields[VMCTRL_LAST + 1];
 
-     LRef system_package;
-     LRef scheme_package;
-     LRef keyword_package;
-
      LRef package_list;
 
      LRef base_instance;

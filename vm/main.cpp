@@ -365,7 +365,6 @@ static void register_main_subrs()
     register_subr(_T("exp"),                              SUBR_1,     (void*)lexp                                );
     register_subr(_T("expt"),                             SUBR_2,     (void*)lexpt                               );
     register_subr(_T("fast-read"),                        SUBR_1,     (void*)lfast_read                          );
-    register_subr(_T("find-package"),                     SUBR_1,     (void*)lfind_package                       );
     register_subr(_T("floor"),                            SUBR_1,     (void*)lfloor                              );
     register_subr(_T("flush-port"),                       SUBR_1,     (void*)lflush_port                         );
     register_subr(_T("flush-whitespace"),                 SUBR_2,     (void*)lflush_whitespace                   );
@@ -573,10 +572,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.package_list = NIL;
      gc_protect(_T("package-list"), &interp.package_list, 1);
-
-     interp.system_package = NIL;
-     interp.scheme_package = NIL;
-     interp.keyword_package = NIL;
 
      /*  Statistics Counters */
      interp.gc_total_cells_allocated = 0;

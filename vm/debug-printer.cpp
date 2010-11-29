@@ -303,7 +303,7 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
                else
                     scwritef("#:~a@~c&", port, SYMBOL_PNAME(obj), obj);
           }
-          else if (SYMBOL_HOME(obj) == interp.keyword_package)
+          else if (SYMBOL_HOME(obj) == interp.control_fields[VMCTRL_PACKAGE_KEYWORD])
                scwritef(":~a", port, SYMBOL_PNAME(obj));
           else
           {

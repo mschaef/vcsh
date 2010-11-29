@@ -186,7 +186,7 @@ LRef ladd_symbol_to_package(LRef symbol, LRef package)
           vmerror_wrong_type(2, package);
 
      /* keyword symbols are created with the external flag set to #t. */
-     bool is_keyword = (package == interp.keyword_package);
+     bool is_keyword = (package == interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
 
      LRef symbol_record = lcons(symbol, boolcons(is_keyword));
 
@@ -234,7 +234,7 @@ LRef lsymbolp(LRef x)
 
 LRef lkeywordp(LRef x)
 {
-     if (SYMBOLP(x) && (SYMBOL_HOME(x) == interp.keyword_package))
+     if (SYMBOLP(x) && (SYMBOL_HOME(x) == interp.control_fields[VMCTRL_PACKAGE_KEYWORD]))
           return x;
      else
           return boolcons(false);
@@ -269,7 +269,7 @@ LRef simple_intern(const _TCHAR * name, LRef package)
 
 LRef keyword_intern(const _TCHAR * name)
 {
-     return simple_intern(strcons(name), interp.keyword_package);
+     return simple_intern(strcons(name), interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
 }
 
 /*** Symbol primitives ***/
@@ -348,22 +348,18 @@ LRef lset_current_package_list(LRef packages)
 
 void create_initial_packages()
 {
-     interp.control_fields[VMCTRL_PACKAGE_SYSTEM] = interp.system_package = packagecons(strcons("system"));
-     gc_protect(_T("system-package"), &interp.system_package, 1);
-
-      interp.control_fields[VMCTRL_PACKAGE_SCHEME] = interp.scheme_package = packagecons(strcons("scheme"));
-     gc_protect(_T("scheme-package"), &interp.scheme_package, 1);
-
-      interp.control_fields[VMCTRL_PACKAGE_KEYWORD] = interp.keyword_package = packagecons(strcons("keyword"));
-     gc_protect(_T("keyword-package"), &interp.keyword_package, 1);
+     interp.control_fields[VMCTRL_PACKAGE_SYSTEM] = packagecons(strcons("system"));
+     interp.control_fields[VMCTRL_PACKAGE_SCHEME] = packagecons(strcons("scheme"));
+     interp.control_fields[VMCTRL_PACKAGE_KEYWORD] = packagecons(strcons("keyword"));
 
      lset_current_package_list(listn(3,
-                                     interp.scheme_package,
-                                     interp.system_package,
-                                     interp.keyword_package));
+                                     interp.control_fields[VMCTRL_PACKAGE_SCHEME],
+                                     interp.control_fields[VMCTRL_PACKAGE_SYSTEM],
+                                     interp.control_fields[VMCTRL_PACKAGE_KEYWORD]));
 
      /* By default, the scheme language package uses the system package. */
-     lset_package_use_list(interp.scheme_package, lcons(interp.system_package, NIL));
+     lset_package_use_list(interp.control_fields[VMCTRL_PACKAGE_SCHEME],
+                           lcons(interp.control_fields[VMCTRL_PACKAGE_SYSTEM], NIL));
 }
 
 END_NAMESPACE
