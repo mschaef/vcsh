@@ -356,10 +356,6 @@ void create_initial_packages()
                                      interp.control_fields[VMCTRL_PACKAGE_SCHEME],
                                      interp.control_fields[VMCTRL_PACKAGE_SYSTEM],
                                      interp.control_fields[VMCTRL_PACKAGE_KEYWORD]));
-
-     /* By default, the scheme language package uses the system package. */
-     lset_package_use_list(interp.control_fields[VMCTRL_PACKAGE_SCHEME],
-                           lcons(interp.control_fields[VMCTRL_PACKAGE_SYSTEM], NIL));
 }
 
 END_NAMESPACE

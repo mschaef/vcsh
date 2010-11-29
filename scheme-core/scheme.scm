@@ -19,7 +19,10 @@
 (include "../vm/constants.scm")
 (include "subrs.scm")
 
-(define *package* (%control-field  system::VMCTRL_PACKAGE_SCHEME))
+(define *package* (%control-field system::VMCTRL_PACKAGE_SCHEME))
+
+(%set-package-use-list! (%control-field system::VMCTRL_PACKAGE_SCHEME)
+                        (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)))
 
 (compiler::%%begin-load-unit-boundaries "scheme")
 
