@@ -104,9 +104,6 @@
    load terminates successfully."
   (add-hook-function! '*finalize-load-hook* #L0(provide-package! package-spec)))
 
-;; By default, the scheme package is provided...
-(push! (find-package "scheme") *provided-packages*)
-
 ;(provide-package! "scheme") REVISIT: Why does this cause infinite recursion?
 
 (define (attempt-to-provide-package package-name)
@@ -273,6 +270,9 @@
   (let ((p (ensure-package! name)))
     (set! *package* p)
     p))
+
+;; By default, the scheme package is provided...
+(push! (find-package "scheme") *provided-packages*)
 
 (defmacro (define-package package-name . clauses)
   "Begin defining a package named <package-name>. After execution,

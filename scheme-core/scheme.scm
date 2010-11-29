@@ -19,7 +19,7 @@
 (include "../vm/constants.scm")
 (include "subrs.scm")
 
-(define *package* (find-package "scheme"))
+(define *package* (%control-field  system::VMCTRL_PACKAGE_SCHEME))
 
 (compiler::%%begin-load-unit-boundaries "scheme")
 
