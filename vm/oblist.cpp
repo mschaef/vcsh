@@ -59,20 +59,20 @@ LRef packagecons(LRef name)
      return packagecons(name, hashcons(false), NIL);
 }
 
-LRef lpackagep(LRef x)
-{
-     if (PACKAGEP(x))
-          return x;
-     else
-          return boolcons(false);
-}
-
 LRef lipackagecons(LRef name)
 {
      if (!STRINGP(name))
           vmerror_wrong_type(1, name);
 
      return packagecons(name);
+}
+
+LRef lpackagep(LRef x)
+{
+     if (PACKAGEP(x))
+          return x;
+     else
+          return boolcons(false);
 }
 
 LRef lpackage_name(LRef p)      /*  ONLY SCHEME */
@@ -271,11 +271,6 @@ LRef lset_symbol_package(LRef sym, LRef package)
      SET_SYMBOL_HOME(sym, package);
 
      return sym;
-}
-
-LRef lunbound_marker()
-{
-     return UNBOUND_MARKER;
 }
 
 LRef lisymbol_index(LRef symbol)

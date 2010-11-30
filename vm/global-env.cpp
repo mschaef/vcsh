@@ -124,6 +124,11 @@ static void extend_global_environment(LRef sym)
      SET_SYMBOL_INDEX(sym, interp.last_global_env_entry);
 }
 
+LRef lunbound_marker()
+{
+     return UNBOUND_MARKER;
+}
+
 LRef lidefine_global(LRef var, LRef val, LRef genv)
 {
      assert(SYMBOLP(var));
