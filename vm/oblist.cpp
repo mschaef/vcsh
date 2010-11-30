@@ -168,9 +168,6 @@ LRef ladd_symbol_to_package(LRef symbol, LRef package)
 
      lhash_set(PACKAGE_BINDINGS(package), SYMBOL_PNAME(symbol), symbol_record);
 
-     if (is_keyword)
-          lidefine_global(symbol, symbol, NIL);
-
      return NIL;
 }
 

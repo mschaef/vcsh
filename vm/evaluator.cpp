@@ -349,7 +349,7 @@ static LRef execute_fast_op(LRef fop, LRef env)
                LRef sym = FAST_OP_ARG1(fop);
           
                checked_assert(SYMBOLP(sym));
-               checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+               checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
                
                LRef binding = SYMBOL_VCELL(sym);
                
