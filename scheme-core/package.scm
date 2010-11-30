@@ -31,6 +31,20 @@
   (intern! (apply string-append names) package))
 
 
+(define (name? name)
+  "Returns <name> if it is a valid name, #f otherwise. Names are considered
+   valid if they can be successfully processed by name->string."
+  (or (symbol? name) (string? name)))
+
+(define (name->string name :optional (name-type #f))
+  "Returns <name> as a string, throwing an error if <name> is not
+   a valid name. <name-type> optionally adds clarifying text to the
+   error message indicating the type of the name."
+  (cond ((symbol? name) (symbol-name name))
+        ((string? name) name)
+        (name-type (error "Invalid ~a name: ~s" name-type name))
+        (#t (error "Invalid name: ~s" name))))
+
 (define (->package package-spec :optional (not-found-handler (always #f)))
   "Coerces <package-spec> into a package. <package-spec> can be a package name
    in either symbol or string form, or a package itself. If a named package is
@@ -198,24 +212,25 @@
 (define (find-package name)
   (if (package? name)
       name
-      (let loop ((packages *package-list*))
-        (if (null? packages)
-            #f
-            (let ((package (car packages)))
-              (unless (package? package)
-                (%panic "damaged package list."))
-              (if (equal? name (package-name package))
-                  package
-                  (loop (cdr packages))))))))
+      (let ((name (name->string name "package")))
+        (let loop ((packages *package-list*))
+          (if (null? packages)
+              #f
+              (let ((package (car packages)))
+                (unless (package? package)
+                  (%panic "damaged package list."))
+                (if (equal? name (package-name package))
+                    package
+                    (loop (cdr packages)))))))))
 
 (define (make-package! name)
-  (check string? name)
-  (when (find-package name)
-    (error "Duplicate package name: ~a" name))
-  (let ((new-package (%packagecons name)))
-    (push! new-package *package-list*)
-    (%set-fasl-package-list! *package-list*)
-    new-package))
+  (let ((name (name->string name "package")))
+    (when (find-package name)
+      (error "Duplicate package name: ~a" name))
+    (let ((new-package (%packagecons name)))
+      (push! new-package *package-list*)
+      (%set-fasl-package-list! *package-list*)
+      new-package)))
 
 (define (package-copy old-package)
   "Creates a duplicate, logically equivalent copy of <package>. The resulting
@@ -548,20 +563,6 @@
       (if pkg
           (intern! built-name pkg)
           (string->uninterned-symbol built-name)))))
-
-(define (name? name)
-  "Returns <name> if it is a valid name, #f otherwise. Names are considered
-   valid if they can be successfully processed by name->string."
-  (or (symbol? name) (string? name)))
-
-(define (name->string name :optional (name-type #f))
-  "Returns <name> as a string, throwing an error if <name> is not
-   a valid name. <name-type> optionally adds clarifying text to the
-   error message indicating the type of the name."
-  (cond ((symbol? name) (symbol-name name))
-        ((string? name) name)
-        (name-type (error "Invalid ~a name: ~s" name-type name))
-        (#t (error "Invalid name: ~s" name))))
 
 (define (all-symbols)
   "Returns a list of all interned symbols."
