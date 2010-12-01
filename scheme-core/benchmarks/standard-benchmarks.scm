@@ -923,14 +923,6 @@
            'slow-queue
            'fibonacci)))
 
-(define (hash-bench)
-  (bench 'hash-set!-seq-numbers
-         'hash-ref-seq-numbers
-         'hash-set!-eq
-         'hash-ref-eq
-         'hash-set!-equal
-         'hash-ref-equal))
-
 (for-each load (directory "gabriel*.scm"))
 (load "mandelbrot.scm")
 

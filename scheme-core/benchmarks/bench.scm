@@ -9,7 +9,6 @@
   (:exports "account"
             "test-benchmarks"
             "bench"
-            "hash-bench"
             "fast-bench"))
 
 ;; To prevent timing inconsistancies caused by run-time heap
@@ -17,8 +16,7 @@
 
 (enlarge-heap 64)
 
-;; Turn the stack limit off.
-;(scheme::%set-stack-limit #f)
+;;;; The benchmark result database
 
 (define-structure benchmark-result
   seq
@@ -32,7 +30,70 @@
       #f
       (car (benchmark-result-timings benchmark-result))))
 
-(define *benchmarks* '())
+
+
+(define *last-benchmark-result-set* '())
+
+(define *reference-benchmark-result-sets* (make-hash :equal))
+
+(define *benchmark-results-filename* "benchmark_results.scm")
+
+(define (save-benchmark-results)
+  "Saves the current set of benchmark results to disk."
+  (with-port of (open-output-file *benchmark-results-filename*)
+    (display ";;;; Saved benchmark results - DO NOT ALTER!!!\n" of)
+    (display ";;;; \n" of)
+    (display ";;;; \n" of)
+    (display "\n" of)
+    (let ((results (qsort (append-map #L(hash-ref *reference-benchmark-result-sets* _ ())
+                                      (hash-keys *reference-benchmark-result-sets*))
+                          <
+                          benchmark-result-seq)))
+      (dolist (result results)
+        (write result of)
+        (newline of)))
+    (display "; end benchmark results\n" of)))
+
+(define *current-benchmark-sequence* #f)
+
+(define (next-benchmark-sequence)
+  (incr! *current-benchmark-sequence*)
+  *current-benchmark-sequence*)
+
+(define (load-benchmark-results)
+  "Loads the current set of benchmark results from disk."
+  (catch-all
+   (with-port ip (open-input-file *benchmark-results-filename*)
+     (hash-clear! *reference-benchmark-result-sets*)
+     (let loop ((max-seq -1))
+       (let ((result (read ip)))
+         (cond ((eof-object? result)
+                (set! *current-benchmark-sequence* max-seq)
+                max-seq)
+               ((benchmark-result? result)
+                (hash-push! *reference-benchmark-result-sets*
+                            (benchmark-result-system result)
+                            result)
+                (loop (max max-seq (benchmark-result-seq result))))
+               (#t
+                (error "Bad benchmark result: ~s" result))))))))
+
+(define (benchmark-system-info)
+  "Return a list describing the current build of scan and the hardware it's
+   running on."
+  (let ((si (system-info)))
+    (list (hash-ref si :system-name)
+          (hash-ref si :platform-name)
+          (hash-ref si :build-type))))
+
+(define (promote-benchmark-results)
+  "Makes the current set of benchmark results the reference for the
+   current system."
+  (dolist (results *last-benchmark-result-set*)
+    (hash-push! *reference-benchmark-result-sets* (benchmark-system-info) results))
+  (save-benchmark-results))
+
+;;;; Execution time estimator
 
 (define benchmark-time-sym (gensym))
 
@@ -70,6 +131,10 @@
 	  (iter (* count 2)))))
   (iter 1))
 
+;;;; The benchmark database
+
+(define *benchmarks* '())
+
 (defmacro (defbench benchname . code)
   `(begin
      (unless (member ',benchname *benchmarks*)
@@ -80,22 +145,7 @@
                              ,benchmark-time-sym)))))
 
 
-(define *last-benchmark-result-set* '())
-
-(define *reference-benchmark-result-sets* (make-hash :equal))
-
-(define (benchmark-system-info)
-  "Return a list describing the current build of scan and the hardware it's
-   running on."
-  (let ((si (system-info)))
-    (list (hash-ref si :system-name)
-          (hash-ref si :platform-name)
-          (hash-ref si :build-type))))
-
-(define (add-reference-result result)
-  "Adds benchmark result <result> to the current reference results, listed
-   under the current system type."
-  (hash-push! *reference-benchmark-result-sets* (benchmark-system-info) result))
+;;;; Benchmark result reporting
 
 (define (benchmark-result-named? result name)
   (eq? (benchmark-result-test-name result) name))
@@ -153,51 +203,6 @@
                   actual))
         (format #t "-- No Reference Data -- (~a ms.)\n" actual))))
 
-
-(define *benchmark-results-filename* "benchmark_results.scm")
-
-
-
-(define (save-benchmark-results)
-  "Saves the current set of benchmark results to disk."
-  (with-port of (open-output-file *benchmark-results-filename*)
-    (display ";;;; Saved benchmark results - DO NOT ALTER!!!\n" of)
-    (display ";;;; \n" of)
-    (display ";;;; \n" of)
-    (display "\n" of)
-    (let ((results (qsort (append-map #L(hash-ref *reference-benchmark-result-sets* _ ())
-                                      (hash-keys *reference-benchmark-result-sets*))
-                          <
-                          benchmark-result-seq)))
-      (dolist (result results)
-        (write result of)
-        (newline of)))
-    (display "; end benchmark results\n" of)))
-
-(define *current-benchmark-sequence* #f)
-
-(define (next-benchmark-sequence)
-  (incr! *current-benchmark-sequence*)
-  *current-benchmark-sequence*)
-
-(define (load-benchmark-results)
-  "Loads the current set of benchmark results from disk."
-  (catch-all
-   (with-port ip (open-input-file *benchmark-results-filename*)
-     (hash-clear! *reference-benchmark-result-sets*)
-     (let loop ((max-seq -1))
-       (let ((result (read ip)))
-         (cond ((eof-object? result)
-                (set! *current-benchmark-sequence* max-seq)
-                max-seq)
-               ((benchmark-result? result)
-                (hash-push! *reference-benchmark-result-sets*
-                            (benchmark-result-system result)
-                            result)
-                (loop (max max-seq (benchmark-result-seq result))))
-               (#t
-                (error "Bad benchmark result: ~s" result))))))))
-
 (define (display-benchmark-results results :optional (reference (reference-result-set)))
   (dynamic-let ((*info* #f))
     (gc)
@@ -210,21 +215,13 @@
                                 (benchmark-result-cpu-time (find-test-result (benchmark-result-test-name result)
                                                                              reference))))))
 
+;;;; The benchmark runner
 
 (define *repeat-only-once* #f)
 
 (defmacro (bench-repeat n . code)
   `(repeat (if *repeat-only-once* 1 ,n)
      ,@code))
-
-;;;;; Standard UI functions
-
-(define (promote-benchmark-results)
-  "Makes the current set of benchmark results the reference for the
-   current system."
-  (dolist (results *last-benchmark-result-set*)
-    (hash-push! *reference-benchmark-result-sets* (benchmark-system-info) results))
-  (save-benchmark-results))
 
 (define (test-benchmarks)
   "Run through all benchmarks as quickly as possible to check for runtime
