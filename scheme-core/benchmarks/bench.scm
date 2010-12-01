@@ -32,10 +32,26 @@
   timings
   (run-time :default (current-date)))
 
+(define *benchmark-time-mode* :net)
+
 (define (benchmark-result-cpu-time benchmark-result)
   (if (not (benchmark-result? benchmark-result))
       #f
-      (car (benchmark-result-timings benchmark-result))))
+      (let ((cpu-time (car (benchmark-result-timings benchmark-result)))
+            (net-time (cadr (benchmark-result-timings benchmark-result))))
+        (case *benchmark-time-mode*
+          ((:cpu) cpu-time)
+          ((:net) net-time)
+          ((:gc) (- cpu-time net-time))
+          (#t (error "Invalid *benchmark-time-mode*:~a " *benchmark-time-mode*))))))
+
+(define (set-benchmark-time-mode! :optional (mode #f))
+  (if mode
+      (case mode
+        ((:cpu :net :gc) (set! *benchmark-time-mode* mode))
+        (#t (error "Bad benchmark time mode: ~a" mode)))
+      (format #t "Please enter one of :cpu, :net, or :gc. Current mode is ~a\n" *benchmark-time-mode*))
+  (values))
 
 (define *last-benchmark-result-set* '())
 
@@ -125,7 +141,7 @@
 
 (define *benchmarks* (make-hash :eq))
 
-(define (all-benchmark-names) *benchmarks*)
+(define (all-benchmark-names) (hash-keys *benchmarks*))
 
 (define benchmark-time-sym (gensym))
 
@@ -269,6 +285,9 @@
        scheme::*repl-abbreviations*)
 
 (push! '(:cbr compare-benchmark-results "Compares two sets of benchmark results.")
+       scheme::*repl-abbreviations*)
+
+(push! '(:sbtm set-benchmark-time-mode! "Sets the benchmark time mode.")
        scheme::*repl-abbreviations*)
 
 ;;;;; Bootup
