@@ -94,13 +94,6 @@
 
 ;;;; Execution time estimator
 
-(define benchmark-time-sym (gensym))
-
-(defmacro (account . code)
-  `(begin
-     (gc)
-     (set! ,benchmark-time-sym (estimate-execution-time (lambda () ,@code)))))
-
 (define *estimate-min-test-duration* 5)
 (define *benchmark-result-bar-length* 40)
 (define *benchmark-result-name-length* 25)
@@ -130,16 +123,30 @@
 
 ;;;; The benchmark database
 
-(define *benchmarks* '())
+(define *benchmarks* (make-hash :eq))
+
+(define (all-benchmark-names) *benchmarks*)
+
+(define benchmark-time-sym (gensym))
+
+(define estimate-execute-time) ; forward
 
 (defmacro (defbench benchname . code)
+  (check symbol? benchname)
+  `(hash-set! *benchmarks* ',benchname (lambda ()
+                                         (let ((,benchmark-time-sym #f))
+                                           ,@code
+                                           ,benchmark-time-sym))))
+
+(define (benchmark-function benchname)
+  (unless (hash-has? *benchmarks* benchname)
+    (error "Undefined benchmark: ~a" benchname))
+  (hash-ref *benchmarks* benchname))
+
+(defmacro (account . code)
   `(begin
-     (unless (member ',benchname *benchmarks*)
-       (push! ',benchname *benchmarks*))
-     (define  ,benchname (lambda ()
-                           (let ((,benchmark-time-sym #f))
-                             ,@code
-                             ,benchmark-time-sym)))))
+     (gc)
+     (set! ,benchmark-time-sym (estimate-execution-time (lambda () ,@code)))))
 
 ;;;; Benchmark result reporting
 
@@ -228,14 +235,14 @@
 
 (define (bench . tests)
 
-  (let ((tests (if (null? tests) *benchmarks* tests))
+  (let ((tests (if (null? tests) (all-benchmark-names) tests))
         (count 0))
 
     (define (run-named-benchmark bench-name)
       (incr! count)
       (format #t "\n[~a/~a] ~a: " count (length tests) bench-name)
       (make-benchmark-result :test-name bench-name
-                             :timings ((symbol-value bench-name))))
+                             :timings ((benchmark-function bench-name))))
 
     (define (sort-benchmark-names names)
       (qsort names string< symbol-name))
@@ -247,7 +254,7 @@
       (display-benchmark-results results)
       (format #t "\nEvaluate (promote-benchmark-results) to make these results the standard for ~s"
               (benchmark-system-info))
-      (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n")
+      (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n\n")
       (values))))
 
 (define (compare-benchmark-results)
