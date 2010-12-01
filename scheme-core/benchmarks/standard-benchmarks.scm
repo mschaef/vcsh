@@ -907,13 +907,6 @@
      (bench-repeat 64
                    (read-from-string text)))))
 
-(define (test-benchmarks)
-  "Run through all benchmarks as quickly as possible to check for runtime
-   errors."
-  (dynamic-let ((*estimate-min-test-duration* 0.001)
-                (*repeat-only-once* #t))
-    (bench)))
-
 (define (fast-bench)
   "Generate some quick and dirty benchmarks for the purpose of testing the
    benchmark suite. The results from these tests shouldn't be trusted

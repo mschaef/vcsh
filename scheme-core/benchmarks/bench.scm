@@ -97,7 +97,6 @@
    under the current system type."
   (hash-push! *reference-benchmark-result-sets* (benchmark-system-info) result))
 
-
 (define (benchmark-result-named? result name)
   (eq? (benchmark-result-test-name result) name))
 
@@ -159,18 +158,6 @@
 
 
 
-(push! '(:bench bench "Runs the benchmark suite")
-       scheme::*repl-abbreviations*)
-
-(push! '(:pbr promote-benchmark-results
-              "Promotes the current benchmark results to 'official' status")
-       scheme::*repl-abbreviations*)
-
-(push! '(:cbr compare-benchmark-results
-             "Compares two sets of benchmark results.")
-       scheme::*repl-abbreviations*)
-
-
 (define (save-benchmark-results)
   "Saves the current set of benchmark results to disk."
   (with-port of (open-output-file *benchmark-results-filename*)
@@ -211,15 +198,6 @@
                (#t
                 (error "Bad benchmark result: ~s" result))))))))
 
-(load-benchmark-results)
-
-(define (promote-benchmark-results)
-  "Makes the current set of benchmark results the reference for the
-   current system."
-  (dolist (results *last-benchmark-result-set*)
-    (hash-push! *reference-benchmark-result-sets* (benchmark-system-info) results))
-  (save-benchmark-results))
-
 (define (display-benchmark-results results :optional (reference (reference-result-set)))
   (dynamic-let ((*info* #f))
     (gc)
@@ -232,6 +210,28 @@
                                 (benchmark-result-cpu-time (find-test-result (benchmark-result-test-name result)
                                                                              reference))))))
 
+
+(define *repeat-only-once* #f)
+
+(defmacro (bench-repeat n . code)
+  `(repeat (if *repeat-only-once* 1 ,n)
+     ,@code))
+
+;;;;; Standard UI functions
+
+(define (promote-benchmark-results)
+  "Makes the current set of benchmark results the reference for the
+   current system."
+  (dolist (results *last-benchmark-result-set*)
+    (hash-push! *reference-benchmark-result-sets* (benchmark-system-info) results))
+  (save-benchmark-results))
+
+(define (test-benchmarks)
+  "Run through all benchmarks as quickly as possible to check for runtime
+   errors."
+  (dynamic-let ((*estimate-min-test-duration* 0.001)
+                (*repeat-only-once* #t))
+    (bench)))
 
 (define (bench . tests)
   (define (run-named-benchmark bench-name)
@@ -265,12 +265,17 @@
 	(reference (select-benchmark-result "reference")))
     (display-benchmark-results from reference)))
 
+(push! '(:bench bench "Runs the benchmark suite")
+       scheme::*repl-abbreviations*)
 
-(define *repeat-only-once* #f)
+(push! '(:pbr promote-benchmark-results "Promotes the current benchmark results to 'official' status")
+       scheme::*repl-abbreviations*)
 
-(defmacro (bench-repeat n . code)
-  `(repeat (if *repeat-only-once* 1 ,n)
-     ,@code))
+(push! '(:cbr compare-benchmark-results "Compares two sets of benchmark results.")
+       scheme::*repl-abbreviations*)
+
+;;;;; Bootup
 
 (load "standard-benchmarks.scm")
 
+(load-benchmark-results)
