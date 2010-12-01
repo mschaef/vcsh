@@ -352,8 +352,9 @@ INLINE bool NULLP(LRef x)
 
 INLINE void SET_GC_MARK(LRef object, int new_gc_mark_bit)
 {
-     if (!LREF_IMMEDIATE_P(object))
-          object->header.gc_mark = new_gc_mark_bit;
+     checked_assert(!LREF_IMMEDIATE_P(object));
+
+     object->header.gc_mark = new_gc_mark_bit;
 }
 
 INLINE int GC_MARK(LRef object)
@@ -384,7 +385,7 @@ INLINE typecode_t TYPE(LRef object)
 
 INLINE void SET_TYPE(LRef object, typecode_t new_type)
 {
-     assert(!LREF_IMMEDIATE_P(object));
+     checked_assert(!LREF_IMMEDIATE_P(object));
 
      object->header.type = new_type;
 }
