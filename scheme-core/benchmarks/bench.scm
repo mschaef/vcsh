@@ -1082,20 +1082,20 @@
 (defbench proto/make-0-args
   (account
    (bench-repeat 100000
-           (make-instance 'benchmark-proto))))
+           (make-instance benchmark-proto))))
 
 (defbench proto/make-1-args
   (account
    (bench-repeat 100000
-           (make-instance 'benchmark-proto 'f1 1))))
+           (make-instance benchmark-proto 'f1 1))))
 
 (defbench proto/make-3-args
   (account
    (bench-repeat 100000
-           (make-instance 'benchmark-proto 'f1 1 'f2 2 'f3 3))))
+           (make-instance benchmark-proto 'f1 1 'f2 2 'f3 3))))
 
 (defbench proto/ref
-  (let ((protos (map #L(make-instance 'benchmark-proto) (iseq 1 100000))))
+  (let ((protos (map #L(make-instance benchmark-proto) (iseq 1 100000))))
     (account
      (dolist (proto protos)
        (slot-ref proto 'f1)
@@ -1104,24 +1104,12 @@
 
 
 (defbench proto/set!
-  (let ((protos (map #L(make-instance 'benchmark-proto) (iseq 1 100000))))
+  (let ((protos (map #L(make-instance benchmark-proto) (iseq 1 100000))))
     (account
      (dolist (proto protos)
        (slot-set! proto 'f1 :foo)
        (slot-set! proto 'f2 :bar)
        (slot-set! proto 'f3 :baz)))))
-
-
-(defbench proto/read
-  (account
-   (bench-repeat 100000
-           (read-from-string "#I(benchmark-proto f1 1 f2 2 f3 3)"))))
-
-(defbench proto/write
-  (let ((op (open-null-port)))
-    (account
-     (bench-repeat 100000
-             (write  #I(benchmark-proto f1 1 f2 2 f3 3) op)))))
 
 
 (defbench formatted-io/simple
