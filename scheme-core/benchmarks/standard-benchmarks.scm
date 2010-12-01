@@ -1,3 +1,12 @@
+
+(define (list-from-by b inc elems)
+  (define (list-from-by-1 b elems accum)
+    (if (<= elems 0)
+	accum
+	(list-from-by-1 (+ b inc) (- elems 1) (cons b accum))))
+  (list-from-by-1 b elems '()))
+
+
 (defbench exec-loop-repeat
   (account
    (bench-repeat 100000 1)))
@@ -6,7 +15,7 @@
   (account
    (let ((loop #f))
      (set! loop (lambda (c)
-		  (if (> c 0) (loop (- c 1)))))
+                  (if (> c 0) (loop (- c 1)))))
      (loop 100000))))
 
 (defbench exec-let
@@ -17,38 +26,37 @@
 (defbench exec-choose-case
   (account
    (for-each (lambda (x)
-	       (case x
-		 ((1) 'x)
-		 ((2) 'y)
-		 ((3) 'z)
-		 ((4) 'a)
-		 (#t 'foo)))
-	     '(1 2 3 4 5 6 7 8))))
+               (case x
+                 ((1) 'x)
+                 ((2) 'y)
+                 ((3) 'z)
+                 ((4) 'a)
+                 (#t 'foo)))
+             '(1 2 3 4 5 6 7 8))))
 
 (defbench exec-choose-cond
   (account
    (for-each (lambda (x)
-	       (cond
-		((eq? x 1) 'x)
-		((eq? x 2) 'y)
-		((eq? x 3) 'z)
-		((eq? x 4) 'a)
-		(#t 'foo)))
-	     '(1 2 3 4 5 6 7 8))))
+               (cond
+                ((eq? x 1) 'x)
+                ((eq? x 2) 'y)
+                ((eq? x 3) 'z)
+                ((eq? x 4) 'a)
+                (#t 'foo)))
+             '(1 2 3 4 5 6 7 8))))
 
 (defbench calc-dot-product
   (let ((l1 (list-from-by 1.0 2.0 100))
-	(l2 (list-from-by 2.0 2.0 100)))
-  (account
-   (let ((rsum 0.0))
-     (for-each (lambda (x y)
-		 (incr! rsum (* x y)))
-	       l1 l2)))))
+        (l2 (list-from-by 2.0 2.0 100)))
+    (account
+     (let ((rsum 0.0))
+       (for-each (lambda (x y)
+                   (incr! rsum (* x y)))
+                 l1 l2)))))
 
 (defbench calc-savage
   (account
    (asin (sin (acos (cos (atan (tan 1))))))))
-
 
 (defbench heap-10cons
   (account
@@ -63,7 +71,6 @@
    (cons 0 0)
    (cons 0 0)))
 
-
 (defbench heap-010ele-vectors
   (account
    (make-vector (+ 1 (random 10)))))
@@ -76,22 +83,22 @@
   (let ((x 0))
     (let ((dummy #f))
       (let ((dummy #f))
-	(let ((dummy #f))
-	  (let ((dummy #f))
-	    (let ((dummy #f))
-	      (let ((dummy #f))
-		(let ((dummy #f))
-		  (let ((dummy #f))
-		    (let ((dummy #f))
-		      (let ((dummy #f))
-			(let ((dummy #f))
-			  (let ((dummy #f))
-			    (let ((dummy #f))
-			      (let ((dummy #f))
-				(let ((dummy #f))
-				  (let ((dummy #f))
-				    (account
-				     x)))))))))))))))))))
+        (let ((dummy #f))
+          (let ((dummy #f))
+            (let ((dummy #f))
+              (let ((dummy #f))
+                (let ((dummy #f))
+                  (let ((dummy #f))
+                    (let ((dummy #f))
+                      (let ((dummy #f))
+                        (let ((dummy #f))
+                          (let ((dummy #f))
+                            (let ((dummy #f))
+                              (let ((dummy #f))
+                                (let ((dummy #f))
+                                  (let ((dummy #f))
+                                    (account
+                                     x)))))))))))))))))))
 
 (defbench exec-var-lookup-shallow
   (let ((x 0))
@@ -99,70 +106,70 @@
      x)))
 
 (define *hash-test-syms*
-              '(bitwise-xor for-each2 c unless b letrec
-		define %%%typeref-constructable? make-tree log10 rational? eqv? a
-		open-input-file member *flonum-print-precision* for-each1 cadr
-		fast-save cddadr string-trim-right char=?
-		bitwise-arithmatic-shift-right foo %%%type-slot-names list-cell
-		runtime filter char-alphabetic? write-to-string open-input-string
-		savage string-trim for-each use-package! current-debug-port
-		input-port? is-a? in-package! describe benchname open-null-port
-		fourth nth hash-ref string? %%%slot-get list-let l2 butlast
-		%%%register-structure-type symbol-package string-upcase l1
-		set-current-output-port remote macroexpand apply *benchmarks*
-		bench-name third close-input-file truncate bitwise-rotate-right return
-		close-port list errobj *pi* cadadr define-structure vector-copy asin
-		cond-bench rsum output-port? cdadr abs char>=? null? gc binary-port?
-		tree-set! caaadr %%%slot-set! qsort set-current-error-port qq-expand
-		current-output-port gc-test var-lookup-deep results char>? real?
-		string-lessp symbol? cells cdddar exp10 symbol->string fold-right
-		map tan realtime get char-ci>? load exit-repl elems
-		bitwise-rotate-left dynamic-let list-set! import! car flush-port delq
-		open-debug-port char-ci>=? char? nil append last string-append trunc
-		unwind-protect system catch environment odd? make-package! string-set!
-		set! strcmp random char-downcase while case-bench open-output-string
-		char<=? caddar list-from-by-1 equal? substring-equal? > newline =
-		char->integer open-null-input <= < string->symbol error length atom?
-		cdaaar string-length hash-key >= alist-delete assv append! begin sym
-		env-lookup read repeat-loop time ass export! gc-status catch-all
-		char-ci<=? char-ci=? string->number accum dot-product reverse
-		list->vector sqrt type-of vector->list ceiling take nconc c-bytes
-		string-downcase pop! nreverse let-bench awhen string-ref
-		var-lookup-shallow exact->inexact assq prog1 cos
-		string-trim-right-questions if incr! list-all-packages number->string
-		block code symbol-value find-tail %%%typeref-construct strspn second
-		loop / let* append-map string->keyword and keyword? set-random-seed
-		cond vector? - assoc port-location allocate-heap + lambda push! some?
-		character->string * list-ref vector-fill! map2 not cadar cddaar
-		unquote last-pair map1 %%%typeref-type benchmark-time-sym max
-		list-all-unique-symbols display-to-string symbol-name exact? char-ci<?
-		%%%get-current-frames set-cdr! strcspn close-output-file
-		use-package-and-export! unexport! throw acos char-upper-case?
-		char-whitespace? char-ready? package? exp load-from-string
-		inexact->display-string integer? substring read-from-string tail-loop
-		cdaddr cadaar write-char string-trim-left floor read-char
-		bitwise-shift-right %%%make-typeref symbol-bound? procedure? awhile
-		atan debug-write write cons delete it result %time rest negative?
-		hash-set! repeat even? do-symbols eof-object? eq? gensym
-		do-external-symbols *package* quote peek-char append-map! zero?
-		char-numeric? bitwise-and sin list->structure port-translate-mode
-		char-upcase memq alist-copy memv name ceil subset quotient cdadar
-		heap-fsck-big %%%do-types fast-print dummy exists? is-a-strict?
-		gc-info setprop aif perf-report z cddddr cdr vector caar vector-ref
-		defbench y caaar caadar cddar cdar cadddr x syms fast-load bitwise-or
-		list-all-symbols find-symbol open-output-file account
-		current-error-port caddr log unread-char apropos do-bench heap-fsck
-		remainder bitwise-not alist-cons list-copy display every?
-		heap-fsck-mini find expt list-from-by let set-log-level!
-		string->uninterned-symbol drop positive? bitwise-shift-left case
-		vector-set! fast-read char<? set-symbol-value! make-vector round eval
-		min pair? fold the-environment get-output-string %%%define when
-		putprop number? set-current-debug-port set-port-translate-mode! first
-		boolean? string-search current-input-port s1 caaaar cdaar cdaadr
-		integer->char s2 vector-length unintern! inexact->exact type-supertype
-		c-blocks inc inexact? let-internal null-list? complex? find-package
-		set-car! tree-ref defmacro set-current-input-port caaddr caadr cddr
-		cdddr or modulo char-lower-case?))
+  '(bitwise-xor for-each2 c unless b letrec
+                define %%%typeref-constructable? make-tree log10 rational? eqv? a
+                open-input-file member *flonum-print-precision* for-each1 cadr
+                fast-save cddadr string-trim-right char=?
+                bitwise-arithmatic-shift-right foo %%%type-slot-names list-cell
+                runtime filter char-alphabetic? write-to-string open-input-string
+                savage string-trim for-each use-package! current-debug-port
+                input-port? is-a? in-package! describe benchname open-null-port
+                fourth nth hash-ref string? %%%slot-get list-let l2 butlast
+                %%%register-structure-type symbol-package string-upcase l1
+                set-current-output-port remote macroexpand apply *benchmarks*
+                bench-name third close-input-file truncate bitwise-rotate-right return
+                close-port list errobj *pi* cadadr define-structure vector-copy asin
+                cond-bench rsum output-port? cdadr abs char>=? null? gc binary-port?
+                tree-set! caaadr %%%slot-set! qsort set-current-error-port qq-expand
+                current-output-port gc-test var-lookup-deep results char>? real?
+                string-lessp symbol? cells cdddar exp10 symbol->string fold-right
+                map tan realtime get char-ci>? load exit-repl elems
+                bitwise-rotate-left dynamic-let list-set! import! car flush-port delq
+                open-debug-port char-ci>=? char? nil append last string-append trunc
+                unwind-protect system catch environment odd? make-package! string-set!
+                set! strcmp random char-downcase while case-bench open-output-string
+                char<=? caddar list-from-by-1 equal? substring-equal? > newline =
+                char->integer open-null-input <= < string->symbol error length atom?
+                cdaaar string-length hash-key >= alist-delete assv append! begin sym
+                env-lookup read repeat-loop time ass export! gc-status catch-all
+                char-ci<=? char-ci=? string->number accum dot-product reverse
+                list->vector sqrt type-of vector->list ceiling take nconc c-bytes
+                string-downcase pop! nreverse let-bench awhen string-ref
+                var-lookup-shallow exact->inexact assq prog1 cos
+                string-trim-right-questions if incr! list-all-packages number->string
+                block code symbol-value find-tail %%%typeref-construct strspn second
+                loop / let* append-map string->keyword and keyword? set-random-seed
+                cond vector? - assoc port-location allocate-heap + lambda push! some?
+                character->string * list-ref vector-fill! map2 not cadar cddaar
+                unquote last-pair map1 %%%typeref-type benchmark-time-sym max
+                list-all-unique-symbols display-to-string symbol-name exact? char-ci<?
+                %%%get-current-frames set-cdr! strcspn close-output-file
+                use-package-and-export! unexport! throw acos char-upper-case?
+                char-whitespace? char-ready? package? exp load-from-string
+                inexact->display-string integer? substring read-from-string tail-loop
+                cdaddr cadaar write-char string-trim-left floor read-char
+                bitwise-shift-right %%%make-typeref symbol-bound? procedure? awhile
+                atan debug-write write cons delete it result %time rest negative?
+                hash-set! repeat even? do-symbols eof-object? eq? gensym
+                do-external-symbols *package* quote peek-char append-map! zero?
+                char-numeric? bitwise-and sin list->structure port-translate-mode
+                char-upcase memq alist-copy memv name ceil subset quotient cdadar
+                heap-fsck-big %%%do-types fast-print dummy exists? is-a-strict?
+                gc-info setprop aif perf-report z cddddr cdr vector caar vector-ref
+                defbench y caaar caadar cddar cdar cadddr x syms fast-load bitwise-or
+                list-all-symbols find-symbol open-output-file account
+                current-error-port caddr log unread-char apropos do-bench heap-fsck
+                remainder bitwise-not alist-cons list-copy display every?
+                heap-fsck-mini find expt list-from-by let set-log-level!
+                string->uninterned-symbol drop positive? bitwise-shift-left case
+                vector-set! fast-read char<? set-symbol-value! make-vector round eval
+                min pair? fold the-environment get-output-string %%%define when
+                putprop number? set-current-debug-port set-port-translate-mode! first
+                boolean? string-search current-input-port s1 caaaar cdaar cdaadr
+                integer->char s2 vector-length unintern! inexact->exact type-supertype
+                c-blocks inc inexact? let-internal null-list? complex? find-package
+                set-car! tree-ref defmacro set-current-input-port caaddr caadr cddr
+                cdddr or modulo char-lower-case?))
 
 
 ;; (defbench csv-file-reader
@@ -203,29 +210,29 @@
   (let ((htable (make-hash :eq)))
     (account
      (for-each (lambda (sym) (hash-set! htable sym 'foo))
-	       *hash-test-syms*))))
+               *hash-test-syms*))))
 
 (defbench hash-ref-eq
   (let ((htable (make-hash :eq)))
     (for-each (lambda (sym) (hash-set! htable sym 'foo))
-	      *hash-test-syms*)
+              *hash-test-syms*)
     (account
      (for-each (lambda (sym) (hash-ref htable sym))
-	       *hash-test-syms*))))
+               *hash-test-syms*))))
 
 (defbench hash-set!-equal
   (let ((htable (make-hash :equal)))
     (account
      (for-each (lambda (sym) (hash-set! htable sym 'foo))
-	       *hash-test-syms*))))
+               *hash-test-syms*))))
 
 (defbench hash-ref-equal
   (let ((htable (make-hash :equal)))
     (for-each (lambda (sym) (hash-set! htable sym 'foo))
-	      *hash-test-syms*)
+              *hash-test-syms*)
     (account
      (for-each (lambda (sym) (hash-ref htable sym))
-	       *hash-test-syms*))))
+               *hash-test-syms*))))
 
 (defbench funcall-inline
   (account
@@ -293,13 +300,13 @@
 
 (defbench output-fixnum
   (let ((p (open-null-port))
-	(fixnums (list-from-by 0 1 1000)))
+        (fixnums (list-from-by 0 1 1000)))
     (account
      (display fixnums p))))
 
 (defbench output-flonum
   (let ((p (open-null-port))
-	(fixnums (list-from-by 0.0 1.0 1000)))
+        (fixnums (list-from-by 0.0 1.0 1000)))
     (account
      (display fixnums p))))
 
@@ -312,8 +319,8 @@
   (if (= depth 0)
       (list 'a 'b 'c)
       (list (nested-lists (- depth 1))
-	    (nested-lists (- depth 1))
-	    (nested-lists (- depth 1)))))
+            (nested-lists (- depth 1))
+            (nested-lists (- depth 1)))))
 
 (defbench heap-fsck-lots-of-cells
   (account
@@ -321,7 +328,7 @@
 
 (defbench output-nested-lists
   (let ((p (open-null-port))
-	(l (nested-lists 11)))
+        (l (nested-lists 11)))
     (account
      (display l p))))
 
@@ -330,29 +337,29 @@
     (account
      (with-port p (open-output-file test-filename :binary)
        (bench-repeat 1048576
-	 (write-binary-fixnum 12345 4 #f p)))
+                     (write-binary-fixnum 12345 4 #f p)))
      (with-port p (open-input-file test-filename :binary)
        (bench-repeat 1048576
-	 (read-binary-fixnum 4 #f p))))
+                     (read-binary-fixnum 4 #f p))))
     (delete-file test-filename)))
 
 (defbench signal-processing
   (handler-bind ((test-signal (lambda args #f)))
     (handler-bind ((test-signal (lambda args #f)))
       (handler-bind ((test-signal (lambda args #f)))
-	(handler-bind ((test-signal (lambda args #f)))
-	  (account
-	   (bench-repeat 10000
-	     (signal 'test-signal))))))))
+        (handler-bind ((test-signal (lambda args #f)))
+          (account
+           (bench-repeat 10000
+                         (signal 'test-signal))))))))
 
 (defbench handler-establishment
   (account
    (bench-repeat 10000
-     (handler-bind ((test-signal (lambda args #f)))
-       (handler-bind ((test-signal (lambda args #f)))
-	 (handler-bind ((test-signal (lambda args #f)))
-	   (handler-bind ((test-signal (lambda args #f)))
-	     #f)))))))
+                 (handler-bind ((test-signal (lambda args #f)))
+                   (handler-bind ((test-signal (lambda args #f)))
+                     (handler-bind ((test-signal (lambda args #f)))
+                       (handler-bind ((test-signal (lambda args #f)))
+                         #f)))))))
 
 (define-generic-function (generic/+ x y)
   (error "Error: this should never be called in the benchmark"))
@@ -362,7 +369,7 @@
 
 (defbench generic-function-call
   (account (bench-repeat 5000
-	     (generic/+ 2 3))))
+                         (generic/+ 2 3))))
 
 (define-generic-function (generic/inheritance x)
   :base-handler)
@@ -375,7 +382,7 @@
 
 (defbench inherited-generic-function-call
   (account (bench-repeat 2000
-	     (generic/inheritance 2))))
+                         (generic/inheritance 2))))
 
 (define (hash-performance list-size iterations)
   (let ((xs (list-from-by 0 1 list-size)))
@@ -384,7 +391,7 @@
 
 (define (cross xs ys)
   (append-map (lambda (x)
-		(map (lambda (y) (list x y)) ys)) xs))
+                (map (lambda (y) (list x y)) ys)) xs))
 
 (defbench list-cross-product
   (let ((xs (list-from-by 0 1 100)))
@@ -400,24 +407,24 @@
 
 (define (point-list i)
   (map (lambda (x) (make-point (random x)
-				  (random x)
-				  (random x)))
-	  (list-from-by 1 1 i)))
+                               (random x)
+                               (random x)))
+       (list-from-by 1 1 i)))
 
 (define (hash-field-sum xs f)
   (let ((sum 0.0))
     (for-each (lambda (x)
-		(incr! sum (hash-ref x f)))
-	      xs)
+                (incr! sum (hash-ref x f)))
+              xs)
     sum))
 
 (define (is-prime? x)
   (let ((last-factor (inexact->exact (sqrt x)))
-	(factor 2)
-	(prime-now? #t))
+        (factor 2)
+        (prime-now? #t))
     (while (and prime-now? (<= factor last-factor))
-	   (set! prime-now? (not (= 0(modulo x factor))))
-	   (incr! factor))
+      (set! prime-now? (not (= 0(modulo x factor))))
+      (incr! factor))
     prime-now?))
 
 (defbench calc-1000-primes
@@ -673,14 +680,14 @@
   (account
    (let ((q (scheme::%make-q)))
      (bench-repeat 100000
-             (scheme::%q-enqueue! 1 q))
+                   (scheme::%q-enqueue! 1 q))
      (scheme::%q-items q))))
 
 (defbench slow-queue
   (account
    (let ((q (make-queue)))
      (bench-repeat 100000
-             (q-enqueue! 1 q))
+                   (q-enqueue! 1 q))
      (q-items q))))
 
 (defbench fibonacci
@@ -697,17 +704,17 @@
 (defbench structure/make-0-args
   (account
    (bench-repeat 100000
-           (make-benchmark-structure))))
+                 (make-benchmark-structure))))
 
 (defbench structure/make-1-args
   (account
    (bench-repeat 100000
-           (make-benchmark-structure :f1 1))))
+                 (make-benchmark-structure :f1 1))))
 
 (defbench structure/make-3-args
   (account
    (bench-repeat 100000
-           (make-benchmark-structure :f1 1 :f2 2 :f3 3))))
+                 (make-benchmark-structure :f1 1 :f2 2 :f3 3))))
 
 
 (defbench structure/ref
@@ -729,27 +736,27 @@
 (defbench structure/read
   (account
    (bench-repeat 10000
-           (read-from-string "#S(benchmark-structure :f1 1 :f2 2 :f3 3)"))))
+                 (read-from-string "#S(benchmark-structure :f1 1 :f2 2 :f3 3)"))))
 
 (defbench structure/write
   (let ((op (open-null-port)))
     (account
      (bench-repeat 100000
-             (write #S(benchmark-structure :f1 1 :f2 2 :f3 3) op)))))
+                   (write #S(benchmark-structure :f1 1 :f2 2 :f3 3) op)))))
 
 (defbench structure/fasl-write
   (let ((test-filename (temporary-file-name "sct")))
     (with-fasl-file os test-filename
       (account
        (bench-repeat 65536
-         (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os))))
+                     (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os))))
     (delete-file test-filename)))
 
 (defbench structure/fasl-read
   (let ((test-filename (temporary-file-name "sct")))
     (with-fasl-file os test-filename
       (bench-repeat 65536
-        (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os)))
+                    (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os)))
     (account (fasl-load test-filename))
     (delete-file test-filename)))
 
@@ -781,17 +788,17 @@
 (defbench proto/make-0-args
   (account
    (bench-repeat 100000
-           (make-instance benchmark-proto))))
+                 (make-instance benchmark-proto))))
 
 (defbench proto/make-1-args
   (account
    (bench-repeat 100000
-           (make-instance benchmark-proto 'f1 1))))
+                 (make-instance benchmark-proto 'f1 1))))
 
 (defbench proto/make-3-args
   (account
    (bench-repeat 100000
-           (make-instance benchmark-proto 'f1 1 'f2 2 'f3 3))))
+                 (make-instance benchmark-proto 'f1 1 'f2 2 'f3 3))))
 
 (defbench proto/ref
   (let ((protos (map #L(make-instance benchmark-proto) (iseq 1 100000))))
@@ -815,28 +822,28 @@
   (let ((np (open-null-port)))
     (account
      (bench-repeat 10000
-             (format np "Hello World")))))
+                   (format np "Hello World")))))
 
 
 (defbench formatted-io/printer
   (let ((np (open-null-port)))
     (account
      (bench-repeat 10000
-             (format np "~a~s~a" 'foo "bar" "baz")))))
+                   (format np "~a~s~a" 'foo "bar" "baz")))))
 
 (defbench printer/basic
   (let ((np (open-null-port)))
     (account
      (bench-repeat 10000
-             (write '('foo "bar" :keyword 1 1.0 1.0-2.0i
-                           (1 2 3 . 4)
-                           #(1 2 3 #(4 5 6)))
-                    np)))))
+                   (write '('foo "bar" :keyword 1 1.0 1.0-2.0i
+                                 (1 2 3 . 4)
+                                 #(1 2 3 #(4 5 6)))
+                          np)))))
 
 (defbench opening-input-string
   (let ((text (make-string 1024 "01234567")))
     (account
-      (bench-repeat 4096 (open-input-string text)))))
+     (bench-repeat 4096 (open-input-string text)))))
 
 (defbench read-char-from-string
   (let ((text (make-string 32768 "*")))
@@ -848,57 +855,57 @@
   (account
    (let ((op (open-output-string)))
      (bench-repeat 131072
-       (write-char #\* op)))))
+                   (write-char #\* op)))))
 
 (defbench write-strings-to-string
   (account
    (let ((op (open-output-string)))
      (bench-repeat 32768
-       (write-strings op "****")))))
+                   (write-strings op "****")))))
 
 (defbench read/boolean
   (let ((text (string-append "(" (make-string 8192 "#f #t ") ")")))
     (account
      (bench-repeat 16
-             (read-from-string text)))))
+                   (read-from-string text)))))
 
 (defbench read/character
   (let ((text (string-append "(" (make-string 4096 "#\\l #\\i #\\s #\\p ") ")")))
     (account
      (bench-repeat 16
-             (read-from-string text)))))
+                   (read-from-string text)))))
 
 
 (defbench read/string
   (let ((text (string-append "(" (make-string 256 " \"hello world, this is a test\" ") ")")))
     (account
      (bench-repeat 256
-             (read-from-string text)))))
+                   (read-from-string text)))))
 
 (defbench read/float
   (let ((text (string-append "(" (make-string 8192 " 3.14159 265.234 ") ")")))
     (account
      (bench-repeat 16
-             (read-from-string text)))))
+                   (read-from-string text)))))
 
 (defbench read/complex
   (let ((text (string-append "(" (make-string 8192 " 3.14159+265.234i ") ")")))
     (account
      (bench-repeat 16
-             (read-from-string text)))))
+                   (read-from-string text)))))
 
 (defbench read/symbol
   (let ((text (string-append "(" (make-string 2000 " hello :world this is a test ") ")")))
     (account
      (bench-repeat 16
-             (read-from-string text)))))
+                   (read-from-string text)))))
 
 
 (defbench read/vector
   (let ((text (string-append "(" (make-string 2000 " #(1) ") ")")))
     (account
      (bench-repeat 64
-             (read-from-string text)))))
+                   (read-from-string text)))))
 
 (define (test-benchmarks)
   "Run through all benchmarks as quickly as possible to check for runtime
@@ -914,9 +921,9 @@
   (dynamic-let ((*estimate-min-test-duration* 0.2))
     (bench 'exec-loop-repeat
            'funcall-inline
-	   'funcall-inline-args
-	   'funcall-local
-	   'funcall-local-args
+           'funcall-inline-args
+           'funcall-local
+           'funcall-local-args
            'mandelbrot-cplx
            'qsorting
            'fast-queue

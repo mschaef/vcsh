@@ -266,14 +266,6 @@
     (display-benchmark-results from reference)))
 
 
-(define (list-from-by b inc elems)
-  (define (list-from-by-1 b elems accum)
-    (if (<= elems 0)
-	accum
-	(list-from-by-1 (+ b inc) (- elems 1) (cons b accum))))
-  (list-from-by-1 b elems '()))
-
-
 (define *repeat-only-once* #f)
 
 (defmacro (bench-repeat n . code)
