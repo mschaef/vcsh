@@ -18,7 +18,6 @@
 
 ;;;; The benchmark result database
 
-
 (define *current-benchmark-sequence* #f)
 
 (define (next-benchmark-sequence)
@@ -225,7 +224,8 @@
 (define (display-benchmark-results results :optional (reference (reference-result-set)))
   (dynamic-let ((*info* #f))
     (gc)
-    (format #t "\nBenchmark results (shorter bar is better, compared to ~a):\n" (benchmark-result-system (car reference)))
+    (format #t "\n\nBenchmark results (shorter bar is better, compared to ~a):" (benchmark-result-system (car reference)))
+    (format #t "\nBenchmark time mode = ~a\n" *benchmark-time-mode*)
     (dolist (result (qsort results
 			   (lambda (s1 s2) (string< (symbol-name s1) (symbol-name s2)))
 			   benchmark-result-test-name))
