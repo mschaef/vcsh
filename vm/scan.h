@@ -2101,7 +2101,7 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
 #define LEAVE_FRAME()                                               \
-  assert(CURRENT_TIB()->frame_stack == &__frame);                   \
+  checked_assert(CURRENT_TIB()->frame_stack == &__frame);           \
   CURRENT_TIB()->frame_stack = __frame.previous;                    \
 }
 

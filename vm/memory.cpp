@@ -40,7 +40,6 @@ LRef gc_protect_sym(LRef * location, const _TCHAR * st, LRef package)
 
 static void gc_init_cell(LRef obj)
 {
-     memset(obj, 0, sizeof(LObject));
      SET_TYPE(obj, TC_FREE_CELL);
      SET_GC_MARK(obj, 0);
 }
