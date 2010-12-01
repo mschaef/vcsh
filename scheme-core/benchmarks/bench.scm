@@ -18,19 +18,24 @@
 
 ;;;; The benchmark result database
 
+
+(define *current-benchmark-sequence* #f)
+
+(define (next-benchmark-sequence)
+  (incr! *current-benchmark-sequence*)
+  *current-benchmark-sequence*)
+
 (define-structure benchmark-result
-  seq
-  system
+  (seq :default (next-benchmark-sequence))
+  (system :default (benchmark-system-info))
   test-name
   timings
-  (run-time :default #f))
+  (run-time :default (current-date)))
 
 (define (benchmark-result-cpu-time benchmark-result)
   (if (not (benchmark-result? benchmark-result))
       #f
       (car (benchmark-result-timings benchmark-result))))
-
-
 
 (define *last-benchmark-result-set* '())
 
@@ -53,12 +58,6 @@
         (write result of)
         (newline of)))
     (display "; end benchmark results\n" of)))
-
-(define *current-benchmark-sequence* #f)
-
-(define (next-benchmark-sequence)
-  (incr! *current-benchmark-sequence*)
-  *current-benchmark-sequence*)
 
 (define (load-benchmark-results)
   "Loads the current set of benchmark results from disk."
@@ -119,17 +118,15 @@
     (flush-port (current-output-port))
     (let ((result (scheme::%time-apply0 (lambda () (repeat count (apply closure))))))
       (let ((cpu-time (vector-ref result 1))
-	    (net-time (- (vector-ref result 1)
-			 (vector-ref result 2))))
-	(list cpu-time
-	      (* 1000 (/ cpu-time count))
-	      (* 1000 (/ net-time count))))))
-  (define (iter count)
+            (net-time (- (vector-ref result 1) (vector-ref result 2))))
+        (list cpu-time
+              (* 1000 (/ cpu-time count))
+              (* 1000 (/ net-time count))))))
+  (let loop ((count 1))
     (let ((result (execution-time count closure)))
-      (if (> (car result) *estimate-min-test-duration* )
-	  (cdr result)
-	  (iter (* count 2)))))
-  (iter 1))
+      (if (> (car result) *estimate-min-test-duration*)
+          (cdr result)
+          (loop (* count 2))))))
 
 ;;;; The benchmark database
 
@@ -143,7 +140,6 @@
                            (let ((,benchmark-time-sym #f))
                              ,@code
                              ,benchmark-time-sym)))))
-
 
 ;;;; Benchmark result reporting
 
@@ -206,7 +202,7 @@
 (define (display-benchmark-results results :optional (reference (reference-result-set)))
   (dynamic-let ((*info* #f))
     (gc)
-    (format #t "\nBenchmark results (shorter bar is better):\n")
+    (format #t "\nBenchmark results (shorter bar is better, compared to ~a):\n" (benchmark-result-system (car reference)))
     (dolist (result (qsort results
 			   (lambda (s1 s2) (string< (symbol-name s1) (symbol-name s2)))
 			   benchmark-result-test-name))
@@ -231,31 +227,28 @@
     (bench)))
 
 (define (bench . tests)
-  (define (run-named-benchmark bench-name)
-    (dynamic-let ((*info* #f))
-      (gc)
-      (format #t "\n~a: " bench-name)
-      ((symbol-value bench-name))))
 
-  (define (sort-benchmark-names names)
-    (qsort names #L2(< (strcmp _0 _1) 0) symbol-name))
+  (let ((tests (if (null? tests) *benchmarks* tests))
+        (count 0))
 
-  (let* ((tests (if (null? tests) *benchmarks* tests))
-         (results (map (lambda (test)
-                           (make-benchmark-result :test-name test
-                                                  :seq (next-benchmark-sequence)
-                                                  :timings  (run-named-benchmark test)
-                                                  :system (benchmark-system-info)
-                                                  :run-time (current-date)))
-                       (sort-benchmark-names tests))))
+    (define (run-named-benchmark bench-name)
+      (incr! count)
+      (format #t "\n[~a/~a] ~a: " count (length tests) bench-name)
+      (make-benchmark-result :test-name bench-name
+                             :timings ((symbol-value bench-name))))
 
-    (set! *last-benchmark-result-set* results)
+    (define (sort-benchmark-names names)
+      (qsort names string< symbol-name))
 
-    (display-benchmark-results results)
-    (format #t "\nEvaluate (promote-benchmark-results) to make these results the standard for ~s\n"
-            (benchmark-system-info))
-    (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n")
-    (values)))
+    (let* ((results (map run-named-benchmark (sort-benchmark-names tests))))
+
+      (set! *last-benchmark-result-set* results)
+
+      (display-benchmark-results results)
+      (format #t "\nEvaluate (promote-benchmark-results) to make these results the standard for ~s"
+              (benchmark-system-info))
+      (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n")
+      (values))))
 
 (define (compare-benchmark-results)
   (let ((from (select-benchmark-result))
