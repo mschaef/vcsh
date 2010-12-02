@@ -121,9 +121,9 @@
    repeat count is computed by starting at 1 and successively doubling until
    the time threshold is crossed."
   (define (execution-time count closure)
-    (gc)
     (format #t "~a." count)
     (flush-port (current-output-port))
+    (gc)
     (let ((result (scheme::%time-apply0 (lambda () (repeat count (apply closure))))))
       (let ((cpu-time (vector-ref result 1))
             (net-time (- (vector-ref result 1) (vector-ref result 2))))
@@ -159,9 +159,7 @@
   (hash-ref *benchmarks* benchname))
 
 (defmacro (account . code)
-  `(begin
-     (gc)
-     (set! ,benchmark-time-sym (estimate-execution-time (lambda () ,@code)))))
+  `(set! ,benchmark-time-sym (estimate-execution-time (lambda () ,@code))))
 
 ;;;; Benchmark result reporting
 
@@ -223,7 +221,6 @@
 
 (define (display-benchmark-results results :optional (reference (reference-result-set)))
   (dynamic-let ((*info* #f))
-    (gc)
     (format #t "\n\nBenchmark results (shorter bar is better, compared to ~a):" (benchmark-result-system (car reference)))
     (format #t "\nBenchmark time mode = ~a\n" *benchmark-time-mode*)
     (dolist (result (qsort results
