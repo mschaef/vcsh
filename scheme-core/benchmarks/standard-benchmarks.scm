@@ -315,6 +315,8 @@
     (account
      (display *hash-test-syms* p))))
 
+(define nested-lists)
+
 (define (nested-lists depth)
   (if (= depth 0)
       (list 'a 'b 'c)
@@ -383,11 +385,6 @@
 (defbench inherited-generic-function-call
   (account (bench-repeat 2000
                          (generic/inheritance 2))))
-
-(define (hash-performance list-size iterations)
-  (let ((xs (list-from-by 0 1 list-size)))
-    (gc)
-    (vector-ref (scheme::%time (bench-repeat iterations (hash-key xs))) 1)))
 
 (define (cross xs ys)
   (append-map (lambda (x)

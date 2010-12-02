@@ -13,11 +13,35 @@
 ;;; memory effects.  Results should be the same as for TAK on stack machines.
 ;;; Distribution of calls is not completely flat.
  
+;; Forward declarations
+
+(define tak0)  (define tak1)  (define tak2)  (define tak3)  (define tak4)
+(define tak5)  (define tak6)  (define tak7)  (define tak8)  (define tak9)
+(define tak10) (define tak11) (define tak12) (define tak13) (define tak14)
+(define tak15) (define tak16) (define tak17) (define tak18) (define tak19)
+(define tak20) (define tak21) (define tak22) (define tak23) (define tak24)
+(define tak25) (define tak26) (define tak27) (define tak28) (define tak29)
+(define tak30) (define tak31) (define tak32) (define tak33) (define tak34)
+(define tak35) (define tak36) (define tak37) (define tak38) (define tak39)
+(define tak40) (define tak41) (define tak42) (define tak43) (define tak44)
+(define tak45) (define tak46) (define tak47) (define tak48) (define tak49)
+(define tak50) (define tak51) (define tak52) (define tak53) (define tak54)
+(define tak55) (define tak56) (define tak57) (define tak58) (define tak59)
+(define tak60) (define tak61) (define tak62) (define tak63) (define tak64)
+(define tak65) (define tak66) (define tak67) (define tak68) (define tak69)
+(define tak70) (define tak71) (define tak72) (define tak73) (define tak74)
+(define tak75) (define tak76) (define tak77) (define tak78) (define tak79)
+(define tak80) (define tak81) (define tak82) (define tak83) (define tak84)
+(define tak85) (define tak86) (define tak87) (define tak88) (define tak89)
+(define tak90) (define tak91) (define tak92) (define tak93) (define tak94)
+(define tak95) (define tak96) (define tak97) (define tak98) (define tak99)
+
 (define (tak0 x y z)
   (cond ((not (< y x)) z)
         (#t (tak1 (tak37 (- x 1) y z)
                  (tak11 (- y 1) z x)
                  (tak17 (- z 1) x y)))))
+
 (define (tak1 x y z)
   (cond ((not (< y x)) z)
         (#t (tak2 (tak74 (- x 1) y z)

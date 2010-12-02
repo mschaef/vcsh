@@ -28,7 +28,7 @@
                       (do ((j m (- j 1))
                            (a '() (cons '() a)))
                           ((= j 0) a)))))
-            (else
+            (#t
              (do ((l1 l (cdr l1))
                   (l2 (cdr l) (cdr l2)))
                  ((null? l2))
@@ -39,7 +39,7 @@
                        (let ((n (quotient (length (car l1)) 2)))
                          (cond ((= n 0) (set-car! l1 '())
                                 (car l1))
-                               (else
+                               (#t
                                 (do ((j n (- j 1))
                                      (a (car l1) (cdr a)))
                                     ((= j 1)

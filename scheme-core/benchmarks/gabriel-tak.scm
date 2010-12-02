@@ -10,7 +10,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  
 ;;; TAK -- A vanilla version of the TAKeuchi function
- 
+
+(define tak)
+
 (define (tak x y z)
   (if (not (< y x))
       z

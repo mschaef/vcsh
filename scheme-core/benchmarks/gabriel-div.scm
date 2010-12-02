@@ -24,6 +24,8 @@
        (a '() (cons (car l) a)))
       ((null? l) a)))
  
+(define recursive-div2)
+
 (define (recursive-div2 l)
   (cond ((null? l) '())
         (#t (cons (car l) (recursive-div2 (cddr l))))))

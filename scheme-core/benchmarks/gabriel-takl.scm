@@ -13,6 +13,8 @@
 
 (scheme::%set-stack-limit #f)
 
+(define listn)
+
 (define (listn n)
   (if (not (= 0 n))
       (cons n (listn (- n 1)))))
@@ -20,7 +22,10 @@
 (define 18l (listn 18))
 (define 12l (listn 12))
 (define  6l (listn 6))
- 
+
+(define shorterp)
+(define mas)
+
 (define (mas x y z)
   (if (not (shorterp y x))
       z

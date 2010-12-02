@@ -46,6 +46,8 @@
 ; Returns the wrong answer for quotients.
 ; Fortunately these aren't used in the benchmark.
  
+(define dderiv)
+
 (define (dderiv-aux a)
   (list '/ (dderiv a) a))
  

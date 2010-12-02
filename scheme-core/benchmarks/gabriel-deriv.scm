@@ -15,6 +15,8 @@
 
 ; Returns the wrong answer for quotients.
 ; Fortunately these aren't used in the benchmark.
+
+(define deriv)
  
 (define (deriv-aux a) (list '/ (deriv a) a))
  

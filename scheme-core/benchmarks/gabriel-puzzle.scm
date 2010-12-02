@@ -63,25 +63,26 @@
                  (vector-ref *class* i)
                  (+ (vector-ref *piececount* (vector-ref *class* i)) 1))))
 
+(define trial)
 
 (define (trial j)
   (let ((k 0))
     (catch 'return
-       (do ((i 0 (+ i 1)))
-           ((> i typemax) (set! *kount* (+ *kount* 1)) ())
-           (cond
-            ((not
-              (zero?
-               (vector-ref *piececount* (vector-ref *class* i))))
-             (cond
-              ((fit i j)
-               (set! k (place i j))
-               (cond
-                ((or (trial k) (zero? k))
-                 ;(trial-output (+ i 1) (+ k 1))
-                 (set! *kount* (+ *kount* 1))
-                 (throw 'return #t))
-                (else (puzzle-remove i j)))))))))))
+      (do ((i 0 (+ i 1)))
+          ((> i typemax) (set! *kount* (+ *kount* 1)) ())
+        (cond
+         ((not
+           (zero?
+            (vector-ref *piececount* (vector-ref *class* i))))
+          (cond
+           ((fit i j)
+            (set! k (place i j))
+            (cond
+             ((or (trial k) (zero? k))
+                                        ;(trial-output (+ i 1) (+ k 1))
+              (set! *kount* (+ *kount* 1))
+              (throw 'return #t))
+             (#t (puzzle-remove i j)))))))))))
 
 (define (trial-output x y)
   (newline)
