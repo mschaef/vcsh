@@ -2108,32 +2108,25 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 #define TOP_FRAME CURRENT_TIB()->frame_stack
 
-void __frame_set_top(frame_record_t * f);
 
 typedef bool(*frame_predicate) (frame_record_t * frame, uptr_t info);
 
 frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
-/* C++-style exception handling
- *
- * (A guard is a special sort of try block that catches all
- * exceptions. It's used to avoid puking and dying when an
- * uncaught exception is thrown.)
- */
+/* C++-style exception handling */
 
 #define ENTER_TRY(tag) ENTER_TRY_1(tag, FRAME_EX_TRY)
 
-#define ENTER_GUARD()  ENTER_TRY_1(NIL, FRAME_EX_GUARD)
+#define ENTER_UNWIND_PROTECT() ENTER_TRY_1(NULL, FRAME_EX_UNWIND)
 
-#define ENTER_TRY_1(tag, guard)                                 \
-   ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard);                           \
-   {                                                            \
-      bool __block_successful =                          \
+#define ENTER_TRY_1(tag, guard)                                     \
+   ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                           \
+   {                                                                \
+      bool __block_successful =                                     \
         (setjmp(TOP_FRAME->frame_as.dynamic_escape.cframe) == 0);   \
-                                                                \
-      if (__block_successful)                                   \
+                                                                    \
+      if (__block_successful)                                       \
       {
-
 
 #define ON_ERROR()                                              \
       }                                                         \
@@ -2147,8 +2140,6 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
 
 /* C-style Unwind Protect */
-
-#define ENTER_UNWIND_PROTECT() ENTER_TRY_1(NULL, FRAME_EX_UNWIND)
 
 #define ON_UNWIND()                                             \
       }                                                         \

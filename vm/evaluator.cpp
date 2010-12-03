@@ -596,7 +596,7 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
      bool failed = true;
 
      LRef retval = NIL;
-
+     
      ENTER_TRY(NULL)
      {
           retval = apply1(closure, argc, argv);
@@ -702,24 +702,6 @@ LRef lthrow(LRef tag, LRef value)
  * When the frame is left, the frame record is popped off of
  * the stack.
  */
-
-void __frame_set_top(frame_record_t * f)
-{
-#ifdef _DEBUG
-     frame_record_t *loc = CURRENT_TIB()->frame_stack;
-
-     while (loc)
-     {
-          if (loc == f)
-               break;
-          loc = loc->previous;
-     }
-
-     assert(loc);               /*  The frame ought to be on the stack already. */
-#endif
-
-     CURRENT_TIB()->frame_stack = f;
-}
 
 frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
 {
@@ -870,7 +852,7 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
      next_catcher->frame_as.dynamic_escape.tag = tag;
      next_catcher->frame_as.dynamic_escape.retval = retval;
      
-     __frame_set_top(next_catcher);
+     CURRENT_TIB()->frame_stack = next_catcher;
           
      longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
 }
