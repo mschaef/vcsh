@@ -755,7 +755,7 @@ LRef lget_current_frames(LRef sc)
                break;
           }
 
-          frame_obj = lcons(fixcons(loc->type), frame_obj);
+          frame_obj = lcons(fixcons(loc->type), lcons(fixcons((fixnum_t)loc), frame_obj));
 
           if (frame_count >= skip_count)
                frames = lcons(frame_obj, frames);
@@ -851,6 +851,11 @@ LRef topmost_primitive()
      f = __frame_find(primitive_frame, (uptr_t) NIL);
 
      return f ? f->as.prim.function : NIL;
+}
+
+LRef ltopframe()
+{
+     return fixcons((fixnum_t)CURRENT_TIB()->topframe);
 }
 
 END_NAMESPACE

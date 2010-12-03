@@ -188,16 +188,16 @@
   (define (maybe-remove-system-frames frame-list)
     (if *show-system-frames*
         frame-list
-        (take-while #L(not (and (= (car _) system::FRAME_MARKER)
-                                (eq? (cadr _) 'system-stack-boundary)))
+        (take-while #L(not (and (= (first _) system::FRAME_MARKER)
+                                (eq? (third _) 'system-stack-boundary)))
                     frame-list)))
   (let ((frame-list (filter (lambda (frame) (= (car frame) system::FRAME_EVAL))
                             (maybe-remove-system-frames frame-list))))
     (doiterate ((list frame (reverse frame-list))
                 (count frame-index))
       (format p "~a> ~s\n\n" frame-index (third frame))
-      (unless (eq? (second frame) (third frame))
-        (format p "   -> ~s\n\n" (second frame))))))
+      (unless (eq? (third frame) (fourth frame))
+        (format p "   -> ~s\n\n" (third frame))))))
 
 (defmacro (check predicate value . msg)
   "Applies <predicate> to <value> and signals an error if false. <predicate>
