@@ -726,7 +726,7 @@ LRef lget_current_frames(LRef sc)
 
      fixnum_t frame_count = 0;
      
-     for(frame_record_t *loc = TOP_FRAME; loc; loc = loc->previous)
+     for(frame_record_t *loc = CURRENT_TIB()->frame_stack; loc; loc = loc->previous)
      {
           LRef frame_obj = NIL;
 
@@ -773,24 +773,24 @@ LRef lget_current_frames(LRef sc)
 
 LRef __ex_current_catch_retval()
 {
-     assert(TOP_FRAME);
+     assert(CURRENT_TIB()->frame_stack);
 
-     assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
+     assert((CURRENT_TIB()->frame_stack->type == FRAME_EX_TRY) || (CURRENT_TIB()->frame_stack->type == FRAME_EX_UNWIND));
 
-     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
+     assert(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.pending);
 
-     return TOP_FRAME->frame_as.dynamic_escape.retval;
+     return CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval;
 }
 
 LRef __ex_current_catch_tag()
 {
-     assert(TOP_FRAME);
+     assert(CURRENT_TIB()->frame_stack);
 
-     assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
+     assert((CURRENT_TIB()->frame_stack->type == FRAME_EX_TRY) || (CURRENT_TIB()->frame_stack->type == FRAME_EX_UNWIND));
 
-     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
+     assert(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.pending);
 
-     return TOP_FRAME->frame_as.dynamic_escape.tag;
+     return CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag;
 }
 /* These two predicates find the next exception frame in the list
  * of frame handlers.  next_frame_to_catch is used to calculate
@@ -862,18 +862,14 @@ void __ex_rethrow_dynamic_escape()
      LRef retval;
      LRef tag;
 
-     assert(TOP_FRAME);
-     assert((TOP_FRAME->type == FRAME_EX_TRY) || (TOP_FRAME->type == FRAME_EX_UNWIND));
-     assert(TOP_FRAME->frame_as.dynamic_escape.pending);
+     assert(CURRENT_TIB()->frame_stack);
+     assert((CURRENT_TIB()->frame_stack->type == FRAME_EX_TRY) || (CURRENT_TIB()->frame_stack->type == FRAME_EX_UNWIND));
+     assert(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.pending);
 
-     tag = TOP_FRAME->frame_as.dynamic_escape.tag;
-     retval = TOP_FRAME->frame_as.dynamic_escape.retval;
-
-     /* Avoid hitting the same exception over and over again... */
-     CURRENT_TIB()->frame_stack = TOP_FRAME;
+     tag = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag;
+     retval = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval;
 
      __ex_throw_dynamic_escape(tag, retval, TRUE);
 }
-
 
 END_NAMESPACE
