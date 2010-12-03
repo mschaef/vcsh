@@ -45,7 +45,7 @@ void scan_postmortem_dump()
 {
      LRef oport = CURRENT_DEBUG_PORT();
 
-     frame_record_t *loc = TOP_FRAME;
+     frame_record_t *loc = CURRENT_TIB()->frame_stack;
 
      while (loc)
      {
