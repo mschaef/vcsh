@@ -604,9 +604,9 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
      }
      ON_ERROR()
      {
-          retval = ERROR_RETVAL();
+          retval = __ex_current_catch_retval();
           if (out_escape_tag)
-               *out_escape_tag = ERROR_TAG();
+               *out_escape_tag = __ex_current_catch_tag();
      }
      LEAVE_TRY();
 
@@ -652,9 +652,9 @@ LRef lcatch_apply0(LRef tag, LRef fn)
      }
      ON_ERROR()
      {
-          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"), ERROR_TAG(), ERROR_RETVAL());
+          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"), __ex_current_catch_tag(), __ex_current_catch_retval());
 
-          retval = ERROR_RETVAL();
+          retval = __ex_current_catch_retval();
      }
      LEAVE_TRY();
 
@@ -688,7 +688,7 @@ LRef lthrow(LRef tag, LRef value)
 {
      dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, value);
 
-     THROW_ESCAPE(tag, value);
+     __ex_throw_dynamic_escape(tag, value, FALSE);
 
      return (NIL);
 }

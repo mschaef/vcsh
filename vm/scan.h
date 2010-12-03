@@ -2121,11 +2121,9 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
  * uncaught exception is thrown.)
  */
 
-#define ENTER_TRY(tag)                                          \
-    ENTER_TRY_1(tag, FRAME_EX_TRY)
+#define ENTER_TRY(tag) ENTER_TRY_1(tag, FRAME_EX_TRY)
 
-#define ENTER_GUARD()                                           \
-    ENTER_TRY_1(NIL, FRAME_EX_GUARD)
+#define ENTER_GUARD()  ENTER_TRY_1(NIL, FRAME_EX_GUARD)
 
 #define ENTER_TRY_1(tag, guard)                                 \
    ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard);                           \
@@ -2148,13 +2146,6 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
    LEAVE_FRAME();
 
 
-#define ERROR_RETVAL() __ex_current_catch_retval()
-#define ERROR_TAG() __ex_current_catch_tag()
-
-#define RETHROW_DYNAMIC_ESCAPE() __ex_rethrow_dynamic_escape()
-
-#define THROW_ESCAPE(tag, retval) __ex_throw_dynamic_escape(tag, retval, FALSE);
-
 /* C-style Unwind Protect */
 
 #define ENTER_UNWIND_PROTECT() ENTER_TRY_1(NULL, FRAME_EX_UNWIND)
@@ -2165,11 +2156,9 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
 #define LEAVE_UNWIND_PROTECT()                                  \
       if (!__block_successful)                                  \
-         RETHROW_DYNAMIC_ESCAPE();                              \
+           __ex_rethrow_dynamic_escape();                       \
    }                                                            \
    LEAVE_FRAME();
-
-
 
 
 /* Prototypes for internal exception handling code
