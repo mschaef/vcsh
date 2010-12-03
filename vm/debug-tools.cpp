@@ -52,12 +52,12 @@ void scan_postmortem_dump()
           switch (loc->type)
           {
           case FRAME_EVAL:
-               scwritef(_T("eval > ~s in ~s\n"), oport, *loc->frame_as.eval.form,
-                        loc->frame_as.eval.initial_form);
+               scwritef(_T("eval > ~s in ~s\n"), oport, *loc->as.eval.form,
+                        loc->as.eval.initial_form);
                break;
 
           case FRAME_EX_TRY:
-               scwritef(_T("try > ~s\n"), oport, loc->frame_as.dynamic_escape.tag);
+               scwritef(_T("try > ~s\n"), oport, loc->as.escape.tag);
                break;
 
           case FRAME_EX_UNWIND:
@@ -65,11 +65,11 @@ void scan_postmortem_dump()
                break;
 
           case FRAME_PRIMITIVE:
-               scwritef(_T("primitive > ~s\n"), oport, loc->frame_as.primitive.function);
+               scwritef(_T("primitive > ~s\n"), oport, loc->as.prim.function);
                break;
 
           case FRAME_MARKER:
-               scwritef(_T("marker > ~s\n"), oport, loc->frame_as.marker.tag);
+               scwritef(_T("marker > ~s\n"), oport, loc->as.marker.tag);
                break;
 
           default:
@@ -79,7 +79,7 @@ void scan_postmortem_dump()
 
           lflush_port(oport);
 
-          loc = loc->previous;
+          loc = loc->prev;
      }
 }
 

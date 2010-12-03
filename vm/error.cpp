@@ -38,7 +38,7 @@ LRef topmost_primitive()
 
      f = __frame_find(primitive_frame, (uptr_t) NIL);
 
-     return f ? f->frame_as.primitive.function : NIL;
+     return f ? f->as.prim.function : NIL;
 }
 
 

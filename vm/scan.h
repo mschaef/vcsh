@@ -398,7 +398,7 @@ INLINE bool TYPEP(LRef object, typecode_t typeCode)
 /*** Debugging flags ***/
 struct frame_record_t
 {
-     frame_record_t *previous;
+     frame_record_t *prev;
 
      frame_type_t type;
 
@@ -417,16 +417,16 @@ struct frame_record_t
                jmp_buf cframe;
                bool pending;
                bool unwinding;
-          } dynamic_escape;
+          } escape;
           struct
           {
                LRef function;
-          } primitive;
+          } prim;
           struct
           {
                LRef tag;
           } marker;
-     } frame_as;
+     } as;
 };
 
 struct gc_root_t
@@ -2068,42 +2068,42 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 {                                                                   \
    frame_record_t  __frame;                                         \
                                                                     \
-   __frame.previous = CURRENT_TIB()->frame_stack;                   \
+   __frame.prev = CURRENT_TIB()->frame_stack;                       \
                                                                     \
    CURRENT_TIB()->frame_stack = &__frame;
 
 #define ENTER_MARKER_FRAME(__tag)                                   \
   ENTER_FRAME()                                                     \
      __frame.type = FRAME_MARKER;                                   \
-     __frame.frame_as.marker.tag = __tag;
+     __frame.as.marker.tag = __tag;
 
 #define ENTER_PRIMITIVE_FRAME(__f)                                  \
     ENTER_FRAME()                                                   \
-       __frame.type                         = FRAME_PRIMITIVE;      \
-       __frame.frame_as.primitive.function  = __f;
+       __frame.type              = FRAME_PRIMITIVE;                 \
+       __frame.as.prim.function  = __f;
 
 #define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)                         \
       ENTER_FRAME()                                                       \
          assert((__type == FRAME_EX_TRY) || (__type == FRAME_EX_UNWIND)); \
                                                                           \
-          __frame.type                               = __type;            \
-          __frame.frame_as.dynamic_escape.pending    = FALSE;             \
-          __frame.frame_as.dynamic_escape.unwinding  = FALSE;             \
-          __frame.frame_as.dynamic_escape.tag        = __tag;             \
-          __frame.frame_as.dynamic_escape.retval     = NIL;
+          __frame.type                 = __type;            \
+          __frame.as.escape.pending    = FALSE;             \
+          __frame.as.escape.unwinding  = FALSE;             \
+          __frame.as.escape.tag        = __tag;             \
+          __frame.as.escape.retval     = NIL;
 
-#define ENTER_EVAL_FRAME(__form, __env)                             \
-      ENTER_FRAME()                                                 \
-         __frame.type                                = FRAME_EVAL;  \
-                                                                    \
-         __frame.frame_as.eval.form                  = __form;      \
-         __frame.frame_as.eval.initial_form          = *__form;     \
-         __frame.frame_as.eval.env                   = __env;
+#define ENTER_EVAL_FRAME(__form, __env)                       \
+      ENTER_FRAME()                                           \
+         __frame.type                          = FRAME_EVAL;  \
+                                                              \
+         __frame.as.eval.form                  = __form;      \
+         __frame.as.eval.initial_form          = *__form;     \
+         __frame.as.eval.env                   = __env;
 
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
 #define LEAVE_FRAME()                                               \
   checked_assert(CURRENT_TIB()->frame_stack == &__frame);           \
-  CURRENT_TIB()->frame_stack = __frame.previous;                    \
+  CURRENT_TIB()->frame_stack = __frame.prev;                        \
 }
 
 typedef bool(*frame_predicate) (frame_record_t * frame, uptr_t info);
@@ -2120,34 +2120,34 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
    ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                                            \
    {                                                                                 \
       bool __block_successful =                                                      \
-        (setjmp(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.cframe) == 0);   \
+        (setjmp(CURRENT_TIB()->frame_stack->as.escape.cframe) == 0);   \
                                                                                      \
       if (__block_successful)                                                        \
       {
 
-#define ON_ERROR()                                              \
-      }                                                         \
-      else                                                      \
+#define ON_ERROR()                                                \
+      }                                                           \
+      else                                                        \
       {
 
-#define LEAVE_TRY()                                             \
-      }                                                         \
-   }                                                            \
+#define LEAVE_TRY()                                               \
+      }                                                           \
+   }                                                              \
    LEAVE_FRAME();
 
 
 /* C-style Unwind Protect */
 
-#define ON_UNWIND()                                                         \
-      }                                                                     \
-      CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.unwinding = TRUE;
+#define ON_UNWIND()                                               \
+      }                                                           \
+      CURRENT_TIB()->frame_stack->as.escape.unwinding = TRUE;
 
-#define LEAVE_UNWIND_PROTECT()                                                  \
-      if (!__block_successful)                                                  \
-            lthrow(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,     \
-                   CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval); \
-                                                                                \
-   }                                                                            \
+#define LEAVE_UNWIND_PROTECT()                                    \
+      if (!__block_successful)                                    \
+            lthrow(CURRENT_TIB()->frame_stack->as.escape.tag,     \
+                   CURRENT_TIB()->frame_stack->as.escape.retval); \
+                                                                  \
+   }                                                              \
    LEAVE_FRAME();
 
 

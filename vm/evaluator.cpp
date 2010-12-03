@@ -604,9 +604,9 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
      }
      ON_ERROR()
      {
-          retval = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval;
+          retval = CURRENT_TIB()->frame_stack->as.escape.retval;
           if (out_escape_tag)
-               *out_escape_tag = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag;
+               *out_escape_tag = CURRENT_TIB()->frame_stack->as.escape.tag;
      }
      LEAVE_TRY();
 
@@ -653,10 +653,10 @@ LRef lcatch_apply0(LRef tag, LRef fn)
      ON_ERROR()
      {
           dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
-                    CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,
-                    CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval);
+                    CURRENT_TIB()->frame_stack->as.escape.tag,
+                    CURRENT_TIB()->frame_stack->as.escape.retval);
 
-          retval = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval;
+          retval = CURRENT_TIB()->frame_stack->as.escape.retval;
      }
      LEAVE_TRY();
 
@@ -704,7 +704,7 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
           if (pred(loc, info))
                return loc;
 
-          loc = loc->previous;
+          loc = loc->prev;
      }
 
      return loc;
@@ -718,7 +718,7 @@ LRef lget_current_frames(LRef sc)
 
      fixnum_t frame_count = 0;
      
-     for(frame_record_t *loc = CURRENT_TIB()->frame_stack; loc; loc = loc->previous)
+     for(frame_record_t *loc = CURRENT_TIB()->frame_stack; loc; loc = loc->prev)
      {
           LRef frame_obj = NIL;
 
@@ -728,13 +728,13 @@ LRef lget_current_frames(LRef sc)
           {
           case FRAME_EVAL:
                frame_obj = listn(3,
-                                 *loc->frame_as.eval.form,
-                                 loc->frame_as.eval.initial_form,
-                                 loc->frame_as.eval.env);
+                                 *loc->as.eval.form,
+                                 loc->as.eval.initial_form,
+                                 loc->as.eval.env);
                break;
 
           case FRAME_EX_TRY:
-               frame_obj = listn(1, loc->frame_as.dynamic_escape.tag);
+               frame_obj = listn(1, loc->as.escape.tag);
                break;
 
           case FRAME_EX_UNWIND:
@@ -742,11 +742,11 @@ LRef lget_current_frames(LRef sc)
                break;
 
           case FRAME_PRIMITIVE:
-               frame_obj = listn(1, loc->frame_as.primitive.function);
+               frame_obj = listn(1, loc->as.prim.function);
                break;
 
           case FRAME_MARKER:
-               frame_obj = listn(1, loc->frame_as.marker.tag);
+               frame_obj = listn(1, loc->as.marker.tag);
                break;
 
           default:
@@ -778,16 +778,16 @@ bool __ex_matching_frame_1(frame_record_t * rec, uptr_t tag, bool exclude_unwind
           /* If a frame is being unwound, it means that we're executing the
            * unwind clause and any errors thrown belong to an outside exception
            * frame. Therefore it is not a candidate for the current throw. */
-          if ((rec->type == FRAME_EX_UNWIND) && !rec->frame_as.dynamic_escape.unwinding)
+          if ((rec->type == FRAME_EX_UNWIND) && !rec->as.escape.unwinding)
                return TRUE;
      }
 
      if (rec->type == FRAME_EX_TRY)
      {
-          if (NULLP(rec->frame_as.dynamic_escape.tag))
+          if (NULLP(rec->as.escape.tag))
                return TRUE;
           else
-               return EQ(rec->frame_as.dynamic_escape.tag, (LRef) tag);
+               return EQ(rec->as.escape.tag, (LRef) tag);
      }
 
      return FALSE;
@@ -818,22 +818,22 @@ LRef lthrow(LRef tag, LRef retval)
      /* ...if we do, start unwinding the stack. */
      frame_record_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
           
-     next_catcher->frame_as.dynamic_escape.pending = TRUE;
-     next_catcher->frame_as.dynamic_escape.unwinding = TRUE;
-     next_catcher->frame_as.dynamic_escape.tag = tag;
-     next_catcher->frame_as.dynamic_escape.retval = retval;
+     next_catcher->as.escape.pending = TRUE;
+     next_catcher->as.escape.unwinding = TRUE;
+     next_catcher->as.escape.tag = tag;
+     next_catcher->as.escape.retval = retval;
      
      CURRENT_TIB()->frame_stack = next_catcher;
           
-     longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
+     longjmp(next_catcher->as.escape.cframe, 1);
 
      return NIL;
 }
 
 void __ex_rethrow_dynamic_escape()
 {
-     lthrow(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,
-            CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval);
+     lthrow(CURRENT_TIB()->frame_stack->as.escape.tag,
+            CURRENT_TIB()->frame_stack->as.escape.retval);
 }
 
 END_NAMESPACE
