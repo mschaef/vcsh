@@ -45,9 +45,7 @@ void scan_postmortem_dump()
 {
      LRef oport = CURRENT_DEBUG_PORT();
 
-     frame_record_t *loc = CURRENT_TIB()->frame_stack;
-
-     while (loc)
+     for(frame_t *loc = CURRENT_TIB()->topframe; loc; loc = loc->prev)
      {
           switch (loc->type)
           {
@@ -78,8 +76,6 @@ void scan_postmortem_dump()
           }
 
           lflush_port(oport);
-
-          loc = loc->prev;
      }
 }
 

@@ -604,9 +604,9 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
      }
      ON_ERROR()
      {
-          retval = CURRENT_TIB()->frame_stack->as.escape.retval;
+          retval = CURRENT_TIB()->topframe->as.escape.retval;
           if (out_escape_tag)
-               *out_escape_tag = CURRENT_TIB()->frame_stack->as.escape.tag;
+               *out_escape_tag = CURRENT_TIB()->topframe->as.escape.tag;
      }
      LEAVE_TRY();
 
@@ -653,10 +653,10 @@ LRef lcatch_apply0(LRef tag, LRef fn)
      ON_ERROR()
      {
           dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
-                    CURRENT_TIB()->frame_stack->as.escape.tag,
-                    CURRENT_TIB()->frame_stack->as.escape.retval);
+                    CURRENT_TIB()->topframe->as.escape.tag,
+                    CURRENT_TIB()->topframe->as.escape.retval);
 
-          retval = CURRENT_TIB()->frame_stack->as.escape.retval;
+          retval = CURRENT_TIB()->topframe->as.escape.retval;
      }
      LEAVE_TRY();
 
@@ -694,10 +694,11 @@ LRef lunwind_protect(LRef thunk, LRef after)
  * When the frame is left, the frame record is popped off of
  * the stack.
  */
+typedef bool(*frame_predicate) (frame_t * frame, uptr_t info);
 
-frame_record_t *__frame_find(frame_predicate pred, uptr_t info)
+frame_t *__frame_find(frame_predicate pred, uptr_t info)
 {
-     frame_record_t *loc = CURRENT_TIB()->frame_stack;
+     frame_t *loc = CURRENT_TIB()->topframe;
 
      while (loc)
      {
@@ -718,7 +719,7 @@ LRef lget_current_frames(LRef sc)
 
      fixnum_t frame_count = 0;
      
-     for(frame_record_t *loc = CURRENT_TIB()->frame_stack; loc; loc = loc->prev)
+     for(frame_t *loc = CURRENT_TIB()->topframe; loc; loc = loc->prev)
      {
           LRef frame_obj = NIL;
 
@@ -771,7 +772,7 @@ LRef lget_current_frames(LRef sc)
  * frame that has explicitly requested interest in this kind of exception.
  * This is used to determine if the exception was expected by the programmer.
  */
-bool __ex_matching_frame_1(frame_record_t * rec, uptr_t tag, bool exclude_unwind_protection)
+bool __ex_matching_frame_1(frame_t * rec, uptr_t tag, bool exclude_unwind_protection)
 {
      if (!exclude_unwind_protection)
      {
@@ -793,12 +794,12 @@ bool __ex_matching_frame_1(frame_record_t * rec, uptr_t tag, bool exclude_unwind
      return FALSE;
 }
 
-bool __ex_next_frame_to_catch(frame_record_t * rec, uptr_t tag)
+bool __ex_next_frame_to_catch(frame_t * rec, uptr_t tag)
 {
      return __ex_matching_frame_1(rec, tag, FALSE);
 }
 
-bool __ex_next_try_frame(frame_record_t * rec, uptr_t tag)
+bool __ex_next_try_frame(frame_t * rec, uptr_t tag)
 {
      return __ex_matching_frame_1(rec, tag, TRUE);
 }
@@ -808,7 +809,7 @@ LRef lthrow(LRef tag, LRef retval)
      dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
 
      /* Check to see if we have a matching catch block... */
-     frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
+     frame_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
 
      /* ...If not, we have a problem and need to invoke a trap. */
      if (next_try == NULL)
@@ -816,14 +817,14 @@ LRef lthrow(LRef tag, LRef retval)
                  2, tag, retval);
 
      /* ...if we do, start unwinding the stack. */
-     frame_record_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
+     frame_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
           
      next_catcher->as.escape.pending = TRUE;
      next_catcher->as.escape.unwinding = TRUE;
      next_catcher->as.escape.tag = tag;
      next_catcher->as.escape.retval = retval;
      
-     CURRENT_TIB()->frame_stack = next_catcher;
+     CURRENT_TIB()->topframe = next_catcher;
           
      longjmp(next_catcher->as.escape.cframe, 1);
 
@@ -832,8 +833,24 @@ LRef lthrow(LRef tag, LRef retval)
 
 void __ex_rethrow_dynamic_escape()
 {
-     lthrow(CURRENT_TIB()->frame_stack->as.escape.tag,
-            CURRENT_TIB()->frame_stack->as.escape.retval);
+     lthrow(CURRENT_TIB()->topframe->as.escape.tag,
+            CURRENT_TIB()->topframe->as.escape.retval);
+}
+
+bool primitive_frame(frame_t * rec, uptr_t notused)
+{
+     UNREFERENCED(notused);
+
+     return (rec->type == FRAME_PRIMITIVE);
+}
+
+LRef topmost_primitive()
+{
+     frame_t *f;
+
+     f = __frame_find(primitive_frame, (uptr_t) NIL);
+
+     return f ? f->as.prim.function : NIL;
 }
 
 END_NAMESPACE

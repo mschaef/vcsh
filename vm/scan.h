@@ -396,9 +396,9 @@ INLINE bool TYPEP(LRef object, typecode_t typeCode)
 }
 
 /*** Debugging flags ***/
-struct frame_record_t
+struct frame_t
 {
-     frame_record_t *prev;
+     frame_t *prev;
 
      frame_type_t type;
 
@@ -443,7 +443,7 @@ struct interpreter_thread_info_block_t
      void *stack_base;
      gc_root_t gc_roots[MAX_GC_ROOTS];
 
-     frame_record_t *frame_stack;
+     frame_t *topframe;
      LRef handler_frames;
 
      LRef vstack[VALUE_STACK_SIZE];
@@ -2066,12 +2066,12 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 #define ENTER_FRAME()                                               \
 {                                                                   \
-   frame_record_t  __frame;                                         \
+   frame_t  __frame;                                                \
                                                                     \
-   __frame.prev = CURRENT_TIB()->frame_stack;                       \
+   __frame.prev = CURRENT_TIB()->topframe;                          \
                                                                     \
-   CURRENT_TIB()->frame_stack = &__frame;
-
+   CURRENT_TIB()->topframe = &__frame;
+      
 #define ENTER_MARKER_FRAME(__tag)                                   \
   ENTER_FRAME()                                                     \
      __frame.type = FRAME_MARKER;                                   \
@@ -2102,13 +2102,11 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
 #define LEAVE_FRAME()                                               \
-  checked_assert(CURRENT_TIB()->frame_stack == &__frame);           \
-  CURRENT_TIB()->frame_stack = __frame.prev;                        \
+  checked_assert(CURRENT_TIB()->topframe == &__frame);           \
+  CURRENT_TIB()->topframe = __frame.prev;                        \
 }
 
-typedef bool(*frame_predicate) (frame_record_t * frame, uptr_t info);
 
-frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
 /* C++-style exception handling */
 
@@ -2120,7 +2118,7 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
    ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                                            \
    {                                                                                 \
       bool __block_successful =                                                      \
-        (setjmp(CURRENT_TIB()->frame_stack->as.escape.cframe) == 0);   \
+        (setjmp(CURRENT_TIB()->topframe->as.escape.cframe) == 0);   \
                                                                                      \
       if (__block_successful)                                                        \
       {
@@ -2140,12 +2138,12 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
 #define ON_UNWIND()                                               \
       }                                                           \
-      CURRENT_TIB()->frame_stack->as.escape.unwinding = TRUE;
+      CURRENT_TIB()->topframe->as.escape.unwinding = TRUE;
 
 #define LEAVE_UNWIND_PROTECT()                                    \
       if (!__block_successful)                                    \
-            lthrow(CURRENT_TIB()->frame_stack->as.escape.tag,     \
-                   CURRENT_TIB()->frame_stack->as.escape.retval); \
+            lthrow(CURRENT_TIB()->topframe->as.escape.tag,     \
+                   CURRENT_TIB()->topframe->as.escape.retval); \
                                                                   \
    }                                                              \
    LEAVE_FRAME();
@@ -2229,6 +2227,8 @@ INLINE LRef new_cell(typecode_t type)
 
      return retval;
 }
+
+LRef topmost_primitive();
 
 END_NAMESPACE;
 
