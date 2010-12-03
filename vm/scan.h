@@ -2106,9 +2106,6 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
   CURRENT_TIB()->frame_stack = __frame.previous;                    \
 }
 
-#define TOP_FRAME CURRENT_TIB()->frame_stack
-
-
 typedef bool(*frame_predicate) (frame_record_t * frame, uptr_t info);
 
 frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
@@ -2119,13 +2116,13 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
 #define ENTER_UNWIND_PROTECT() ENTER_TRY_1(NULL, FRAME_EX_UNWIND)
 
-#define ENTER_TRY_1(tag, guard)                                     \
-   ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                           \
-   {                                                                \
-      bool __block_successful =                                     \
-        (setjmp(TOP_FRAME->frame_as.dynamic_escape.cframe) == 0);   \
-                                                                    \
-      if (__block_successful)                                       \
+#define ENTER_TRY_1(tag, guard)                                                      \
+   ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                                            \
+   {                                                                                 \
+      bool __block_successful =                                                      \
+        (setjmp(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.cframe) == 0);   \
+                                                                                     \
+      if (__block_successful)                                                        \
       {
 
 #define ON_ERROR()                                              \
@@ -2141,23 +2138,18 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
 
 /* C-style Unwind Protect */
 
-#define ON_UNWIND()                                             \
-      }                                                         \
-      TOP_FRAME->frame_as.dynamic_escape.unwinding = TRUE;
+#define ON_UNWIND()                                                         \
+      }                                                                     \
+      CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.unwinding = TRUE;
 
-#define LEAVE_UNWIND_PROTECT()                                  \
-      if (!__block_successful)                                  \
-           __ex_rethrow_dynamic_escape();                       \
-   }                                                            \
+#define LEAVE_UNWIND_PROTECT()                                                  \
+      if (!__block_successful)                                                  \
+            lthrow(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,     \
+                   CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval); \
+                                                                                \
+   }                                                                            \
    LEAVE_FRAME();
 
-
-/* Prototypes for internal exception handling code
- *
- * These are not to be called directly. */
-
-void __ex_throw_dynamic_escape(LRef tag, LRef retval);
-void __ex_rethrow_dynamic_escape();
 
 
 bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result);

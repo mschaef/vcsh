@@ -685,16 +685,6 @@ LRef lunwind_protect(LRef thunk, LRef after)
      return rc;
 }
 
-
-LRef lthrow(LRef tag, LRef value)
-{
-     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, value);
-
-     __ex_throw_dynamic_escape(tag, value);
-
-     return NIL;
-}
-
 /***** Frame Managment *****
  *
  * Frames are basically annotations on the dynamic stack. Each
@@ -813,8 +803,10 @@ bool __ex_next_try_frame(frame_record_t * rec, uptr_t tag)
      return __ex_matching_frame_1(rec, tag, TRUE);
 }
 
-void __ex_throw_dynamic_escape(LRef tag, LRef retval)
+LRef lthrow(LRef tag, LRef retval)
 {
+     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
+
      /* Check to see if we have a matching catch block... */
      frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
 
@@ -834,12 +826,14 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval)
      CURRENT_TIB()->frame_stack = next_catcher;
           
      longjmp(next_catcher->frame_as.dynamic_escape.cframe, 1);
+
+     return NIL;
 }
 
 void __ex_rethrow_dynamic_escape()
 {
-     __ex_throw_dynamic_escape(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,
-                               CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval);
+     lthrow(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,
+            CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval);
 }
 
 END_NAMESPACE
