@@ -604,9 +604,9 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
      }
      ON_ERROR()
      {
-          retval = __ex_current_catch_retval();
+          retval = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval;
           if (out_escape_tag)
-               *out_escape_tag = __ex_current_catch_tag();
+               *out_escape_tag = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag;
      }
      LEAVE_TRY();
 
@@ -652,9 +652,11 @@ LRef lcatch_apply0(LRef tag, LRef fn)
      }
      ON_ERROR()
      {
-          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"), __ex_current_catch_tag(), __ex_current_catch_retval());
+          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
+                    CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,
+                    CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval);
 
-          retval = __ex_current_catch_retval();
+          retval = CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval;
      }
      LEAVE_TRY();
 
@@ -688,9 +690,9 @@ LRef lthrow(LRef tag, LRef value)
 {
      dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, value);
 
-     __ex_throw_dynamic_escape(tag, value, FALSE);
+     __ex_throw_dynamic_escape(tag, value);
 
-     return (NIL);
+     return NIL;
 }
 
 /***** Frame Managment *****
@@ -771,15 +773,6 @@ LRef lget_current_frames(LRef sc)
      return frames;
 }
 
-LRef __ex_current_catch_retval()
-{
-     return CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval;
-}
-
-LRef __ex_current_catch_tag()
-{
-     return CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag;
-}
 /* These two predicates find the next exception frame in the list
  * of frame handlers.  next_frame_to_catch is used to calculate
  * the next frame that needs to process the current exception, including
@@ -820,10 +813,8 @@ bool __ex_next_try_frame(frame_record_t * rec, uptr_t tag)
      return __ex_matching_frame_1(rec, tag, TRUE);
 }
 
-void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
+void __ex_throw_dynamic_escape(LRef tag, LRef retval)
 {
-     UNREFERENCED(already_pending);
-
      /* Check to see if we have a matching catch block... */
      frame_record_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
 
@@ -848,8 +839,7 @@ void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending)
 void __ex_rethrow_dynamic_escape()
 {
      __ex_throw_dynamic_escape(CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.tag,
-                               CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval,
-                               TRUE);
+                               CURRENT_TIB()->frame_stack->frame_as.dynamic_escape.retval);
 }
 
 END_NAMESPACE

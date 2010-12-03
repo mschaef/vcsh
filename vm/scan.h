@@ -2156,9 +2156,7 @@ frame_record_t *__frame_find(frame_predicate pred, uptr_t info);
  *
  * These are not to be called directly. */
 
-LRef __ex_current_catch_retval();
-LRef __ex_current_catch_tag();
-void __ex_throw_dynamic_escape(LRef tag, LRef retval, bool already_pending);
+void __ex_throw_dynamic_escape(LRef tag, LRef retval);
 void __ex_rethrow_dynamic_escape();
 
 
