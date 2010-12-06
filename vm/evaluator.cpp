@@ -819,7 +819,6 @@ LRef lthrow(LRef tag, LRef retval)
      /* ...if we do, start unwinding the stack. */
      frame_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
           
-     next_catcher->as.escape.pending = TRUE;
      next_catcher->as.escape.unwinding = TRUE;
      next_catcher->as.escape.tag = tag;
      next_catcher->as.escape.retval = retval;

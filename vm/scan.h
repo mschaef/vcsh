@@ -415,7 +415,6 @@ struct frame_t
                LRef tag;
                LRef retval;
                jmp_buf cframe;
-               bool pending;
                bool unwinding;
           } escape;
           struct
@@ -2086,7 +2085,6 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 #define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)              \
       ENTER_FRAME()                                            \
           __frame.type                 = __type;               \
-          __frame.as.escape.pending    = FALSE;                \
           __frame.as.escape.unwinding  = FALSE;                \
           __frame.as.escape.tag        = __tag;                \
           __frame.as.escape.retval     = NIL;
