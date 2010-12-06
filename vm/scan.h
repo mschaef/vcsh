@@ -69,9 +69,6 @@ enum
      /*  The number of arguments contained in argment buffers */
      ARG_BUF_LEN = 32,
 
-     /*  The number of LRef's that can be stored on the value stack. */
-     VALUE_STACK_SIZE = 2048,
-
      /*  The number of cells on a sub-freelist */
      SUB_FREELIST_SIZE = 1024,
 
@@ -442,11 +439,9 @@ struct interpreter_thread_info_block_t
      void *stack_base;
      gc_root_t gc_roots[MAX_GC_ROOTS];
 
-     frame_t *topframe;
      LRef handler_frames;
 
-     LRef vstack[VALUE_STACK_SIZE];
-     size_t vsp;
+     frame_t *topframe;
 };
 
 struct interpreter_t
