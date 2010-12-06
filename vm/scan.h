@@ -398,8 +398,6 @@ INLINE bool TYPEP(LRef object, typecode_t typeCode)
 /*** Debugging flags ***/
 struct frame_t
 {
-     frame_t *prev;
-
      frame_type_t type;
 
      union
@@ -443,8 +441,6 @@ struct interpreter_thread_info_block_t
      gc_root_t gc_roots[MAX_GC_ROOTS];
 
      LRef handler_frames;
-
-     frame_t *topframe;
 
      frame_t frame_stack[FRAME_STACK_SIZE];
      size_t fsp;
@@ -2068,11 +2064,7 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 #define ENTER_FRAME()                                                    \
 {                                                                        \
   frame_t  *__frame = &(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp]); \
-  CURRENT_TIB()->fsp++;                                                  \
-                                                                         \
-   __frame->prev = CURRENT_TIB()->topframe;                              \
-                                                                         \
-   CURRENT_TIB()->topframe = __frame;
+  CURRENT_TIB()->fsp++;
       
 #define ENTER_MARKER_FRAME(__tag)                              \
   ENTER_FRAME()                                                \
@@ -2102,7 +2094,6 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
 #define LEAVE_FRAME()                                         \
   CURRENT_TIB()->fsp--;                                       \
-  CURRENT_TIB()->topframe = __frame->prev;                    \
 }
 
 
@@ -2117,7 +2108,7 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
    ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                                            \
    {                                                                                 \
       bool __block_successful =                                                      \
-        (setjmp(CURRENT_TIB()->topframe->as.escape.cframe) == 0);   \
+       (setjmp(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.cframe) == 0); \
                                                                                      \
       if (__block_successful)                                                        \
       {
@@ -2137,12 +2128,12 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 #define ON_UNWIND()                                               \
       }                                                           \
-      CURRENT_TIB()->topframe->as.escape.unwinding = TRUE;
+      CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.unwinding = TRUE;
 
 #define LEAVE_UNWIND_PROTECT()                                    \
       if (!__block_successful)                                    \
-            lthrow(CURRENT_TIB()->topframe->as.escape.tag,     \
-                   CURRENT_TIB()->topframe->as.escape.retval); \
+           lthrow(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag, \
+                  CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval); \
                                                                   \
    }                                                              \
    LEAVE_FRAME();

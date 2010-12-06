@@ -604,9 +604,9 @@ bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag,
      }
      ON_ERROR()
      {
-          retval = CURRENT_TIB()->topframe->as.escape.retval;
+          retval = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval;
           if (out_escape_tag)
-               *out_escape_tag = CURRENT_TIB()->topframe->as.escape.tag;
+               *out_escape_tag = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag;
      }
      LEAVE_TRY();
 
@@ -653,10 +653,10 @@ LRef lcatch_apply0(LRef tag, LRef fn)
      ON_ERROR()
      {
           dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
-                    CURRENT_TIB()->topframe->as.escape.tag,
-                    CURRENT_TIB()->topframe->as.escape.retval);
+                    CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag,
+                    CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval);
 
-          retval = CURRENT_TIB()->topframe->as.escape.retval;
+          retval = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval;
      }
      LEAVE_TRY();
 
@@ -696,19 +696,15 @@ LRef lunwind_protect(LRef thunk, LRef after)
  */
 typedef bool(*frame_predicate) (frame_t * frame, uptr_t info);
 
-frame_t *__frame_find(frame_predicate pred, uptr_t info)
+int __frame_find(frame_predicate pred, uptr_t info)
 {
-     frame_t *loc = CURRENT_TIB()->topframe;
-
-     while (loc)
+     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
      {
-          if (pred(loc, info))
-               return loc;
-
-          loc = loc->prev;
+          if (pred(&(CURRENT_TIB()->frame_stack[fsp]), info))
+               return fsp;
      }
 
-     return loc;
+     return -1;
 }
 
 LRef lget_current_frames(LRef sc)
@@ -719,8 +715,12 @@ LRef lget_current_frames(LRef sc)
 
      fixnum_t frame_count = 0;
      
-     for(frame_t *loc = CURRENT_TIB()->topframe; loc; loc = loc->prev)
+     int fsp = 0;
+
+     for(fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
      {
+          frame_t *loc = &(CURRENT_TIB()->frame_stack[fsp]);
+
           LRef frame_obj = NIL;
 
           frame_count++;
@@ -809,21 +809,25 @@ LRef lthrow(LRef tag, LRef retval)
      dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
 
      /* Check to see if we have a matching catch block... */
-     frame_t *next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
+     int next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
 
      /* ...If not, we have a problem and need to invoke a trap. */
-     if (next_try == NULL)
+     if (next_try == -1)
           vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
                  2, tag, retval);
 
      /* ...if we do, start unwinding the stack. */
-     frame_t *next_catcher = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
+     int next_catcher_fsp = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
+
+     assert(next_catcher_fsp != -1);
+
+     frame_t *next_catcher = &(CURRENT_TIB()->frame_stack[next_catcher_fsp]);
           
      next_catcher->as.escape.unwinding = TRUE;
      next_catcher->as.escape.tag = tag;
      next_catcher->as.escape.retval = retval;
      
-     CURRENT_TIB()->topframe = next_catcher;
+     CURRENT_TIB()->fsp = next_catcher_fsp + 1;
           
      longjmp(next_catcher->as.escape.cframe, 1);
 
@@ -832,8 +836,8 @@ LRef lthrow(LRef tag, LRef retval)
 
 void __ex_rethrow_dynamic_escape()
 {
-     lthrow(CURRENT_TIB()->topframe->as.escape.tag,
-            CURRENT_TIB()->topframe->as.escape.retval);
+     lthrow(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag,
+            CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval);
 }
 
 bool primitive_frame(frame_t * rec, uptr_t notused)
@@ -845,16 +849,17 @@ bool primitive_frame(frame_t * rec, uptr_t notused)
 
 LRef topmost_primitive()
 {
-     frame_t *f;
+     int fsp = __frame_find(primitive_frame, (uptr_t) NIL);
 
-     f = __frame_find(primitive_frame, (uptr_t) NIL);
+     if (fsp == -1)
+          return NIL;
 
-     return f ? f->as.prim.function : NIL;
+     return CURRENT_TIB()->frame_stack[fsp].as.prim.function;
 }
 
-LRef ltopframe()
+LRef ltopframe() // TODO: REMOVE
 {
-     return fixcons((fixnum_t)CURRENT_TIB()->topframe);
+     return fixcons(0); 
 }
 
 END_NAMESPACE

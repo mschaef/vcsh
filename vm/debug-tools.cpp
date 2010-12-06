@@ -45,8 +45,12 @@ void scan_postmortem_dump()
 {
      LRef oport = CURRENT_DEBUG_PORT();
 
-     for(frame_t *loc = CURRENT_TIB()->topframe; loc; loc = loc->prev)
+     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
      {
+          frame_t *loc = &(CURRENT_TIB()->frame_stack[fsp]);
+
+          scwritef(_T("fsp=~cd: "), oport, fsp);
+
           switch (loc->type)
           {
           case FRAME_EVAL:
