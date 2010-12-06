@@ -81,6 +81,9 @@ enum
      /* The maximum number of init load files. */
      MAX_INIT_LOAD_FILES = 8,
 
+     /* The number of frames that can be stored on the frame stack. */
+     FRAME_STACK_SIZE = 1024,
+
      /*** Hash table tuning settings ***/
 
      /*  Default initial size for hash tables */
@@ -442,6 +445,9 @@ struct interpreter_thread_info_block_t
      LRef handler_frames;
 
      frame_t *topframe;
+
+     frame_t frame_stack[FRAME_STACK_SIZE];
+     size_t fsp;
 };
 
 struct interpreter_t
@@ -2059,43 +2065,44 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
  * the stack.
  */
 
-#define ENTER_FRAME()                                          \
-{                                                              \
-   frame_t  __frame;                                           \
-                                                               \
-   __frame.prev = CURRENT_TIB()->topframe;                     \
-                                                               \
-   CURRENT_TIB()->topframe = &__frame;
+#define ENTER_FRAME()                                                    \
+{                                                                        \
+  frame_t  *__frame = &(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp]); \
+  CURRENT_TIB()->fsp++;                                                  \
+                                                                         \
+   __frame->prev = CURRENT_TIB()->topframe;                              \
+                                                                         \
+   CURRENT_TIB()->topframe = __frame;
       
 #define ENTER_MARKER_FRAME(__tag)                              \
   ENTER_FRAME()                                                \
-     __frame.type = FRAME_MARKER;                              \
-     __frame.as.marker.tag = __tag;
+     __frame->type = FRAME_MARKER;                             \
+     __frame->as.marker.tag = __tag;
 
 #define ENTER_PRIMITIVE_FRAME(__f)                             \
     ENTER_FRAME()                                              \
-       __frame.type              = FRAME_PRIMITIVE;            \
-       __frame.as.prim.function  = __f;
+       __frame->type              = FRAME_PRIMITIVE;           \
+       __frame->as.prim.function  = __f;
 
 #define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)              \
       ENTER_FRAME()                                            \
-          __frame.type                 = __type;               \
-          __frame.as.escape.unwinding  = FALSE;                \
-          __frame.as.escape.tag        = __tag;                \
-          __frame.as.escape.retval     = NIL;
+          __frame->type                 = __type;              \
+          __frame->as.escape.unwinding  = FALSE;               \
+          __frame->as.escape.tag        = __tag;               \
+          __frame->as.escape.retval     = NIL;
 
 #define ENTER_EVAL_FRAME(__form, __env)                        \
       ENTER_FRAME()                                            \
-         __frame.type                          = FRAME_EVAL;   \
+         __frame->type                         = FRAME_EVAL;   \
                                                                \
-         __frame.as.eval.form                  = __form;       \
-         __frame.as.eval.initial_form          = *__form;      \
-         __frame.as.eval.env                   = __env;
+         __frame->as.eval.form                 = __form;       \
+         __frame->as.eval.initial_form         = *__form;      \
+         __frame->as.eval.env                  = __env;
 
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
 #define LEAVE_FRAME()                                         \
-  checked_assert(CURRENT_TIB()->topframe == &__frame);        \
-  CURRENT_TIB()->topframe = __frame.prev;                     \
+  CURRENT_TIB()->fsp--;                                       \
+  CURRENT_TIB()->topframe = __frame->prev;                    \
 }
 
 
