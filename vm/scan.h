@@ -2065,46 +2065,44 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
  * the stack.
  */
 
-#define ENTER_FRAME()                                               \
-{                                                                   \
-   frame_t  __frame;                                                \
-                                                                    \
-   __frame.prev = CURRENT_TIB()->topframe;                          \
-                                                                    \
+#define ENTER_FRAME()                                          \
+{                                                              \
+   frame_t  __frame;                                           \
+                                                               \
+   __frame.prev = CURRENT_TIB()->topframe;                     \
+                                                               \
    CURRENT_TIB()->topframe = &__frame;
       
-#define ENTER_MARKER_FRAME(__tag)                                   \
-  ENTER_FRAME()                                                     \
-     __frame.type = FRAME_MARKER;                                   \
+#define ENTER_MARKER_FRAME(__tag)                              \
+  ENTER_FRAME()                                                \
+     __frame.type = FRAME_MARKER;                              \
      __frame.as.marker.tag = __tag;
 
-#define ENTER_PRIMITIVE_FRAME(__f)                                  \
-    ENTER_FRAME()                                                   \
-       __frame.type              = FRAME_PRIMITIVE;                 \
+#define ENTER_PRIMITIVE_FRAME(__f)                             \
+    ENTER_FRAME()                                              \
+       __frame.type              = FRAME_PRIMITIVE;            \
        __frame.as.prim.function  = __f;
 
-#define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)                         \
-      ENTER_FRAME()                                                       \
-         assert((__type == FRAME_EX_TRY) || (__type == FRAME_EX_UNWIND)); \
-                                                                          \
-          __frame.type                 = __type;            \
-          __frame.as.escape.pending    = FALSE;             \
-          __frame.as.escape.unwinding  = FALSE;             \
-          __frame.as.escape.tag        = __tag;             \
+#define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)              \
+      ENTER_FRAME()                                            \
+          __frame.type                 = __type;               \
+          __frame.as.escape.pending    = FALSE;                \
+          __frame.as.escape.unwinding  = FALSE;                \
+          __frame.as.escape.tag        = __tag;                \
           __frame.as.escape.retval     = NIL;
 
-#define ENTER_EVAL_FRAME(__form, __env)                       \
-      ENTER_FRAME()                                           \
-         __frame.type                          = FRAME_EVAL;  \
-                                                              \
-         __frame.as.eval.form                  = __form;      \
-         __frame.as.eval.initial_form          = *__form;     \
+#define ENTER_EVAL_FRAME(__form, __env)                        \
+      ENTER_FRAME()                                            \
+         __frame.type                          = FRAME_EVAL;   \
+                                                               \
+         __frame.as.eval.form                  = __form;       \
+         __frame.as.eval.initial_form          = *__form;      \
          __frame.as.eval.env                   = __env;
 
 /* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
-#define LEAVE_FRAME()                                               \
-  checked_assert(CURRENT_TIB()->topframe == &__frame);           \
-  CURRENT_TIB()->topframe = __frame.prev;                        \
+#define LEAVE_FRAME()                                         \
+  checked_assert(CURRENT_TIB()->topframe == &__frame);        \
+  CURRENT_TIB()->topframe = __frame.prev;                     \
 }
 
 
