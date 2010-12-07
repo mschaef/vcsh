@@ -828,21 +828,15 @@ void __ex_rethrow_dynamic_escape()
             CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval);
 }
 
-bool primitive_frame(frame_t * rec, uptr_t notused)
-{
-     UNREFERENCED(notused);
-
-     return (rec->type == FRAME_PRIMITIVE);
-}
-
 LRef topmost_primitive()
 {
-     int fsp = __frame_find(primitive_frame, (uptr_t) NIL);
+     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
+     {
+          if (CURRENT_TIB()->frame_stack[fsp].type == FRAME_PRIMITIVE)
+               return CURRENT_TIB()->frame_stack[fsp].as.prim.function;
+     }
 
-     if (fsp == -1)
-          return NIL;
-
-     return CURRENT_TIB()->frame_stack[fsp].as.prim.function;
+     return NIL;
 }
 
 LRef ltopframe() // TODO: REMOVE
