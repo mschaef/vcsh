@@ -764,44 +764,32 @@ LRef lget_current_frames(LRef sc)
      return frames;
 }
 
-/* These two predicates find the next exception frame in the list
- * of frame handlers.  next_frame_to_catch is used to calculate
- * the next frame that needs to process the current exception, including
- * unwind protection frames that don't have any particular interest in the
- * type of exception being thrown. next_try_frame is used to calculate the next
- * frame that has explicitly requested interest in this kind of exception.
- * This is used to determine if the exception was expected by the programmer.
- */
-bool __ex_matching_frame_1(frame_t * rec, uptr_t tag, bool exclude_unwind_protection)
-{
-     if (!exclude_unwind_protection)
-     {
-          /* If a frame is being unwound, it means that we're executing the
-           * unwind clause and any errors thrown belong to an outside exception
-           * frame. Therefore it is not a candidate for the current throw. */
-          if ((rec->type == FRAME_EX_UNWIND) && !rec->as.escape.unwinding)
-               return TRUE;
-     }
-
-     if (rec->type == FRAME_EX_TRY)
-     {
-          if (NULLP(rec->as.escape.tag))
-               return TRUE;
-          else
-               return EQ(rec->as.escape.tag, (LRef) tag);
-     }
-
-     return FALSE;
-}
-
 bool __ex_next_frame_to_catch(frame_t * rec, uptr_t tag)
 {
-     return __ex_matching_frame_1(rec, tag, FALSE);
+     /* unwind protection frames are the next catcher (to process the after
+      * form), unless they are already being unwound. If so, then the throw
+      * goes outside the unwind protect to the next catcher */
+     if ((rec->type == FRAME_EX_UNWIND) && !rec->as.escape.unwinding)
+          return TRUE;
+
+     if (rec->type != FRAME_EX_TRY)
+          return false;
+
+     if (NULLP(rec->as.escape.tag))
+          return true;
+
+     return EQ(rec->as.escape.tag, (LRef) tag);
 }
 
 bool __ex_next_try_frame(frame_t * rec, uptr_t tag)
 {
-     return __ex_matching_frame_1(rec, tag, TRUE);
+     if (rec->type != FRAME_EX_TRY)
+          return false;
+
+     if (NULLP(rec->as.escape.tag))
+          return true;
+
+     return EQ(rec->as.escape.tag, (LRef) tag);
 }
 
 LRef lthrow(LRef tag, LRef retval)
