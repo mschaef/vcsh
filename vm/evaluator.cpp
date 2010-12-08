@@ -576,47 +576,6 @@ LRef lapply(size_t argc, LRef argv[])
      return apply1(fn, fn_argc, fn_argv);
 }
 
-bool call_lisp_procedure(LRef closure, LRef * out_retval, LRef * out_escape_tag, size_t argc, ...)
-{
-     if (!CLOSUREP(closure))
-          vmerror_wrong_type(closure);
-
-     assert(argc < ARG_BUF_LEN);
-
-     LRef argv[ARG_BUF_LEN];
-     
-     va_list args;
-     va_start(args, argc);
-
-     for(size_t ii = 0; ii < argc; ii++)
-          argv[ii] = va_arg(args, LRef);
-
-     va_end(args);
-
-     bool failed = true;
-
-     LRef retval = NIL;
-     
-     ENTER_TRY(NULL)
-     {
-          retval = apply1(closure, argc, argv);
-          failed = false;
-     }
-     ON_ERROR()
-     {
-          retval = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval;
-          if (out_escape_tag)
-               *out_escape_tag = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag;
-     }
-     LEAVE_TRY();
-
-     if (out_retval)
-          *out_retval = retval;
-
-     return failed;
-}
-
-
 /***** Handlers *****/
 
 LRef lset_handler_frames(LRef new_frames)
