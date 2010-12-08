@@ -232,7 +232,6 @@ static void register_main_subrs()
 {
 /* *INDENT-OFF* */
     register_subr(_T("%arm-gc-trip-wires"),               SUBR_1,     (void*)liarm_gc_trip_wires                 );
-    register_subr(_T("%catch-apply0"),                    SUBR_2,     (void*)lcatch_apply0                       );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
@@ -490,10 +489,8 @@ static void register_main_subrs()
     register_subr(_T("system-info"),                      SUBR_0,     (void*)lsystem_info                        );
     register_subr(_T("tan"),                              SUBR_1,     (void*)ltan                                );
     register_subr(_T("temporary-file-name"),              SUBR_1,     (void*)ltemporary_file_name                );
-    register_subr(_T("throw"),                            SUBR_2,     (void*)lthrow                              );
     register_subr(_T("truncate"),                         SUBR_1,     (void*)ltruncate                           );
     register_subr(_T("unread-char"),                      SUBR_2,     (void*)lunread_char                        );
-    register_subr(_T("unwind-protect"),                   SUBR_2,     (void*)lunwind_protect                     );
     register_subr(_T("vector"),                           SUBR_ARGC,  (void*)lvector                             );
     register_subr(_T("vector->list"),                     SUBR_1,     (void*)lvector2list                        );
     register_subr(_T("vector-copy"),                      SUBR_1,     (void*)lvector_copy                        );

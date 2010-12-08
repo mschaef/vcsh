@@ -5,7 +5,6 @@
 ;;; Lisp references to native SUBRs.
 
 ;; primitive functions
-(%define %catch-apply0 #.(scheme::%subr-by-name "%catch-apply0"))
 (%define %closure #.(scheme::%subr-by-name "%closure"))
 (%define %closure-code #.(scheme::%subr-by-name "%closure-code"))
 (%define %closure-env #.(scheme::%subr-by-name "%closure-env"))
@@ -262,10 +261,8 @@
 (%define system-info #.(scheme::%subr-by-name "system-info")) ;; REVISIT: deprecated
 (%define tan #.(scheme::%subr-by-name "tan"))
 (%define temporary-file-name #.(scheme::%subr-by-name "temporary-file-name"))
-(%define throw #.(scheme::%subr-by-name "throw"))
 (%define truncate #.(scheme::%subr-by-name "truncate"))
 (%define unread-char #.(scheme::%subr-by-name "unread-char"))
-(%define unwind-protect #.(scheme::%subr-by-name "unwind-protect"))
 (%define vector #.(scheme::%subr-by-name "vector"))
 (%define vector->list #.(scheme::%subr-by-name "vector->list"))
 (%define vector-copy #.(scheme::%subr-by-name "vector-copy"))

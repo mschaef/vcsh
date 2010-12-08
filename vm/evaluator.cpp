@@ -633,60 +633,6 @@ LRef lhandler_frames()
      return CURRENT_TIB()->handler_frames;
 }
 
-/* TODO: Refactor implementation of catch/throw:
- *
- * 2) catch should match catch tags on eqv?
- * 3) throw should detect missing catch tag prior to unwinding the stack.
- * 5) catch should have optional on-throw thunk that's tail-called if the catch is thrown to.
- */
-
-LRef lcatch_apply0(LRef tag, LRef fn)
-{
-     LRef retval;
-
-     /*  tag==#t implies all tags */
-     if (BOOLP(tag) && TRUEP(tag))
-          tag = NULL;
-
-     ENTER_TRY(tag)
-     {
-          retval = apply1(fn, 0, NULL);
-     }
-     ON_ERROR()
-     {
-          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
-                    CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag,
-                    CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval);
-
-          retval = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval;
-     }
-     LEAVE_TRY();
-
-     return retval;
-}
-
-LRef lunwind_protect(LRef thunk, LRef after)
-{
-     LRef rc = NIL;
-
-     if (!CLOSUREP(thunk))
-          vmerror_wrong_type(1, thunk);
-     if (!CLOSUREP(after))
-          vmerror_wrong_type(2, after);
-
-     ENTER_UNWIND_PROTECT()
-     {
-          rc = apply1(thunk, 0, NULL);
-     }
-     ON_UNWIND()
-     {
-          apply1(after, 0, NULL);
-     }
-     LEAVE_UNWIND_PROTECT();
-
-     return rc;
-}
-
 /***** Frame Management *****/
 
 LRef lget_current_frames(LRef sc)
