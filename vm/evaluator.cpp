@@ -464,6 +464,49 @@ static LRef execute_fast_op(LRef fop, LRef env)
                fop = FAST_OP_ARG2(fop);
                goto loop;
 
+          case FOP_CATCH_APPLY0:
+          {
+               LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+
+               /*  tag==#t implies all tags */
+               if (BOOLP(tag) && TRUEP(tag))
+                    tag = NULL;
+
+               ENTER_TRY(tag)
+               {
+                    retval = apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
+               }
+               ON_ERROR()
+               {
+                    dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
+                              CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag,
+                              CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval);
+
+                    retval = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval;
+               }
+               LEAVE_TRY();
+          }
+          break;
+
+          case FOP_THROW:
+               lthrow(execute_fast_op(FAST_OP_ARG1(fop), env),
+                      execute_fast_op(FAST_OP_ARG2(fop), env));
+               break;
+
+          case FOP_UNWIND_PROTECT:
+          {
+               ENTER_UNWIND_PROTECT()
+               {
+                    retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
+               }
+               ON_UNWIND()
+               {
+                    apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
+               }
+               LEAVE_UNWIND_PROTECT();
+          }
+         break;
+
           case FOP_CLOSE_ENV:
                retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
                break;
