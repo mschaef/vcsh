@@ -697,7 +697,7 @@ LRef lthrow(LRef tag, LRef retval)
      frame_t *try_fsp = NULL;  // The fsp of the try that will ultimately catch this throw
      frame_t *next_fsp = NULL; // The fsp of the next catcher, including any unwind-protect's between here and try_fsp
 
-     for(frame_t *fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
+     for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
           /* unwind protection frames are the next catcher (to process the after
            * form), unless they are already being unwound. If so, then the throw
