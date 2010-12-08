@@ -443,7 +443,7 @@ struct interpreter_thread_info_block_t
      LRef handler_frames;
 
      frame_t frame_stack[FRAME_STACK_SIZE];
-     size_t fsp;
+     frame_t *fsp;
 };
 
 struct interpreter_t
@@ -2055,10 +2055,11 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
  * the stack.
  */
 
-#define ENTER_FRAME()                                                    \
-{                                                                        \
-  frame_t  *__frame = &(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp]); \
-  CURRENT_TIB()->fsp++;
+#define ENTER_FRAME()                                          \
+{                                                              \
+  CURRENT_TIB()->fsp++;                                        \
+  frame_t  *__frame = CURRENT_TIB()->fsp;
+
       
 #define ENTER_MARKER_FRAME(__tag)                              \
   ENTER_FRAME()                                                \
@@ -2101,8 +2102,7 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 #define ENTER_TRY_1(tag, guard)                                                      \
    ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                                            \
    {                                                                                 \
-      bool __block_successful =                                                      \
-       (setjmp(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.cframe) == 0); \
+      bool __block_successful = (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0); \
                                                                                      \
       if (__block_successful)                                                        \
       {
@@ -2122,12 +2122,12 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 #define ON_UNWIND()                                               \
       }                                                           \
-      CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.unwinding = TRUE;
+      CURRENT_TIB()->fsp->as.escape.unwinding = TRUE;
 
 #define LEAVE_UNWIND_PROTECT()                                    \
       if (!__block_successful)                                    \
-           lthrow(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag, \
-                  CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval); \
+           lthrow(CURRENT_TIB()->fsp->as.escape.tag,              \
+                  CURRENT_TIB()->fsp->as.escape.retval);          \
                                                                   \
    }                                                              \
    LEAVE_FRAME();

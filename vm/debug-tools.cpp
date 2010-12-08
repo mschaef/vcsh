@@ -45,21 +45,19 @@ void scan_postmortem_dump()
 {
      LRef oport = CURRENT_DEBUG_PORT();
 
-     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
+     for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
-          frame_t *loc = &(CURRENT_TIB()->frame_stack[fsp]);
-
           scwritef(_T("fsp=~cd: "), oport, fsp);
 
-          switch (loc->type)
+          switch (fsp->type)
           {
           case FRAME_EVAL:
-               scwritef(_T("eval > ~s in ~s\n"), oport, *loc->as.eval.form,
-                        loc->as.eval.initial_form);
+               scwritef(_T("eval > ~s in ~s\n"), oport, *fsp->as.eval.form,
+                        fsp->as.eval.initial_form);
                break;
 
           case FRAME_EX_TRY:
-               scwritef(_T("try > ~s\n"), oport, loc->as.escape.tag);
+               scwritef(_T("try > ~s\n"), oport, fsp->as.escape.tag);
                break;
 
           case FRAME_EX_UNWIND:
@@ -67,11 +65,11 @@ void scan_postmortem_dump()
                break;
 
           case FRAME_PRIMITIVE:
-               scwritef(_T("primitive > ~s\n"), oport, loc->as.prim.function);
+               scwritef(_T("primitive > ~s\n"), oport, fsp->as.prim.function);
                break;
 
           case FRAME_MARKER:
-               scwritef(_T("marker > ~s\n"), oport, loc->as.marker.tag);
+               scwritef(_T("marker > ~s\n"), oport, fsp->as.marker.tag);
                break;
 
           default:

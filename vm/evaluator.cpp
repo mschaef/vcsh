@@ -479,10 +479,10 @@ static LRef execute_fast_op(LRef fop, LRef env)
                ON_ERROR()
                {
                     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
-                              CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag,
-                              CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval);
+                              CURRENT_TIB()->fsp->as.escape.tag,
+                              CURRENT_TIB()->fsp->as.escape.retval);
 
-                    retval = CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval;
+                    retval = CURRENT_TIB()->fsp->as.escape.retval;
                }
                LEAVE_TRY();
           }
@@ -563,7 +563,7 @@ static LRef execute_fast_op(LRef fop, LRef env)
 
 LRef apply1(LRef fn, size_t argc, LRef argv[])
 {
-     assert((argc == 0) || (argv != NULL));
+     checked_assert((argc == 0) || (argv != NULL));
 
      LRef retval = NIL;
 
@@ -643,27 +643,25 @@ LRef lget_current_frames(LRef sc)
 
      fixnum_t frame_count = 0;
      
-     int fsp = 0;
+     frame_t *fsp = CURRENT_TIB()->fsp;
 
-     for(fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
+     for(; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
-          frame_t *loc = &(CURRENT_TIB()->frame_stack[fsp]);
-
           LRef frame_obj = NIL;
 
           frame_count++;
 
-          switch (loc->type)
+          switch (fsp->type)
           {
           case FRAME_EVAL:
                frame_obj = listn(3,
-                                 *loc->as.eval.form,
-                                 loc->as.eval.initial_form,
-                                 loc->as.eval.env);
+                                 *fsp->as.eval.form,
+                                 fsp->as.eval.initial_form,
+                                 fsp->as.eval.env);
                break;
 
           case FRAME_EX_TRY:
-               frame_obj = listn(1, loc->as.escape.tag);
+               frame_obj = listn(1, fsp->as.escape.tag);
                break;
 
           case FRAME_EX_UNWIND:
@@ -671,11 +669,11 @@ LRef lget_current_frames(LRef sc)
                break;
 
           case FRAME_PRIMITIVE:
-               frame_obj = listn(1, loc->as.prim.function);
+               frame_obj = listn(1, fsp->as.prim.function);
                break;
 
           case FRAME_MARKER:
-               frame_obj = listn(1, loc->as.marker.tag);
+               frame_obj = listn(1, fsp->as.marker.tag);
                break;
 
           default:
@@ -683,7 +681,7 @@ LRef lget_current_frames(LRef sc)
                break;
           }
 
-          frame_obj = lcons(fixcons(loc->type), lcons(fixcons((fixnum_t)loc), frame_obj));
+          frame_obj = lcons(fixcons(fsp->type), lcons(fixcons((fixnum_t)fsp), frame_obj));
 
           if (frame_count >= skip_count)
                frames = lcons(frame_obj, frames);
@@ -696,23 +694,21 @@ LRef lthrow(LRef tag, LRef retval)
 {
      dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
 
-     int try_fsp = -1;  // The fsp of the try that will ultimately catch this throw
-     int next_fsp = -1; // The fsp of the next catcher, including any unwind-protect's between here and try_fsp
+     frame_t *try_fsp = NULL;  // The fsp of the try that will ultimately catch this throw
+     frame_t *next_fsp = NULL; // The fsp of the next catcher, including any unwind-protect's between here and try_fsp
 
-     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
+     for(frame_t *fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
      {
-          frame_t *rec = &(CURRENT_TIB()->frame_stack[fsp]);
-
           /* unwind protection frames are the next catcher (to process the after
            * form), unless they are already being unwound. If so, then the throw
            * goes outside the unwind protect to the next catcher */
-          if ((next_fsp == -1) && (rec->type == FRAME_EX_UNWIND) && !rec->as.escape.unwinding)
+          if ((next_fsp == NULL) && (fsp->type == FRAME_EX_UNWIND) && !fsp->as.escape.unwinding)
                next_fsp = fsp;
           
-          if (rec->type != FRAME_EX_TRY)
+          if (fsp->type != FRAME_EX_TRY)
                continue;
           
-          if (NULLP(rec->as.escape.tag) || EQ(rec->as.escape.tag, tag))
+          if (NULLP(fsp->as.escape.tag) || EQ(fsp->as.escape.tag, tag))
           {
                try_fsp = fsp;
                break;
@@ -722,38 +718,30 @@ LRef lthrow(LRef tag, LRef retval)
      dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw next_fsp=~cd, try_fsp=~cd\n"), next_fsp, try_fsp);
 
      /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
-     if (try_fsp == -1)
+     if (try_fsp == NULL)
           vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
                  2, tag, retval);
 
-     if (next_fsp == -1)
+     if (next_fsp == NULL)
           next_fsp = try_fsp;
-
-     frame_t *next_catcher = &(CURRENT_TIB()->frame_stack[next_fsp]);
           
-     next_catcher->as.escape.unwinding = TRUE;
-     next_catcher->as.escape.tag = tag;
-     next_catcher->as.escape.retval = retval;
+     next_fsp->as.escape.unwinding = TRUE;
+     next_fsp->as.escape.tag = tag;
+     next_fsp->as.escape.retval = retval;
      
-     CURRENT_TIB()->fsp = next_fsp + 1;
+     CURRENT_TIB()->fsp = next_fsp;
           
-     longjmp(next_catcher->as.escape.cframe, 1);
+     longjmp(next_fsp->as.escape.cframe, 1);
 
      return NIL;
 }
 
-void __ex_rethrow_dynamic_escape()
-{
-     lthrow(CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.tag,
-            CURRENT_TIB()->frame_stack[CURRENT_TIB()->fsp - 1].as.escape.retval);
-}
-
 LRef topmost_primitive()
 {
-     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
+     for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
-          if (CURRENT_TIB()->frame_stack[fsp].type == FRAME_PRIMITIVE)
-               return CURRENT_TIB()->frame_stack[fsp].as.prim.function;
+          if (fsp->type == FRAME_PRIMITIVE)
+               return fsp->as.prim.function;
      }
 
      return NIL;
