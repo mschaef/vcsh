@@ -206,6 +206,18 @@
          ,@body
          (incr! ,ii-sym)))))
 
+(define (throw tag :optional value)
+  (%%throw tag value))
+
+(define (unwind-protect thunk after)
+  (check procedure? thunk)
+  (check procedure? after)
+  (%%unwind-protect thunk after))
+
+(define (%catch-apply0 tag fn)
+  (check procedure? fn)
+  (%%catch-apply0 tag fn))
+
 (defmacro (catch tag-form . body)
   `(%catch-apply0 ,tag-form (lambda () ,@body)))
 
