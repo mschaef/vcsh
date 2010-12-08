@@ -685,27 +685,7 @@ LRef lunwind_protect(LRef thunk, LRef after)
      return rc;
 }
 
-/***** Frame Managment *****
- *
- * Frames are basically annotations on the dynamic stack. Each
- * frame has an "frame record" stored in an auto variable
- * local to a newly created scope. When the frame is entered,
- * the frame's frame record is registered on a global stack.
- * When the frame is left, the frame record is popped off of
- * the stack.
- */
-typedef bool(*frame_predicate) (frame_t * frame, uptr_t info);
-
-int __frame_find(frame_predicate pred, uptr_t info)
-{
-     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
-     {
-          if (pred(&(CURRENT_TIB()->frame_stack[fsp]), info))
-               return fsp;
-     }
-
-     return -1;
-}
+/***** Frame Management *****/
 
 LRef lget_current_frames(LRef sc)
 {
@@ -764,58 +744,50 @@ LRef lget_current_frames(LRef sc)
      return frames;
 }
 
-bool __ex_next_frame_to_catch(frame_t * rec, uptr_t tag)
-{
-     /* unwind protection frames are the next catcher (to process the after
-      * form), unless they are already being unwound. If so, then the throw
-      * goes outside the unwind protect to the next catcher */
-     if ((rec->type == FRAME_EX_UNWIND) && !rec->as.escape.unwinding)
-          return TRUE;
-
-     if (rec->type != FRAME_EX_TRY)
-          return false;
-
-     if (NULLP(rec->as.escape.tag))
-          return true;
-
-     return EQ(rec->as.escape.tag, (LRef) tag);
-}
-
-bool __ex_next_try_frame(frame_t * rec, uptr_t tag)
-{
-     if (rec->type != FRAME_EX_TRY)
-          return false;
-
-     if (NULLP(rec->as.escape.tag))
-          return true;
-
-     return EQ(rec->as.escape.tag, (LRef) tag);
-}
-
 LRef lthrow(LRef tag, LRef retval)
 {
      dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
 
-     /* Check to see if we have a matching catch block... */
-     int next_try = __frame_find(__ex_next_try_frame, (uptr_t) tag);
+     int try_fsp = -1;  // The fsp of the try that will ultimately catch this throw
+     int next_fsp = -1; // The fsp of the next catcher, including any unwind-protect's between here and try_fsp
 
-     /* ...If not, we have a problem and need to invoke a trap. */
-     if (next_try == -1)
+     for(int fsp = CURRENT_TIB()->fsp - 1; fsp >= 0; fsp--)
+     {
+          frame_t *rec = &(CURRENT_TIB()->frame_stack[fsp]);
+
+          /* unwind protection frames are the next catcher (to process the after
+           * form), unless they are already being unwound. If so, then the throw
+           * goes outside the unwind protect to the next catcher */
+          if ((next_fsp == -1) && (rec->type == FRAME_EX_UNWIND) && !rec->as.escape.unwinding)
+               next_fsp = fsp;
+          
+          if (rec->type != FRAME_EX_TRY)
+               continue;
+          
+          if (NULLP(rec->as.escape.tag) || EQ(rec->as.escape.tag, tag))
+          {
+               try_fsp = fsp;
+               break;
+          }
+     }
+
+     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw next_fsp=~cd, try_fsp=~cd\n"), next_fsp, try_fsp);
+
+     /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
+     if (try_fsp == -1)
           vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
                  2, tag, retval);
 
-     /* ...if we do, start unwinding the stack. */
-     int next_catcher_fsp = __frame_find(__ex_next_frame_to_catch, (uptr_t) tag);
+     if (next_fsp == -1)
+          next_fsp = try_fsp;
 
-     assert(next_catcher_fsp != -1);
-
-     frame_t *next_catcher = &(CURRENT_TIB()->frame_stack[next_catcher_fsp]);
+     frame_t *next_catcher = &(CURRENT_TIB()->frame_stack[next_fsp]);
           
      next_catcher->as.escape.unwinding = TRUE;
      next_catcher->as.escape.tag = tag;
      next_catcher->as.escape.retval = retval;
      
-     CURRENT_TIB()->fsp = next_catcher_fsp + 1;
+     CURRENT_TIB()->fsp = next_fsp + 1;
           
      longjmp(next_catcher->as.escape.cframe, 1);
 
