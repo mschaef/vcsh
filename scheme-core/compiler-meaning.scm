@@ -131,6 +131,20 @@
     ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
     ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
 
+(define (meaning/%%catch-apply0 form cenv genv at-toplevel?)
+  `(:catch-apply0
+    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
+    ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
+
+(define (meaning/%%throw form cenv genv at-toplevel?)
+  `(:throw
+    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)))
+
+(define (meaning/%%unwind-protect form cenv genv at-toplevel?)
+  `(:unwind-protect
+    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
+    ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
+
 (define (expanded-form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
@@ -154,6 +168,9 @@
                ((the-environment)           (meaning/the-environment  form cenv genv at-toplevel?))
                ((scheme::%mark-stack)       (meaning/%mark-stack      form cenv genv at-toplevel?))
                ((scheme::%apply-with-genv)  (meaning/%apply-with-genv form cenv genv at-toplevel?))
+               ((scheme::%%catch-apply0)    (meaning/%%catch-apply0   form cenv genv at-toplevel?))
+               ((scheme::%%throw)           (meaning/%%throw          form cenv genv at-toplevel?))
+               ((scheme::%%unwind-protect)  (meaning/%%unwind-protect form cenv genv at-toplevel?))
                (#t                          (meaning/application      form cenv genv at-toplevel?))))))
     form))
 
