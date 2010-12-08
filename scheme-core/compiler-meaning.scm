@@ -138,7 +138,8 @@
 
 (define (meaning/%%throw form cenv genv at-toplevel?)
   `(:throw
-    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)))
+    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
+    ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
 
 (define (meaning/%%unwind-protect form cenv genv at-toplevel?)
   `(:unwind-protect

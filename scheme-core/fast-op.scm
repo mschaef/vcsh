@@ -39,7 +39,7 @@
 (define-fast-op :sequence 96 2)
 
 (define-fast-op :catch-apply0 192 2)
-(define-fast-op :throw 193 1)
+(define-fast-op :throw 193 2)
 (define-fast-op :unwind-protect 194 2)
 
 (define-fast-op :close-env 128 2)
