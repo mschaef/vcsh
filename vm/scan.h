@@ -411,9 +411,7 @@ struct frame_t
           struct
           {
                LRef tag;
-               LRef retval;
                jmp_buf cframe;
-               bool unwinding;
           } escape;
           struct
           {
@@ -444,6 +442,9 @@ struct interpreter_thread_info_block_t
 
      frame_t frame_stack[FRAME_STACK_SIZE];
      frame_t *fsp;
+     
+     frame_t *throw_target;
+     LRef throw_value;
 };
 
 struct interpreter_t
@@ -2009,7 +2010,6 @@ LRef lsystem_info();
 LRef ltan(LRef x);
 LRef ltemporary_file_name(LRef prefix);
 LRef ltest_blocking_input(LRef block_size, LRef length, LRef binary);
-LRef lthrow(LRef tag, LRef value);
 LRef ltime_apply0(LRef fn);
 LRef ltopframe();
 LRef lto_ieee754_bits(LRef x);
@@ -2074,10 +2074,7 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 #define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)              \
       ENTER_FRAME()                                            \
           __frame->type                 = __type;              \
-          __frame->as.escape.unwinding  = FALSE;               \
-          __frame->as.escape.tag        = __tag;               \
-          __frame->as.escape.retval     = NIL;
-
+          __frame->as.escape.tag        = __tag;
 #define ENTER_EVAL_FRAME(__form, __env)                        \
       ENTER_FRAME()                                            \
          __frame->type                         = FRAME_EVAL;   \
@@ -2122,13 +2119,10 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 #define ON_UNWIND()                                               \
       }                                                           \
-      CURRENT_TIB()->fsp->as.escape.unwinding = TRUE;
 
 #define LEAVE_UNWIND_PROTECT()                                    \
-      if (!__block_successful)                                    \
-           lthrow(CURRENT_TIB()->fsp->as.escape.tag,              \
-                  CURRENT_TIB()->fsp->as.escape.retval);          \
-                                                                  \
+     if (CURRENT_TIB()->throw_target != NULL)                     \
+          continue_throw();                                       \
    }                                                              \
    LEAVE_FRAME();
 

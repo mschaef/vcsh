@@ -324,6 +324,69 @@ INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * re
      return NIL;                /*  avoid a warning, since the error case returns nothing. */
 }
 
+/* static */ void continue_throw()
+{
+     assert(CURRENT_TIB()->throw_target != NULL);
+
+     for(frame_t *fsp = CURRENT_TIB()->fsp - 1; fsp > CURRENT_TIB()->throw_target; fsp--)
+     {
+          if (fsp->type != FRAME_EX_UNWIND)
+               continue;
+
+          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: setjmp to unwind-protect frame: ~c&\n"), fsp);
+
+          CURRENT_TIB()->fsp = fsp;
+          longjmp(fsp->as.escape.cframe, 1);
+     }
+
+     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: setjmp to target frame: ~c&\n"), CURRENT_TIB()->throw_target);
+
+     CURRENT_TIB()->fsp = CURRENT_TIB()->throw_target;
+     CURRENT_TIB()->throw_target = NULL;
+
+     longjmp(CURRENT_TIB()->fsp->as.escape.cframe, 1);
+}
+
+
+/* static */ frame_t *find_throw_target(LRef tag)
+{
+     frame_t *start_at = CURRENT_TIB()->fsp;
+
+     if (CURRENT_TIB()->throw_target != NULL)
+          start_at = CURRENT_TIB()->throw_target;
+
+     for(frame_t *fsp = start_at; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
+     {
+          if (fsp->type != FRAME_EX_TRY)
+               continue;
+          
+          if (NULLP(fsp->as.escape.tag) || EQ(fsp->as.escape.tag, tag))
+               return fsp;
+     }
+
+     return NULL;
+}
+
+/* static */ void lthrow(LRef tag, LRef retval)
+{
+     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
+
+     frame_t *target = find_throw_target(tag);
+
+     /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
+     if (target == NULL)
+     {
+          vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+                 2, tag, retval);
+          return;
+     }
+
+     CURRENT_TIB()->throw_target = target;
+     CURRENT_TIB()->throw_value  = retval;
+
+     continue_throw();
+}
+
 static LRef execute_fast_op(LRef fop, LRef env)
 {
      LRef retval = NIL;
@@ -478,11 +541,9 @@ static LRef execute_fast_op(LRef fop, LRef env)
                }
                ON_ERROR()
                {
-                    dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch ~a :~a\n"),
-                              CURRENT_TIB()->fsp->as.escape.tag,
-                              CURRENT_TIB()->fsp->as.escape.retval);
+                    dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value);
 
-                    retval = CURRENT_TIB()->fsp->as.escape.retval;
+                    retval = CURRENT_TIB()->throw_value;
                }
                LEAVE_TRY();
           }
@@ -688,52 +749,6 @@ LRef lget_current_frames(LRef sc)
      }
 
      return frames;
-}
-
-LRef lthrow(LRef tag, LRef retval)
-{
-     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
-
-     frame_t *try_fsp = NULL;  // The fsp of the try that will ultimately catch this throw
-     frame_t *next_fsp = NULL; // The fsp of the next catcher, including any unwind-protect's between here and try_fsp
-
-     for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
-     {
-          /* unwind protection frames are the next catcher (to process the after
-           * form), unless they are already being unwound. If so, then the throw
-           * goes outside the unwind protect to the next catcher */
-          if ((next_fsp == NULL) && (fsp->type == FRAME_EX_UNWIND) && !fsp->as.escape.unwinding)
-               next_fsp = fsp;
-          
-          if (fsp->type != FRAME_EX_TRY)
-               continue;
-          
-          if (NULLP(fsp->as.escape.tag) || EQ(fsp->as.escape.tag, tag))
-          {
-               try_fsp = fsp;
-               break;
-          }
-     }
-
-     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw next_fsp=~cd, try_fsp=~cd\n"), next_fsp, try_fsp);
-
-     /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
-     if (try_fsp == NULL)
-          vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-                 2, tag, retval);
-
-     if (next_fsp == NULL)
-          next_fsp = try_fsp;
-          
-     next_fsp->as.escape.unwinding = TRUE;
-     next_fsp->as.escape.tag = tag;
-     next_fsp->as.escape.retval = retval;
-     
-     CURRENT_TIB()->fsp = next_fsp;
-          
-     longjmp(next_fsp->as.escape.cframe, 1);
-
-     return NIL;
 }
 
 LRef topmost_primitive()
