@@ -393,25 +393,25 @@ static LRef execute_fast_op(LRef fop, LRef env)
      LRef retval = NIL;
 
      STACK_CHECK(&fop);
-
+     
      ENTER_EVAL_FRAME(&fop, env)
      {
      loop:
           _process_interrupts();
-
+          
           checked_assert(TYPE(fop) == TC_FAST_OP);
-
-
+          
+          
           switch (FAST_OP_OPCODE(fop))
           {
           case FOP_LITERAL:
                retval = FAST_OP_ARG1(fop);
                break;
-
+               
           case FOP_GLOBAL_REF:
           {
                LRef sym = FAST_OP_ARG1(fop);
-          
+               
                checked_assert(SYMBOLP(sym));
                checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
                
@@ -423,11 +423,11 @@ static LRef execute_fast_op(LRef fop, LRef env)
                retval = binding;
           }
           break;
-
+          
           case FOP_GLOBAL_SET:
           {
                LRef sym = FAST_OP_ARG1(fop);
-
+               
                checked_assert(SYMBOLP(sym));
                checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
                
@@ -442,11 +442,11 @@ static LRef execute_fast_op(LRef fop, LRef env)
                retval = val;
           }
           break;
-
+          
           case FOP_LOCAL_REF:
           { 
                LRef sym = FAST_OP_ARG1(fop);
-
+               
                checked_assert(SYMBOLP(sym));
                
                LRef binding = lenvlookup(sym, env);
@@ -457,11 +457,11 @@ static LRef execute_fast_op(LRef fop, LRef env)
                retval = CAR(binding);
           }
           break;
-
+          
           case FOP_LOCAL_SET:
           {
                LRef sym = FAST_OP_ARG1(fop);
-
+               
                checked_assert(SYMBOLP(sym));
                
                LRef binding = lenvlookup(sym, env);
@@ -470,18 +470,18 @@ static LRef execute_fast_op(LRef fop, LRef env)
                     vmerror_unbound(sym);
                
                LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
-
+               
                SET_CAR(binding, val);
                
                retval = val;
           }
           break;
-
+          
           case FOP_APPLY:
           {
                size_t argc;
                LRef argv[ARG_BUF_LEN];
-
+               
                argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
                
                fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
@@ -490,24 +490,24 @@ static LRef execute_fast_op(LRef fop, LRef env)
                     goto loop;
           }
           break;
-
+          
           case FOP_IF_TRUE:
                if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
                     fop = FAST_OP_ARG2(fop);
                else
                     fop = FAST_OP_ARG3(fop);
                goto loop;
-
+               
           case FOP_AND2:
                if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
                {
                     fop = FAST_OP_ARG2(fop);
                     goto loop;
                }
-
+               
                retval = boolcons(false);
                break;
-
+               
           case FOP_OR2:
           {
                LRef val = execute_fast_op(FAST_OP_ARG1(fop), env);
@@ -521,21 +521,21 @@ static LRef execute_fast_op(LRef fop, LRef env)
                fop = FAST_OP_ARG2(fop);
           }
           goto loop;
-
+          
           case FOP_SEQUENCE:
                execute_fast_op(FAST_OP_ARG1(fop), env);
-
+               
                fop = FAST_OP_ARG2(fop);
                goto loop;
-
+               
           case FOP_CATCH_APPLY0:
           {
                LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
-
-               /*  tag==#t implies all tags */
+               
+               /* tag==#t implies all tags */
                if (BOOLP(tag) && TRUEP(tag))
                     tag = NULL;
-
+               
                ENTER_TRY(tag)
                {
                     retval = apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
@@ -543,18 +543,18 @@ static LRef execute_fast_op(LRef fop, LRef env)
                ON_ERROR()
                {
                     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
-
+                    
                     retval = CURRENT_TIB()->throw_value;
                }
                LEAVE_TRY();
           }
           break;
-
+          
           case FOP_THROW:
                lthrow(execute_fast_op(FAST_OP_ARG1(fop), env),
                       execute_fast_op(FAST_OP_ARG2(fop), env));
                break;
-
+               
           case FOP_UNWIND_PROTECT:
           {
                ENTER_UNWIND_PROTECT()
@@ -567,20 +567,20 @@ static LRef execute_fast_op(LRef fop, LRef env)
                }
                LEAVE_UNWIND_PROTECT();
           }
-         break;
-
+          break;
+          
           case FOP_CLOSE_ENV:
                retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
                break;
-
+               
           case FOP_GET_ENV:
                retval = env;
                break;
-
+               
           case FOP_GLOBAL_DEF:
                retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop), FAST_OP_ARG3(fop));
                break;
-
+               
           case FOP_MARK_STACK:
                ENTER_MARKER_FRAME(execute_fast_op(FAST_OP_ARG1(fop), env))
                {
@@ -588,7 +588,19 @@ static LRef execute_fast_op(LRef fop, LRef env)
                }
                LEAVE_FRAME();
                break;
+               
+          case FOP_SET_GENV:
+          {
+               LRef old_global_env = interp.global_env;
 
+               interp.global_env = execute_fast_op(FAST_OP_ARG1(fop), env);
+
+               assert(GENVP(interp.global_env));
+
+               retval = old_global_env;
+          }
+          break;
+          
           case FOP_APPLY_WITH_GENV:
           {
                LRef old_global_env = interp.global_env;

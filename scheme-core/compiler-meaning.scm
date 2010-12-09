@@ -131,6 +131,10 @@
     ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
     ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
 
+(define (meaning/%set-genv form cenv genv at-toplevel?)
+  `(:set-genv
+    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)))
+
 (define (meaning/%%catch-apply0 form cenv genv at-toplevel?)
   `(:catch-apply0
     ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
@@ -167,6 +171,7 @@
                ((scheme::%define)           (meaning/%define          form cenv genv at-toplevel?))
                ((quote)                     (meaning/quote            form cenv genv at-toplevel?))
                ((the-environment)           (meaning/the-environment  form cenv genv at-toplevel?))
+               ((scheme::%set-genv)         (meaning/%set-genv        form cenv genv at-toplevel?))
                ((scheme::%mark-stack)       (meaning/%mark-stack      form cenv genv at-toplevel?))
                ((scheme::%apply-with-genv)  (meaning/%apply-with-genv form cenv genv at-toplevel?))
                ((scheme::%%catch-apply0)    (meaning/%%catch-apply0   form cenv genv at-toplevel?))

@@ -2075,6 +2075,7 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
       ENTER_FRAME()                                            \
           __frame->type                 = __type;              \
           __frame->as.escape.tag        = __tag;
+
 #define ENTER_EVAL_FRAME(__form, __env)                        \
       ENTER_FRAME()                                            \
          __frame->type                         = FRAME_EVAL;   \
