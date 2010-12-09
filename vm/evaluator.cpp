@@ -323,8 +323,7 @@ INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * re
      return NIL;                /*  avoid a warning, since the error case returns nothing. */
 }
 
-/* static */
-void continue_throw()
+static void continue_throw()
 {
      assert(CURRENT_TIB()->throw_target != NULL);
      
@@ -348,7 +347,7 @@ void continue_throw()
 }
 
 
-/* static */ frame_t *find_throw_target(LRef tag)
+static frame_t *find_throw_target(LRef tag)
 {
      frame_t *start_at = CURRENT_TIB()->fsp;
 
@@ -367,7 +366,7 @@ void continue_throw()
      return NULL;
 }
 
-/* static */ void lthrow(LRef tag, LRef retval)
+static void lthrow(LRef tag, LRef retval)
 {
      dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
