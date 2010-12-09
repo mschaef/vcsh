@@ -139,8 +139,8 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
           set_global_env(genv);
 
      dscwritef(DF_SHOW_GLOBAL_DEFINES,
-               _T("; DEBUG: globally defining ~a in ~s\n"),
-               var,interp.global_env);
+               (_T("; DEBUG: globally defining ~a in ~s\n"),
+                var,interp.global_env));
 
      if (SYMBOL_INDEX(var) == 0)
           extend_global_environment(var);

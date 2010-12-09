@@ -221,6 +221,8 @@ BEGIN_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
     VM_CONSTANT(DF_ALL                  , 0xFFFFFFFF)
 END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
 
+#define DF_ALWAYS DF_NONE
+
 /* The interpreter maintains a stack of frames annotating the C
  * stack. These are used to implement try/catch as well as some
  * debugging support. */

@@ -553,7 +553,7 @@ void fast_read_loader_definition(LRef port, fasl_opcode_t opcode)
      fast_read(port, &definition);
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS,
-               _T("; DEBUG: FASL defining ~s = ~s\n"), symbol_to_define, definition);
+               (_T("; DEBUG: FASL defining ~s = ~s\n"), symbol_to_define, definition));
 
      switch (opcode)
      {
@@ -641,7 +641,7 @@ void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
      else if (opcode != FASL_OP_LOADER_APPLY0)
           panic("invalid opcode in fast_read_loader_application");
 
-     dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL applying ~s (argc=~cd)\n"), argv[0], argc);
+     dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL applying ~s (argc=~cd)\n"), argv[0], argc));
 
      pinfo->_fasl_accum = lapply(argc + 1, argv);
 }
@@ -687,8 +687,8 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
                const _TCHAR *opcode_name = fasl_opcode_name(opcode);
 
                dscwritef(DF_FASL_SHOW_OPCODES,
-                         _T("; DEBUG: fasl-opcode@~cx :~cS\n"),
-                         get_c_long(opcode_location), opcode_name ? opcode_name : _T("<INVALID>"));
+                         (_T("; DEBUG: fasl-opcode@~cx :~cS\n"),
+                          get_c_long(opcode_location), opcode_name ? opcode_name : _T("<INVALID>")));
           }
 
           switch (opcode)
@@ -871,7 +871,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
 
                fast_read(port, &name, allow_loader_ops);
 
-               dscwritef(DF_SHOW_FAST_LOAD_UNITS, "; DEBUG: FASL entering unit ~s\n", name);
+               dscwritef(DF_SHOW_FAST_LOAD_UNITS, ("; DEBUG: FASL entering unit ~s\n", name));
                break;
 
           case FASL_OP_END_LOAD_UNIT:
@@ -881,7 +881,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
 
                fast_read(port, &name, allow_loader_ops);
 
-               dscwritef(DF_SHOW_FAST_LOAD_UNITS, "; DEBUG: FASL leaving unit ~s\n", name);
+               dscwritef(DF_SHOW_FAST_LOAD_UNITS, ("; DEBUG: FASL leaving unit ~s\n", name));
                break;
 
           case FASL_OP_LOADER_PUSH:
@@ -913,14 +913,14 @@ LRef liifasl_load(LRef port)
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
-     dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: FASL from : ~a\n"), port);
+     dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL from : ~a\n"), port));
      
      LRef form = NIL;
 
      while (!EOFP(form))
           fast_read(port, &form, true);
 
-     dscwritef(DF_SHOW_FAST_LOAD_FORMS, _T("; DEBUG: done FASL from port: ~a\n"), port);
+     dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: done FASL from port: ~a\n"), port));
 
      return NIL;
 }

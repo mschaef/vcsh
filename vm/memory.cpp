@@ -49,17 +49,17 @@ void dump_freelists()
      for (LRef current_freelist = interp.global_freelist;
           current_freelist != NULL; current_freelist = NEXT_FREE_LIST(current_freelist))
      {
-          dscwritef("{~c&: ", current_freelist);
+          dscwritef(DF_ALWAYS, ("{~c&: ", current_freelist));
 
           int len = 0;
 
           for (LRef cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
                len++;
 
-          dscwritef("~cd }", len);
+          dscwritef(DF_ALWAYS, ("~cd }", len));
      }
 
-     dscwritef("\n");
+     dscwritef(DF_ALWAYS, ("\n"));
 }
 
 /*** The heap segment allocator
@@ -103,7 +103,7 @@ static bool enlarge_heap()
 {
      bool succeeded = false;
 
-     dscwritef(DF_SHOW_GC_DETAILS, ";;; attempting to enlarge heap\n");
+     dscwritef(DF_SHOW_GC_DETAILS, (";;; attempting to enlarge heap\n"));
 
      if (interp.gc_current_heap_segments < interp.gc_max_heap_segments)
      {
@@ -127,7 +127,7 @@ static bool enlarge_heap()
 
 
      dscwritef(DF_SHOW_GC_DETAILS,
-               succeeded ? ";;; enlarged heap\n" : ";;; HEAP ENLARGE FAILED!\n");
+               (succeeded ? ";;; enlarged heap\n" : ";;; HEAP ENLARGE FAILED!\n"));
 
      return succeeded;
 }
@@ -151,8 +151,8 @@ LRef lenlarge_heap(LRef c)
           if (!enlarge_heap())
                break;
 
-     dscwritef(DF_SHOW_GC, _T("; Allocated ~cd heap~cs of ~cd requested.\n"),
-               created, created > 1 ? "s" : "", requested);
+     dscwritef(DF_SHOW_GC, (_T("; Allocated ~cd heap~cs of ~cd requested.\n"),
+                            created, created > 1 ? "s" : "", requested));
 
      return fixcons(interp.gc_current_heap_segments);
 }
@@ -439,8 +439,8 @@ fixnum_t gc_sweep()
 
      interp.gc_cells_collected = cells_freed;
 
-     dscwritef(DF_SHOW_GC_DETAILS, ";;; GC sweep done, freed:~cd, free:~cd\n", cells_freed,
-               free_cells);
+     dscwritef(DF_SHOW_GC_DETAILS, (";;; GC sweep done, freed:~cd, free:~cd\n", cells_freed,
+                                    free_cells));
 
      return free_cells;
 }
@@ -463,19 +463,19 @@ static void gc_begin_stats(void)
      interp.gc_run_time = sys_runtime();
      interp.gc_cells_collected = 0;
 
-     if (DEBUG_FLAG(DF_SHOW_GC))
-     {
-          unsigned long bytes_alloced =
-              (unsigned long) (malloc_bytes - interp.malloc_bytes_at_last_gc);
-          unsigned long blocks_alloced =
-              (unsigned long) (malloc_blocks - interp.malloc_blocks_at_last_gc);
+     if (!DEBUG_FLAG(DF_SHOW_GC))
+          return;
 
-          if ((bytes_alloced > 0) || (blocks_alloced > 0))
-               dscwritef(_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"),
-                         bytes_alloced, blocks_alloced);
+     unsigned long bytes_alloced =
+          (unsigned long) (malloc_bytes - interp.malloc_bytes_at_last_gc);
+     unsigned long blocks_alloced =
+          (unsigned long) (malloc_blocks - interp.malloc_blocks_at_last_gc);
 
-          dscwritef(_T("; GC @ T+~cf:"), time_since_launch());
-     }
+     if ((bytes_alloced > 0) || (blocks_alloced > 0))
+          dscwritef(DF_ALWAYS, (_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"),
+                                bytes_alloced, blocks_alloced));
+
+     dscwritef(DF_ALWAYS, (_T("; GC @ T+~cf:"), time_since_launch()));
 }
 
 static void gc_end_stats(void)
@@ -483,8 +483,7 @@ static void gc_end_stats(void)
      interp.gc_run_time = sys_runtime() - interp.gc_run_time;
      interp.gc_total_run_time += interp.gc_run_time;
 
-     if (DEBUG_FLAG(DF_SHOW_GC))
-          dscwritef(" ~cfs., ~cd cells freed\n", interp.gc_run_time, interp.gc_cells_collected);
+     dscwritef(DF_SHOW_GC, (" ~cfs., ~cd cells freed\n", interp.gc_run_time, interp.gc_cells_collected));
 
      interp.malloc_bytes_at_last_gc = malloc_bytes;
      interp.malloc_blocks_at_last_gc = malloc_blocks;

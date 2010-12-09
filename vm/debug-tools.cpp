@@ -314,10 +314,10 @@ static struct
 
 static void show_debug_flags()
 {
-     dscwritef("Available debug flags:\n\n");
+     dscwritef(DF_ALWAYS, ("Available debug flags:\n\n"));
 
      for (size_t ii = 0; debug_flag_env_names[ii].df_env_name; ii++)
-          dscwritef("* ~cs\n", debug_flag_env_names[ii].df_env_name);
+          dscwritef(DF_ALWAYS, ("* ~cs\n", debug_flag_env_names[ii].df_env_name));
 }
 
 extern "C" const _TCHAR *strchrnul(const _TCHAR * string, int c)
@@ -367,8 +367,8 @@ debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source
 
           if (!found)
           {
-               dscwritef("Unknown debug flag while parsing ~cs, starting here: ~cs\n", source_name,
-                         str);
+               dscwritef(DF_ALWAYS, ("Unknown debug flag while parsing ~cs, starting here: ~cs\n", source_name,
+                                     str));
                show_debug_flags();
                panic("Aborting Run");
           }

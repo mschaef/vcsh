@@ -20,13 +20,12 @@ LRef lset_stack_limit(LRef amount)
 
      if (!new_size_limit)
      {
-          dscwritef(DF_SHOW_GC, "stack limit disabled!");
+          dscwritef(DF_SHOW_GC, ("stack limit disabled!"));
 
           return boolcons(false);
      }
 
-     dscwritef(DF_SHOW_GC, "stack_size = ~cd bytes, [~c&,~c&]\n",
-               new_size_limit, new_limit_obj, sys_get_stack_start());
+     dscwritef(DF_SHOW_GC, ("stack_size = ~cd bytes, [~c&,~c&]\n", new_size_limit, new_limit_obj, sys_get_stack_start()));
 
      return fixcons(new_size_limit);
 }
@@ -93,7 +92,7 @@ LRef liset_trap_handler(LRef trap_id, LRef new_handler)
 
      interp.trap_handlers[tid] = new_handler;
 
-     dscwritef(DF_SHOW_TRAPS, _T("; DEBUG: set-trap-handler : ~cS := ~s\n"), trap_type_name((trap_type_t)tid), new_handler);
+     dscwritef(DF_SHOW_TRAPS, (_T("; DEBUG: set-trap-handler : ~cS := ~s\n"), trap_type_name((trap_type_t)tid), new_handler));
 
      return new_handler;
 }
@@ -117,7 +116,7 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
      assert((trap > 0) && (trap <= TRAP_LAST));
      assert(argc < ARG_BUF_LEN);
 
-     dscwritef(DF_SHOW_TRAPS, _T("; DEBUG: trap : ~cS\n"), trap_type_name(trap));
+     dscwritef(DF_SHOW_TRAPS, (_T("; DEBUG: trap : ~cS\n"), trap_type_name(trap)));
      
      LRef handler = interp.trap_handlers[trap];
 
@@ -334,14 +333,13 @@ void continue_throw()
           if (fsp->type != FRAME_EX_UNWIND)
                continue;
           
-          dscwritef(DF_SHOW_THROWS, _T("; DEBUG: setjmp (from fsp=~c&) to unwind-protect frame: ~c&\n"), CURRENT_TIB()->fsp, fsp);
+          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to unwind-protect frame: ~c&\n"), CURRENT_TIB()->fsp, fsp));
 
           CURRENT_TIB()->fsp = fsp;
           longjmp(fsp->as.escape.cframe, 1);
      }
      
-     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"),
-               CURRENT_TIB()->fsp, CURRENT_TIB()->throw_target);
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, CURRENT_TIB()->throw_target));
 
      CURRENT_TIB()->fsp = CURRENT_TIB()->throw_target;
      CURRENT_TIB()->throw_target = NULL;
@@ -371,7 +369,7 @@ void continue_throw()
 
 /* static */ void lthrow(LRef tag, LRef retval)
 {
-     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: throw ~a :~a\n"), tag, retval);
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
      frame_t *target = find_throw_target(tag);
 
@@ -383,7 +381,7 @@ void continue_throw()
           return;
      }
 
-     dscwritef(DF_SHOW_THROWS, _T("; DEBUG: updating throw-target: ~c& -> ~c&\n"), CURRENT_TIB()->throw_target, target);
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: updating throw-target: ~c& -> ~c&\n"), CURRENT_TIB()->throw_target, target));
 
      CURRENT_TIB()->throw_target = target;
      CURRENT_TIB()->throw_value  = retval;
@@ -545,7 +543,7 @@ static LRef execute_fast_op(LRef fop, LRef env)
                }
                ON_ERROR()
                {
-                    dscwritef(DF_SHOW_THROWS, _T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value);
+                    dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
 
                     retval = CURRENT_TIB()->throw_value;
                }

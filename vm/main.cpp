@@ -73,8 +73,8 @@ static size_t process_vm_int_argument_value(_TCHAR * arg_name, _TCHAR * arg_valu
 
      if (*endobj != _T('\0'))
      {
-          dscwritef("Invalid numeric value (\"~cs\") for VM argument \"~cs\".", arg_value,
-                    arg_name);
+          dscwritef(DF_ALWAYS, ("Invalid numeric value (\"~cs\") for VM argument \"~cs\".", arg_value,
+                                arg_name));
           panic("Aborting Run");
      }
 
@@ -127,10 +127,10 @@ static void process_vm_arg_init_load(_TCHAR * arg_name, _TCHAR * arg_value)
 
 static void show_vm_args()
 {
-     dscwritef("\nAvailable VM arguments:\n");
+     dscwritef(DF_ALWAYS, ("\nAvailable VM arguments:\n"));
 
      for (size_t ii = 0; vm_arg_names[ii].vm_arg_name; ii++)
-          dscwritef("* ~cs\n", vm_arg_names[ii].vm_arg_name);
+          dscwritef(DF_ALWAYS, ("* ~cs\n", vm_arg_names[ii].vm_arg_name));
 }
 
 
@@ -145,7 +145,7 @@ static void process_vm_argument(_TCHAR * arg_name, _TCHAR * arg_value)
           }
      }
 
-     dscwritef("Unknown VM argument: ~cs\n", arg_name);
+     dscwritef(DF_ALWAYS, ("Unknown VM argument: ~cs\n", arg_name));
      show_vm_args();
      panic("Aborting Run");
 }
@@ -526,7 +526,7 @@ static void load_init_load_files()
      {
           LRef fname = strcons(interp.init_load_file_name[ii]);
 
-          dscwritef("; Init Loading ~a...\n", fname);
+          dscwritef(DF_ALWAYS, ("; Init Loading ~a...\n", fname));
 
           LRef port = lopen_input_file(fname, keyword_intern(_T("binary")));
 
@@ -587,7 +587,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      process_vm_arguments(argc, argv);
 
      if (interp.debug_flags != DF_NONE)
-          dscwritef("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags);
+          dscwritef(DF_ALWAYS, ("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags));
 
     /*** Create the gc heap and populate it with the standard objects */
      create_gc_heap();

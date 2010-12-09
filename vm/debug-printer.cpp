@@ -675,21 +675,8 @@ void scwritef(const _TCHAR * format_str, LRef port, ...)
      scvwritef(format_str, port, arglist);
 }
 
-void dscwritef(const _TCHAR * format_str, ...)
+void dscwritef_impl(const _TCHAR * format_str, ...)
 {
-     va_list arglist;
-
-     va_start(arglist, format_str);
-
-     scvwritef(format_str, VM_DEBUG_PORT(), arglist);
-     lflush_port(VM_DEBUG_PORT());
-}
-
-void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...)
-{
-     if (!DEBUG_FLAG(flag))
-          return;
-
      va_list arglist;
 
      va_start(arglist, format_str);

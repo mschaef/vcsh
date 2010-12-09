@@ -1650,11 +1650,11 @@ size_t write_text(const _TCHAR * buf, size_t count, LRef port);
 
 #define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
 
-
-LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist);
 void scwritef(const _TCHAR * format_str, LRef port, ...);
-void dscwritef(const _TCHAR * format_str, ...);
-void dscwritef(debug_flag_t flag, const _TCHAR * format_str, ...);
+
+void dscwritef_impl(const _TCHAR * format_str, ...);
+
+#define dscwritef(flag, args) do { if (DEBUG_FLAG(flag)) dscwritef_impl args; } while(0);
 
 LRef debug_print_object(LRef exp, LRef port, bool machine_readable);
 

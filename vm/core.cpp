@@ -169,7 +169,7 @@ void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation
      assert(name != NULL);
 
      if (implementation == NULL)
-          dscwritef(";;;; NULL SUBR IMPLEMENTATION: \"~cs\"!\n", name);
+          dscwritef(DF_ALWAYS, (";;;; NULL SUBR IMPLEMENTATION: \"~cs\"!\n", name));
 
      LRef subr_name = strcons(name);
 
