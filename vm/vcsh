@@ -1,1 +1,1 @@
-./scansh0 -Xinit-load=../scc0/scheme.scf
+./scansh0 -Xinit-load=../scc0/scheme.scf $@
