@@ -444,6 +444,7 @@ struct interpreter_thread_info_block_t
      frame_t *fsp;
      
      frame_t *throw_target;
+     frame_t *unwinding_frame;
      LRef throw_value;
 };
 
