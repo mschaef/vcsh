@@ -331,9 +331,6 @@ void continue_throw()
      
      for(frame_t *fsp = CURRENT_TIB()->fsp - 1; fsp > CURRENT_TIB()->throw_target; fsp--)
      {
-          if (fsp == CURRENT_TIB()->unwinding_frame)
-               continue;
-
           if (fsp->type != FRAME_EX_UNWIND)
                continue;
           

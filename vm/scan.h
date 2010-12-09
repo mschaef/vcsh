@@ -444,7 +444,6 @@ struct interpreter_thread_info_block_t
      frame_t *fsp;
      
      frame_t *throw_target;
-     frame_t *unwinding_frame;
      LRef throw_value;
 };
 
@@ -2100,9 +2099,7 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 #define ENTER_TRY_1(tag, guard)                                                      \
    ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                                            \
    {                                                                                 \
-      bool __block_successful = (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0); \
-                                                                                     \
-      if (__block_successful)                                                        \
+      if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)                         \
       {
 
 #define ON_ERROR()                                                \
@@ -2120,15 +2117,14 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 #define ON_UNWIND()                                               \
       }                                                           \
-      CURRENT_TIB()->unwinding_frame = CURRENT_TIB()->fsp;
+      LEAVE_FRAME();
+
 
 #define LEAVE_UNWIND_PROTECT()                                    \
-     CURRENT_TIB()->unwinding_frame = NULL;                       \
-                                                                  \
      if (CURRENT_TIB()->throw_target != NULL)                     \
           continue_throw();                                       \
    }                                                              \
-   LEAVE_FRAME();
+
 
 
 
