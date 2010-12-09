@@ -2120,8 +2120,11 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
 #define ON_UNWIND()                                               \
       }                                                           \
+      CURRENT_TIB()->unwinding_frame = CURRENT_TIB()->fsp;
 
 #define LEAVE_UNWIND_PROTECT()                                    \
+     CURRENT_TIB()->unwinding_frame = NULL;                       \
+                                                                  \
      if (CURRENT_TIB()->throw_target != NULL)                     \
           continue_throw();                                       \
    }                                                              \

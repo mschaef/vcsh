@@ -339,7 +339,6 @@ void continue_throw()
           
           dscwritef(DF_SHOW_THROWS, _T("; DEBUG: setjmp (from fsp=~c&) to unwind-protect frame: ~c&\n"), CURRENT_TIB()->fsp, fsp);
 
-          CURRENT_TIB()->unwinding_frame = fsp;          
           CURRENT_TIB()->fsp = fsp;
           longjmp(fsp->as.escape.cframe, 1);
      }
@@ -348,7 +347,6 @@ void continue_throw()
                CURRENT_TIB()->fsp, CURRENT_TIB()->throw_target);
 
      CURRENT_TIB()->fsp = CURRENT_TIB()->throw_target;
-     CURRENT_TIB()->unwinding_frame = NULL;
      CURRENT_TIB()->throw_target = NULL;
 
      longjmp(CURRENT_TIB()->fsp->as.escape.cframe, 1);
