@@ -22,13 +22,7 @@ void init1()
      register_internal_file(_T("compiler-run"), true, &scf_compiler_run);
      register_internal_file(_T("s-core"), true, &scf_scheme);
 
-     ENTER_TRY(NIL)
-     {
-          liifasl_load(open_c_data_input(true, &scf_scheme));
-     } ON_ERROR()
-     {
-          scwritef("\nError loading sinit.\n", DEFAULT_PORT);
-     } LEAVE_TRY();
+     liifasl_load(open_c_data_input(true, &scf_scheme));
 }
 
 void init(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)

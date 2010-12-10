@@ -241,78 +241,16 @@ LRef lenvlookup(LRef var, LRef env)
  * the stack.
  */
 
-#define ENTER_FRAME()                                          \
-{                                                              \
-  CURRENT_TIB()->fsp++;                                        \
-  frame_t  *__frame = CURRENT_TIB()->fsp;
-
-      
-#define ENTER_MARKER_FRAME(__tag)                              \
-  ENTER_FRAME()                                                \
-     __frame->type = FRAME_MARKER;                             \
-     __frame->as.marker.tag = __tag;
-
-#define ENTER_PRIMITIVE_FRAME(__f)                             \
-    ENTER_FRAME()                                              \
-       __frame->type              = FRAME_PRIMITIVE;           \
-       __frame->as.prim.function  = __f;
-
-#define ENTER_DYNAMIC_ESCAPE_FRAME(__tag, __type)              \
-      ENTER_FRAME()                                            \
-          __frame->type                 = __type;              \
-          __frame->as.escape.tag        = __tag;
-
-#define ENTER_EVAL_FRAME(__form, __env)                        \
-      ENTER_FRAME()                                            \
-         __frame->type                         = FRAME_EVAL;   \
-                                                               \
-         __frame->as.eval.form                 = __form;       \
-         __frame->as.eval.initial_form         = *__form;      \
-         __frame->as.eval.env                  = __env;
-
-/* IF YOU DO AN EXPLICIT RETURN WITHIN A FRAME, THIS WILL CORRUPT THE FRAME RECORD STACK. */
-#define LEAVE_FRAME()                                         \
-  CURRENT_TIB()->fsp--;                                       \
+INLINE frame_t *enter_frame()
+{
+     CURRENT_TIB()->fsp++;
+     return CURRENT_TIB()->fsp;
 }
 
-
-
-/* C++-style exception handling */
-
-#define ENTER_TRY(tag) ENTER_TRY_1(tag, FRAME_EX_TRY)
-
-#define ENTER_UNWIND_PROTECT() ENTER_TRY_1(NULL, FRAME_EX_UNWIND)
-
-#define ENTER_TRY_1(tag, guard)                                                      \
-   ENTER_DYNAMIC_ESCAPE_FRAME(tag, guard)                                            \
-   {                                                                                 \
-      if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)                         \
-      {
-
-#define ON_ERROR()                                                \
-      }                                                           \
-      else                                                        \
-      {
-
-#define LEAVE_TRY()                                               \
-      }                                                           \
-   }                                                              \
-   LEAVE_FRAME();
-
-
-/* C-style Unwind Protect */
-
-#define ON_UNWIND()                                               \
-      }                                                           \
-      LEAVE_FRAME();
-
-
-#define LEAVE_UNWIND_PROTECT()                                    \
-     if (CURRENT_TIB()->throw_target != NULL)                     \
-          continue_throw();                                       \
-   }                                                              \
-
-
+INLINE void leave_frame()
+{
+     CURRENT_TIB()->fsp--;
+}
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
 
@@ -320,65 +258,67 @@ INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef
 {
      UNREFERENCED(env);
 
-     LRef arg1 = NIL;
-     LRef args = NIL;
+     frame_t  *__frame = enter_frame();
+     __frame->type              = FRAME_PRIMITIVE; 
+     __frame->as.prim.function  = function;
 
-     ENTER_PRIMITIVE_FRAME(function)
+     switch (SUBR_TYPE(function))
      {
-          switch (SUBR_TYPE(function))
-          {
-          case SUBR_0:
-               *retval = (SUBR_F0(function) ());
-               break;
-
-          case SUBR_1:
-               *retval = (SUBR_F1(function) (_ARGV(0)));
-               break;
-
-          case SUBR_2:
-               *retval = (SUBR_F2(function) (_ARGV(0), _ARGV(1)));
-               break;
-
-          case SUBR_3:
-               *retval = (SUBR_F3(function) (_ARGV(0), _ARGV(1), _ARGV(2)));
-               break;
-
-          case SUBR_4:
-               *retval = (SUBR_F4(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3)));
-               break;
-
-          case SUBR_5:
-               *retval = (SUBR_F5(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4)));
-               break;
-
-          case SUBR_6:
-               *retval =
-                   (SUBR_F6(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4), _ARGV(5)));
-               break;
-
-          case SUBR_2N:
-               arg1 = _ARGV(0);
-
-               arg1 = SUBR_F2(function) (arg1, _ARGV(1));
-
-               for (size_t ii = 2; ii < argc; ii++)
-                    arg1 = SUBR_F2(function) (arg1, _ARGV(ii));
-
-               *retval = arg1;
-               break;
-
-          case SUBR_ARGC:
-               *retval = (SUBR_FARGC(function) (argc, argv));
-               break;
-
-          case SUBR_N:
-               args = arg_list_from_buffer(argc, argv);
-               *retval = (SUBR_F1(function) (args));
-               break;
-          }
+     case SUBR_0:
+          *retval = (SUBR_F0(function) ());
+          break;
+          
+     case SUBR_1:
+          *retval = (SUBR_F1(function) (_ARGV(0)));
+          break;
+          
+     case SUBR_2:
+          *retval = (SUBR_F2(function) (_ARGV(0), _ARGV(1)));
+          break;
+          
+     case SUBR_3:
+          *retval = (SUBR_F3(function) (_ARGV(0), _ARGV(1), _ARGV(2)));
+          break;
+          
+     case SUBR_4:
+          *retval = (SUBR_F4(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3)));
+          break;
+          
+     case SUBR_5:
+          *retval = (SUBR_F5(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4)));
+          break;
+          
+     case SUBR_6:
+          *retval =
+               (SUBR_F6(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4), _ARGV(5)));
+          break;
+          
+      case SUBR_2N:
+      {
+           LRef arg1 = _ARGV(0);
+          
+          arg1 = SUBR_F2(function) (arg1, _ARGV(1));
+          
+          for (size_t ii = 2; ii < argc; ii++)
+               arg1 = SUBR_F2(function) (arg1, _ARGV(ii));
+          
+          *retval = arg1;
      }
-     LEAVE_FRAME();
+     break;
+          
+     case SUBR_ARGC:
+          *retval = (SUBR_FARGC(function) (argc, argv));
+          break;
+          
+     case SUBR_N:
+          {
+          LRef args = arg_list_from_buffer(argc, argv);
+          *retval = (SUBR_F1(function) (args));
+          }
+          break;
+     }
 
+     leave_frame();
 
      return NIL;
 }
@@ -479,219 +419,236 @@ static LRef execute_fast_op(LRef fop, LRef env)
 
      STACK_CHECK(&fop);
      
-     ENTER_EVAL_FRAME(&fop, env)
+     frame_t *__frame = enter_frame();
+     __frame->type                 = FRAME_EVAL;
+     __frame->as.eval.form         = &fop;
+     __frame->as.eval.initial_form = fop;
+     __frame->as.eval.env          = env;
+
+loop:
+     _process_interrupts();
+          
+     checked_assert(TYPE(fop) == TC_FAST_OP);
+          
+          
+     switch (FAST_OP_OPCODE(fop))
      {
-     loop:
-          _process_interrupts();
-          
-          checked_assert(TYPE(fop) == TC_FAST_OP);
-          
-          
-          switch (FAST_OP_OPCODE(fop))
-          {
-          case FOP_LITERAL:
-               retval = FAST_OP_ARG1(fop);
-               break;
-               
-          case FOP_GLOBAL_REF:
-          {
-               LRef sym = FAST_OP_ARG1(fop);
-               
-               checked_assert(SYMBOLP(sym));
-               checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
-               
-               LRef binding = SYMBOL_VCELL(sym);
-               
-               if (UNBOUND_MARKER_P(binding))
-                    vmerror_unbound(sym);
-               
-               retval = binding;
-          }
+     case FOP_LITERAL:
+          retval = FAST_OP_ARG1(fop);
           break;
-          
-          case FOP_GLOBAL_SET:
-          {
-               LRef sym = FAST_OP_ARG1(fop);
                
-               checked_assert(SYMBOLP(sym));
-               checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+     case FOP_GLOBAL_REF:
+     {
+          LRef sym = FAST_OP_ARG1(fop);
                
-               LRef binding = SYMBOL_VCELL(sym);
+          checked_assert(SYMBOLP(sym));
+          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
                
-               if (UNBOUND_MARKER_P(binding))
-                    vmerror_unbound(sym);
+          LRef binding = SYMBOL_VCELL(sym);
                
-               LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
+          if (UNBOUND_MARKER_P(binding))
+               vmerror_unbound(sym);
                
-               SET_SYMBOL_VCELL(sym, val);
-               retval = val;
-          }
-          break;
-          
-          case FOP_LOCAL_REF:
-          { 
-               LRef sym = FAST_OP_ARG1(fop);
-               
-               checked_assert(SYMBOLP(sym));
-               
-               LRef binding = lenvlookup(sym, env);
-               
-               if (NULLP(binding))
-                    vmerror_unbound(sym);
-               
-               retval = CAR(binding);
-          }
-          break;
-          
-          case FOP_LOCAL_SET:
-          {
-               LRef sym = FAST_OP_ARG1(fop);
-               
-               checked_assert(SYMBOLP(sym));
-               
-               LRef binding = lenvlookup(sym, env);
-               
-               if (NULLP(binding))
-                    vmerror_unbound(sym);
-               
-               LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
-               
-               SET_CAR(binding, val);
-               
-               retval = val;
-          }
-          break;
-          
-          case FOP_APPLY:
-          {
-               size_t argc;
-               LRef argv[ARG_BUF_LEN];
-               
-               argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
-               
-               fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
-               
-               if (!NULLP(fop))
-                    goto loop;
-          }
-          break;
-          
-          case FOP_IF_TRUE:
-               if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
-                    fop = FAST_OP_ARG2(fop);
-               else
-                    fop = FAST_OP_ARG3(fop);
-               goto loop;
-               
-          case FOP_AND2:
-               if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
-               {
-                    fop = FAST_OP_ARG2(fop);
-                    goto loop;
-               }
-               
-               retval = boolcons(false);
-               break;
-               
-          case FOP_OR2:
-          {
-               LRef val = execute_fast_op(FAST_OP_ARG1(fop), env);
-               
-               if (TRUEP(val))
-               {
-                    retval = val;
-                    break;
-               }
-               
-               fop = FAST_OP_ARG2(fop);
-          }
-          goto loop;
-          
-          case FOP_SEQUENCE:
-               execute_fast_op(FAST_OP_ARG1(fop), env);
-               
-               fop = FAST_OP_ARG2(fop);
-               goto loop;
-               
-          case FOP_CATCH_APPLY0:
-          {
-               LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
-               
-               /* tag==#t implies all tags */
-               if (BOOLP(tag) && TRUEP(tag))
-                    tag = NULL;
-               
-               ENTER_TRY(tag)
-               {
-                    retval = apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
-               }
-               ON_ERROR()
-               {
-                    dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
-                    
-                    retval = CURRENT_TIB()->throw_value;
-               }
-               LEAVE_TRY();
-          }
-          break;
-          
-          case FOP_THROW:
-               lthrow(execute_fast_op(FAST_OP_ARG1(fop), env),
-                      execute_fast_op(FAST_OP_ARG2(fop), env));
-               break;
-               
-          case FOP_UNWIND_PROTECT:
-          {
-               ENTER_UNWIND_PROTECT()
-               {
-                    retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
-               }
-               ON_UNWIND()
-               {
-                    apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
-               }
-               LEAVE_UNWIND_PROTECT();
-          }
-          break;
-          
-          case FOP_CLOSE_ENV:
-               retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
-               break;
-               
-          case FOP_GET_ENV:
-               retval = env;
-               break;
-               
-          case FOP_GLOBAL_DEF:
-               retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop), FAST_OP_ARG3(fop));
-               break;
-               
-          case FOP_MARK_STACK:
-               ENTER_MARKER_FRAME(execute_fast_op(FAST_OP_ARG1(fop), env))
-               {
-                    retval = execute_fast_op(FAST_OP_ARG2(fop), env);
-               }
-               LEAVE_FRAME();
-               break;
-               
-          case FOP_SET_GENV:
-          {
-               LRef old_global_env = interp.global_env;
-
-               interp.global_env = execute_fast_op(FAST_OP_ARG1(fop), env);
-
-               assert(GENVP(interp.global_env));
-
-               retval = old_global_env;
-          }
-          break;
-          
-          default:
-               panic("Unsupported fast-op");
-          }
-
+          retval = binding;
      }
-     LEAVE_FRAME();
+     break;
+          
+     case FOP_GLOBAL_SET:
+     {
+          LRef sym = FAST_OP_ARG1(fop);
+               
+          checked_assert(SYMBOLP(sym));
+          checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+               
+          LRef binding = SYMBOL_VCELL(sym);
+               
+          if (UNBOUND_MARKER_P(binding))
+               vmerror_unbound(sym);
+               
+          LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
+               
+          SET_SYMBOL_VCELL(sym, val);
+          retval = val;
+     }
+     break;
+          
+     case FOP_LOCAL_REF:
+     { 
+          LRef sym = FAST_OP_ARG1(fop);
+               
+          checked_assert(SYMBOLP(sym));
+               
+          LRef binding = lenvlookup(sym, env);
+               
+          if (NULLP(binding))
+               vmerror_unbound(sym);
+               
+          retval = CAR(binding);
+     }
+     break;
+          
+     case FOP_LOCAL_SET:
+     {
+          LRef sym = FAST_OP_ARG1(fop);
+               
+          checked_assert(SYMBOLP(sym));
+               
+          LRef binding = lenvlookup(sym, env);
+               
+          if (NULLP(binding))
+               vmerror_unbound(sym);
+               
+          LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
+               
+          SET_CAR(binding, val);
+               
+          retval = val;
+     }
+     break;
+          
+     case FOP_APPLY:
+     {
+          size_t argc;
+          LRef argv[ARG_BUF_LEN];
+               
+          argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
+               
+          fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
+               
+          if (!NULLP(fop))
+               goto loop;
+     }
+     break;
+          
+     case FOP_IF_TRUE:
+          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
+               fop = FAST_OP_ARG2(fop);
+          else
+               fop = FAST_OP_ARG3(fop);
+          goto loop;
+               
+     case FOP_AND2:
+          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
+          {
+               fop = FAST_OP_ARG2(fop);
+               goto loop;
+          }
+               
+          retval = boolcons(false);
+          break;
+               
+     case FOP_OR2:
+     {
+          LRef val = execute_fast_op(FAST_OP_ARG1(fop), env);
+               
+          if (TRUEP(val))
+          {
+               retval = val;
+               break;
+          }
+               
+          fop = FAST_OP_ARG2(fop);
+     }
+     goto loop;
+          
+     case FOP_SEQUENCE:
+          execute_fast_op(FAST_OP_ARG1(fop), env);
+               
+          fop = FAST_OP_ARG2(fop);
+          goto loop;
+               
+     case FOP_CATCH_APPLY0:
+     {
+          LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+               
+          /* tag==#t implies all tags */
+          if (BOOLP(tag) && TRUEP(tag))
+               tag = NULL;
+               
+          frame_t *__frame = enter_frame();
+          __frame->type = FRAME_EX_TRY;
+          __frame->as.escape.tag = tag;
+
+          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
+          {
+               retval = apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
+          }
+          else
+          {
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
+                    
+               retval = CURRENT_TIB()->throw_value;
+          }
+          leave_frame();
+     }
+     break;
+          
+     case FOP_THROW:
+          lthrow(execute_fast_op(FAST_OP_ARG1(fop), env),
+                 execute_fast_op(FAST_OP_ARG2(fop), env));
+          break;
+               
+     case FOP_UNWIND_PROTECT:
+     {
+          frame_t *__frame = enter_frame();
+          __frame->type = FRAME_EX_UNWIND;
+          __frame->as.escape.tag = NULL;
+
+          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
+          {
+               retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
+          }
+
+          leave_frame();
+
+          apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
+
+          if (CURRENT_TIB()->throw_target != NULL)
+               continue_throw();
+     }
+     break;
+          
+     case FOP_CLOSE_ENV:
+          retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
+          break;
+               
+     case FOP_GET_ENV:
+          retval = env;
+          break;
+               
+     case FOP_GLOBAL_DEF:
+          retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop), FAST_OP_ARG3(fop));
+          break;
+               
+     case FOP_MARK_STACK:
+     {
+          frame_t *__frame = enter_frame();
+          __frame->type = FRAME_MARKER;
+          __frame->as.marker.tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+          retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+
+          leave_frame();
+     }
+     break;
+               
+     case FOP_SET_GENV:
+     {
+          LRef old_global_env = interp.global_env;
+
+          interp.global_env = execute_fast_op(FAST_OP_ARG1(fop), env);
+
+          assert(GENVP(interp.global_env));
+
+          retval = old_global_env;
+     }
+     break;
+          
+     default:
+          panic("Unsupported fast-op");
+     }
+
+
+     leave_frame();
 
      return retval;
 }
