@@ -314,17 +314,27 @@
 ;    (vector-set! new-global-bindings 0 bindings-name)
     new-global-bindings))
 
+(define (apply-with-genv fn genv)
+  (check procedure? fn)
+  (check %global-environment? genv)
+  (let ((old-genv (%current-global-environment)))
+    (%set-genv genv)
+    (%%unwind-protect fn
+                     (lambda () (%set-genv old-genv)))))
+
 (defmacro (with-global-environment bindings . code)
   "Executes <code> with the global bindings in <bindings>. The previous
    global bindings are restored after the code returns."
-  `(%apply-with-genv (lambda () ,@code) ,bindings))
+  `(apply-with-genv (lambda () ,@code)
+                    ,bindings))
 
 (define (capture-global-environment fn)
   "Returns a closure of <fn> over the current global environment."
   (let ((apply apply) ;; locally capture apply so that the below function will work, even if genv has a corrupt apply
         (genv (%current-global-environment)))
     (lambda args
-      (%apply-with-genv (lambda () (apply fn args)) genv))))
+      (apply-with-genv (lambda () (apply fn args))
+                       genv))))
 
 (defmacro (defalias alias procedure)
   "Defines an alias for <procedure> named <alias>. The alias
