@@ -601,30 +601,6 @@ static LRef execute_fast_op(LRef fop, LRef env)
           }
           break;
           
-          case FOP_APPLY_WITH_GENV:
-          {
-               LRef old_global_env = interp.global_env;
-               
-               ENTER_UNWIND_PROTECT()
-               {
-                    interp.global_env = execute_fast_op(FAST_OP_ARG2(fop), env);
-                    
-                    assert(GENVP(interp.global_env));
-                    
-                    check_global_environment_size();
-               
-                    retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
-               }
-               ON_UNWIND()
-               {
-                    interp.global_env = old_global_env;
-               
-                    assert(GENVP(interp.global_env));
-               }
-               LEAVE_UNWIND_PROTECT();
-          }
-          break;
-
           default:
                panic("Unsupported fast-op");
           }

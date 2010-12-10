@@ -124,7 +124,6 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_SET_GENV,                 225)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
     VM_CONSTANT(FOP_MARK_STACK,               248)
-    VM_CONSTANT(FOP_APPLY_WITH_GENV,          249)
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
 BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
