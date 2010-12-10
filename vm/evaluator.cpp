@@ -647,7 +647,6 @@ loop:
                continue_throw();
      }
      break;
-
           
      case FOP_CLOSE_ENV:
           retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
