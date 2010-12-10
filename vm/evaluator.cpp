@@ -607,6 +607,47 @@ loop:
                continue_throw();
      }
      break;
+
+     case FOP_CATCH:
+     {
+          LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+               
+          frame_t *__frame = enter_frame();
+          __frame->type = FRAME_EX_TRY;
+          __frame->as.escape.tag = tag;
+
+          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
+          {
+               retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+          }
+          else
+          {
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
+                    
+               retval = CURRENT_TIB()->throw_value;
+          }
+          leave_frame();
+     }
+     break;
+
+     case FOP_WITH_UNWIND_FN:
+     {
+          frame_t *__frame = enter_frame();
+          __frame->type = FRAME_EX_UNWIND;
+          __frame->as.escape.tag = NULL;
+
+          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
+               retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+
+          leave_frame();
+
+          apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
+
+          if (CURRENT_TIB()->throw_target != NULL)
+               continue_throw();
+     }
+     break;
+
           
      case FOP_CLOSE_ENV:
           retval = lclosurecons(env, FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
