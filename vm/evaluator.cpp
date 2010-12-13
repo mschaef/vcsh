@@ -393,22 +393,33 @@ static void lthrow(LRef tag, LRef retval)
 {
      dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
-     frame_t *target = find_throw_target(tag);
-
-     /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
-     if (target == NULL)
+     for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
-          vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-                 2, tag, retval);
-          return;
+          if (fsp->type == FRAME_EX_UNWIND)
+          {
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw invoking unwind : ~c&\n"), fsp));
+
+               apply1(fsp->as.unwind.after, 0, NULL);
+
+               continue;
+          }
+
+          if (fsp->type != FRAME_EX_TRY)
+               continue;
+          
+          if (NULLP(fsp->as.escape.tag) || EQ(fsp->as.escape.tag, tag))
+          {
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, fsp));
+
+               CURRENT_TIB()->fsp = fsp;
+
+               longjmp(CURRENT_TIB()->fsp->as.escape.cframe, 1);
+          }
      }
 
-     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: updating throw-target: ~c& -> ~c&\n"), CURRENT_TIB()->throw_target, target));
-
-     CURRENT_TIB()->throw_target = target;
-     CURRENT_TIB()->throw_value  = retval;
-
-     continue_throw();
+     /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
+     vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+            2, tag, retval);
 }
 
 
@@ -594,19 +605,13 @@ loop:
           __frame->type = FRAME_EX_UNWIND;
           __frame->as.unwind.after = execute_fast_op(FAST_OP_ARG2(fop), env);
 
-          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
-          {
-               retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
-          }
+          retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
 
           LRef after = __frame->as.unwind.after;
 
           leave_frame();
 
           apply1(after, 0, NULL);
-
-          if (CURRENT_TIB()->throw_target != NULL)
-               continue_throw();
      }
      break;
 
