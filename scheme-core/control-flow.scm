@@ -13,10 +13,6 @@
   (check procedure? after)
   (%%with-unwind-fn after (thunk)))
 
-(define (%catch-apply0 tag fn)
-  (check procedure? fn)
-  (%%catch tag (fn)))
-
 (defmacro (catch tag-form . body)
   `(%%catch ,tag-form (begin ,@body)))
 
