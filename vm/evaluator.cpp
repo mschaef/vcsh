@@ -592,16 +592,18 @@ loop:
      {
           frame_t *__frame = enter_frame();
           __frame->type = FRAME_EX_UNWIND;
-          __frame->as.escape.tag = NULL;
+          __frame->as.unwind.after = execute_fast_op(FAST_OP_ARG2(fop), env);
 
           if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
           {
                retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
           }
 
+          LRef after = __frame->as.unwind.after;
+
           leave_frame();
 
-          apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
+          apply1(after, 0, NULL);
 
           if (CURRENT_TIB()->throw_target != NULL)
                continue_throw();
@@ -797,7 +799,7 @@ LRef lget_current_frames(LRef sc)
                break;
 
           case FRAME_EX_UNWIND:
-               frame_obj = NIL;
+               frame_obj = listn(1, fsp->as.unwind.after);
                break;
 
           case FRAME_PRIMITIVE:

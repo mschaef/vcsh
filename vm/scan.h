@@ -415,6 +415,10 @@ struct frame_t
           } escape;
           struct
           {
+               LRef after;
+          } unwind;
+          struct
+          {
                LRef function;
           } prim;
           struct
