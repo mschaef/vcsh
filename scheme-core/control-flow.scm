@@ -11,14 +11,14 @@
 (define (unwind-protect thunk after)
   (check procedure? thunk)
   (check procedure? after)
-  (%%unwind-protect thunk after))
+  (%%with-unwind-fn after (thunk)))
 
 (define (%catch-apply0 tag fn)
   (check procedure? fn)
-  (%%catch-apply0 tag fn))
+  (%%catch tag (fn)))
 
 (defmacro (catch tag-form . body)
-  `(%catch-apply0 ,tag-form (lambda () ,@body)))
+  `(%%catch ,tag-form (begin ,@body)))
 
 (defmacro (block . forms)
   `(catch '%return-target ,@forms))
@@ -27,7 +27,7 @@
   `(throw '%return-target ,value))
 
 (defmacro (catch-all . forms)
-  `(catch #t ,@forms))
+  `(catch () ,@forms))
 
 (defmacro (when condition . forms)
   `(if ,condition (begin ,@forms)))
