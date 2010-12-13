@@ -599,6 +599,8 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
+     gc_protect(_T("frame-stack"), (LObject **)&(CURRENT_TIB()->frame_stack[0]), sizeof(CURRENT_TIB()->frame_stack) / sizeof(LRef));
+
      accept_command_line_arguments(argc, argv);
 
      load_init_load_files();

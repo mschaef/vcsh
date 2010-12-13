@@ -300,15 +300,6 @@ void gc_mark(LRef initial_obj)
      }
 }
 
-  /* mark_protected_registers
-   *
-   * Walk the list of GC roots, calling mark on each root */
-static void gc_mark_roots(void)
-{
-     for (size_t root_idx = 0; root_idx < MAX_GC_ROOTS; root_idx++)
-          for (size_t ii = 0; ii < interp.thread.gc_roots[root_idx].length; ii++)
-               gc_mark((interp.thread.gc_roots[root_idx].location)[ii]);
-}
 
 static void gc_mark_range_array(LRef * base, size_t n)
 {
@@ -319,6 +310,13 @@ static void gc_mark_range_array(LRef * base, size_t n)
           if (possible_heap_pointer_p(p))
                gc_mark(p);
      }
+}
+
+static void gc_mark_roots(void)
+{
+     for (size_t root_idx = 0; root_idx < MAX_GC_ROOTS; root_idx++)
+          gc_mark_range_array(interp.thread.gc_roots[root_idx].location,
+                              interp.thread.gc_roots[root_idx].length);
 }
 
 static void gc_mark_range(LRef * start, LRef * end)
