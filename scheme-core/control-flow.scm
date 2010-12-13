@@ -5,6 +5,10 @@
 ;;;;
 ;;;; Some control flow facilities
 
+(define (%catch-apply0 tag fn)
+  (check procedure? fn)
+  (%%catch tag (fn)))
+
 (define (throw tag :optional value)
   (%%throw tag value))
 
