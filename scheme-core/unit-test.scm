@@ -109,11 +109,11 @@
 ;;;; Unit test execution
 
 (define (run-test test-case)
+  (define (fail reason args)
+    (test-failed (test-case-name test-case) (test-case-location test-case)
+                 (cons reason args))
+    (throw *test-escape* #f))
   (catch *test-escape*
-    (define (fail reason args)
-      (test-failed (test-case-name test-case) (test-case-location test-case)
-                   (cons reason args))
-      (throw *test-escape* #f))
     (handler-bind ((runtime-error   (lambda args (fail 'runtime-error   args)))
                    (unhandled-abort (lambda args (fail 'unhandled-abort args)))
                    (uncaught-throw  (lambda args (fail 'uncaught-throw  args))))
