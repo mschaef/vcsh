@@ -7,6 +7,8 @@
 #ifndef __SCAN_H
 #define __SCAN_H
 
+#define ENABLE_FOPLOG
+
 #include "../util/base-types.h"
 #include "../util/base-assert.h"
 #include "../util/base-tchar.h"
@@ -106,6 +108,10 @@ enum
      /* The maximum size of blocks of text sent to the debug port. */
      DEBUG_PORT_BLOCK_SIZE = 256,
 };
+
+#if defined(ENABLE_FOPLOG)
+#  define FOPLOG_SIZE (1024 * 1024)
+#endif
 
 /* _The_ type *************************************************
  *
@@ -449,6 +455,12 @@ struct interpreter_thread_info_block_t
      
      frame_t *throw_target;
      LRef throw_value;
+
+#if defined(ENABLE_FOPLOG)
+     int foplog[FOPLOG_SIZE];
+     bool foplog_active;
+     size_t foplog_index;
+#endif
 };
 
 struct interpreter_t
@@ -2038,6 +2050,10 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
 bool read_binary_flonum(LRef port, flonum_t & result);
 double round(double n);
 void scan_postmortem_dump();
+
+#if defined(ENABLE_FOPLOG)
+LRef lifoplog();
+#endif
 
 /***** Debugging tools *****/
 

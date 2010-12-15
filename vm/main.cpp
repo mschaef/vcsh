@@ -13,7 +13,11 @@ interpreter_t interp;           /* Interpreter globals */
 
 const _TCHAR *build_id_string()
 {
-     return (__DATE__ "-" SCAN_VERSION);
+     return (__DATE__ "-" SCAN_VERSION
+#if defined(ENABLE_FOPLOG)
+             "-FOPLOG"
+#endif
+          );
 }
 
 /**** Default panic handler */
@@ -504,6 +508,11 @@ static void register_main_subrs()
     register_subr(_T("write-binary-string"),              SUBR_2,     (void*)lwrite_binary_string                );
     register_subr(_T("write-char"),                       SUBR_2,     (void*)lwrite_char                         );
     register_subr(_T("write-strings"),                    SUBR_ARGC,  (void*)lwrite_strings                      );
+
+#if defined(ENABLE_FOPLOG)
+    register_subr(_T("%foplog"),                          SUBR_0,     (void*)lifoplog                            );
+#endif
+
 /* *INDENT-ON* */
 }
 

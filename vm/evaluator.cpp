@@ -411,8 +411,6 @@ static void lthrow(LRef tag, LRef retval)
      continue_throw();
 }
 
-
-
 static LRef execute_fast_op(LRef fop, LRef env)
 {
      LRef retval = NIL;
@@ -430,7 +428,14 @@ loop:
           
      checked_assert(TYPE(fop) == TC_FAST_OP);
           
-          
+#if defined(ENABLE_FOPLOG)
+     CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index]
+          = FAST_OP_OPCODE(fop);
+
+     CURRENT_TIB()->foplog_index
+          = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
+#endif
+         
      switch (FAST_OP_OPCODE(fop))
      {
      case FOP_LITERAL:
@@ -793,5 +798,18 @@ LRef ltopframe() // TODO: REMOVE
 {
      return fixcons(0); 
 }
+
+
+#if defined(ENABLE_FOPLOG)
+LRef lifoplog()
+{
+     LRef result = vectorcons(FOPLOG_SIZE, fixcons(-1));
+
+     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
+          SET_VECTOR_ELEM(result, ii, fixcons(CURRENT_TIB()->foplog[ii]));
+
+     return result;
+}
+#endif
 
 END_NAMESPACE
