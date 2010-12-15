@@ -457,7 +457,7 @@ struct interpreter_thread_info_block_t
      LRef throw_value;
 
 #if defined(ENABLE_FOPLOG)
-     int foplog[FOPLOG_SIZE];
+     LRef foplog[FOPLOG_SIZE];
      bool foplog_active;
      size_t foplog_index;
 #endif

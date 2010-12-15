@@ -7,12 +7,10 @@
 
 (define %foplog #.(scheme::%subr-by-name "%foplog" #L0(error "foplog support not found")))
 
-(define (opcode->name opcode)
-  (if (= opcode -1)
-      #f
-      (aif (hash-ref scheme::*fast-op-opcodes* opcode #f)
-           (scheme::fast-op-definition-name it)
-           (format #f "<invalid:~a>" opcode))))
+(define (opcode->name op)
+  (if op
+      (mvbind (opcode args) (scheme::parse-fast-op op) opcode)
+      #f))
 
 (define (foplog)
   (map opcode->name (vector->list (%foplog))))
@@ -24,11 +22,11 @@
   (let ((counts (make-hash :equal)))
     (dolist (entry log)
       (hash-set! counts entry (+ 1 (hash-ref counts entry 0))))
-    counts))
+    (qsort (hash->a-list counts) > cdr)))
 
 (define (foplog-hist)
   (hist (foplog)))
 
 (define (foplog-two-hist)
-  (hist (foplog-two-seqs (foplog))))
+ (hist (foplog-two-seqs (foplog))))
 

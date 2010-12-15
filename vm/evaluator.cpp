@@ -429,11 +429,8 @@ loop:
      checked_assert(TYPE(fop) == TC_FAST_OP);
           
 #if defined(ENABLE_FOPLOG)
-     CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index]
-          = FAST_OP_OPCODE(fop);
-
-     CURRENT_TIB()->foplog_index
-          = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
+     CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
+     CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
 #endif
          
      switch (FAST_OP_OPCODE(fop))
@@ -806,7 +803,7 @@ LRef lifoplog()
      LRef result = vectorcons(FOPLOG_SIZE, fixcons(-1));
 
      for(int ii = 0; ii < FOPLOG_SIZE; ii++)
-          SET_VECTOR_ELEM(result, ii, fixcons(CURRENT_TIB()->foplog[ii]));
+          SET_VECTOR_ELEM(result, ii, CURRENT_TIB()->foplog[ii]);
 
      return result;
 }
