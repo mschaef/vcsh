@@ -38,9 +38,7 @@
 
 (define-fast-op :sequence 96 2)
 
-(define-fast-op :catch-apply0 192 2)
 (define-fast-op :throw 193 2)
-(define-fast-op :unwind-protect 194 2)
 
 (define-fast-op :catch 195 2)
 (define-fast-op :with-unwind-fn 196 2)
