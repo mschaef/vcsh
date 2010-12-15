@@ -220,6 +220,10 @@ BEGIN_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
     VM_CONSTANT(DF_NO_STARTUP           , 0x20000000)
     VM_CONSTANT(DF_TEMP                 , 0x40000000)
 
+#ifdef WITH_FOPLOG_SUPPORT
+    VM_CONSTANT(DF_STARTUP_FOPLOG       , 0x80000000)
+#endif
+
     VM_CONSTANT(DF_NONE                 , 0x00000000)
     VM_CONSTANT(DF_ALL                  , 0xFFFFFFFF)
 END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)

@@ -579,6 +579,10 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.launch_realtime = sys_runtime();
 
+#if defined(WITH_FOPLOG_SUPPORT)
+     interp.thread.foplog_enable = DEBUG_FLAG(DF_STARTUP_FOPLOG);
+#endif
+
      interp.fasl_package_list = NIL;
      gc_protect(_T("fasl-package-list"), &interp.fasl_package_list, 1);
 
