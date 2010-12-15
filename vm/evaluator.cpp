@@ -556,59 +556,11 @@ loop:
                
           fop = FAST_OP_ARG2(fop);
           goto loop;
-               
-     case FOP_CATCH_APPLY0:
-     {
-          LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
-               
-          /* tag==#t implies all tags */
-          if (BOOLP(tag) && TRUEP(tag))
-               tag = NULL;
-               
-          frame_t *__frame = enter_frame();
-          __frame->type = FRAME_EX_TRY;
-          __frame->as.escape.tag = tag;
-
-          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
-          {
-               retval = apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
-          }
-          else
-          {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
-                    
-               retval = CURRENT_TIB()->throw_value;
-          }
-          leave_frame();
-     }
-     break;
           
      case FOP_THROW:
           lthrow(execute_fast_op(FAST_OP_ARG1(fop), env),
                  execute_fast_op(FAST_OP_ARG2(fop), env));
           break;
-               
-     case FOP_UNWIND_PROTECT:
-     {
-          frame_t *__frame = enter_frame();
-          __frame->type = FRAME_EX_UNWIND;
-          __frame->as.unwind.after = execute_fast_op(FAST_OP_ARG2(fop), env);
-
-          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
-          {
-               retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
-          }
-
-          LRef after = __frame->as.unwind.after;
-
-          leave_frame();
-
-          apply1(after, 0, NULL);
-
-          if (CURRENT_TIB()->throw_target != NULL)
-               continue_throw();
-     }
-     break;
 
      case FOP_CATCH:
      {

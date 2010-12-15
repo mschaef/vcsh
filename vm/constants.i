@@ -118,9 +118,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_SEQUENCE,                 96 )
     VM_CONSTANT(FOP_CLOSE_ENV,                128)
 
-    VM_CONSTANT(FOP_CATCH_APPLY0,             192)
     VM_CONSTANT(FOP_THROW,                    193)
-    VM_CONSTANT(FOP_UNWIND_PROTECT,           194)
 
     VM_CONSTANT(FOP_CATCH,                    195)
     VM_CONSTANT(FOP_WITH_UNWIND_FN,           196)
