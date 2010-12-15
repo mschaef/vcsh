@@ -428,9 +428,12 @@ loop:
           
      checked_assert(TYPE(fop) == TC_FAST_OP);
           
-#if defined(ENABLE_FOPLOG)
-     CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
-     CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
+#if defined(WITH_FOPLOG_SUPPORT)
+     if (CURRENT_TIB()->foplog_enable)
+     {
+          CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
+          CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
+     }
 #endif
          
      switch (FAST_OP_OPCODE(fop))
@@ -797,8 +800,27 @@ LRef ltopframe() // TODO: REMOVE
 }
 
 
-#if defined(ENABLE_FOPLOG)
-LRef lifoplog()
+#if defined(WITH_FOPLOG_SUPPORT)
+LRef lifoplog_reset()
+{
+     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
+          CURRENT_TIB()->foplog[ii] = NIL;
+     
+     CURRENT_TIB()->foplog_index = 0;
+
+     return NIL;
+}
+
+LRef lifoplog_enable(LRef enablep)
+{
+     LRef prev = boolcons(CURRENT_TIB()->foplog_enable);
+
+     CURRENT_TIB()->foplog_enable = TRUEP(enablep);
+
+     return prev;
+}
+
+LRef lifoplog_snapshot()
 {
      LRef result = vectorcons(FOPLOG_SIZE, fixcons(-1));
 

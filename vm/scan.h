@@ -7,7 +7,7 @@
 #ifndef __SCAN_H
 #define __SCAN_H
 
-#define ENABLE_FOPLOG
+#define WITH_FOPLOG_SUPPORT
 
 #include "../util/base-types.h"
 #include "../util/base-assert.h"
@@ -109,7 +109,7 @@ enum
      DEBUG_PORT_BLOCK_SIZE = 256,
 };
 
-#if defined(ENABLE_FOPLOG)
+#if defined(WITH_FOPLOG_SUPPORT)
 #  define FOPLOG_SIZE (1024 * 1024)
 #endif
 
@@ -456,7 +456,8 @@ struct interpreter_thread_info_block_t
      frame_t *throw_target;
      LRef throw_value;
 
-#if defined(ENABLE_FOPLOG)
+#if defined(WITH_FOPLOG_SUPPORT)
+     bool foplog_enable;
      LRef foplog[FOPLOG_SIZE];
      bool foplog_active;
      size_t foplog_index;
@@ -2051,8 +2052,10 @@ bool read_binary_flonum(LRef port, flonum_t & result);
 double round(double n);
 void scan_postmortem_dump();
 
-#if defined(ENABLE_FOPLOG)
-LRef lifoplog();
+#if defined(WITH_FOPLOG_SUPPORT)
+LRef lifoplog_reset();
+LRef lifoplog_enable(LRef enablep);
+LRef lifoplog_snapshot();
 #endif
 
 /***** Debugging tools *****/

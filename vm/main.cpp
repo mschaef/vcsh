@@ -14,7 +14,7 @@ interpreter_t interp;           /* Interpreter globals */
 const _TCHAR *build_id_string()
 {
      return (__DATE__ "-" SCAN_VERSION
-#if defined(ENABLE_FOPLOG)
+#if defined(WITH_FOPLOG_SUPPORT)
              "-FOPLOG"
 #endif
           );
@@ -509,8 +509,10 @@ static void register_main_subrs()
     register_subr(_T("write-char"),                       SUBR_2,     (void*)lwrite_char                         );
     register_subr(_T("write-strings"),                    SUBR_ARGC,  (void*)lwrite_strings                      );
 
-#if defined(ENABLE_FOPLOG)
-    register_subr(_T("%foplog"),                          SUBR_0,     (void*)lifoplog                            );
+#if defined(WITH_FOPLOG_SUPPORT)
+    register_subr(_T("%foplog-reset"),                    SUBR_0,     (void*)lifoplog_reset                      );
+    register_subr(_T("%foplog-enable"),                   SUBR_1,     (void*)lifoplog_enable                     );
+    register_subr(_T("%foplog-snapshot"),                 SUBR_0,     (void*)lifoplog_snapshot                   );
 #endif
 
 /* *INDENT-ON* */
