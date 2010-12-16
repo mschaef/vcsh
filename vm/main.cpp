@@ -579,10 +579,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.launch_realtime = sys_runtime();
 
-#if defined(WITH_FOPLOG_SUPPORT)
-     interp.thread.foplog_enable = DEBUG_FLAG(DF_STARTUP_FOPLOG);
-#endif
-
      interp.fasl_package_list = NIL;
      gc_protect(_T("fasl-package-list"), &interp.fasl_package_list, 1);
 
@@ -600,6 +596,10 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.thread.fsp = &(interp.thread.frame_stack[0]);
 
      process_vm_arguments(argc, argv);
+
+#if defined(WITH_FOPLOG_SUPPORT)
+     interp.thread.foplog_enable = DEBUG_FLAG(DF_STARTUP_FOPLOG);
+#endif
 
      if (interp.debug_flags != DF_NONE)
           dscwritef(DF_ALWAYS, ("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags));
