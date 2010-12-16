@@ -20,7 +20,7 @@ vcsh: vm
 	$(MAKE) -r -C scheme-core
 
 vm: util
-	$(MAKE) -r -C vm
+	$(MAKE) -r -C vm --jobs=2
 
 util:
 	$(MAKE) -r -C util
