@@ -16,8 +16,8 @@
 (define (foplog)
   (map opcode->name (vector->list (%foplog-snapshot))))
 
-(define (foplog-pairs log)
-  (map-pair #L(cons (car _) (cadr _)) log))
+(define (foplog-seqs log length)
+  (map-pair #L(take-up-to _ length) log))
 
 (define (hist log)
   (let ((counts (make-hash :equal)))
@@ -25,9 +25,9 @@
       (hash-set! counts entry (+ 1 (hash-ref counts entry 0))))
     (qsort (hash->a-list counts) > cdr)))
 
-(define (fop-histogram)
-  (hist (foplog)))
+(define (fop-histogram :optional (log (foplog)))
+  (hist log))
 
-(define (fop-pair-histogram)
- (hist (foplog-pairs (foplog))))
+(define (fop-seq-histogram :optional (length 2) (log (foplog)))
+ (hist (foplog-seqs log length)))
 
