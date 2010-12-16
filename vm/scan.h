@@ -2064,7 +2064,10 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 {
      REFERENCED_BY_DEBUG_BUILD(flag);
 
-     return DEBUGGING_BUILD && (interp.debug_flags & (fixnum_t) flag);
+     if (!DEBUGGING_BUILD)
+          return false;
+
+     return ((fixnum_t) flag == (interp.debug_flags & (fixnum_t) flag));
 }
 
 bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result);
