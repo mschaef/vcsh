@@ -515,10 +515,12 @@ loop:
      {
           size_t argc;
           LRef argv[ARG_BUF_LEN];
+
+          LRef fn = execute_fast_op(FAST_OP_ARG1(fop), env);
                
           argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
                
-          fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
+          fop = apply(fn, argc, argv, &env, &retval);
                
           if (!NULLP(fop))
                goto loop;
