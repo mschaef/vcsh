@@ -7,7 +7,7 @@
 #ifndef __SCAN_H
 #define __SCAN_H
 
-#define WITH_FOPLOG_SUPPORT
+// #define WITH_FOPLOG_SUPPORT
 
 #include "../util/base-types.h"
 #include "../util/base-assert.h"

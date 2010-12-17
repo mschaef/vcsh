@@ -166,31 +166,6 @@ static LRef arg_list_from_buffer(size_t argc, LRef argv[])
      return result;
 }
 
-static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LRef argv[])
-{
-     size_t argc = 0;
-     LRef args = l;
-
-     while (CONSP(args))
-     {
-          if (argc >= max_argc)
-          {
-               vmerror_unsupported(_T("too many actual arguments"));
-               break;
-          }
-
-          argv[argc] = execute_fast_op(CAR(args), env);
-
-          args = CDR(args);
-          argc++;
-     }
-
-     if (!NULLP(args))
-          vmerror_arg_out_of_range(l, _T("bad formal argument list"));
-
-     return argc;
-}
-
 static LRef extend_env(LRef actuals, LRef formals, LRef env)
 {
      if (SYMBOLP(formals))
@@ -513,12 +488,29 @@ loop:
           
      case FOP_APPLY:
      {
-          size_t argc;
+          size_t argc = 0;
           LRef argv[ARG_BUF_LEN];
 
           LRef fn = execute_fast_op(FAST_OP_ARG1(fop), env);
+
+          LRef args = FAST_OP_ARG2(fop);
+
+          while (CONSP(args))
+          {
+               if (argc >= ARG_BUF_LEN)
+               {
+                    vmerror_unsupported(_T("too many actual arguments"));
+                    break;
+               }
+
+               argv[argc] = execute_fast_op(CAR(args), env);
                
-          argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
+               args = CDR(args);
+               argc++;
+          }
+
+          if (!NULLP(args))
+               vmerror_arg_out_of_range(FAST_OP_ARG2(fop), _T("bad formal argument list"));
                
           fop = apply(fn, argc, argv, &env, &retval);
                
