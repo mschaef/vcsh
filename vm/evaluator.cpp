@@ -345,10 +345,8 @@ static void continue_throw()
 }
 
 
-static frame_t *find_throw_target(LRef tag)
+static frame_t *find_throw_target(frame_t *start_at, LRef tag)
 {
-     frame_t *start_at = CURRENT_TIB()->fsp;
-
      if (CURRENT_TIB()->throw_target != NULL)
           start_at = CURRENT_TIB()->throw_target - 1;
 
@@ -364,7 +362,7 @@ static frame_t *find_throw_target(LRef tag)
      return NULL;
 }
 
-void unwind_stack_for_throw(LRef tag)
+void unwind_stack_for_throw()
 {
      for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
@@ -380,12 +378,13 @@ void unwind_stack_for_throw(LRef tag)
           if (fsp->type != FRAME_EX_TRY)
                continue;
           
-          if (NULLP(fsp->as.escape.tag) || EQ(fsp->as.escape.tag, tag))
+          if (fsp == CURRENT_TIB()->throw_target)
           {
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, fsp));
 
+               CURRENT_TIB()->throw_target = NULL;
                CURRENT_TIB()->fsp = fsp;
-
+               
                longjmp(CURRENT_TIB()->fsp->as.escape.cframe, 1);
           }
      }
@@ -395,10 +394,10 @@ static void lthrow(LRef tag, LRef retval)
 {
      dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
+     CURRENT_TIB()->throw_target = find_throw_target(CURRENT_TIB()->fsp, tag);
      CURRENT_TIB()->throw_value = retval;
 
-     unwind_stack_for_throw(tag);
-
+     unwind_stack_for_throw();
 
      /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
      vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
@@ -597,6 +596,7 @@ loop:
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
                     
                retval = CURRENT_TIB()->throw_value;
+               CURRENT_TIB()->throw_value = NIL;
           }
           leave_frame();
      }
