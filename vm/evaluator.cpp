@@ -321,30 +321,6 @@ INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * re
      return NIL;                /*  avoid a warning, since the error case returns nothing. */
 }
 
-static void continue_throw()
-{
-     assert(CURRENT_TIB()->throw_target != NULL);
-     
-     for(frame_t *fsp = CURRENT_TIB()->fsp - 1; fsp > CURRENT_TIB()->throw_target; fsp--)
-     {
-          if (fsp->type != FRAME_EX_UNWIND)
-               continue;
-          
-          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to unwind-protect frame: ~c&\n"), CURRENT_TIB()->fsp, fsp));
-
-          CURRENT_TIB()->fsp = fsp;
-          longjmp(fsp->as.escape.cframe, 1);
-     }
-     
-     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, CURRENT_TIB()->throw_target));
-
-     CURRENT_TIB()->fsp = CURRENT_TIB()->throw_target;
-     CURRENT_TIB()->throw_target = NULL;
-
-     longjmp(CURRENT_TIB()->fsp->as.escape.cframe, 1);
-}
-
-
 static frame_t *find_throw_target(frame_t *start_at, LRef tag)
 {
      if (CURRENT_TIB()->throw_target != NULL)
@@ -409,7 +385,7 @@ static LRef execute_fast_op(LRef fop, LRef env)
      LRef retval = NIL;
 
      STACK_CHECK(&fop);
-     
+
      frame_t *__frame = enter_frame();
      __frame->type                 = FRAME_EVAL;
      __frame->as.eval.form         = &fop;
