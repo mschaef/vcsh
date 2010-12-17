@@ -13,7 +13,11 @@ interpreter_t interp;           /* Interpreter globals */
 
 const _TCHAR *build_id_string()
 {
-     return (__DATE__ "-" SCAN_VERSION);
+     return (__DATE__ "-" SCAN_VERSION
+#if defined(WITH_FOPLOG_SUPPORT)
+             "-FOPLOG"
+#endif
+          );
 }
 
 /**** Default panic handler */
@@ -504,6 +508,13 @@ static void register_main_subrs()
     register_subr(_T("write-binary-string"),              SUBR_2,     (void*)lwrite_binary_string                );
     register_subr(_T("write-char"),                       SUBR_2,     (void*)lwrite_char                         );
     register_subr(_T("write-strings"),                    SUBR_ARGC,  (void*)lwrite_strings                      );
+
+#if defined(WITH_FOPLOG_SUPPORT)
+    register_subr(_T("%foplog-reset"),                    SUBR_0,     (void*)lifoplog_reset                      );
+    register_subr(_T("%foplog-enable"),                   SUBR_1,     (void*)lifoplog_enable                     );
+    register_subr(_T("%foplog-snapshot"),                 SUBR_0,     (void*)lifoplog_snapshot                   );
+#endif
+
 /* *INDENT-ON* */
 }
 
@@ -585,6 +596,10 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.thread.fsp = &(interp.thread.frame_stack[0]);
 
      process_vm_arguments(argc, argv);
+
+#if defined(WITH_FOPLOG_SUPPORT)
+     interp.thread.foplog_enable = DEBUG_FLAG(DF_STARTUP_FOPLOG);
+#endif
 
      if (interp.debug_flags != DF_NONE)
           dscwritef(DF_ALWAYS, ("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags));

@@ -306,6 +306,9 @@ static struct
      { "show-fast-load-forms", DF_SHOW_FAST_LOAD_FORMS},
      { "show-fast-load-units", DF_SHOW_FAST_LOAD_UNITS},
      { "temp", DF_TEMP},
+#if defined(WITH_FOPLOG_SUPPORT)
+     { "startup-foplog", DF_STARTUP_FOPLOG},
+#endif
      { "no-startup", DF_NO_STARTUP},
      { "all", DF_ALL},
      { NULL, DF_ALL},

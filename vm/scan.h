@@ -7,6 +7,8 @@
 #ifndef __SCAN_H
 #define __SCAN_H
 
+// #define WITH_FOPLOG_SUPPORT
+
 #include "../util/base-types.h"
 #include "../util/base-assert.h"
 #include "../util/base-tchar.h"
@@ -106,6 +108,10 @@ enum
      /* The maximum size of blocks of text sent to the debug port. */
      DEBUG_PORT_BLOCK_SIZE = 256,
 };
+
+#if defined(WITH_FOPLOG_SUPPORT)
+#  define FOPLOG_SIZE (1024 * 1024)
+#endif
 
 /* _The_ type *************************************************
  *
@@ -449,6 +455,13 @@ struct interpreter_thread_info_block_t
      
      frame_t *throw_target;
      LRef throw_value;
+
+#if defined(WITH_FOPLOG_SUPPORT)
+     bool foplog_enable;
+     LRef foplog[FOPLOG_SIZE];
+     bool foplog_active;
+     size_t foplog_index;
+#endif
 };
 
 struct interpreter_t
@@ -2039,13 +2052,22 @@ bool read_binary_flonum(LRef port, flonum_t & result);
 double round(double n);
 void scan_postmortem_dump();
 
+#if defined(WITH_FOPLOG_SUPPORT)
+LRef lifoplog_reset();
+LRef lifoplog_enable(LRef enablep);
+LRef lifoplog_snapshot();
+#endif
+
 /***** Debugging tools *****/
 
 INLINE bool DEBUG_FLAG(debug_flag_t flag)
 {
      REFERENCED_BY_DEBUG_BUILD(flag);
 
-     return DEBUGGING_BUILD && (interp.debug_flags & (fixnum_t) flag);
+     if (!DEBUGGING_BUILD)
+          return false;
+
+     return ((fixnum_t) flag == (interp.debug_flags & (fixnum_t) flag));
 }
 
 bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result);

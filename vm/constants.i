@@ -118,9 +118,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_SEQUENCE,                 96 )
     VM_CONSTANT(FOP_CLOSE_ENV,                128)
 
-    VM_CONSTANT(FOP_CATCH_APPLY0,             192)
     VM_CONSTANT(FOP_THROW,                    193)
-    VM_CONSTANT(FOP_UNWIND_PROTECT,           194)
 
     VM_CONSTANT(FOP_CATCH,                    195)
     VM_CONSTANT(FOP_WITH_UNWIND_FN,           196)
@@ -221,6 +219,10 @@ BEGIN_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
     VM_CONSTANT(DF_DEBUGGER_TO_ODS      , 0x10000000)
     VM_CONSTANT(DF_NO_STARTUP           , 0x20000000)
     VM_CONSTANT(DF_TEMP                 , 0x40000000)
+
+#ifdef WITH_FOPLOG_SUPPORT
+    VM_CONSTANT(DF_STARTUP_FOPLOG       , 0x80000000)
+#endif
 
     VM_CONSTANT(DF_NONE                 , 0x00000000)
     VM_CONSTANT(DF_ALL                  , 0xFFFFFFFF)

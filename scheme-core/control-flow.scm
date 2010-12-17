@@ -315,8 +315,8 @@
   (check %global-environment? genv)
   (let ((old-genv (%current-global-environment)))
     (%set-genv genv)
-    (%%unwind-protect fn
-                     (lambda () (%set-genv old-genv)))))
+    (%%with-unwind-fn (lambda () (%set-genv old-genv))
+                      (fn))))
 
 (defmacro (with-global-environment bindings . code)
   "Executes <code> with the global bindings in <bindings>. The previous

@@ -166,31 +166,6 @@ static LRef arg_list_from_buffer(size_t argc, LRef argv[])
      return result;
 }
 
-static size_t evaluate_arguments_to_buffer(LRef l, LRef env, size_t max_argc, LRef argv[])
-{
-     size_t argc = 0;
-     LRef args = l;
-
-     while (CONSP(args))
-     {
-          if (argc >= max_argc)
-          {
-               vmerror_unsupported(_T("too many actual arguments"));
-               break;
-          }
-
-          argv[argc] = execute_fast_op(CAR(args), env);
-
-          args = CDR(args);
-          argc++;
-     }
-
-     if (!NULLP(args))
-          vmerror_arg_out_of_range(l, _T("bad formal argument list"));
-
-     return argc;
-}
-
 static LRef extend_env(LRef actuals, LRef formals, LRef env)
 {
      if (SYMBOLP(formals))
@@ -422,8 +397,6 @@ static void lthrow(LRef tag, LRef retval)
             2, tag, retval);
 }
 
-
-
 static LRef execute_fast_op(LRef fop, LRef env)
 {
      LRef retval = NIL;
@@ -441,7 +414,14 @@ loop:
           
      checked_assert(TYPE(fop) == TC_FAST_OP);
           
-          
+#if defined(WITH_FOPLOG_SUPPORT)
+     if (CURRENT_TIB()->foplog_enable)
+     {
+          CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
+          CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
+     }
+#endif
+         
      switch (FAST_OP_OPCODE(fop))
      {
      case FOP_LITERAL:
@@ -519,12 +499,31 @@ loop:
           
      case FOP_APPLY:
      {
-          size_t argc;
+          size_t argc = 0;
           LRef argv[ARG_BUF_LEN];
+
+          LRef fn = execute_fast_op(FAST_OP_ARG1(fop), env);
+
+          LRef args = FAST_OP_ARG2(fop);
+
+          while (CONSP(args))
+          {
+               if (argc >= ARG_BUF_LEN)
+               {
+                    vmerror_unsupported(_T("too many actual arguments"));
+                    break;
+               }
+
+               argv[argc] = execute_fast_op(CAR(args), env);
                
-          argc = evaluate_arguments_to_buffer(FAST_OP_ARG2(fop), env, ARG_BUF_LEN, argv);
+               args = CDR(args);
+               argc++;
+          }
+
+          if (!NULLP(args))
+               vmerror_arg_out_of_range(FAST_OP_ARG2(fop), _T("bad formal argument list"));
                
-          fop = apply(execute_fast_op(FAST_OP_ARG1(fop), env), argc, argv, &env, &retval);
+          fop = apply(fn, argc, argv, &env, &retval);
                
           if (!NULLP(fop))
                goto loop;
@@ -567,53 +566,11 @@ loop:
                
           fop = FAST_OP_ARG2(fop);
           goto loop;
-               
-     case FOP_CATCH_APPLY0:
-     {
-          LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
-               
-          /* tag==#t implies all tags */
-          if (BOOLP(tag) && TRUEP(tag))
-               tag = NULL;
-               
-          frame_t *__frame = enter_frame();
-          __frame->type = FRAME_EX_TRY;
-          __frame->as.escape.tag = tag;
-
-          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
-          {
-               retval = apply1(execute_fast_op(FAST_OP_ARG2(fop), env), 0, NULL);
-          }
-          else
-          {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
-                    
-               retval = CURRENT_TIB()->throw_value;
-          }
-          leave_frame();
-     }
-     break;
           
      case FOP_THROW:
           lthrow(execute_fast_op(FAST_OP_ARG1(fop), env),
                  execute_fast_op(FAST_OP_ARG2(fop), env));
           break;
-               
-     case FOP_UNWIND_PROTECT:
-     {
-          frame_t *__frame = enter_frame();
-          __frame->type = FRAME_EX_UNWIND;
-          __frame->as.unwind.after = execute_fast_op(FAST_OP_ARG2(fop), env);
-
-          retval = apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
-
-          LRef after = __frame->as.unwind.after;
-
-          leave_frame();
-
-          apply1(after, 0, NULL);
-     }
-     break;
 
      case FOP_CATCH:
      {
@@ -641,14 +598,16 @@ loop:
      {
           frame_t *__frame = enter_frame();
           __frame->type = FRAME_EX_UNWIND;
-          __frame->as.escape.tag = NULL;
+          __frame->as.unwind.after = execute_fast_op(FAST_OP_ARG1(fop), env);
 
           if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
                retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
+          LRef after = __frame->as.unwind.after;
+
           leave_frame();
 
-          apply1(execute_fast_op(FAST_OP_ARG1(fop), env), 0, NULL);
+          apply1(after, 0, NULL);
 
           if (CURRENT_TIB()->throw_target != NULL)
                continue_throw();
@@ -844,5 +803,37 @@ LRef ltopframe() // TODO: REMOVE
 {
      return fixcons(0); 
 }
+
+
+#if defined(WITH_FOPLOG_SUPPORT)
+LRef lifoplog_reset()
+{
+     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
+          CURRENT_TIB()->foplog[ii] = NIL;
+     
+     CURRENT_TIB()->foplog_index = 0;
+
+     return NIL;
+}
+
+LRef lifoplog_enable(LRef enablep)
+{
+     LRef prev = boolcons(CURRENT_TIB()->foplog_enable);
+
+     CURRENT_TIB()->foplog_enable = TRUEP(enablep);
+
+     return prev;
+}
+
+LRef lifoplog_snapshot()
+{
+     LRef result = vectorcons(FOPLOG_SIZE, fixcons(-1));
+
+     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
+          SET_VECTOR_ELEM(result, ii, CURRENT_TIB()->foplog[ii]);
+
+     return result;
+}
+#endif
 
 END_NAMESPACE
