@@ -368,6 +368,8 @@ static void lthrow(LRef tag, LRef retval)
 {
      dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
+     CURRENT_TIB()->throw_value = retval;
+
      for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
           if (fsp->type == FRAME_EX_UNWIND)
