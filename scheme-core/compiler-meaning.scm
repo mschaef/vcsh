@@ -125,20 +125,13 @@
            (warn-if-global-unbound var genv)
            `(:global-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?))))))
 
-(define (meaning/%define form cenv genv at-toplevel?)
-  (dbind (fn-pos name defn) form
-    `(:global-def ,name
-                  ,((toplevel-form->thunk defn genv))
-                  ,genv)))
-
-(define (meaning/quote form cenv genv at-toplevel?)
-  `(:literal ,(cadr form)))
+(define-special-form (scheme::%define name defn)
+  `(:global-def ,name
+                ,((toplevel-form->thunk defn genv))
+                ,genv))
 
 (define-special-form (quote value)
   `(:literal ,value))
-
-(define (meaning/the-environment form cenv genv at-toplevel?)
-  `(:get-env))
 
 (define-special-form (the-environment)
   `(:get-env))
@@ -189,9 +182,6 @@
                ((and)                       (meaning/and              form cenv genv at-toplevel?))
                ((if)                        (meaning/if               form cenv genv at-toplevel?))
                ((set!)                      (meaning/set!             form cenv genv at-toplevel?))
-               ((scheme::%define)           (meaning/%define          form cenv genv at-toplevel?))
-               ((quote)                     (meaning/quote            form cenv genv at-toplevel?))
-               ((the-environment)           (meaning/the-environment  form cenv genv at-toplevel?))
                ((scheme::%set-genv)         (meaning/%set-genv        form cenv genv at-toplevel?))
                ((scheme::%mark-stack)       (meaning/%mark-stack      form cenv genv at-toplevel?))
                ((scheme::%%throw)           (meaning/%%throw          form cenv genv at-toplevel?))
