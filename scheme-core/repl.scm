@@ -110,6 +110,27 @@
 (push! '(:X exit) *repl-abbreviations*)
 (push! '(:top toplevel) *repl-abbreviations*)
 
+(define-text
+  :read-error-bad-symbol-syntax "Bad symbol syntax"
+  :read-error-package-not-found "Package not found"
+  :read-error-symbol-not-found-in-package "Symbol not found in package"
+  :read-error-symbol-private-to-package "Symbol private to package"
+  :reader-bad-base-instance "Bad base instance"
+  :reader-bad-character-code "Bad character code"
+  :reader-bad-date-syntax "Bad date syntax"
+  :reader-bad-dotted-list "Bad dotted list"
+  :reader-bad-escape "Bad escape"
+  :reader-bad-inexact-number-syntax "Bad inexact number syntad"
+  :reader-bad-message-send "Bad message send"
+  :reader-bad-number-syntax-syntax "Bad number syntax"
+  :reader-bad-readsharp-syntax "Bad readsharp syntax"
+  :reader-bad-slot-reference "Bad slot reference"
+  :reader-bad-time-syntax "Bad time syntax"
+  :reader-eos-in-list "End of input while reading list"
+  :reader-eos-in-string "End of input while reading string"
+  :reader-unexpected-close "Unexpected close"
+  :reader-unknown-syntax "Unknown syntax"
+  )
 
 (define (read-error error-type port location . args)
   "Signals a read error."

@@ -102,6 +102,30 @@
             (read-error error-type port location)
             #f))))
 
+;;;; Error strings for the reader
+
+(define-text
+  :read-error-bad-symbol-syntax "Bad symbol syntax"
+  :read-error-package-not-found "Package not found"
+  :read-error-symbol-not-found-in-package "Symbol not found in package"
+  :read-error-symbol-private-to-package "Symbol private to package"
+  :reader-bad-base-instance "Bad base instance"
+  :reader-bad-character-code "Bad character code"
+  :reader-bad-date-syntax "Bad date syntax"
+  :reader-bad-dotted-list "Bad dotted list"
+  :reader-bad-escape "Bad escape"
+  :reader-bad-inexact-number-syntax "Bad inexact number syntad"
+  :reader-bad-message-send "Bad message send"
+  :reader-bad-number-syntax-syntax "Bad number syntax"
+  :reader-bad-readsharp-syntax "Bad readsharp syntax"
+  :reader-bad-slot-reference "Bad slot reference"
+  :reader-bad-time-syntax "Bad time syntax"
+  :reader-eos-in-list "End of input while reading list"
+  :reader-eos-in-string "End of input while reading string"
+  :reader-unexpected-close "Unexpected close"
+  :reader-unknown-syntax "Unknown syntax"
+  )
+
 ;;;; The main reader
 
 (define *location-mapping* (make-hash :eq))
@@ -268,7 +292,7 @@
   (aif (string->number (read-token port) radix)
        it
        (if (eq? error-return :throw-error)
-           (read-error :reader-bad-number-syntax-syntax error-port error-location)
+           (read-error :reader-bad-number-syntax error-port error-location)
            error-return)))
 
 (define (read-fixnum-with-radix port radix)
