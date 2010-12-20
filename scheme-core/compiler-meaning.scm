@@ -35,6 +35,38 @@
   (unless (symbol-bound? var () genv)
     (compile-warning var "Global variable unbound: ~s" var)))
 
+(define (meaning/application form cenv genv at-toplevel?)
+  `(:apply ,(expanded-form-meaning (car form) cenv genv at-toplevel?)
+           ,@(map #L(expanded-form-meaning _ cenv genv at-toplevel?) (cdr form))))
+
+;; REVISIT: meaning/begin, /or, and /and all have the same basic form, poss. refactor.
+;; REVISIT: meaning/begin, /or, and /and are all non-tail recursive
+
+(define (meaning/symbol form cenv genv at-toplevel?)
+  (cond ((keyword? form)
+         `(:literal ,form))
+        ((bound-in-cenv? form cenv)
+         `(:local-ref ,form))
+        (#t
+         (warn-if-global-unbound form genv)
+         `(:global-ref ,form))))
+
+
+(define *special-form-handlers* #h(:eq))
+
+(defmacro (define-special-form pattern . code)
+  (check pair? pattern)
+  (check symbol? (car pattern))
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (hash-push! *special-form-handlers* ',(car pattern)
+                 (cons (lambda (form)
+                         (dbind-matches? ,(cdr pattern) form))
+                       (lambda (form cenv genv at-toplevel?)
+                         (dbind-if-match ,(cdr pattern) form
+                           (begin ,@code)
+                           (error "Invalid syntax for ~a: ~s" ',(car pattern) form)))))))
+
+
 (define (meaning/%macro defn cenv genv at-toplevel?)
   `(:macro ,(expanded-form-meaning (second defn) () genv at-toplevel?)))
 
@@ -56,12 +88,6 @@
                                             at-toplevel?)))
       `(:close-env ,l-list ,body-form ,p-list))))
 
-(define (meaning/application form cenv genv at-toplevel?)
-  `(:apply ,(expanded-form-meaning (car form) cenv genv at-toplevel?)
-           ,@(map #L(expanded-form-meaning _ cenv genv at-toplevel?) (cdr form))))
-
-;; REVISIT: meaning/begin, /or, and /and all have the same basic form, poss. refactor.
-;; REVISIT: meaning/begin, /or, and /and are all non-tail recursive
 
 (define (meaning/begin form cenv genv at-toplevel?)
   (let recur ((args (cdr form)))
@@ -109,15 +135,6 @@
 (define (meaning/quote form cenv genv at-toplevel?)
   `(:literal ,(cadr form)))
 
-(define (meaning/symbol form cenv genv at-toplevel?)
-  (cond ((keyword? form)
-         `(:literal ,form))
-        ((bound-in-cenv? form cenv)
-         `(:local-ref ,form))
-        (#t
-         (warn-if-global-unbound form genv)
-         `(:global-ref ,form))))
-
 (define (meaning/the-environment form cenv genv at-toplevel?)
   `(:get-env))
 
@@ -144,20 +161,6 @@
   `(:with-unwind-fn
     ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
     ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
-
-(define *special-form-handlers* #h(:eq))
-
-(defmacro (define-special-form pattern . code)
-  (check pair? pattern)
-  (check symbol? (car pattern))
-  `(eval-when (:compile-toplevel :load-toplevel :execute)
-     (hash-push! *special-form-handlers* ',(car pattern)
-                 (cons (lambda (form)
-                         (dbind-matches? ,(cdr pattern) form))
-                       (lambda (form cenv genv at-toplevel?)
-                         (dbind-if-match ,(cdr pattern) form
-                           (begin ,@code)
-                           (error "Invalid syntax for ~a: ~s" ',(car pattern) form)))))))
 
 (define (expanded-form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
