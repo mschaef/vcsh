@@ -51,7 +51,6 @@
          (warn-if-global-unbound form genv)
          `(:global-ref ,form))))
 
-
 (define *special-form-handlers* #h(:eq))
 
 (defmacro (define-special-form pattern . code)
@@ -60,11 +59,11 @@
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      (hash-push! *special-form-handlers* ',(car pattern)
                  (cons (lambda (form)
-                         (dbind-matches? ,(cdr pattern) form))
+                         (and (pair? form)
+                              (dbind-matches? ,(cdr pattern) (cdr form))))
                        (lambda (form cenv genv at-toplevel?)
-                         (dbind-if-match ,(cdr pattern) form
-                           (begin ,@code)
-                           (error "Invalid syntax for ~a: ~s" ',(car pattern) form)))))))
+                         (dbind ,(cdr pattern) (cdr form)
+                           ,@code))))))
 
 
 (define (meaning/%macro defn cenv genv at-toplevel?)
@@ -134,6 +133,7 @@
 
 (define (meaning/quote form cenv genv at-toplevel?)
   `(:literal ,(cadr form)))
+
 
 (define (meaning/the-environment form cenv genv at-toplevel?)
   `(:get-env))
