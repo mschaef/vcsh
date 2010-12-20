@@ -95,7 +95,6 @@
  (if (string? spec)
      spec
      (get-text spec)))
-
 (define (string-fold kons knil str)
   (check string? str)
   (let loop ((ii 0) (result knil))

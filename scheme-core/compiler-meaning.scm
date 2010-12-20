@@ -145,6 +145,20 @@
     ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
     ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
 
+(define *special-form-handlers* #h(:eq))
+
+(defmacro (define-special-form pattern . code)
+  (check pair? pattern)
+  (check symbol? (car pattern))
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (hash-push! *special-form-handlers* ',(car pattern)
+                 (cons (lambda (form)
+                         (dbind-matches? ,(cdr pattern) form))
+                       (lambda (form cenv genv at-toplevel?)
+                         (dbind-if-match ,(cdr pattern) form
+                           (begin ,@code)
+                           (error "Invalid syntax for ~a: ~s" ',(car pattern) form)))))))
+
 (define (expanded-form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
@@ -154,6 +168,10 @@
              form)
             ((atom? form)
              `(:literal ,form))
+            ((hash-has? *special-form-handlers* (car form))
+             (aif (find #L((car _) form) (hash-ref *special-form-handlers* (car form)))
+                  ((cdr it) form cenv genv at-toplevel?)
+                  (error "Invalid syntax for ~a: ~s" (car form) form)))
             (#t
              (case (car form)
                ((scheme::%macro)            (meaning/%macro           form cenv genv at-toplevel?))

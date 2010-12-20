@@ -33,9 +33,7 @@
     (case (car asm)
       ((:close-env)
        (dbind (opcode l-list src p-list) asm
-         (scheme::%closure ()
-                           (cons l-list (assemble/inner src))
-                           p-list)))
+         (scheme::%closure () (cons l-list (assemble/inner src)) p-list)))
       ((:literal)
        (dbind (opcode literal) asm
          literal))

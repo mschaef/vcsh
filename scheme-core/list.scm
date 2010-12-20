@@ -1288,7 +1288,7 @@
                        ,@(loop (+ ii 1)))))
              ))
           ((null? binding)
-           ())
+           `((null? ,value)))
           (#t
            (error "Invalid dbind binding: ~s" binding))))
 
