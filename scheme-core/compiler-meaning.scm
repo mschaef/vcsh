@@ -134,8 +134,13 @@
 (define (meaning/quote form cenv genv at-toplevel?)
   `(:literal ,(cadr form)))
 
+(define-special-form (quote value)
+  `(:literal ,value))
 
 (define (meaning/the-environment form cenv genv at-toplevel?)
+  `(:get-env))
+
+(define-special-form (the-environment)
   `(:get-env))
 
 (define (meaning/%mark-stack form cenv genv at-toplevel?)
