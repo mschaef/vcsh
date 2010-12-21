@@ -39,9 +39,6 @@
   `(:apply ,(expanded-form-meaning (car form) cenv genv at-toplevel?)
            ,@(map #L(expanded-form-meaning _ cenv genv at-toplevel?) (cdr form))))
 
-;; REVISIT: meaning/begin, /or, and /and all have the same basic form, poss. refactor.
-;; REVISIT: meaning/begin, /or, and /and are all non-tail recursive
-
 (define (meaning/symbol form cenv genv at-toplevel?)
   (cond ((keyword? form)
          `(:literal ,form))
@@ -83,6 +80,9 @@
                                        at-toplevel?)
                ,p-list))
 
+;; REVISIT: begin, or, and and all have the same basic form, poss. refactor.
+;; REVISIT: begin, or, and and are all non-tail recursive
+
 (define-special-form (begin . args)
   (let recur ((args args))
     (cond ((null? args)     `(:literal ()))
@@ -97,7 +97,6 @@
           (#t `(:or/2 ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
                       ,(recur (cdr args)))))))
 
-
 (define-special-form (and . args)
   (let recur ((args args))
     (cond ((null? args)     `(:literal #t))
@@ -105,11 +104,15 @@
           (#t `(:and/2 ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
                        ,(recur (cdr args)))))))
 
+(define-special-form (if cond-form then-form)
+  `(:if-true ,(expanded-form-meaning cond-form cenv genv at-toplevel?)
+             ,(expanded-form-meaning then-form cenv genv at-toplevel?)
+             (:literal ())))
 
-(define (meaning/if form cenv genv at-toplevel?)
-  `(:if-true ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
-             ,(expanded-form-meaning (third form) cenv genv at-toplevel?)
-             ,(expanded-form-meaning (fourth form) cenv genv at-toplevel?)))
+(define-special-form (if cond-form then-form else-form)
+  `(:if-true ,(expanded-form-meaning cond-form cenv genv at-toplevel?)
+             ,(expanded-form-meaning then-form cenv genv at-toplevel?)
+             ,(expanded-form-meaning else-form cenv genv at-toplevel?)))
 
 (define-special-form (set! var val-form)
   (cond ((keyword? var)
@@ -169,8 +172,6 @@
                   ((cdr it) form cenv genv at-toplevel?)
                   (error "Invalid syntax for ~a: ~s" (car form) form)))
             (#t
-             (case (car form)
-               ((if)                        (meaning/if               form cenv genv at-toplevel?))
-               (#t                          (meaning/application      form cenv genv at-toplevel?))))))
+             (meaning/application form cenv genv at-toplevel?))))
     form))
 
