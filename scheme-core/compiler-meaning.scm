@@ -136,29 +136,29 @@
 (define-special-form (the-environment)
   `(:get-env))
 
-(define (meaning/%mark-stack form cenv genv at-toplevel?)
+(define-special-form (scheme::%mark-stack tag-form body-form)
   `(:mark-stack
-    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
-    ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
+    ,(expanded-form-meaning tag-form cenv genv at-toplevel?)
+    ,(expanded-form-meaning body-form cenv genv at-toplevel?)))
 
-(define (meaning/%set-genv form cenv genv at-toplevel?)
+(define-special-form (scheme::%set-genv value-form)
   `(:set-genv
-    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)))
+    ,(expanded-form-meaning value-form cenv genv at-toplevel?)))
 
-(define (meaning/%%catch form cenv genv at-toplevel?)
+(define-special-form (scheme::%%catch tag-form body-form)
   `(:catch
-    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
-    ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
+    ,(expanded-form-meaning tag-form cenv genv at-toplevel?)
+    ,(expanded-form-meaning body-form cenv genv at-toplevel?)))
 
-(define (meaning/%%throw form cenv genv at-toplevel?)
+(define-special-form (scheme::%%throw tag-form value-form)
   `(:throw
-    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
-    ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
+    ,(expanded-form-meaning tag-form cenv genv at-toplevel?)
+    ,(expanded-form-meaning value-form cenv genv at-toplevel?)))
 
-(define (meaning/%%with-unwind-fn form cenv genv at-toplevel?)
+(define-special-form (scheme::%%with-unwind-fn after-fn-form body-form)
   `(:with-unwind-fn
-    ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
-    ,(expanded-form-meaning (third form) cenv genv at-toplevel?)))
+    ,(expanded-form-meaning after-fn-form cenv genv at-toplevel?)
+    ,(expanded-form-meaning body-form cenv genv at-toplevel?)))
 
 (define (expanded-form-meaning form cenv genv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
@@ -178,11 +178,6 @@
                ((scheme::%macro)            (meaning/%macro           form cenv genv at-toplevel?))
                ((scheme::%lambda)           (meaning/%lambda          form cenv genv at-toplevel?))
                ((if)                        (meaning/if               form cenv genv at-toplevel?))
-               ((scheme::%set-genv)         (meaning/%set-genv        form cenv genv at-toplevel?))
-               ((scheme::%mark-stack)       (meaning/%mark-stack      form cenv genv at-toplevel?))
-               ((scheme::%%throw)           (meaning/%%throw          form cenv genv at-toplevel?))
-               ((scheme::%%catch)           (meaning/%%catch          form cenv genv at-toplevel?))
-               ((scheme::%%with-unwind-fn)  (meaning/%%with-unwind-fn form cenv genv at-toplevel?))
                (#t                          (meaning/application      form cenv genv at-toplevel?))))))
     form))
 
