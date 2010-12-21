@@ -66,27 +66,22 @@
                            ,@code))))))
 
 
-(define (meaning/%macro defn cenv genv at-toplevel?)
-  `(:macro ,(expanded-form-meaning (second defn) () genv at-toplevel?)))
+(define-special-form (scheme::%macro macro-form)
+  `(:macro ,(expanded-form-meaning macro-form () genv at-toplevel?)))
 
-(define (meaning/%lambda defn cenv genv at-toplevel?)
-
+(define-special-form (scheme::%lambda p-list l-list . body)
   (define (code-body-form body-forms)
     "Return a single form that is semantically equivalent to <body-forms>."
     (case (length body-forms)
       ((0) '(values))
       ((1) (first body-forms))
       (#t `(begin ,@body-forms))))
-
-  (unless (and (list? defn) (>= (length defn) 3))
-    (error "Invalid function syntax: ~s" defn))
-  (dbind (fn-pos p-list l-list . body) defn
-    (let ((body-form (expanded-form-meaning (code-body-form body)
-                                            (extend-cenv l-list cenv)
-                                            genv
-                                            at-toplevel?)))
-      `(:close-env ,l-list ,body-form ,p-list))))
-
+  `(:close-env ,l-list
+               ,(expanded-form-meaning (code-body-form body)
+                                       (extend-cenv l-list cenv)
+                                       genv
+                                       at-toplevel?)
+               ,p-list))
 
 (define-special-form (begin . args)
   (let recur ((args args))
@@ -175,8 +170,6 @@
                   (error "Invalid syntax for ~a: ~s" (car form) form)))
             (#t
              (case (car form)
-               ((scheme::%macro)            (meaning/%macro           form cenv genv at-toplevel?))
-               ((scheme::%lambda)           (meaning/%lambda          form cenv genv at-toplevel?))
                ((if)                        (meaning/if               form cenv genv at-toplevel?))
                (#t                          (meaning/application      form cenv genv at-toplevel?))))))
     form))
