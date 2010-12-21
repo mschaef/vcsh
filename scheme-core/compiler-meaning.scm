@@ -50,6 +50,9 @@
 
 (define *special-form-handlers* #h(:eq))
 
+(define (special-form-symbols)
+  (hash-keys *special-form-handlers*))
+
 (defmacro (define-special-form pattern . code)
   (check pair? pattern)
   (check symbol? (car pattern))
