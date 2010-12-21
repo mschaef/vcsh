@@ -88,42 +88,42 @@
       `(:close-env ,l-list ,body-form ,p-list))))
 
 
-(define (meaning/begin form cenv genv at-toplevel?)
-  (let recur ((args (cdr form)))
+(define-special-form (begin . args)
+  (let recur ((args args))
     (cond ((null? args)     `(:literal ()))
           ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
           (#t `(:sequence ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
                           ,(recur (cdr args)))))))
 
-(define (meaning/or form cenv genv at-toplevel?)
-  (let recur ((args (cdr form)))
+(define-special-form (or . args)
+  (let recur ((args args))
     (cond ((null? args)     `(:literal #f))
           ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
           (#t `(:or/2 ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
                       ,(recur (cdr args)))))))
 
 
-(define (meaning/and form cenv genv at-toplevel?)
-  (let recur ((args (cdr form)))
+(define-special-form (and . args)
+  (let recur ((args args))
     (cond ((null? args)     `(:literal #t))
           ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
           (#t `(:and/2 ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
                        ,(recur (cdr args)))))))
+
 
 (define (meaning/if form cenv genv at-toplevel?)
   `(:if-true ,(expanded-form-meaning (second form) cenv genv at-toplevel?)
              ,(expanded-form-meaning (third form) cenv genv at-toplevel?)
              ,(expanded-form-meaning (fourth form) cenv genv at-toplevel?)))
 
-(define (meaning/set! form cenv genv at-toplevel?)
-  (dbind (fn-pos var val-form) form
-    (cond ((keyword? var)
-           (compile-error form "Cannot rebind a keyword: ~s" var))
-          ((bound-in-cenv? var cenv)
-           `(:local-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?)))
-          (#t
-           (warn-if-global-unbound var genv)
-           `(:global-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?))))))
+(define-special-form (set! var val-form)
+  (cond ((keyword? var)
+         (compile-error form "Cannot rebind a keyword: ~s" var))
+        ((bound-in-cenv? var cenv)
+         `(:local-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?)))
+        (#t
+         (warn-if-global-unbound var genv)
+         `(:global-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?)))))
 
 (define-special-form (scheme::%define name defn)
   `(:global-def ,name
@@ -177,11 +177,7 @@
              (case (car form)
                ((scheme::%macro)            (meaning/%macro           form cenv genv at-toplevel?))
                ((scheme::%lambda)           (meaning/%lambda          form cenv genv at-toplevel?))
-               ((begin)                     (meaning/begin            form cenv genv at-toplevel?))
-               ((or)                        (meaning/or               form cenv genv at-toplevel?))
-               ((and)                       (meaning/and              form cenv genv at-toplevel?))
                ((if)                        (meaning/if               form cenv genv at-toplevel?))
-               ((set!)                      (meaning/set!             form cenv genv at-toplevel?))
                ((scheme::%set-genv)         (meaning/%set-genv        form cenv genv at-toplevel?))
                ((scheme::%mark-stack)       (meaning/%mark-stack      form cenv genv at-toplevel?))
                ((scheme::%%throw)           (meaning/%%throw          form cenv genv at-toplevel?))
