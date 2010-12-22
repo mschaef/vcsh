@@ -27,7 +27,7 @@
 /* Defined to scheme source included by the scheme-core compile. */
 #ifdef CONST_SCHEME
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name)
-#  define VM_CONSTANT(name, value) (define system::name value)
+#  define VM_CONSTANT(name, value) (scheme::%define system::name value)
 #  define VM_ANON_CONSTANT(name, value) VM_CONSTANT(name, value)
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name)
 #endif
