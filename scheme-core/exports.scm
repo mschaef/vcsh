@@ -69,6 +69,7 @@
            _4
            _5
            a-list-set!
+           a-list->hash
            aand
            abort
            abort-fasl-writes
