@@ -126,7 +126,10 @@
 
 (define (a-list->hash a-list :optional (hash-type :equal))
   (let ((hash (make-hash hash-type)))
-    (dolist (k/v (minimal-alist a-list))
+    (dolist (k/v (minimal-alist a-list (case hash-type
+                                         ((:equal) assoc)
+                                         ((:eq) assq)
+                                         (#t (error "Invalid hash-type: ~a" hash-type)))))
       (dbind (k . v) k/v
         (hash-set! hash k v)))
     hash))

@@ -102,6 +102,7 @@
 (define (package-provided? package-spec)
   "Returns the package if <package-spec> specifies a package successfully
    provided by the require-package! mechanism. Returns #f otherwise."
+  (format (current-error-port) "PROVIDED??? ~s with provided ~s\n" package-spec *provided-packages*)
   (aand (->package package-spec)
         (memq it *provided-packages*)
         it))
@@ -118,8 +119,6 @@
    load terminates successfully."
   (add-hook-function! '*finalize-load-hook* #L0(provide-package! package-spec)))
 
-;(provide-package! "scheme") REVISIT: Why does this cause infinite recursion?
-
 (define (attempt-to-provide-package package-name)
   "Attempts to provide the package named by <package-name>. If the package
    is currently unprovided, it will be loaded from either an internal
@@ -127,10 +126,12 @@
    fully successful, it will be added to the provided package list. Attempts
    to provide a package recursively will result in a circular package
    dependancy error."
+  (format (current-error-port) "ATTEMPTING TO PROVIDE ~s with provided ~s\n" package-name *provided-packages*)
   (let ((package-name (name->string package-name "package")))
     (aif (package-provided? package-name)
          it
          (begin
+           (format (current-error-port) "LOADING ~s with provided ~s\n" package-name *provided-packages*)
            (when (member package-name *loading-packages*)
              (error "Circular package dependancy on ~a while loading ~a."
                     package-name *loading-packages*))

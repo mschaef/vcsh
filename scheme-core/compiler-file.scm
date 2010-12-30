@@ -277,12 +277,19 @@
   (define (package->host/target! package)
     (let ((name (package-name package)))
       (rename-package! package (string-append "host-" name))
-      (cons package (make-package! name))))
+      (let ((new-package (make-package! name)))
+        (provide-package! new-package)
+        (cons package new-package))))
   (format #t "; Configuring for cross compile by renaming packages.\n")
   (let* ((excluded (map find-package '("system" "keyword")))
          (host/targets (map package->host/target! (remove #L(memq _ excluded) (list-all-packages))))
          (host->target (a-list->hash host/targets)))
 
+    ;; 0) Make sure we're providing all the packages we've created
+    (dolist (package scheme::*provided-packages*)
+      (awhen (hash-ref host->target package #f)
+        (provide-package! it)))
+    
     ;; 1) Import the special forms into the new scheme package
     (dolist (special-form-sym (special-form-symbols))
       (import! special-form-sym (hash-ref host->target (symbol-package special-form-sym))))
