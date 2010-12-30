@@ -154,6 +154,7 @@
     (define (expand-iterate-sequence-clause sequence-clause)
       (check list? sequence-clause)
       (check symbol? (car sequence-clause))
+      
       (aif (get-property (car sequence-clause) 'iterate-sequence-expander)
            (validate-expansion (apply it (cdr sequence-clause)))
            (error "Invalid sequence type ~s in iterate clause ~s."

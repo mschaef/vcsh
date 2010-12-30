@@ -292,6 +292,7 @@
     
     ;; 1) Import the special forms into the new scheme package
     (dolist (special-form-sym (special-form-symbols))
+      (format #t "Cross importing symbol: ~s\n" special-form-sym)
       (import! special-form-sym (hash-ref host->target (symbol-package special-form-sym))))
 
     (dolist (h/t host/targets)

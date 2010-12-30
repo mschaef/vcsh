@@ -82,7 +82,8 @@
                fast-op
                genv)
              '(scheme::*package-list*
-               scheme::*provided-packages)
+               scheme::*provided-packages*)
+             '(scheme::iterate-sequence-expander)
              '(it
                _)
              '(and or not > >= < <= = eq? equal? member)

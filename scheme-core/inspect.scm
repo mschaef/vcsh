@@ -255,15 +255,19 @@
   (inspect-print-object-summary ctx)
   (with-inspect-printing
    ;; TODO: Add a paging capability, in case the list of context items is large.
-   (doiterate ((count ii 0)
-               (list obj-elem (inspect-ctx-items ctx)))
-     (unless (null? ctx)
-       (format #t "~s" ii)
-       (awhen (inspect-item-desc obj-elem)
-         (format #t "{~a}" it)) ;; REVISIT: May be possible to make this a bit more readable, by using fixed-width columns.
-       (when (inspect-item-has-key? obj-elem)
-         (format #t ":~s -" (inspect-item-key obj-elem)))
-       (format #t "> ~s\n" (inspect-item-value obj-elem))))))
+   (format #f "INSPECT UNSUPPORTED!!!\n") ;; XXX
+
+   ;; (doiterate ((count ii 0)
+   ;;             (list obj-elem (inspect-ctx-items ctx)))
+   ;;   (unless (null? ctx)
+   ;;     (format #t "~s" ii)
+   ;;     (awhen (inspect-item-desc obj-elem)
+   ;;       (format #t "{~a}" it)) ;; REVISIT: May be possible to make this a bit more readable, by using fixed-width columns.
+   ;;     (when (inspect-item-has-key? obj-elem)
+   ;;       (format #t ":~s -" (inspect-item-key obj-elem)))
+   ;;     (format #t "> ~s\n" (inspect-item-value obj-elem)))))
+
+  ))
 
 
 (define (inspect-repl obj)
