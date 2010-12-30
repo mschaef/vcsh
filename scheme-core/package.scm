@@ -586,43 +586,45 @@
 
 (define (symbol-bound? sym :optional (lenv ()) (genv #f))
   (check symbol? sym)
-  (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
-    (if (or (pair? (env-lookup sym lenv))
-            (not (eq? (%global-environment-ref genv (%symbol-index sym))
-                      (%unbound-marker))))
-        sym
-        #f)))
+  (when genv
+    (format (current-error-port) "Warning: genv not supported in this build.\n"))
+  (if (or (pair? (env-lookup sym lenv))
+          (not (eq? (%symbol-vcell sym)
+                    (%unbound-marker))))
+      sym
+      #f))
 
-(define (%symbol-value sym :optional (lenv ()) (genv (%current-global-environment)))
+(define (%symbol-value sym :optional (lenv ()) (genv #f))
   (check symbol? sym)
-  (check %global-environment? genv)
+  (when genv
+    (format (current-error-port) "Warning: genv not supported in this build.\n"))
   (aif (pair? (env-lookup sym lenv))
        (car it)
-       (%global-environment-ref genv (%symbol-index sym))))
+       (%symbol-vcell sym)))
 
 (define (symbol-value sym :optional (lenv ()) (genv #f))
-  (let* ((genv (if (eq? #f genv) (%current-global-environment) genv))
-         (val (%symbol-value sym lenv genv)))
+  (let ((val (%symbol-value sym lenv genv)))
     (if (eq? val (%unbound-marker))
         (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym)
         val)))
 
 (define (set-symbol-value! sym val :optional (lenv ()) (genv #f))
   (check (not keyword?) sym)
+  (when genv
+    (format (current-error-port) "Warning: genv not supported in this build.\n"))
   (aif (pair? (env-lookup sym lenv))
        (set-car! it val)
-       (let ((genv (if (eq? #f genv) (%current-global-environment) genv)))
-         (unless (symbol-bound? sym () genv)
+       (begin
+         (unless (symbol-bound? sym ())
            (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym))
-         (begin
-           (%global-environment-set! genv (%symbol-index sym) val)
-           val))))
+         (%set-symbol-vcell! sym val)
+           val)))
 
-(define (unbind-symbol! sym :optional (genv (%current-global-environment)))
+(define (unbind-symbol! sym :optional (genv #f))
   (check (and symbol? (not keyword?)) sym)
-  (let ((idx (%symbol-index sym)))
-    (unless (= idx 0)
-      (%global-environment-set! genv idx (%unbound-marker))))
+  (when genv
+    (format (current-error-port) "Warning: genv not supported in this build.\n"))
+  (%set-symbol-vcell! sym (%unbound-marker))
   (values))
 
 
