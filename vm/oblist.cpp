@@ -190,7 +190,7 @@ LRef symcons(LRef pname, LRef home)
      LRef z = new_cell(TC_SYMBOL);
 
      SET_SYMBOL_PNAME(z, pname);
-     SET_SYMBOL_INDEX(z, 0);
+     SET_SYMBOL_VCELL(z, UNBOUND_MARKER);
      SET_SYMBOL_HOME(z, home);
 
      return z;
@@ -275,7 +275,7 @@ LRef lisymbol_index(LRef symbol)
      if (!SYMBOLP(symbol))
           vmerror_wrong_type(1, symbol);
 
-     return fixcons(SYMBOL_INDEX(symbol));
+     return fixcons(-1);
 }
 
 

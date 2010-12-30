@@ -241,7 +241,7 @@ struct LObject
           struct
           {
                LRef props;
-               size_t env_index;
+               LRef vcell;
                LRef home;
           } symbol;
           struct
@@ -1055,38 +1055,17 @@ INLINE void SET_SYMBOL_PROPS(LRef sym, LRef props)
      }
 }
 
-INLINE size_t SYMBOL_INDEX(LRef sym)
-{
-     checked_assert(SYMBOLP(sym));
-     return ((*sym).storage_as.symbol.env_index);
-}
-
-
-INLINE void SET_SYMBOL_INDEX(LRef sym, size_t index)
-{
-     checked_assert(SYMBOLP(sym));
-     ((*sym).storage_as.symbol.env_index) = index;
-}
-
-
 INLINE LRef SYMBOL_VCELL(LRef sym)
 {
      checked_assert(SYMBOLP(sym));
-
-     if (SYMBOL_INDEX(sym) == 0)
-          return UNBOUND_MARKER;
-
-     checked_assert(interp.last_global_env_entry < GENV_DIM(interp.global_env));
-
-     return GENV_ELEM(interp.global_env, SYMBOL_INDEX(sym));
+     return ((*sym).storage_as.symbol.vcell);
 }
 
-INLINE void SET_SYMBOL_VCELL(LRef sym, LRef val)
-{
-     checked_assert(SYMBOL_INDEX(sym) != 0);
-     checked_assert(interp.last_global_env_entry < GENV_DIM(interp.global_env));
 
-     return SET_GENV_ELEM(interp.global_env, SYMBOL_INDEX(sym), val);
+INLINE void SET_SYMBOL_VCELL(LRef sym, LRef value)
+{
+     checked_assert(SYMBOLP(sym));
+     ((*sym).storage_as.symbol.vcell) = value;
 }
 
 INLINE LRef SYMBOL_HOME(LRef x)

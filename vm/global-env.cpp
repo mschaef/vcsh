@@ -131,18 +131,6 @@ void check_global_environment_size()
      genv_enlarge(interp.global_env, GENV_DIM(interp.global_env) + GLOBAL_ENV_BLOCK_SIZE);
 }
 
-static void extend_global_environment(LRef sym)
-{
-     assert(SYMBOLP(sym));
-     assert(SYMBOL_INDEX(sym) == 0);
-
-     interp.last_global_env_entry++;
-
-     check_global_environment_size();
-
-     SET_SYMBOL_INDEX(sym, interp.last_global_env_entry);
-}
-
 LRef lunbound_marker()
 {
      return UNBOUND_MARKER;
@@ -159,23 +147,13 @@ LRef lidefine_global(LRef var, LRef val, LRef genv)
 {
      assert(SYMBOLP(var));
 
-     LRef old_genv = interp.global_env;
-
-     if (TRUEP(genv) && !NULLP(genv))
-          set_global_env(genv);
-
      dscwritef(DF_SHOW_GLOBAL_DEFINES,
                (_T("; DEBUG: globally defining ~a in ~s\n"),
                 var,interp.global_env));
 
-     if (SYMBOL_INDEX(var) == 0)
-          extend_global_environment(var);
-
      SET_SYMBOL_VCELL(var, val);
 
      vmtrap(TRAP_DEFINE, VMT_OPTIONAL_TRAP, 2, var, val);
-
-     interp.global_env = old_genv;
 
      return val;
 }
