@@ -49,6 +49,25 @@ LRef lglobal_environment_name(LRef genv)
      return GENV_NAME(genv);
 }
 
+LRef lsymbol_vcell(LRef sym)
+{
+     if (!SYMBOLP(sym))
+          vmerror_wrong_type(1, sym);
+
+     return SYMBOL_VCELL(sym);
+}
+
+LRef lset_symbol_vcell(LRef sym, LRef val)
+{
+     if (!SYMBOLP(sym))
+          vmerror_wrong_type(1, sym);
+
+     SET_SYMBOL_VCELL(sym, val);
+
+     return sym;
+}
+
+
 LRef lglobal_environment_ref(LRef genv, LRef i)
 {
      if (!GENVP(genv))

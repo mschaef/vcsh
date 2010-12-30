@@ -460,6 +460,7 @@ static void register_main_subrs()
     register_subr(_T("set-port-translate-mode!"),         SUBR_2,     (void*)lport_set_translate_mode            );
     register_subr(_T("set-random-seed!"),                 SUBR_1,     (void*)lset_random_seed                    );
     register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
+    register_subr(_T("%set-symbol-vcell!"),               SUBR_2,     (void*)lset_symbol_vcell                    );
     register_subr(_T("sin"),                              SUBR_1,     (void*)lsin                                );
     register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
     register_subr(_T("sqrt"),                             SUBR_1,     (void*)lsqrt                               );
@@ -489,6 +490,7 @@ static void register_main_subrs()
     register_subr(_T("sxhash"),                           SUBR_2,     (void*)lsxhash                             );
     register_subr(_T("symbol-name"),                      SUBR_1,     (void*)lsymbol_name                        );
     register_subr(_T("symbol-package"),                   SUBR_1,     (void*)lsymbol_package                     );
+    register_subr(_T("%symbol-vcell"),                    SUBR_1,     (void*)lsymbol_vcell                        );
     register_subr(_T("symbol?"),                          SUBR_1,     (void*)lsymbolp                            );
     register_subr(_T("system"),                           SUBR_ARGC,  (void*)lsystem                             );
     register_subr(_T("system-info"),                      SUBR_0,     (void*)lsystem_info                        );
