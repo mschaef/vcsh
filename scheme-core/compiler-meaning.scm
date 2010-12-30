@@ -39,7 +39,6 @@
   `(:macro ,(expanded-form-meaning (second defn) () genv at-toplevel?)))
 
 (define (meaning/%lambda defn cenv genv at-toplevel?)
-
   (define (code-body-form body-forms)
     "Return a single form that is semantically equivalent to <body-forms>."
     (case (length body-forms)
