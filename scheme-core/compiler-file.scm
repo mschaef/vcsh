@@ -269,17 +269,36 @@
 
 ;; This is an example of how another form of cross compilation might work
 
+
+
+
 (define (setup-cross-compiler/package-renaming)
   "Setup for cross compiling using renamed packages."
+  (define (package->host/target! package)
+    (let ((name (package-name package)))
+      (rename-package! package (string-append "host-" name))
+      (cons package (make-package! name))))
   (format #t "; Configuring for cross compile by renaming packages.\n")
-  (let ((excluded-packages (map find-package '("system" "keyword"))))
-    (dolist (p (list-all-packages))
-      (unless (memq p excluded-packages)
-        (rename-package! p (string-append "host-" (package-name p))))))
-  (let ((new-scheme (make-package! "scheme")))
-    (dolist (special-form-sym (special-form-symbols))
-      (import! special-form-sym new-scheme)))
-  (make-package! "user")
+  (let* ((excluded (map find-package '("system" "keyword")))
+         (host/targets (map package->host/target! (remove #L(memq _ excluded) (list-all-packages)))))
+
+    ;; 1) Import the special forms into the new scheme package
+    (let ((new-scheme (find-package "scheme")))
+      (dolist (special-form-sym (special-form-symbols))
+        (import! special-form-sym new-scheme)))
+
+
+    (dolist (h/t host/targets)
+      (dbind (host . target) h/t
+        (dolist (host-sym (local-package-symbols host))
+          ;; 2) Re-home all of the host package symbols to the target package
+          (scheme::set-symbol-package! host-sym target)
+    
+          ;; 3) Create a separate global binding in the target packages for each host package global binding
+          (when (symbol-bound? host-sym)
+            (scheme::%define-global (intern! (symbol-name host-sym) target)
+                                    (symbol-value host-sym)))))))
+
   (use-package! "system" "scheme")
   (use-package! "scheme" "user")
   (in-package! "scheme"))
