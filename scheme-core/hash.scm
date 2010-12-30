@@ -123,3 +123,10 @@
    (dolist (x xs)
      (hash-set! hash x (+ 1 (hash-ref hash x 0))))
    (hash->a-list hash)))
+
+(define (a-list->hash a-list :optional (hash-type :equal))
+  (let ((hash (make-hash hash-type)))
+    (dolist (k/v (minimal-alist a-list))
+      (dbind (k . v) k/v
+        (hash-set! hash k v)))
+    hash))
