@@ -81,7 +81,6 @@
                trip-wire
                fast-op
                genv)
-             '(scheme::*provided-packages*)
              '(
                it
                _)

@@ -93,67 +93,6 @@
                             (package-list-union (%package-use-list target-package)
                                                 packages-to-use))))
 
-(define *provided-packages* ()
-  "A list of all packages that have successfully been provided by the
-  require-package! mechanism.")
-
-(define *loading-packages* ())
-
-(define (package-provided? package-spec)
-  "Returns the package if <package-spec> specifies a package successfully
-   provided by the require-package! mechanism. Returns #f otherwise."
-  (format (current-error-port) "PROVIDED??? ~s with provided ~s\n" package-spec *provided-packages*)
-  (aand (->package package-spec)
-        (memq it *provided-packages*)
-        it))
-
-(define (provide-package! package-spec)
-  "Marks the package specified by <package-spec> as having been provided
-   by the require-package! mechanism."
-  (let ((package (->package package-spec)))
-    (unless (memq package *provided-packages*)
-      (push! package *provided-packages*))))
-
-(define (provide-package-on-successful-load! package-spec)
-  "Arrange by <package-spec> to be provided by provide-package! if the current
-   load terminates successfully."
-  (add-hook-function! '*finalize-load-hook* #L0(provide-package! package-spec)))
-
-(define (attempt-to-provide-package package-name)
-  "Attempts to provide the package named by <package-name>. If the package
-   is currently unprovided, it will be loaded from either an internal
-   file or an external file with the same name as the package. If the load is
-   fully successful, it will be added to the provided package list. Attempts
-   to provide a package recursively will result in a circular package
-   dependancy error."
-  (format (current-error-port) "ATTEMPTING TO PROVIDE ~s with provided ~s\n" package-name *provided-packages*)
-  (let ((package-name (name->string package-name "package")))
-    (aif (package-provided? package-name)
-         it
-         (begin
-           (format (current-error-port) "LOADING ~s with provided ~s\n" package-name *provided-packages*)
-           (when (member package-name *loading-packages*)
-             (error "Circular package dependancy on ~a while loading ~a."
-                    package-name *loading-packages*))
-           (dynamic-let ((*loading-packages* (cons package-name *loading-packages*)))
-             (if (find-internal-file package-name)
-                 (load-internal package-name)
-                 (load (string-append package-name ".scm")))
-             (let ((loaded-package (find-package package-name)))
-               (when loaded-package
-                 (provide-package! package-name))
-               loaded-package))))))
-
-(define (require-package! package-name)
-  "Requires the presence of the package specified in <package-name>.
-   If the package specified has not been provided through the require-package!
-   mechanism, then they are loaded  with attempt-to-provide-package."
-  (begin-1
-   (attempt-to-provide-package package-name)
-   (unless (package-provided? package-name)
-     (error "Package ~a undefined." package-name))))
-
-
 (define (local-package-symbols :optional (package *package*))
   "Computes the list all symbols defined in <package>, excluding those defined
    through the use list."
@@ -288,8 +227,69 @@
     (set! *package* p)
     p))
 
+
 ;; By default, the scheme package is provided...
-(push! (find-package "scheme") *provided-packages*)
+
+(define *provided-packages* (list (find-package "scheme"))
+  "A list of all packages that have successfully been provided by the
+  require-package! mechanism.")
+
+(define *loading-packages* ())
+
+(define (package-provided? package-spec)
+  "Returns the package if <package-spec> specifies a package successfully
+   provided by the require-package! mechanism. Returns #f otherwise."
+  (format (current-error-port) "PROVIDED??? ~s with provided ~s\n" package-spec *provided-packages*)
+  (aand (->package package-spec)
+        (memq it *provided-packages*)
+        it))
+
+(define (provide-package! package-spec)
+  "Marks the package specified by <package-spec> as having been provided
+   by the require-package! mechanism."
+  (let ((package (->package package-spec)))
+    (unless (memq package *provided-packages*)
+      (push! package *provided-packages*))))
+
+(define (provide-package-on-successful-load! package-spec)
+  "Arrange by <package-spec> to be provided by provide-package! if the current
+   load terminates successfully."
+  (add-hook-function! '*finalize-load-hook* #L0(provide-package! package-spec)))
+
+(define (attempt-to-provide-package package-name)
+  "Attempts to provide the package named by <package-name>. If the package
+   is currently unprovided, it will be loaded from either an internal
+   file or an external file with the same name as the package. If the load is
+   fully successful, it will be added to the provided package list. Attempts
+   to provide a package recursively will result in a circular package
+   dependancy error."
+  (format (current-error-port) "ATTEMPTING TO PROVIDE ~s with provided ~s\n" package-name *provided-packages*)
+  (let ((package-name (name->string package-name "package")))
+    (aif (package-provided? package-name)
+         it
+         (begin
+           (format (current-error-port) "LOADING ~s with provided ~s\n" package-name *provided-packages*)
+           (when (member package-name *loading-packages*)
+             (error "Circular package dependancy on ~a while loading ~a."
+                    package-name *loading-packages*))
+           (dynamic-let ((*loading-packages* (cons package-name *loading-packages*)))
+             (if (find-internal-file package-name)
+                 (load-internal package-name)
+                 (load (string-append package-name ".scm")))
+             (let ((loaded-package (find-package package-name)))
+               (when loaded-package
+                 (provide-package! package-name))
+               loaded-package))))))
+
+(define (require-package! package-name)
+  "Requires the presence of the package specified in <package-name>.
+   If the package specified has not been provided through the require-package!
+   mechanism, then they are loaded  with attempt-to-provide-package."
+  (begin-1
+   (attempt-to-provide-package package-name)
+   (unless (package-provided? package-name)
+     (error "Package ~a undefined." package-name))))
+
 
 (defmacro (define-package package-name . clauses)
   "Begin defining a package named <package-name>. After execution,
