@@ -280,13 +280,12 @@
       (cons package (make-package! name))))
   (format #t "; Configuring for cross compile by renaming packages.\n")
   (let* ((excluded (map find-package '("system" "keyword")))
-         (host/targets (map package->host/target! (remove #L(memq _ excluded) (list-all-packages)))))
+         (host/targets (map package->host/target! (remove #L(memq _ excluded) (list-all-packages))))
+         (host->target (a-list->hash host/targets)))
 
     ;; 1) Import the special forms into the new scheme package
-    (let ((new-scheme (find-package "scheme")))
-      (dolist (special-form-sym (special-form-symbols))
-        (import! special-form-sym new-scheme)))
-
+    (dolist (special-form-sym (special-form-symbols))
+      (import! special-form-sym (hash-ref host->target (symbol-package special-form-sym))))
 
     (dolist (h/t host/targets)
       (dbind (host . target) h/t
