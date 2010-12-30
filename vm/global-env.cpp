@@ -129,6 +129,13 @@ LRef lunbound_marker()
      return UNBOUND_MARKER;
 }
 
+LRef lisymbol_globally_boundp(LRef sym)
+{
+     assert(SYMBOLP(sym));
+
+     return boolcons(SYMBOL_VCELL(sym) != UNBOUND_MARKER);
+}
+
 LRef lidefine_global(LRef var, LRef val, LRef genv)
 {
      assert(SYMBOLP(var));

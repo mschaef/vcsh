@@ -1888,6 +1888,7 @@ LRef lisp_strcmp(LRef s1, LRef s2);
 LRef listartup_args();
 LRef lisubr_table();
 LRef lisymbol_index(LRef symbol);
+LRef lisymbol_globally_boundp(LRef sym);
 LRef litrap_handler(LRef trap_id);
 LRef litypecode(LRef obj);
 LRef lkeywordp(LRef x);

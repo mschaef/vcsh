@@ -81,8 +81,9 @@
                trip-wire
                fast-op
                genv)
-             '(
-               it
+             '(scheme::*package-list*
+               scheme::*provided-packages)
+             '(it
                _)
              '(and or not > >= < <= = eq? equal? member)
              (map caar (all-iterate-sequence-types))

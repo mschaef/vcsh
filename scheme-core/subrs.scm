@@ -75,6 +75,7 @@
 (%define %subr-table #.(scheme::%subr-by-name "%subr-table"))
 (%define %subr-type-code #.(scheme::%subr-by-name "%subr-type-code"))
 (%define %symbol-index #.(scheme::%subr-by-name "%symbol-index"))
+(%define %symbol-globally-bound? #.(scheme::%subr-by-name "%symbol-globally-bound?"))
 (%define %sysob #.(scheme::%subr-by-name "%sysob"))
 (%define %system-info #.(scheme::%subr-by-name "system-info"))
 (%define %test-blocking-input #.(scheme::%subr-by-name "%test-blocking-input"))
