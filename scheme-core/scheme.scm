@@ -23,9 +23,11 @@
 
 (define *package* (%control-field system::VMCTRL_PACKAGE_SCHEME))
 
-(define *package-list* (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)
-                             (cons (%control-field system::VMCTRL_PACKAGE_SCHEME)
-                                   (cons (%control-field system::VMCTRL_PACKAGE_KEYWORD)))))
+(define *package-list* (if (%symbol-globally-bound? '*package-list*)
+                           *package-list* 
+                           (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)
+                                 (cons (%control-field system::VMCTRL_PACKAGE_SCHEME)
+                                       (cons (%control-field system::VMCTRL_PACKAGE_KEYWORD))))))
 
 (%set-package-use-list! (%control-field system::VMCTRL_PACKAGE_SCHEME)
                         (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)))
