@@ -51,7 +51,42 @@
 (define *special-form-handlers* #h(:eq))
 
 (define (special-form-symbols)
-  (hash-keys *special-form-handlers*))
+  ;; REVISIT: Currently unioning in toplevel special forms and type names... need to do something better
+  (set-union '(%%begin-load-unit-boundaries
+               scheme::%define
+               begin
+               include
+               eval-when)
+             '(free-cell
+               nil
+               boolean
+               cons
+               fixnum
+               flonum
+               character
+               symbol
+               package
+               subr
+               closure
+               macro
+               string
+               vector
+               structure
+               hash
+               port
+               end-of-file
+               values-typle
+               instance
+               unbound-marker
+               trip-wire
+               fast-op
+               genv)
+             '(
+               it
+               _)
+             '(and or not > >= < <= = eq? equal? member)
+             (map caar (all-iterate-sequence-types))
+             (hash-keys *special-form-handlers*)))
 
 (defmacro (define-special-form pattern . code)
   (check pair? pattern)
