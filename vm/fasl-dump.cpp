@@ -14,6 +14,9 @@
 
 BEGIN_NAMESPACE(scan)
 
+bool g_show_file_offsets = true;
+bool g_show_defn_offsets = true;
+
 enum
 {
      MAX_READER_DEFINITIONS = 200000, /*  REVISIT: MAX_READER_DEFINITIONS should be dynamic */
@@ -58,7 +61,12 @@ void show_opcode(size_t offset, fasl_opcode_t opcode, const _TCHAR *desc)
       newline();
     }
 
-  printf(" 0x%08zx (D+0x%08zx) ", offset, offset - last_definition_offset);
+  if (scan::g_show_file_offsets)
+       printf(" 0x%08zx", offset);
+
+  if (scan::g_show_defn_offsets)
+       printf(" (D+0x%08zx) ", offset - last_definition_offset);
+
   indent();
 
   if (desc)
@@ -671,8 +679,14 @@ int main(int argc, char *argv[])
   }
 
   for(int arg = 1; arg < argc; arg++)
-       if (scan::dump_file(argv[arg]))
+  {
+       if (strcmp(argv[arg], "--no-file-offsets") == 0)
+            scan::g_show_file_offsets = false;
+       else if (strcmp(argv[arg], "--no-defn-offsets") == 0)
+            scan::g_show_defn_offsets = false;
+       else if (scan::dump_file(argv[arg]))
             break;
+  }
 
   return 0;
 }
