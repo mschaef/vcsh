@@ -344,6 +344,7 @@
 
   (use-package! "system" "scheme")
   (use-package! "scheme" "user")
+  (use-package! "scheme" "compiler")
   (in-package! "scheme"))
 
 (define (compile-file filename :optional (output-file-name #f))
