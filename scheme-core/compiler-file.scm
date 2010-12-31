@@ -270,7 +270,44 @@
 ;; This is an example of how another form of cross compilation might work
 
 
-
+(define (shared-target-symbols)
+  (set-union '(%%begin-load-unit-boundaries
+               scheme::%define
+               begin
+               include
+               eval-when)
+             '(free-cell
+               nil
+               boolean
+               cons
+               fixnum
+               flonum
+               character
+               symbol
+               package
+               subr
+               closure
+               macro
+               string
+               vector
+               structure
+               hash
+               port
+               end-of-file
+               values-typle
+               instance
+               unbound-marker
+               trip-wire
+               fast-op
+               genv)
+             '(scheme::*package-list*
+               scheme::*provided-packages*)
+             '(scheme::iterate-sequence-expander)
+             '(it
+               _)
+             '(and or not > >= < <= = eq? equal? member)
+             (map caar (all-iterate-sequence-types))
+             (special-form-symbols)))
 
 (define (setup-cross-compiler/package-renaming)
   "Setup for cross compiling using renamed packages."
@@ -291,8 +328,7 @@
         (provide-package! it)))
     
     ;; 1) Import the special forms into the new scheme package
-    (dolist (special-form-sym (special-form-symbols))
-      (format #t "Cross importing symbol: ~s\n" special-form-sym)
+    (dolist (special-form-sym (shared-target-symbols))
       (import! special-form-sym (hash-ref host->target (symbol-package special-form-sym))))
 
     (dolist (h/t host/targets)
