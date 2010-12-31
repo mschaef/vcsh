@@ -308,13 +308,16 @@
 
 (define (display-packages :optional (display-symbols? #f))
 
+  (define (sort-package-list packages)
+    (qsort packages string< package-name))
+
   (define (display-symbols package)
     (call-with-package *package*
-      #L0(dohash (symbol-text symbol-binding (%package-bindings package))
-              (format (current-debug-port) "   ; ~s -> ~s\n" symbol-text symbol-binding))))
+                       #L0(dohash (symbol-text symbol-binding (sort-package-list (%package-bindings package)))
+                                  (format (current-debug-port) "   ; ~s -> ~s\n" symbol-text symbol-binding))))
 
   (format  (current-debug-port) "\n; *package* = ~s\n" *package*)
-  (dolist (package (list-all-packages))
+  (dolist (package (sort-package-list (list-all-packages)))
     (format  (current-debug-port) "; ~s -> ~s\n" package (%package-use-list package))
     (when display-symbols?
       (display-symbols package)))
