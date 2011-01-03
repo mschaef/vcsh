@@ -1019,7 +1019,6 @@ INLINE void SET_SYMBOL_PNAME(LRef sym, LRef pname)
 {
      checked_assert(SYMBOLP(sym));
      checked_assert(STRINGP(pname));
-     checked_assert(NULLP((*sym).storage_as.symbol.props));
 
      ((*sym).storage_as.symbol.props) = pname;
 }
@@ -1162,7 +1161,7 @@ INLINE LRef SUBR_NAME(LRef x)
 INLINE void SET_SUBR_NAME(LRef x, LRef name)
 {
      checked_assert(SUBRP(x));
-     checked_assert(STRINGP(x));
+     checked_assert(STRINGP(name));
      (((*x).storage_as.subr.name)) = name;
 }
 
