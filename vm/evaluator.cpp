@@ -7,6 +7,12 @@
 BEGIN_NAMESPACE(scan)
 
 
+#ifdef CHECKED
+#  define EVAL_INLINE 
+#else
+#  define EVAL_INLINE INLINE
+#endif
+
 /***** stack limit checking *****/
 
 LRef lset_stack_limit(LRef amount)
@@ -56,7 +62,7 @@ static void handle_interrupt(vminterrupt_t intr, trap_type_t handler)
      vmtrap(handler, VMT_MANDATORY_TRAP, 0);
 }
 
-INLINE void _process_interrupts()
+EVAL_INLINE void _process_interrupts()
 {
      if (!interp.interrupts_pending || interp.interrupts_masked)
           return;
@@ -216,20 +222,20 @@ LRef lenvlookup(LRef var, LRef env)
  * the stack.
  */
 
-INLINE frame_t *enter_frame()
+EVAL_INLINE frame_t *enter_frame()
 {
      CURRENT_TIB()->fsp++;
      return CURRENT_TIB()->fsp;
 }
 
-INLINE void leave_frame()
+EVAL_INLINE void leave_frame()
 {
      CURRENT_TIB()->fsp--;
 }
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
 
-INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
+EVAL_INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
 {
      UNREFERENCED(env);
 
@@ -298,7 +304,7 @@ INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef
      return NIL;
 }
 
-INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
+EVAL_INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
 {
      typecode_t type = TYPE(function);
 
@@ -432,7 +438,7 @@ loop:
           LRef sym = FAST_OP_ARG1(fop);
                
           checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.keyword_package);
+          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
                
           LRef binding = SYMBOL_VCELL(sym);
                
