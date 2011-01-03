@@ -16,6 +16,9 @@ BEGIN_NAMESPACE(scan)
 
 bool g_show_file_offsets = true;
 bool g_show_defn_offsets = true;
+bool g_show_reader_defn_indicies = true;
+
+bool g_show_fixnums = true;
 
 enum
 {
@@ -222,7 +225,10 @@ static void dump_fixnum(size_t length, fixnum_t *fixnum_value = NULL)
   if (fixnum_value != NULL)
     *fixnum_value = buf;
 
-  _tprintf(_T(FIXNUM_PRINTF_PREFIX "i"), buf);
+  if (g_show_fixnums)
+       _tprintf(_T(FIXNUM_PRINTF_PREFIX "i"), buf);
+  else
+       _tprintf(_T("<suppressed>"));
 }
 
 static void dump_flonum(bool complexp)
@@ -452,7 +458,13 @@ fixnum_t dump_table_index()
 {
   fixnum_t index;
 
+  bool old_g_show_fixnums = g_show_fixnums;
+
+  g_show_fixnums = g_show_reader_defn_indicies;
+
   fasl_opcode_t op = dump_next_object(_T("index"), &index);
+
+  g_show_fixnums = old_g_show_fixnums;
 
   if (!FIXNUM_OP_P(op))
     dump_error("Expected fixnum for FASL table index");
@@ -674,7 +686,8 @@ int main(int argc, char *argv[])
      memset(scan::g_reader_definition_fixnums, 0, sizeof(scan::g_reader_definition_fixnums));
 
   if (argc < 2) {
-    fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+    fprintf(stderr, "Usage: %s [--no-file-offsets] [--no-defn-offsets] [--no-reader-defn-indicies] <filename>*\n", argv[0]);
+
     return 1;
   }
 
@@ -684,6 +697,8 @@ int main(int argc, char *argv[])
             scan::g_show_file_offsets = false;
        else if (strcmp(argv[arg], "--no-defn-offsets") == 0)
             scan::g_show_defn_offsets = false;
+       else if (strcmp(argv[arg], "--no-reader-defn-indicies") == 0)
+            scan::g_show_reader_defn_indicies = false;
        else if (scan::dump_file(argv[arg]))
             break;
   }
