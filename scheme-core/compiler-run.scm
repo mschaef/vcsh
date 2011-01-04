@@ -181,7 +181,7 @@
       (dbind (host . target) h/t
         (dolist (host-sym (local-package-symbols host))
           ;; 2) Re-home all of the host package symbols to the target package
-          ;(scheme::set-symbol-package! host-sym target)
+          (scheme::set-symbol-package! host-sym target)
     
           ;; 3) Create a separate global binding in the target packages for each host package global binding
           (when  (symbol-bound? host-sym)
