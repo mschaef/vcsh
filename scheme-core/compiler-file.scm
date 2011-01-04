@@ -224,14 +224,14 @@
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
-  (let ((original-package (symbol-value '*package* () genv)))
+  (let ((original-package (symbol-value *package-var* () genv)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
         (begin-load-unit filename output-fasl-stream)
         (compile-port-forms input-port output-fasl-stream genv)
         (end-load-unit filename output-fasl-stream)))
-    (set-symbol-value! '*package* original-package () genv)))
+    (set-symbol-value! *package-var* original-package () genv)))
 
 (define (compile-file/checked filename output-fasl-stream genv)
   (let ((compile-error-count 0))

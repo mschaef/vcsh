@@ -7,6 +7,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Option variables
 
+;(scheme::eval-when (:compile-toplevel :load-toplevel :execute)
+;  (host-scheme::repl))
+
 (define *debug* #f)
 (define *verbose* #f)
 

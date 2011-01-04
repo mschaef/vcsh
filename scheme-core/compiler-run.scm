@@ -174,7 +174,8 @@
         (provide-package! it)))
     
     (dolist (special-form-sym (shared-target-symbols))
-      (import! special-form-sym (hash-ref host->target (symbol-package special-form-sym))))
+      (let ((target-package (hash-ref host->target (symbol-package special-form-sym))))
+        (import! special-form-sym target-package)))
 
     (dolist (h/t host/targets)
       (dbind (host . target) h/t
@@ -183,7 +184,8 @@
           ;(scheme::set-symbol-package! host-sym target)
     
           ;; 3) Create a separate global binding in the target packages for each host package global binding
-          (when (symbol-bound? host-sym)
+          (when  (symbol-bound? host-sym)
+            (format #t "; interning ~a in ~a\n" (symbol-name host-sym) target)
             (scheme::%define-global (intern! (symbol-name host-sym) target)
                                     (symbol-value host-sym)))))))
   )
