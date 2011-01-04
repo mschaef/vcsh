@@ -21,13 +21,16 @@
 
 ;;; Set up the default package structure
 
-(define *package* (%control-field system::VMCTRL_PACKAGE_SCHEME))
 
 (define *package-list* (if (%symbol-globally-bound? '*package-list*)
                            *package-list* 
                            (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)
                                  (cons (%control-field system::VMCTRL_PACKAGE_SCHEME)
                                        (cons (%control-field system::VMCTRL_PACKAGE_KEYWORD))))))
+
+(define *package* (if (%symbol-globally-bound? '*package*)
+                      *package*
+                      (%control-field system::VMCTRL_PACKAGE_SCHEME)))
 
 (%set-package-use-list! (%control-field system::VMCTRL_PACKAGE_SCHEME)
                         (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)))

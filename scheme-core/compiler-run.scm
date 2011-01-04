@@ -110,6 +110,9 @@
   (scheme::%set-stack-limit #f)
   (show-compiler-settings)
   (scheme::initialize-user-package)
+  (when (eq? *cross-compile* :package-renaming)
+    (compiler::setup-cross-compiler/package-renaming)
+    (display-packages)) 
   (time
    (let ((pkg (find-package *initial-package*)))
      (unless pkg

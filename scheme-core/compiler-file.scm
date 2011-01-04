@@ -300,7 +300,7 @@
                trip-wire
                fast-op
                genv)
-             '(scheme::*package-list*
+             '(scheme::*pacakage-list*
                scheme::*provided-packages*)
              '(scheme::iterate-sequence-expander)
              '(it
@@ -364,8 +364,7 @@
                                     message args)
                             (throw 'end-compile-now 127)))))
 
-        (when (eq? *cross-compile* :package-renaming)
-          (setup-cross-compiler/package-renaming))
+
         (let* ((compiler-genv (scheme::%current-global-environment))
                (target-genv (if (eq? *cross-compile* :environment)
                                 (copy-global-environment :compiler-target-bindings)
