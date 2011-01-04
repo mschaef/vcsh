@@ -31,21 +31,21 @@
 
 (define expanded-form-meaning) ; forward decl
 
-(define (warn-if-global-unbound var genv)
+(define (warn-if-global-unbound var)
   (unless (symbol-bound? var)
     (compile-warning var "Global variable unbound: ~s" var)))
 
-(define (meaning/application form cenv genv at-toplevel?)
-  `(:apply ,(expanded-form-meaning (car form) cenv genv at-toplevel?)
-           ,@(map #L(expanded-form-meaning _ cenv genv at-toplevel?) (cdr form))))
+(define (meaning/application form cenv at-toplevel?)
+  `(:apply ,(expanded-form-meaning (car form) cenv at-toplevel?)
+           ,@(map #L(expanded-form-meaning _ cenv at-toplevel?) (cdr form))))
 
-(define (meaning/symbol form cenv genv at-toplevel?)
+(define (meaning/symbol form cenv at-toplevel?)
   (cond ((keyword? form)
          `(:literal ,form))
         ((bound-in-cenv? form cenv)
          `(:local-ref ,form))
         (#t
-         (warn-if-global-unbound form genv)
+         (warn-if-global-unbound form)
          `(:global-ref ,form))))
 
 (define *special-form-handlers* #h(:eq))
@@ -62,13 +62,13 @@
                  (cons (lambda (form)
                          (and (pair? form)
                               (dbind-matches? ,(cdr pattern) (cdr form))))
-                       (lambda (form cenv genv at-toplevel?)
+                       (lambda (form cenv at-toplevel?)
                          (dbind ,(cdr pattern) (cdr form)
                            ,@code))))))
 
 
 (define-special-form (scheme::%macro macro-form)
-  `(:macro ,(expanded-form-meaning macro-form () genv at-toplevel?)))
+  `(:macro ,(expanded-form-meaning macro-form () at-toplevel?)))
 
 (define-special-form (scheme::%lambda p-list l-list . body)
   (define (code-body-form body-forms)
@@ -80,7 +80,6 @@
   `(:close-env ,l-list
                ,(expanded-form-meaning (code-body-form body)
                                        (extend-cenv l-list cenv)
-                                       genv
                                        at-toplevel?)
                ,p-list))
 
@@ -90,49 +89,49 @@
 (define-special-form (begin . args)
   (let recur ((args args))
     (cond ((null? args)     `(:literal ()))
-          ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
-          (#t `(:sequence ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
+          ((length=1? args) (expanded-form-meaning (car args) cenv at-toplevel?))
+          (#t `(:sequence ,(expanded-form-meaning (car args) cenv at-toplevel?)
                           ,(recur (cdr args)))))))
 
 (define-special-form (or . args)
   (let recur ((args args))
     (cond ((null? args)     `(:literal #f))
-          ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
-          (#t `(:or/2 ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
+          ((length=1? args) (expanded-form-meaning (car args) cenv at-toplevel?))
+          (#t `(:or/2 ,(expanded-form-meaning (car args) cenv at-toplevel?)
                       ,(recur (cdr args)))))))
 
 (define-special-form (and . args)
   (let recur ((args args))
     (cond ((null? args)     `(:literal #t))
-          ((length=1? args) (expanded-form-meaning (car args) cenv genv at-toplevel?))
-          (#t `(:and/2 ,(expanded-form-meaning (car args) cenv genv at-toplevel?)
+          ((length=1? args) (expanded-form-meaning (car args) cenv at-toplevel?))
+          (#t `(:and/2 ,(expanded-form-meaning (car args) cenv at-toplevel?)
                        ,(recur (cdr args)))))))
 
 (define-special-form (if cond-form then-form)
-  `(:if-true ,(expanded-form-meaning cond-form cenv genv at-toplevel?)
-             ,(expanded-form-meaning then-form cenv genv at-toplevel?)
+  `(:if-true ,(expanded-form-meaning cond-form cenv at-toplevel?)
+             ,(expanded-form-meaning then-form cenv at-toplevel?)
              (:literal ())))
 
 (define-special-form (if cond-form then-form else-form)
-  `(:if-true ,(expanded-form-meaning cond-form cenv genv at-toplevel?)
-             ,(expanded-form-meaning then-form cenv genv at-toplevel?)
-             ,(expanded-form-meaning else-form cenv genv at-toplevel?)))
+  `(:if-true ,(expanded-form-meaning cond-form cenv at-toplevel?)
+             ,(expanded-form-meaning then-form cenv at-toplevel?)
+             ,(expanded-form-meaning else-form cenv at-toplevel?)))
 
 (define-special-form (set! var val-form)
   (cond ((keyword? var)
          (compile-error form "Cannot rebind a keyword: ~s" var))
         ((bound-in-cenv? var cenv)
-         `(:local-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?)))
+         `(:local-set! ,var ,(expanded-form-meaning val-form cenv at-toplevel?)))
         (#t
-         (warn-if-global-unbound var genv)
-         `(:global-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?)))))
+         (warn-if-global-unbound var)
+         `(:global-set! ,var ,(expanded-form-meaning val-form cenv at-toplevel?)))))
 
 (define toplevel-form->thunk)
 
 (define-special-form (scheme::%define name defn)
   `(:global-def ,name
-                ,((toplevel-form->thunk defn genv))
-                ,genv))
+                ,((toplevel-form->thunk defn))
+                ()))
 
 (define-special-form (quote value)
   `(:literal ,value))
@@ -142,42 +141,42 @@
 
 (define-special-form (scheme::%mark-stack tag-form body-form)
   `(:mark-stack
-    ,(expanded-form-meaning tag-form cenv genv at-toplevel?)
-    ,(expanded-form-meaning body-form cenv genv at-toplevel?)))
+    ,(expanded-form-meaning tag-form cenv at-toplevel?)
+    ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
 (define-special-form (scheme::%set-genv value-form)
   `(:set-genv
-    ,(expanded-form-meaning value-form cenv genv at-toplevel?)))
+    ,(expanded-form-meaning value-form cenv at-toplevel?)))
 
 (define-special-form (scheme::%%catch tag-form body-form)
   `(:catch
-    ,(expanded-form-meaning tag-form cenv genv at-toplevel?)
-    ,(expanded-form-meaning body-form cenv genv at-toplevel?)))
+    ,(expanded-form-meaning tag-form cenv at-toplevel?)
+    ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
 (define-special-form (scheme::%%throw tag-form value-form)
   `(:throw
-    ,(expanded-form-meaning tag-form cenv genv at-toplevel?)
-    ,(expanded-form-meaning value-form cenv genv at-toplevel?)))
+    ,(expanded-form-meaning tag-form cenv at-toplevel?)
+    ,(expanded-form-meaning value-form cenv at-toplevel?)))
 
 (define-special-form (scheme::%%with-unwind-fn after-fn-form body-form)
   `(:with-unwind-fn
-    ,(expanded-form-meaning after-fn-form cenv genv at-toplevel?)
-    ,(expanded-form-meaning body-form cenv genv at-toplevel?)))
+    ,(expanded-form-meaning after-fn-form cenv at-toplevel?)
+    ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
-(define (expanded-form-meaning form cenv genv at-toplevel?)
+(define (expanded-form-meaning form cenv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
       (cond ((symbol? form)
-             (meaning/symbol form cenv genv at-toplevel?))
+             (meaning/symbol form cenv at-toplevel?))
             ((scheme::fast-op? form)
              form)
             ((atom? form)
              `(:literal ,form))
             ((hash-has? *special-form-handlers* (car form))
              (aif (find #L((car _) form) (hash-ref *special-form-handlers* (car form)))
-                  ((cdr it) form cenv genv at-toplevel?)
+                  ((cdr it) form cenv at-toplevel?)
                   (error "Invalid syntax for ~a: ~s" (car form) form)))
             (#t
-             (meaning/application form cenv genv at-toplevel?))))
+             (meaning/application form cenv at-toplevel?))))
     form))
 
