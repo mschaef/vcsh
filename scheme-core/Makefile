@@ -50,7 +50,7 @@ compiler-run${OBJ_EXT}: compiler-run.scf
 
 # TODO: This compiles against the scc0 version of the scheme image and not the current version. Fix this.
 compiler-run.scf: compiler-run.scm
-	$(SCC0) --cross-compile --initial-package:scheme compiler-run.scm
+	$(SCC0)  --initial-package:scheme compiler-run.scm
 
 clean-scheme:
 	${RM_F} scheme${OBJ_EXT} compiler-run${OBJ_EXT}
