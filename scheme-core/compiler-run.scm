@@ -185,10 +185,8 @@
     
           ;; 3) Create a separate global binding in the target packages for each host package global binding
           (when  (symbol-bound? host-sym)
-            (format #t "; interning ~a in ~a\n" (symbol-name host-sym) target)
             (scheme::%define-global (intern! (symbol-name host-sym) target)
-                                    (symbol-value host-sym)))))))
-  )
+                                    (symbol-value host-sym))))))))
 
 (define (run)
   (enlarge-heap 50)
@@ -197,9 +195,7 @@
   (scheme::initialize-user-package)
   (when (eq? *cross-compile* :package-renaming)
     (setup-cross-compiler)
-    (set! compiler::*package-var* (scheme::intern! "*package*" "scheme"))
-    (scheme::repl-print '*package*)
-    (scheme::repl-print compiler::*package-var*)) 
+    (set! compiler::*package-var* (scheme::intern! "*package*" "scheme"))) 
   (time
    (let ((pkg (find-package *initial-package*)))
      (unless pkg
