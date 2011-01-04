@@ -32,7 +32,7 @@
 (define expanded-form-meaning) ; forward decl
 
 (define (warn-if-global-unbound var genv)
-  (unless (symbol-bound? var () genv)
+  (unless (symbol-bound? var)
     (compile-warning var "Global variable unbound: ~s" var)))
 
 (define (meaning/application form cenv genv at-toplevel?)

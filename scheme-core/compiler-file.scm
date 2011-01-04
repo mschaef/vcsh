@@ -41,7 +41,7 @@
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
       (dynamic-let ((*location-mapping* *compiler-location-map*)
-                    (*package* (symbol-value *package-var* () genv))
+                    (*package* (symbol-value *package-var* ()))
                     (scheme::*reader-genv* genv))
         (trace-message *show-actions* "* READ in ~s genv=~@\n" *package* genv)
         (*compiler-reader* port #f))))) ; REVISIT #. eval/read forms are not evaluated in genv
@@ -224,14 +224,14 @@
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
-  (let ((original-package (symbol-value *package-var* () genv)))
+  (let ((original-package (symbol-value *package-var* ())))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
         (begin-load-unit filename output-fasl-stream)
         (compile-port-forms input-port output-fasl-stream genv)
         (end-load-unit filename output-fasl-stream)))
-    (set-symbol-value! *package-var* original-package () genv)))
+    (set-symbol-value! *package-var* original-package ())))
 
 (define (compile-file/checked filename output-fasl-stream genv)
   (let ((compile-error-count 0))
@@ -295,9 +295,7 @@
 
 
         (let* ((compiler-genv (scheme::%current-global-environment))
-               (target-genv (if (eq? *cross-compile* :environment)
-                                (copy-global-environment :compiler-target-bindings)
-                                compiler-genv)))
+               (target-genv compiler-genv))
 
           (trace-message *verbose* "; global-genv=~@, target-genv=~@\n"
                          compiler-genv target-genv)
