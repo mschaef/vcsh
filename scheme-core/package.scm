@@ -580,38 +580,28 @@
 (define (all-package-variables :optional (package *package*))
   (filter symbol-bound? (all-package-symbols package)))
 
-;; TODO: split out the lenv and genv versions of all the symbol-value functions
-;; TODO: the symbol-value functions use genv==#f as the way to signal 'current environment'. This
-;;  is because the compiler depends on this behavior. Fix this.
-
-(define (symbol-bound? sym :optional (lenv ()) (genv #f))
+(define (symbol-bound? sym :optional (lenv ()))
   (check symbol? sym)
-  (when genv
-    (format (current-error-port) "Warning: genv not supported in this build.\n"))
   (if (or (pair? (env-lookup sym lenv))
           (not (eq? (%symbol-vcell sym)
                     (%unbound-marker))))
       sym
       #f))
 
-(define (%symbol-value sym :optional (lenv ()) (genv #f))
+(define (%symbol-value sym :optional (lenv ()))
   (check symbol? sym)
-  (when genv
-    (format (current-error-port) "Warning: genv not supported in this build.\n"))
   (aif (pair? (env-lookup sym lenv))
        (car it)
        (%symbol-vcell sym)))
 
-(define (symbol-value sym :optional (lenv ()) (genv #f))
-  (let ((val (%symbol-value sym lenv genv)))
+(define (symbol-value sym :optional (lenv ()))
+  (let ((val (%symbol-value sym lenv)))
     (if (eq? val (%unbound-marker))
         (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym)
         val)))
 
-(define (set-symbol-value! sym val :optional (lenv ()) (genv #f))
+(define (set-symbol-value! sym val :optional (lenv ()))
   (check (not keyword?) sym)
-  (when genv
-    (format (current-error-port) "Warning: genv not supported in this build.\n"))
   (aif (pair? (env-lookup sym lenv))
        (set-car! it val)
        (begin
@@ -620,10 +610,8 @@
          (%set-symbol-vcell! sym val)
            val)))
 
-(define (unbind-symbol! sym :optional (genv #f))
+(define (unbind-symbol! sym)
   (check (and symbol? (not keyword?)) sym)
-  (when genv
-    (format (current-error-port) "Warning: genv not supported in this build.\n"))
   (%set-symbol-vcell! sym (%unbound-marker))
   (values))
 
