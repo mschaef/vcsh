@@ -105,26 +105,109 @@
     (load file)
     (format #t "; Done loading compiler load file: ~s\n" file))) ; REVISIT: error check this?
 
+
+(define (shared-target-symbols)
+  (set-union '(compiler::%%begin-load-unit-boundaries
+               scheme::%define
+               scheme::begin
+               scheme::include
+               scheme::eval-when)
+             '(scheme::free-cell
+               scheme::nil
+               scheme::boolean
+               scheme::cons
+               scheme::fixnum
+               scheme::flonum
+               scheme::character
+               scheme::symbol
+               scheme::package
+               scheme::subr
+               scheme::closure
+               scheme::macro
+               scheme::string
+               scheme::vector
+               scheme::structure
+               scheme::hash
+               scheme::port
+               scheme::end-of-file
+               scheme::values-typle
+               scheme::instance
+               scheme::unbound-marker
+               scheme::trip-wire
+               scheme::fast-op
+               scheme::genv)
+             '(scheme::*package-list*
+               scheme::*provided-packages*)
+             '(scheme::iterate-sequence-expander)
+             '(scheme::it
+               scheme::_)
+             '(scheme::and
+               scheme::or
+               scheme::not
+               scheme::>
+               scheme::>=
+               scheme::<
+               scheme::<=
+               scheme::= 
+               scheme::eq?
+               scheme::equal?
+               scheme::member)
+             (map caar (scheme::all-iterate-sequence-types))
+             (compiler::special-form-symbols)))
+
+(define (setup-cross-compiler)
+  "Setup for cross compiling using renamed packages."
+  (define (package->host/target! package)
+    (let ((name (package-name package)))
+      (rename-package! package (string-append "host-" name))
+      (let ((new-package (make-package! name)))
+        (provide-package! new-package)
+        (cons package new-package))))
+  (format #t "; Configuring for cross compile by renaming packages.\n")
+  (let* ((excluded (map find-package '("system" "keyword")))
+         (host/targets (map package->host/target! (remove #L(memq _ excluded) (list-all-packages))))
+         (host->target (a-list->hash host/targets)))
+
+    ;; 0) Make sure we're providing all the packages we've created
+    (dolist (package scheme::*provided-packages*)
+      (awhen (hash-ref host->target package #f)
+        (provide-package! it)))
+    
+    (dolist (special-form-sym (shared-target-symbols))
+      (import! special-form-sym (hash-ref host->target (symbol-package special-form-sym))))
+
+    (dolist (h/t host/targets)
+      (dbind (host . target) h/t
+        (dolist (host-sym (local-package-symbols host))
+          ;; 2) Re-home all of the host package symbols to the target package
+          ;(scheme::set-symbol-package! host-sym target)
+    
+          ;; 3) Create a separate global binding in the target packages for each host package global binding
+          (when (symbol-bound? host-sym)
+            (scheme::%define-global (intern! (symbol-name host-sym) target)
+                                    (symbol-value host-sym)))))))
+  )
+
 (define (run)
   (enlarge-heap 50)
   (scheme::%set-stack-limit #f)
   (show-compiler-settings)
   (scheme::initialize-user-package)
   (when (eq? *cross-compile* :package-renaming)
-    (compiler::setup-cross-compiler/package-renaming)
-    (set! compiler::*package-var* (scheme::simple-find-symbol "*package*" "scheme"))
+    (setup-cross-compiler)
+    (set! compiler::*package-var* (scheme::intern! "*package*" "scheme"))
     (scheme::repl-print '*package*)
     (scheme::repl-print compiler::*package-var*)) 
   (time
    (let ((pkg (find-package *initial-package*)))
      (unless pkg
        (error "Initial package not found: ~s" pkg))
-     (dynamic-let ((*package* pkg))
-       ;; Play nice with batch files launching the compiler...
-       ;; we never want to be interactive.
-       (load-compiler-load-files)
-       (when *debug*
-         (display-packages))
-       (catch-all
-        (compile-file *files-to-compile* *output-file-name*))))))
+     (scheme::%define-global compiler::*package-var* pkg)
+     (load-compiler-load-files)
+     (when *debug*
+       (display-packages))
+     ;; Play nice with batch files launching the compiler...
+     ;; we never want to be interactive.
+     (catch-all
+      (compile-file *files-to-compile* *output-file-name*)))))
 
