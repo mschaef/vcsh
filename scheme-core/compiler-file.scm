@@ -107,7 +107,7 @@
 (define (process-toplevel-define form output-fasl-stream genv)
   (let* ((var (second form))
          (val-thunk (toplevel-form->thunk (third form)))
-         (val (scheme::maybe-call-with-global-environment val-thunk genv)))
+         (val (val-thunk)))
 
     (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" var val)
     (trace-message *verbose* "; defining ~a\n" var)

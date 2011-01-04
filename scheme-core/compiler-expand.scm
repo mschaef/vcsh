@@ -20,10 +20,7 @@
        (values #t
                (apply-expander (lambda (form genv)
                                  (let ((transformer (scheme::%macro-transformer it)))
-                                   (if genv
-                                       (with-global-environment genv
-                                         (transformer form ()))
-                                       (transformer form ()))))
+                                   (transformer form ())))
                                form genv at-toplevel?))
        (values #f form)))
 

@@ -911,7 +911,6 @@
              with-fasl-file
              with-fasl-stream
              with-gensyms
-             with-global-environment
              with-output-to-string
              with-package
              with-port
