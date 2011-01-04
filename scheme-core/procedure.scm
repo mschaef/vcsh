@@ -12,10 +12,7 @@
 
 (define compiler::toplevel-form->thunk) ;; Forward decl
 
-(define (maybe-call-with-global-environment fn genv)
-  (fn))
-
-(define (eval form :optional (lenv ()) (genv #f))
+(define (eval form :optional (lenv ()))
   ;; TODO: Add support to the inspector for passing in lenvs when this
   ;; gets enabled
   (unless (null? lenv)

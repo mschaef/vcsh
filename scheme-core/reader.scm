@@ -353,11 +353,9 @@
   (read-char port)
   (apply make-structure-by-name (read port)))
 
-(define *reader-genv* #f)
-
 (define (read-and-evaluate port)
   (read-char port)
-  (eval (read port) () *reader-genv*))
+  (eval (read port)))
 
 (define (read-shebang port) ; For Unix-style shell script support
   (read-line port)
