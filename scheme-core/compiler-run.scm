@@ -112,7 +112,9 @@
   (scheme::initialize-user-package)
   (when (eq? *cross-compile* :package-renaming)
     (compiler::setup-cross-compiler/package-renaming)
-    (display-packages)) 
+    (set! compiler::*package-var* (scheme::simple-find-symbol "*package*" "scheme"))
+    (scheme::repl-print '*package*)
+    (scheme::repl-print compiler::*package-var*)) 
   (time
    (let ((pkg (find-package *initial-package*)))
      (unless pkg

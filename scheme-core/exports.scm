@@ -731,6 +731,7 @@
            show-type-delta
            show-type-stats
            signal
+           simple-find-symbol
            simplify-filename-list
            sin
            skip-until

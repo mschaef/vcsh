@@ -421,6 +421,14 @@
             (#t
              (values (car srec) (if (cdr srec) :external :internal)))))))
 
+
+(define (simple-find-symbol name :optional (package *package*))
+  "Looks for a symbol named <name> in the package <package>. Returns
+   the symbol if it is found and #f otherwise. This is a simplified version
+   of find-symbol."
+  (mvbind (symbol type) (find-symbol name package)
+    symbol))
+
 (define (intern! name :optional (package *package*))
   (let ((package (->package package #L(error "Target package for intern! not found: ~a" _))))
     (mvbind (srec spkg) (find-symbol-record name package)

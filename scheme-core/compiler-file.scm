@@ -32,6 +32,8 @@
        (port-location-string (car it) (cdr it))
        "...."))
 
+(define *package-var* '*package*)
+
 (define (compiler-read port genv)
   (let ((loc (begin
                (flush-whitespace port #t)
@@ -39,7 +41,7 @@
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
       (dynamic-let ((*location-mapping* *compiler-location-map*)
-                    (*package* (symbol-value '*package* () genv))
+                    (*package* (symbol-value *package-var* () genv))
                     (scheme::*reader-genv* genv))
         (trace-message *show-actions* "* READ in ~s genv=~@\n" *package* genv)
         (*compiler-reader* port #f))))) ; REVISIT #. eval/read forms are not evaluated in genv
