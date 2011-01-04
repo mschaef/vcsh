@@ -31,7 +31,7 @@
                    (compiler::compile-warning
                     (lambda (context-form message args)
                       (compiler::compiler-message context-form :warning message args))))
-      (let ((form-fn (compiler::toplevel-form->thunk form genv)))
+      (let ((form-fn (compiler::toplevel-form->thunk form)))
         (maybe-call-with-global-environment form-fn genv)))))
 
 (define (valid-lambda-list? lambda-list)
