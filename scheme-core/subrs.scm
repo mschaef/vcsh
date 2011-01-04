@@ -230,6 +230,7 @@
 (%define set-port-translate-mode! #.(scheme::%subr-by-name "set-port-translate-mode!"))
 (%define set-random-seed! #.(scheme::%subr-by-name "set-random-seed!"))
 (%define set-symbol-package! #.(scheme::%subr-by-name "set-symbol-package!"))
+(%define %set-symbol-vcell! #.(scheme::%subr-by-name "%set-symbol-vcell!"))
 (%define sin #.(scheme::%subr-by-name "sin"))
 (%define sleep #.(scheme::%subr-by-name "sleep"))
 (%define sqrt #.(scheme::%subr-by-name "sqrt"))
@@ -257,6 +258,7 @@
 (%define sxhash #.(scheme::%subr-by-name "sxhash"))
 (%define symbol-name #.(scheme::%subr-by-name "symbol-name"))
 (%define symbol-package #.(scheme::%subr-by-name "symbol-package"))
+(%define %symbol-vcell #.(scheme::%subr-by-name "%symbol-vcell"))
 (%define symbol? #.(scheme::%subr-by-name "symbol?"))
 (%define system #.(scheme::%subr-by-name "system"))
 (%define system-info #.(scheme::%subr-by-name "system-info")) ;; REVISIT: deprecated
