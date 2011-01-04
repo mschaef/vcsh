@@ -75,6 +75,8 @@
       filename
       #f))
 
+(define compile-file/simple)
+
 (define (process-toplevel-include form output-fasl-stream genv)
   (unless (and (list? form) (length=2? form) (string? (second form)))
     (compile-error #f "Invalid include form: ~s" form))
@@ -116,6 +118,9 @@
 (define (emit-action form output-fasl-stream genv)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
   (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (toplevel-form->thunk form genv)) output-fasl-stream))
+
+(define process-toplevel-form)
+(define process-%%begin-load-unit-boundaries)
 
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream genv)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"

@@ -127,6 +127,8 @@
          (warn-if-global-unbound var genv)
          `(:global-set! ,var ,(expanded-form-meaning val-form cenv genv at-toplevel?)))))
 
+(define toplevel-form->thunk)
+
 (define-special-form (scheme::%define name defn)
   `(:global-def ,name
                 ,((toplevel-form->thunk defn genv))

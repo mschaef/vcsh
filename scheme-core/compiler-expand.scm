@@ -27,6 +27,8 @@
                                form genv at-toplevel?))
        (values #f form)))
 
+(define compiler-macroexpand)
+
 (define (compiler-macroexpand form genv at-toplevel?)
   (mvbind (expanded? expanded-form) (compiler-macroexpand-1 form genv at-toplevel?)
     (if expanded?
