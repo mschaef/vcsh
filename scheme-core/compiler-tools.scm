@@ -70,11 +70,10 @@
 
 (define *show-actions* #f)
 
-(define (compiler-evaluate form genv)
-  "Evaluates <form> in global environment <genv>, signaling a compiler-error in
-   the event of a failure."
+(define (compiler-evaluate form)
+  "Evaluates <form>, signaling a compiler-error in the event of a failure."
   (catch 'end-compiler-evaluate
-    (trace-message *show-actions* "==> COMPILER-EVALUATE: ~s genv=~@\n" form genv)
+    (trace-message *show-actions* "==> COMPILER-EVALUATE: ~s\n" form)
     (handler-bind  ((runtime-error
                      (if *debug*
                          handle-runtime-error

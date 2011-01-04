@@ -148,7 +148,7 @@
                 (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream genv))
                (#t
                 (when compile-time-eval?
-                  (compiler-evaluate form genv))
+                  (compiler-evaluate form))
                 (when load-time-eval?
                   (emit-action form output-fasl-stream genv)))))))))
 
