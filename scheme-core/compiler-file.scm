@@ -87,7 +87,7 @@
                                     (when (currently-compiling-file? filename)
                                       (compile-fatal-error #f "Recursive include of ~s while compiling ~s"
                                                            filename *files-currently-compiling*))
-                                    (compile-file/simple filename output-fasl-stream genv))
+                                    (compile-file/simple filename output-fasl-stream))
         filename))))
 
 
@@ -152,7 +152,7 @@
       (process-toplevel-form next-form load-time-eval? compile-time-eval? output-fasl-stream)
       (loop (reader)))))
 
-(define (compile-port-forms ip output-fasl-stream genv)
+(define (compile-port-forms ip output-fasl-stream)
   (process-toplevel-forms (lambda () (compiler-read ip)) #t #f output-fasl-stream))
 
 ;;; Error reporting
@@ -214,7 +214,7 @@
     (set! *disable-load-unit-boundaries* #f)
     (begin-load-unit filename output-fasl-stream)))
 
-(define (compile-file/simple filename output-fasl-stream genv)
+(define (compile-file/simple filename output-fasl-stream)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
@@ -223,11 +223,11 @@
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-input-file filename)
         (begin-load-unit filename output-fasl-stream)
-        (compile-port-forms input-port output-fasl-stream genv)
+        (compile-port-forms input-port output-fasl-stream)
         (end-load-unit filename output-fasl-stream)))
     (set-symbol-value! *package-var* original-package ())))
 
-(define (compile-file/checked filename output-fasl-stream genv)
+(define (compile-file/checked filename output-fasl-stream)
   (let ((compile-error-count 0))
     (handler-bind ((compile-read-error
                     (lambda (message port port-location)
@@ -242,15 +242,15 @@
                    (compile-warning
                     (lambda (context-form message args)
                       (compiler-message/form context-form :warning message args))))
-      (compile-file/simple filename output-fasl-stream genv)
+      (compile-file/simple filename output-fasl-stream)
       compile-error-count)))
 
-(define (compile-files filenames output-file-name :optional (genv #f))
+(define (compile-files filenames output-file-name)
   (with-fasl-file output-fasl-stream output-file-name
     (let next-file ((filenames filenames) (error-count 0))
       (cond ((not (null? filenames))
              (next-file (cdr filenames)
-                        (+ error-count (compile-file/checked (car filenames) output-fasl-stream genv))))
+                        (+ error-count (compile-file/checked (car filenames) output-fasl-stream))))
             ((> error-count 0)
              (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
              (end-compile-abnormally 2 output-fasl-stream))
@@ -288,13 +288,7 @@
                             (throw 'end-compile-now 127)))))
 
 
-        (let* ((compiler-genv (scheme::%current-global-environment))
-               (target-genv compiler-genv))
-
-          (trace-message *verbose* "; global-genv=~@, target-genv=~@\n"
-                         compiler-genv target-genv)
-
-          (compile-files filenames output-file-name target-genv))
+        (compile-files filenames output-file-name)
 
         (format *compiler-output-port* "; Compile completed successfully.\n"))
       0)))
