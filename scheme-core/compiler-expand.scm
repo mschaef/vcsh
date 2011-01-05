@@ -96,11 +96,10 @@
 
        ((null? remaining-forms)
         (if (null? local-definitions)
-            `(,@(map #L(expand-form _ genv at-toplevel?) body-forms))
+            `(,@(map #L(expand-form _ at-toplevel?) body-forms))
             (expand-form
              `((letrec ,local-definitions
                  ,@body-forms))
-             genv
              at-toplevel?)))
        (#t
         (expand-next-form (cdr remaining-forms)
@@ -111,7 +110,7 @@
 (define (expand/if form genv at-toplevel?)
   (unless (or (length=3? form) (length=4? form))
     (compile-error form "Invalid if, bad length."))
-  (map #L(expand-form _ genv at-toplevel?) form))
+  (map #L(expand-form _ at-toplevel?) form))
 
 (define (expand/begin form genv at-toplevel?)
   `(begin ,@(translate-form-sequence (cdr form) #f genv at-toplevel?)))
@@ -145,7 +144,7 @@
 (define (expand/set! form genv at-toplevel?)
   (unless (length=3? form)
     (compile-error "Invalid set!, bad length." form))
-  `(set! ,(cadr form) ,(expand-form (caddr form) genv at-toplevel?)))
+  `(set! ,(cadr form) ,(expand-form (caddr form) at-toplevel?)))
 
 
 (define (parse-eval-when form)
@@ -165,7 +164,7 @@
         #f)))
 
 (define (expand/logical form genv at-toplevel?)
-  `(,(car form) ,@(map #L(expand-form _ genv at-toplevel?) (cdr form))))
+  `(,(car form) ,@(map #L(expand-form _ at-toplevel?) (cdr form))))
 
 (define (form-expander form genv at-toplevel?)
   (cond ((null? form)
@@ -183,15 +182,15 @@
            (#t
             (mvbind (expanded? expanded-form) (maybe-expand-user-macro form at-toplevel?)
               (cond (expanded?
-                     (expand-form expanded-form genv at-toplevel?))
+                     (expand-form expanded-form at-toplevel?))
                     ((atom? expanded-form)
-                     (expand-form expanded-form genv at-toplevel?))
+                     (expand-form expanded-form at-toplevel?))
                     (#t
-                     (map #L(expand-form _ genv at-toplevel?) form)))))))
+                     (map #L(expand-form _ at-toplevel?) form)))))))
         ((symbol? form) form)
         ((atom? form)   form)
         (#t             (error "Don't know how to expand this form: ~s" form))))
 
-(define (expand-form form genv at-toplevel?)
+(define (expand-form form at-toplevel?)
   (apply-expander form-expander form  at-toplevel?))
 
