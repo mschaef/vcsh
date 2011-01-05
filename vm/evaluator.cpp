@@ -608,8 +608,8 @@ loop:
           retval = env;
           break;
                
-     case FOP_GLOBAL_DEF:
-          retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop), FAST_OP_ARG3(fop));
+     case FOP_GLOBAL_DEF: // three args, third was genv, but currently unused
+          retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
           break;
                
      case FOP_MARK_STACK:
@@ -623,16 +623,7 @@ loop:
      }
      break;
                
-     case FOP_SET_GENV:
-     {
-          LRef old_global_env = interp.global_env;
-
-          interp.global_env = execute_fast_op(FAST_OP_ARG1(fop), env);
-
-          assert(GENVP(interp.global_env));
-
-          retval = old_global_env;
-     }
+     case FOP_SET_GENV: // TODO: Remove
      break;
           
      default:

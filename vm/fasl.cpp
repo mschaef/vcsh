@@ -567,7 +567,7 @@ void fast_read_loader_definition(LRef port, fasl_opcode_t opcode)
           break;
      }
 
-     lidefine_global(symbol_to_define, definition, NIL);
+     lidefine_global(symbol_to_define, definition);
 }
 
 static void fast_loader_stack_push(LRef port, LRef val)

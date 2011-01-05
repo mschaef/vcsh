@@ -241,11 +241,9 @@ static void register_main_subrs()
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
     register_subr(_T("%control-field"),                   SUBR_1,     (void*)licontrol_field                     );
     register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
-    register_subr(_T("%copy-global-environment"),         SUBR_2,     (void*)lcopy_global_environment            );
-    register_subr(_T("%current-global-environment"),      SUBR_0,     (void*)lcurrent_global_environment         );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
-    register_subr(_T("%define-global"),                   SUBR_3,     (void*)lidefine_global                     );
+    register_subr(_T("%define-global"),                   SUBR_2,     (void*)lidefine_global                     );
     register_subr(_T("%directory"),                       SUBR_2,     (void*)lidirectory                         );
     register_subr(_T("%dump-heap-state"),                 SUBR_1,     (void*)ldump_heap_state                    );
     register_subr(_T("%%fasl-load"),                      SUBR_1,     (void*)liifasl_load                        );
@@ -256,10 +254,6 @@ static void register_main_subrs()
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
-    register_subr(_T("%global-environment?"),             SUBR_1,     (void*)lglobal_environmentp                );
-    register_subr(_T("%global-environment-name"),         SUBR_1,     (void*)lglobal_environment_name            );
-    register_subr(_T("%global-environment-ref"),          SUBR_2,     (void*)lglobal_environment_ref             );
-    register_subr(_T("%global-environment-set!"),         SUBR_3,     (void*)lglobal_environment_set             );
     register_subr(_T("%handler-frames"),                  SUBR_0,     (void*)lhandler_frames                     );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );

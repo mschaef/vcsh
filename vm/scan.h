@@ -62,9 +62,6 @@ enum
      /*  Garbage collect on each call to newCell (Very slow) */
      ALWAYS_GC = FALSE,
 
-     /*  The default allocation unit for global environment vectors. */
-     GLOBAL_ENV_BLOCK_SIZE = 4096,
-
      /*  The depth of the stack the FASL loader uses to store load unit state */
      FAST_LOAD_STACK_DEPTH = 16,
 
@@ -274,12 +271,6 @@ struct LObject
           } vector;
           struct
           {
-               LRef name;
-               size_t dim;
-               LRef *data;
-          } genv;
-          struct
-          {
                LRef _map;
                size_t _dim;
                LRef *_data;
@@ -476,9 +467,6 @@ struct interpreter_t
 
      bool shutting_down;
 
-     LRef global_env;
-     size_t last_global_env_entry;
-
      size_t init_load_file_count;
      _TCHAR *init_load_file_name[MAX_INIT_LOAD_FILES];
 
@@ -660,11 +648,6 @@ INLINE bool GC_TRIP_WIRE_P(LRef x)
 INLINE bool FAST_OP_P(LRef x)
 {
      return TYPEP(x, TC_FAST_OP);
-}
-
-INLINE bool GENVP(LRef x)
-{
-     return TYPEP(x, TC_GENV);
 }
 
 INLINE bool TRUEP(LRef x)
@@ -892,55 +875,6 @@ INLINE void SET_VECTOR_ELEM(LRef vec, fixnum_t index, LRef new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-LRef genvcons(size_t dim, LRef name);
-
-INLINE LRef GENV_NAME(LRef obj)
-{
-     checked_assert(GENVP(obj));
-     return ((obj)->storage_as.genv.name);
-}
-
-INLINE void SET_GENV_NAME(LRef obj, LRef new_name)
-{
-     checked_assert(GENVP(obj));
-     ((obj)->storage_as.genv.name) = new_name;
-}
-
-INLINE size_t GENV_DIM(LRef obj)
-{
-     checked_assert(GENVP(obj));
-     return ((obj)->storage_as.genv.dim);
-}
-
-INLINE void SET_GENV_DIM(LRef obj, size_t new_dim)
-{
-     checked_assert(GENVP(obj));
-     ((obj)->storage_as.genv.dim) = new_dim;
-}
-
-INLINE LRef *GENV_DATA(LRef obj)
-{
-     checked_assert(GENVP(obj));
-     return ((obj)->storage_as.genv.data);
-}
-
-INLINE LRef *SET_GENV_DATA(LRef obj, LRef * new_data)
-{
-     checked_assert(GENVP(obj));
-     return ((obj)->storage_as.genv.data) = new_data;
-}
-
-INLINE LRef GENV_ELEM(LRef vec, fixnum_t index)
-{
-     checked_assert(GENVP(vec));
-     return ((vec)->storage_as.genv.data[(index)]);
-}
-
-INLINE void SET_GENV_ELEM(LRef vec, fixnum_t index, LRef new_value)
-{
-     checked_assert(GENVP(vec));
-     ((vec)->storage_as.genv.data[(index)]) = new_value;
-}
                                                                                                                                                                               /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
 
 INLINE size_t STRUCTURE_DIM(LRef obj)
@@ -1690,7 +1624,7 @@ LRef run();
 
 LRef apply1(LRef fn, size_t argc, LRef argv[]);
 
-LRef lidefine_global(LRef var, LRef val, LRef genv);
+LRef lidefine_global(LRef var, LRef val);
 
   /****** Error handling and control */
 
@@ -1736,8 +1670,6 @@ void *safe_malloc(size_t size);
 
 void safe_free(void *block);
 
-void set_global_env(LRef genv);
-void check_global_environment_size();
 
 /***** Time *****/
 flonum_t time_since_launch();
@@ -1778,10 +1710,8 @@ LRef lclosurecons(LRef env, LRef code, LRef property_list);
 LRef lclosurep(LRef obj);
 LRef lcomplexp(LRef x);
 LRef lconsp(LRef x);
-LRef lcopy_global_environment(LRef genv, LRef name);
 LRef lcopy_structure(LRef st);
 LRef lcos(LRef x);
-LRef lcurrent_global_environment();
 LRef ldebug_flags();
 LRef ldebug_write(LRef form);
 LRef ldelete_file(LRef filename);
@@ -1812,10 +1742,6 @@ LRef lgc_runtime();
 LRef lgc_status(LRef new_gc_status);
 LRef lget_current_frames(LRef skip_count);
 LRef lget_output_string(LRef port);
-LRef lglobal_environment_name(LRef genv);
-LRef lglobal_environment_ref(LRef genv, LRef i);
-LRef lglobal_environment_set(LRef genv, LRef i, LRef v);
-LRef lglobal_environmentp(LRef genv);
 LRef lhandler_frames();
 LRef lhas_slotp(LRef this_obj, LRef key);
 LRef lhash2alist(LRef hash);

@@ -94,8 +94,6 @@ size_t object_length(LRef obj)  /*  REVISIT: Is it really necessary to be this g
           return STRING_DIM(obj);
      case TC_VECTOR:
           return VECTOR_DIM(obj);
-     case TC_GENV:
-          return GENV_DIM(obj);
      case TC_HASH:
           return hash_length(obj);
      case TC_PORT:
