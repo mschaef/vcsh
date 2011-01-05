@@ -107,7 +107,7 @@
                           (append body-forms (cons next-form))))))))
 
 
-(define (expand/if form genv at-toplevel?)
+(define (expand/if form at-toplevel?)
   (unless (or (length=3? form) (length=4? form))
     (compile-error form "Invalid if, bad length."))
   (map #L(expand-form _ at-toplevel?) form))
@@ -141,7 +141,7 @@
 (define (expand/%toplevel-lambda form genv at-toplevel?)
   `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t genv #t)))
 
-(define (expand/set! form genv at-toplevel?)
+(define (expand/set! form at-toplevel?)
   (unless (length=3? form)
     (compile-error "Invalid set!, bad length." form))
   `(set! ,(cadr form) ,(expand-form (caddr form) at-toplevel?)))
@@ -163,7 +163,7 @@
         `(begin ,@(translate-form-sequence forms #t genv at-toplevel?))
         #f)))
 
-(define (expand/logical form genv at-toplevel?)
+(define (expand/logical form at-toplevel?)
   `(,(car form) ,@(map #L(expand-form _ at-toplevel?) (cdr form))))
 
 (define (form-expander form genv at-toplevel?)
@@ -172,11 +172,11 @@
         ((list? form)
          (case (car form)
            ((quote)               form)
-           ((or and)              (expand/logical     form genv at-toplevel?))
-           ((if)                  (expand/if          form genv at-toplevel?))
+           ((or and)              (expand/logical     form at-toplevel?))
+           ((if)                  (expand/if          form at-toplevel?))
            ((scheme::%lambda)     (expand/%lambda     form genv at-toplevel?))
            ((%toplevel-lambda)    (expand/%toplevel-lambda    form genv at-toplevel?))
-           ((set!)                (expand/set!        form genv at-toplevel?))
+           ((set!)                (expand/set!        form at-toplevel?))
            ((begin)               (expand/begin       form genv at-toplevel?))
            ((eval-when)           (expand/eval-when   form genv at-toplevel?))
            (#t
