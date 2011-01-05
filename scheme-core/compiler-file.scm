@@ -7,11 +7,6 @@
 (define *initial-package* "user")
 (define *disable-load-unit-boundaries* #f)
 
-;;; FASL file generaiton
-
-(define (emit-action form output-fasl-stream genv)
-  (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (compile-form form #t)) output-fasl-stream))
 
 ;;; The file reader
 
@@ -34,17 +29,16 @@
 
 (define *package-var* '*package*)
 
-(define (compiler-read port genv)
+(define (compiler-read port)
   (let ((loc (begin
                (flush-whitespace port #t)
                (port-location port))))
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
       (dynamic-let ((*location-mapping* *compiler-location-map*)
-                    (*package* (symbol-value *package-var* ()))
-                    (scheme::*reader-genv* genv))
-        (trace-message *show-actions* "* READ in ~s genv=~@\n" *package* genv)
-        (*compiler-reader* port #f))))) ; REVISIT #. eval/read forms are not evaluated in genv
+                    (*package* (symbol-value *package-var* ())))
+        (trace-message *show-actions* "* READ in ~s\n" *package*)
+        (*compiler-reader* port)))))
 
 ;;; The main loop
 
@@ -117,14 +111,14 @@
 
     (fasl-write-op system::FASL_OP_LOADER_DEFINEA0 (list var val-thunk) output-fasl-stream)))
 
-(define (emit-action form output-fasl-stream genv)
+(define (emit-action form output-fasl-stream)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
   (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (toplevel-form->thunk form)) output-fasl-stream))
 
 (define process-toplevel-form)
 (define process-%%begin-load-unit-boundaries)
 
-(define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream genv)
+(define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream :optional (genv #f))
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
                  (if compile-time-eval? " [compile-time]" "")
@@ -145,7 +139,7 @@
       (#t
        (mvbind (expanded? expanded-form) (maybe-expand-user-macro form genv #t)
          (cond (expanded?
-                (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream genv))
+                (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream))
                (#t
                 (when compile-time-eval?
                   (compiler-evaluate form))
@@ -155,11 +149,11 @@
 (define (process-toplevel-forms reader load-time-eval? compile-time-eval? output-fasl-stream genv)
   (let loop ((next-form (reader)))
     (unless (eof-object? next-form)
-      (process-toplevel-form next-form load-time-eval? compile-time-eval? output-fasl-stream genv)
+      (process-toplevel-form next-form load-time-eval? compile-time-eval? output-fasl-stream)
       (loop (reader)))))
 
 (define (compile-port-forms ip output-fasl-stream genv)
-  (process-toplevel-forms (lambda () (compiler-read ip genv)) #t #f output-fasl-stream genv))
+  (process-toplevel-forms (lambda () (compiler-read ip)) #t #f output-fasl-stream genv))
 
 ;;; Error reporting
 
