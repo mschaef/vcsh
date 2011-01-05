@@ -55,7 +55,7 @@
 
 (define process-toplevel-forms) ; forward
 
-(define (process-toplevel-eval-when form load-time-eval? compile-time-eval? *toplevel-forms* genv)
+(define (process-toplevel-eval-when form load-time-eval? compile-time-eval? *toplevel-forms*)
   (mvbind (situations forms) (parse-eval-when form)
     (let ((load-time-eval? (and load-time-eval? (member :load-toplevel situations)))
           (compile-time-eval? (or (member :compile-toplevel situations)
@@ -98,7 +98,7 @@
       (symbol? obj)
       (pair? obj)))
 
-(define (process-toplevel-define form output-fasl-stream genv)
+(define (process-toplevel-define form output-fasl-stream)
   (let* ((var (second form))
          (val-thunk (toplevel-form->thunk (third form)))
          (val (val-thunk)))
@@ -107,7 +107,7 @@
     (trace-message *verbose* "; defining ~a\n" var)
 
     ;; error checking here???
-    (scheme::%define-global var val genv)
+    (scheme::%define-global var val)
 
     (fasl-write-op system::FASL_OP_LOADER_DEFINEA0 (list var val-thunk) output-fasl-stream)))
 
@@ -129,13 +129,13 @@
       ((%%begin-load-unit-boundaries)
        (process-%%begin-load-unit-boundaries form output-fasl-stream))
       ((scheme::%define)
-       (process-toplevel-define form output-fasl-stream genv))
+       (process-toplevel-define form output-fasl-stream))
       ((begin)
        (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream))
       ((include)
        (process-toplevel-include form output-fasl-stream genv))
       ((eval-when)
-       (process-toplevel-eval-when form load-time-eval? compile-time-eval? output-fasl-stream genv))
+       (process-toplevel-eval-when form load-time-eval? compile-time-eval? output-fasl-stream))
       (#t
        (mvbind (expanded? expanded-form) (maybe-expand-user-macro form genv #t)
          (cond (expanded?
