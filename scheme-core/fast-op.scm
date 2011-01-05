@@ -46,7 +46,6 @@
 (define-fast-op :close-env 128 2)
 
 (define-fast-op :get-env 224 0)
-(define-fast-op :set-genv 225 1)
 
 (define-fast-op :global-def 240 3)
 

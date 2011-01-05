@@ -134,8 +134,7 @@
                scheme::instance
                scheme::unbound-marker
                scheme::trip-wire
-               scheme::fast-op
-               scheme::genv)
+               scheme::fast-op)
              '(scheme::*package-list*
                scheme::*provided-packages*)
              '(scheme::iterate-sequence-expander)

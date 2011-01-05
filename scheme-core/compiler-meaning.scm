@@ -144,10 +144,6 @@
     ,(expanded-form-meaning tag-form cenv at-toplevel?)
     ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
-(define-special-form (scheme::%set-genv value-form)
-  `(:set-genv
-    ,(expanded-form-meaning value-form cenv at-toplevel?)))
-
 (define-special-form (scheme::%%catch tag-form body-form)
   `(:catch
     ,(expanded-form-meaning tag-form cenv at-toplevel?)

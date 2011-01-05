@@ -177,7 +177,6 @@
 
 ;;; Compilation setup
 
-;; TODO: dynamic-let in a specific global environment
 
 ;; These two functions are very unusual... they are directly written into
 ;; compiled FASL output as arguments to APPLY0 and APPLYN and are used
