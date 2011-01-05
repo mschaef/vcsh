@@ -623,9 +623,6 @@ loop:
      }
      break;
                
-     case FOP_SET_GENV: // TODO: Remove
-     break;
-          
      default:
           panic("Unsupported fast-op");
      }

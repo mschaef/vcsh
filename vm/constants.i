@@ -124,7 +124,6 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_WITH_UNWIND_FN,           196)
 
     VM_CONSTANT(FOP_GET_ENV,                  224)
-    VM_CONSTANT(FOP_SET_GENV,                 225)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
     VM_CONSTANT(FOP_MARK_STACK,               248)
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
