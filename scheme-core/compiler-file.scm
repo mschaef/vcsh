@@ -62,7 +62,7 @@
                                   (and compile-time-eval?
                                        (member :execute-toplevel situations)))))
       (when (or load-time-eval? compile-time-eval?)
-        (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? *toplevel-forms* genv)))))
+        (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? *toplevel-forms*)))))
 
 (define *files-currently-compiling* ())
 
@@ -131,7 +131,7 @@
       ((scheme::%define)
        (process-toplevel-define form output-fasl-stream genv))
       ((begin)
-       (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream genv))
+       (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream))
       ((include)
        (process-toplevel-include form output-fasl-stream genv))
       ((eval-when)
@@ -144,16 +144,16 @@
                 (when compile-time-eval?
                   (compiler-evaluate form))
                 (when load-time-eval?
-                  (emit-action form output-fasl-stream genv)))))))))
+                  (emit-action form output-fasl-stream)))))))))
 
-(define (process-toplevel-forms reader load-time-eval? compile-time-eval? output-fasl-stream genv)
+(define (process-toplevel-forms reader load-time-eval? compile-time-eval? output-fasl-stream)
   (let loop ((next-form (reader)))
     (unless (eof-object? next-form)
       (process-toplevel-form next-form load-time-eval? compile-time-eval? output-fasl-stream)
       (loop (reader)))))
 
 (define (compile-port-forms ip output-fasl-stream genv)
-  (process-toplevel-forms (lambda () (compiler-read ip)) #t #f output-fasl-stream genv))
+  (process-toplevel-forms (lambda () (compiler-read ip)) #t #f output-fasl-stream))
 
 ;;; Error reporting
 
