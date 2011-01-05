@@ -81,11 +81,3 @@
                            (compile-error form "Runtime error while evaluating toplevel form: ~s" args)
                            (throw 'end-compiler-evaluate)))))
       (eval form))))
-
-
-
-(define (symbol-value-with-bindings symbol bindings :optional (unbound-value #f))
-  (check symbol? symbol)
-  (if (symbol-bound? symbol)
-      (symbol-value symbol)
-      unbound-value))

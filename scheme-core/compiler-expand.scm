@@ -13,10 +13,11 @@
       (lambda (form) (expander form #f at-toplevel?))
     form))
 
-(define (compiler-macroexpand-1 form genv at-toplevel?)
+(define (compiler-macroexpand-1 form at-toplevel?)
   (aif (and (pair? form)
             (symbol? (car form))
-            (macro? (symbol-value-with-bindings (car form) genv)))
+            (symbol-bound? (car form))
+            (macro? (symbol-value (car form))))
        (values #t
                (apply-expander (lambda (form genv)
                                  (let ((transformer (scheme::%macro-transformer it)))
@@ -28,7 +29,7 @@
 (define compiler-macroexpand)
 
 (define (compiler-macroexpand form genv at-toplevel?)
-  (mvbind (expanded? expanded-form) (compiler-macroexpand-1 form genv at-toplevel?)
+  (mvbind (expanded? expanded-form) (compiler-macroexpand-1 form at-toplevel?)
     (if expanded?
         (compiler-macroexpand expanded-form genv at-toplevel?)
         form)))
@@ -37,7 +38,7 @@
   "Apply the macro expansion pass of the compiler to <form>, but only for one
    time. Two values are returned: the first is a boolean indicating if a
    a macro was expanded and the second is the result of that expansion."
-  (compiler-macroexpand-1 form #f #f))
+  (compiler-macroexpand-1 form #f))
 
 (define (scheme::macroexpand form)
   "Apply the macro expansion pass of the compiler to <form>, and repeat until
@@ -53,7 +54,7 @@
               (lambda (message args . rest)
                 (compile-error form (format #f "Macro signaled error: ~I" message args) args)
                 (throw 'end-compiler-macroexpand (values #f ()))))))
-      (compiler-macroexpand-1 form #f at-toplevel?))))
+      (compiler-macroexpand-1 form at-toplevel?))))
 
 (define expand-form) ; forward
 
