@@ -137,7 +137,7 @@
       ((eval-when)
        (process-toplevel-eval-when form load-time-eval? compile-time-eval? output-fasl-stream))
       (#t
-       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #f #t)
+       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
          (cond (expanded?
                 (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream))
                (#t

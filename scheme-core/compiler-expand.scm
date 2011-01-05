@@ -43,7 +43,7 @@
    no more macros apply. The return value is the result of this full expansion."
   (compiler-macroexpand form #f #f))
 
-(define (maybe-expand-user-macro form genv at-toplevel?)
+(define (maybe-expand-user-macro form at-toplevel?)
   (catch 'end-compiler-macroexpand
     (handler-bind
         ((runtime-error
@@ -52,7 +52,7 @@
               (lambda (message args . rest)
                 (compile-error form (format #f "Macro signaled error: ~I" message args) args)
                 (throw 'end-compiler-macroexpand (values #f ()))))))
-      (compiler-macroexpand-1 form genv at-toplevel?))))
+      (compiler-macroexpand-1 form #f at-toplevel?))))
 
 (define expand-form) ; forward
 
@@ -180,7 +180,7 @@
            ((begin)               (expand/begin       form genv at-toplevel?))
            ((eval-when)           (expand/eval-when   form genv at-toplevel?))
            (#t
-            (mvbind (expanded? expanded-form) (maybe-expand-user-macro form genv at-toplevel?)
+            (mvbind (expanded? expanded-form) (maybe-expand-user-macro form at-toplevel?)
               (cond (expanded?
                      (expand-form expanded-form genv at-toplevel?))
                     ((atom? expanded-form)
