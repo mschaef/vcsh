@@ -73,7 +73,7 @@
 
 (define compile-file/simple)
 
-(define (process-toplevel-include form output-fasl-stream genv)
+(define (process-toplevel-include form output-fasl-stream)
   (unless (and (list? form) (length=2? form) (string? (second form)))
     (compile-error #f "Invalid include form: ~s" form))
   (let ((file-spec (second form)))
@@ -118,7 +118,7 @@
 (define process-toplevel-form)
 (define process-%%begin-load-unit-boundaries)
 
-(define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream :optional (genv #f))
+(define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
                  (if compile-time-eval? " [compile-time]" "")
@@ -133,11 +133,11 @@
       ((begin)
        (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream))
       ((include)
-       (process-toplevel-include form output-fasl-stream genv))
+       (process-toplevel-include form output-fasl-stream))
       ((eval-when)
        (process-toplevel-eval-when form load-time-eval? compile-time-eval? output-fasl-stream))
       (#t
-       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form genv #t)
+       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #f #t)
          (cond (expanded?
                 (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream))
                (#t
