@@ -251,7 +251,6 @@
              cond
              cons
              cons*
-             copy-global-environment
              copy-structure
              cos
              count

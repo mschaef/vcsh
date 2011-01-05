@@ -300,19 +300,6 @@
 
 
 
-;;; Global bindings maninpulation
-
-(define (copy-global-environment :optional (bindings-name #f))
-  "Returns a unique copy of the current global bindings."
-  (let ((new-global-bindings (%copy-global-environment (%current-global-environment))))
-    (unless bindings-name
-      (set! bindings-name (gensym "global-bindings")))
-;    (vector-set! new-global-bindings 0 bindings-name)
-    new-global-bindings))
-
-(define (capture-global-environment fn)  ;; TODO: No-op: remove it.
-  "Returns a closure of <fn> over the current global environment."
-  (lambda args (apply fn args)))
 
 (defmacro (defalias alias procedure)
   "Defines an alias for <procedure> named <alias>. The alias
