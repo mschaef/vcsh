@@ -28,10 +28,10 @@
 
 (define compiler-macroexpand)
 
-(define (compiler-macroexpand form genv at-toplevel?)
+(define (compiler-macroexpand form at-toplevel?)
   (mvbind (expanded? expanded-form) (compiler-macroexpand-1 form at-toplevel?)
     (if expanded?
-        (compiler-macroexpand expanded-form genv at-toplevel?)
+        (compiler-macroexpand expanded-form at-toplevel?)
         form)))
 
 (define (scheme::macroexpand-1 form)
@@ -58,7 +58,7 @@
 
 (define expand-form) ; forward
 
-(define (translate-form-sequence forms allow-definitions? genv at-toplevel?)
+(define (translate-form-sequence forms allow-definitions? at-toplevel?)
   "Translates a sequence of forms into another sequence of forms by removing
    any nested begins or defines."
   ;; Note that this would be an expansion step, were it not for the fact
@@ -72,7 +72,7 @@
                          (local-definitions ())
                          (body-forms ()))
 
-    (let ((next-form (compiler-macroexpand (car remaining-forms) genv at-toplevel?)))
+    (let ((next-form (compiler-macroexpand (car remaining-forms) at-toplevel?)))
       (cond
        ((begin-block? next-form)
         (expand-next-form (append (cdr next-form) (cdr remaining-forms))
@@ -114,7 +114,7 @@
   (map #L(expand-form _ at-toplevel?) form))
 
 (define (expand/begin form genv at-toplevel?)
-  `(begin ,@(translate-form-sequence (cdr form) #f genv at-toplevel?)))
+  `(begin ,@(translate-form-sequence (cdr form) #f at-toplevel?)))
 
 (define (valid-lambda-list? l-list)
   (let valid? ((l-list l-list))
@@ -137,10 +137,10 @@
   (unless (valid-lambda-list? (caddr form))
     (compile-error form "Invalid %lambda, bad lambda list"))
   `(scheme::%lambda ,(cadr form) ,(caddr form)
-      ,@(translate-form-sequence (cdddr form) #t genv #f)))
+      ,@(translate-form-sequence (cdddr form) #t #f)))
 
 (define (expand/%toplevel-lambda form genv at-toplevel?)
-  `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t genv #t)))
+  `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t #t)))
 
 (define (expand/set! form at-toplevel?)
   (unless (length=3? form)
@@ -161,7 +161,7 @@
 (define (expand/eval-when form genv at-toplevel?)
   (mvbind (situations forms) (parse-eval-when form)
     (if (member :load-toplevel situations)
-        `(begin ,@(translate-form-sequence forms #t genv at-toplevel?))
+        `(begin ,@(translate-form-sequence forms #t at-toplevel?))
         #f)))
 
 (define (expand/logical form at-toplevel?)
