@@ -5,12 +5,12 @@
 
 (define *show-expansions* #f)
 
-(define (apply-expander expander form genv at-toplevel?)
+(define (apply-expander expander form at-toplevel?)
   (call-with-compiler-tracing (and *show-expansions* (pair? form))
       (if at-toplevel?
           '("EXPAND-TOPLEVEL" "INTO-TOPLEVEL")
           '("EXPAND" "INTO"))
-      (lambda (form) (expander form genv at-toplevel?))
+      (lambda (form) (expander form #f at-toplevel?))
     form))
 
 (define (compiler-macroexpand-1 form genv at-toplevel?)
@@ -21,7 +21,8 @@
                (apply-expander (lambda (form genv)
                                  (let ((transformer (scheme::%macro-transformer it)))
                                    (transformer form ())))
-                               form genv at-toplevel?))
+                               form
+                               at-toplevel?))
        (values #f form)))
 
 (define compiler-macroexpand)
@@ -192,5 +193,5 @@
         (#t             (error "Don't know how to expand this form: ~s" form))))
 
 (define (expand-form form genv at-toplevel?)
-  (apply-expander form-expander form genv at-toplevel?))
+  (apply-expander form-expander form  at-toplevel?))
 
