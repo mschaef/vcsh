@@ -10,7 +10,7 @@
       (if at-toplevel?
           '("EXPAND-TOPLEVEL" "INTO-TOPLEVEL")
           '("EXPAND" "INTO"))
-      (lambda (form) (expander form #f at-toplevel?))
+      (lambda (form) (expander form at-toplevel?))
     form))
 
 (define (compiler-macroexpand-1 form at-toplevel?)
@@ -19,7 +19,7 @@
             (symbol-bound? (car form))
             (macro? (symbol-value (car form))))
        (values #t
-               (apply-expander (lambda (form genv)
+               (apply-expander (lambda (form at-toplevel?)
                                  (let ((transformer (scheme::%macro-transformer it)))
                                    (transformer form ())))
                                form
@@ -113,7 +113,7 @@
     (compile-error form "Invalid if, bad length."))
   (map #L(expand-form _ at-toplevel?) form))
 
-(define (expand/begin form genv at-toplevel?)
+(define (expand/begin form at-toplevel?)
   `(begin ,@(translate-form-sequence (cdr form) #f at-toplevel?)))
 
 (define (valid-lambda-list? l-list)
@@ -131,7 +131,7 @@
              (symbol? (car vars))
              (valid? (cdr vars))))))
 
-(define (expand/%lambda form genv at-toplevel?)
+(define (expand/%lambda form at-toplevel?)
   (unless (or (list? (cadr form)) (null? (cadr form)))
     (compile-error form "Invalid %lambda, expected property list"))
   (unless (valid-lambda-list? (caddr form))
@@ -139,7 +139,7 @@
   `(scheme::%lambda ,(cadr form) ,(caddr form)
       ,@(translate-form-sequence (cdddr form) #t #f)))
 
-(define (expand/%toplevel-lambda form genv at-toplevel?)
+(define (expand/%toplevel-lambda form at-toplevel?)
   `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t #t)))
 
 (define (expand/set! form at-toplevel?)
@@ -158,7 +158,7 @@
       (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute."))
     (values situations forms)))
 
-(define (expand/eval-when form genv at-toplevel?)
+(define (expand/eval-when form at-toplevel?)
   (mvbind (situations forms) (parse-eval-when form)
     (if (member :load-toplevel situations)
         `(begin ,@(translate-form-sequence forms #t at-toplevel?))
@@ -167,7 +167,7 @@
 (define (expand/logical form at-toplevel?)
   `(,(car form) ,@(map #L(expand-form _ at-toplevel?) (cdr form))))
 
-(define (form-expander form genv at-toplevel?)
+(define (form-expander form at-toplevel?)
   (cond ((null? form)
          ())
         ((list? form)
@@ -175,11 +175,11 @@
            ((quote)               form)
            ((or and)              (expand/logical     form at-toplevel?))
            ((if)                  (expand/if          form at-toplevel?))
-           ((scheme::%lambda)     (expand/%lambda     form genv at-toplevel?))
-           ((%toplevel-lambda)    (expand/%toplevel-lambda    form genv at-toplevel?))
+           ((scheme::%lambda)     (expand/%lambda     form at-toplevel?))
+           ((%toplevel-lambda)    (expand/%toplevel-lambda    form at-toplevel?))
            ((set!)                (expand/set!        form at-toplevel?))
-           ((begin)               (expand/begin       form genv at-toplevel?))
-           ((eval-when)           (expand/eval-when   form genv at-toplevel?))
+           ((begin)               (expand/begin       form at-toplevel?))
+           ((eval-when)           (expand/eval-when   form at-toplevel?))
            (#t
             (mvbind (expanded? expanded-form) (maybe-expand-user-macro form at-toplevel?)
               (cond (expanded?
@@ -193,5 +193,5 @@
         (#t             (error "Don't know how to expand this form: ~s" form))))
 
 (define (expand-form form at-toplevel?)
-  (apply-expander form-expander form  at-toplevel?))
+  (apply-expander form-expander form at-toplevel?))
 
