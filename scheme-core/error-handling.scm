@@ -28,8 +28,7 @@
    formm (<condition-symbol> <handler-form>)."
   (define (handler-forms->frame-expression handler-forms)
     `(cons (list ,@(map (lambda (handler-form)
-                          `(list ',(car handler-form)
-                                 (capture-global-environment ,(cadr handler-form))))
+                          `(list ',(car handler-form) ,(cadr handler-form)))
                         handler-forms))
            (%handler-frames)))
   (unless (valid-signal-handler-list? handler-forms)
