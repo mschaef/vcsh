@@ -704,20 +704,6 @@ LRef lapply(size_t argc, LRef argv[])
      return apply1(fn, fn_argc, fn_argv);
 }
 
-/***** Handlers *****/
-
-LRef lset_handler_frames(LRef new_frames)
-{
-     CURRENT_TIB()->handler_frames = new_frames;
-
-     return new_frames;
-}
-
-LRef lhandler_frames()
-{
-     return CURRENT_TIB()->handler_frames;
-}
-
 /***** Frame Management *****/
 
 LRef lget_current_frames(LRef sc)

@@ -254,7 +254,6 @@ static void register_main_subrs()
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
-    register_subr(_T("%handler-frames"),                  SUBR_0,     (void*)lhandler_frames                     );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
     register_subr(_T("%instance-map"),                    SUBR_1,     (void*)liinstance_map                      );
@@ -277,7 +276,6 @@ static void register_main_subrs()
     register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
     register_subr(_T("%set-debug-flags"),                 SUBR_1,     (void*)lset_debug_flags                    );
     register_subr(_T("%set-fasl-package-list!"),          SUBR_1,     (void*)lset_fasl_package_list              );
-    register_subr(_T("%set-handler-frames"),              SUBR_1,     (void*)lset_handler_frames                 );
     register_subr(_T("%set-instance-proto!"),             SUBR_2,     (void*)liset_instance_proto                );
     register_subr(_T("%set-interrupt-mask!"),             SUBR_1,     (void*)lset_interrupt_mask                 );
     register_subr(_T("%set-package-name"),                SUBR_2,     (void*)lset_package_name                   );
