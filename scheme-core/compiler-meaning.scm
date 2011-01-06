@@ -144,6 +144,14 @@
     ,(expanded-form-meaning tag-form cenv at-toplevel?)
     ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
+
+(define-special-form (scheme::%preserve-initial-fsp global-var body-form)
+  (warn-if-global-unbound global-var)
+  `(:sequence
+    (:global-set! ,global-var (:get-fsp))
+    ,(expanded-form-meaning body-form cenv at-toplevel?)))
+
+
 (define-special-form (scheme::%%catch tag-form body-form)
   `(:catch
     ,(expanded-form-meaning tag-form cenv at-toplevel?)
