@@ -74,7 +74,6 @@
 (%define %system-info #.(scheme::%subr-by-name "system-info"))
 (%define %test-blocking-input #.(scheme::%subr-by-name "%test-blocking-input"))
 (%define %time-apply0 #.(scheme::%subr-by-name "%time-apply0"))
-(%define %topframe #.(scheme::%subr-by-name "%topframe"))
 (%define %trap-handler #.(scheme::%subr-by-name "%trap-handler"))
 (%define %typecode #.(scheme::%subr-by-name "%typecode"))
 (%define %unbound-marker #.(scheme::%subr-by-name "%unbound-marker"))

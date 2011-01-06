@@ -623,7 +623,19 @@ loop:
           leave_frame();
      }
      break;
-               
+
+     case FOP_GET_FSP:
+          retval = fixcons((fixnum_t)CURRENT_TIB()->fsp++);
+          break;
+
+     case FOP_GET_HFRAMES:
+          retval = CURRENT_TIB()->handler_frames;
+          break;
+
+     case FOP_SET_HFRAMES:
+          CURRENT_TIB()->handler_frames = execute_fast_op(FAST_OP_ARG1(fop), env);
+          break;
+
      default:
           panic("Unsupported fast-op");
      }

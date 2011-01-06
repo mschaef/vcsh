@@ -23,33 +23,38 @@
   `(eval-when (:load-toplevel :compile-toplevel :execute)
      (extend-fast-op-names! ,op-name ,op-code ,arity)))
 
-(define-fast-op :literal 8 1)
-(define-fast-op :global-ref 16 1)
-(define-fast-op :global-set! 17 2)
-(define-fast-op :local-ref 18 1)
-(define-fast-op :local-set! 19 2)
 
-(define-fast-op :apply 24 2)
+(define-fast-op :literal #.system::FOP_LITERAL 1)
+(define-fast-op :global-ref #.system::FOP_GLOBAL_REF 1)
+(define-fast-op :global-set! #.system::FOP_GLOBAL_SET 2)
+(define-fast-op :local-ref #.system::FOP_LOCAL_REF 1)
+(define-fast-op :local-set! #.system::FOP_LOCAL_SET 2)
+ 
+(define-fast-op :apply #.system::FOP_APPLY 2)
+ 
+(define-fast-op :if-true #.system::FOP_IF_TRUE 3)
+ 
+(define-fast-op :and/2 #.system::FOP_AND2 2)
+(define-fast-op :or/2 #.system::FOP_OR2 2)
+ 
+(define-fast-op :sequence #.system::FOP_SEQUENCE 2)
+ 
+(define-fast-op :throw #.system::FOP_THROW 2)
+ 
+(define-fast-op :catch #.system::FOP_CATCH 2)
+(define-fast-op :with-unwind-fn #.system::FOP_WITH_UNWIND_FN 2)
+ 
+(define-fast-op :close-env #.system::FOP_CLOSE_ENV 2)
+ 
+(define-fast-op :get-env #.system::FOP_GET_ENV 0)
+ 
+(define-fast-op :global-def #.system::FOP_GLOBAL_DEF 3)
+ 
+(define-fast-op :mark-stack #.system::FOP_MARK_STACK 2)
 
-(define-fast-op :if-true 32 3)
-
-(define-fast-op :and/2 64 2)
-(define-fast-op :or/2 65 2)
-
-(define-fast-op :sequence 96 2)
-
-(define-fast-op :throw 193 2)
-
-(define-fast-op :catch 195 2)
-(define-fast-op :with-unwind-fn 196 2)
-
-(define-fast-op :close-env 128 2)
-
-(define-fast-op :get-env 224 0)
-
-(define-fast-op :global-def 240 3)
-
-(define-fast-op :mark-stack 248 2)
+(define-fast-op :get-fsp #.system::FOP_GET_FSP 0)
+(define-fast-op :get-hframes #.system::FOP_GET_HFRAMES 0)
+(define-fast-op :set-hframes #.system::FOP_SET_HFRAMES 1)
 
 (define (parse-fast-op fast-op :optional (parse-opcode? #t))
   (let ((opcode (%fast-op-opcode fast-op))
