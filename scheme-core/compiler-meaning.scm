@@ -159,6 +159,16 @@
     ,(expanded-form-meaning after-fn-form cenv at-toplevel?)
     ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
+(define-special-form (scheme::%%get-fsp)
+  `(:get-fsp))
+
+(define-special-form (scheme::%%get-hframes)
+  `(:get-hframes))
+
+(define-special-form (scheme::%%set-hframes new-hframes)
+  `(:set-hframes 
+    ,(expanded-form-meaning new-hframes cenv at-toplevel?)))
+
 (define (expanded-form-meaning form cenv at-toplevel?)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
