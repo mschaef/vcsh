@@ -50,8 +50,6 @@
  
 (define-fast-op :global-def #.system::FOP_GLOBAL_DEF 3)
  
-(define-fast-op :mark-stack #.system::FOP_MARK_STACK 2)
-
 (define-fast-op :get-fsp #.system::FOP_GET_FSP 0)
 (define-fast-op :get-hframes #.system::FOP_GET_HFRAMES 0)
 (define-fast-op :set-hframes #.system::FOP_SET_HFRAMES 1)

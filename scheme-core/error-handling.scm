@@ -189,7 +189,7 @@
   (define (maybe-remove-system-frames frame-list)
     (if (or *show-system-frames* (not *system-stack-boundary*))
         frame-list
-        (drop-while #L(< (second _) scheme::*system-stack-boundary*) frame-list)))
+        (take-while #L(> (second _) scheme::*system-stack-boundary*) frame-list)))
   (let ((frame-list (filter (lambda (frame) (= (car frame) system::FRAME_EVAL))
                             (maybe-remove-system-frames frame-list))))
     (doiterate ((list frame (reverse frame-list))

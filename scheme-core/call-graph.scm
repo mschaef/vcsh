@@ -35,8 +35,6 @@
          ((:global-def)
           (cons (car args)
                 (recur (cadr args))))
-         ((:mark-stack)
-          (recur (car args)))
          (#t
           (error "Unexpected fast-op: ~s" fast-op)))))))
 

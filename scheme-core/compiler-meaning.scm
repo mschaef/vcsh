@@ -139,10 +139,6 @@
 (define-special-form (the-environment)
   `(:get-env))
 
-(define-special-form (scheme::%mark-stack tag-form body-form)
-  `(:mark-stack
-    ,(expanded-form-meaning tag-form cenv at-toplevel?)
-    ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
 
 (define-special-form (scheme::%preserve-initial-fsp global-var body-form)
