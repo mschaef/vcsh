@@ -14,13 +14,13 @@
 
 (defmacro (with-handler-frames new-frames . code)
   (with-gensyms (old-frames-sym)
-    `(let ((,old-frames-sym (%handler-frames)))
+    `(let ((,old-frames-sym (%%get-hframes)))
        (unwind-protect
         (lambda ()
-          (%set-handler-frames ,new-frames)
+          (%%set-hframes ,new-frames)
           ,@code)
         (lambda ()
-          (%set-handler-frames ,old-frames-sym))))))
+          (%%set-hframes ,old-frames-sym))))))
 
 (defmacro (handler-bind handler-forms . code) ; REVISIT: Allow for implicit lambdas in handler frames
   "Executes <code> with a handler frame established with the signal handlers
@@ -30,7 +30,7 @@
     `(cons (list ,@(map (lambda (handler-form)
                           `(list ',(car handler-form) ,(cadr handler-form)))
                         handler-forms))
-           (%handler-frames)))
+           (%%get-hframes)))
   (unless (valid-signal-handler-list? handler-forms)
     (error "Invalid signal hander list: ~a" handler-forms))
   `(with-handler-frames ,(handler-forms->frame-expression handler-forms)
@@ -54,7 +54,7 @@
 (define (show-signal-handlers)
   "Shows a list of all current signal handlers"
   (format (current-error-port) "Current Signal Handlers:\n--------------------------------\n")
-  (table (%handler-frames) #f (current-error-port)))
+  (table (%%get-hframes) #f (current-error-port)))
 
 (define (signal condition . args)
   "Signals condition <condition> with the specified arguments. The signal
