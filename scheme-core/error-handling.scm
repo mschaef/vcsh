@@ -183,13 +183,13 @@
 
 (define *show-system-frames* #f)
 
+(define *system-stack-boundary* #f)
+
 (define (show-frames frame-list p)
   (define (maybe-remove-system-frames frame-list)
-    (if *show-system-frames*
+    (if (or *show-system-frames* (not *system-stack-boundary*))
         frame-list
-        (take-while #L(not (and (= (first _) system::FRAME_MARKER)
-                                (eq? (third _) 'system-stack-boundary)))
-                    frame-list)))
+        (drop-while #L(< (second _) scheme::*system-stack-boundary*) frame-list)))
   (let ((frame-list (filter (lambda (frame) (= (car frame) system::FRAME_EVAL))
                             (maybe-remove-system-frames frame-list))))
     (doiterate ((list frame (reverse frame-list))
