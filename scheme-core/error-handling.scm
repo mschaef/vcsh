@@ -39,7 +39,7 @@
 (define (handle-condition condition args :optional (last-resort-handler #f))
   (unless (symbol? condition)
     (%panic (format #f "Condition ~s is not a symbol" condition)))
-  (let loop ((remaining-handler-frames (%handler-frames))
+  (let loop ((remaining-handler-frames (%%get-hframes))
              (remaining-handlers '()))
     (cond ((not (null? remaining-handlers))
            (when (eq? condition (caar remaining-handlers))
