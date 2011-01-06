@@ -212,12 +212,15 @@
                                        (with-default-read-error-handling (read-abbreviated-list))))
           input-form))))
 
+(define *repl-stack-boundary* #f)
+
 (define (repl-eval form :optional (env ()))
   "Evaluates <form> in environment <env>, suppressing errors and returning
   return values as a list, rather than as multiple values."
   (with-repl-error-handling "evaluation"
-   (mvbind results (time (eval `(scheme::%mark-stack 'system-stack-boundary ,form) env))
-     results)))
+   (dynamic-let ((*repl-stack-boundary* *repl-stack-boundary*))
+     (mvbind results (time (eval `(scheme::%preserve-initial-fsp *repl-stack-boundary* ,form) env))
+       results))))
 
 (define *repl-pre-read-hook* ())
 (define *repl-pre-print-value-hook* ())
