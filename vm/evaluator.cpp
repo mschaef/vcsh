@@ -617,6 +617,7 @@ loop:
           frame_t *__frame = enter_frame();
           __frame->type = FRAME_MARKER;
           __frame->as.marker.tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+
           retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
           leave_frame();
