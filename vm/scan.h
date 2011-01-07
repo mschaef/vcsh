@@ -1931,7 +1931,6 @@ LRef ltan(LRef x);
 LRef ltemporary_file_name(LRef prefix);
 LRef ltest_blocking_input(LRef block_size, LRef length, LRef binary);
 LRef ltime_apply0(LRef fn);
-LRef ltopframe();
 LRef lto_ieee754_bits(LRef x);
 LRef ltruncate(LRef x);
 LRef lunbound_marker();

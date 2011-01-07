@@ -756,12 +756,6 @@ LRef topmost_primitive()
      return NIL;
 }
 
-LRef ltopframe() // TODO: REMOVE
-{
-     return fixcons(0); 
-}
-
-
 #if defined(WITH_FOPLOG_SUPPORT)
 LRef lifoplog_reset()
 {
