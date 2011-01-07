@@ -275,12 +275,12 @@
 
 ;; TODO: The define handler ought to be stub that calls into a hook. (and the retrace facility
 ;; needs to be implemented with this hook.)
-(define (global-define-handler trapno symbol new-definition)
+(define (trap-global-define-handler trapno fsp symbol new-definition)
   (awhen (trace-record-for symbol)
     (establish-trace-on-function (car it) (cdr it))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_DEFINE global-define-handler))
+  (%set-trap-handler! system::TRAP_DEFINE trap-global-define-handler))
 
 (defmacro (trace . function-names) ;; REVISIT: Can't watch anonymous functions
   `(begin ,@(map (lambda (function-name)

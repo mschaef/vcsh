@@ -130,40 +130,40 @@
 (define (uncaught-throw-handler trapno tag retval)
   (abort 'scheme::uncaught-throw tag retval))
 
-(define (trap-signal trapno tag retval)
+(define (trap-signal trapno fsp tag retval)
   (abort tag retval))
 
-(define (trap-wrong-type trapno subr argno errval)
+(define (trap-wrong-type trapno fsp subr argno errval)
   (if (< argno 0)
       (error "Invalid argument ~a to ~a: ~s" argno subr errval)
       (error "Invalid argument to ~a: ~s" subr errval)))
 
-(define (trap-index-out-of-bounds trapno subr bad-index obj)
+(define (trap-index-out-of-bounds trapno fsp subr bad-index obj)
   (error "Index ~a out of bounds while accessing ~s with ~s" bad-index obj subr))
 
-(define (trap-arg-out-of-range trapno subr bad-arg range-desc)
+(define (trap-arg-out-of-range trapno fsp subr bad-arg range-desc)
   (if (null? range-desc)
       (error "Argument to ~s out of range: ~s"  subr bad-arg)
       (error "Argument to ~s out of range (~a): ~s" subr range-desc bad-arg)))
 
-(define (trap-unimplemented trapno subr desc)
+(define (trap-unimplemented trapno fsp subr desc)
   (error "Operation in ~s not yet implemented: ~a" subr desc))
 
-(define (trap-unsupported trapno subr desc)
+(define (trap-unsupported trapno fsp subr desc)
   (error "Operation in ~s unsupported: ~a" subr desc))
 
-(define (trap-divide-by-zero trapno subr)
+(define (trap-divide-by-zero trapno fsp subr)
   (error "Divide by zero in ~s" subr))
 
-(define (trap-io-error trapno subr desc info)
+(define (trap-io-error trapno fsp subr desc info)
   (if (null? info)
       (error "Input/Output error in ~s: ~a" subr desc)
       (error "Input/Output error in ~s: ~a (~s)" subr desc info)))
 
-(define (trap-unbound-global trapno subr var)
+(define (trap-unbound-global trapno fsp subr var)
   (error "unbound global: ~s" var))
 
-(define (trap-fast-read-error trapno subr desc port location details)
+(define (trap-fast-read-error trapno fsp subr desc port location details)
   (error "Error Reading FASL File: ~s @ ~s:~s" desc port location))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

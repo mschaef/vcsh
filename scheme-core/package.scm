@@ -597,7 +597,7 @@
 (define (symbol-value sym :optional (lenv ()))
   (let ((val (%symbol-value sym lenv)))
     (if (eq? val (%unbound-marker))
-        (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym)
+        (trap-unbound-global system::TRAP_UNBOUND_GLOBAL (scheme::%%get-fsp) 'symbol-value sym)
         val)))
 
 (define (set-symbol-value! sym val :optional (lenv ()))
@@ -606,7 +606,7 @@
        (set-car! it val)
        (begin
          (unless (symbol-bound? sym ())
-           (trap-unbound-global system::TRAP_UNBOUND_GLOBAL 'symbol-value sym))
+           (trap-unbound-global system::TRAP_UNBOUND_GLOBAL (scheme::%%get-fsp) 'symbol-value sym))
          (%set-symbol-vcell! sym val)
            val)))
 

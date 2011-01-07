@@ -145,12 +145,13 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
      LRef argv[ARG_BUF_LEN];
 
      argv[0] = fixcons(trap);
-     for (size_t ii = 1; ii < argc + 1; ii++)
+     argv[1] = fixcons((fixnum_t)CURRENT_TIB()->fsp);
+     for (size_t ii = 2; ii < argc + 2; ii++)
           argv[ii] = va_arg(args, LRef);
 
      va_end(args);
 
-     retval = apply1(handler, argc + 1, argv);
+     retval = apply1(handler, argc + 2, argv);
 
      if (options & VMT_HANDLER_MUST_ESCAPE)
           vmtrap_panic(trap, "trap handler must escape");
