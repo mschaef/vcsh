@@ -611,18 +611,6 @@ loop:
      case FOP_GLOBAL_DEF: // three args, third was genv, but currently unused
           retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
           break;
-               
-     case FOP_MARK_STACK:
-     {
-          frame_t *__frame = enter_frame();
-          __frame->type = FRAME_MARKER;
-          __frame->as.marker.tag = execute_fast_op(FAST_OP_ARG1(fop), env);
-
-          retval = execute_fast_op(FAST_OP_ARG2(fop), env);
-
-          leave_frame();
-     }
-     break;
 
      case FOP_GET_FSP:
           retval = fixcons((fixnum_t)CURRENT_TIB()->fsp++);
@@ -741,10 +729,6 @@ LRef lget_current_frames(LRef sc)
 
           case FRAME_PRIMITIVE:
                frame_obj = listn(1, fsp->as.prim.function);
-               break;
-
-          case FRAME_MARKER:
-               frame_obj = listn(1, fsp->as.marker.tag);
                break;
 
           default:

@@ -68,10 +68,6 @@ void scan_postmortem_dump()
                scwritef(_T("primitive > ~s\n"), oport, fsp->as.prim.function);
                break;
 
-          case FRAME_MARKER:
-               scwritef(_T("marker > ~s\n"), oport, fsp->as.marker.tag);
-               break;
-
           default:
                scwritef(_T("<< INVALID-FRAME-TYPE >>\n"), oport);
                break;

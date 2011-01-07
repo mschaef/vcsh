@@ -125,12 +125,10 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
     VM_CONSTANT(FOP_GET_ENV,                  224)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
-    VM_CONSTANT(FOP_MARK_STACK,               248)
 
     VM_CONSTANT(FOP_GET_FSP,                  249)
     VM_CONSTANT(FOP_GET_HFRAMES,              251)
     VM_CONSTANT(FOP_SET_HFRAMES,              252)
-
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
 BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
@@ -241,7 +239,6 @@ BEGIN_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
     VM_CONSTANT(FRAME_EVAL     , 1)
     VM_CONSTANT(FRAME_EX_TRY   , 3)
     VM_CONSTANT(FRAME_EX_UNWIND, 4)
-    VM_CONSTANT(FRAME_MARKER   , 8)
 END_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
 
 BEGIN_VM_CONSTANT_TABLE(vmctrl_field_t, vmctrl_field_name)

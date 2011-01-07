@@ -418,10 +418,6 @@ struct frame_t
           {
                LRef function;
           } prim;
-          struct
-          {
-               LRef tag;
-          } marker;
      } as;
 };
 
