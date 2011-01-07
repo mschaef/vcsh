@@ -20,11 +20,15 @@
 
   (let ((fasm (fn fasm)))
     (dbind (fop-name . fop-actuals) fasm
-      (watch-environment)
         (let ((fop-formals (fop-name->formals fop-name)))
           (if fop-formals
               `(,fop-name ,@(map-fop-args fop-formals fop-actuals))
               (error "Invalid FOP transformation result: ~s" fasm))))))
+
+(define (xform-global-apply fop)
+  (bind-if-match (:apply (:global-ref ?sym) ?args) fop
+     `(:apply-global-ref ,?sym ,?args)
+     fop))
 
 (define (optimize-fop-assembly fasm)
   fasm)
