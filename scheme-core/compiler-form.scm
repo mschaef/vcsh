@@ -2,15 +2,15 @@
 ;;;;
 ;;;; The form compiler entry points.
 
-(define (compile-form->assembly form :optional (at-toplevel? #f))
+(define (form->fop-assembly form :optional (at-toplevel? #f))
   (expanded-form-meaning
    (expand-form form at-toplevel?) () at-toplevel?))
 
 (define (compile-form form :optional (at-toplevel? #f))
   "Accept a <form> and compile it into the corresponding closure or literal. <form>
    must be a form that either explicitly defines a closure or a literal."
-  (assemble
-   (compile-form->assembly form at-toplevel?)))
+  (fop-assemble
+   (form->fop-assembly form at-toplevel?)))
 
 (define (toplevel-form->thunk form)
   "Accept a <form> and compile it into a closure that can be invoked to produce the
