@@ -6,8 +6,29 @@
   (:uses "scheme"
          "compiler"))
 
-(define (lasm outermost-asm)
+(define (literals tasm)
+  (set-union/eq
+   (let recur ((tasm tasm))
+     (let ((opcode (car tasm)))
+       (case opcode
+         ((:literal :global-ref :local-ref)
+          `(,(second tasm)))
+         ((:global-set! :local-set!)
+          `(,(second tasm) ,@(recur (third tasm))))
+         ((:global-def)
+          `(,(second tasm) ,@(recur (third tasm))))
+         ((:close-env)
+          `(,@(second tasm) ,@(recur (caddr tasm))))
+         ((:apply)
+          `(,@(append-map recur (cdr tasm))))
+         ((:macro)
+          `(,(recur (second tasm))))
+         (#t
+          (append-map recur (cdr tasm))))))))
 
+(define (label) (gensym "label"))
+
+(define (lasm outermost-asm)
   (define (lasm/inner asm)
     (let ((opcode (car asm)))
       (case opcode ; REVISIT: can this be driven off of opcode metadata?
@@ -54,3 +75,6 @@
     (error "lasmr imput must be a proper list of fast-op definitions: ~s" outermost-asm))
 
   (lasm/outer outermost-asm))
+
+(define (lcompile form)
+  (compiler::compile-form->assembly form))
