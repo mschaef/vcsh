@@ -20,7 +20,7 @@
                 (recur (cadr args))))
          ((:local-set!)
           (recur (cadr args)))
-         ((:apply)
+         ((:apply/2)
           (append (recur (car args))
                   (append-map recur (cadr args))))
          ((:if-true)
