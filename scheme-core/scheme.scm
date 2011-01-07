@@ -63,7 +63,6 @@
 (include "iterate.scm")
 (include "reader.scm")
 (include "fasl-write.scm")
-(include "fast-op.scm")
 (include "date-time.scm")
 (include "exports.scm")
 (include "compiler.scm")
