@@ -13,15 +13,31 @@
 (define *fop-name->fop-defn* (make-hash :eq))
 (define *fop-opcode->fop-defn* (make-hash :eq))
 
+(define (valid-fop-formals? formals)
+  (define (valid-formal-type? type)
+    (memq type '(:literal :symbol :fast-op)))
+  (define (valid-fop-formal? formal)
+    (or (valid-formal-type? formal)
+        (and (list? formal)
+             (length=1? formal)
+             (valid-fop-formal? (car formal)))))
+  (if (and (list? formals)
+           (<= (length formals) 3)
+           (every? valid-fop-formal? formals))
+      formals
+      #f))
+
 (define (extend-fast-op-names! op-name op-code arity formals)
   (when (hash-has? *fop-name->fop-defn* op-name)
     (error "Fast op already defined: ~s" op-name))
   (when (hash-has? *fop-opcode->fop-defn* op-code)
     (error "Fast opcode for ~s already defined: ~s" op-name op-code))
+  (unless (valid-fop-formals? formals)
+    (error "Invalid formal argument list for fast op: ~s" formals))
   (let ((defn (make-fop-defn :name op-name
-                                       :opcode op-code
-                                       :arity arity
-                                       :formals formals)))
+                             :opcode op-code
+                             :arity arity
+                             :formals formals)))
     (hash-set! *fop-name->fop-defn* op-name defn)
     (hash-set! *fop-opcode->fop-defn* op-code defn)))
 
