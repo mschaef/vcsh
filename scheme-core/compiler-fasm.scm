@@ -51,6 +51,7 @@
 (define-fast-op :local-ref      #.system::FOP_LOCAL_REF      :symbol                   )
 (define-fast-op :local-set!     #.system::FOP_LOCAL_SET      :symbol :fast-op          )
 (define-fast-op :apply          #.system::FOP_APPLY          :symbol (:fast-op)        )
+(define-fast-op :apply/2        #.system::FOP_APPLY2         :symbol (:fast-op)        )
 (define-fast-op :if-true        #.system::FOP_IF_TRUE        :fast-op :fast-op :fast-op)
 (define-fast-op :and/2          #.system::FOP_AND2           :fast-op :fast-op         )
 (define-fast-op :or/2           #.system::FOP_OR2            :fast-op :fast-op         )
@@ -111,6 +112,8 @@
         ((:apply)
          (apply assemble-fast-op :apply
                 (fasm/inner (cadr asm)) (cons (map fasm/inner (cddr asm)))))
+        ((:apply/2)
+         (assemble-fast-op :apply/2 (fasm/inner (cadr asm)) (map fasm/inner (cddr asm))))
         ((:macro)
          (assemble-fast-op :literal
                                    (dbind (opcode macro-fn) asm
