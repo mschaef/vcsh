@@ -59,6 +59,7 @@
 (define-fast-op :catch          #.system::FOP_CATCH          :fast-op :fast-op         )
 (define-fast-op :with-unwind-fn #.system::FOP_WITH_UNWIND_FN :fast-op :fast-op         )
 (define-fast-op :close-env      #.system::FOP_CLOSE_ENV      :fast-op :literal         )
+(define-fast-op :closure        #.system::FOP_CLOSURE        :literal :fast-op :literal)
 (define-fast-op :get-env        #.system::FOP_GET_ENV                                  )
 (define-fast-op :global-def     #.system::FOP_GLOBAL_DEF     :symbol :literal :literal )
 (define-fast-op :get-fsp        #.system::FOP_GET_FSP                                  )
@@ -111,6 +112,8 @@
                            (cons (cadr asm)
                                  (fasm/inner (caddr asm)))
                            (cadddr asm)))
+        ((:closure)
+         (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm)) (cadddr asm)))
         ((:apply)
          (apply assemble-fast-op :apply
                 (fasm/inner (cadr asm)) (cons (map fasm/inner (cddr asm)))))
