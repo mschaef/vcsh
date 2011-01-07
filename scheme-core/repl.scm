@@ -215,9 +215,9 @@
 (define (repl-eval form :optional (env ()))
   "Evaluates <form> in environment <env>, suppressing errors and returning
   return values as a list, rather than as multiple values."
-   (dynamic-let ((*system-stack-boundary* *system-stack-boundary*))
+   (with-preserved-stack-boundary
      (with-repl-error-handling "evaluation"
-       (mvbind results (time (eval `(scheme::%preserve-initial-fsp *system-stack-boundary* ,form) env))
+       (mvbind results (time (eval `(begin-user-stack ,form) env))
          results))))
 
 (define *repl-pre-read-hook* ())

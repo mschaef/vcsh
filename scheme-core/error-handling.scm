@@ -185,6 +185,13 @@
 
 (define *system-stack-boundary* #f)
 
+(defmacro (with-preserved-stack-boundary . code)
+  `(dynamic-let ((*system-stack-boundary* *system-stack-boundary*))
+     ,@code))
+
+(defmacro (begin-user-stack form)
+  `(scheme::%preserve-initial-fsp *system-stack-boundary* ,form))
+
 (define (show-frames frame-list p)
   (define (maybe-remove-system-frames frame-list)
     (if (or *show-system-frames* (not *system-stack-boundary*))
