@@ -15,6 +15,7 @@
              "compiler-fasm.scm"
              "compiler-expand.scm"
              "compiler-meaning.scm"
+             "compiler-foptimize.scm"
              "compiler-form.scm"
              "compiler-file.scm"
              )

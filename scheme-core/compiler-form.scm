@@ -10,7 +10,8 @@
   "Accept a <form> and compile it into the corresponding closure or literal. <form>
    must be a form that either explicitly defines a closure or a literal."
   (fop-assemble
-   (form->fop-assembly form at-toplevel?)))
+   (optimize-fop-assembly
+    (form->fop-assembly form at-toplevel?))))
 
 (define (toplevel-form->thunk form)
   "Accept a <form> and compile it into a closure that can be invoked to produce the
