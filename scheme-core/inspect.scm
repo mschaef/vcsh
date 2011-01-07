@@ -102,7 +102,7 @@
 
 
 (define-method (object->inspect-ctx (obj fast-op))
-  (mvbind (opcode args) (parse-fast-op obj)
+  (mvbind (opcode args) (compiler::parse-fast-op obj)
     (make-inspect-ctx
      :obj obj
      :items (cons (make-inspect-item :desc "opcode" :value opcode)
