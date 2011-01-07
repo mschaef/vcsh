@@ -7,16 +7,17 @@
 (define (fop-id x) x)
 
 (define (map-fop-assembly fn fasm)
+
   (define (map-fop-args fop-formals fop-actuals)
-    (map (lambda (formal actual)
-           (cond ((eq? formal :fast-op)
-                  (map-fop-assembly fn actual))
-                 ((pair? formal)
-                  (map-fop-args formal actual))
-                 (#t
-                  actual)))
-         fop-formals
-         fop-actuals))
+    (define (map-fop-arg formal actual)
+      (cond ((eq? formal :fast-op)
+             (map-fop-assembly fn actual))
+            ((pair? formal)
+             (map #L(map-fop-arg (car formal) _) actual))
+            (#t
+             actual)))
+    (map map-fop-arg fop-formals fop-actuals))
+
   (let ((fasm (fn fasm)))
     (dbind (fop-name . fop-actuals) fasm
       (watch-environment)
