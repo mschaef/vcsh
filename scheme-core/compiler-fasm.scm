@@ -58,7 +58,6 @@
 (define-fast-op :throw          #.system::FOP_THROW          :fast-op :fast-op         )
 (define-fast-op :catch          #.system::FOP_CATCH          :fast-op :fast-op         )
 (define-fast-op :with-unwind-fn #.system::FOP_WITH_UNWIND_FN :fast-op :fast-op         )
-(define-fast-op :close-env      #.system::FOP_CLOSE_ENV      :fast-op :literal         )
 (define-fast-op :closure        #.system::FOP_CLOSURE        :literal :fast-op :literal)
 (define-fast-op :get-env        #.system::FOP_GET_ENV                                  )
 (define-fast-op :global-def     #.system::FOP_GLOBAL_DEF     :symbol :literal :literal )
@@ -107,11 +106,6 @@
          (assemble-fast-op opcode (cadr asm) (fasm/inner (caddr asm))))
         ((:global-def)
          (assemble-fast-op :global-def (cadr asm) (caddr asm) (cadddr asm)))
-        ((:close-env)
-         (assemble-fast-op :close-env
-                           (cons (cadr asm)
-                                 (fasm/inner (caddr asm)))
-                           (cadddr asm)))
         ((:closure)
          (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm)) (cadddr asm)))
         ((:apply)
@@ -127,13 +121,12 @@
 
   (define (fasm/outer asm)
     (case (car asm)
-      ((:close-env :closure)
+      ((:closure)
        (dbind (opcode l-list src p-list) asm
          (scheme::%closure () (cons l-list (fasm/inner src)) p-list)))
       ((:literal)
        (dbind (opcode literal) asm
          literal))
-
       ((:macro)
        (dbind (opcode macro-fn) asm
            (apply scheme::%macro (fasm/outer macro-fn) ())))
