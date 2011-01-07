@@ -1,9 +1,9 @@
 (use-package! "unit-test")
 
-(compiler::define-fast-op :test-fast-op/arity-0 188 0)
-(compiler::define-fast-op :test-fast-op/arity-1 189 1)
-(compiler::define-fast-op :test-fast-op/arity-2 190 2)
-(compiler::define-fast-op :test-fast-op/arity-3 191 3)
+(compiler::define-fast-op :test-fast-op/arity-0 188                           )
+(compiler::define-fast-op :test-fast-op/arity-1 189 :literal                  )
+(compiler::define-fast-op :test-fast-op/arity-2 190 :literal :literal         )
+(compiler::define-fast-op :test-fast-op/arity-3 191 :literal :literal :literal)
 
 (define-test fast-op
   (test-case (runtime-error? (compiler::assemble-fast-op 16)))
