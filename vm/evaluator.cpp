@@ -488,7 +488,6 @@ loop:
      break;
           
      case FOP_APPLY:
-     case FOP_APPLY2:
      {
           size_t argc = 0;
           LRef argv[ARG_BUF_LEN];
