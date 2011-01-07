@@ -77,7 +77,7 @@
 (define (fop-name->formals fop-name)
   (aif (hash-ref *fop-name->fop-defn* fop-name #f)
        (fop-defn-formals it)
-       (error "Unknown FOP name: ~s" fop-name)))
+       #f))
 
 (define (fast-op-args fast-op)
   (mvbind (opcode args) (parse-fast-op fast-op)
@@ -108,9 +108,9 @@
          (assemble-fast-op :global-def (cadr asm) (caddr asm) (cadddr asm)))
         ((:close-env)
          (assemble-fast-op :close-env
-                                   (cons (cadr asm)
-                                         (fasm/inner (caddr asm)))
-                                   (cadddr asm)))
+                           (cons (cadr asm)
+                                 (fasm/inner (caddr asm)))
+                           (cadddr asm)))
         ((:apply)
          (apply assemble-fast-op :apply
                 (fasm/inner (cadr asm)) (cons (map fasm/inner (cddr asm)))))
