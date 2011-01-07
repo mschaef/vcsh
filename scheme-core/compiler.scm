@@ -12,7 +12,7 @@
 (define-package "compiler"
   (:uses "scheme")
   (:includes "compiler-tools.scm"
-             "compiler-asm.scm"
+             "compiler-fasm.scm"
              "compiler-expand.scm"
              "compiler-meaning.scm"
              "compiler-form.scm"

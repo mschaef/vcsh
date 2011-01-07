@@ -1,4 +1,4 @@
-;;;; compiler-asm.scm
+;;;; compiler-fasm.scm
 ;;;;
 ;;;; The FOP assembler. This maps fast-op assembly trees into closures.
 
