@@ -121,7 +121,7 @@
                   (format port "~s ~s\n" opcode (car args))
                   (in-trace-level
                    (recur (cadr args))))
-                 ((:close-env)
+                 ((:close-env :closure)
                   (format port "~s ~s {\n" opcode (caar args))
                   (in-trace-level
                    (recur (cdar args)))

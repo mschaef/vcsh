@@ -77,11 +77,11 @@
       ((0) '(values))
       ((1) (first body-forms))
       (#t `(begin ,@body-forms))))
-  `(:close-env ,l-list
-               ,(expanded-form-meaning (code-body-form body)
-                                       (extend-cenv l-list cenv)
-                                       at-toplevel?)
-               ,p-list))
+  `(:closure ,l-list
+             ,(expanded-form-meaning (code-body-form body)
+                                     (extend-cenv l-list cenv)
+                                     at-toplevel?)
+             ,p-list))
 
 ;; REVISIT: begin, or, and and all have the same basic form, poss. refactor.
 ;; REVISIT: begin, or, and and are all non-tail recursive

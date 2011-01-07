@@ -127,7 +127,7 @@
 
   (define (fasm/outer asm)
     (case (car asm)
-      ((:close-env)
+      ((:close-env :closure)
        (dbind (opcode l-list src p-list) asm
          (scheme::%closure () (cons l-list (fasm/inner src)) p-list)))
       ((:literal)
