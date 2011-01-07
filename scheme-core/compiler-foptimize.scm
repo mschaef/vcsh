@@ -2,7 +2,7 @@
 ;;;;
 ;;;; The compiler's FOP tree optimizer
 
-(define *optimize* #f)
+(define *optimize* #t)
 
 (define (fop-id x) x)
 
