@@ -29,30 +29,33 @@
 (define (label) (gensym "label"))
 
 (define (lasm outermost-asm)
-  (define (lasm/inner asm)
-    (let ((opcode (car asm)))
-      (case opcode ; REVISIT: can this be driven off of opcode metadata?
-        ((:literal :global-ref :local-ref)
-         (scheme::assemble-fast-op opcode (cadr asm)))
-        ((:global-set! :local-set!)
-         (scheme::assemble-fast-op opcode (cadr asm) (lasm/inner (caddr asm))))
-        ((:global-def)
-         (scheme::assemble-fast-op :global-def (cadr asm) (caddr asm) (cadddr asm)))
-        ((:close-env)
-         (scheme::assemble-fast-op :close-env
-                                   (cons (cadr asm)
-                                         (lasm/inner (caddr asm)))
-                                   (cadddr asm)))
-        ((:apply)
-         (apply scheme::assemble-fast-op :apply
-                (lasm/inner (cadr asm)) (cons (map lasm/inner (cddr asm)))))
-        ((:macro)
-         (scheme::assemble-fast-op :literal
-                                   (dbind (opcode macro-fn) asm
-                                     (apply scheme::%macro (lasm/outer macro-fn) ()))))
-        (#t
-         (apply scheme::assemble-fast-op opcode
-                (map lasm/inner (cdr asm)))))))
+  (let ((literals (literals outermost-asm)))
+    (define (literal-index value)
+      (list-index #L(eq? value _) literals))
+    
+
+    (define (lasm/inner asm)
+      (let ((opcode (car asm)))
+        (case opcode
+          ((:literal :global-ref :local-ref)
+           `(,(car opcode) ,(literal-index (second opcode))))
+          ((:global-set! :local-set!)
+           `(,(car opcode) ,(literal-index (second opcode)) ,(literal-index (third opcode))))
+
+          ((:close-env)
+           (scheme::assemble-fast-op :close-env
+                                     (cons (cadr asm)
+                                           (lasm/inner (caddr asm)))
+                                     (cadddr asm)))
+          ((:apply)
+           `(,@(map lasm/inner (cddr asm)) ,(lasm/inner (cadr asm)) ,((car asm))))
+          ((:macro)
+           (scheme::assemble-fast-op :literal
+                                     (dbind (opcode macro-fn) asm
+                                       (apply scheme::%macro (lasm/outer macro-fn) ()))))
+          (#t
+           (apply scheme::assemble-fast-op opcode
+                  (map lasm/inner (cdr asm))))))))
 
   (define (lasm/outer asm)
     (case (car asm)
