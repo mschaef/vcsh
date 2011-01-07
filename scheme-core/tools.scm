@@ -127,7 +127,12 @@
                    (recur (cadr args)))
                   (trace-indent port)
                   (format port "}\n"))
-                 ((:apply/2)
+                 ((:apply-global)
+                  (format port "~s ~s\n" opcode (car args))
+                  (in-trace-level
+                   (dolist (arg (cadr args))
+                     (recur arg))))
+                 ((:apply)
                   (format port "~s\n" opcode)
                   (in-trace-level
                    (dolist (arg (cons (car args) (cadr args)))

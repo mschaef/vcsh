@@ -486,6 +486,45 @@ loop:
           retval = val;
      }
      break;
+
+     case FOP_APPLY_GLOBAL:
+     {
+          LRef sym = FAST_OP_ARG1(fop);               
+          LRef fn = SYMBOL_VCELL(sym);
+               
+          checked_assert(SYMBOLP(sym));
+          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
+
+          if (UNBOUND_MARKER_P(fn))
+               vmerror_unbound(sym);
+
+          size_t argc = 0;
+          LRef argv[ARG_BUF_LEN];
+          LRef args = FAST_OP_ARG2(fop);
+
+          while (CONSP(args))
+          {
+               if (argc >= ARG_BUF_LEN)
+               {
+                    vmerror_unsupported(_T("too many actual arguments"));
+                    break;
+               }
+
+               argv[argc] = execute_fast_op(CAR(args), env);
+               
+               args = CDR(args);
+               argc++;
+          }
+
+          if (!NULLP(args))
+               vmerror_arg_out_of_range(FAST_OP_ARG2(fop), _T("bad formal argument list"));
+               
+          fop = apply(fn, argc, argv, &env, &retval);
+               
+          if (!NULLP(fop))
+               goto loop;
+     }
+     break;
           
      case FOP_APPLY:
      {

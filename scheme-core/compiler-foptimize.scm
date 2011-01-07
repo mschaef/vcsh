@@ -27,8 +27,10 @@
 
 (define (xform-global-apply fop)
   (bind-if-match (:apply (:global-ref ?sym) ?args) fop
-     `(:apply-global-ref ,?sym ,?args)
+     `(:apply-global ,?sym ,?args)
      fop))
 
 (define (optimize-fop-assembly fasm)
-  fasm)
+  (if *optimize*
+      (map-fop-assembly xform-global-apply fasm)
+      fasm))

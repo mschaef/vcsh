@@ -112,6 +112,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_LOCAL_REF,                18 )
     VM_CONSTANT(FOP_LOCAL_SET,                19 )
 
+    VM_CONSTANT(FOP_APPLY_GLOBAL,             24 )
     VM_CONSTANT(FOP_APPLY,                    25 )
 
     VM_CONSTANT(FOP_IF_TRUE,                  32 )
