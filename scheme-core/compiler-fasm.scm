@@ -46,6 +46,7 @@
      (extend-fast-op-names! ,op-name ,op-code ,(length formals) ',formals)))
 
 (define-fast-op :literal        #.system::FOP_LITERAL        :literal                  )
+(define-fast-op :macro          -1                           :fast-op                  )
 (define-fast-op :global-ref     #.system::FOP_GLOBAL_REF     :symbol                   )
 (define-fast-op :global-set!    #.system::FOP_GLOBAL_SET     :symbol :fast-op          )
 (define-fast-op :local-ref      #.system::FOP_LOCAL_REF      :symbol                   )
