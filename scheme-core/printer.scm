@@ -63,7 +63,7 @@
                       (push! (car k/v) to-visit)
                       (push! (cdr k/v) to-visit)))
                    ((fast-op)
-                    (dolist (op-piece (%fast-op-args o))
+                    (dolist (op-piece (scheme::%fast-op-args o))
                       (push! op-piece to-visit)))))
                 (#t
                  ())))
@@ -345,7 +345,7 @@
   (unreadable (write-strings port "#<UNBOUND-MARKER>")))
 
 (define-method (print-object (obj fast-op) port machine-readable? shared-structure-map)
-  (mvbind (op-name args) (parse-fast-op obj)
+  (mvbind (op-name args) (compiler::parse-fast-op obj)
      (print-unreadable-object obj port
        (print op-name port machine-readable? shared-structure-map)
        (dolist (arg args)

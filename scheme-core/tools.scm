@@ -112,8 +112,8 @@
       (trace-indent port)
       (when *disassemble-show-fast-op-addresses*
         (format port "~@ " code))
-      (cond ((fast-op? code)
-             (mvbind (opcode args) (parse-fast-op code)
+      (cond ((compiler::fast-op? code)
+             (mvbind (opcode args) (compiler::parse-fast-op code)
                (case opcode
                  ((:global-ref :local-ref :literal)
                   (format port "~s ~s\n" opcode (car args)))

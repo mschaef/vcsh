@@ -262,7 +262,7 @@
            (check-sharing-and-write (%structure-ref object ii)))))
 
       ((fast-op)
-       (mvbind (fop-opcode args) (parse-fast-op object #f)
+       (mvbind (fop-opcode args) (compiler::parse-fast-op object #f)
           (fast-write-opcode (case (length args)
                                ((0) system::FASL_OP_FAST_OP_0)
                                ((1) system::FASL_OP_FAST_OP_1)
@@ -324,7 +324,7 @@
                     (visit (car k/v))
                     (visit (cdr k/v))))
                  ((fast-op)
-                  (dolist (op-piece (%fast-op-args o))
+                  (dolist (op-piece (scheme::%fast-op-args o))
                     (visit op-piece)))
                  (#t
                   ()

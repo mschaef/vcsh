@@ -94,7 +94,7 @@
 (define (evaluated-object? obj)
   "Returns true if <obj> is an object that has specific handling in the scheme
    evaluator. If <obj> evaluates to itself, returns #f."
-  (or (scheme::fast-op? obj)
+  (or (fast-op? obj)
       (symbol? obj)
       (pair? obj)))
 

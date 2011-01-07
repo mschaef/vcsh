@@ -178,7 +178,7 @@
     (lambda (form)
       (cond ((symbol? form)
              (meaning/symbol form cenv at-toplevel?))
-            ((scheme::fast-op? form)
+            ((fast-op? form)
              form)
             ((atom? form)
              `(:literal ,form))
