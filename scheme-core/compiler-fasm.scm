@@ -113,7 +113,7 @@
          (apply assemble-fast-op :apply
                 (fasm/inner (cadr asm)) (cons (map fasm/inner (cddr asm)))))
         ((:apply/2)
-         (assemble-fast-op :apply/2 (fasm/inner (cadr asm)) (map fasm/inner (cddr asm))))
+         (assemble-fast-op :apply/2 (fasm/inner (cadr asm)) (map fasm/inner (caddr asm))))
         ((:macro)
          (assemble-fast-op :literal
                                    (dbind (opcode macro-fn) asm

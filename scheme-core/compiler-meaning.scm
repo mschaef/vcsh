@@ -36,8 +36,8 @@
     (compile-warning var "Global variable unbound: ~s" var)))
 
 (define (meaning/application form cenv at-toplevel?)
-  `(:apply ,(expanded-form-meaning (car form) cenv at-toplevel?)
-           ,@(map #L(expanded-form-meaning _ cenv at-toplevel?) (cdr form))))
+  `(:apply/2 ,(expanded-form-meaning (car form) cenv at-toplevel?)
+           ,(map #L(expanded-form-meaning _ cenv at-toplevel?) (cdr form))))
 
 (define (meaning/symbol form cenv at-toplevel?)
   (cond ((keyword? form)
