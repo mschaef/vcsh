@@ -81,7 +81,7 @@ enum
      MAX_INIT_LOAD_FILES = 8,
 
      /* The number of frames that can be stored on the frame stack. */
-     FRAME_STACK_SIZE = 1024,
+     FRAME_STACK_SIZE = 2048,
 
      /*** Hash table tuning settings ***/
 
