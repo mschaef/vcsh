@@ -1159,7 +1159,7 @@
      (let ((pat-vars (match-pattern-variables pat)))
        `(let ((,match-var (match? ',pat ,val)))
           (if ,match-var
-              (let (,@(map #L(list _ `(cdr (assq ',_ ,match-var))) pat-vars))
+              (let (,@(map #L(list _ `(cdr (assq ',_ ,match-var))) (remove match-universal-pattern-var? pat-vars)))
                 ,if-true-form)
               ,if-false-form)))))
 
