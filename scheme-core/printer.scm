@@ -396,7 +396,7 @@
 
 (define (formatter/string string next)
   (lambda (remaining-args all-args port)
-    (display string port)
+    (write-strings port string)
     (next remaining-args all-args port)))
 
 (define (formatter/tilde next)

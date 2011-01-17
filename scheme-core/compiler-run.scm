@@ -72,7 +72,7 @@
 (define-command-argument ("load-file" filename)
   "Loads the specified file immediately before beginning compilation. If this
    option is specified  multiple times, all files are loaded in the order specified
-   on the command line."
+   on the command line. All files are loaded after cross-compiler setup."
   (when (= 0 (length filename))
     (bad-command-argument-value 'filename "Missing load file name" filename))
   (unless (file-exists? filename)

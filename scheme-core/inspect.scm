@@ -251,6 +251,9 @@
     (with-inspect-printing
      (repl-print obj))))
 
+;; (eval-when (:compile-toplevel)
+;;   (repl))
+
 (define (inspect-print ctx)
   (inspect-print-object-summary ctx)
   (with-inspect-printing
