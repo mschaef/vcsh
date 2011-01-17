@@ -143,8 +143,8 @@
           (loop lines
                 (begin
                   (unless (= 0 (length current-line))
-                    (display #\space current-line))
-                  (display segment current-line))
+                    (write-strings current-line #\space))
+                  (write-strings current-line segment))
                 (read-segment)))
          ;; at this point, we know the current line overflows, so we can flush it to the line list
          ((> (length current-line) 0)
@@ -157,7 +157,7 @@
                 (read-segment)))
          ((> line-length (length segment))
           (loop lines
-                (display segment current-line)
+                (write-strings current-line segment)
                 (read-segment)))
          (#t
           (loop (cons (substring segment 0 line-length) lines)
