@@ -47,7 +47,7 @@ void scan_postmortem_dump()
 
      for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
-          scwritef(_T("fsp=~cd: "), oport, fsp);
+          scwritef(_T("\n*** FSP=~cd: "), oport, fsp);
 
           switch (fsp->type)
           {
