@@ -262,11 +262,11 @@
                                       (cond ((char-whitespace? ch)
                                              (unless in-whitespace?
                                                (set! in-whitespace? #t)
-                                               (display #\space op))
+                                               (write-strings op #\space))
                                              op)
                                             (#t
                                              (set! in-whitespace? #f)
-                                             (display ch op))))
+                                             (write-strings op ch))))
                                     (open-output-string)
                                     string))))
 
