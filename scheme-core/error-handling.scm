@@ -1,4 +1,4 @@
-<;;;; error-handling.scm
+;;;; error-handling.scm
 ;;;; October 19th, 2007
 ;;;; Mike Schaeffer
 ;;

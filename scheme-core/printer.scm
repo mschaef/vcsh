@@ -438,8 +438,7 @@
   "Creates a formatter that displays the obaddr of its argument
    and calls the  <next> formatter."
   (lambda (remaining-args all-args port)
-    (display "#x" port)
-    (display (%obaddr-string (car remaining-args)) port)
+    (write-strings port "#x" (%obaddr-string (car remaining-args)))
     (next (cdr remaining-args) all-args port)))
 
 (define (formatter/list-subformat next)

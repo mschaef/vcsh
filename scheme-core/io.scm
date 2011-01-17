@@ -79,7 +79,7 @@
                    (and length-limit (>= ii length-limit)))
                (get-output-string op))
               (#t
-               (display (read-char port) op)
+               (write-strings op (read-char port))
                (loop (peek-char port) (+ 1 ii))))))))
 
 (define (read-exact-number :optional (port (current-input-port)))
