@@ -6,6 +6,8 @@
 
 (define (fop-id x) x)
 
+(define map-fop-assembly) ;; forward
+
 (define (map-fop-assembly fn fasm)
 
   (define (map-fop-args fop-formals fop-actuals)
