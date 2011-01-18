@@ -1,4 +1,8 @@
 
+(define-package "compiler-cross-compile-setup"
+  (:uses "scheme"
+         "compiler"))
+
 (define (shared-target-symbols)
   (set-union '(compiler::%%begin-load-unit-boundaries
                scheme::%define
