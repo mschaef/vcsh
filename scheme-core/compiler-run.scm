@@ -198,7 +198,7 @@
   (time
    (let ((pkg (find-package *initial-package*)))
      (unless pkg
-       (error "Initial package not found: ~s" pkg))
+       (error "Initial package not found: ~s" *initial-package*))
      (scheme::%define-global compiler::*package-var* pkg)
      (load-compiler-load-files)
      (when *debug*
