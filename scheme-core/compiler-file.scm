@@ -286,6 +286,12 @@
                                     message args)
                             (throw 'end-compile-now 127)))))
 
+        (aif (and *initial-package*
+                  (find-package *initial-package*))
+             (scheme::%define-global compiler::*package-var* it)
+             (begin
+               (format *compiler-error-port* "Initial package not found: ~s" *initial-package*)
+               (throw 'end-compile-now 127)))
 
         (compile-files filenames output-file-name)
 

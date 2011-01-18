@@ -195,16 +195,17 @@
   (when (eq? *cross-compile* :package-renaming)
     (setup-cross-compiler)
     (set! compiler::*package-var* (scheme::intern! "*package*" "scheme"))) 
+
+
+    
+  (load-compiler-load-files)
+  (when *debug*
+    (display-packages))
+
   (time
-   (let ((pkg (find-package *initial-package*)))
-     (unless pkg
-       (error "Initial package not found: ~s" *initial-package*))
-     (scheme::%define-global compiler::*package-var* pkg)
-     (load-compiler-load-files)
-     (when *debug*
-       (display-packages))
-     ;; Play nice with batch files launching the compiler...
-     ;; we never want to be interactive.
-     (catch-all
-      (compile-file *files-to-compile* *output-file-name*)))))
+   ;; Play nice with batch files launching the compiler...
+   ;; we never want to be interactive.
+     
+   (catch-all
+    (compile-file *files-to-compile* *output-file-name*))))
 
