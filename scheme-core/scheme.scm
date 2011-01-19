@@ -2,7 +2,7 @@
 ;;;;
 ;;;; The main file defining the standard scheme image.
 ;;;;
-;;;; Compile with: <vcsh> -c scheme.scm --cross-compile --initial-package:scheme --output:scheme.scf --no-load-unit-boundaries
+;;;; Compile with: <vcsh> -c --load-file:setup-image-compile.scm scheme.scm
 
 ;; Capture some relevent attriutes of the image build.
 

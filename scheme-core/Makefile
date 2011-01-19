@@ -40,7 +40,7 @@ scheme${OBJ_EXT}: scheme.scf
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}scheme${OBJ_EXT} scheme.cpp
 
 scheme.scf:
-	$(SCC0) --cross-compile:package-renaming --initial-package:scheme --no-load-unit-boundaries scheme.scm
+	$(SCC0) --load-file:setup-image-compile.scm scheme.scm
 
 
 compiler-run${OBJ_EXT}: compiler-run.scf
