@@ -44,29 +44,6 @@
   "Causes a status message to be displayed for each action on a form taken by the compiler"
   (set! *show-actions* #t))
 
-(define-command-argument ("initial-package" package-name)
-  "Sets the initial value of *package* at the beginning of compilation."
-  (set! *initial-package* package-name))
-
-(define-command-argument ("cross-compile" cross-compiler-mode)
-  "Enables support for 'cross compiling' code that might redefine
-   core parts of the runtime as it is compiled. The two supported
-   cross compiler modes are \"environment\" and \"package-renaming\"."
-  (let ((mode (if (= 0 (length cross-compiler-mode))
-                  :environment
-                  (intern-keyword! cross-compiler-mode))))
-    (unless (memq mode '(:environment 
-                         :package-renaming
-                         ))
-       (bad-command-argument-value 'cross-compiler-mode
-                                   "Bad cross compiler mode, valid options are \"environment\" and \"package-renaming\"." mode))
-    (set! *cross-compile* mode)))
-
-(define-command-argument ("no-load-unit-boundaries")
-  "Disable generation of load unit boundary code. Normally, the compiler generates
-   code to preserve *package* across load units. This turns that facility off."
-  (set! *disable-load-unit-boundaries* #t))
-
 (define *compiler-load-files* ())
 
 (define-command-argument ("load-file" filename)
@@ -95,7 +72,6 @@
     (format #t "~&Initial package           : ~a" *initial-package*)
     (format #t "~&Debug output              : ~a" (if *debug* "on" "off"))
     (format #t "~&Verbose output            : ~a" (if *verbose* "on" "off"))
-    (format #t "~&Cross Compiling           : ~a" (aif *cross-compile* it "no"))
     (format #t "~&Load files                : ~a" *compiler-load-files*)
     (newline)))
 
@@ -154,49 +130,12 @@
              (map caar (scheme::all-iterate-sequence-types))
              (compiler::special-form-symbols)))
 
-(define (setup-cross-compiler)
-  "Setup for cross compiling using renamed packages."
-  (define (package->host/target! package)
-    (let ((name (package-name package)))
-      (rename-package! package (string-append "host-" name))
-      (let ((new-package (make-package! name)))
-        (provide-package! new-package)
-        (cons package new-package))))
-  (format #t "; Configuring for cross compile by renaming packages.\n")
-  (let* ((excluded (map find-package '("system" "keyword")))
-         (host/targets (map package->host/target! (remove #L(memq _ excluded) (list-all-packages))))
-         (host->target (a-list->hash host/targets)))
-
-    ;; 0) Make sure we're providing all the packages we've created
-    (dolist (package scheme::*provided-packages*)
-      (awhen (hash-ref host->target package #f)
-        (provide-package! it)))
-    
-    (dolist (special-form-sym (shared-target-symbols))
-      (let ((target-package (hash-ref host->target (symbol-package special-form-sym))))
-        (import! special-form-sym target-package)))
-
-    (dolist (h/t host/targets)
-      (dbind (host . target) h/t
-        (dolist (host-sym (local-package-symbols host))
-          ;; 2) Re-home all of the host package symbols to the target package
-          (scheme::set-symbol-package! host-sym target)
-    
-          ;; 3) Create a separate global binding in the target packages for each host package global binding
-          (when  (symbol-bound? host-sym)
-            (scheme::%define-global (intern! (symbol-name host-sym) target)
-                                    (symbol-value host-sym))))))))
 
 (define (run)
   (enlarge-heap 50)
   (scheme::%set-stack-limit #f)
   (show-compiler-settings)
   (scheme::initialize-user-package)
-  (when (eq? *cross-compile* :package-renaming)
-    (setup-cross-compiler)
-    (set! compiler::*package-var* (scheme::intern! "*package*" "scheme"))) 
-
-
     
   (load-compiler-load-files)
   (when *debug*

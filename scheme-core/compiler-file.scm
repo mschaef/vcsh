@@ -3,10 +3,8 @@
 ;;; The file compiler. A compiler that uses the standard expression
 ;;; compiler to compile files either ahead of time or at runtime.
 
-(define *cross-compile* #f)
 (define *initial-package* "user")
 (define *disable-load-unit-boundaries* #f)
-
 
 ;;; The file reader
 

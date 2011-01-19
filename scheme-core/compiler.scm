@@ -28,7 +28,6 @@
             "*show-actions*"
             "*files-to-compile*"
             "*initial-package*"
-            "*cross-compile*"
             "*disable-load-unit-boundaries*"
             "compile-form"
             "toplevel-form->thunk"
