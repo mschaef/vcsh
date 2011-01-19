@@ -82,54 +82,6 @@
     (format #t "; Done loading compiler load file: ~s\n" file))) ; REVISIT: error check this?
 
 
-(define (shared-target-symbols)
-  (set-union '(compiler::%%begin-load-unit-boundaries
-               scheme::%define
-               scheme::begin
-               scheme::include
-               scheme::eval-when)
-             '(scheme::free-cell
-               scheme::nil
-               scheme::boolean
-               scheme::cons
-               scheme::fixnum
-               scheme::flonum
-               scheme::character
-               scheme::symbol
-               scheme::package
-               scheme::subr
-               scheme::closure
-               scheme::macro
-               scheme::string
-               scheme::vector
-               scheme::structure
-               scheme::hash
-               scheme::port
-               scheme::end-of-file
-               scheme::values-typle
-               scheme::instance
-               scheme::unbound-marker
-               scheme::trip-wire
-               scheme::fast-op)
-             '(scheme::*package-list*
-               scheme::*provided-packages*)
-             '(scheme::iterate-sequence-expander)
-             '(scheme::it
-               scheme::_)
-             '(scheme::and
-               scheme::or
-               scheme::not
-               scheme::>
-               scheme::>=
-               scheme::<
-               scheme::<=
-               scheme::= 
-               scheme::eq?
-               scheme::equal?
-               scheme::member)
-             (map caar (scheme::all-iterate-sequence-types))
-             (compiler::special-form-symbols)))
-
 
 (define (run)
   (enlarge-heap 50)
