@@ -53,6 +53,7 @@
 (include "memoize.scm")
 (include "number.scm")
 (include "package.scm")
+(include "eval.scm")
 (include "procedure.scm")
 (include "printer.scm")
 (include "quasiquote.scm")
