@@ -13,7 +13,8 @@
 (format (current-error-port) ";;;; Configuring for explicit bootstrap cross compile of Scheme image.\n")
 
 (define *shared-target-symbols* ;; TODO: Better way to build this list? Please?
-  (set-union '(scheme::*package-list*)
+  (set-union '(scheme::eval-when
+               scheme::*package-list*)
              (compiler::special-form-symbols)))
 
 ;; Exclude packages that are in common between the host and the target.

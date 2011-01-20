@@ -61,7 +61,7 @@ scheme.scf:
 	$(SCC0) --load-file:setup-image-compile.scm scheme.scm
 
 eb-scheme.scf: vcsh${EXE_EXT}
-	 ./vcsh${EXE_EXT} -c --load-file:eb-setup-image-compile.scm --load-file:image-bootstrap.scm eb-scheme.scm -o:eb-scheme.scf
+	 ./vcsh${EXE_EXT} -c --load-file:eb-setup-image-compile.scm eb-scheme.scm -o:eb-scheme.scf
 
 compiler-run${OBJ_EXT}: compiler-run.scf
 	echo \#include \"../util/base-types.h\" > compiler-run.cpp

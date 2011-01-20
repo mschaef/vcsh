@@ -35,6 +35,11 @@
 (%set-package-use-list! (%control-field system::VMCTRL_PACKAGE_SCHEME)
                         (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)))
 
+;; At this point we have enough defined that we can bring in a few bootstrap forms
+;; that'll help us compile the rest of the image.
+(eval-when (:compile-toplevel)
+  (host-scheme::load "image-bootstrap.scm"))
+
 ;;; Now, we're ready to start processing official 'load units'
 
 (host-compiler::%%begin-load-unit-boundaries "scheme")
