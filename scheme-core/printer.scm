@@ -344,14 +344,6 @@
 (define-method (print-object (obj unbound-marker) port machine-readable? shared-structure-map)
   (unreadable (write-strings port "#<UNBOUND-MARKER>")))
 
-(define-method (print-object (obj fast-op) port machine-readable? shared-structure-map)
-  (mvbind (op-name args) (compiler::parse-fast-op obj)
-     (print-unreadable-object obj port
-       (print op-name port machine-readable? shared-structure-map)
-       (dolist (arg args)
-         (write-strings port " ")
-         (print arg port machine-readable? shared-structure-map)))))
-
 (define-method  (print-object (obj port) port machine-readable? shared-structure-map)
   (print-unreadable-object obj port
     (write-strings port " name:")

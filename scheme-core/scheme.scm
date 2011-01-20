@@ -53,7 +53,6 @@
 (include "memoize.scm")
 (include "number.scm")
 (include "package.scm")
-(include "eval.scm")
 (include "procedure.scm")
 (include "printer.scm")
 (include "quasiquote.scm")
@@ -66,7 +65,10 @@
 (include "fasl-write.scm")
 (include "date-time.scm")
 (include "exports.scm")
+
 (include "compiler.scm")
+(include "eval.scm")
+
 (include "deferred-execution.scm")
 (include "repl.scm")
 (include "tools.scm")

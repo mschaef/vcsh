@@ -73,6 +73,11 @@
 (define *fasl-index-key* (gensym "fasl-index-key"))
 (define *fasl-structure-layout-key* (gensym "fasl-structure-layout-key"))
 
+;; Need this to support forward reference to compiler::parse-fast-op
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (ensure-package! "compiler"))
+
+
 (define (fast-write-using-shared-structure-table object port shared-structure-table)
   "Writes <object> on <port> in FASL format. <shared-structure-table> is a hash table
   `mapping shared objects to object IDs.  It is used to avoid writing shared
