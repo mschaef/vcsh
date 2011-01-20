@@ -10,54 +10,10 @@
          "compiler"))
 
 ;; TODO: Use compiler messaging facilities.
-(format (current-error-port) ";;;; Configuring for cross compile of Scheme image.\n")
+(format (current-error-port) ";;;; Configuring for explicit bootstrap cross compile of Scheme image.\n")
 
 (define *shared-target-symbols* ;; TODO: Better way to build this list? Please?
-  (set-union '(compiler::%%begin-load-unit-boundaries
-               scheme::%define
-               scheme::begin
-               scheme::include
-               scheme::eval-when)
-             '(scheme::free-cell
-               scheme::nil
-               scheme::boolean
-               scheme::cons
-               scheme::fixnum
-               scheme::flonum
-               scheme::character
-               scheme::symbol
-               scheme::package
-               scheme::subr
-               scheme::closure
-               scheme::macro
-               scheme::string
-               scheme::vector
-               scheme::structure
-               scheme::hash
-               scheme::port
-               scheme::end-of-file
-               scheme::values-typle
-               scheme::instance
-               scheme::unbound-marker
-               scheme::trip-wire
-               scheme::fast-op)
-             '(scheme::*package-list*
-               scheme::*provided-packages*)
-             '(scheme::iterate-sequence-expander)
-             '(scheme::it
-               scheme::_)
-             '(scheme::and
-               scheme::or
-               scheme::not
-               scheme::>
-               scheme::>=
-               scheme::<
-               scheme::<=
-               scheme::= 
-               scheme::eq?
-               scheme::equal?
-               scheme::member)
-             (map caar (scheme::all-iterate-sequence-types))
+  (set-union '(scheme::*package-list*)
              (compiler::special-form-symbols)))
 
 ;; Exclude packages that are in common between the host and the target.
@@ -88,18 +44,6 @@
   (let ((target-package (hash-ref *host->target* (symbol-package special-form-sym))))
     (import! special-form-sym target-package)))
 
-;; Make the host image available to the target for bootstrap purposes.
-(dolist (h/t *host/targets*)
-  (dbind (host . target) h/t
-    (dolist (host-sym (local-package-symbols host))
-      ;; a) Re-home all of the host package symbols to the target package
-      (host-scheme::set-symbol-package! host-sym target)
-    
-      ;; b) Create a separate global binding in the target packages for each host package global binding
-      (when (symbol-bound? host-sym)
-        (host-scheme::%define-global (intern! (symbol-name host-sym) target)
-                                     (symbol-value host-sym))))))
-
 ;; Images can't be written with load unit boundary protection until there are a few
 ;; basic definitions that have happened. This defers boundary protection until the image
 ;; expressly asks for it.
@@ -110,4 +54,4 @@
 
 ;; The host compiler needs to know about the target compiler's *package* variable,
 ;; so that incoming forms get read in the correct place.
-(set! host-compiler::*package-var* (scheme::intern! "*package*" "scheme"))
+(set! host-compiler::*package-var* (host-scheme::intern! "*package*" "scheme"))

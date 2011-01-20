@@ -6,29 +6,29 @@
 
 ;; Capture some relevent attriutes of the image build.
 
-(define *scheme-build-date* #.(date->string (current-date) "~b ~d ~Y ~H:~M:~S"))
+(%define *scheme-build-date* #.(host-scheme::date->string (host-scheme::current-date) "~b ~d ~Y ~H:~M:~S"))
 
-(define *scheme-build-vm* #.(system-info :vm-build-id))
+(%define *scheme-build-vm* #.(host-scheme::system-info :vm-build-id))
 
-(define *scheme-build-image* #.(system-info :scheme-build-id))
+(%define *scheme-build-image* #.(host-scheme::system-info :scheme-build-id))
 
-(define *scheme-build-version* "Scheme 0.50")
+(%define *scheme-build-version* "Scheme 0.50")
 
 ;;; Load definitions for subrs and VM-specific constants
 
-(include "../vm/constants.scm")
-(include "subrs.scm")
+(host-compiler::include "../vm/constants.scm")
+(host-compiler::include "subrs.scm")
 
 ;;; Set up the default package structure
 
 
-(define *package-list* (if (%symbol-globally-bound? '*package-list*)
+(%define *package-list* (if (%symbol-globally-bound? '*package-list*)
                            *package-list* 
                            (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)
                                  (cons (%control-field system::VMCTRL_PACKAGE_SCHEME)
                                        (cons (%control-field system::VMCTRL_PACKAGE_KEYWORD))))))
 
-(define *package* (if (%symbol-globally-bound? '*package*)
+(%define *package* (if (%symbol-globally-bound? '*package*)
                       *package*
                       (%control-field system::VMCTRL_PACKAGE_SCHEME)))
 
@@ -37,7 +37,7 @@
 
 ;;; Now, we're ready to start processing official 'load units'
 
-(compiler::%%begin-load-unit-boundaries "scheme")
+(host-compiler::%%begin-load-unit-boundaries "scheme")
 
 ;;; A scheme build includes the following files for basic functionality.
 
