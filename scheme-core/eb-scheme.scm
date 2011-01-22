@@ -21,7 +21,6 @@
 
 ;;; Set up the default package structure
 
-
 (%define *package-list* (if (%symbol-globally-bound? '*package-list*)
                            *package-list* 
                            (cons (%control-field system::VMCTRL_PACKAGE_SYSTEM)
@@ -37,7 +36,7 @@
 
 ;;; At this point we have enough defined that we can bring in a few bootstrap forms
 ;;; that'll help us compile the rest of the image.
-(eval-when (:compile-toplevel)
+(host-scheme::eval-when (:compile-toplevel)
   (host-scheme::load "image-bootstrap.scm"))
 
 ;; Point the package protection functions to the right *package*. (see compiler-file.scm for more info)

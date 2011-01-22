@@ -12,16 +12,10 @@
 ;; TODO: Use compiler messaging facilities.
 (format (current-error-port) ";;;; Configuring for explicit bootstrap cross compile of Scheme image.\n")
 
-(define *shared-target-symbols* ;; TODO: Better way to build this list? Please?
-  (set-union '(scheme::eval-when
-               scheme::*package-list*)
-             (compiler::special-form-symbols)))
-
 ;; Exclude packages that are in common between the host and the target.
 (define *excluded-packages*  (map find-package '("system" "keyword")))
 
 ;; Split all the non-excluded packages into host and target packages.
-
 (define (package->host/target! package)
   (let ((name (package-name package)))
     (rename-package! package (string-append "host-" name))
@@ -33,21 +27,19 @@
 
 (define *host->target* (a-list->hash *host/targets*))
 
+
 ;; Ensure that all the newly created packages are on the provided packages list, so there's
 ;; no attempt to reload them.
 (dolist (package host-scheme::*provided-packages*)
   (awhen (hash-ref *host->target* package #f)
     (provide-package! it)))
 
-;; All symbols shared between the host and the target need to get explicitly imported into
-;; the target so that they're available.
-(dolist (special-form-sym *shared-target-symbols*)
+;; Ensure that the host compiler's special forms and the package list are visible to the target.
+(dolist (special-form-sym (cons 'host-scheme::*package-list*
+                                (host-compiler::special-form-symbols)))
   (let ((target-package (hash-ref *host->target* (symbol-package special-form-sym))))
     (import! special-form-sym target-package)
-
-    ;(host-scheme::set-symbol-package! special-form-sym (hash-ref *host->target* (symbol-package special-form-sym)))
-
-    ))
+    (host-scheme::set-symbol-package! special-form-sym target-package)))
 
 ;; Images can't be written with load unit boundary protection until there are a few
 ;; basic definitions that have happened. This defers boundary protection until the image
