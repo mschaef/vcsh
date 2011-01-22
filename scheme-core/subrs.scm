@@ -28,7 +28,6 @@
 (%define %instance-slots #.(host-scheme::%subr-by-name "%instance-slots"))
 (%define %internal-files #.(host-scheme::%subr-by-name "%internal-files"))
 (%define %list->values #.(host-scheme::%subr-by-name "%list->values"))
-(%define %macro #.(host-scheme::%subr-by-name "%macrocons"))
 (%define %macro-transformer #.(host-scheme::%subr-by-name "%macro-transformer"))
 (%define %macrocons #.(host-scheme::%subr-by-name "%macrocons"))
 (%define %make-eof #.(host-scheme::%subr-by-name "%make-eof"))

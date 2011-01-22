@@ -117,7 +117,7 @@
         ((:macro)
          (assemble-fast-op :literal
                                    (dbind (opcode macro-fn) asm
-                                     (apply scheme::%macro (fasm/outer macro-fn) ()))))
+                                     (apply scheme::%macrocons (fasm/outer macro-fn) ()))))
         (#t
          (apply assemble-fast-op opcode
                 (map fasm/inner (cdr asm)))))))
@@ -132,7 +132,7 @@
          literal))
       ((:macro)
        (dbind (opcode macro-fn) asm
-           (apply scheme::%macro (fasm/outer macro-fn) ())))
+           (apply scheme::%macrocons (fasm/outer macro-fn) ())))
 
       (#t
        (error "assemble expects to assemble either a literal or a closure: ~s") asm)))
