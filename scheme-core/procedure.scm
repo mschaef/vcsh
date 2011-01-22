@@ -347,7 +347,7 @@
          (,name ,@variable-binding-forms))))
   (define (expand-simple-let variables forms)
     (mvbind (variable-names variable-binding-forms) (parse-let-variables variables)
-      `((lambda ,variable-names ,@forms) ,@variable-binding-forms)))
+      `((%lambda () ,variable-names ,@forms) ,@variable-binding-forms)))
   (cond ((null? forms) (error "Incomplete let"))
         ((symbol? (car forms)) (expand-named-let (first forms) (second forms) (cddr forms)))
         ((list? (car forms)) (expand-simple-let (first forms) (cdr forms)))
