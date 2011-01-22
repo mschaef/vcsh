@@ -40,6 +40,10 @@
 (eval-when (:compile-toplevel)
   (host-scheme::load "image-bootstrap.scm"))
 
+;; Point the package protection functions to the right *package*. (see compiler-file.scm for more info)
+(%early-define (system::LOAD-TIME-GET-PACKAGE) scheme::*package*)
+(%early-define (system::LOAD-TIME-SET-PACKAGE! package) (set! *package* scheme::package))
+
 ;;; Now, we're ready to start processing official 'load units'
 
 (host-compiler::%%begin-load-unit-boundaries "scheme")

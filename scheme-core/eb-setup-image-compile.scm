@@ -43,7 +43,11 @@
 ;; the target so that they're available.
 (dolist (special-form-sym *shared-target-symbols*)
   (let ((target-package (hash-ref *host->target* (symbol-package special-form-sym))))
-    (import! special-form-sym target-package)))
+    (import! special-form-sym target-package)
+
+    ;(host-scheme::set-symbol-package! special-form-sym (hash-ref *host->target* (symbol-package special-form-sym)))
+
+    ))
 
 ;; Images can't be written with load unit boundary protection until there are a few
 ;; basic definitions that have happened. This defers boundary protection until the image
@@ -56,3 +60,5 @@
 ;; The host compiler needs to know about the target compiler's *package* variable,
 ;; so that incoming forms get read in the correct place.
 (set! host-compiler::*package-var* (host-scheme::intern! "*package*" "scheme"))
+
+

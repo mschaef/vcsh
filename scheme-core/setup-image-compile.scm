@@ -100,6 +100,7 @@
         (host-scheme::%define-global (intern! (symbol-name host-sym) target)
                                      (symbol-value host-sym))))))
 
+
 ;; Images can't be written with load unit boundary protection until there are a few
 ;; basic definitions that have happened. This defers boundary protection until the image
 ;; expressly asks for it.
