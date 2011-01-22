@@ -24,21 +24,18 @@
      ((atom? x) (list 'quote x))
      ((eq? (car x) 'quasiquote) (qq-expand (cadr x)))
      ((eq? (car x) 'unquote) (cadr x))
-     ((eq? (car x) 'unquote-splicing) (error ",@ after ` [ ~a ]" (cadr x)))
+     ((eq? (car x) 'unquote-splicing) (error "Unquote splicing immediately after quasiquote: ~s" x))
      (#t
-      (block
-       (let ((p x)
-             (q '()))
-         (while (not (atom? p))
-                (when (eq? (car p) 'unquote)
-                  (unless (null? (cddr p)) (error "Malformed unquote" p))
-                  (return (cons 'append (append (reverse q) (list (cadr p))))))
-                (let ((old-p p))
-                  (set! p (cdr old-p))
-                  (set! q (cons (bracket (car old-p)) q))))
-         (cons 'append (append (reverse q) (list (list 'quote p)))))))))
+      (let loop ((p x) (q ()))
+        (cond ((atom? p)
+               (cons 'append (append (reverse q) (list (list 'quote p)))))
+              ((eq? (car p) 'unquote)
+               (unless (null? (cddr p))
+                 (error "Malformed unquote" p))
+               (cons 'append (append (reverse q) (list (cadr p)))))
+              (#t
+               (loop (cdr p) (cons (bracket (car p)) q))))))))
   (qq-expand l))
-
 
 
 
