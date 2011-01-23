@@ -53,4 +53,13 @@
 ;; so that incoming forms get read in the correct place.
 (set! host-compiler::*package-var* (host-scheme::intern! "*package*" "scheme"))
 
+(define scheme::append host-scheme::append)
+
+;; Ensure the host scheme's implementation of quasiquote emits code
+;; for the target
+(define host-scheme::*qq-quote* 'scheme::quote)
+(define host-scheme::*qq-list* 'scheme::list)
+(define host-scheme::*qq-append* 'scheme::append)
+(define host-scheme::*qq-list->vector* 'scheme::list->vector)
+(define host-scheme::*qq-list->hash* 'scheme::list->hash)
 
