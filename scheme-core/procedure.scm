@@ -332,6 +332,17 @@
         (error "Invalid let variable binding, binding lists can be at most 2 elements in length: a variable name and a binding form" variable)))
     (values (map car variables) (map cadr variables))))
 
+(defmacro (simple-let variables . forms)
+  (mvbind (variable-names variable-binding-forms) (parse-let-variables variables)
+    (if (null? variable-names)
+        `(begin ,@forms)
+        `((%lambda () ,variable-names ,@forms) ,@variable-binding-forms))))
+
+(defmacro (named-let name variables . forms)
+  (mvbind (variable-names variable-binding-forms) (parse-let-variables variables)
+    `(letrec ((,name (lambda ,variable-names ,@forms)))
+       (,name ,@variable-binding-forms))))
+
 (defmacro (let . forms)
   "Establishes local variable bindings, with the syntax (let
   <block-name>? ((<var> <value-form>?) ... <body-form>*). During the
@@ -341,43 +352,29 @@
   the optional paramater <block-name> is specified, another binding is
   established to <block-name> that allows the body forms to recursively
   call the body of the let."
-  (define (expand-named-let name variables code)
-    (mvbind (variable-names variable-binding-forms) (parse-let-variables variables)
-      `(letrec ((,name (lambda ,variable-names ,@code)))
-         (,name ,@variable-binding-forms))))
-  (define (expand-simple-let variables forms)
-    (mvbind (variable-names variable-binding-forms) (parse-let-variables variables)
-      `((%lambda () ,variable-names ,@forms) ,@variable-binding-forms)))
-  (cond ((null? forms) (error "Incomplete let"))
-        ((symbol? (car forms)) (expand-named-let (first forms) (second forms) (cddr forms)))
-        ((list? (car forms)) (expand-simple-let (first forms) (cdr forms)))
-        (#t (error "Malformed let, the first argument must either be a symbol (the block name for a named let), or a list (a list of variable bindings). [ ~a ]" (car forms)))))
-
+  (cond ((null? forms)
+         (error "Incomplete let"))
+        ((symbol? (car forms))
+         `(named-let ,(first forms) ,(second forms) ,@(cddr forms)))
+        ((list? (car forms))
+         `(simple-let ,(first forms) ,@(cdr forms)))
+        (#t
+         (error "Malformed let, the first argument must either be a symbol (the block name for a named let), or a list (a list of variable bindings). [ ~a ]" (car forms)))))
 
 (defmacro (let* new-bindings . code)
   (if (null? new-bindings)
-      (cons 'begin code)
-      (list 'let (cons (car new-bindings))
-            (append (list 'let* (cdr new-bindings)) code))))
+      `(begin ,@code)
+      `(let (,(car new-bindings))
+         (let* ,(cdr new-bindings) ,@code))))
 
 (defmacro (letrec new-bindings . code)
-  (append (list 'let)
-          (list
-           (map (lambda (new-binding)
-                  (cond ((pair? new-binding)
-                         (if (not (symbol? (car new-binding)))
-                             (error "letrec: invalid variable name [ ~a ]" (car new-binding)))
-                         (car new-binding))
-                        ((symbol? new-binding)
-                         (error "letrec: binding must have value [ ~a ]" new-binding))
-                        (#t
-                         (error "letrec: invalid binding [ ~a ]" new-binding))))
-                new-bindings))
-          (map (lambda (new-binding)
-                 (list 'set! (car new-binding) (cadr new-binding)))
-               new-bindings)
-          code))
-
+  (mvbind (variable-names variable-binding-forms) (parse-let-variables new-bindings)
+    `(let ,variable-names
+       ,@(map (lambda (new-binding new-value-form)
+                `(set! ,new-binding ,new-value-form))
+              variable-names
+              variable-binding-forms)
+       ,@code)))
 
 ;;; Utility macros
 
