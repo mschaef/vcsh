@@ -876,7 +876,6 @@
              unless
              unquote
              unquote-splicing
-             unquote-splicing-destructive
              unread-char
              unreadable
              unsafe-list?

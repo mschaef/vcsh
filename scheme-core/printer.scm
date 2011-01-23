@@ -19,7 +19,6 @@
 (set-property! 'quasiquote 'pretty-print-syntax "`")
 (set-property! 'unquote 'pretty-print-syntax ",")
 (set-property! 'unquote-splicing 'pretty-print-syntax ",@")
-(set-property! 'unquote-splicing-destructive 'pretty-print-syntax ",.")
 
 (define *printer-index-key* (gensym "printer-index-key")) ;; REVISIT: better suited as structure field?
 
