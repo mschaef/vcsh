@@ -31,7 +31,15 @@
 
 (define expanded-form-meaning) ; forward decl
 
+(define *toplevel-missing-definition-warnings* ())
+
 (define (warn-if-global-unbound var)
+  (unless (memq var *toplevel-definitions*)
+    (unless (memq var *toplevel-missing-definition-warnings*)
+      (push! var *toplevel-missing-definition-warnings*)
+      (dynamic-let ((*print-packages-always* #t))
+        (compile-warning #f "; Have not seen definition definition for ~s" var))))
+
   (unless (symbol-bound? var)
     (compile-warning var "Global variable unbound: ~s" var)))
 
