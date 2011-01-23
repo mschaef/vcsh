@@ -609,6 +609,8 @@
   (read-char port)
   (list 'unquote-splicing-destructive (read port #t)))
 
+(define *read-unquote-syntax* (make-syntax-table :name 'unquote-syntax))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (set-char-syntax! *read-syntax* #\( 'read-literal-list)
   (set-char-syntax! *read-syntax* #\) 'read-unexpected-close)
@@ -623,11 +625,10 @@
   (set-char-syntax! *read-syntax* #\` 'read-quasiquote)
   (set-char-syntax! *read-syntax* #\@ 'read-slot-reference)
 
-  (let ((st (make-syntax-table :name 'unquote-syntax)))
-    (set-char-syntax! *read-syntax* #\, st)
-    (set-char-syntax! st #\@    'read-unquote-splicing)
-    (set-char-syntax! st #\.    'read-unquote-splicing-destructive)
-    (set-default-syntax! st  'read-unquote))
+  (set-char-syntax! *read-syntax* #\, *read-unquote-syntax*)
+  (set-char-syntax! *read-unquote-syntax* #\@ 'read-unquote-splicing)
+  (set-char-syntax! *read-unquote-syntax* #\. 'read-unquote-splicing-destructive)
+  (set-default-syntax! *read-unquote-syntax*  'read-unquote)
 
   (set-default-syntax! *read-syntax* 'read-number-or-symbol))
 
