@@ -70,6 +70,7 @@
 ;; (include "printer.scm")
 ;; (include "quasiquote.scm")
 ;; (include "string.scm")
+;; (include "text-dictionary.scm")
 ;; (include "system.scm")
 ;; (include "structure.scm")
 ;; (include "macro.scm")

@@ -42,6 +42,7 @@
 ;;; A scheme build includes the following files for basic functionality.
 
 (include "character.scm")
+
 (include "class-graph.scm")
 (include "instance.scm")
 (include "generic-functions.scm")
@@ -59,6 +60,7 @@
 (include "mvalues.scm")
 (include "printer.scm")
 (include "string.scm")
+(include "text-dictionary.scm")
 (include "system.scm")
 (include "structure.scm")
 (include "macro.scm")
