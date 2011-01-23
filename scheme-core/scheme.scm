@@ -55,6 +55,7 @@
 (include "hooks.scm")
 (include "package.scm")
 (include "procedure.scm")
+(include "mvalues.scm")
 (include "printer.scm")
 (include "string.scm")
 (include "system.scm")
