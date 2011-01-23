@@ -61,10 +61,11 @@
 
 (define (class-superclasses class-name)
   "Returns a list of all superclasses of <class-name>, including <class-name>, in class order."
-  (validate-class-name class-name)
-  (if (not class-name)
-      ()
-      (cons class-name (class-superclasses (class-superclass class-name)))))
+  (let recur ((class-name class-name))
+    (validate-class-name class-name)
+    (if (not class-name)
+        ()
+        (cons class-name (recur (class-superclass class-name))))))
 
 (define (class=? x y)
   "Returns #t if class <x> is equivalent to class <y>."
@@ -73,27 +74,27 @@
 (define (classes=? xs ys)
   "Returns #t if all of the classes of <xs> are class=? to their
    corresponding classes in <ys>."
-  (cond ((and (null? xs) (null? ys))
-         #t)
-        ((or (null? xs) (null? ys))
-         #f)
-        ((class=? (car xs) (car ys))
-         (classes=? (cdr xs) (cdr ys)))
-        (#t
-         #f)))
+  (let loop ((xs xs) (ys ys))
+    (cond ((and (null? xs) (null? ys))
+           #t)
+          ((or (null? xs) (null? ys))
+           #f)
+          ((class=? (car xs) (car ys))
+           (loop (cdr xs) (cdr ys)))
+          (#t
+           #f))))
 
 (define (class<=? x y)
   "Returns #t if <x> is a strict subclass of <y>."
-  (validate-class-name x y)
-  (cond ((not x) #t)
-        ((not y) #f)
-        ((or (eq? y #t) (class=? x y))
-         #t)
-        ((hash-has? *class-graph* x)
-         (class<=? (class-superclass x) y))
-        (#t #f)))
-
-
+  (let loop ((x x) (y y))
+    (validate-class-name x y)
+    (cond ((not x) #t)
+          ((not y) #f)
+          ((or (eq? y #t) (class=? x y))
+           #t)
+          ((hash-has? *class-graph* x)
+           (loop (class-superclass x) y))
+          (#t #f))))
 
 (define (classes<=? xs ys)
   "Returns #t if all of the classes of <xs> are class<=? to the corresponding

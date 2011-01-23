@@ -28,3 +28,11 @@
                       (cons `(set-text! ',id ,string) rest))
                     ()
                     defs)))
+
+(define (->text spec)
+  "Coerces <spec> into text. If <spec> is a string, it is returned
+   as-is. If it is anything else, it is looked up in the global text
+   dictionary."
+ (if (string? spec)
+     spec
+     (get-text spec)))

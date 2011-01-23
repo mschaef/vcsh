@@ -65,7 +65,7 @@
    repeated <count> times."
   (let ((op (open-output-string)))
     (set-port-translate-mode! op #f)
-    (repeat count (display obj op))
+    (repeat count (write-strings op obj))
     (get-output-string op)))
 
 (define (pad-to-width obj width)
@@ -79,22 +79,6 @@
 (define (string-empty? string)
   "Returns a boolean indicating if <string> is empty."
   (= 0 (string-length string)))
-
-(define (->string obj)
-  "Coerces <obj> into a string, retrning the display representation of <obj>
-   if necessary. Symbols are returned as their print names."
-  (typecase obj
-    ((string) obj)
-    ((symbol) (symbol-name obj))
-    (#t (format #f "~a" obj))))
-
-(define (->text spec)
-  "Coerces <spec> into text. If <spec> is a string, it is returned
-   as-is. If it is anything else, it is looked up in the global text
-   dictionary."
- (if (string? spec)
-     spec
-     (get-text spec)))
 
 (define (string-fold kons knil str)
   (check string? str)
@@ -206,10 +190,11 @@
  "Splits <string> at each delimiter <delim>, returning a list of all
   substrings between each delimiter. There is an implicit delimiter
   at the end of the string."
- (mvbind (before after) (split-string-once string delim)
-   (if after
-       (cons before (split-string after delim))
-       (cons before))))
+ (let recur ((string string))
+   (mvbind (before after) (split-string-once string delim)
+     (if after
+         (cons before (recur after))
+         (cons before)))))
 
 (define (string-replace string old new)
  "Replace every occurrence of the string <old> within <string> with <new>."
@@ -219,11 +204,11 @@
  (let ((os (open-output-string)))
    (let loop ((loc 0))
         (acond  ((string-search old string loc)
-                 (display (substring string loc it) os)
-                 (display new os)
+                 (write-strings os (substring string loc it))
+                 (write-strings os new)
                  (loop (+ it (length old))))
                (#t
-                (get-output-string (display (substring string loc) os)))))))
+                (get-output-string (write-strings os (substring string loc))))))))
 
 
 (define (normalize-whitespace string)
@@ -246,9 +231,10 @@
   "Coerce a text value into a boolean.  All string values are taken to be
    true, aside from 'no', 'n', 'false', 'f', '0', and the empty string. <text>
    can also be a character, in which case it is coerced to a string."
-  (etypecase text
-    ((character)
-     (text->boolean (make-string 1 text)))
-    ((string)
-     (let ((text (string-downcase (string-trim text))))
-       (not (member text '("no" "n" "false" "f" "0" "")))))))
+  (let recur ((text text))
+    (etypecase text
+      ((character)
+       (recur (make-string 1 text)))
+      ((string)
+       (let ((text (string-downcase (string-trim text))))
+         (not (member text '("no" "n" "false" "f" "0" ""))))))))

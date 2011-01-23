@@ -580,3 +580,11 @@
         (#t (error "Invalid port specifier: ~s" port))))
 
 
+(define (->string obj)
+  "Coerces <obj> into a string, retrning the display representation of <obj>
+   if necessary. Symbols are returned as their print names."
+  (typecase obj
+    ((string) obj)
+    ((symbol) (symbol-name obj))
+    (#t (format #f "~a" obj))))
+

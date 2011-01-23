@@ -2,6 +2,31 @@
 ;;;;
 ;;;; A primitive set/bag data type.
 
+(define (%set-union key-type xss)
+  "Compute the union of the sets <xss>, where equivalence is determined
+   using the <key-type> hash key type. The result is guaranteed to be a set."
+  (let ((objects (make-hash key-type)))
+    (dolist (xs xss)
+      (dolist (x xs)
+        (hash-set! objects x #t)))
+    (hash-keys objects)))
+
+(define (set-union . xss)
+  "Compute the union of sets <xss>, with elements distinguished by equal."
+  (%set-union :equal xss))
+
+(define (set-union/eq . xss)
+  "Compute the union of sets <xss>, with elements distinguished by eq."
+  (%set-union :eq xss))
+
+(define (list->set . xss)
+  "Compute the set of unique, as distinguished by equal, objects in the list <xs>"
+  (%set-union :equal xss))
+
+(define (list->set/eq . xss)
+  "Compute the set of unique, as distinguished by eq?, objects in the list <xs>"
+  (%set-union :eq xss))
+
 (define (%set-diff key-type xss)
   "Compute the difference of the sets <xss>, where equivalence is determined
    using the <key-type> hash key type. The result is guaranteed to be a set."
@@ -34,31 +59,6 @@
 (define (set-isect/eq . xss)
   "Compute the set intersection of sets <xss>, with elements distinguished by eq."
   (%set-isect :eq xss))
-
-(define (%set-union key-type xss)
-  "Compute the union of the sets <xss>, where equivalence is determined
-   using the <key-type> hash key type. The result is guaranteed to be a set."
-  (let ((objects (make-hash key-type)))
-    (dolist (xs xss)
-      (dolist (x xs)
-        (hash-set! objects x #t)))
-    (hash-keys objects)))
-
-(define (set-union . xss)
-  "Compute the union of sets <xss>, with elements distinguished by equal."
-  (%set-union :equal xss))
-
-(define (set-union/eq . xss)
-  "Compute the union of sets <xss>, with elements distinguished by eq."
-  (%set-union :eq xss))
-
-(define (list->set . xss)
-  "Compute the set of unique, as distinguished by equal, objects in the list <xs>"
-  (%set-union :equal xss))
-
-(define (list->set/eq . xss)
-  "Compute the set of unique, as distinguished by eq?, objects in the list <xs>"
-  (%set-union :eq xss))
 
 (define (set-equivalent? xs ys :optional (key-type :eq))
   "Determines if <xs> and <ys> are set equivalent, that is, they both
