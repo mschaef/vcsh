@@ -41,10 +41,10 @@
 
 ;;; A scheme build includes the following files for basic functionality.
 
-(include "control-flow.scm")
-(include "procedure.scm")
 (include "mvalues.scm")
 (include "list.scm")
+(include "control-flow.scm")
+(include "procedure.scm")
 (include "character.scm")
 (include "hash.scm")
 (include "sets.scm")
@@ -60,6 +60,7 @@
 (include "generic-functions.scm")
 (include "EQUAL.scm")
 (include "memoize.scm")
+(include "match.scm")
 (include "hooks.scm")
 (include "package.scm")
 (include "printer.scm")

@@ -276,18 +276,6 @@
         (set-property! traced-procedure `%traced-procedure fn)
         traced-procedure)))
 
-(define (%trace-nt x)
-  "Throws foo after <x> tail recursive calls. Used to diagnose the tracer."
-  (if (= x 0)
-      (throw 'foo)
-      (%trace-nt (- x 1))))
-
-(define (%trace-fib x)
-  "Computes the <x>'th fibonacci number, rather inefficiently. Used to
-   diagnose the tracer."
-  (if (<= x 2)
-      1
-      (+ (%trace-fib (- x 1)) (%trace-fib (- x 2)))))
 
 (define (untraced-procedure fn)
   (unless (closure? fn)
