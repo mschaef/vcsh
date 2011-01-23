@@ -39,8 +39,31 @@
 
 
 
+(define (read-quasiquote port)
+  (read-char port)
+  (list 'quasiquote (read port #t)))
 
+(define (read-unquote port)
+  ;; This is used as a default handler for a syntax map, so
+  ;; the usual read process has already consumed the leading comma.
+  ;; (read-char port)
+  (list 'unquote (read port #t)))
 
+(define (read-unquote-splicing port)
+  (read-char port)
+  (list 'unquote-splicing (read port #t)))
 
+(define (read-unquote-splicing-destructive port)
+  (read-char port)
+  (list 'unquote-splicing-destructive (read port #t)))
 
+(define *read-unquote-syntax* (make-syntax-table :name 'unquote-syntax))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (set-char-syntax! *read-syntax* #\` 'read-quasiquote)
+  (set-char-syntax! *read-syntax* #\, *read-unquote-syntax*)
+  (set-char-syntax! *read-unquote-syntax* #\@ 'read-unquote-splicing)
+  (set-char-syntax! *read-unquote-syntax* #\. 'read-unquote-splicing-destructive)
+  (set-default-syntax! *read-unquote-syntax*  'read-unquote)
+
+  (set-default-syntax! *read-syntax* 'read-number-or-symbol))
