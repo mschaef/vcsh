@@ -33,15 +33,20 @@
 
 (define *toplevel-missing-definition-warnings* ())
 
+(define (symbol-binding-type-of sym)
+  (if (symbol-bound? sym)
+      (type-of (symbol-value sym))
+      '#f))
+
 (define (warn-if-global-unbound var)
   (unless (memq var *toplevel-definitions*)
     (unless (memq var *toplevel-missing-definition-warnings*)
       (push! var *toplevel-missing-definition-warnings*)
       (dynamic-let ((*print-packages-always* #t))
-        (compile-warning #f "; Have not seen definition definition for ~s" var))))
+        (compile-warning #f "; Have not seen definition for ~s (~s)" var (symbol-binding-type-of var)))))
 
   (unless (symbol-bound? var)
-    (compile-warning var "Global variable unbound: ~s" var)))
+    (compile-warning var "Global variable unbound: ~s" var )))
 
 (define (meaning/application form cenv at-toplevel?)
   `(:apply ,(expanded-form-meaning (car form) cenv at-toplevel?)
