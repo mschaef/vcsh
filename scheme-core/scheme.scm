@@ -43,6 +43,7 @@
 
 (include "character.scm")
 (include "class-graph.scm")
+(include "instance.scm")
 (include "generic-functions.scm")
 (include "control-flow.scm")
 (include "EQUAL.scm")
