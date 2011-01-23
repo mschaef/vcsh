@@ -52,6 +52,7 @@
 (include "list.scm")
 (include "memoize.scm")
 (include "number.scm")
+(include "hooks.scm")
 (include "package.scm")
 (include "procedure.scm")
 (include "printer.scm")
