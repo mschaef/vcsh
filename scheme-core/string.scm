@@ -211,8 +211,6 @@
        (cons before (split-string after delim))
        (cons before))))
 
-
-
 (define (string-replace string old new)
  "Replace every occurrence of the string <old> within <string> with <new>."
  (check string? string)
