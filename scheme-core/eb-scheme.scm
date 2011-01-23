@@ -53,8 +53,8 @@
 
 ;; (include "character.scm")
 ;; (include "class-graph.scm")
+;; (include "generic-functions.scm")
 ;; (include "control-flow.scm")
-;; (include "higher-order.scm")
 ;; (include "EQUAL.scm")
 ;; (include "error-handling.scm")
 ;; (include "hash.scm")

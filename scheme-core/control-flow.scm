@@ -374,3 +374,15 @@
    function that might describe how it will eventually be implemented."
   `(define (,proc-name . args)
      (error "~s unimplemented." ',proc-name)))
+
+(define (always x)
+  "Returns a closure that always returns <x>."
+  (lambda () x))
+
+(define (negate pred?)
+  "Returns a one argument predicate that has the opposite sense
+   as <pred?>"
+  (lambda (x) (not (pred? x))))
+
+
+(define (identity x) x)
