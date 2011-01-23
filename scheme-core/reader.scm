@@ -580,10 +580,6 @@
   (read-char port)
   (list 'quote (read port #t)))
 
-(define (read-quasiquote port)
-  (read-char port)
-  (list 'quasiquote (read port #t)))
-
 (define (read-slot-reference port)
   (read-char port)
   (let ((location (port-location port))
@@ -594,20 +590,6 @@
            `(slot-ref ,(first ref-form) ',(second ref-form)))
           (#t
            (read-error :reader-bad-slot-reference port location)))))
-
-(define (read-unquote port)
-  ;; This is used as a default handler for a syntax map, so
-  ;; the usual read process has already consumed the leading comma.
-  ;; (read-char port)
-  (list 'unquote (read port #t)))
-
-(define (read-unquote-splicing port)
-  (read-char port)
-  (list 'unquote-splicing (read port #t)))
-
-(define (read-unquote-splicing-destructive port)
-  (read-char port)
-  (list 'unquote-splicing-destructive (read port #t)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (set-char-syntax! *read-syntax* #\( 'read-literal-list)
@@ -620,17 +602,9 @@
 
   (set-char-syntax! *read-syntax* #\' 'read-quote)
 
-  (set-char-syntax! *read-syntax* #\` 'read-quasiquote)
   (set-char-syntax! *read-syntax* #\@ 'read-slot-reference)
 
-  (let ((st (make-syntax-table :name 'unquote-syntax)))
-    (set-char-syntax! *read-syntax* #\, st)
-    (set-char-syntax! st #\@    'read-unquote-splicing)
-    (set-char-syntax! st #\.    'read-unquote-splicing-destructive)
-    (set-default-syntax! st  'read-unquote))
-
   (set-default-syntax! *read-syntax* 'read-number-or-symbol))
-
 
 (define (read :optional (port (current-input-port)) (recursive? #f))
   (check input-port? port)
