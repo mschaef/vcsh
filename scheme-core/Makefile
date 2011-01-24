@@ -1,6 +1,6 @@
 # Makefile for Scan VM
 
-.PHONY: indented
+.PHONY: indented tested ctested
 
 TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT}
 
@@ -8,13 +8,14 @@ include ../build-settings
 
 SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-run.scf
 
-tested: all
-	 ./vcsh unit-test.scm tests/run-tests.scm
+tested: all scheme-tests.scf
+	./vcsh unit-test.scm tests/run-tests.scm
 
-tested-individually: all
-	for file in tests/test*.scm; do \
-	    ./vcsh $$file tests/run-loaded-tests.scm || exit 1; \
-	done
+ctested: all scheme-tests.scf
+	 ./vcsh scheme-tests.scf
+
+scheme-tests.scf: vcsh${EXE_EXT}
+	./vcsh -c scheme-tests.scm
 
 VCSH_OBJS=vcsh${OBJ_EXT}
 
