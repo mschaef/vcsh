@@ -3,11 +3,10 @@
   (:requires "unit-test")
   (:uses "scheme" "unit-test"))
 
-(eval-when (:compile-toplevel)
-   (include "test*.scm"))
+#.`(begin
+     ,@(map #L(list 'include _) (directory "test*.scm")))
 
-(define (scheme:run)
-  (in-package! "unit-test-suite")
+(define (run)
   (if (time (test))
       0
       1))
