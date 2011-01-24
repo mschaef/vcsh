@@ -5,7 +5,7 @@
 
 #.`(begin
      ,@(map #L(list 'include _)
-            (qsort (directory "test*.scm")
+            (qsort (directory "tests/test*.scm")
                    (lambda (x y) (> 0 (strcmp x y))))))
 
 (define (run)
