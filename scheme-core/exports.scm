@@ -110,22 +110,10 @@
              argument-values
              asin
              ass
-             ass-let
-             ass-let*
-             ass-letrec
              assert
              assoc
-             assoc-let
-             assoc-let*
-             assoc-letrec
              assq
-             assq-let
-             assq-let*
-             assq-letrec
              assv
-             assv-let
-             assv-let*
-             assv-letrec
              at
              atan
              atom?
