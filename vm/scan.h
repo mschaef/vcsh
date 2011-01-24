@@ -48,7 +48,7 @@ enum
      DEFAULT_MAX_HEAP_SEGMENTS = 256,
 
      /*  Default size for FASL loader tables */
-     DEFAULT_FASL_TABLE_SIZE = 8192,
+     DEFAULT_FASL_TABLE_SIZE = 16384,
 
      /*  Local (stack) string buffer size */
      STACK_STRBUF_LEN = 256,
