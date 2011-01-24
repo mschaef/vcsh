@@ -17,6 +17,16 @@
 ;;     -Olin
 
 
+
+;; TODO: split-at
+;; TODO: split-at!
+;; TODO: n-arity fold
+;; TODO: reduce
+;; TODO: reduce-next
+
+
+;;;; The core of list processing
+
 (define (null-list? xs) ; Heaviliy SRFI-1
   "Determines if <xs> represents the end of a list, throwing an error
    if <xs> is an atom. This predicate is for detecting the end of a traversal
@@ -38,28 +48,8 @@
   "Returns a list of all arguments."
   xs)
 
-(define (list-ref xs index)
-  (check (and exact? (>= 0)) index)
-  (let loop ((pos xs) (ii 0))
-    (cond ((null-list? pos)
-           (error "List index out of range: ~s" index))
-          ((= ii index)
-           (car pos))
-          (#t
-           (loop (cdr pos) (+ ii 1))))))
-
-(define (list-set! xs index val)
-  (check (and exact? (>= 0)) index)
-  (let loop ((pos xs) (ii 0))
-    (cond ((null-list? pos)
-           (error "List index out of range: ~s" index))
-          ((= ii index)
-           (set-car! pos val)
-           xs)
-          (#t
-           (loop (cdr pos) (+ ii 1))))))
-
-(define (atom? x) (not (pair? x)))
+(define (atom? x)
+  (not (pair? x)))
 
 (define (last-pair xs)
   "Finds the last pair of the list <xs>."
@@ -114,27 +104,22 @@
 (define (length=3? xs) (= (length xs) 3))
 (define (length=4? xs) (= (length xs) 4))
 
-(define (unsafe-list? xs)
-  (while (pair? xs)
-    (set! xs (cdr xs)))
-  (null? xs))
+(define (cons* x . xs)
+  "Constructs a list from (cons <x> <xs>), with the last list element
+   going into the cdr of the last list cell."
+  (if (null? xs)
+      x
+      (cons x (apply cons* xs))))
+
+;;;; List predicates
 
 (define (blithe-cdr x)
   (if (pair? x) (cdr x) '()))
 
-(define (nth-cdr xs n)
-  "Returns the result of calling cdr <n> times on <xs>. <n> must be a
-   non-negative exact number. If it is not, an error is thrown."
-  (check (and exact? (>= 0)) n)
-  (let loop ((xs xs) (n n))
-    (if (or (= 0 n) (null? xs))
-        xs
-        (loop (cdr xs) (- n 1)))))
-
-(define (nth xs n)
-  "Returns the <n>th element of the list <xs>. <n> must be a
-   non-negative exact number. If it is not, an error is thrown."
-  (car (nth-cdr xs n)))
+(define (unsafe-list? xs)
+  (while (pair? xs)
+    (set! xs (cdr xs)))
+  (null? xs))
 
 (define (list? xs)
   (if (pair? xs)
@@ -157,6 +142,47 @@
                (set! s (cdr s)))
         (not (null? s)))
       #f))
+
+;;;; List indexing
+
+(define (list-ref xs index)
+  (check (and exact? (>= 0)) index)
+  (let loop ((pos xs) (ii 0))
+    (cond ((null-list? pos)
+           (error "List index out of range: ~s" index))
+          ((= ii index)
+           (car pos))
+          (#t
+           (loop (cdr pos) (+ ii 1))))))
+
+(define (list-set! xs index val)
+  (check (and exact? (>= 0)) index)
+  (let loop ((pos xs) (ii 0))
+    (cond ((null-list? pos)
+           (error "List index out of range: ~s" index))
+          ((= ii index)
+           (set-car! pos val)
+           xs)
+          (#t
+           (loop (cdr pos) (+ ii 1))))))
+
+
+(define (nth-cdr xs n)
+  "Returns the result of calling cdr <n> times on <xs>. <n> must be a
+   non-negative exact number. If it is not, an error is thrown."
+  (check (and exact? (>= 0)) n)
+  (let loop ((xs xs) (n n))
+    (if (or (= 0 n) (null? xs))
+        xs
+        (loop (cdr xs) (- n 1)))))
+
+(define (nth xs n)
+  "Returns the <n>th element of the list <xs>. <n> must be a
+   non-negative exact number. If it is not, an error is thrown."
+  (car (nth-cdr xs n)))
+
+
+;;;; Fast Queues
 
 (defmacro (%make-q) ;; REVISIT: the naming convention for the queue and 'q' functions is not consistent
   "Constructs a primitive queue object."
@@ -206,7 +232,7 @@
               (set-cdr! q (cddr q))
               value)))))
 
-;;; This is the slower, safer version of the above.
+;;;; Slow Queues
 
 (define (make-queue) ;; REVISIT: This should use a structure
   "Constructs a queue object."
@@ -253,6 +279,49 @@
         accum
         (loop (- ii 1) (cons initial accum)))))
 
+;;;; Append/Copy
+
+(define (list-copy xs)
+  "Return a duplicate copy of the list <xs>. Each cons cell in the backbone
+   of the list is copied to form the new list."
+  (let ((items (%make-q)))
+    (let loop ((xs xs))
+      (cond ((pair? xs)
+             (%q-enqueue! (car xs) items)
+             (loop (cdr xs)))
+            ((atom? xs)
+             (%q-enqueue-cell! xs items))))
+    (%q-items items)))
+
+(define (append . xss)
+  (let ((items (%make-q)))
+    (dolist (xs xss)
+      (%q-enqueue-list! (list-copy xs) items))
+    (%q-items items)))
+
+(define (nconc xs ys)
+  "Destructively appends <xs> and <ys>."
+  (cond ((null? xs)
+         ys)
+        (#t
+         (set-cdr! (last-pair xs) ys)
+         xs)))
+
+(define (append! . xss)
+  (let ((items (%make-q)))
+    (dolist (xs xss)
+      (%q-enqueue-list! xs items))
+    (%q-items items)))
+
+(define (circular-list . xs)
+  "Construct a circular list from the argument list."
+  (let ((xs (list-copy xs)))
+    (unless (null? xs)
+      (set-cdr! (last-pair xs) xs))
+    xs))
+
+;;;; List element predicates
+
 (define (every? pred? xs)
   "Checks to see that every element in <xs> satisfies <pred?>. If so,
     then it returns the return value from the last call to <pred?>. If
@@ -262,6 +331,27 @@
           ((null? (cdr xs)) (pred? (car xs)))
           ((pred? (car xs)) (loop (cdr xs)))
           (#t #f))))
+
+(define (any? pred? xs)
+  "Searches for the first value in <xs> that satifies <pred?>, and
+    returns the value returned by <pred?>. If <pred?> is never
+    satisfied, then return #f."
+  (let loop ((xs xs))
+    (cond ((null-list? xs) #f)
+          (#t
+           (aif (pred? (car xs))
+                it
+                (loop (cdr xs)))))))
+
+(define (any-not? pred? xs)
+  "Searches for the first value in <xs> that does not satisfy <pred>,
+   and returns that value.  If <pred?> is always satisfied, then return #f."
+  (let loop ((xs xs))
+    (cond ((null-list? xs) #f)
+          (#t
+           (aif (not (pred? (car xs)))
+                (car xs)
+                (loop (cdr xs)))))))
 
 (define (reverse xs)
   "Reverses the elements in the list <xs>. The original list <xs>
@@ -282,6 +372,8 @@
            (let ((next (cdr xs)))
              (set-cdr! xs new)
              (loop xs next))))))
+
+;;;; Map amd fold
 
 (define map) ; forward
 
@@ -331,6 +423,72 @@
                          (mvbind (cars cdrs) (cars+cdrs xss)
                            (loop cdrs (cons (apply fn xss) accum)))
                          accum))))))
+
+
+(define (fold-right kons knil l)
+  "The right-associative version of the fundamental list iterator.
+   fold-right applies <kons> to each element of <l> and the result
+   of a call to fold-right on the rest of the list. fold-right with
+   a null list returns <knil>. fold-right is not tail recursive."
+  (let recur ((l l))
+    (if (null? l)
+        knil
+        (kons (car l) (recur (cdr l))))))
+
+(define (pair-fold-right kons knil l)
+  "The right-associative version of the fundamental list iterator.
+   fold-right applies <kons> to each sublist of <l> and the result
+   of a call to fold-right on the rest of the list. fold-right with
+   a null list returns <knil>. fold-right is not tail recursive."
+  (let recur ((l l))
+    (if (null? l)
+        knil
+        (kons l (recur (cdr l))))))
+
+(define (fold kons knil l)
+  "The fundamental list iterator. fold applies <kons> to each element
+   of <l> and the result of a recursive call to fold on the remainder
+   of <l>. If <l> is null, the return value is <knil>. fold is tail
+   recursive."
+  (let loop ((knil knil) (l l))
+    (if (null? l)
+        knil
+        (loop (kons (car l) knil) (cdr l)))))
+
+(define (pair-fold kons knil l)
+  "The fundamental list iterator. fold applies <kons> to each sublist
+   of <l> and the result of a recursive call to fold on the remainder
+   of <l>. If <l> is null, the return value is <knil>. fold is tail
+   recursive."
+  (let loop ((knil knil) (l l))
+    (if (null? l)
+        knil
+        (loop (kons l knil) (cdr l)))))
+
+(define (append-map! f . xss)
+  "Apply the function <f> to the lists in <xss>. The first list in <xss>
+   provides the first argument to <f>, the second list the second argument,
+   and so on. The shortest list in <xss> determines the number of applications
+   of <f>.  Each application of <f> must result in either a list or null, which
+   are then destructively append!'ed together to make the return value of append-map."
+  (let ((items (%make-q)))
+    (dolist (map-results (apply map f xss))
+      (%q-enqueue-list! map-results items))
+    (%q-items items)))
+
+
+(define (append-map f . xss)
+  "Apply the function <f> to the lists in <xss>. The first list in <xss>
+   provides the first argument to <f>, the second list the second argument,
+   and so on. The shortest list in <xss> determines the number of applications
+   of <f>.  Each application of <f> must result in either a list or null, which
+   are then non-destructively append'ed together to make the return value of append-map."
+  (let ((items (%make-q)))
+    (dolist (map-results (apply map f xss))
+      (%q-enqueue-list! (list-copy map-results) items))
+    (%q-items items)))
+
+;;;; Search
 
 (define (member x xs)
   "Checks if <x> is a member of the list <xs> based on the equality
@@ -382,15 +540,27 @@
    is eq? to <x>. Returns #f if not found."
   (list-index #L(eq? _ x) xs))
 
+(define (find-tail pred? xs)
+  "Returns the sublist of <xs> beginning with the first element that
+   satisfies <pred?>. If there's no such element, returns ()."
+  (let loop ((xs xs))
+    (cond ((null? xs)       ())
+          ((pred? (car xs)) xs)
+          (#t               (loop (cdr xs))))))
 
+(define (find pred? xs :optional (default #f))
+  "Returns the first element of <xs> that satisfies <pred?>. If no element
+   satisfies <pred?>, the function returns <default>."
+  (let ((tail (find-tail pred? xs)))
+    (if (not (null? tail))
+        (car tail)
+        default)))
 
-(define (nconc xs ys)
-  "Destructively appends <xs> and <ys>."
-  (cond ((null? xs)
-         ys)
-        (#t
-         (set-cdr! (last-pair xs) ys)
-         xs)))
+(define (exists? y ys)
+  "Determine if <y> exists, determined by eq?, in <ys>. Returns <y>, if so, #f otherwise."
+  (find (lambda (x) (eq? x y)) ys))
+
+;;;; Sorting
 
 (define (qsort xs less? :optional (key identity))
   "Sorts the list <xs> into the order imposed by the comparison
@@ -423,37 +593,24 @@
     (sort-step xs)))
 
 
-(define (list-copy xs)
-  "Return a duplicate copy of the list <xs>. Each cons cell in the backbone
-   of the list is copied to form the new list."
-  (let ((items (%make-q)))
-    (let loop ((xs xs))
-      (cond ((pair? xs)
-             (%q-enqueue! (car xs) items)
-             (loop (cdr xs)))
-            ((atom? xs)
-             (%q-enqueue-cell! xs items))))
-    (%q-items items)))
+(define (insert-ordered lis x :optional (lt? <) (selector identity))
+  "Inserts <x> into <lis>, maintaining the order enforced by <lt?>. <selector> is
+   a predicate that selects the subpart of list objects to be compared. <selector>
+   can also be a symbol, in which case it is assumed to be a slot name."
+  (let ((selector (if (symbol? selector) #L(slot-ref _ selector) selector)))
+    (let loop ((lis lis))
+      (cond ((null-list? lis)
+             (cons x))
+            ((lt? (selector x) (selector (car lis)))
+             (cons x lis))
+            (#t
+             (cons (car lis) (loop (cdr lis))))))))
+
+;; TODO: define insert-ordered!
 
 
-(define (append . xss)
-  (let ((items (%make-q)))
-    (dolist (xs xss)
-      (%q-enqueue-list! (list-copy xs) items))
-    (%q-items items)))
 
-(define (append! . xss)
-  (let ((items (%make-q)))
-    (dolist (xs xss)
-      (%q-enqueue-list! xs items))
-    (%q-items items)))
 
-(define (circular-list . xs)
-  "Construct a circular list from the argument list."
-  (let ((xs (list-copy xs)))
-    (unless (null? xs)
-      (set-cdr! (last-pair xs) xs))
-    xs))
 
 (define (butlast xs)
   "Make a duplicate copy of <xs> containing all but the final list element."
@@ -463,28 +620,7 @@
           (#t
            (loop (cdr xs) (cons (car xs) accum))))))
 
-(define (append-map! f . xss)
-  "Apply the function <f> to the lists in <xss>. The first list in <xss>
-   provides the first argument to <f>, the second list the second argument,
-   and so on. The shortest list in <xss> determines the number of applications
-   of <f>.  Each application of <f> must result in either a list or null, which
-   are then destructively append!'ed together to make the return value of append-map."
-  (let ((items (%make-q)))
-    (dolist (map-results (apply map f xss))
-      (%q-enqueue-list! map-results items))
-    (%q-items items)))
 
-
-(define (append-map f . xss)
-  "Apply the function <f> to the lists in <xss>. The first list in <xss>
-   provides the first argument to <f>, the second list the second argument,
-   and so on. The shortest list in <xss> determines the number of applications
-   of <f>.  Each application of <f> must result in either a list or null, which
-   are then non-destructively append'ed together to make the return value of append-map."
-  (let ((items (%make-q)))
-    (dolist (map-results (apply map f xss))
-      (%q-enqueue-list! (list-copy map-results) items))
-    (%q-items items)))
 
 (define (list-combinations lists)
   "Given a list of sublists, return a list of every combination of single
@@ -498,6 +634,7 @@
                            cdr-combinations))
                     (car lists)))))
 
+;;;; Take and drop
 
 (define (drop xs n)
   "Returns all but the first <n> elements of <xs>."
@@ -604,6 +741,9 @@
             (loop (cdr xs))
             xs))))
 
+
+;;;; List filtering
+
 (define (filter pred xs)
   "Returns a list of all objects in the list <xs> that satisfy predicate <pred>."
   (let ((filtered-xs '()))
@@ -636,6 +776,8 @@
           (#t
            (error "Improper list: ~s" xs)))))
 
+;;;; List partitioning
+
 (define (span pred? xs)
   "Returns two lists, the longest initial prefix of <xs> in which every
    item satifies <pred?>, and the rest of the list."
@@ -663,52 +805,23 @@
                                        rest)))))))
         (values xs suffix))))
 
-
 (define (break pred? xs)
   "Returns two lists, the longest initial prefix of <xs> in which every
-   item does not satifie <pred?>, and the rest of the list."
+   item does not satify <pred?>, and the rest of the list."
   (span  (lambda (x) (not (pred? x))) xs))
 
 (define (break! pred? xs)
   "Returns two lists, the longest initial prefix of <xs> in which every
-   item does not satifie <pred?>, and the rest of the list. <xs> is
+   item does not satify <pred?>, and the rest of the list. <xs> is
    destructively altered."
   (span! (lambda (x) (not (pred? x))) xs))
 
-(define (insert-ordered lis x :optional (lt? <) (selector identity))
-  "Inserts <x> into <lis>, maintaining the order enforced by <lt?>. <selector> is
-   a predicate that selects the subpart of list objects to be compared. <selector>
-   can also be a symbol, in which case it is assumed to be a slot name."
-  (let ((selector (if (symbol? selector) #L(slot-ref _ selector) selector)))
-    (let loop ((lis lis))
-      (cond ((null-list? lis)
-             (cons x))
-            ((lt? (selector x) (selector (car lis)))
-             (cons x lis))
-            (#t
-             (cons (car lis) (loop (cdr lis))))))))
 
-;; TODO: define insert-ordered!
-
-(define (find-tail pred? xs)
-  "Returns the sublist of <xs> beginning with the first element that
-   satisfies <pred?>. If there's no such element, returns ()."
-  (let loop ((xs xs))
-    (cond ((null? xs)       ())
-          ((pred? (car xs)) xs)
-          (#t               (loop (cdr xs))))))
-
-(define (find pred? xs :optional (default #f))
-  "Returns the first element of <xs> that satisfies <pred?>. If no element
-   satisfies <pred?>, the function returns <default>."
-  (let ((tail (find-tail pred? xs)))
-    (if (not (null? tail))
-        (car tail)
-        default)))
-
-(define (exists? y ys)
-  "Determine if <y> exists, determined by eq?, in <ys>. Returns <y>, if so, #f otherwise."
-  (find (lambda (x) (eq? x y)) ys))
+(define (partition pred? xs)
+  (let loop ((rest xs) (in ()) (out ()))
+    (cond ((null? rest) (list in out))
+          ((pred? (car rest)) (loop (cdr rest) (cons (car rest) in) out))
+          (#t (loop (cdr rest) in (cons (car rest) out))))))
 
 ;;;; Association Lists
 
@@ -732,92 +845,6 @@
 
 (define (assoc key a-list)
   (ass key a-list equal?))
-
-(defmacro (%a-list-search-let let-form a-list-search-form a-list bindings . body-forms)
-  (define (binding-form binding)
-    (let ((variable (first binding))
-          (key (second binding))
-          (default-value (third binding)))
-      `(,variable (aif (,a-list-search-form ,key ,a-list) (cdr it) ,default-value))))
-  (dolist (binding bindings)
-    (unless (and (list? binding)
-                 (symbol? (car binding))
-                 (or (= 3 (length binding))
-                     (= 2 (length binding))))
-      (error "Invalid binding in assoc-let: ~a" binding)))
-  `(,let-form ,(map binding-form bindings) ,@body-forms))
-
-(defmacro (assoc-let a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assoc to search <a-list>."
-  `(%a-list-search-let let assoc ,a-list ,bindings ,@body-forms))
-
-(defmacro (ass-let a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses ass to search <a-list>."
-  `(%a-list-search-let let ass ,a-list ,bindings ,@body-forms))
-
-(defmacro (assq-let a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assq to search <a-list>."
-  `(%a-list-search-let let assq ,a-list ,bindings ,@body-forms))
-
-(defmacro (assv-let a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assv to search <a-list>."
-  `(%a-list-search-let let assv ,a-list ,bindings ,@body-forms))
-
-(defmacro (assoc-let* a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assoc to search <a-list>."
-  `(%a-list-search-let let* assoc ,a-list ,bindings ,@body-forms))
-
-(defmacro (ass-let* a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses ass to search <a-list>."
-  `(%a-list-search-let let* ass ,a-list ,bindings ,@body-forms))
-
-(defmacro (assq-let* a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assq to search <a-list>."
-  `(%a-list-search-let let* assq ,a-list ,bindings ,@body-forms))
-
-(defmacro (assv-let* a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assv to search <a-list>."
-  `(%a-list-search-let let* assv ,a-list ,bindings ,@body-forms))
-
-(defmacro (assoc-letrec a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assoc to search <a-list>."
-  `(%a-list-search-let letrec assoc ,a-list ,bindings ,@body-forms))
-
-(defmacro (ass-letrec a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses ass to search <a-list>."
-  `(%a-list-search-let letrec ass ,a-list ,bindings ,@body-forms))
-
-(defmacro (assq-letrec a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assq to search <a-list>."
-  `(%a-list-search-let letrec assq ,a-list ,bindings ,@body-forms))
-
-(defmacro (assv-letrec a-list bindings . body-forms)
-  "Creates a set of local bindings to values in <a-list>. Each element of <bindings>
-   is a list of the form (<variable> <assoc-key> <default-value>). Default value forms
-   are not evaluated unless their values are needed. Uses assv to search <a-list>."
-  `(%a-list-search-let letrec assv ,a-list ,bindings ,@body-forms))
 
 (define (alist . k/vs)
   "Create an alist from an arbitrary (non-zero) number of <key>/<value>
@@ -859,53 +886,17 @@
    used to identity instances of <key>."
   (filter (lambda (elt) (not (test? key (car elt)))) alist))
 
-;; !! split-at
-;; !! split-at!
-;; !! n-arity fold
-;; !! reduce
-;; !! reduce-next
+(defmacro (a-list-set! a-list key value)
+  "Destructively updates the value bound to <key> in the association
+    list <a-list>. The new value is <value>."
+  `(begin
+     (aif (assoc ,key ,a-list)
+          (set-cdr! it ,value)
+          (push! (cons ,key ,value) ,a-list))
+     ,a-list))
 
-;;;; Folds
 
-(define (fold-right kons knil l)
-  "The right-associative version of the fundamental list iterator.
-   fold-right applies <kons> to each element of <l> and the result
-   of a call to fold-right on the rest of the list. fold-right with
-   a null list returns <knil>. fold-right is not tail recursive."
-  (let recur ((l l))
-    (if (null? l)
-        knil
-        (kons (car l) (recur (cdr l))))))
-
-(define (pair-fold-right kons knil l)
-  "The right-associative version of the fundamental list iterator.
-   fold-right applies <kons> to each sublist of <l> and the result
-   of a call to fold-right on the rest of the list. fold-right with
-   a null list returns <knil>. fold-right is not tail recursive."
-  (let recur ((l l))
-    (if (null? l)
-        knil
-        (kons l (recur (cdr l))))))
-
-(define (fold kons knil l)
-  "The fundamental list iterator. fold applies <kons> to each element
-   of <l> and the result of a recursive call to fold on the remainder
-   of <l>. If <l> is null, the return value is <knil>. fold is tail
-   recursive."
-  (let loop ((knil knil) (l l))
-    (if (null? l)
-        knil
-        (loop (kons (car l) knil) (cdr l)))))
-
-(define (pair-fold kons knil l)
-  "The fundamental list iterator. fold applies <kons> to each sublist
-   of <l> and the result of a recursive call to fold on the remainder
-   of <l>. If <l> is null, the return value is <knil>. fold is tail
-   recursive."
-  (let loop ((knil knil) (l l))
-    (if (null? l)
-        knil
-        (loop (kons l knil) (cdr l)))))
+;;;; Stack operations
 
 (defmacro (push! item stack)
   `(set! ,stack (cons ,item ,stack)))
@@ -917,12 +908,23 @@
        ,tos-sym)))
 
 
+;;;; List sequence generation
+
 (define (iseq from to)
   "Returns an ordered list of the whole numbers in the range [<from>, <to>]."
   (let loop ((current to) (accum ()))
     (if (< current from)
         accum
         (loop (- current 1) (cons current accum)))))
+
+(define (iota count :optional (start 0) (step 1))
+  (check (>= 0) count)
+  (let loop ((count count) (val (+ start (* (- count 1) step))) (ans ()))
+    (if (<= count 0)
+        ans
+        (loop (- count 1) (- val step) (cons val ans)))))
+
+;;;; List flatten/recursive copy
 
 (define (flatten xs)
   "Flattens the list <xs> by removing nested list structure.  The
@@ -935,12 +937,6 @@
           ((pair? xs) (cons (car xs) (recur (cdr xs))))
           (#t (error "Invalid parameter to flatten: ~s" xs)))))
 
-(define (partition pred? xs)
-  (let loop ((rest xs) (in ()) (out ()))
-    (cond ((null? rest) (list in out))
-          ((pred? (car rest)) (loop (cdr rest) (cons (car rest) in) out))
-          (#t (loop (cdr rest) in (cons (car rest) out))))))
-
 (define (recursive-list-copy xs)
   "Copies the list <xs>, recursively copying nested lists satisfying list?."
   (let recur ((xs xs))
@@ -948,22 +944,7 @@
         (map recur xs)
         xs)))
 
-(define (iota count :optional (start 0) (step 1))
-  (check (>= 0) count)
-  (let loop ((count count) (val (+ start (* (- count 1) step))) (ans ()))
-    (if (<= count 0)
-        ans
-        (loop (- count 1) (- val step) (cons val ans)))))
-
-(defmacro (a-list-set! a-list key value)
-  "Destructively updates the value bound to <key> in the association
-    list <a-list>. The new value is <value>."
-  `(begin
-     (aif (assoc ,key ,a-list)
-          (set-cdr! it ,value)
-          (push! (cons ,key ,value) ,a-list))
-     ,a-list))
-
+;;;; Random list
 
 (define (random-list-element xs)
   "Randomly selects an element of the list <xs>."
@@ -988,36 +969,7 @@
                   (vector-set! xs-vec idx chosen-key)
                   (choose-next (cons choice chosen) (- number-left 1)))))))))
 
-
-(define (any? pred? xs)
-  "Searches for the first value in <xs> that satifies <pred?>, and
-    returns the value returned by <pred?>. If <pred?> is never
-    satisfied, then return #f."
-  (let loop ((xs xs))
-    (cond ((null-list? xs) #f)
-          (#t
-           (aif (pred? (car xs))
-                it
-                (loop (cdr xs)))))))
-
-(define (any-not? pred? xs)
-  "Searches for the first value in <xs> that does not satisfy <pred>,
-   and returns that value.  If <pred?> is always satisfied, then return #f."
-  (let loop ((xs xs))
-    (cond ((null-list? xs) #f)
-          (#t
-           (aif (not (pred? (car xs)))
-                (car xs)
-                (loop (cdr xs)))))))
-
-
-(define (cons* x . xs)
-  "Constructs a list from (cons <x> <xs>), with the last list element
-   going into the cdr of the last list cell."
-  (if (null? xs)
-      x
-      (cons x (apply cons* xs))))
-
+;;;; Property list
 
 (define (p-list-fold kons knil l)
   "The fundamental list iterator, for Common Lisp style property lists. (Lists
@@ -1037,14 +989,7 @@
                            (cons (cons name value) xs))
                          () p-list)))
 
-(define (vector-index pred? vec)
-  "Returns the 0-based index of the first element of <vec> that
-   satifsies <pred?>. Returns #f if not found."
-  (let loop ((ii 0))
-    (cond ((>= ii (length vec))   #f)
-          ((pred? (vector-ref vec ii)) ii)
-          (#t (loop (+ ii 1))))))
-
+;;;; Duplicate list element detection
 
 (define (duplicates xs :optional (same-elt? eq?))
   "Compute the set of duplicate elements in <xs>. An element is considered
@@ -1103,3 +1048,12 @@
 ;;               (cons x new-tail))))))
 
 
+;;;; Vector search (REVISIT: Move)
+
+(define (vector-index pred? vec)
+  "Returns the 0-based index of the first element of <vec> that
+   satifsies <pred?>. Returns #f if not found."
+  (let loop ((ii 0))
+    (cond ((>= ii (length vec))   #f)
+          ((pred? (vector-ref vec ii)) ii)
+          (#t (loop (+ ii 1))))))
