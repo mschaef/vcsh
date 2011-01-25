@@ -7,11 +7,9 @@
 (define *initial-package* "user")
 (define *disable-load-unit-boundaries* #f)
 
-
 ;;; The file reader
 
 (define *compiler-reader* read)
-(define *compiler-location-map* #f)
 
 (define (compile-read-error message port port-location)
   (signal 'compile-read-error message port port-location))
@@ -22,8 +20,8 @@
       (format #f "~a:~a:~a: " (port-name port) (car port-location) (cdr port-location))))
 
 (define (form-location-string form)
-  (aif (and (hash? *compiler-location-map*)
-            (hash-ref *compiler-location-map* form #f))
+  (aif (and (hash? *location-mapping*)
+            (hash-ref *location-mapping* form #f))
        (port-location-string (car it) (cdr it))
        "...."))
 
@@ -35,8 +33,7 @@
                (port-location port))))
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
-      (dynamic-let ((*location-mapping* *compiler-location-map*)
-                    (*package* (symbol-value *package-var* ())))
+      (dynamic-let ((*package* (symbol-value *package-var* ())))
         (trace-message *show-actions* "* READ in ~s\n" *package*)
         (*compiler-reader* port)))))
 
@@ -274,7 +271,6 @@
                                 ((not output-file-name) (input-file-name->output-file-name filename))
                                 (#t (error "Invalid output filename: ~s" filename))))
         (filenames (if (list? filename) filename (list filename))))
-    (set! *compiler-location-map* (make-hash :eq))
     (catch 'end-compile-now
       (handler-bind ((runtime-error
                       (if *debug*
@@ -286,8 +282,8 @@
                                     message args)
                             (throw 'end-compile-now 127)))))
 
-
-        (compile-files filenames output-file-name)
+        (dynamic-let ((*location-mapping* (make-hash :eq)))
+          (compile-files filenames output-file-name))
 
         (format *compiler-output-port* "; Compile completed successfully.\n"))
       0)))

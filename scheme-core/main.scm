@@ -109,15 +109,13 @@
 
 (define *location-mapping* #f)
 
-(define *loader-location-map* (make-hash :eq))
-
 (define (form-source-location form)
   "Return the original location of <form> in the source code that has
    been loaded by the interpreter. If <form> is of unknown origin,
    returns <#f. The location is returned as as a tuple of
    the form (<filename> <line> . <col>)."
-  (if *loader-location-map*
-       (aif (hash-ref *loader-location-map* form #f)
+  (if *location-mapping*
+       (aif (hash-ref *location-mapping* form #f)
             (cons (port-name (car it)) (cdr it))
             #f)
        #f))
@@ -129,8 +127,7 @@
          (call-with-input-file source %text-load))
         ((and (input-port? source) (not (binary-port? source)))
          (while (not (port-at-end? source))
-           (eval (dynamic-let ((*location-mapping* *loader-location-map*))
-                   (read source #f *location-mapping*)))))
+           (eval (read source #f *location-mapping*))))
         (#t
          (error "Bad filename or port in load: ~s" source))))
 
