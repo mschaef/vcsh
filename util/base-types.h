@@ -81,8 +81,8 @@ typedef double                 f64_t;
 #   define U64_MAX ULONG_LONG_MAX
 #   define U64_MIN (0ULL)
 #   define U64(val) (val##ULL)
-#   define INT64_PRINTF_PREFIX "%ll"
-#   define SIZE_T_PRINTF_PREFIX "%zi"
+#   define INT64_PRINTF_PREFIX "ll"
+#   define SIZE_T_PRINTF_PREFIX "z"
 #elif defined(_MSC_VER)
 #   define I64_MAX _I64_MAX
 #   define I64_MIN _I64_MIN
@@ -90,8 +90,8 @@ typedef double                 f64_t;
 #   define U64_MAX _UI64_MAX
 #   define U64_MIN (0ui64)
 #   define U64(val) (val##ui64)
-#   define INT64_PRINTF_PREFIX "%I64"
-#   define SIZE_T_PRINTF_PREFIX "%u"
+#   define INT64_PRINTF_PREFIX "I64"
+#   define SIZE_T_PRINTF_PREFIX "I"
 #endif
 
 /* Couldn't find a better definition for these in the standard header files... */
@@ -183,7 +183,7 @@ typedef u32 unsigned_fixnum_t;
 #   define FIXNUM_MIN           I32_MIN
 #   define FIXNUM_UNSIGNED_MAX  U32_MAX
 #   define FIXNUM_UNSIGNED_MIN  U32_MIN
-#   define FIXNUM_PRINTF_PREFIX    "%"
+#   define FIXNUM_PRINTF_PREFIX    ""
 #endif
 
 typedef double flonum_t;

@@ -65,10 +65,10 @@ void show_opcode(size_t offset, fasl_opcode_t opcode, const _TCHAR *desc)
     }
 
   if (scan::g_show_file_offsets)
-       printf(" 0x%08zx", offset);
+       printf(" 0x%08" SIZE_T_PRINTF_PREFIX " x", offset);
 
   if (scan::g_show_defn_offsets)
-       printf(" (D+0x%08zx) ", offset - last_definition_offset);
+       printf(" (D+0x%08" SIZE_T_PRINTF_PREFIX "x) ", offset - last_definition_offset);
 
   indent();
 
@@ -186,7 +186,7 @@ static void dump_list(bool read_listd)
     dump_error("lists must have a fixnum length");
 
   for(fixnum_t ii = 0; ii < length; ii++) {
-      _sntprintf(buf, STRBUF_SIZE, _T("item["FIXNUM_PRINTF_PREFIX "i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("item[%"FIXNUM_PRINTF_PREFIX "i]"), ii);
 
     op = dump_next_object(buf);
 
@@ -226,7 +226,7 @@ static void dump_fixnum(size_t length, fixnum_t *fixnum_value = NULL)
     *fixnum_value = buf;
 
   if (g_show_fixnums)
-       _tprintf(_T(FIXNUM_PRINTF_PREFIX "i"), buf);
+       _tprintf(_T("%" FIXNUM_PRINTF_PREFIX "i"), buf);
   else
        _tprintf(_T("<suppressed>"));
 }
@@ -318,7 +318,7 @@ static void dump_vector()
 
   for(fixnum_t ii = 0; ii < length; ii++)
     {
-      _sntprintf(buf, STRBUF_SIZE, _T("item["FIXNUM_PRINTF_PREFIX "i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("item[%" FIXNUM_PRINTF_PREFIX "i]"), ii);
 
       op = dump_next_object(buf);
 
@@ -422,7 +422,7 @@ static void dump_fast_op(int arity)
 
   for(fixnum_t ii = 0; ii < arity; ii++)
     {
-      _sntprintf(buf, STRBUF_SIZE, _T("operand["FIXNUM_PRINTF_PREFIX"i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("operand[%" FIXNUM_PRINTF_PREFIX "i]"), ii);
 
       op = dump_next_object(buf);
     }
@@ -445,7 +445,7 @@ static void dump_structure()
 
   for(fixnum_t ii = 0; ii < length; ii++)
     {
-      _sntprintf(buf, STRBUF_SIZE, _T("slot["FIXNUM_PRINTF_PREFIX "i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("slot[%" FIXNUM_PRINTF_PREFIX "i]"), ii);
 
       op = dump_next_object(buf);
 
@@ -662,7 +662,7 @@ int dump_file(char *filename)
   fixnum_t object_number = 0;
 
   for(;;) {
-    _sntprintf(buf, STRBUF_SIZE, _T("top["FIXNUM_PRINTF_PREFIX "i]"), object_number);
+    _sntprintf(buf, STRBUF_SIZE, _T("top[%" FIXNUM_PRINTF_PREFIX "i]"), object_number);
 
     if (dump_next_object(buf) == FASL_OP_EOF)
       break;
