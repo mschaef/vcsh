@@ -65,7 +65,7 @@ void show_opcode(size_t offset, fasl_opcode_t opcode, const _TCHAR *desc)
     }
 
   if (scan::g_show_file_offsets)
-       printf(" 0x%08" SIZE_T_PRINTF_PREFIX " x", offset);
+       printf(" 0x%08" SIZE_T_PRINTF_PREFIX "x", offset);
 
   if (scan::g_show_defn_offsets)
        printf(" (D+0x%08" SIZE_T_PRINTF_PREFIX "x) ", offset - last_definition_offset);
