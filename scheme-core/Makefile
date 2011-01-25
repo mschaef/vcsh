@@ -14,7 +14,7 @@ tested: all scheme-tests.scf
 ctested: all scheme-tests.scf
 	 ./vcsh scheme-tests.scf
 
-scheme-tests.scf: vcsh${EXE_EXT}
+scheme-tests.scf: vcsh${EXE_EXT} scheme-tests.scm
 	./vcsh -c scheme-tests.scm
 
 VCSH_OBJS=vcsh${OBJ_EXT}
