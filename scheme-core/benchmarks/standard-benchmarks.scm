@@ -902,7 +902,36 @@
   (let ((text (string-append "(" (make-string 2000 " #(1) ") ")")))
     (account
      (bench-repeat 64
-                   (read-from-string text)))))
+       (read-from-string text)))))
+
+(defbench compile-simple-form
+  (account
+   (bench-repeat 256
+     (compiler::compile-form '(lambda (x) (+ x 1))))))
+
+(defbench compile-quicksort
+  (account
+   (bench-repeat 256
+     (compiler::compile-form '(lambda (xs less? :optional (key identity))
+                                (let ((key (if (symbol? key) #L(slot-ref _ key) key)))
+                                  (define (sort-step xs)
+                                    (if (null? xs)
+                                        ()
+                                        (let* ((pivot-index (random (length xs)))
+                                               (pivot-value (list-ref xs pivot-index)))
+                                          (let loop ((less ()) (greater ()) (index 0) (xs xs))
+                                            (cond ((= index pivot-index)
+                                                   (loop less greater (+ 1 index) (cdr xs)))
+                                                  ((null? xs)
+                                                   (nconc (sort-step less) (cons pivot-value (sort-step greater))))
+                                                  ((less? (key (car xs)) (key pivot-value))
+                                                   (loop (cons (car xs) less) greater (+ index 1) (cdr xs)))
+                                                  (#t
+                                                   (loop less (cons (car xs) greater) (+ index 1) (cdr xs))))))))
+                                  (check list? xs)
+                                  (check procedure? less?)
+                                  (check procedure? key)
+                                  (sort-step xs)))))))
 
 (define (fast-bench)
   "Generate some quick and dirty benchmarks for the purpose of testing the

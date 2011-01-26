@@ -4587,4 +4587,6 @@
 #S(benchmark-result :seq 5241 :system ("iivx.local" :linux :debug) :test-name structure/write :timings (39420.4 32184.1) :run-time #D"2010-12-01T19:10:34-0500")
 #S(benchmark-result :seq 5242 :system ("iivx.local" :linux :debug) :test-name write-char-to-string :timings (81.4521 76.7690) :run-time #D"2010-12-01T19:10:44-0500")
 #S(benchmark-result :seq 5243 :system ("iivx.local" :linux :debug) :test-name write-strings-to-string :timings (19.9292 18.7133) :run-time #D"2010-12-01T19:10:56-0500")
+#S(benchmark-result :seq 5244 :system ("iivx.local" :linux :debug) :test-name compile-quicksort :timings (4854.40 3954.27) :run-time #D"2011-01-25T21:52:53-0500")
+#S(benchmark-result :seq 5245 :system ("iivx.local" :linux :debug) :test-name compile-simple-form :timings (126.041 102.688) :run-time #D"2011-01-25T21:53:09-0500")
 ; end benchmark results
