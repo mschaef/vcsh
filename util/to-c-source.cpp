@@ -62,7 +62,7 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
 
      fprintf(out, "struct data_block_t %s = \n", varname);
      fprintf(out, "{\n");
-     fprintf(out, "     " SIZE_T_PRINTF_PREFIX ", \n", file_length(in));
+     fprintf(out, "     %" SIZE_T_PRINTF_PREFIX "d, \n", file_length(in));
 
      fprintf(out, "     DATA_BLOCK_DATA_CAST {");
 

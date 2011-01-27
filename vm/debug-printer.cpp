@@ -273,7 +273,7 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
           break;
 
      case TC_FIXNUM:
-          _sntprintf(buf, STACK_STRBUF_LEN, _T(FIXNUM_PRINTF_PREFIX "i"), FIXNM(obj));
+          _sntprintf(buf, STACK_STRBUF_LEN, _T("%" FIXNUM_PRINTF_PREFIX "i"), FIXNM(obj));
           write_text(buf, _tcslen(buf), port);
           break;
 

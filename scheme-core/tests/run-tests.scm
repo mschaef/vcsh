@@ -5,8 +5,9 @@
 (define *test-case-path* (filename-path *current-load-file*))
 
 (define (run)
-  (load-tests *test-case-path*)
-  (if (time (test)) 0 1))
+  (dynamic-let ((scheme::*location-mapping* (make-hash :eq)))
+    (load-tests *test-case-path*)
+    (if (time (test)) 0 1)))
 
 
 
