@@ -21,11 +21,11 @@
 ;; rev 3 - Final 375 Release
 ;;  * Moved ast node code into utility.lisp
 
-;; !!! look into right assoc. ops (i = i << x<y?1:0; fails)
-;; !!! Extend lex to distinguish between integer/real
-;; !!! Implement post increment/decrement
-;; !!! Implement macro for left assoc. operator parsing
-;; !!! Implement generic 'list' parse routine
+;; TODO: look into right assoc. ops (i = i << x<y?1:0; fails)
+;; TODO: Extend lex to distinguish between integer/real
+;; TODO: Implement post increment/decrement
+;; TODO: Implement macro for left assoc. operator parsing
+;; TODO: Implement generic 'list' parse routine
 
 
 ;;;; Code for manipulating Abstract Syntax Trees
@@ -212,7 +212,7 @@
     (expect-token 'colon)
     (while (not (check-token 'case 'default 'close-brace))
       (set! case-body (nconc case-body (list (parse-single-statement))))
-                                        ; !!! fix semi handling here
+                                        ; TODO: fix semi handling here
       (expect-token 'semi))
     (make-aggregate-node 'case (cons condition case-body))))
 
@@ -592,7 +592,7 @@
   (expect-token 'throws)
   (let (throws-list)
     (while (not (check-token 'open-brace))
-                                        ; !!! change to parse a type
+      ;; TODO: change to parse a type
       (nconc throws-list (list (parse-id)))
       (cond ((check-token 'comma) (next-token))
             ((check-token 'open-brace))

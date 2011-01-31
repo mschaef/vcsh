@@ -19,9 +19,9 @@ LRef sym_underline = NIL;
 
 LRef sym_current_image = NIL;
 
-// !! - Imaging, 5 of 7: Refactor, Split Surface from Image
-// !! - Imaging, 6 of 7: Window drawing surface
-// !! - Imaging, 7 of 7: Rewrite vCalc window bitmap management in Scheme
+// REVISIT - Imaging, 5 of 7: Refactor, Split Surface from Image
+// REVISIT - Imaging, 6 of 7: Window drawing surface
+// REVISIT - Imaging, 7 of 7: Rewrite vCalc window bitmap management in Scheme
 
 
 #define CURRENT_IMAGE SYMBOL_VCELL(sym_current_image)
@@ -155,7 +155,7 @@ LOGFONT get_win32_font(LRef obj)
   LOGFONT lf;
   memset(&lf, 0, sizeof(LOGFONT));
 
-  /* !! Add default font information */
+  /* REVISIT: Add default font information */
 
   do { // This begins a block we can break out of to abort the computation
     if (!CONSP(obj))
@@ -198,7 +198,7 @@ LOGFONT get_win32_font(LRef obj)
           vmerror("Font attribute needs to be a symbol", obj);
       }
 
-    lf.lfQuality = 5;// CLEARTYPE_QUALITY; !!!! Investigate fallback to ANTIALIASED
+    lf.lfQuality = 5; // CLEARTYPE_QUALITY; TODO: Investigate fallback to ANTIALIASED
 
   } while(0); // All the breaks in the above block break past this
 
@@ -229,9 +229,9 @@ static HBITMAP create_blank_screen_bitmap(long sx, long sy)
 
 /* Copies an sx by sy sized region from the origin of src to the
  * origin of dest. */
-static void copy_bitmap_over_bitmap(HBITMAP dest, HBITMAP src, long sx, long sy) // !! needs error checking
+static void copy_bitmap_over_bitmap(HBITMAP dest, HBITMAP src, long sx, long sy) // REVISIT: needs error checking
 {
-	
+
   HDC srcDC = ::CreateCompatibleDC(NULL);
   HDC destDC = ::CreateCompatibleDC(NULL);
 
@@ -384,7 +384,7 @@ HBITMAP vcalc_image_duplicate_hbitmap(vcalc_image_t *img)
  */
 
 
-void get_c_point(LRef pt, flonum_t &x, flonum_t &y) // !! Some scalar points are treated as x+xi, some are sizes...
+void get_c_point(LRef pt, flonum_t &x, flonum_t &y) // REVISIT: Some scalar points are treated as x+xi, some are sizes...
 {
   if (COMPLEXP(pt)) 
     {
@@ -399,7 +399,7 @@ void get_c_point(LRef pt, flonum_t &x, flonum_t &y) // !! Some scalar points are
     vmerror("Bad point [ ~a ], points must be specified as complex or real numbers.", pt);
 }
 
-void get_c_point(LRef pt, long &x, long &y) // !! Some scalar points are treated as x+xi, some are sizes...
+void get_c_point(LRef pt, long &x, long &y) // REVISIT: Some scalar points are treated as x+xi, some are sizes...
 {
   flonum_t fx, fy;
 

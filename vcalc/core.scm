@@ -196,7 +196,7 @@
 (define (maybe-load-persistant-state)
   (catch 'abort-load
     (handler-bind ((read-error (lambda args
-                                 (info "Persistant state load aborted!!!")
+                                 (info "Persistant state load aborted!")
                                  (throw 'abort-load))))
       (when (file-exists? (get-user-file-path *vcalc-state-file*))
         (load-state-from-file (get-user-file-path *vcalc-state-file*))))))

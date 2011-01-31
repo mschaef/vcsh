@@ -91,7 +91,7 @@
 		       (double . ((int . 142) (long . 143) (float . 144
 								  )))))))))))
 
-; !!! add support for types
+; TODO: add support for types
 
 (define (assemble-constant ast)
   (let ((constant-target (get-entry-offset (first (ast-node-param-list ast)))))
@@ -566,7 +566,7 @@
 (set-node-type-action 'name-and-type     'assemble
 		      #'n-t-assemble-constant-pool-entry)
 
-; !!! fix to patch refs
+; TODO: fix to patch refs
 
 (define (ref-assemble-constant-pool-entry ast)
   "Generate a byte sequence for a ref constant pool entry"

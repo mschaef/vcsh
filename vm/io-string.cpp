@@ -86,8 +86,8 @@ LRef lopen_input_string(LRef string)
      if (!STRINGP(string))
           vmerror_wrong_type(1, string);
 
-     /*  TODO: open-input-string can avoid duplicating incoming strings */
-     /*  TODO: open-input-string take string input port argument */
+     /*  REVISIT: open-input-string can avoid duplicating incoming strings */
+     /*  REVISIT: open-input-string take string input port argument */
 
      return portcons(&string_port_class, NIL, PORT_INPUT, strcons(string), NULL);
 }

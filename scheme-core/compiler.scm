@@ -2,7 +2,7 @@
 ;;;;
 ;;;; The main compiler file.
 
-;;; TODO: Alter compiler to store a metadata with compiled functions
+;;; REVISIT: Alter compiler to store a metadata with compiled functions
 ;;;   - Version of host VM/scheme image
 ;;;   - Date/time compiled
 ;;;   - Mapping from fast-ops back to source forms

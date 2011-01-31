@@ -270,8 +270,8 @@ struct {
 	{ 0                  , NULL                     }
 };
 
-// !!! Add support for integer clipboard format 'names'
-// !!! Add support for delayed rendering of clipboard data
+// TODO Add support for integer clipboard format 'names'
+// TODO Add support for delayed rendering of clipboard data
 
 LRef clipboard_format_name(UINT format)
 {
@@ -281,7 +281,7 @@ LRef clipboard_format_name(UINT format)
 
 	_TCHAR buf[STACK_STRBUF_LEN];
 
-	GetClipboardFormatName(format, buf, STACK_STRBUF_LEN); // !!!!! Error checking
+	GetClipboardFormatName(format, buf, STACK_STRBUF_LEN); // TODO: Error checking
 
 	return strcons(buf);
 }

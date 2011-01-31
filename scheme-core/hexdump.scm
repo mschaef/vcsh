@@ -23,7 +23,7 @@
   "Specifies the number of bytes shown per line"
   (let ((val (arg-integer-value arg)))
     (when (<= val 0)
-      (throw 'invalid-argument "bytes-per-line must be >0.")) ; !!! this message should print
+      (throw 'invalid-argument "bytes-per-line must be >0.")) ; TODO: this message should print
     (set! *bytes-per-line* val)))
 
 (define-command-argument ("no-offset")

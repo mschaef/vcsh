@@ -96,7 +96,7 @@
                (values (car l-list) (cdr l-list)))))))
   (mvbind (names args) (parse-command-argument-lambda-list l-list)
      (when (> (length args) 1)
-       (error "Command arguments taking more than one argument are currently unsupported: ~s" names)) ; TODO: Fix this
+       (error "Command arguments taking more than one argument are currently unsupported: ~s" names)) ; REVISIT: multi-argument command options
      `(extend-command-argument-bindings! ',names (lambda ,args ,@code))))
 
 (defmacro (define-file-argument-handling . code)

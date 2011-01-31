@@ -669,8 +669,7 @@
   (set! *number-format-mode* :fixed)
   (values))
 
-; !! We could use standard/engineering modes
-
+; TODO: We could use standard/engineering modes
 
 (define-vcalc-command (set-beginning)
   "Sets vCalc to accrue interest at the beginning of terms."
@@ -892,7 +891,7 @@
 
 (define-method (->list (count number))
   (let ((count (parse-count count)))
-    (stack-ensure-arguments count) ;; !!!!!!!!!! this does not seem to work
+    (stack-ensure-arguments count) ;; XXX: this does not seem to work
     (let ((new-list (reverse! (take *stack* count))))
       (stack-dropn count)
       new-list)))

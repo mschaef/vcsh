@@ -55,7 +55,7 @@
   "Retrieve an action for a ast node type"
   (get (ast-node-type node) action-name))
 
-; !!! Make obsolete by adding support for multiple node types in s-n-t-a
+; TODO: Make obsolete by adding support for multiple node types in s-n-t-a
 
 (define (make-action-set-fn attr value)
   "Make a function for defining a node type action"

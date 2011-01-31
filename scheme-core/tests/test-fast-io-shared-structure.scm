@@ -48,5 +48,5 @@
     (test-case (can-fast-io-round-trip? (append xs xs)))
     (test-case (can-fast-io-round-trip? (append ys ys))))
 
-  ;; (test-case (can-fast-io-round-trip? (nested-circular-lists 3 9))) TODO: Fix this... see fasl.cpp for why this will throw an assertation error.
+  ;; (test-case (can-fast-io-round-trip? (nested-circular-lists 3 9))) REVISIT: Fix this... see fasl.cpp for why this will throw an assertation error.
   )

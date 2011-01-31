@@ -200,7 +200,7 @@ BOOL CLispWnd::OnCommand(WPARAM wParam, LPARAM lParam)
         }
     }
 
-    // !! ? Need to worry about unfound commands?
+    // TODO: ? Need to worry about unfound commands?
 
     return CWnd::OnCommand(wParam, lParam);
 }
@@ -270,11 +270,11 @@ void CLispWnd::DoCreateWindow()
 
     CWnd *parent = NULLP(_parent_peer) ? NULL : WNDOB(_parent_peer);
 
-    // !!! Figure out how to set window placement from initial-placement
+    // TODO: Figure out how to set window placement from initial-placement
     CreateEx(WS_EX_APPWINDOW,
              windowClass,
              title,
-               WS_OVERLAPPED 
+               WS_OVERLAPPED
              | WS_SIZEBOX
              | WS_MINIMIZEBOX
              | WS_SYSMENU,

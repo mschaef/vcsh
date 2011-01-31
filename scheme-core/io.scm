@@ -37,7 +37,7 @@
    with a call to close-port when <fn> returns."
   (call-with-port (open-input-file filename mode) fn))
 
-;; !! with-input-file
+;; REVISIT: with-input-file
 
 (define (call-with-output-file filename fn :optional (mode :text))
   "Returns the result(s) of calling <fn> with a file output port for the
@@ -45,9 +45,9 @@
    with a call to close-port when <fn> returns."
   (call-with-port (open-output-file filename mode) fn))
 
-;; !! with-output-file
+;; REVISIT: with-output-file
 
-;; !! a compiler error keeps these definitions from working, currently
+;; REVISIT: a compiler error keeps these definitions from working, currently
 ;; the compiler tries to serialize the subr bound to close-port at the
 ;; tine of compilation. July 14, 2007
 ;;;

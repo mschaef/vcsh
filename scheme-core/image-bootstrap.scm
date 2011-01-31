@@ -47,7 +47,7 @@
           ,@code))))
 
 
-(host-scheme::defmacro (%early-defmacro macro-lambda-list . macro-body) ;; TODO: Macros with :optional arguments
+(host-scheme::defmacro (%early-defmacro macro-lambda-list . macro-body) ;; REVISIT: macros with :optional arguments (possibly in dbind.)
   (host-scheme::let ((macro-body macro-body) ; shadowed the argument to give us something settable.
                      (macro-name (car macro-lambda-list))
                      (macro-formals (cdr macro-lambda-list)))

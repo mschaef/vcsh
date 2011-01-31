@@ -30,7 +30,7 @@ u32 TimeoutRegistration::DaysSinceInstallation()
 	
 	GetModuleFileName(AfxGetInstanceHandle(), szBuffer, sizeof(szBuffer));
 	
-	// !!!!! Cross check file modification time with registry key
+	// TODO: Cross check file modification time with registry key
 	GetFileAttributesEx(szBuffer,
 		                GetFileExInfoStandard,
 						&fileInfo);

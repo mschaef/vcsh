@@ -182,7 +182,7 @@ BOOL CVCalcApp::SetupRegistration()
 
   m_fullFeatures = TRUE;
 	
-  if (false) // TODO: REENABLE REGISTRATION!!!!!
+  if (false) // XXX: REENABLE REGISTRATION!!!!!
     // // if (!m_registration.isRegisteredVersion())
     {
       CIntroDialog dlg;
@@ -235,7 +235,7 @@ BOOL CVCalcApp::InitInstance()
   InitCommonControls();
   AfxInitRichEdit2();
 
-  m_pszAppName = _tcsdup(_T("vCalc")); // !!!!! String Literal
+  m_pszAppName = _tcsdup(_T("vCalc")); // TODO: String Literal
 
   /*
    * Bring up the scheme interpreter.

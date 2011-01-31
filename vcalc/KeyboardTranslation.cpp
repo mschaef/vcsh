@@ -40,9 +40,9 @@ _TCHAR key_encodes_char(fixnum_t key_id)
 
   memset(buf, 0, sizeof(buf));
 
-  // Parse out the control bits, and build up the keystate    
+  // Parse out the control bits, and build up the keystate
   if (key_id & KEY_ID_HANKAKU)
-    keystate[VK_KANA]       = 0x80;  // !!! Don't know if VK_KANA is right for HANKAKU or not
+    keystate[VK_KANA]       = 0x80;  // REVISIT: Don't know if VK_KANA is right for HANKAKU or not
 
   if (key_id & KEY_ID_ALT)
     keystate[VK_MENU]      = 0x80;
@@ -229,7 +229,7 @@ LRef lkey_id2key_name(LRef id)
     }
 
   // Parse out the control bits, and start building the result list
-  // !!! Don't know if VK_KANA is right for HANKAKU or not
+  // REVISIT: Don't know if VK_KANA is right for HANKAKU or not
   if (key_id & KEY_ID_HANKAKU)
     result = lcons(keyword_intern(_T("hankaku")), result);
 

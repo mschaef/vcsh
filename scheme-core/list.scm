@@ -607,10 +607,7 @@
              (cons (car lis) (loop (cdr lis))))))))
 
 ;; TODO: define insert-ordered!
-
-
-
-
+;; TODO: Incorporate radix-sort and unique.
 
 (define (butlast xs)
   "Make a duplicate copy of <xs> containing all but the final list element."

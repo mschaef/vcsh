@@ -118,7 +118,7 @@
 	    (keymap-entry
 	     (unless (keymap? (car keymap-entry))
 	       (if (and create-path? (not (car keymap-entry)))
-		   (set-car! keymap-entry (make-keymap :name "")) ; !!!!!
+		   (set-car! keymap-entry (make-keymap :name "")) ; XXX
 		   (error "This key sequence, ~a, requires redefining a keymap entry already bound to ~a." 
 			  key-sequence (car keymap-entry))))
 	     (next-key (car keymap-entry) (cdr remaining-sequence)))

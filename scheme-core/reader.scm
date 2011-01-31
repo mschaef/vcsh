@@ -150,7 +150,7 @@
         ((#\s) #\space)
         ((#\\) #\\)
         ((#\") #\")
-        ;; TODO: hex character escapes in strings
+        ;; REVISIT: hex character escapes in strings
         ((#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7)
          (let loop ((code (digit-char->number ch))
                     (ii 0))
@@ -190,7 +190,7 @@
 
 (define (read-character port)
 
-  ;; TODO: hex character escapes in characters
+  ;; REVISIT: hex character escapes in characters
   (define (code-character text char-location)
     (unless (and (eq? #\< (string-ref text 0))
                  (eq? #\> (string-ref text (- (length text) 1)))
@@ -250,7 +250,7 @@
   "Returns <ch> if it is a character that is normally read as part of a symbol
    even if unescaped. Returns #f otherwise."
 
-  ;; REVISIT: The first four elements of this charset are shared with the
+  ;; TODO: The first four elements of this charset are shared with the
   ;; char-whitespace? charset. There should be a single definition for the
   ;; whitespace set.
   (not (vector-ref #.(charset-vector #\newline #\cr #\tab #\space
@@ -384,8 +384,6 @@
   (set-char-syntax! *readsharp-syntax* #\S 'read-structure))
 
 
-;; TODO: Add default readsharp syntax that throws an error
-
 ;; The list reader
 
 (define (read-sequence port begin-char end-char)
@@ -474,6 +472,8 @@
         ((not (read-expected-char #\: port #f)) :public-symbol)
         (#t                                  :private-symbol)))
 
+; TODO: *ignore-read* - There's a better name for this in cltl2, but the basic idea is to have a way to put the reader into a mode where it can safely read through stuff and not intern symbols or make other mutations to the environment.
+ 
 (define (accept-symbol port  error-port error-location) ; TODO: *read-symbol-hook* to allow symbols to be read but not interned
   "<error-port> and <error-location> are used to report any read
    errors in symbol parsing."

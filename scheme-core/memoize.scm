@@ -3,7 +3,7 @@
 ;;;; Mike Schaeffer
 ;;;
 ;;; A function result cache facility.
-;;; !! *memoize-result-caches*  should forget caches for functions that get finalized
+;;; REVISIT: *memoize-result-caches*  should forget caches for functions that get finalized. (Which requires weak references.)
 
 (define *memoize-result-caches* '())
 

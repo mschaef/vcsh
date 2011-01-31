@@ -160,7 +160,7 @@
           (car remaining)
           (loop (cdr remaining))))))
 
-; TODO: <delim> can be a regex, but this requires a regex package :-)
+; REVISIT: <delim> can be a regex, but this requires a regex package :-)
 
 ; REVISIT: Should these be split-string-* or string-split-*?
 ; REVISIT: allow split-string-* to take lists of multiple delimiters

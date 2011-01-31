@@ -91,10 +91,7 @@
 
 ;;; Comparison predicates
 ;;;
-;;; TODO - extend char comparison predicates to >=2 paramaters
-
-;; TODO: char->integer throws a type error if given a non-character. This error is
-;; also thrown by these predicates, which should not happen.
+;;; REVISIT - extend char comparison predicates to >=2 paramaters
 
 (define (char=? x y)
   (eq? x y))

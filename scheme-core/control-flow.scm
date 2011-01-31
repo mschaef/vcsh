@@ -204,7 +204,7 @@
                             ()))
                       clauses)))
   ;; Check validity of all case clauses
-  ;; (TODO: the return value is ignored, but it could be used as an input to optimizations.)
+  ;; (REVISIT: the return value is ignored, but it could be used as an input to optimizations.)
   (find-clause-guard-values clauses)
 
   ;; Verify that any default clause is the last clause
@@ -305,7 +305,7 @@
                    `((< ,random-value-sym ,cumulative-probability-so-far) ,@(cdr current-case)))
                  cases))))))
 
-;; !! with-output-to-string doubles line feeds
+;; TODO: with-output-to-string doubles line feeds
 
 ;;; This is the interpreter eval-when. It only allows :execute forms to execute. The
 ;;; compiler handles this differently.

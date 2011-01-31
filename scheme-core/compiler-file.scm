@@ -74,7 +74,7 @@
     (compile-error #f "Invalid include form: ~s" form))
   (let ((file-spec (second form)))
     (define (file-spec-files)
-      (if (wild-glob-pattern? file-spec) ;; TODO: Always glob
+      (if (wild-glob-pattern? file-spec) ;; REVISIT: Always glob
           (directory file-spec)
           (list file-spec)))
     (dolist (filename (file-spec-files))

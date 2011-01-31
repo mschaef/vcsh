@@ -443,7 +443,7 @@
              sym-spec package))
     (set-cdr! srec flag)))
 
-;; TODO: export! should verify that it isn't introducing package inconsistancies
+;; REVISIT: export! should verify that it isn't introducing package inconsistancies
 ;; prior to actually doing the export. See CLtL2 for details.
 
 (define (export! sym-or-syms :optional (package *package*))
@@ -521,22 +521,6 @@
           (set-symbol-package! sym package)
           (add-symbol-to-package sym package)
           sym))))
-
-;; TODO: this interacts badly with the compiler
-;;
-;; (define gensym
-;;   (let ((count 0)) ;; this, in particular
-;;     (lambda name
-;;       (set! count (+ count 1))
-;;       (if (or (not (pair? name))
-;;               (not (string? (car name))))
-;;           (set! name "GS")
-;;           (set! name (car name)))
-;;       (string->uninterned-symbol
-;;        (string-append
-;;         name
-;;         (number->string count))))))
-
 
 (define *gensym-count* 0)
 

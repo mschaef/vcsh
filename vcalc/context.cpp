@@ -383,9 +383,8 @@ LRef lupdate_drawing_origin (LRef delta, LRef s)
 {
   long dx, dy;
   get_c_point(delta, dx, dy);
-	
 
-  LRef origin = lget_drawing_origin(s); // !!!!!!!!!!!!!
+  LRef origin = lget_drawing_origin(s); // TODO: This was marked with '!!!!!!!!'. Why?
   long xo = get_c_long(lcar (origin));
   long yo = get_c_long(lcar(lcdr(origin)));
 

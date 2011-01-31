@@ -174,7 +174,7 @@
           (#t
            (list-ref ctx-items elem-no)))))
 
-;; TODO: Add lenv support to the inspector.
+;; REVISIT: Add lenv support to the inspector.
 ;;
 ;; The idea behind this feature is that the inspector should make it possible
 ;; to evaluate expressions in the local environment of a closure being inspected.
@@ -228,7 +228,7 @@
 (push! '(:a apropos :quote) *inspect-abbreviations*)
 (push! '(:A apropos-any :quote) *inspect-abbreviations*)
 
-;; TODO: Add a :set command that allows the inspector to set items too... this will
+;; REVISIT: Add a :set command that allows the inspector to set items too... this will
 ;; need a way of getting the inspector context down into the inspect-set! function,
 ;; which faces the same problems as the would-be :eval command.
 
@@ -257,7 +257,8 @@
 (define (inspect-print ctx)
   (inspect-print-object-summary ctx)
   (with-inspect-printing
-   ;; TODO: Add a paging capability, in case the list of context items is large.
+   ;; REVISIT: Add a paging capability, in case the list of context items is large.
+   ;; TODO: Fix broken inspector compile.
 
    ;; (doiterate ((count ii 0)
    ;;             (list obj-elem (inspect-ctx-items ctx)))

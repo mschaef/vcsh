@@ -11,9 +11,9 @@
 
 using namespace scan;
 
-// !! Multiple console windows
-// !! How will non-local escapes be propagated across the message pump?
-// !! How will modal dialogs keep our message pump procesing working? 
+// REVISIT: Multiple console windows
+// REVISIT: How will non-local escapes be propagated across the message pump?
+// REVISIT: How will modal dialogs keep our message pump procesing working?
 
 const _TCHAR *DEFAULT_CONSOLE_FONT = _T("Lucida Console");
 const int STROUT_PORT_BLOCK_SIZE   = 256;
@@ -142,7 +142,7 @@ IOleObject *CImageDataObject::GetOleObject(IOleClientSite *pOleClientSite, IStor
 
 size_t con_port_write(const void *buf, size_t size, size_t count, LRef obj, CLispConsole::OutputClass o)
 {
-  // !!!! con_port_write is shared with debug_port_write: refactoring opportunity.
+  // TODO: con_port_write is shared with debug_port_write: refactoring opportunity.
 
   assert(PORTP(obj));
 
@@ -392,8 +392,6 @@ void CLispConsole::OnOutputPaneMessage(NMHDR *pNMHDR, LRESULT *pResult)
             }
         }
     }
-
-  // TODO:  Add your control notification handler code here
 
   *pResult = 0;
 }

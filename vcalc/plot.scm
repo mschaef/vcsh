@@ -3,12 +3,12 @@
 ;
 ; Temporary working file for plotting support
 
-; !! stateless graphics
-; !! log/log plots
-; !! bar/column plots
-; !! tick attributes 
-; !! labeling
-; !! pre-computed t-range
+; REVISIT: stateless graphics
+; REVISIT: log/log plots
+; REVISIT: bar/column plots
+; REVISIT: tick attributes 
+; REVISIT: labeling
+; REVISIT: pre-computed t-range
 
 (define (sin-points)
   (let loop ((x -3.14) (pts ()))
@@ -28,7 +28,7 @@
 	(loop (scheme::+ x 0.01) (cons (point x (scheme::tan x)) pts))
 	pts)))
 
-(define (scalars->points xs) ; !! depends on map call order
+(define (scalars->points xs) ; REVISIT: depends on the order in which map calls its procedure on the list elements.
   "Given a list of scalars <xs>, return the list as a series of evenly spaced
    points starting at y=0 and 1 unit apart."
   (let ((i -1))
@@ -176,7 +176,7 @@
 		 (loop (point-y this-point) (cdr remaining-points) (cons this-point accumulated-points))))))))
 	   	   
 (define (draw-series-points points scaler default-color args)
-  (write `(draw-series-points points ,scaler ,default-color ,args))(newline) ; !!!!
+  (write `(draw-series-points points ,scaler ,default-color ,args))(newline) ; XXX
   (if (parameterized-series? points)
       (draw-series-points (second points) scaler default-color (append (cddr points) args))
       (assoc-let args ((connect-points? :connect-points #t)
@@ -382,7 +382,7 @@
 		   (fill-rectangle 0 image-size)
 		   (dolist (points data-series-points)
 		     (when (null? plot-colors)
-		       (error "Out of plot colors!!!"))
+		       (error "Out of plot colors!"))
 		     (draw-series-points points scaler (car plot-colors) args)
 		     (pop! plot-colors))
 		   (when axis-color
@@ -390,7 +390,7 @@
 		     (draw-axis/y scaler y-range axis-color y-ticks)))))))
 
 
-; !!! scheme:/   -- causes assert failure
+;; TODO: scheme:/   -- causes assert failure
 
 (define (find-slopes xs)
   (let ((last-x #f))
@@ -590,7 +590,7 @@
 		      (:connect-points . #f)
 		      (:x-range . :auto)
 		      (:y-range . :auto)
-		      (:t-range 0 . 16) ; !!! t-range when x-range is auto
+		      (:t-range 0 . 16) ; TODO: t-range when x-range is auto
 		      (:point-style . :solid-circle)
 		      (:point-size . 2)
 		      (:autorange-x-pad . 0.1)

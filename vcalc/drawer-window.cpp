@@ -344,7 +344,7 @@ void CDrawer::OnActivateApp(BOOL bActive, DWORD dwThreadID)
 
   _hidden = !bActive;
 
-  // !!! This causes problems with main window resizing.
+  // REVISIT: This causes problems with main window resizing.
   UpdateDrawerLocation();
 }
 
@@ -752,9 +752,9 @@ void CDrawer::UpdateDrawerLocation()
   if ((_actingSide == LEFT)  || (_actingSide == RIGHT))
     {
       /* If the drawer fits better on the opposite side
-       * of the window, this just moves it over temporarily. 
+       * of the window, this just moves it over temporarily.
        *
-       * !! In an ideal world, the slide operation would be animated. */
+       * REVISIT: In an ideal world, the slide operation would be animated. */
       if (_options & AUTOSLIDE)
         {
           if     (   (_side == LEFT)

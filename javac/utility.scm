@@ -12,7 +12,7 @@
 ;
 ; A byte queue is a Lisp list of numerical byte values.
 
-; !!! Add debug code for validating byte values
+;; TODO: Add debug code for validating byte values
 
 (define (make-bq . bytes)
     (let ((q (make-queue)))

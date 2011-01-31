@@ -11,7 +11,7 @@
 ;; These routines detect circularity and shared structure and generate
 ;; SET/REF opcodes to reconstruct it at load-time.
 
-;; TODO: The API design for the FASL writer is pretty confusing.
+;; REVISIT: The API design for the FASL writer is pretty confusing.
 
 (define *fasl-write-debugging* #f)
 (define *fasl-write-check-structure-sharing* #t)

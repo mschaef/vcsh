@@ -7,7 +7,7 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-LRef macrocons(LRef t)          /*  TODO: Macros should be moved entirely to Lisp... */
+LRef macrocons(LRef t)          /*  REVISIT: Macros should be moved entirely to Lisp... */
 {
      LRef z = new_cell(TC_MACRO);
 

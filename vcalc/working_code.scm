@@ -91,11 +91,9 @@
 
 "vCalc Save Files (*.vcx)|*.vcx|All Files (*.*)|*.*||"
 
-
-
-; !!! - read-line
-; !!! - split
-; !!! - string mapping/folding/iteration
+;; TODO - read-line
+;; TODO - split
+;; TODO - string mapping/folding/iteration
 
 
 (define (unique-eq xs)
@@ -140,11 +138,12 @@
 (define (comma->bar if of)
   (with-file
 
-; !!! - read-line
-; !!! - split
-; !!! - string mapping/folding/iteration
+;; TODO - read-line
+;; TODO - split
+;; TODO - string mapping/folding/iteration
 
-; !!! - unique on a given key-function
+;; TODO - unique on a given key-function
+
 (define (unique-eq xs)
   "Compute the set of unique, as distinguished by eq?, objects in the list <xs>"
   (let ((objects (make-hash :eq)))

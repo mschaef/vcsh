@@ -33,7 +33,7 @@
  ///////////////////////////////////////////////////////////////////
  */
 
-// !!! Need to report whether or not a binding is using default values...
+// REVISIT: Need to report whether or not a binding is using default values...
 
 
 

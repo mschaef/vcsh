@@ -270,7 +270,7 @@ flonum_t sys_time_resolution()
      return 1000000.0;
 }
 
-flonum_t sys_timezone_offset()  /*  XXX: This does not accurately capture DST on MacOS X */
+flonum_t sys_timezone_offset()  /*  TODO: This does not accurately capture DST on MacOS X */
 {
      struct timezone tz;
 

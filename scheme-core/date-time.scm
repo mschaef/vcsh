@@ -281,8 +281,6 @@
   ;;    of course.
   (tm%current-time-tai))
 
-;; TODO: make these sensible
-;;
 ;; (define (tm%current-time-thread) ;; SRFI-19
 ;;   (tm%current-time-ms-time time-process current-process-milliseconds))
 ;;

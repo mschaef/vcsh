@@ -26,8 +26,8 @@
             "test-body"
             "dtu-lambda-list"))
 
-;; TODO: unit tests over ranged x (ie: this should apply from all x in [0,255]
-;; TODO: test-case that shows expected/actual values (should probably special case based on nested form)
+;; REVISIT: unit tests over ranged x (ie: this should apply from all x in [0,255]
+;; REVISIT: test-case that shows expected/actual values (should probably special case based on nested form)
 
 ;;;; Unit test setup
 
@@ -130,7 +130,7 @@
       (run-test test-case)
       (indent 50)
       (format #t " ~a check~a." *check-count* (if (> *check-count* 1) "s" ""))
-      (when (> *check-fail-count* 0) (format #t " (~a FAILED!!!)" *check-fail-count*))
+      (when (> *check-fail-count* 0) (format #t " (~a FAILED!)" *check-fail-count*))
       (newline))))
 
 (define (test-location-string form-loc)

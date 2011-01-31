@@ -8,7 +8,7 @@
   "Returns a hash table of type <hash-type> with a key for each element
    in <keys>. <default-value> is bound to each key."
   (let ((h (make-hash hash-type)))
-    (dolist (key keys h) ; !! fold would be perfect for this.
+    (dolist (key keys h) ; REVISIT: fold would be perfect for this.
       (hash-set! h key default-value))))
 
 (define (hash-keys hash)

@@ -82,7 +82,7 @@
   (set-union/eq (aif (instance-proto instance) (direct-instance-slots it) ())
                 (direct-instance-slots instance)))
 
-;;; TODO: Add separate slot not found handlers for slot-ref and slot-set!.
+;;; REVISIT: Add separate slot not found handlers for slot-ref and slot-set!.
 
 (define (flatten-instance instance)
   "Returns a copy of <instance> with a flattened prototype chain. The returned

@@ -453,8 +453,8 @@ struct interpreter_thread_info_block_t
 
 struct interpreter_t
 {
-     // TODO: per-interrupt masking
-     // TODO: interrupt handler per bit.
+     // REVISIT: per-interrupt masking
+     // REVISIT: interrupt handler per bit.
      vminterrupt_t interrupts_pending;
 
      bool interrupts_masked;

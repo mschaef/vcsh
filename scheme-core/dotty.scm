@@ -2,7 +2,7 @@
 ;
 ; Support for visualizinng Lisp data structures using dotty.
 ;
-; !!! Dotty could use some work:
+; REVISIT: Dotty could use some work:
 ; - Factor out 'write-dotty-vertex' from write/dotty
 ; - Add some controls to vary the level of detail
 ; - Consider using generic functions for write-dotty-vertex and write/dotty

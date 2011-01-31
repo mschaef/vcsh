@@ -254,7 +254,7 @@
               (throw 'repl-escape))
             (apply repl-print (repl-eval form env))
             (with-repl-error-handling "post-hook"
-             (invoke-hook '*repl-post-hook*)))) ;; TODO: error guard
+             (invoke-hook '*repl-post-hook*)))) ;; REVISIT: error guard
         (loop)))))
 
 (define (toplevel-repl)

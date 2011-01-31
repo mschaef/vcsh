@@ -112,8 +112,5 @@ HBRUSH TipWindow::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
-	// TODO:  Change any attributes of the DC here
-	// TODO:  Return a different brush if the default is not desired
-
 	return hbr;
 }
