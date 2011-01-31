@@ -94,17 +94,10 @@
       (symbol? obj)
       (pair? obj)))
 
-(define *toplevel-definitions* ())
-
 (define (process-toplevel-define form output-fasl-stream)
   (let* ((var (second form))
          (val-thunk (toplevel-form->thunk (third form)))
          (val (val-thunk)))
-
-    (if (memq var *toplevel-definitions*)
-        (dynamic-let ((*print-packages-always* #t))
-          (compile-warning form "; Redefinition of ~s" var))
-        (push! var *toplevel-definitions*))
 
     (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" var val)
     (trace-message *verbose* "; defining ~a\n" var)

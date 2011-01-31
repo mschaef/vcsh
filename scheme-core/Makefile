@@ -2,7 +2,7 @@
 
 .PHONY: indented tested ctested
 
-TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT} eb-vcsh${EXE_EXT} 
+TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT}
 
 include ../build-settings
 
@@ -10,9 +10,6 @@ SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-r
 
 tested: all scheme-tests.scf
 	./vcsh unit-test.scm tests/run-tests.scm
-
-eb-tested: all
-	 ./eb-vcsh unit-test.scm tests/run-tests.scm
 
 ctested: all scheme-tests.scf
 	 ./vcsh scheme-tests.scf
@@ -31,9 +28,6 @@ LIB_SRCS:= $(LIB_OBJS:${OBJ_EXT}=.cpp)
 vcsh${EXE_EXT}: scanlib${LIB_EXT} $(VCSH_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh${EXE_EXT} vcsh${OBJ_EXT} scanlib${LIB_EXT}
 
-eb-vcsh${EXE_EXT}: eb-scanlib${LIB_EXT} $(VCSH_OBJS)
-	${CC} ${LDFLAGS} ${NAMOBJFL}eb-vcsh${EXE_EXT} vcsh${OBJ_EXT} eb-scanlib${LIB_EXT}
-
 scanlib${LIB_EXT}: $(LIB_OBJS) scheme${OBJ_EXT} compiler-run${OBJ_EXT} ../vm/scan-vm${LIB_EXT}
 	cp ../vm/scan-vm${LIB_EXT} scanlib${LIB_EXT}
 	${AR_RS} ${AROUTFL_RS}scanlib${LIB_EXT} $(LIB_OBJS) scheme${OBJ_EXT} compiler-run${OBJ_EXT}
@@ -41,28 +35,13 @@ ifdef ${RANLIB}
 	${RANLIB} scanlib${LIB_EXT}
 endif
 
-eb-scanlib${LIB_EXT}: $(LIB_OBJS) eb-scheme${OBJ_EXT} compiler-run${OBJ_EXT} ../vm/scan-vm${LIB_EXT}
-	cp ../vm/scan-vm${LIB_EXT} eb-scanlib${LIB_EXT}
-	${AR_RS} ${AROUTFL_RS}eb-scanlib${LIB_EXT} $(LIB_OBJS) eb-scheme${OBJ_EXT} compiler-run${OBJ_EXT}
-ifdef ${RANLIB}
-	${RANLIB} eb-scanlib${LIB_EXT}
-endif
-
 scheme${OBJ_EXT}: scheme.scf
 	echo \#include \"../util/base-types.h\" > scheme.cpp
 	../util/to-c-source scheme.scf scf_scheme >> scheme.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}scheme${OBJ_EXT} scheme.cpp
 
-eb-scheme${OBJ_EXT}: eb-scheme.scf
-	echo \#include \"../util/base-types.h\" > eb-scheme.cpp
-	../util/to-c-source eb-scheme.scf scf_scheme >> eb-scheme.cpp
-	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}eb-scheme${OBJ_EXT} eb-scheme.cpp
-
 scheme.scf:
 	$(SCC0) --load-file:setup-image-compile.scm scheme.scm
-
-eb-scheme.scf: vcsh${EXE_EXT}
-	 ./vcsh${EXE_EXT} -c --load-file:eb-setup-image-compile.scm eb-scheme.scm -o:eb-scheme.scf
 
 compiler-run${OBJ_EXT}: compiler-run.scf
 	echo \#include \"../util/base-types.h\" > compiler-run.cpp
