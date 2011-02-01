@@ -422,8 +422,6 @@ fixnum_t gc_sweep()
      if (!NULLP(current_sub_freelist))
           interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
 
-     assert(!NULLP(interp.global_freelist));
-
      interp.gc_cells_collected = cells_freed;
 
      dscwritef(DF_SHOW_GC_DETAILS, (";;; GC sweep done, freed:~cd, free:~cd\n", cells_freed,
@@ -534,6 +532,9 @@ LRef gc_claim_freelist()
          || ((malloc_bytes - interp.malloc_bytes_at_last_gc) > interp.c_bytes_gc_threshold)
          || ALWAYS_GC)
           cells_freed = gc_collect_garbage();
+
+     if (NULLP(interp.global_freelist))
+          enlarge_heap();
 
      // TODO: Add automatic heap enlarge policy
      assert(!NULLP(interp.global_freelist));
