@@ -12,15 +12,25 @@ BEGIN_NAMESPACE(scan)
 /*** GC heap startup and shutdown */
 
 /*** GC Root Registry ***/
+
+static size_t gc_find_free_root()
+{
+     for (size_t root_index = 0; root_index < MAX_GC_ROOTS; root_index++)
+     {
+          if (CURRENT_TIB()->gc_roots[root_index].name == NULL)
+               return root_index;
+     }
+
+     assert(!"Could not find free GC root.");
+
+     // not reached
+
+     return -1;
+}
+
 void gc_protect(const _TCHAR * name, LRef * location, size_t n)
 {
-     size_t root_index = 0;
-
-     for (root_index = 0; root_index < MAX_GC_ROOTS; root_index++)
-          if (CURRENT_TIB()->gc_roots[root_index].name == NULL)
-               break;
-
-     assert(root_index < MAX_GC_ROOTS);
+     size_t root_index = gc_find_free_root();
 
      gc_root_t *root = (gc_root_t *) & (CURRENT_TIB()->gc_roots[root_index]);
 
@@ -44,22 +54,34 @@ static void gc_init_cell(LRef obj)
      SET_GC_MARK(obj, 0);
 }
 
+static int sub_freelist_length(LRef current_freelist)
+{
+     int len = 0;
+
+     for (LRef cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
+          len++;
+
+     return len;
+}
+
 void dump_freelists()
 {
-     for (LRef current_freelist = interp.global_freelist;
-          current_freelist != NULL; current_freelist = NEXT_FREE_LIST(current_freelist))
+     for (LRef flist = interp.global_freelist; flist != NULL; flist = NEXT_FREE_LIST(flist))
      {
-          dscwritef(DF_ALWAYS, ("{~c&: ", current_freelist));
-
-          int len = 0;
-
-          for (LRef cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
-               len++;
-
-          dscwritef(DF_ALWAYS, ("~cd }", len));
+          dscwritef(DF_ALWAYS, ("{~c&:~cd}", flist, sub_freelist_length(flist)));
      }
 
      dscwritef(DF_ALWAYS, ("\n"));
+}
+
+static size_t gc_heap_freelist_length(void)
+{
+     size_t count = 0;
+
+     for (LRef flist = interp.global_freelist; flist != NULL;  flist = NEXT_FREE_LIST(flist))
+          count++;
+
+     return count;
 }
 
 /*** The heap segment allocator
@@ -101,35 +123,33 @@ static void gc_init_heap_segment(LRef seg_base)
 
 static bool enlarge_heap()
 {
-     bool succeeded = false;
-
      dscwritef(DF_SHOW_GC_DETAILS, (";;; attempting to enlarge heap\n"));
 
-     if (interp.gc_current_heap_segments < interp.gc_max_heap_segments)
+     if (interp.gc_current_heap_segments > interp.gc_max_heap_segments)
      {
-          LRef seg_base = (LRef) safe_malloc(sizeof(LObject) * interp.gc_heap_segment_size);
-
-          if (seg_base != NULL)
-          {
-               size_t seg_idx = interp.gc_current_heap_segments;
-
-               interp.gc_current_heap_segments++;
-
-               interp.c_bytes_gc_threshold += (sizeof(LObject) * interp.gc_heap_segment_size);
-
-               interp.gc_heap_segments[seg_idx] = seg_base;
-
-               gc_init_heap_segment(seg_base);
-
-               succeeded = true;
-          }
+          dscwritef(DF_SHOW_GC_DETAILS, (";;; HEAP ENLARGE FAILED! Too many segments.\n"));
+          return false;
      }
 
+     LRef seg_base = (LRef) safe_malloc(sizeof(LObject) * interp.gc_heap_segment_size);
 
-     dscwritef(DF_SHOW_GC_DETAILS,
-               (succeeded ? ";;; enlarged heap\n" : ";;; HEAP ENLARGE FAILED!\n"));
+     if (seg_base == NULL)
+     {
+          dscwritef(DF_SHOW_GC_DETAILS, (";;; HEAP ENLARGE FAILED! Could not allocate memory from system.\n"));
+          return false;
+     }
 
-     return succeeded;
+     size_t seg_idx = interp.gc_current_heap_segments;
+
+     interp.gc_current_heap_segments++;
+
+     interp.c_bytes_gc_threshold += (sizeof(LObject) * interp.gc_heap_segment_size);
+
+     interp.gc_heap_segments[seg_idx] = seg_base;
+
+     gc_init_heap_segment(seg_base);
+
+     return true;
 }
 
 LRef lenlarge_heap(LRef c)
@@ -536,7 +556,6 @@ LRef gc_claim_freelist()
      if (NULLP(interp.global_freelist))
           enlarge_heap();
 
-     // TODO: Add automatic heap enlarge policy
      assert(!NULLP(interp.global_freelist));
 
      new_freelist = interp.global_freelist;
@@ -589,16 +608,6 @@ static size_t count_active_gc_heap_segments(void)
      return count;;
 }
 
-static size_t gc_heap_freelist_length(void)
-{
-     size_t n;
-     LRef l;
-
-     for (n = 0, l = interp.global_freelist; !NULLP(l); ++n)
-          l = CDR(l);
-
-     return n;
-}
 LRef lgc_info()
 {
      LRef argv[8];
