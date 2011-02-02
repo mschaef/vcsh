@@ -453,16 +453,26 @@ struct interpreter_thread_info_block_t
 
 struct interpreter_t
 {
-     vminterrupt_t interrupts_pending;
+     /*  A statically allocated LObject used to hold a debugger output port.
+      *  This is intended to be available before the GC heap is operational,
+      *  so it has to be located here, and not on the heap. */
+     LObject debugger_output;
 
+     /* Debugger flags. */
+     debug_flag_t debug_flags;
+
+     vminterrupt_t interrupts_pending;
      bool interrupts_masked;
+
+     LRef trap_handlers[TRAP_LAST + 1];
+
+
+     LRef control_fields[VMCTRL_LAST + 1];
 
      size_t init_load_file_count;
      _TCHAR *init_load_file_name[MAX_INIT_LOAD_FILES];
 
      flonum_t launch_realtime;
-
-     LRef control_fields[VMCTRL_LAST + 1];
 
      LRef fasl_package_list;
 
@@ -472,15 +482,6 @@ struct interpreter_t
      LRef subr_table;
      LRef startup_args;
 
-     LRef trap_handlers[TRAP_LAST + 1];
-
-     /*  A statically allocated LObject used to hold a debugger output port.
-      *  This is intended to be available before the GC heap is operational,
-      *  so it has to be located here, and not on the heap. */
-     LObject debugger_output;
-
-     /* Debugger flags. */
-     debug_flag_t debug_flags;
 
      /* GC-specific info. */
      bool gc_trip_wires_armed;
@@ -508,11 +509,10 @@ struct interpreter_t
 
 extern interpreter_t interp;    /*  One interpter... one global state variable. */
 
-/**** Boxed types ****/
+/**** Type predicates ****/
 
-/* ...Type Predicates... */
-
-inline /* full INLINE causes problems with gcc 3.4.4, due to prototype. */ LRef FLOIM(LRef x);
+/* full INLINE causes problems with gcc 3.4.4, due to prototype. */
+inline  LRef FLOIM(LRef x);
 
 INLINE bool FREE_CELL_P(LRef x)
 {
@@ -657,7 +657,6 @@ INLINE bool FALSEP(LRef x)
 
 /*** Boxed object accessors and constructors ***/
 
-/*  REVISIT: Seperate out setter accessors */
 
 /*** boolean **/
 INLINE LRef boolcons(bool val)
