@@ -210,7 +210,7 @@ static void debug_print_instance(LRef obj, LRef port, bool machine_readable)
      write_char('>', port);
 }
 
-const _TCHAR *charnames[] = {
+static const _TCHAR *charnames[] = {
      _T("nul"), _T("soh"), _T("stx"), _T("etx"),
      _T("eot"), _T("eng"), _T("ack"), _T("bel"),
      _T("bs"), _T("tab"), _T("newline"), _T("vtab"),
@@ -221,6 +221,9 @@ const _TCHAR *charnames[] = {
      _T("fs"), _T("gs"), _T("rs"), _T("us"),
      _T("space"), NULL
 };
+
+#define CHARNAMECOUNT (33)
+#define CHAREXTENDED (0x80)
 
 LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
 {

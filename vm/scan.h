@@ -2006,21 +2006,10 @@ size_t object_length(LRef obj);
 size_t hash_length(LRef hash);
 size_t port_length(LRef port);
 
-#define CHARNAMECOUNT (33)
-#define CHAREXTENDED (0x80)
 
 debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source_name,
                                      const _TCHAR * str);
 debug_flag_t debug_flags_from_environment(debug_flag_t initial);
-
-/****************************************************************
- * INLINE function definitions (REVISIT: not strictly true.)
- */
-
-/* new_cell
- *
- * Allocate cells from the heap.
- */
 
 INLINE interpreter_thread_info_block_t *CURRENT_TIB()
 {
@@ -2036,8 +2025,6 @@ INLINE LRef new_cell(typecode_t type)
 
      if (NULLP(thread->freelist))
           thread->freelist = gc_claim_freelist();
-
-     assert(!NULLP(thread->freelist));  /*  Fired on out-of-memory... What then? */
 
      LRef retval = thread->freelist;
      thread->freelist = NEXT_FREE_CELL(thread->freelist);
