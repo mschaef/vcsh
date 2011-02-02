@@ -562,8 +562,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.interrupts_pending = VMINTR_NONE;
      interp.interrupts_masked = false;
 
-     interp.shutting_down = false;
-
      interp.launch_realtime = sys_runtime();
 
      interp.fasl_package_list = NIL;
@@ -631,8 +629,6 @@ LRef run()
 
 void shutdown()
 {
-     interp.shutting_down = TRUE;
-
      gc_release_heap();
 }
 

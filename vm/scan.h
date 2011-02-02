@@ -213,7 +213,7 @@ struct LObject
      {
           typecode_t type:8;
           unsigned int opcode:8;
-          unsigned int gc_mark:1;       /*  REVISIT: multiple bits, for shallow/weak refs */
+          unsigned int gc_mark:1;
 #if defined(__LP64__)
           unsigned int pad:32;  /*  Explicit pad to keep the LP64 header the same size as an LP64 pointer. */
 #endif
@@ -453,13 +453,9 @@ struct interpreter_thread_info_block_t
 
 struct interpreter_t
 {
-     // REVISIT: per-interrupt masking
-     // REVISIT: interrupt handler per bit.
      vminterrupt_t interrupts_pending;
 
      bool interrupts_masked;
-
-     bool shutting_down;
 
      size_t init_load_file_count;
      _TCHAR *init_load_file_name[MAX_INIT_LOAD_FILES];
@@ -2019,8 +2015,6 @@ INLINE interpreter_thread_info_block_t *CURRENT_TIB()
 
 INLINE LRef new_cell(typecode_t type)
 {
-     checked_assert(!interp.shutting_down);
-
      interpreter_thread_info_block_t *thread = CURRENT_TIB();
 
      if (NULLP(thread->freelist))
