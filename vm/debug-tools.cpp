@@ -259,26 +259,6 @@ LRef ltest_blocking_input(LRef block_size, LRef length, LRef binary)
                                 test_blocking_input_read, test_blocking_input_close, info);
 }
 
-/* GC Trip wire support.
- *
- * GC trip wires pretty much do what they sound like, they blow up when the garbage
- * collector touches (attempts to free) them. They are used in tests to verify that
- * the GC is picking up all object references.
- */
-LRef ligc_trip_wire()
-{
-     return new_cell(TC_GC_TRIP_WIRE);
-}
-
-LRef liarm_gc_trip_wires(LRef f)
-{
-     bool new_state = TRUEP(f);
-
-     interp.gc_trip_wires_armed = new_state;
-
-     return boolcons(new_state);
-}
-
 /* *INDENT-OFF* */
 static struct
 {

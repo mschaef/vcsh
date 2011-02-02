@@ -562,14 +562,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.interrupts_pending = VMINTR_NONE;
      interp.interrupts_masked = false;
 
-     interp.gc_trip_wires_armed = false;
-
      interp.shutting_down = false;
-
-     interp.gc_heap_segment_size = DEFAULT_HEAP_SEGMENT_SIZE;
-     interp.gc_max_heap_segments = DEFAULT_MAX_HEAP_SEGMENTS;
-     interp.gc_current_heap_segments = 0;
-     interp.gc_heap_segments = NULL;
 
      interp.launch_realtime = sys_runtime();
 
@@ -577,6 +570,12 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      gc_protect(_T("fasl-package-list"), &interp.fasl_package_list, 1);
 
      /*  Statistics Counters */
+     interp.gc_trip_wires_armed = false;
+     interp.gc_heap_segment_size = DEFAULT_HEAP_SEGMENT_SIZE;
+     interp.gc_max_heap_segments = DEFAULT_MAX_HEAP_SEGMENTS;
+     interp.gc_current_heap_segments = 0;
+     interp.gc_heap_segments = NULL;
+
      interp.gc_total_cells_allocated = 0;
      interp.gc_cells_collected = 0;
 
@@ -599,7 +598,8 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
           dscwritef(DF_ALWAYS, ("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags));
 
     /*** Create the gc heap and populate it with the standard objects */
-     create_gc_heap();
+     gc_initialize_heap();
+
      create_initial_packages();
      init_base_scheme_objects();
      init_stdio_ports();
@@ -633,7 +633,7 @@ void shutdown()
 {
      interp.shutting_down = TRUE;
 
-     free_gc_heap();
+     gc_release_heap();
 }
 
 

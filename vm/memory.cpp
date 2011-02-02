@@ -39,22 +39,13 @@ void gc_protect(const _TCHAR * name, LRef * location, size_t n)
      root->length = n;
 }
 
-LRef gc_protect_sym(LRef * location, const _TCHAR * st, LRef package)
-{
-     *location = simple_intern(st, package);
-
-     gc_protect(st, location, 1);
-
-     return *location;
-}
-
 static void gc_init_cell(LRef obj)
 {
      SET_TYPE(obj, TC_FREE_CELL);
      SET_GC_MARK(obj, 0);
 }
 
-static int sub_freelist_length(LRef current_freelist)
+static int gc_sub_freelist_length(LRef current_freelist)
 {
      int len = 0;
 
@@ -64,11 +55,11 @@ static int sub_freelist_length(LRef current_freelist)
      return len;
 }
 
-void dump_freelists()
+void gc_dump_freelists()
 {
      for (LRef flist = interp.global_freelist; flist != NULL; flist = NEXT_FREE_LIST(flist))
      {
-          dscwritef(DF_ALWAYS, ("{~c&:~cd}", flist, sub_freelist_length(flist)));
+          dscwritef(DF_ALWAYS, ("{~c&:~cd}", flist, gc_sub_freelist_length(flist)));
      }
 
      dscwritef(DF_ALWAYS, ("\n"));
@@ -121,7 +112,7 @@ static void gc_init_heap_segment(LRef seg_base)
           interp.global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.global_freelist);
 }
 
-static bool enlarge_heap()
+static bool gc_enlarge_heap()
 {
      dscwritef(DF_SHOW_GC_DETAILS, (";;; attempting to enlarge heap\n"));
 
@@ -152,38 +143,13 @@ static bool enlarge_heap()
      return true;
 }
 
-LRef lenlarge_heap(LRef c)
-{
-     size_t requested = 1;
-     size_t created = 0;
-
-     if (!NULLP(c))
-     {
-          fixnum_t r = get_c_fixnum(c);
-
-          if ((r < 1) || ((size_t) r >= interp.gc_max_heap_segments))
-               vmerror_arg_out_of_range(c, _T("[1,MAX_HEAPS]"));
-
-          requested = (size_t) r - interp.gc_current_heap_segments;
-     }
-
-     for (created = 0; created < requested; created++)
-          if (!enlarge_heap())
-               break;
-
-     dscwritef(DF_SHOW_GC, (_T("; Allocated ~cd heap~cs of ~cd requested.\n"),
-                            created, created > 1 ? "s" : "", requested));
-
-     return fixcons(interp.gc_current_heap_segments);
-}
-
 /*** The Mark-and-Sweep garbage collection algorithm ***/
 
 /* possible_heap_pointer_p
  *
  * Heuristic used to determine if a value is conceivably a pointer.
  */
-static bool possible_heap_pointer_p(LRef p)
+static bool gc_possible_heap_pointer_p(LRef p)
 {
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
      {
@@ -320,7 +286,7 @@ static void gc_mark_range_array(LRef * base, size_t n)
      {
           LRef p = base[jj];
 
-          if (possible_heap_pointer_p(p))
+          if (gc_possible_heap_pointer_p(p))
                gc_mark(p);
      }
 }
@@ -512,6 +478,7 @@ fixnum_t gc_mark_and_sweep(void)
 
 
 /*** The main entry point to the GC */
+
 static fixnum_t gc_collect_garbage(void)
 {
      fixnum_t cells_freed = 0;
@@ -531,18 +498,6 @@ static fixnum_t gc_collect_garbage(void)
 }
 /*** Global freelist enqueue and dequeue */
 
-void gc_release_freelist(LRef new_freelist)
-{
-     if (NULLP(new_freelist))
-          return;
-
-     SET_NEXT_FREE_LIST(CURRENT_TIB()->freelist, interp.global_freelist);
-
-     interp.global_freelist = CURRENT_TIB()->freelist;
-
-     CURRENT_TIB()->freelist = NULL;
-}
-
 LRef gc_claim_freelist()
 {
      fixnum_t cells_freed = 0;
@@ -554,7 +509,7 @@ LRef gc_claim_freelist()
           cells_freed = gc_collect_garbage();
 
      if (NULLP(interp.global_freelist))
-          enlarge_heap();
+          gc_enlarge_heap();
 
      assert(!NULLP(interp.global_freelist));
 
@@ -567,37 +522,28 @@ LRef gc_claim_freelist()
      return new_freelist;
 }
 
-void create_gc_heap()
+void gc_initialize_heap()
 {
      /* Initialize the heap table */
      interp.gc_heap_segments = (LRef *) safe_malloc(sizeof(LRef) * interp.gc_max_heap_segments);
+
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
           interp.gc_heap_segments[jj] = NULL;
 
      /* Get us started with one heap */
-     enlarge_heap();
+     gc_enlarge_heap();
 }
 
-void free_gc_heap()
+void gc_release_heap()
 {
      gc_sweep();
 
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
           if (interp.gc_heap_segments[jj])
                safe_free(interp.gc_heap_segments[jj]);
-
 }
 
-/**** Scheme interface functions */
-
-LRef lgc()
-{
-     gc_collect_garbage();
-
-     return NIL;
-}
-
-static size_t count_active_gc_heap_segments(void)
+static size_t gc_count_active_heap_segments(void)
 {
      size_t count = 0;
 
@@ -608,10 +554,45 @@ static size_t count_active_gc_heap_segments(void)
      return count;;
 }
 
+/**** Scheme interface functions */
+
+
+LRef lenlarge_heap(LRef c)
+{
+     size_t requested = 1;
+     size_t created = 0;
+
+     if (!NULLP(c))
+     {
+          fixnum_t r = get_c_fixnum(c);
+
+          if ((r < 1) || ((size_t) r >= interp.gc_max_heap_segments))
+               vmerror_arg_out_of_range(c, _T("[1,MAX_HEAPS]"));
+
+          requested = (size_t) r - interp.gc_current_heap_segments;
+     }
+
+     for (created = 0; created < requested; created++)
+          if (!gc_enlarge_heap())
+               break;
+
+     dscwritef(DF_SHOW_GC, (_T("; Allocated ~cd heap~cs of ~cd requested.\n"),
+                            created, created > 1 ? "s" : "", requested));
+
+     return fixcons(interp.gc_current_heap_segments);
+}
+
+LRef lgc()
+{
+     gc_collect_garbage();
+
+     return NIL;
+}
+
 LRef lgc_info()
 {
      LRef argv[8];
-     argv[0] = fixcons(count_active_gc_heap_segments());
+     argv[0] = fixcons(gc_count_active_heap_segments());
      argv[1] = fixcons(gc_heap_freelist_length());
      argv[2] = fixcons(interp.gc_total_cells_allocated);
      argv[3] = fixcons(0);
@@ -621,6 +602,27 @@ LRef lgc_info()
      argv[7] = fixcons(interp.malloc_blocks_at_last_gc);
 
      return lvector(8, argv);
+}
+
+/* GC Trip wire support.
+ *
+ * GC trip wires pretty much do what they sound like, they blow up when the garbage
+ * collector touches (attempts to free) them. They are used in tests to verify that
+ * the GC is picking up all object references.
+ */
+
+LRef ligc_trip_wire()
+{
+     return new_cell(TC_GC_TRIP_WIRE);
+}
+
+LRef liarm_gc_trip_wires(LRef f)
+{
+     bool new_state = TRUEP(f);
+
+     interp.gc_trip_wires_armed = new_state;
+
+     return boolcons(new_state);
 }
 
 END_NAMESPACE

@@ -439,7 +439,7 @@ struct interpreter_thread_info_block_t
 
      frame_t frame_stack[FRAME_STACK_SIZE];
      frame_t *fsp;
-     
+
      frame_t *throw_target;
      LRef throw_value;
 
@@ -459,19 +459,10 @@ struct interpreter_t
 
      bool interrupts_masked;
 
-     bool gc_trip_wires_armed;
-
      bool shutting_down;
 
      size_t init_load_file_count;
      _TCHAR *init_load_file_name[MAX_INIT_LOAD_FILES];
-
-     size_t gc_heap_segment_size;
-     size_t gc_max_heap_segments;
-     size_t gc_current_heap_segments;
-     LRef *gc_heap_segments;
-
-     LRef global_freelist;
 
      flonum_t launch_realtime;
 
@@ -492,7 +483,19 @@ struct interpreter_t
       *  so it has to be located here, and not on the heap. */
      LObject debugger_output;
 
-     /*  Statistics Counters */
+     /* Debugger flags. */
+     debug_flag_t debug_flags;
+
+     /* GC-specific info. */
+     bool gc_trip_wires_armed;
+
+     size_t gc_heap_segment_size;
+     size_t gc_max_heap_segments;
+     size_t gc_current_heap_segments;
+     LRef *gc_heap_segments;
+
+     LRef global_freelist;
+
      fixnum_t gc_total_cells_allocated;
      fixnum_t gc_cells_collected;
 
@@ -503,8 +506,7 @@ struct interpreter_t
      flonum_t gc_total_run_time;
      flonum_t gc_run_time;
 
-     debug_flag_t debug_flags;
-
+     /* Per-thread info. */
      interpreter_thread_info_block_t thread;
 };
 
@@ -1654,16 +1656,17 @@ void vmerror_stack_overflow(u8_t * obj);
 
   /****** Memory management */
 
+void gc_initialize_heap();
+void gc_release_heap();
+
 void gc_protect(const _TCHAR * name, LRef * location, size_t n);
-LRef gc_protect_sym(LRef * location, const _TCHAR * st, LRef package);
 
-void gc_register_thread(interpreter_thread_info_block_t * thr);
+void gc_mark(LRef obj);
 
-void gc_release_freelist(LRef new_freelist);
 LRef gc_claim_freelist();
 
-void *safe_malloc(size_t size);
 
+void *safe_malloc(size_t size);
 void safe_free(void *block);
 
 
@@ -1987,12 +1990,8 @@ bool vector_equal(LRef a, LRef b);
 bool structure_equal(LRef sta, LRef stb);
 bool fast_op_equal(LRef a, LRef b);
 
-void collect_garbage();
-void gc_mark(LRef obj);
-
 void create_initial_packages();
-void create_gc_heap();
-void free_gc_heap();
+
 void init_debugger_output();
 void init_stdio_ports();
 
