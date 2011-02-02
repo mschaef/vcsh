@@ -65,7 +65,9 @@
    repeated <count> times."
   (let ((op (open-output-string)))
     (set-port-translate-mode! op #f)
-    (repeat count (write-strings op obj))
+    (if (or (char? obj) (string? obj))
+        (repeat count (write-strings op obj))
+        (repeat count (display obj op)))
     (get-output-string op)))
 
 (define (pad-to-width obj width)
