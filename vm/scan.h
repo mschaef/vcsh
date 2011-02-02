@@ -1561,6 +1561,9 @@ void write_char(int ch, LRef port);
 size_t write_text(const _TCHAR * buf, size_t count, LRef port);
 
 
+bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result);
+bool read_binary_flonum(LRef port, flonum_t & result);
+
 void scwritef(const _TCHAR * format_str, LRef port, ...);
 
 void dscwritef_impl(const _TCHAR * format_str, ...);
@@ -1651,9 +1654,6 @@ void safe_free(void *block);
 flonum_t time_since_launch();
 
 /***** Prototypes for C Primitives *****/
-
-LRef get_current_frames(fixnum_t skip_count);
-
 
 LRef lacos(LRef x);
 LRef ladd(LRef x, LRef y);
@@ -1810,8 +1810,6 @@ LRef lnumber2string(LRef x, LRef r, LRef s, LRef p);
 LRef lnumberp(LRef x);
 LRef lobaddr(LRef object);
 LRef lopen_debug_port();
-LRef lopen_des_input(LRef source, LRef key, LRef encoding, LRef mode);
-LRef lopen_des_output(LRef dest, LRef key, LRef encoding, LRef mode);
 LRef lopen_input_file(LRef filename, LRef mode);
 LRef lopen_input_string(LRef string);
 LRef lopen_null_port();
@@ -1938,17 +1936,17 @@ LRef lwrite_char(LRef ch, LRef port);
 LRef lwrite_strings(size_t argc, LRef argv[]);
 LRef lwrite_to_string(LRef exp);
 
-bool equalp(LRef, LRef);
-bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result);
-bool read_binary_flonum(LRef port, flonum_t & result);
-double round(double n);
-void scan_postmortem_dump();
 
 #if defined(WITH_FOPLOG_SUPPORT)
 LRef lifoplog_reset();
 LRef lifoplog_enable(LRef enablep);
 LRef lifoplog_snapshot();
 #endif
+
+bool equalp(LRef, LRef);
+double round(double n);
+
+void scan_postmortem_dump();
 
 /***** Debugging tools *****/
 

@@ -73,13 +73,6 @@ port_class_t c_data_port_class = {
 };
 
 
-void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data)
-{
-     LRef file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
-
-     interp.internal_files = lcons(file_record, interp.internal_files);
-}
-
 LRef liinternal_files()
 {
      return interp.internal_files;
@@ -95,6 +88,13 @@ LRef open_c_data_input(bool binary_data, data_block_t *data)
 
      return portcons(&c_data_port_class, NIL,
                      (port_mode_t) (PORT_INPUT | (binary_data ? PORT_BINARY : 0)), NIL, ps);
+}
+
+void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data)
+{
+     LRef file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
+
+     interp.internal_files = lcons(file_record, interp.internal_files);
 }
 
 LRef lclone_c_data_port(LRef port)
