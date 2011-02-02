@@ -1468,8 +1468,6 @@ INLINE void SET_VALUES_TUPLE_VALUES(LRef vt, LRef vals)
      ((*vt).storage_as.values_tuple._values) = vals;
 }
 
-LRef valuesn(long n, ...);
-
 
   /*** fast op ***/
 INLINE int FAST_OP_OPCODE(LRef fo)

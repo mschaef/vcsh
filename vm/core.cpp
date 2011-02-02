@@ -335,19 +335,6 @@ LRef lvalues(LRef values)
      return z;
 }
 
-LRef valuesn(long n, ...)
-{
-     va_list args;
-
-     va_start(args, n);
-
-     LRef result = lvalues(listv(n, args));
-
-     va_end(args);
-
-     return result;
-}
-
 LRef lvalues2list(LRef obj)
 {
      if (VALUES_TUPLE_P(obj))
