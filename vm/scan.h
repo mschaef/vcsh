@@ -1521,7 +1521,6 @@ INLINE void SET_FAST_OP_ARG3(LRef fo, LRef arg3)
 LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3);
 
 /**** Input/Output ****/
-const LRef DEFAULT_PORT = NIL;
 
 INLINE LRef CURRENT_INPUT_PORT()
 {
@@ -1561,7 +1560,6 @@ int peek_char(LRef port);
 void write_char(int ch, LRef port);
 size_t write_text(const _TCHAR * buf, size_t count, LRef port);
 
-#define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
 
 void scwritef(const _TCHAR * format_str, LRef port, ...);
 
@@ -1572,7 +1570,6 @@ void dscwritef_impl(const _TCHAR * format_str, ...);
 LRef debug_print_object(LRef exp, LRef port, bool machine_readable);
 
 void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data);
-LRef open_c_data_input(bool binary_data, data_block_t *data);
 
 typedef bool(*blocking_input_read_data_fn_t) (LRef port, void *userdata);
 typedef void (*blocking_input_close_port_fn_t) (LRef port, void *userdata);
@@ -1608,12 +1605,7 @@ LRef run();
 
 LRef apply1(LRef fn, size_t argc, LRef argv[]);
 
-
   /****** Error handling and control */
-
-
-bool infop();                   /*  REVISIT: still used? */
-void info(const _TCHAR * message, ...);
 
 enum vmt_options_t {
      /* Use one of these... */

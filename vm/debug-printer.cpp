@@ -9,6 +9,10 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
+
+#define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
+
+
 static void debug_print_flonum(LRef object, LRef port, bool machine_readable)
 {
      _TCHAR buf[STACK_STRBUF_LEN];

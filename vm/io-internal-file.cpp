@@ -78,7 +78,6 @@ void register_internal_file(const _TCHAR * filename, bool binary_data, data_bloc
      LRef file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
 
      interp.internal_files = lcons(file_record, interp.internal_files);
-                     
 }
 
 LRef liinternal_files()
