@@ -1228,9 +1228,6 @@ INLINE _TCHAR *SET_STRING_DATA(LRef x, _TCHAR * data)
 
 
   /*** hash **/
-fixnum_t sxhash_eq(LRef obj);
-fixnum_t sxhash(LRef obj);
-LRef lsxhash(LRef obj, LRef hash);
 
 LRef hashcons(bool shallow, size_t size = HASH_DEFAULT_INITIAL_SIZE);
 
@@ -1471,9 +1468,8 @@ INLINE void SET_VALUES_TUPLE_VALUES(LRef vt, LRef vals)
      ((*vt).storage_as.values_tuple._values) = vals;
 }
 
-LRef lvalues(LRef values);
 LRef valuesn(long n, ...);
-LRef lvalues2list(LRef obj);
+
 
   /*** fast op ***/
 INLINE int FAST_OP_OPCODE(LRef fo)
@@ -1525,9 +1521,6 @@ INLINE void SET_FAST_OP_ARG3(LRef fo, LRef arg3)
 }
 
 LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3);
-LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3);
-LRef lfast_op_opcode(LRef fastop);
-LRef lfast_op_args(LRef fastop);
 
 /**** Input/Output ****/
 const LRef DEFAULT_PORT = NIL;
@@ -1617,7 +1610,6 @@ LRef run();
 
 LRef apply1(LRef fn, size_t argc, LRef argv[]);
 
-LRef lidefine_global(LRef var, LRef val);
 
   /****** Error handling and control */
 
@@ -1671,6 +1663,8 @@ flonum_t time_since_launch();
 /***** Prototypes for C Primitives *****/
 
 LRef get_current_frames(fixnum_t skip_count);
+
+
 LRef lacos(LRef x);
 LRef ladd(LRef x, LRef y);
 LRef ladd_symbol_to_package(LRef symbol, LRef package);
@@ -1725,6 +1719,9 @@ LRef lexact2inexact(LRef x);
 LRef lexactp(LRef x);
 LRef lexp(LRef x);
 LRef lexpt(LRef x, LRef y);
+LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3);
+LRef lfast_op_args(LRef fastop);
+LRef lfast_op_opcode(LRef fastop);
 LRef lfast_read(LRef port);
 LRef lfloor(LRef x);
 LRef lflush_port(LRef port);
@@ -1754,6 +1751,7 @@ LRef lheap_cell_count_by_typecode();
 LRef liarm_gc_trip_wires(LRef f);
 LRef licontrol_field(LRef control_field_id);
 LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p);
+LRef lidefine_global(LRef var, LRef val);
 LRef lidirectory(LRef dirname, LRef mode);
 LRef lieee754_bits_to(LRef x);
 LRef lifile_details(LRef path, LRef existance_onlyp);
@@ -1785,8 +1783,8 @@ LRef lislot_set(LRef obj, LRef key, LRef value);
 LRef lisp_strcmp(LRef s1, LRef s2);
 LRef listartup_args();
 LRef lisubr_table();
-LRef lisymbol_index(LRef symbol);
 LRef lisymbol_globally_boundp(LRef sym);
+LRef lisymbol_index(LRef symbol);
 LRef litrap_handler(LRef trap_id);
 LRef litypecode(LRef obj);
 LRef lkeywordp(LRef x);
@@ -1917,6 +1915,7 @@ LRef lsubr_type_code(LRef subr);
 LRef lsubset(LRef fcn, LRef l);
 LRef lsubstring(LRef, LRef, LRef);
 LRef lsubtract(LRef x, LRef y);
+LRef lsxhash(LRef obj, LRef hash);
 LRef lsymbol_name(LRef sym);
 LRef lsymbol_name(LRef sym);
 LRef lsymbol_package(LRef sym);
@@ -1933,6 +1932,8 @@ LRef lto_ieee754_bits(LRef x);
 LRef ltruncate(LRef x);
 LRef lunbound_marker();
 LRef lunread_char(LRef ch, LRef port);
+LRef lvalues(LRef values);
+LRef lvalues2list(LRef obj);
 LRef lvector(size_t argc, LRef argv[]);
 LRef lvector2list(LRef vec);
 LRef lvector_copy(LRef vec);
@@ -1946,6 +1947,7 @@ LRef lwrite_binary_string(LRef string, LRef port);
 LRef lwrite_char(LRef ch, LRef port);
 LRef lwrite_strings(size_t argc, LRef argv[]);
 LRef lwrite_to_string(LRef exp);
+
 bool equalp(LRef, LRef);
 bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result);
 bool read_binary_flonum(LRef port, flonum_t & result);
