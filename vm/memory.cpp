@@ -485,14 +485,13 @@ static fixnum_t gc_collect_garbage(void)
 
      cells_freed = gc_mark_and_sweep();
 
-     /*  Normally, the *after-gc* hook will enlarge the heap according
-      *  to whatever policy. If it doesn't, this gives the interpreter
-      *  a sort of last ditch way to keep running. */
      if (NULLP(interp.global_freelist))
-          lenlarge_heap(NIL);
+          gc_enlarge_heap();
 
      if (NULLP(interp.global_freelist))
           panic("ran out of storage");
+
+     vmtrap(TRAP_AFTER_GC, VMT_OPTIONAL_TRAP, 1, fixcons(cells_freed));
 
      return cells_freed;
 }
