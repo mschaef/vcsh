@@ -113,12 +113,9 @@ fixnum_t sxhash_eq(LRef obj)
 
 fixnum_t sxhash(LRef obj)
 {
-
      STACK_CHECK(&obj);
 
      fixnum_t hash = 0;
-
-     /*  ADD_TYPE */
 
      if (NULLP(obj))
           return 0;

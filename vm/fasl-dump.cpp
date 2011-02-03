@@ -414,17 +414,28 @@ static void dump_structure_layout()
 
 static void dump_fast_op(int arity)
 {
-  fixnum_t opcode;
+  size_t offset;
 
-  fasl_opcode_t op = dump_next_object(_T("opcode"), &opcode); /*  TODO: parse opcode to print name */
+  fasl_opcode_t opcode = fast_read_opcode(&offset);
 
+  show_opcode(offset, opcode, _T("opcode"));
+
+  if ((opcode != FASL_OP_FIX8) && (opcode != FASL_OP_FIX16))
+       dump_error("FOP opcodes must be specified with FASL_OP_FIX8 or FASL_OP_FIX16");
+
+  fixnum_t fop_opcode;
+
+  if (!read_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, true, fop_opcode))
+       dump_error("Expected FOP opcode not found");
+
+  _tprintf(_T("%s"), fast_op_opcode_name((scan::fast_op_opcode_t)fop_opcode));
   _TCHAR buf[STRBUF_SIZE];
 
   for(fixnum_t ii = 0; ii < arity; ii++)
     {
       _sntprintf(buf, STRBUF_SIZE, _T("operand[%" FIXNUM_PRINTF_PREFIX "i]"), ii);
 
-      op = dump_next_object(buf);
+      dump_next_object(buf);
     }
 }
 

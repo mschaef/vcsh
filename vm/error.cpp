@@ -13,18 +13,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-/**************************************************************
- * Error Reporting
- **************************************************************/
 
-/* The basic mechanism for error reporting are the lerror
- * and err calls.
- *
- * To report an error, each prints an error message to
- * (current-error-port) and throws an errobj exception.
- * The in-passed object is stored in the errobj symbol's
- * value binding.
- */
 void vmerror_stack_overflow(u8_t * obj)
 {
      UNREFERENCED(obj);

@@ -18,7 +18,6 @@ BEGIN_NAMESPACE(scan)
 LRef lset_stack_limit(LRef amount)
 {
      size_t new_size_limit = 0;
-
      if (!NULLP(amount) && !FALSEP(amount))
           new_size_limit = get_c_long(amount);
 
