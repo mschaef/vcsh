@@ -155,6 +155,7 @@ BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
     VM_CONSTANT(TRAP_FAST_READ_ERROR            , 17)
     VM_CONSTANT(TRAP_RUN0                       , 18)
     VM_CONSTANT(TRAP_AFTER_GC                   , 19)
+    VM_CONSTANT(TRAP_OVERFLOW                   , 20)
 
     VM_ANON_CONSTANT(TRAP_LAST                  , 20)
 END_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)

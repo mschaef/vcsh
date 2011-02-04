@@ -327,22 +327,27 @@ LRef ladd(LRef x, LRef y)
 {
      if (!NUMBERP(x))
           vmerror_wrong_type(1, x);
-     
+
      if (NULLP(y))
           return x;
 
      if (!NUMBERP(y))
           vmerror_wrong_type(2, y);
-     
+
      if (COMPLEXP(x) || COMPLEXP(y))
           return cmplxcons(get_c_flonum(x) + get_c_flonum(y),
                            get_c_flonum_im(x) + get_c_flonum_im(y));
-     else if (FLONUMP(x) || FLONUMP(y))
-          return flocons(get_c_flonum(x) + get_c_flonum(y));
-     else
-          return fixcons(get_c_fixnum(x) + get_c_fixnum(y));
 
-     /*  TODO add overflow */
+     if (FLONUMP(x) || FLONUMP(y))
+          return flocons(get_c_flonum(x) + get_c_flonum(y));
+
+     fixnum_t xf = get_c_fixnum(x);
+     fixnum_t yf = get_c_fixnum(y);
+
+     if (((yf>0) && (xf > (FIXNUM_MAX-yf))) || ((yf<0) && (xf < (FIXNUM_MIN-yf))))
+          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+
+     return fixcons(xf + yf);
 }
 
 LRef lmultiply(LRef x, LRef y)
@@ -365,12 +370,37 @@ LRef lmultiply(LRef x, LRef y)
 
           return cmplxcons(xr * yr - xi * yi, xr * yi + xi * yr);
      }
-     else if (FLONUMP(x) || FLONUMP(y))
-          return flocons(get_c_flonum(x) * get_c_flonum(y));
-     else
-          return fixcons(get_c_fixnum(x) * get_c_fixnum(y));
 
-     /*  TODO multiply overflow */
+     if (FLONUMP(x) || FLONUMP(y))
+          return flocons(get_c_flonum(x) * get_c_flonum(y));
+
+     fixnum_t xf = get_c_fixnum(x);
+     fixnum_t yf = get_c_fixnum(y);
+
+
+     if (xf > 0) {
+          if (yf > 0) {
+               if (xf > (FIXNUM_MAX / yf)) {
+                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+               }
+          } else {
+               if (yf < (FIXNUM_MIN / xf)) {
+                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+               }
+          }
+     } else {
+          if (yf > 0) {
+               if (xf < (FIXNUM_MIN / yf)) {
+                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+               }
+          } else {
+               if ( (xf != 0) && (yf < (FIXNUM_MAX / xf))) {
+                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+               }
+          }
+     }
+
+     return fixcons(xf * yf);
 }
 
 LRef lsubtract(LRef x, LRef y)
@@ -384,29 +414,40 @@ LRef lsubtract(LRef x, LRef y)
                return cmplxcons(-get_c_flonum(x), -get_c_flonum_im(x));
           else if (FLONUMP(x))
                return flocons(-get_c_flonum(x));
-          else
-               return fixcons(-get_c_fixnum(x));
+
+          fixnum_t xf = get_c_fixnum(x);
+
+          if (xf == FIXNUM_MIN)
+               vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 1, x);
+
+          return fixcons(-xf);
      }
-     
+
      if (!NUMBERP(y))
           vmerror_wrong_type(2, y);
-     
+
      if (COMPLEXP(x) || COMPLEXP(y))
           return cmplxcons(get_c_flonum(x) - get_c_flonum(y),
                            get_c_flonum_im(x) - get_c_flonum_im(y));
-     else if (FLONUMP(x) || FLONUMP(y))
-          return flocons(get_c_flonum(x) - get_c_flonum(y));
-     else
-          return fixcons(get_c_fixnum(x) - get_c_fixnum(y));
 
-     /*  TODO subtract overflow */
+     if (FLONUMP(x) || FLONUMP(y))
+          return flocons(get_c_flonum(x) - get_c_flonum(y));
+
+     fixnum_t xf = get_c_fixnum(x);
+     fixnum_t yf = get_c_fixnum(y);
+
+     if ((yf > 0 && xf < FIXNUM_MIN + yf)
+         || (yf < 0 && xf > FIXNUM_MAX + yf))
+          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+
+     return fixcons(xf - yf);
 }
 
 LRef ldivide(LRef x, LRef y)
 {
      if (!NUMBERP(x))
           vmerror_wrong_type(1, x);
-     
+
      if (NULLP(y))
      {
           if (COMPLEXP(x))
@@ -438,8 +479,6 @@ LRef ldivide(LRef x, LRef y)
      }
      else
           return flocons(get_c_flonum(x) / get_c_flonum(y));
-
-     /*  TODO divide overflow */
 }
 
 /* Number-theoretic division **********************************/
@@ -459,12 +498,16 @@ LRef lquotient(LRef x, LRef y)
 
      if (FIXNUMP(x) && FIXNUMP(y))
      {
+          fixnum_t xf = get_c_fixnum(x);
           fixnum_t yf = get_c_fixnum(y);
 
           if (yf == 0)
                vmerror_divide_by_zero();
 
-          return fixcons(get_c_fixnum(x) / yf);
+          if ((xf == FIXNUM_MIN) && (yf == -1))
+               vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+
+          return fixcons(xf / yf);
      }
 
      flonum_t yf = get_c_flonum(y);
@@ -516,6 +559,9 @@ LRef lmodulo(LRef x, LRef y)
 
      if (yf == 0)
           vmerror_divide_by_zero();
+
+     if ((xf == FIXNUM_MIN) && (yf == -1))
+          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
 
      fixnum_t mod = fixabs(xf) % fixabs(yf);
 
@@ -684,7 +730,15 @@ LRef lbitwise_shl(LRef x, LRef n)
      if (bits >= FIXNUM_BITS)
           return fixcons(0);
 
-     return fixcons(FIXNM(x) << bits);
+     fixnum_t xf = FIXNM(x);
+
+     if ((xf < 0)
+         || (bits < 0)
+         || (bits >= (fixnum_t)(sizeof(int)*CHAR_BIT))
+         || (xf > (INT_MAX >> bits)))
+          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, n);
+
+     return fixcons(xf << bits);
 }
 
 LRef lbitwise_shr(LRef x, LRef n)
@@ -734,15 +788,13 @@ LRef lexp(LRef x)
 {
      if (REALP(x))
           return (flocons(exp(get_c_double(x))));
-     else
-     {
-          /*  e^(y+xi) =  e^y (cos x + i sin x) */
 
-          flonum_t ere = exp(get_c_flonum(x));
-          flonum_t im = get_c_flonum_im(x);
+     /*  e^(y+xi) =  e^y (cos x + i sin x) */
 
-          return cmplxcons(ere * cos(im), ere * sin(im));
-     }
+     flonum_t ere = exp(get_c_flonum(x));
+     flonum_t im = get_c_flonum_im(x);
+
+     return cmplxcons(ere * cos(im), ere * sin(im));
 }
 
 LRef llog(LRef x)
@@ -751,12 +803,10 @@ LRef llog(LRef x)
 
      if ((REALP(x) || FIXNUMP(x)) && (xr >= 0.0))
           return (flocons(log(xr)));
-     else
-     {
-          flonum_t xi = get_c_flonum_im(x);
 
-          return cmplxcons(log(sqrt(xr * xr + xi * xi)), atan2(xi, xr));
-     }
+     flonum_t xi = get_c_flonum_im(x);
+
+     return cmplxcons(log(sqrt(xr * xr + xi * xi)), atan2(xi, xr));
 }
 
 

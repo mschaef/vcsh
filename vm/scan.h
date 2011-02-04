@@ -13,25 +13,15 @@
 #include "../util/base-assert.h"
 #include "../util/base-tchar.h"
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <ctype.h>
 #include <setjmp.h>
-//#include <signal.h>
-//#include <math.h>
-//#include <time.h>
-//#include <errno.h>
 #include <stdarg.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
 
 #include "constants.h"
 #include "sys.h"
 
 BEGIN_NAMESPACE(scan)
 
-extern i64_t malloc_bytes;      /* REVISIT: Should this be u64_t? */
+extern i64_t malloc_bytes;      /* REVISIT: Should this be u64_t? Should this even be here? */
 
 /*** Interpreter Paramaters ***/
 
