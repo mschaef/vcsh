@@ -4,6 +4,8 @@
  * An I/O port used to access external files. 
  */
 
+#include <stdio.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

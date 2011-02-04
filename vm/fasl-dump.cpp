@@ -4,6 +4,9 @@
  * A utility for dumping the contents of a FASL file in readable form.
  */
 
+#include <stdio.h>
+#include <memory.h>
+
 #include "scan.h"
 
 /*  REVISIT: It would be nice if this emitted something directly loadable via the scheme reader */

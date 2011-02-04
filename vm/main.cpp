@@ -4,6 +4,8 @@
  * The core scan interpreter
  */
 
+#include <string.h>
+#include <memory.h>
 #include <float.h>
 
 #include "scan.h"

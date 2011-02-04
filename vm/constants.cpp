@@ -4,7 +4,7 @@
  * The implementation of functions related to VM constants.
  */
 
-#include "scan.h"
+#include "sys.h"
 
 BEGIN_NAMESPACE(scan)
 

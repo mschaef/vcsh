@@ -5,6 +5,8 @@
  * files that are built into the executable as part of the build process.
  */
 
+#include <memory.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

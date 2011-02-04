@@ -12,26 +12,24 @@
 #include "../util/base-types.h"
 #include "../util/base-assert.h"
 #include "../util/base-tchar.h"
+
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <ctype.h>
+#include <setjmp.h>
+//#include <signal.h>
+//#include <math.h>
+//#include <time.h>
+//#include <errno.h>
+#include <stdarg.h>
+//#include <sys/types.h>
+//#include <sys/stat.h>
+
+#include "constants.h"
 #include "sys.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <setjmp.h>
-#include <signal.h>
-#include <math.h>
-#include <time.h>
-#include <errno.h>
-#include <stdarg.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-
 BEGIN_NAMESPACE(scan)
-
-#define CONST_C_HEADER
-#include "constants.i"
-#undef CONST_C_HEADER
 
 extern i64_t malloc_bytes;      /* REVISIT: Should this be u64_t? */
 
@@ -1646,11 +1644,6 @@ void gc_protect(const _TCHAR * name, LRef * location, size_t n);
 void gc_mark(LRef obj);
 
 LRef gc_claim_freelist();
-
-
-void *safe_malloc(size_t size);
-void safe_free(void *block);
-
 
 /***** Time *****/
 flonum_t time_since_launch();

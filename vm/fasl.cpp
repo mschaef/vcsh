@@ -5,6 +5,9 @@
  * This is the FASL loader: it reads FASL format objects from a binary port.
  */
 
+#include <string.h>
+#include <memory.h>
+
 #include "scan.h"
 
 /* REVISIT: Possible improvement to FASL read/write
@@ -491,7 +494,7 @@ void fast_read_macro(LRef port, LRef * retval)
      *retval = macrocons(macro_transformer);
 }
 
-/* TODO: Fasl table entries move around upon resize, which can screw up FASL load if
+/* REVISIT: Fasl table entries move around upon resize, which can screw up FASL load if
  * the loader as a pointer into the fasl table during a resize. */
 
 static void fasl_ensure_valid_table_index(LRef port, size_t index)
@@ -829,7 +832,7 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
 
                fast_read(port, fasl_table_entry, allow_loader_ops);
 
-               /* TODO: This assert throws if the fasl table was resized during the reader definition. */
+               /* REVISIT: This assert throws if the fasl table was resized during the reader definition. */
                assert(fasl_table_entry == &_VECTOR_ELEM(pinfo->_fasl_table, index));
 
                *retval = *fasl_table_entry;

@@ -15,10 +15,11 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
-#include "scan.h"
-
+#include "sys.h"
 BEGIN_NAMESPACE(scan)
+
 static sys_retcode_t rc_to_sys_retcode_t(int rc);
 static sys_retcode_t sys_init_time();
 
@@ -28,13 +29,12 @@ u8_t *stack_limit_obj;
 
 sys_retcode_t sys_init()
 {
-     /*  REVISIT: Can this be done more efficiently with inline assembly? */
      int stack_location;
 
      sys_stack_start = (u8_t *) & stack_location;
 
      if (sys_init_time() != SYS_OK)
-          return SYS_ENOTRECOVERABLE;
+          return SYS_E_FAIL;
 
      sys_set_stack_limit(DEFAULT_STACK_SIZE);
 
@@ -52,7 +52,10 @@ _TCHAR **sys_get_env_vars()
 
 sys_retcode_t sys_setenv(_TCHAR * varname, _TCHAR * value)
 {
-     return rc_to_sys_retcode_t(setenv(varname, value, 1));     /*  1 == always overwrite */
+     if (setenv(varname, value, 1)) /* 1 == always overwrite */
+          return rc_to_sys_retcode_t(errno);
+
+     return SYS_OK;
 }
 
 struct sys_dir_t
@@ -65,7 +68,7 @@ sys_retcode_t sys_opendir(const char *path, sys_dir_t ** dir)
      *dir = (sys_dir_t *) safe_malloc(sizeof(sys_dir_t));
 
      if (*dir == NULL)
-          return SYS_ENOMEM;
+          return SYS_E_OUT_OF_MEMORY;
 
      (*dir)->_dir = opendir(path);
 
@@ -165,11 +168,8 @@ sys_retcode_t sys_stat(const char *path, sys_stat_t * buf)
 {
      struct stat sbuf;
 
-     int rc = stat(path, &sbuf);
-
-     if (rc)
-          return rc_to_sys_retcode_t(rc);
-
+     if (stat(path, &sbuf))
+          return rc_to_sys_retcode_t(errno);
 
      if (S_ISREG(sbuf.st_mode))
           buf->_filetype = SYS_FT_REG;
@@ -216,17 +216,20 @@ sys_retcode_t sys_temporary_filename(_TCHAR * prefix, _TCHAR * buf, size_t bufle
      switch (errno)
      {
      case ENOMEM:
-          return SYS_ENOMEM;
+          return SYS_E_OUT_OF_MEMORY;
      case EEXIST:
-          return SYS_EEXIST;
+          return SYS_E_FILE_EXISTS;
      default:
-          return SYS_EWIERD;
+          return SYS_E_FAIL;
      }
 }
 
 sys_retcode_t sys_delete_file(_TCHAR * filename)
 {
-     return rc_to_sys_retcode_t(unlink(filename));
+     if (unlink(filename))
+          return rc_to_sys_retcode_t(errno);
+
+     return SYS_OK;
 }
 
 
@@ -285,7 +288,10 @@ flonum_t sys_timezone_offset()  /*  TODO: This does not accurately capture DST o
 
 sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len)
 {
-     return rc_to_sys_retcode_t(gethostname(buf, len));
+     if (gethostname(buf, len))
+          return rc_to_sys_retcode_t(errno);
+
+     return SYS_OK;
 }
 
 void sys_get_info(sys_info_t * info)
@@ -308,213 +314,44 @@ static sys_retcode_t rc_to_sys_retcode_t(int rc)
           return SYS_OK;
 
      case EPERM:
-          return SYS_EPERM;
-     case ENOENT:
-          return SYS_ENOENT;
-     case ESRCH:
-          return SYS_ESRCH;
-     case EINTR:
-          return SYS_EINTR;
-     case EIO:
-          return SYS_EIO;
-     case ENXIO:
-          return SYS_ENXIO;
-     case E2BIG:
-          return SYS_E2BIG;
-     case ENOEXEC:
-          return SYS_ENOEXEC;
-     case EBADF:
-          return SYS_EBADF;
-     case ECHILD:
-          return SYS_ECHILD;
-     case EAGAIN:
-          return SYS_EAGAIN;
-     case ENOMEM:
-          return SYS_ENOMEM;
      case EACCES:
-          return SYS_EACCES;
-     case EFAULT:
-          return SYS_EFAULT;
-     case ENOTBLK:
-          return SYS_ENOTBLK;
-     case EBUSY:
-          return SYS_EBUSY;
-     case EEXIST:
-          return SYS_EEXIST;
-     case EXDEV:
-          return SYS_EXDEV;
+          return SYS_E_NOT_PERMITTED;
+
+     case ENOENT:
+     case ENXIO:
      case ENODEV:
-          return SYS_ENODEV;
-     case ENOTDIR:
-          return SYS_ENOTDIR;
-     case EISDIR:
-          return SYS_EISDIR;
+          return SYS_E_NO_FILE;
+
+     case EIO:
+          return SYS_E_IO_ERROR;
+
+     case E2BIG:
+     case ENOTBLK:
+          return SYS_E_BAD_ARGUMENT;
+
+     case ENOMEM:
+          return SYS_E_OUT_OF_MEMORY;
+
+     case EFAULT:
+          return SYS_E_BAD_ADDRESS;
+
+     case EEXIST:
+          return SYS_E_FILE_EXISTS;
+
      case EINVAL:
-          return SYS_EINVAL;
-     case ENFILE:
-          return SYS_ENFILE;
-     case EMFILE:
-          return SYS_EMFILE;
-     case ENOTTY:
-          return SYS_ENOTTY;
-     case ETXTBSY:
-          return SYS_ETXTBSY;
-     case EFBIG:
-          return SYS_EFBIG;
+          return SYS_E_BAD_ARGUMENT;;
+
+     case ENOTDIR:
+          return SYS_E_NOT_DIRECTORY;
+
+     case EISDIR:
+          return SYS_E_IS_DIRECTORY;
+
      case ENOSPC:
-          return SYS_ENOSPC;
-     case ESPIPE:
-          return SYS_ESPIPE;
-     case EROFS:
-          return SYS_EROFS;
-     case EMLINK:
-          return SYS_EMLINK;
-     case EPIPE:
-          return SYS_EPIPE;
-     case EDOM:
-          return SYS_EDOM;
-     case ERANGE:
-          return SYS_ERANGE;
-     case EDEADLK:
-          return SYS_EDEADLK;
-     case ENAMETOOLONG:
-          return SYS_ENAMETOOLONG;
-     case ENOLCK:
-          return SYS_ENOLCK;
-     case ENOSYS:
-          return SYS_ENOSYS;
-     case ENOTEMPTY:
-          return SYS_ENOTEMPTY;
-     case ELOOP:
-          return SYS_ELOOP;
-     case ENOMSG:
-          return SYS_ENOMSG;
-          /* case EL2NSYNC        : return SYS_EL2NSYNC; */
-          /* case EL3HLT          : return SYS_EL3HLT; */
-          /* case EL3RST          : return SYS_EL3RST; */
-          /* case ELNRNG          : return SYS_ELNRNG; */
-          /* case EUNATCH         : return SYS_EUNATCH; */
-          /* case ENOCSI          : return SYS_ENOCSI; */
-          /* case EL2HLT          : return SYS_EL2HLT; */
-          /* case EBADE           : return SYS_EBADE; */
-          /* case EBADR           : return SYS_EBADR; */
-          /* case EXFULL          : return SYS_EXFULL; */
-          /* case ENOANO          : return SYS_ENOANO; */
-          /* case EBADRQC         : return SYS_EBADRQC; */
-          /* case EBADSLT         : return SYS_EBADSLT; */
-          /* case EBFONT          : return SYS_EBFONT; */
-     case ENOSTR:
-          return SYS_ENOSTR;
-     case ETIME:
-          return SYS_ETIME;
-          /* case ENONET          : return SYS_ENONET; */
-          /* case ENOPKG          : return SYS_ENOPKG; */
-     case EREMOTE:
-          return SYS_EREMOTE;
-     case ENOLINK:
-          return SYS_ENOLINK;
-          /* case EADV            : return SYS_EADV; */
-          /* case ESRMNT          : return SYS_ESRMNT; */
-          /* case ECOMM           : return SYS_ECOMM; */
-     case EPROTO:
-          return SYS_EPROTO;
-     case EMULTIHOP:
-          return SYS_EMULTIHOP;
-          /* case EDOTDOT         : return SYS_EDOTDOT; */
-     case EBADMSG:
-          return SYS_EBADMSG;
-     case EOVERFLOW:
-          return SYS_EOVERFLOW;
-          /* case ENOTUNIQ        : return SYS_ENOTUNIQ; */
-          /* case EBADFD          : return SYS_EBADFD; */
-          /* case EREMCHG         : return SYS_EREMCHG; */
-          /* case ELIBACC         : return SYS_ELIBACC; */
-          /* case ELIBBAD         : return SYS_ELIBBAD; */
-          /* case ELIBSCN         : return SYS_ELIBSCN; */
-          /* case ELIBMAX         : return SYS_ELIBMAX; */
-          /* case ELIBEXEC        : return SYS_ELIBEXEC; */
-     case EILSEQ:
-          return SYS_EILSEQ;
-          /*  case ERESTART        : return SYS_ERESTART; */
-          /*  case ESTRPIPE        : return SYS_ESTRPIPE; */
-     case EUSERS:
-          return SYS_EUSERS;
-     case ENOTSOCK:
-          return SYS_ENOTSOCK;
-     case EDESTADDRREQ:
-          return SYS_EDESTADDRREQ;
-     case EMSGSIZE:
-          return SYS_EMSGSIZE;
-     case EPROTOTYPE:
-          return SYS_EPROTOTYPE;
-     case ENOPROTOOPT:
-          return SYS_ENOPROTOOPT;
-     case EPROTONOSUPPORT:
-          return SYS_EPROTONOSUPPORT;
-     case ESOCKTNOSUPPORT:
-          return SYS_ESOCKTNOSUPPORT;
-     case EOPNOTSUPP:
-          return SYS_EOPNOTSUPP;
-     case EPFNOSUPPORT:
-          return SYS_EPFNOSUPPORT;
-     case EAFNOSUPPORT:
-          return SYS_EAFNOSUPPORT;
-     case EADDRINUSE:
-          return SYS_EADDRINUSE;
-     case EADDRNOTAVAIL:
-          return SYS_EADDRNOTAVAIL;
-     case ENETDOWN:
-          return SYS_ENETDOWN;
-     case ENETUNREACH:
-          return SYS_ENETUNREACH;
-     case ENETRESET:
-          return SYS_ENETRESET;
-     case ECONNABORTED:
-          return SYS_ECONNABORTED;
-     case ECONNRESET:
-          return SYS_ECONNRESET;
-     case ENOBUFS:
-          return SYS_ENOBUFS;
-     case EISCONN:
-          return SYS_EISCONN;
-     case ENOTCONN:
-          return SYS_ENOTCONN;
-     case ESHUTDOWN:
-          return SYS_ESHUTDOWN;
-     case ETOOMANYREFS:
-          return SYS_ETOOMANYREFS;
-     case ETIMEDOUT:
-          return SYS_ETIMEDOUT;
-     case ECONNREFUSED:
-          return SYS_ECONNREFUSED;
-     case EHOSTDOWN:
-          return SYS_EHOSTDOWN;
-     case EHOSTUNREACH:
-          return SYS_EHOSTUNREACH;
-     case EALREADY:
-          return SYS_EALREADY;
-     case EINPROGRESS:
-          return SYS_EINPROGRESS;
-     case ESTALE:
-          return SYS_ESTALE;
-          /*  case EUCLEAN         : return SYS_EUCLEAN; */
-          /*  case ENOTNAM         : return SYS_ENOTNAM; */
-          /*  case ENAVAIL         : return SYS_ENAVAIL; */
-          /*  case EISNAM          : return SYS_EISNAM; */
-          /*  case EREMOTEIO       : return SYS_EREMOTEIO; */
-     case EDQUOT:
-          return SYS_EDQUOT;
-          /* case ENOMEDIUM       : return SYS_ENOMEDIUM; */
-          /*  case EMEDIUMTYPE     : return SYS_EMEDIUMTYPE; */
-          /*  case ECANCELED       : return SYS_ECANCELED; */
-          /*  case ENOKEY          : return SYS_ENOKEY; */
-          /*  case EKEYEXPIRED     : return SYS_EKEYEXPIRED; */
-          /*  case EKEYREVOKED     : return SYS_EKEYREVOKED; */
-          /*  case EKEYREJECTED    : return SYS_EKEYREJECTED; */
-          /*  case EOWNERDEAD      : return SYS_EOWNERDEAD; */
-          /*  case ENOTRECOVERABLE : return SYS_ENOTRECOVERABLE; */
+          return SYS_E_NO_SPACE;
+
      default:
-          return SYS_EWIERD;
+          return SYS_E_FAIL;
      }
 }
 

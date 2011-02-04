@@ -8,6 +8,11 @@
 
 #include <limits.h>
 #include <float.h>
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <errno.h>
 
 BEGIN_NAMESPACE(scan)
 

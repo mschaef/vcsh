@@ -5,6 +5,9 @@
  */
 
 #include <float.h>
+#include <string.h>
+
+#include <sys/stat.h>
 
 #include "scan.h"
 

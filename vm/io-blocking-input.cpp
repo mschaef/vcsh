@@ -9,6 +9,8 @@
  * as it wishes.
  */
 
+#include <memory.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

@@ -4,6 +4,10 @@
  * The I/O subsystem. This tries to be as R5RS compliant as possible.
  */
 
+#include <ctype.h>
+#include <memory.h>
+#include <stdio.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

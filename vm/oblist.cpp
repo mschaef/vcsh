@@ -18,6 +18,8 @@
  *   package.
  */
 
+#include <string.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

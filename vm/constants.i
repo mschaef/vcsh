@@ -263,6 +263,23 @@ BEGIN_VM_CONSTANT_TABLE(vminterrupt_t, vminterrupt_name)
   VM_CONSTANT(VMINTR_BREAK , 0x00000002)
 END_VM_CONSTANT_TABLE(vminterrupt_t, vminterrupt_name)
 
+BEGIN_VM_CONSTANT_TABLE(sys_retcode_t, sys_retcode_name)
+  VM_CONSTANT(SYS_OK              , 0 )      /* No error */
+  VM_CONSTANT(SYS_E_NO_FILE       , 1 )      /* No such file or directory */
+  VM_CONSTANT(SYS_E_IO_ERROR      , 2 )      /* I/O error */
+  VM_CONSTANT(SYS_E_BAD_ARGUMENT  , 3 )      /* Invalid argument */
+  VM_CONSTANT(SYS_E_OUT_OF_MEMORY , 4 )      /* Out of memory */
+  VM_CONSTANT(SYS_E_FILE_EXISTS   , 5 )      /* File exists */
+  VM_CONSTANT(SYS_E_NAME_TOO_LONG , 6 )      /* File name too long */
+  VM_CONSTANT(SYS_E_NOT_PERMITTED , 7 )      /* Not permitted */
+  VM_CONSTANT(SYS_E_IS_DIRECTORY  , 8 )      /* Is a directory */
+  VM_CONSTANT(SYS_E_NOT_DIRECTORY , 9 )      /* Not a directory */
+  VM_CONSTANT(SYS_E_NO_SPACE      , 10)      /* Out of space */
+  VM_CONSTANT(SYS_E_BAD_ADDRESS   , 11)      /* Bad address */
+
+  VM_CONSTANT(SYS_E_FAIL          , 0xFFFF)  /* Generic return code. */
+END_VM_CONSTANT_TABLE(sys_retcode_t, sys_retcode_name)
+
 #undef BEGIN_VM_CONSTANT_TABLE
 #undef VM_CONSTANT
 #undef VM_ANON_CONSTANT

@@ -2,6 +2,8 @@
  * The scan evaluator
  */
 
+#include <stdio.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

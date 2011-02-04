@@ -7,6 +7,8 @@
  * line one after another.
  */
 
+#include <stdio.h>
+
 #include "scan.h"
 
 void sigint_handler(int i)

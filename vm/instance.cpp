@@ -63,7 +63,7 @@ static LRef instance_map(LRef inst)
      return map;
 }
 
-static bool instance_map_ref(LRef inst, LRef key, LRef & value) /*  TODO: ref->value */
+static bool instance_map_ref(LRef inst, LRef key, LRef & value)
 {
      return hash_ref(instance_map(inst), key, value);
 }

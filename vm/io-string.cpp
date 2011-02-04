@@ -4,6 +4,8 @@
  * String port. Allows for input from and output to strings.
  */
 
+#include <stdio.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

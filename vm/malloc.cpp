@@ -4,6 +4,8 @@
  * A wrapper around malloc that adds some keeping and error checking.
  */
 
+#include <stdio.h>
+
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
