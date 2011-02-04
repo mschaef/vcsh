@@ -4,6 +4,19 @@
 ;;;
 ;;; Number library procedures
 
+
+(define (trap-fixnum-overflow trapno fsp arg-0 arg-1)
+  (error "Fixnum overflow (trapno=~a, arg-0=~a, arg-1=~a)" trapno arg-0 arg-1))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_ADD trap-fixnum-overflow)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_MULTIPLY trap-fixnum-overflow)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_NEGATE trap-fixnum-overflow)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_SUBTRACT trap-fixnum-overflow)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_DIVIDE trap-fixnum-overflow)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_MODULO trap-fixnum-overflow)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_SHL trap-fixnum-overflow))
+
 (define (zero? x) (= x 0))
 (define (positive? x) (> x 0))
 (define (negative? x) (< x 0))
