@@ -251,7 +251,6 @@ static void register_main_subrs()
     register_subr(_T("%%fasl-load"),                      SUBR_1,     (void*)liifasl_load                        );
     register_subr(_T("%fast-op"),                         SUBR_4,     (void*)lfast_op                            );
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
-    register_subr(_T("%fast-op-cons"),                    SUBR_4,     (void*)lfast_op                            );     /*  TODO: one of these is not necessary */
     register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );

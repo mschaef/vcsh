@@ -346,9 +346,8 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
 
      if (!TRUEP(message_handler))
      {
-          // TODO: This protocol probably doesn't work...
           message_handler = vmtrap(TRAP_MSG_NOT_UNDERSTOOD, VMT_MANDATORY_TRAP,
-                                   2, lookup_ctx_inst, message_name);
+                                   3, self, lookup_ctx_inst, message_name);
 
           args = lcons(message_name, args);
      }
