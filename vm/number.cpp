@@ -345,7 +345,7 @@ LRef ladd(LRef x, LRef y)
      fixnum_t yf = get_c_fixnum(y);
 
      if (((yf>0) && (xf > (FIXNUM_MAX-yf))) || ((yf<0) && (xf < (FIXNUM_MIN-yf))))
-          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+          vmtrap(TRAP_OVERFLOW_FIXNUM_ADD, VMT_OPTIONAL_TRAP, 2, x, y);
 
      return fixcons(xf + yf);
 }
@@ -381,21 +381,21 @@ LRef lmultiply(LRef x, LRef y)
      if (xf > 0) {
           if (yf > 0) {
                if (xf > (FIXNUM_MAX / yf)) {
-                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+                    vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_OPTIONAL_TRAP, 2, x, y);
                }
           } else {
                if (yf < (FIXNUM_MIN / xf)) {
-                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+                    vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_OPTIONAL_TRAP, 2, x, y);
                }
           }
      } else {
           if (yf > 0) {
                if (xf < (FIXNUM_MIN / yf)) {
-                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+                    vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_OPTIONAL_TRAP, 2, x, y);
                }
           } else {
                if ( (xf != 0) && (yf < (FIXNUM_MAX / xf))) {
-                    vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+                    vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_OPTIONAL_TRAP, 2, x, y);
                }
           }
      }
@@ -418,7 +418,7 @@ LRef lsubtract(LRef x, LRef y)
           fixnum_t xf = get_c_fixnum(x);
 
           if (xf == FIXNUM_MIN)
-               vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 1, x);
+               vmtrap(TRAP_OVERFLOW_FIXNUM_NEGATE, VMT_OPTIONAL_TRAP, 1, x);
 
           return fixcons(-xf);
      }
@@ -438,7 +438,7 @@ LRef lsubtract(LRef x, LRef y)
 
      if ((yf > 0 && xf < FIXNUM_MIN + yf)
          || (yf < 0 && xf > FIXNUM_MAX + yf))
-          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+          vmtrap(TRAP_OVERFLOW_FIXNUM_SUBTRACT, VMT_OPTIONAL_TRAP, 2, x, y);
 
      return fixcons(xf - yf);
 }
@@ -505,7 +505,7 @@ LRef lquotient(LRef x, LRef y)
                vmerror_divide_by_zero();
 
           if ((xf == FIXNUM_MIN) && (yf == -1))
-               vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+               vmtrap(TRAP_OVERFLOW_FIXNUM_DIVIDE, VMT_OPTIONAL_TRAP, 2, x, y);
 
           return fixcons(xf / yf);
      }
@@ -561,7 +561,7 @@ LRef lmodulo(LRef x, LRef y)
           vmerror_divide_by_zero();
 
      if ((xf == FIXNUM_MIN) && (yf == -1))
-          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, y);
+          vmtrap(TRAP_OVERFLOW_FIXNUM_MODULO, VMT_OPTIONAL_TRAP, 2, x, y);
 
      fixnum_t mod = fixabs(xf) % fixabs(yf);
 
@@ -736,7 +736,7 @@ LRef lbitwise_shl(LRef x, LRef n)
          || (bits < 0)
          || (bits >= (fixnum_t)(sizeof(int)*CHAR_BIT))
          || (xf > (INT_MAX >> bits)))
-          vmtrap(TRAP_OVERFLOW, VMT_OPTIONAL_TRAP, 2, x, n);
+          vmtrap(TRAP_OVERFLOW_FIXNUM_SHL, VMT_OPTIONAL_TRAP, 2, x, n);
 
      return fixcons(xf << bits);
 }
