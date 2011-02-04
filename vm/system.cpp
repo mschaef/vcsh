@@ -78,8 +78,6 @@ LRef lset_environment_variable(LRef varname, LRef value)
      if (rc == SYS_OK)
           return boolcons(true);
 
-     /*  TODO: parse retcode */
-
      vmerror_io_error(_T("Error setting environment variable"), varname);
 
      return NIL;

@@ -4,7 +4,6 @@
 ;;;
 ;;; Number library procedures
 
-
 (define (trap-fixnum-overflow trapno fsp arg-0 arg-1)
   (error "Fixnum overflow (trapno=~a, arg-0=~a, arg-1=~a)" trapno arg-0 arg-1))
 
@@ -36,7 +35,6 @@
            (error "Bits must be specified as exact numbers: ~a" (car remaining)))
           (#t
            (loop (bitwise-or n (bitwise-shift-left 1 (car remaining))) (cdr remaining))))))
-
 
 (define *bits* 64) ;; TODO : pull from system-info
 

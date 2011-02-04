@@ -341,8 +341,8 @@ LRef ladd(LRef x, LRef y)
      if (FLONUMP(x) || FLONUMP(y))
           return flocons(get_c_flonum(x) + get_c_flonum(y));
 
-     fixnum_t xf = get_c_fixnum(x);
-     fixnum_t yf = get_c_fixnum(y);
+     fixnum_t xf = FIXNM(x);
+     fixnum_t yf = FIXNM(y);
 
      if (((yf>0) && (xf > (FIXNUM_MAX-yf))) || ((yf<0) && (xf < (FIXNUM_MIN-yf))))
           return vmtrap(TRAP_OVERFLOW_FIXNUM_ADD, VMT_MANDATORY_TRAP, 2, x, y);
@@ -374,8 +374,8 @@ LRef lmultiply(LRef x, LRef y)
      if (FLONUMP(x) || FLONUMP(y))
           return flocons(get_c_flonum(x) * get_c_flonum(y));
 
-     fixnum_t xf = get_c_fixnum(x);
-     fixnum_t yf = get_c_fixnum(y);
+     fixnum_t xf = FIXNM(x);
+     fixnum_t yf = FIXNM(y);
 
 
      if (xf > 0) {
@@ -411,11 +411,11 @@ LRef lsubtract(LRef x, LRef y)
      if (NULLP(y))
      {
           if (COMPLEXP(x))
-               return cmplxcons(-get_c_flonum(x), -get_c_flonum_im(x));
+               return cmplxcons(-FLONM(x), -CMPLXIM(x));
           else if (FLONUMP(x))
-               return flocons(-get_c_flonum(x));
+               return flocons(-FLONM(x));
 
-          fixnum_t xf = get_c_fixnum(x);
+          fixnum_t xf = FIXNM(x);
 
           if (xf == FIXNUM_MIN)
                return vmtrap(TRAP_OVERFLOW_FIXNUM_NEGATE, VMT_MANDATORY_TRAP, 1, x);
@@ -433,8 +433,8 @@ LRef lsubtract(LRef x, LRef y)
      if (FLONUMP(x) || FLONUMP(y))
           return flocons(get_c_flonum(x) - get_c_flonum(y));
 
-     fixnum_t xf = get_c_fixnum(x);
-     fixnum_t yf = get_c_fixnum(y);
+     fixnum_t xf = FIXNM(x);
+     fixnum_t yf = FIXNM(y);
 
      if ((yf > 0 && xf < FIXNUM_MIN + yf)
          || (yf < 0 && xf > FIXNUM_MAX + yf))
@@ -477,8 +477,8 @@ LRef ldivide(LRef x, LRef y)
 
           return cmplxcons((xr * yr + xi * yi) / d, (xi * yr - xr * yi) / d);
      }
-     else
-          return flocons(get_c_flonum(x) / get_c_flonum(y));
+
+     return flocons(get_c_flonum(x) / get_c_flonum(y));
 }
 
 /* Number-theoretic division **********************************/
@@ -498,8 +498,8 @@ LRef lquotient(LRef x, LRef y)
 
      if (FIXNUMP(x) && FIXNUMP(y))
      {
-          fixnum_t xf = get_c_fixnum(x);
-          fixnum_t yf = get_c_fixnum(y);
+          fixnum_t xf = FIXNM(x);
+          fixnum_t yf = FIXNM(y);
 
           if (yf == 0)
                vmerror_divide_by_zero();
@@ -528,8 +528,8 @@ LRef lremainder(LRef x, LRef y)
 
      if (FIXNUMP(x) && FIXNUMP(y))
      {
-          fixnum_t xf = get_c_fixnum(x);
-          fixnum_t yf = fixabs(get_c_fixnum(y));
+          fixnum_t xf = FIXNM(x);
+          fixnum_t yf = fixabs(FIXNM(y));
 
           if (yf == 0)
                vmerror_divide_by_zero();
@@ -554,8 +554,8 @@ LRef lmodulo(LRef x, LRef y)
      if (!FIXNUMP(y))
           vmerror_wrong_type(2, y);
 
-     fixnum_t yf = get_c_fixnum(y);
-     fixnum_t xf = get_c_fixnum(x);
+     fixnum_t yf = FIXNM(y);
+     fixnum_t xf = FIXNM(x);
 
      if (yf == 0)
           vmerror_divide_by_zero();
