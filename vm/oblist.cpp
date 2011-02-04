@@ -144,10 +144,10 @@ static LRef find_direct_symbol_record(LRef sym_spec, LRef package)
 
      assert(STRINGP(sym_name));
 
-     if (!hash_ref(PACKAGE_BINDINGS(package), sym_name, sym_rec))
+     if (!hash_ref(PACKAGE_BINDINGS(package), sym_name, &sym_rec))
           return NIL;
 
-     /*  If we find a different symbol of the same name in this package, then 
+     /*  If we find a different symbol of the same name in this package, then
       *  we haven't found the requested symbol. Also, we've proven ourselves
       *  not to contain the requested symbol. */
      if (SYMBOLP(sym_spec) && (sym_spec != CAR(sym_rec)))

@@ -283,7 +283,7 @@ bool hash_equal(LRef a, LRef b)
      {
           LRef other_item_value;
 
-          if (!hash_ref(b, key, other_item_value))
+          if (!hash_ref(b, key, &other_item_value))
                return false;
 
           if (!equalp(val, other_item_value))
@@ -415,14 +415,14 @@ static hash_entry_t *hash_lookup_entry(LRef hash, LRef key)
      return NULL;
 }
 
-bool hash_ref(LRef hash, LRef key, LRef & value_result)
+bool hash_ref(LRef hash, LRef key, LRef *value_result)
 {
      hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry == NULL)
           return false;
 
-     value_result = entry->_val;
+     *value_result = entry->_val;
 
      return true;
 }

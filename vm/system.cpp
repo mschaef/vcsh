@@ -117,14 +117,11 @@ LRef ldelete_file(LRef filename)
      return NIL;
 
      /*  REVISIT: delete_file should detect directories and call RemoveDirectory */
-     /*  TODO: parse errno */
 }
 
 LRef file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 {
      LRef obj = hashcons(true);
-
-     /*  TODO: lots more info in info... */
 
      LRef file_type = NULL;
 

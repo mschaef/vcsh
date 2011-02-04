@@ -1005,7 +1005,7 @@ size_t float_format(_TCHAR * buf, size_t buf_len,
      _TCHAR *result_loc = buf;  /* location in result buffer */
      bool first = true;         /* True on the first numeric character */
 
-     /*  TODO: result_loc should be range checked against buf_len */
+     /*  REVISIT: result_loc should be range checked against buf_len */
 
      /* Most of the interesting numerical work is done by _ecvt. _ecvt
       * gives us most of the information we need to print the number. */

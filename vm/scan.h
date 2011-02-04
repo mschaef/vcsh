@@ -1219,7 +1219,7 @@ INLINE _TCHAR *SET_STRING_DATA(LRef x, _TCHAR * data)
 
 LRef hashcons(bool shallow, size_t size = HASH_DEFAULT_INITIAL_SIZE);
 
-bool hash_ref(LRef table, LRef key, LRef & result);     /*  TODO: convert to pointer */
+bool hash_ref(LRef table, LRef key, LRef *result);
 
 INLINE size_t HASH_MASK(LRef obj)
 {

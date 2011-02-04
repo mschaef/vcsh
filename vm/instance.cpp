@@ -65,7 +65,7 @@ static LRef instance_map(LRef inst)
 
 static bool instance_map_ref(LRef inst, LRef key, LRef & value)
 {
-     return hash_ref(instance_map(inst), key, value);
+     return hash_ref(instance_map(inst), key, &value);
 }
 
 static LRef ensure_unique_map(LRef inst)
@@ -349,7 +349,7 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
           // TODO: This protocol probably doesn't work...
           message_handler = vmtrap(TRAP_MSG_NOT_UNDERSTOOD, VMT_MANDATORY_TRAP,
                                    2, lookup_ctx_inst, message_name);
-          
+
           args = lcons(message_name, args);
      }
 
