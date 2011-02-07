@@ -121,7 +121,7 @@ void blocking_input_port_close(LRef port)
 void blocking_input_post_data(LRef port, void *data, size_t size)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
-     assert(!blocking_input_is_data_available(port));   /*  TODO: we really should allow this case */
+     assert(!blocking_input_is_data_available(port));   /*  REVISIT: we really should allow this case */
 
      blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->_user_data);
 
