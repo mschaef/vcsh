@@ -243,6 +243,8 @@ static flonum_t sys_timebase_time(void);
 
 static sys_retcode_t sys_init_time()
 {
+     tzset(); /* REVISIT: provide a way to automatically call this if TZ changes. */
+
      /*  Record the current time so that we can get a measure of uptime */
      runtime_offset = sys_timebase_time();
 
@@ -273,13 +275,14 @@ flonum_t sys_time_resolution()
      return 1000000.0;
 }
 
-flonum_t sys_timezone_offset()  /*  TODO: This does not accurately capture DST on MacOS X */
+flonum_t sys_timezone_offset() /* REVISIT: Verify that this has correct time/date in DST. */
 {
-     struct timezone tz;
+     time_t current_time = time(NULL);
+     struct tm ltbuf;
 
-     gettimeofday(NULL, &tz);
+     localtime_r(&current_time, &ltbuf);
 
-     return (flonum_t) tz.tz_minuteswest * SECONDS_PER_MINUTE;
+     return (flonum_t) -ltbuf.tm_gmtoff;
 }
 
 /****************************************************************
