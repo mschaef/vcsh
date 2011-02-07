@@ -168,25 +168,31 @@
         (#t
          (loop (cons (read ip) xs)))))))
 
-(defmacro (with-repl-error-handling context-name . code) ;; TODO: split into fn/macro
+(define (call-with-repl-error-handling context-name fn)
   "Evaluates <form> in environment <env>, suppressing errors and returning
   return values as a list, rather than as multiple values."
-  `(catch 'repl-abort-evaluation
-     (handler-bind ((uncaught-throw ;; TODO: Refactor this into an external fn
-                     (lambda (tag retval)
-                       ;; TODO: Correct this port
-                       (format #t "Uncaught throw during ~a: ~a\n" ,context-name tag)
-                       (throw 'repl-abort-evaluation (list retval))))
-                    (unhandled-abort
-                     (lambda (condition args)
-                       (format #t "Unhandled abort during ~a: ~a\n\nargs=~a\n\n" ,context-name condition args)
-                       (throw 'repl-abort-evaluation (list condition))))
-                    (user-break
-                     (lambda ()
-                       (info "***USER BREAK***")
-                       (throw 'repl-abort-evaluation (list 'user-break)))))
-       (catch 'error-escape
-         ,@code))))
+  (catch 'repl-abort-evaluation
+    (handler-bind ((uncaught-throw ;; TODO: Refactor this into an external fn
+                    (lambda (tag retval)
+                      ;; TODO: Correct this port
+                      (format #t "Uncaught throw during ~a: ~a\n" context-name tag)
+                      (throw 'repl-abort-evaluation (list retval))))
+                   (unhandled-abort
+                    (lambda (condition args)
+                      (format #t "Unhandled abort during ~a: ~a\n\nargs=~a\n\n" context-name condition args)
+                      (throw 'repl-abort-evaluation (list condition))))
+                   (user-break
+                    (lambda ()
+                      (info "***USER BREAK***")
+                      (throw 'repl-abort-evaluation (list 'user-break)))))
+      (catch 'error-escape
+        (fn)))))
+
+(defmacro (with-repl-error-handling context-name . code)
+  "Evaluates <form> in environment <env>, suppressing errors and returning
+  return values as a list, rather than as multiple values."
+  `(call-with-repl-error-handling ,context-name
+                                  (lambda () ,@code)))
 
 (define (repl-read abbrevs)
   "Reads a form from the current input port, honoring REPL
