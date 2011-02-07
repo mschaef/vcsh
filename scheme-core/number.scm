@@ -36,8 +36,6 @@
           (#t
            (loop (bitwise-or n (bitwise-shift-left 1 (car remaining))) (cdr remaining))))))
 
-(define *bits* 64) ;; TODO : pull from system-info
-
 (define (exact->bits n)
   (check exact? n)
   (let loop ((n n) (position 0) (bits ()))

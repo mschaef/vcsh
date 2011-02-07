@@ -353,7 +353,6 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
 
   void sys_get_info(sys_info_t *info)
   {
-    info->_machine_bits            = 32;
     info->_eoln                    = SYS_EOLN_CRLF;
     info->_fs_names_case_sensitive = false;
     info->_platform_name           = _T("win32");

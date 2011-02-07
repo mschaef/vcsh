@@ -8,7 +8,6 @@
   (export! '(*
              *allow-rich-writes*
              *arg-values*
-             *bits*
              *current-load-file*
              *default-tab-stop-interval*
              *default-width*

@@ -125,7 +125,6 @@ enum sys_eoln_convention_t
 
 struct sys_info_t
 {
-     size_t _machine_bits;
      sys_eoln_convention_t _eoln;
      bool _fs_names_case_sensitive;
      const _TCHAR *_platform_name;

@@ -299,7 +299,6 @@ sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len)
 
 void sys_get_info(sys_info_t * info)
 {
-     info->_machine_bits = 32;
      info->_eoln = SYS_EOLN_LF;
      info->_fs_names_case_sensitive = true;
      info->_platform_name = _T("linux");

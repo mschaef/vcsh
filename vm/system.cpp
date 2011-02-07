@@ -336,8 +336,6 @@ LRef lsystem_info()
 
      LRef obj = hashcons(true);
 
-     lhash_set(obj, keyword_intern(_T("machine-bits")), fixcons(info._machine_bits));
-
      LRef eoln = boolcons(false);
 
      switch (info._eoln)
@@ -396,6 +394,11 @@ LRef lsystem_info()
      lhash_set(obj, keyword_intern(_T("maximum-path-length")), fixcons(SYS_PATH_MAX));
 
      lhash_set(obj, keyword_intern(_T("size-of-lobject")), fixcons(sizeof(LObject)));
+     lhash_set(obj, keyword_intern(_T("size-of-fixnum")), fixcons(sizeof(fixnum_t)));
+     lhash_set(obj, keyword_intern(_T("size-of-flonum")), fixcons(sizeof(flonum_t)));
+     lhash_set(obj, keyword_intern(_T("size-of-lref")), fixcons(sizeof(LRef)));
+
+
      lhash_set(obj, keyword_intern(_T("heap-segment-size")),
                fixcons(interp.gc_heap_segment_size * sizeof(LObject)));
      lhash_set(obj, keyword_intern(_T("current-heap-segments")),

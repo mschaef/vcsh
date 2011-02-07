@@ -1,4 +1,7 @@
+
 (use-package! "unit-test")
+
+(define *fixnum-bits* (* 8 (system-info :size-of-fixnum)))
 
 (define-test bitwise-and
   (test-case (= (bitwise-and 15 7) 7))
@@ -54,13 +57,13 @@
   )
 
 (define-test bitwise-shift-left
-  (test-case (= (bitwise-shift-left 0 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-shift-left -256 *bits*) 0))
-  (test-case (= (bitwise-shift-left 256 *bits*) 0))
+  (test-case (= (bitwise-shift-left 0 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-shift-left -256 *fixnum-bits*) 0))
+  (test-case (= (bitwise-shift-left 256 *fixnum-bits*) 0))
 
-  (test-case (= (bitwise-shift-left 0 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-shift-left -256 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-shift-left 256 (+ 1 *bits*)) 0))
+  (test-case (= (bitwise-shift-left 0 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-shift-left -256 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-shift-left 256 (+ 1 *fixnum-bits*)) 0))
 
   (test-case (= (bitwise-shift-left 1 1) 2))
   (test-case (= (bitwise-shift-left 1 2) 4))
@@ -87,13 +90,13 @@
   )
 
 (define-test bitwise-shift-right
-  (test-case (= (bitwise-shift-right 0 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-shift-right -256 *bits*) 0))
-  (test-case (= (bitwise-shift-right 256 *bits*) 0))
+  (test-case (= (bitwise-shift-right 0 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-shift-right -256 *fixnum-bits*) 0))
+  (test-case (= (bitwise-shift-right 256 *fixnum-bits*) 0))
 
-  (test-case (= (bitwise-shift-right 0 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-shift-right -256 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-shift-right 256 (+ 1 *bits*)) 0))
+  (test-case (= (bitwise-shift-right 0 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-shift-right -256 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-shift-right 256 (+ 1 *fixnum-bits*)) 0))
 
   (test-case (= (bitwise-shift-right 256 9) 0))
   (test-case (= (bitwise-shift-right 256 8) 1))
@@ -121,13 +124,13 @@
   )
 
 (define-test bitwise-arithmatic-shift-right
-  (test-case (= (bitwise-arithmatic-shift-right 0 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-arithmatic-shift-right -256 *bits*) 0))
-  (test-case (= (bitwise-arithmatic-shift-right 256 *bits*) 0))
+  (test-case (= (bitwise-arithmatic-shift-right 0 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-arithmatic-shift-right -256 *fixnum-bits*) 0))
+  (test-case (= (bitwise-arithmatic-shift-right 256 *fixnum-bits*) 0))
 
-  (test-case (= (bitwise-arithmatic-shift-right 0 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-arithmatic-shift-right -256 (+ 1 *bits*)) 0))
-  (test-case (= (bitwise-arithmatic-shift-right 256 (+ 1 *bits*)) 0))
+  (test-case (= (bitwise-arithmatic-shift-right 0 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-arithmatic-shift-right -256 (+ 1 *fixnum-bits*)) 0))
+  (test-case (= (bitwise-arithmatic-shift-right 256 (+ 1 *fixnum-bits*)) 0))
 
   (test-case (= (bitwise-arithmatic-shift-right 256 9) 0))
   (test-case (= (bitwise-arithmatic-shift-right 256 8) 1))
