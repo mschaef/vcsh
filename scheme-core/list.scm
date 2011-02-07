@@ -16,14 +16,7 @@
 ;; hold me liable for its use. Please send bug reports to shivers@ai.mit.edu.
 ;;     -Olin
 
-
-
-;; TODO: split-at
-;; TODO: split-at!
-;; TODO: n-arity fold
-;; TODO: reduce
-;; TODO: reduce-next
-
+;; TODO: split-at, split-at!, n-arity fold, reduce, reduce-next, insert-ordered!
 
 ;;;; The core of list processing
 
@@ -606,8 +599,21 @@
             (#t
              (cons (car lis) (loop (cdr lis))))))))
 
-;; TODO: define insert-ordered!
-;; TODO: Incorporate radix-sort and unique.
+(define (unique xs :keyword (:count count #f) (:equivalence equivalence :eq))
+ (let ((counts (make-hash equivalence)))
+   (define (update x)
+     (hash-set! counts x (+ 1 (hash-ref counts x 0))))
+   (dolist (x xs)
+     (update x))
+   (if count
+       (hash->a-list counts)
+       (hash-keys counts))))
+
+(define (radix-sort xs less? :optional (key identity))
+ (let ((buckets (make-hash :eq)))
+   (dolist (x xs)
+     (hash-push! buckets (key x) x))
+   (append-map! cdr (qsort (hash->a-list buckets) less? car))))
 
 (define (butlast xs)
   "Make a duplicate copy of <xs> containing all but the final list element."

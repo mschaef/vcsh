@@ -638,6 +638,7 @@
              queue?
              quote
              quotient
+             radix-sort
              random
              random-case
              random-list-element
@@ -860,6 +861,7 @@
              unexport!
              unhandled-abort
              unintern!
+             unique
              unless
              unquote
              unquote-splicing
