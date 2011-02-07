@@ -307,11 +307,10 @@
   (map car *traced-procedure-list*))
 
 
-;; TODO: The define handler ought to be stub that calls into a hook. (and the retrace facility
-;; needs to be implemented with this hook.)
+(define *global-define-hook* ())
+
 (define (trap-global-define-handler trapno fsp symbol new-definition)
-  (awhen (trace-record-for symbol)
-    (establish-trace-on-function (car it) (cdr it))))
+  (invoke-hook '*global-define-hook* symbol new-definition))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_DEFINE trap-global-define-handler))
@@ -330,6 +329,12 @@
   `(begin ,@(map (lambda (function-name)
                    `(untrace-global-function ',function-name))
                  function-names)))
+
+(define (retrace-if-necessary symbol new-definition)
+  (awhen (trace-record-for symbol)
+    (establish-trace-on-function (car it) (cdr it))))
+
+(add-hook-function! '*global-define-hook* 'retrace-if-necessary)
 
 (define (untrace-all)
   (for-each untrace-global-function (map car *traced-procedure-list*)))
