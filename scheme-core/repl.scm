@@ -172,9 +172,9 @@
   "Evaluates <form> in environment <env>, suppressing errors and returning
   return values as a list, rather than as multiple values."
   (catch 'repl-abort-evaluation
-    (handler-bind ((uncaught-throw ;; TODO: Refactor this into an external fn
+    (handler-bind ((uncaught-throw ;; REVISIT: Refactor this into an external fn
                     (lambda (tag retval)
-                      ;; TODO: Correct this port
+                      ;; REVISIT: Correct this port
                       (format #t "Uncaught throw during ~a: ~a\n" context-name tag)
                       (throw 'repl-abort-evaluation (list retval))))
                    (unhandled-abort

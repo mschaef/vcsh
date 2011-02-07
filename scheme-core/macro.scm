@@ -18,7 +18,7 @@
 
 ;;; Constructor for Common Lisp style non-hygenic macros:
 
-(defmacro (defmacro lambda-list . macro-body) ;; TODO: Macros with :optional arguments
+(defmacro (defmacro lambda-list . macro-body) ;; REVISIT: Macros with :optional arguments
   (check valid-lambda-list? lambda-list)
   (let ((macro-body macro-body) ; shadowed the argument to give us something settable.
         (macro-name (car lambda-list))

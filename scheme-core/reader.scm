@@ -472,9 +472,12 @@
         ((not (read-expected-char #\: port #f)) :public-symbol)
         (#t                                  :private-symbol)))
 
-; TODO: *ignore-read* - There's a better name for this in cltl2, but the basic idea is to have a way to put the reader into a mode where it can safely read through stuff and not intern symbols or make other mutations to the environment.
+; REVISIT: *ignore-read* - There's a better name for this in cltl2, but the
+; basic idea is to have a way to put the reader into a mode where it can
+; safely read through stuff and not intern symbols or make other mutations
+; to the environment.
  
-(define (accept-symbol port  error-port error-location) ; TODO: *read-symbol-hook* to allow symbols to be read but not interned
+(define (accept-symbol port  error-port error-location) ; REVISIT: *read-symbol-hook* to allow symbols to be read but not interned
   "<error-port> and <error-location> are used to report any read
    errors in symbol parsing."
   (let* ((segment-1 (accept-symbol-segment port))
