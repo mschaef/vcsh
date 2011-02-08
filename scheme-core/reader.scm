@@ -246,19 +246,15 @@
   (read-char port)
   #f)
 
+(define *charset-symbol-constituent* 
+ #.(charset-vector *charset-whitespace*
+                   #\( #\) #\[ #\] #\' #\{ #\}
+                   #\; #\: #\" #\# #\, #\ #\\))
+
 (define (char-symbol-constituent? ch) ;; TODO: The printer should honor this predicate when printing symbols
   "Returns <ch> if it is a character that is normally read as part of a symbol
    even if unescaped. Returns #f otherwise."
-
-  ;; TODO: The first four elements of this charset are shared with the
-  ;; char-whitespace? charset. There should be a single definition for the
-  ;; whitespace set.
-  (not (vector-ref #.(charset-vector #\newline #\cr #\tab #\space
-                                     #\( #\) #\[ #\] #\'
-                                     ;; #\{ #\} TODO: These interfere with the postfix program
-                                     ;; reader in vcalc. It depends on reading the { and } symbols.
-                                     #\; #\: #\" #\# #\, #\ #\\)
-                   ch)))
+  (not (vector-ref *charset-symbol-constituent* ch)))
 
 
 (define (read-token port :optional (accept-any-first-character? #f))

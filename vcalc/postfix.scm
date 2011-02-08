@@ -4,6 +4,11 @@
 ;; A program object with a postfix user representation.
 
 
+;; TODO: Having as #\{ #\} symbol constituents interferes with the postfix reader.
+;; These symbols need to be removed from the symbol constituent list for this 
+;; rader to work correctly. (The postfix reader depends on reading the { and } symbols.)
+
+
 ;;;; postfix parser
 
 (define (token-stream tokens)

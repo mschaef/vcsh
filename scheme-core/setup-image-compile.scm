@@ -12,7 +12,7 @@
 ;; TODO: Use compiler messaging facilities.
 (format (current-error-port) ";;;; Configuring for cross compile of Scheme image.\n")
 
-(define *shared-target-symbols* ;; TODO: Better way to build this list? Please?
+(define *shared-target-symbols* ;; REVISIT: Better way to build this list? Please?
   (set-union '(compiler::%%begin-load-unit-boundaries
                scheme::%define
                scheme::begin
