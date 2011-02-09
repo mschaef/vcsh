@@ -757,10 +757,12 @@
              string-first-character
              string-first-substring
              string-fold
+             string-leftmost
              string-length
              string-quasiquote
              string-ref
              string-replace
+             string-rightmost
              string-search
              string-search-from-right
              string-set!

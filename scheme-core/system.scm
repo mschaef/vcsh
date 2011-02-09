@@ -220,8 +220,8 @@
 (define (filename-strip-trailing-delimiter filename)
   "Removes the trailing filename delimimter from <filename>, if it has one. Returns
    <filename>, otherwise."
-  (if (char-path-delimiter? (string-ref filename (- (length filename) 1))) ; TODO: string-first, string-last
-      (substring filename 0 (- (length filename) 1))
+  (if (char-path-delimiter? (string-ref filename (- (length filename) 1)))
+      (string-leftmost filename -1)
       filename))
 
 (define (list->filename filename-list)

@@ -212,6 +212,21 @@
                (#t
                 (get-output-string (write-strings os (substring string loc))))))))
 
+(define (string-leftmost string num)
+  "Returns a string consisting of the leftmost <num> characters of <string>. If <num>
+   is negative, it is a count of characters from the right end of the string. If <string>
+   does not contain at least (abs <num>) characters, an error is thrown."
+  (if (> num 0)
+      (substring string 0 num)
+      (substring string 0 (+ (length string) num))))
+
+(define (string-rightmost string num)
+  "Returns a string consisting of the rightmost <num> characters of <string>. If <num>
+   is negative, it is a count of characters from the left end of the string. If <string>
+   does not contain at least (abs <num>) characters, an error is thrown."
+  (if (> num 0)
+      (substring string (- (length string) num))
+      (substring string (- num))))
 
 (define (normalize-whitespace string)
   "Normalizes the whitespace in <string>; All whitespace characters are converted
