@@ -170,8 +170,6 @@
   (with-port ip (open-input-file filename)
     (readall ip read-line)))
 
-;; TODO: call-with-output-to-string doubles line feeds
-
 (define (call-with-output-to-string fn)
   "Calls function <fn>, capturing output to the current output port as a string. The
    current output port is reset to its original value on exit.  If <fn> alters the
