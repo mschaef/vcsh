@@ -792,39 +792,20 @@ LRef lstring_first_char(LRef string, LRef char_set, LRef maybe_initial_ofs)
      if (!STRINGP(string))
           vmerror_wrong_type(1, string);
 
-     if (STRINGP(char_set))
-     {
-          size_t loc = get_string_offset(maybe_initial_ofs);
-
-          _TCHAR *str = STRING_DATA(string);
-          _TCHAR *chars = STRING_DATA(char_set);
-
-          for (; loc < STRING_DIM(string); loc++)
-          {
-               for (size_t current_char = 0; current_char < STRING_DIM(char_set); current_char++)
-               {
-                    if (chars[current_char] == str[loc])
-                         return fixcons(loc);
-               }
-          }
-     }
-     else if (VECTORP(char_set))
-     {
-          if (VECTOR_DIM(char_set) != _TCHAR_MAX)
-               vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
-
-          size_t loc = get_string_offset(maybe_initial_ofs);
-
-          _TCHAR *str = STRING_DATA(string);
-
-          for (; loc < STRING_DIM(string); loc++)
-          {
-               if (TRUEP(VECTOR_ELEM(char_set, str[loc])))
-                    return fixcons(loc);
-          }
-     }
-     else
+     if (!VECTORP(char_set))
           vmerror_wrong_type(2, char_set);
+
+     if (VECTOR_DIM(char_set) != _TCHAR_MAX)
+          vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
+
+     size_t loc = get_string_offset(maybe_initial_ofs);
+     _TCHAR *str = STRING_DATA(string);
+
+     for (; loc < STRING_DIM(string); loc++)
+     {
+          if (TRUEP(VECTOR_ELEM(char_set, str[loc])))
+               return fixcons(loc);
+     }
 
      return boolcons(false);
 }
@@ -836,49 +817,23 @@ LRef lstring_first_substring(LRef string, LRef char_set, LRef maybe_initial_ofs)
      if (!STRINGP(string))
           vmerror_wrong_type(1, string);
 
+     if (!VECTORP(char_set))
+          vmerror_wrong_type(2, char_set);
+
+     if (VECTOR_DIM(char_set) != _TCHAR_MAX)
+          vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
+
      size_t substring_length = 0;
      size_t loc = get_string_offset(maybe_initial_ofs);
+     _TCHAR *str = STRING_DATA(string);
 
-     if (STRINGP(char_set))
+     for (; loc < STRING_DIM(string); loc++)
      {
-          _TCHAR *str = STRING_DATA(string);
-          _TCHAR *chars = STRING_DATA(char_set);
+          if (!TRUEP(VECTOR_ELEM(char_set, str[loc])))
+               break;
 
-          for (; loc < STRING_DIM(string); loc++)
-          {
-               bool char_found = false;
-
-               for (size_t current_char = 0; current_char < STRING_DIM(char_set); current_char++)
-               {
-                    if (chars[current_char] == str[loc])
-                    {
-                         substring_length++;
-                         char_found = true;
-                         break;
-                    }
-               }
-
-               if (!char_found)
-                    break;
-          }
+          substring_length++;
      }
-     else if (VECTORP(char_set))
-     {
-          if (VECTOR_DIM(char_set) != _TCHAR_MAX)
-               vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
-
-          _TCHAR *str = STRING_DATA(string);
-
-          for (; loc < STRING_DIM(string); loc++)
-          {
-               if (!TRUEP(VECTOR_ELEM(char_set, str[loc])))
-                    break;
-
-               substring_length++;
-          }
-     }
-     else
-          vmerror_wrong_type(2, char_set);
 
      if (substring_length == 0)
           return boolcons(false); // REVISIT: If substring_length is zero, the first substring is the empty string and not #f.
