@@ -56,7 +56,7 @@
 
 (define *current-load-file* #f)
 
-(define (path-quote-char? ch)
+(define (char-path-quote? ch) 
   "Returns <ch> if it is a quoting character in pathnames on the
   current platform, #f otherwise. Quoting characters are those that
   cause any special interpretation of the subsequent character to be
@@ -65,7 +65,7 @@
   (platform-case ((:win32) #f)
                  ((:linux) (char=? ch #\\))))
 
-(define (path-delimiter-char? ch)
+(define (char-path-delimiter? ch)
   "Returns <ch> if it is a path delimiting character in pathnames on the
   current platform, #f otherwise."
   (platform-case ((:win32) (or (char=? ch #\\)
@@ -95,7 +95,7 @@
             (#t
              ;; The windows directory seperator can't be used to quote things, since
              ;; it has higher callings on Windows.
-             (when (path-quote-char? (peek-char ip))
+             (when (char-path-quote? (peek-char ip))
                (read-char ip))
              (write-char (read-char ip) op)
              (loop dirs op))))))
@@ -165,7 +165,7 @@
                              :delim :any-dirs))
           (and (string? basename)
                (> (string-length basename) 0)
-               (path-delimiter-char? (string-ref basename (- (string-length basename) 1)))))
+               (char-path-delimiter? (string-ref basename (- (string-length basename) 1)))))
       basename
       #f))
 
@@ -220,7 +220,7 @@
 (define (filename-strip-trailing-delimiter filename)
   "Removes the trailing filename delimimter from <filename>, if it has one. Returns
    <filename>, otherwise."
-  (if (path-delimiter-char? (string-ref filename (- (length filename) 1))) ; TODO: string-first, string-last
+  (if (char-path-delimiter? (string-ref filename (- (length filename) 1))) ; TODO: string-first, string-last
       (substring filename 0 (- (length filename) 1))
       filename))
 

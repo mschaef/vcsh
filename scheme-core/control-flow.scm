@@ -305,8 +305,6 @@
                    `((< ,random-value-sym ,cumulative-probability-so-far) ,@(cdr current-case)))
                  cases))))))
 
-;; TODO: with-output-to-string doubles line feeds
-
 ;;; This is the interpreter eval-when. It only allows :execute forms to execute. The
 ;;; compiler handles this differently.
 (defmacro (eval-when situations . forms)

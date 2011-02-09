@@ -595,7 +595,7 @@
              pair-fold-right
              pair?
              partition
-             path-quote-char?
+             char-path-quote?
              path-string->list
              peek-char
              perf-report
