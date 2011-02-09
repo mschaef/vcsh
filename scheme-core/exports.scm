@@ -213,6 +213,7 @@
              char?
              character
              character->string
+             charset-vector
              check
              circular-list
              class-name

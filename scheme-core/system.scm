@@ -363,7 +363,7 @@
             (case (car basename-sections)
               ((:any-n) basename-sections)
               (#t (cons :any-1 basename-sections)))))
-     ((string-first-character basename "*?")
+     ((string-first-character basename #.(charset-vector "*?"))
       (loop (substring basename it) (cons (substring basename 0 it) basename-sections)))
      (#t
       (loop "" (cons basename basename-sections))))))

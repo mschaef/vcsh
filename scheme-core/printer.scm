@@ -204,7 +204,7 @@
 (define-method (print-object (obj symbol) port machine-readable? shared-structure-map)
   (define (write-symbol-string port string)
     (let next-segment ((beg 0))
-      (let ((end (string-first-character string ":\\ \n\t" beg))) ;; TODO: This should be the first character that does not satisfy char-symbol-constituent?.
+      (let ((end (string-first-character string #.(charset-vector ":\\ \n\t") beg))) ;; TODO: This should be the first character that does not satisfy char-symbol-constituent?.
         (cond (end
                (write-strings port
                               (substring string beg end)

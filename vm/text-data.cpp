@@ -881,7 +881,7 @@ LRef lstring_first_substring(LRef string, LRef char_set, LRef maybe_initial_ofs)
           vmerror_wrong_type(2, char_set);
 
      if (substring_length == 0)
-          return boolcons(false);
+          return boolcons(false); // REVISIT: If substring_length is zero, the first substring is the empty string and not #f.
      else
           return fixcons(loc);
 }
