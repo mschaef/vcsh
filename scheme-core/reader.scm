@@ -252,11 +252,15 @@
                    #\( #\) #\[ #\] #\' #\{ #\}
                    #\; #\: #\" #\# #\, #\ #\\))
 
-(define (char-symbol-constituent? ch) ;; TODO: The printer should honor this predicate when printing symbols
+(define (char-symbol-delimiter? ch)
+  "Returns <ch> if it is a character that is normally read as a delimiter between
+   symbols if unescaped. Returns #f otherwise."
+  (vector-ref *charset-symbol-delimiter* ch))
+
+(define (char-symbol-constituent? ch)
   "Returns <ch> if it is a character that is normally read as part of a symbol
    even if unescaped. Returns #f otherwise."
   (not (vector-ref *charset-symbol-delimiter* ch)))
-
 
 (define (read-token port :optional (accept-any-first-character? #f))
   "Reads a token from <port>. A token is defined as the sequence of characters
