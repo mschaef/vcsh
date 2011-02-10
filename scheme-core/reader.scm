@@ -123,6 +123,7 @@
   :reader-eos-in-list "End of input while reading list"
   :reader-eos-in-string "End of input while reading string"
   :reader-unexpected-close "Unexpected close"
+  :reader-unexpected-open "Unexpected open"
   :reader-unknown-syntax "Unknown syntax"
   )
 
@@ -246,7 +247,7 @@
   (read-char port)
   #f)
 
-(define *charset-symbol-constituent* 
+(define *charset-symbol-delimiter* 
  #.(charset-vector *charset-whitespace*
                    #\( #\) #\[ #\] #\' #\{ #\}
                    #\; #\: #\" #\# #\, #\ #\\))
@@ -254,7 +255,7 @@
 (define (char-symbol-constituent? ch) ;; TODO: The printer should honor this predicate when printing symbols
   "Returns <ch> if it is a character that is normally read as part of a symbol
    even if unescaped. Returns #f otherwise."
-  (not (vector-ref *charset-symbol-constituent* ch)))
+  (not (vector-ref *charset-symbol-delimiter* ch)))
 
 
 (define (read-token port :optional (accept-any-first-character? #f))
@@ -570,6 +571,11 @@
                   it
                   (accept-symbol (open-input-string tok) port location))))))
 
+(define (read-unexpected-open port)
+  ;; Skip the unexpected open, in order to make progress
+  (read-char port)
+  (read-error :reader-unexpected-open port (port-location port)))
+
 (define (read-unexpected-close port)
   ;; Skip the unexpected close, in order to make progress
   (read-char port)
@@ -596,6 +602,9 @@
 
   (set-char-syntax! *read-syntax* #\[ 'read-message-send)
   (set-char-syntax! *read-syntax* #\] 'read-unexpected-close)
+
+  (set-char-syntax! *read-syntax* #\{ 'read-unexpected-open)
+  (set-char-syntax! *read-syntax* #\} 'read-unexpected-close)
 
   (set-char-syntax! *read-syntax* #\" 'read-string)
 
