@@ -5,7 +5,7 @@
 ; A utility to dump binary files as hexadecimal
 
 (define (number->field-string num width base)
-  (let* ((s (string-append (make-string #\0 width) (number->string num base)))
+  (let* ((s (string-append (make-string width #\0) (number->string num base)))
 	 (l (string-length s)))
     (substring s (- l width))))
 
@@ -19,9 +19,14 @@
 (define *show-bytes* #t)
 (define *decimal-offset* #f)
 
-(define-command-argument ("bytes-per-line")
+(define (arg-integer-value text)
+  (aif (string->number text)
+       it
+       (throw 'invalid-argument "Expected numeric argument")))
+
+(define-command-argument ("bytes-per-line" bytes-per-line)
   "Specifies the number of bytes shown per line"
-  (let ((val (arg-integer-value arg)))
+  (let ((val (arg-integer-value bytes-per-line)))
     (when (<= val 0)
       (throw 'invalid-argument "bytes-per-line must be >0.")) ; TODO: this message should print
     (set! *bytes-per-line* val)))
@@ -42,9 +47,9 @@
   "Suppresses display of the individual bytes."
   (set! *show-bytes* #f))
 
-(define-command-argument ("relative-offset")
+(define-command-argument ("relative-offset" offset)
   "Displays file addresses with a relative offset from the specified byte."
-  (set! *relative-offset* (arg-integer-value arg)))
+  (set! *relative-offset* (arg-integer-value offset)))
 
 (define-file-argument-handling
   (set! *input-filename* arg))
@@ -85,5 +90,6 @@
 	(format #t "; ~a\n" *input-filename*)
 	(with-port input-port (open-input-file *input-filename* :binary)
 	  (dump-port input-port)))))))
+
 
 
