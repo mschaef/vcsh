@@ -264,10 +264,7 @@
          (format #t "{~a}" it)) ;; REVISIT: May be possible to make this a bit more readable, by using fixed-width columns.
        (when (inspect-item-has-key? obj-elem)
          (format #t ":~s -" (inspect-item-key obj-elem)))
-       (format #t "> ~s\n" (inspect-item-value obj-elem))))
-
-   ))
-
+       (format #t "> ~s\n" (inspect-item-value obj-elem))))))
 
 (define (inspect-repl obj)
   (let retry ((ctx (object->inspect-ctx obj)))
@@ -276,7 +273,6 @@
       (let ((input (inspect-read)))
         (inspect-repl (inspect-eval input obj ctx))
         (retry ctx)))))
-
 
 (define (inspect obj)
   "Inspects <obj>. The inspector is a variant of a REPL that is used
