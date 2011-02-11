@@ -43,7 +43,7 @@
                scheme::fast-op)
              '(scheme::*package-list*
                scheme::*provided-packages*)
-             '(scheme::iterate-sequence-expander)
+;             '(scheme::iterate-sequence-expander)
              '(scheme::it
                scheme::_)
              '(scheme::and
@@ -57,7 +57,7 @@
                scheme::eq?
                scheme::equal?
                scheme::member)
-             (map caar (scheme::all-iterate-sequence-types))
+;             (map caar (scheme::all-iterate-sequence-types))
              (compiler::special-form-symbols)))
 
 ;; Exclude packages that are in common between the host and the target.

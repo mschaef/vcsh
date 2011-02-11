@@ -160,8 +160,8 @@
     (let ((existing-layout (car it)))
       (set-car! existing-layout (list :orphaned (car existing-layout))))
     (remove-property! structure-type-name 'structure-meta))
-  ;; Let the type system know about our new type
-  (make-class< structure-type-name 'structure)
+  ;; Let the type system know about our new type ; REVISIT: Disabled, because structure.scm was moved ahead of the type graph code in the bootup sequence
+  ;;(make-class< structure-type-name 'structure)
   ;; Register the type itself.
   (set-property! structure-type-name 'structure-meta meta)
   (unless (member structure-type-name *global-structure-dictionary*)

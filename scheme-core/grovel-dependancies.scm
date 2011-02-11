@@ -6,7 +6,7 @@
    sophisticated at all.  Also, note that the file is scanned in the
    current *package*, so if scheme:include is not available in that
    package, this may not return the expected list."
-  (iterate/r ((file-forms form source-filename))
+  (iterate/r ((:file-forms form source-filename))
              ((dep-filenames ()))
              (if (and (list? form)
                       (eq? (car form) 'scheme:include))
