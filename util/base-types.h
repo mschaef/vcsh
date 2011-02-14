@@ -157,6 +157,10 @@ enum
 #  define ecvt _ecvt
 #endif
 
+#ifdef SCAN_UNIX
+#  include <strings.h>
+#endif
+
 /*** Interpreter specific types ***/
 
 #define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
