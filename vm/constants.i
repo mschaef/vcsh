@@ -272,7 +272,7 @@ END_VM_CONSTANT_TABLE(vminterrupt_t, vminterrupt_name)
 
 BEGIN_VM_CONSTANT_TABLE(sys_retcode_t, sys_retcode_name)
   VM_CONSTANT(SYS_OK              , 0 )      /* No error */
-  VM_CONSTANT(SYS_E_NO_FILE       , 1 )      /* No such file or directory */
+  VM_CONSTANT(SYS_E_NO_FILE       , 1 )      /* No such file, directory, or devic */
   VM_CONSTANT(SYS_E_IO_ERROR      , 2 )      /* I/O error */
   VM_CONSTANT(SYS_E_BAD_ARGUMENT  , 3 )      /* Invalid argument */
   VM_CONSTANT(SYS_E_OUT_OF_MEMORY , 4 )      /* Out of memory */

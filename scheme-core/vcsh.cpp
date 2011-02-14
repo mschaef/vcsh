@@ -4,6 +4,8 @@
  * The vcalc console's main 'shell' program.
  */
 
+#include <signal.h>
+
 #include "../vm/scan.h"
 
 void sigint_handler(int i)

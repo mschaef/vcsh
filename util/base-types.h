@@ -222,10 +222,19 @@ typedef u8_t *data_block_data_t;
 typedef unsigned long          size_t;
 #endif
 
+#ifdef SCAN_WINDOWS
+#  pragma warning (push)
+#  pragma warning (disable: 4200)
+#endif
+
 struct data_block_t
 {
      size_t _length;    
      data_block_data_t _bytes;
 };
+
+#ifdef SCAN_WINDOWS
+#  pragma warning (pop)
+#endif
 
 #endif
