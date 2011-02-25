@@ -378,7 +378,7 @@
   (format port ";    VM Build ID     : ~a (~a)\n" (system-info :vm-build-id) (system-info :build-type))
   (format port ";    Scheme Build ID : ~a\n" (system-info :scheme-build-id))
   (format port ";\n")
-  (format port "; (C) Copyright 2001-2009 East Coast Toolworks Inc.\n")
+  (format port "; (C) Copyright 2001-2011 East Coast Toolworks Inc.\n")
   (format port "; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.\n")
   (format port "\n"))
 
