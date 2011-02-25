@@ -144,6 +144,42 @@ string.
      
      ; time = 43.5350 ms (23.3381 gc), 259631 cons work
 
+Controlling vcsh heap sizes
+================
+
+The heap size used by vcsh can be adjusted with two command line
+arguments:
+
+  -Xheap-segment-size=<n>(K|M|G)
+
+  -Xmax-heap-segments=<b>
+
+'Xheap-segment-size' controls the size of a heap segment. The VM will
+start out with one heap segment and can enlarge the number of heaps up
+to the number specfied in 'Xmax-heap-segments'. Here's how these
+options could be used to guarantee a heap that doesn't grow beyond 4MB.
+
+     ./vcsh -Xheap-segment-size=4M -Xmax-heap-segments=1
+
+The current heap enlargement strategy will only allocate new heap
+segments when all existing segments are full after a GC cycle. In
+cases where a heap is mostly full, this can negatively impact
+performance by requiring too many GC cycles for the progress being
+made in the computation. This can be addressed by manually enlarging
+the heap from scheme code. The 'enlarge-heap' function takes a target
+number of heap segments and enlarges the heap to that size.
+
+     user> (enlarge-heap 20)
+     
+     ; time = 171.349 ms (0.00000 gc), 10985 cons work
+     ; ##0 = 20
+
+
+To monitor GC behavior, the 'show-gc' debug flag can be set to cause
+the GC to print messages describing what it's doing.
+
+     ./vcsh -Xdebug-flags=show-gc
+
 Running the benchmark suite
 ================
 
