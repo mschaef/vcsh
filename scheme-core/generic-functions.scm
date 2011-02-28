@@ -42,6 +42,9 @@
   "%Invalidiates the method list cache."
   (set! *generic-function-method-list-cache* (make-hash :equal)))
 
+(add-hook-function! '*class-graph-update-hook*
+                    'invalidate-method-list-cache!)
+
 (define (generic-function-methods generic-function)
   (check generic-function? generic-function)
   (get-property generic-function 'method-table ()))

@@ -108,7 +108,7 @@
           (#t
            #f))))
 
-(define (invalidate-method-list-cache!) #t) ; Forward declaration
+(define *class-graph-update-hook* ())
 
 (define (make-class< sub super)
   "Defined <sub> to be a subclass of <super>."
@@ -118,7 +118,7 @@
   (awhen (class-superclass sub)
          (info "Replacing the existing superclass of ~a, ~a, with ~a"
                sub it super))
-  (invalidate-method-list-cache!)
+  (invoke-hook '*class-graph-update-hook*)
   (hash-set! *class-graph* sub super))
 
 (define (all-classes)
