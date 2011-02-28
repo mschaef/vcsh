@@ -4,8 +4,6 @@
  * Code for debugging tools built into the VM.
  */
 
-#include <strings.h>
-
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

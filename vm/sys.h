@@ -2,7 +2,15 @@
 #ifndef __SYS_H
 #define __SYS_H
 
-#include <sys/time.h>
+#ifdef SCAN_UNIX                /*  REVISIT: Can these ifdef's be removed? */
+#  include <sys/time.h>
+#endif
+
+#ifdef SCAN_WINDOWS
+#  include <time.h>
+#  include <windows.h>
+#endif
+
 #include <limits.h>
 
 #include "../util/base-types.h"
@@ -17,8 +25,8 @@
 #endif
 
 #ifdef SCAN_WINDOWS
-#  define SYS_PATH_MAX _MAX_PATH
-#  define SYS_NAME_MAX _MAX_PATH
+#  define SYS_PATH_MAX MAX_PATH
+#  define SYS_NAME_MAX MAX_PATH
 #endif
 
 BEGIN_NAMESPACE(scan)

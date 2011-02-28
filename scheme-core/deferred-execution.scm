@@ -76,7 +76,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_TIMER_EVENT timer-event-handler))
 
-;;; TODO: Remove deferred scheduled events
+;;; REVISIT: Remove deferred scheduled events
 ;;;
 ;;; This can be done by having process-*-events make its list of pending events
 ;;; and updating the scheduled event list prior to actually executing the pending

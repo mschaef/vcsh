@@ -62,31 +62,17 @@
 (define-file-argument-handling
   (set! *files-to-compile* (append *files-to-compile* (list arg))))
 
-(define (show-compiler-settings)
-  (when *verbose*
-    (format #t "~&\nCompiler settings:")
-    (format #t "~&----------------------------------------------------------------")
-    (format #t "~&Input file~a              : ~a" (if (> (length *files-to-compile*) 1)
-                                                      "s " "  ") *files-to-compile*)
-    (format #t "~&Output file name          : ~a" *output-file-name*)
-    (format #t "~&Initial package           : ~a" *initial-package*)
-    (format #t "~&Debug output              : ~a" (if *debug* "on" "off"))
-    (format #t "~&Verbose output            : ~a" (if *verbose* "on" "off"))
-    (format #t "~&Load files                : ~a" *compiler-load-files*)
-    (newline)))
 
 (define (load-compiler-load-files)
   (dolist (file *compiler-load-files*)
-    (format #t "; Loading compiler load file: ~s\n" file)
-    (load file)
-    (format #t "; Done loading compiler load file: ~s\n" file))) ; REVISIT: error check this?
-
+    (compiler::trace-message #t "; Loading compiler load file: ~s\n" file)
+    (load file) ; REVISIT: error check this?
+    (compiler::trace-message #t "; Done loading compiler load file: ~s\n" file)))
 
 
 (define (run)
   (enlarge-heap 50)
   (scheme::%set-stack-limit #f)
-  (show-compiler-settings)
   (scheme::initialize-user-package)
     
   (load-compiler-load-files)

@@ -14,7 +14,7 @@
 
 #ifdef SCAN_WINDOWS
 #  pragma warning (push)
-#    pragma warning (disable: 4668 4826)
+#  pragma warning (disable: 4668 4826)
 #    include <windows.h>
 #  pragma warning (pop)
 #endif
@@ -80,7 +80,7 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
     *dir = (sys_dir_t *)safe_malloc(sizeof(sys_dir_t));
 
     if (*dir == NULL)
-      return SYS_ENOMEM;
+      return SYS_E_OUT_OF_MEMORY;
 
 
     (*dir)->_fh = FindFirstFile(path_buf, &((*dir)->_fd));
@@ -433,37 +433,26 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
 
     switch(rc) {
     case NO_ERROR:                                     return SYS_OK;
-    case ERROR_INVALID_FUNCTION:                       return SYS_ENOSYS;
-    case ERROR_FILE_NOT_FOUND:                         return SYS_ENOENT;
-    case ERROR_PATH_NOT_FOUND:                         return SYS_ENOENT;
-    case ERROR_TOO_MANY_OPEN_FILES:                    return SYS_EMFILE;
-    case ERROR_ACCESS_DENIED:                          return SYS_EACCES;
-    case ERROR_INVALID_HANDLE:                         return SYS_EBADF;
-    case ERROR_NOT_ENOUGH_MEMORY:                      return SYS_ENOMEM;
-    case ERROR_INVALID_BLOCK:                          return SYS_EBADF;
-    case ERROR_OUTOFMEMORY:                            return SYS_ENOMEM;
-    case ERROR_INVALID_DRIVE:                          return SYS_ENODEV;
-    case ERROR_CURRENT_DIRECTORY:                      return SYS_EPERM;
-    case ERROR_NO_MORE_FILES:                          return SYS_EMFILE;
-    case ERROR_WRITE_PROTECT:                          return SYS_EROFS;
-    case ERROR_BAD_UNIT:                               return SYS_ENODEV;
-    case ERROR_SEEK:                                   return SYS_ESPIPE;
-    case ERROR_WRITE_FAULT:                            return SYS_EIO;
-    case ERROR_READ_FAULT:                             return SYS_EIO;
-    case ERROR_GEN_FAILURE:                            return SYS_EIO;
-    case ERROR_HANDLE_DISK_FULL:                       return SYS_ENOSPC;
-    case ERROR_DEV_NOT_EXIST:                          return SYS_ENODEV;
-    case ERROR_BUFFER_OVERFLOW:                        return SYS_ENOSPC;
-    case ERROR_BUSY:                                   return SYS_EBUSY;
-    case ERROR_INVALID_EXE_SIGNATURE:                  return SYS_ENOEXEC;
-    case ERROR_EXE_MARKED_INVALID:                     return SYS_ENOEXEC;
-    case ERROR_BAD_EXE_FORMAT:                         return SYS_ENOEXEC;
-    case ERROR_SERIAL_NO_DEVICE:                       return SYS_ENODEV;
-    case ERROR_BAD_DEVICE:                             return SYS_ENODEV;
-    case ERROR_NETWORK_UNREACHABLE:                    return SYS_ENETUNREACH;
-    case ERROR_PROTOCOL_UNREACHABLE:                   return SYS_EPFNOSUPPORT;
-    case ERROR_CONNECTION_ABORTED:                     return SYS_ECONNABORTED;
-
+    case ERROR_INVALID_FUNCTION:                       return SYS_E_BAD_ARGUMENT;
+    case ERROR_FILE_NOT_FOUND:                         return SYS_E_NO_FILE;
+    case ERROR_PATH_NOT_FOUND:                         return SYS_E_NO_FILE;
+    case ERROR_TOO_MANY_OPEN_FILES:                    return SYS_E_OUT_OF_MEMORY;
+    case ERROR_ACCESS_DENIED:                          return SYS_E_NOT_PERMITTED;
+    case ERROR_INVALID_HANDLE:                         return SYS_E_BAD_ARGUMENT;
+    case ERROR_NOT_ENOUGH_MEMORY:                      return SYS_E_OUT_OF_MEMORY;
+    case ERROR_INVALID_BLOCK:                          return SYS_E_BAD_ARGUMENT;
+    case ERROR_OUTOFMEMORY:                            return SYS_E_OUT_OF_MEMORY;
+    case ERROR_INVALID_DRIVE:                          return SYS_E_NOT_DIRECTORY;
+    case ERROR_CURRENT_DIRECTORY:                      return SYS_E_NOT_PERMITTED;
+    case ERROR_WRITE_PROTECT:                          return SYS_E_NOT_PERMITTED;
+    case ERROR_BAD_UNIT:                               return SYS_E_NO_FILE;
+    case ERROR_SEEK:                                   return SYS_E_BAD_ARGUMENT;
+    case ERROR_WRITE_FAULT:                            return SYS_E_IO_ERROR;
+    case ERROR_READ_FAULT:                             return SYS_E_IO_ERROR;
+    case ERROR_GEN_FAILURE:                            return SYS_E_IO_ERROR;
+    case ERROR_HANDLE_DISK_FULL:                       return SYS_E_NO_SPACE;
+    case ERROR_DEV_NOT_EXIST:                          return SYS_E_NO_FILE;
+    case ERROR_BUFFER_OVERFLOW:                        return SYS_E_NAME_TOO_LONG;
     default:
       debug_printf(_T("Unknown return value from Windows API: 0x%08x"), rc);
 
@@ -478,7 +467,7 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
           debug_printf(_T("Additional details: %s"), msg_buf);
         }
 
-      return SYS_EWIERD;
+      return SYS_E_FAIL;
     }
   }
 
@@ -496,7 +485,7 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
     sys_stack_start = (u8_t *)&stack_location;
 
     if (sys_init_time() != SYS_OK)
-      return SYS_ENOTRECOVERABLE;
+      return SYS_E_FAIL;
 
     sys_set_stack_limit(DEFAULT_STACK_SIZE);
 	

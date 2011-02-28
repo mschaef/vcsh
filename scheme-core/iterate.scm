@@ -61,10 +61,11 @@
   (check list? seq-lambda-list)
   (check symbol? (car seq-lambda-list))
   (check (not null?) forms)
-  `(set-iterate-sequence-expander! ',(car seq-lambda-list)
-                                   (lambda ,(cdr seq-lambda-list) ,@forms)))
+  `(eval-when (:load-toplevel :compile-toplevel :execute)
+     (set-iterate-sequence-expander! ',(car seq-lambda-list)
+                                     (lambda ,(cdr seq-lambda-list) ,@forms))))
 
-(define-iterate-sequence-expander (count var :optional (start 0) (end #f) (step 1))
+(define-iterate-sequence-expander (:count var :optional (start 0) (end #f) (step 1))
   "Binds <var> to successive numbers, starting at <start> and stepping by <step>
    on each iteration.  If <end> is specified, the loop stops on the iteration
    in which <var> reaches <end> (If that never happens, the sequence never
@@ -81,7 +82,7 @@
                                ()))
      :terminate?-form   (if end `(>= ,var ,end-value-sym) #f))))
 
-(define-iterate-sequence-expander (show-progress interval :optional (op (current-output-port)))
+(define-iterate-sequence-expander (:show-progress interval :optional (op (current-output-port)))
   "Displays a progress indicator on <op> for every <interval> iterations
    through the loop."
   (unless (and (number? interval) (> interval 1))
@@ -96,7 +97,7 @@
                             (format ,op-sym "[~a]" ,count-sym))
                           #f))))
 
-(define-iterate-sequence-expander (list var xs)
+(define-iterate-sequence-expander (:list var xs)
   "Binds <var> to successive elements of list <xs>, ending the loop at
    the end of <xs>. <xs> must be a proper, non-dotted, list."
   (unless (symbol? var)
@@ -107,7 +108,7 @@
      :body-vars       `((,var (car ,list-pos-sym)))
      :terminate?-form `(end-of-list? ,list-pos-sym))))
 
-(define-iterate-sequence-expander (vector var vec)
+(define-iterate-sequence-expander (:vector var vec)
   "Binds <var> to successive elements of vector <xs>, ending the loop at
    the end of <xs>."
   (unless (symbol? var)
@@ -118,7 +119,7 @@
      :body-vars         `((,var (vector-ref ,vec-sym ,ii-sym)))
      :terminate?-form   `(>= ,ii-sym (length ,vec-sym)))))
 
-(define-iterate-sequence-expander (file-lines line-var filename)
+(define-iterate-sequence-expander (:file-lines line-var filename)
   "Binds <line-var> to successive lines of the text file named by <filename>,
    ending the loop at the end of the file."
   (unless (symbol? line-var)
@@ -129,7 +130,7 @@
      :enclosing-form    `(with-port ,file-lines-port-sym (open-input-file ,filename))
      :terminate?-form   `(port-at-end? ,file-lines-port-sym))))
 
-(define-iterate-sequence-expander (file-forms line-var filename)
+(define-iterate-sequence-expander (:file-forms line-var filename)
   "Binds <line-var> to successive Lisp forms of the text file named by <filename>,
    ending the loop at the end of the file. No kind of form evaluation is done at
    all, during the read."

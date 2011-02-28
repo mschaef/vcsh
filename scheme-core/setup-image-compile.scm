@@ -9,8 +9,7 @@
   (:uses "scheme"
          "compiler"))
 
-;; TODO: Use compiler messaging facilities.
-(format (current-error-port) ";;;; Configuring for cross compile of Scheme image.\n")
+(compiler::trace-message #t ";;;; Configuring for cross compile of Scheme image.\n")
 
 (define *shared-target-symbols* ;; REVISIT: Better way to build this list? Please?
   (set-union '(compiler::%%begin-load-unit-boundaries
@@ -43,7 +42,6 @@
                scheme::fast-op)
              '(scheme::*package-list*
                scheme::*provided-packages*)
-             '(scheme::iterate-sequence-expander)
              '(scheme::it
                scheme::_)
              '(scheme::and
@@ -57,7 +55,6 @@
                scheme::eq?
                scheme::equal?
                scheme::member)
-             (map caar (scheme::all-iterate-sequence-types))
              (compiler::special-form-symbols)))
 
 ;; Exclude packages that are in common between the host and the target.

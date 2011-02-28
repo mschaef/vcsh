@@ -157,6 +157,10 @@ enum
 #  define ecvt _ecvt
 #endif
 
+#ifdef SCAN_UNIX
+#  include <strings.h>
+#endif
+
 /*** Interpreter specific types ***/
 
 #define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
@@ -222,10 +226,19 @@ typedef u8_t *data_block_data_t;
 typedef unsigned long          size_t;
 #endif
 
+#ifdef SCAN_WINDOWS
+#  pragma warning (push)
+#  pragma warning (disable: 4200)
+#endif
+
 struct data_block_t
 {
      size_t _length;    
      data_block_data_t _bytes;
 };
+
+#ifdef SCAN_WINDOWS
+#  pragma warning (pop)
+#endif
 
 #endif
