@@ -1,15 +1,20 @@
 
-/* to-c-source.cpp
- * July 4th, 2007
+/*
+ * to-c-source.cpp --
  *
  * A utility for dumping the contents of a file into something that can
  * be read as a variable declaration by a c compiler.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include <stdio.h>
 
 #include "base-types.h"
-
 
 struct write_state
 {

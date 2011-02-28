@@ -1,8 +1,14 @@
 
-/* base-tchar.h
- * September 14th, 2006
- * 
- * _TCHAR and associated definitios
+/*
+ * base-tchar.h --
+ *
+ * _TCHAR and associated definitions.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #ifndef __BASE_TCHAR_H
@@ -56,4 +62,4 @@ typedef char _TCHAR;
 #  endif
 #endif                          /* SCAN_WINDOWS */
 
-#endif                          /* __UTIL_TCHAR */
+#endif                          /* __BASE_TCHAR_H */

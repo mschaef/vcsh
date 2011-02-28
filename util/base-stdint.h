@@ -1,6 +1,14 @@
 
-/* base-stdint.h
- * September 14th, 2006
+/*
+ * base-stdint.h --
+ *
+ * A standard way to get access to stdint.h.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #ifndef __BASE_STDINT_H
@@ -20,4 +28,4 @@
 #  endif
 #endif
 
-#endif                          /* __UTIL_TCHAR */
+#endif                          /* __BASE_STDINT_H */
