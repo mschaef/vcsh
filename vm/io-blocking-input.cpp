@@ -1,5 +1,8 @@
 
-/* io-blocking-input.cpp
+/*
+ * io-blocking-input.cpp --
+ *
+ * The blocking input port class.
  *
  * This port class allows data to be read from a blocking input:
  * an input that doesn't always have available data. To read
@@ -7,6 +10,12 @@
  * that waits for input and passes it back to the port. While
  * waiting for available input the read function is free to do
  * as it wishes.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include <memory.h>

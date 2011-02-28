@@ -1,7 +1,15 @@
 
-/* macro.cpp
+/*
+ * macro.cpp --
  *
- * scan Common Lisp macro code
+ * The primitive macro type. All of the macro logic is in the compiler,
+ * with the internal type serving as a marker only.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include "scan.h"

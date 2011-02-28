@@ -1,12 +1,15 @@
 
-/* error.cpp
+/*
+ * error.cpp --
  *
- * SIOD error handling code.
+ * Entry points for standard kinds of VM errors.
  *
- * This implements a simple exception handling mechanism, reborrowed
- * from the original SIOD. Parallel to the execution stack, a stack
- * of catch frames is maintained. Throwing an error searches back up
- * the catch frame list and longjmps back to that frame's stack frame.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include "scan.h"

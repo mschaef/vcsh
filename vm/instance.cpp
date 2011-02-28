@@ -1,15 +1,16 @@
 
-/* instance.cpp
+/*
+ * instance.cpp --
  *
- * A simple prototype based object system. All slot references
- * on an instance search up the prototype chain to find their
- * referent. Slot sets always take place in the instance for
- * which they were called.  The proto fields an have one of
- * several possible values:
+ * A simple prototype based object system. This should be considered
+ * to be experimental.
  *
- * #f - Signals a base instance
- * symbol - A reference to a symbol whose value is the prototype
- * hash - A litereal prototype instance.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include "scan.h"

@@ -1,8 +1,14 @@
 
-/* structure.cpp
+/*
+ * structure.cpp --
  *
- * SIOD struture code. This contains the implementations for
- * structures
+ * The primitive implementation of structures.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include "scan.h"

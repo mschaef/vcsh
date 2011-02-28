@@ -1,10 +1,17 @@
-/* scansh0.cpp
- * January 14th, 2006
+
+/*
+ * scansh0.cpp --
  *
  * This is the scheme interpreter used during bootstrap. It
  * is as simple as possible: it has no internal scheme code
  * and all it does is load the files named at the command
  * line one after another.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include <stdio.h>

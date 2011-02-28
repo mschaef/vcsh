@@ -1,9 +1,11 @@
 
-/* mt19937.h
- * March 19th, 2006
+/*
+ * mt19937.cpp --
  *
- * Mersenne Twister RNG, from the official site. See the C file for
- * copyright details, etc.
+ * Mersenne Twister RNG, from the official site:
+ *
+ * Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
+ *  All rights reserved.
  */
 
 #ifndef __MT19937_H

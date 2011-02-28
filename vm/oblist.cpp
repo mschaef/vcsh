@@ -1,9 +1,23 @@
 
-/* oblist.cpp
+/*
+ * oblist.cpp --
  *
  * Package and symbol code.
  *
- * This is an oblist implementation that provides a subset of
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ */
+
+#include <string.h>
+
+#include "scan.h"
+
+BEGIN_NAMESPACE(scan)
+
+/* This is an oblist implementation that provides a subset of
  * Common Lisp-style package semantics.
  *
  * The core package tuple contains three fields:
@@ -17,12 +31,6 @@
  * - use_list - A list of child packages used by the current
  *   package.
  */
-
-#include <string.h>
-
-#include "scan.h"
-
-BEGIN_NAMESPACE(scan)
 
 /*** Utility Functions ***/
 static bool list_of_packages_p(LRef pkgs)

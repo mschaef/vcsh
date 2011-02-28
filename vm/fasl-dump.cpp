@@ -1,7 +1,16 @@
-/* fasl-dump.cpp
- * Jume 26th, 2007
+
+/*
+ * fasl-dump.cpp --
  *
- * A utility for dumping the contents of a FASL file in readable form.
+ * A stand alone utility for dumping the contents of a FASL file in
+ * a human readable format.
+ *
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include <stdio.h>
