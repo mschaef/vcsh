@@ -716,6 +716,7 @@
              set-union
              set-union/eq
              shadow-symbol!
+             show-progress
              show-runtime-error
              show-type-delta
              show-type-stats

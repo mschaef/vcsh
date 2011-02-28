@@ -81,6 +81,21 @@
                                ()))
      :terminate?-form   (if end `(>= ,var ,end-value-sym) #f))))
 
+(define-iterate-sequence-expander (show-progress interval :optional (op (current-output-port)))
+  "Displays a progress indicator on <op> for every <interval> iterations
+   through the loop."
+  (unless (and (number? interval) (> interval 1))
+    (error "Progress intervals need to be numbers >1: ~s" interval))
+  (with-gensyms (count-sym interval-sym op-sym)
+    (make-iterate-sequence-expansion
+     :state-vars       `((,count-sym 0 (+ ,count-sym ,1))
+                         (,interval-sym ,interval ,interval-sym)
+                         (,op-sym ,op ,op-sym))
+     :terminate?-form  `(begin
+                          (when (= 0 (remainder ,count-sym ,interval-sym))
+                            (format ,op-sym "[~a]" ,count-sym))
+                          #f))))
+
 (define-iterate-sequence-expander (list var xs)
   "Binds <var> to successive elements of list <xs>, ending the loop at
    the end of <xs>. <xs> must be a proper, non-dotted, list."
