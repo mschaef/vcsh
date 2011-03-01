@@ -1,8 +1,14 @@
-;;;; number.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; Number library procedures
+
+;;;; number.scm --
+;;;;
+;;;; The numeric library
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define (trap-fixnum-overflow trapno fsp arg-0 arg-1)
   (error "Fixnum overflow (trapno=~a, arg-0=~a, arg-1=~a)" trapno arg-0 arg-1))

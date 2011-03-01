@@ -1,13 +1,18 @@
-;;;; iterate.scm
-;;;; June 4th, 2008
+
+;;;; iterate.scm --
 ;;;;
-;;;; iterate and iterate/r, macros for more involved iteration scenarios.
-;;;; The call interface to iterate and iterate/r is borrowed from Scheme48,
-;;;; although the underlying implementation and the mechanism for defining
-;;;; new sequence types is specific to vcsh.
+;;;; The iterate family of looping macros.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
-
-;; REVISIT: a macro sequence-values that takes a bounded sequence specification and returns it as a list
+;; REVISIT: a macro sequence-values that takes a bounded sequence
+;;          specification and returns it as a list
+;;
 ;; TESTTHIS: iterate needs a test suite...
 
 (define-structure iterate-sequence-expansion

@@ -1,10 +1,15 @@
-;;;; subrs.scm
-;;;; January 19th, 2008
-;;;; Mike Schaeffer
-;;;
-;;; Lisp references to native SUBRs.
 
-;; primitive functions
+;;;; subrs.scm --
+;;;;
+;;;; Lisp references to native SUBRs.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
 (%define %closure #.(host-scheme::%subr-by-name "%closure"))
 (%define %closure-code #.(host-scheme::%subr-by-name "%closure-code"))
 (%define %closure-env #.(host-scheme::%subr-by-name "%closure-env"))

@@ -1,12 +1,19 @@
-;;;; structure.scm
-;;;; January 20th, 2008
-;;;; Mike Schaeffer
-;;;
-;;; Lisp code for structures. Internally, structures are very closely
-;;; related to vectors with two additions: 1) user definable type tags
-;;; and 2) specific per-structure-type accessor functions. Most of what's
-;;; in this file is the machinery for implementing this higher level
-;;; logic.
+
+;;;; structure.scm --
+;;;;
+;;;; Lisp code for structures
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
+;;; Internally, structures are very closely related to vectors with two
+;;; additions: 1) user definable type tags and 2) specific
+;;; per-structure-type accessor functions. Most of what's in this file is
+;;; the machinery for implementing this higher level logic.
 ;;;
 ;;; The metadata for a structure type has three main parts:
 ;;;

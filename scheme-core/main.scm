@@ -1,10 +1,15 @@
-;;;; main.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;;;
-;;;; Scheme interpreter initialization file. This is where the interpreter
-;;;; is actually booted up.
 
+;;;; main.scm --
+;;;;
+;;;; The interpreter's default entry point and command line
+;;;; argument processing.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 ;;; Command line argument parser
 

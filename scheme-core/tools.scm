@@ -1,12 +1,15 @@
-;;;; tools.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; A library of debugging related tools that gets included in the Scheme core/
 
-
-
-;;; Debugger support
+;;;; tools.scm --
+;;;;
+;;;; A library of debugging related tools that gets included in the
+;;;; Scheme core.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define (frame->a-list frame)
   "Given a local environment frame <frame>, return the frame's bindings

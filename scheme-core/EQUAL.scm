@@ -1,8 +1,16 @@
-;;;; EQUAL.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; The big, bad EQUAL function
+
+;;;; EQUAL.cpp --
+;;;;
+;;;; A stronger equality test than than the usual equal?. This
+;;;; form checks for structure equivalence in additon to value
+;;;; equivalence.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define (EQUAL? x y)
   "The most strict equality check, returns #t iff two objects are both equal? and

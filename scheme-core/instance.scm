@@ -1,6 +1,14 @@
-;;;; instance.scm
+
+;;;; instance.scm --
 ;;;;
-;;;; Instances.
+;;;; The implementation of prototype based object instances.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define (message-not-understood-handler trapno instance message-name)
   (error "Message ~s not understood by ~s" message-name instance))

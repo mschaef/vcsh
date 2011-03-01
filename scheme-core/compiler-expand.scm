@@ -1,7 +1,16 @@
-;;;; compiler-expand.scm
+
+;;;; compiler-expand.scm --
 ;;;;
 ;;;; The expander. This expands incoming lisp forms into a dialect of the
-;;;; language that only uses core forms.
+;;;; language that only uses core forms understood by the semantic
+;;;; analysis phase.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define *show-expansions* #f)
 

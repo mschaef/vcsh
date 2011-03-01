@@ -1,4 +1,16 @@
-;;; image-bootstrap.scm
+
+;;;; image-bootstrap.scm --
+;;;;
+;;;; Bootstrap definitions. CURRENTLY UNUSED.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
+
 ;;;
 ;;; These are the initial definitions loaded into an image compile, 
 ;;; immediately after the constants and subrs are loaded. They're used

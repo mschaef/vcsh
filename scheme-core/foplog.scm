@@ -1,4 +1,17 @@
 
+;;;; foplog.scm --
+;;;;
+;;;; Scheme level support for the VM's optional FOPLOG facility.
+;;;; This module provides tools for generating distributions of FOPs
+;;;; encountered during execution, as well as FOP sequences.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
 (define-package "foplog"
   (:uses "scheme")
   (:exports "fop-histogram"

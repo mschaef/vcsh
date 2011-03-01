@@ -1,4 +1,15 @@
 
+;;;; gc-stress-tests.scm --
+;;;;
+;;;; A handful of stress tests for the GC.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
 (define-package "gc-stress-tests"
   (:uses "scheme")
   (:exports "gc-stress-test-1"
@@ -11,8 +22,9 @@
 ;; (%lisp-heap-stress-thread type count sleep-duration)
 ;;
 ;; type - The type of stress thread to create:
-;;    0 - Allocate <count> transient conses in a tight loop and terminate, sleeping
-;;        <sleep-duration> ms per iteration. <count> of <0 requests an infinte loop.
+;;    0 - Allocate <count> transient conses in a tight loop and terminate,
+;;        sleeping <sleep-duration> ms per iteration. <count> of <0
+;;        requests an infinte loop.
 ;;    1 - Allocate <count> GC tripwires in recursively invoked stack frames,
 ;;        sleep <sleep-duration> ms, unwind the stack, and terminate.
 ;;    2 - Repeatedly invoke garbage collection and terminate.

@@ -1,15 +1,22 @@
-;;;; package.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; Package functions
 
-;; This is really an attribute of the loader, but because package
-;; definitions require access to the load hook, it's defined here.
-;;
-;; REVISIT: This is just a specific sympton of the general problem
-;; that the s-core load order is poorly defined. This should be
-;; fixed.
+;;;; package.scm --
+;;;;
+;;;; Support for packages and the global environment.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
+;;;; This is really an attribute of the loader, but because package
+;;;; definitions require access to the load hook, it's defined here.
+;;;;
+;;;; REVISIT: This is just a specific sympton of the general problem
+;;;;          that the s-core load order is poorly defined. This
+;;;;          should be fixed.
+
 (define *finalize-load-hook* ())
 
 (define (list-all-packages)

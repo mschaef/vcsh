@@ -1,9 +1,18 @@
-;;;; memoize.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; A function result cache facility.
-;;; REVISIT: *memoize-result-caches*  should forget caches for functions that get finalized. (Which requires weak references.)
+
+;;;; memoize.scm --
+;;;;
+;;;; A function result cache facility.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
+
+;;;; REVISIT: *memoize-result-caches*  should forget caches for functions
+;;;;           that get finalized. (Which requires weak references.)
 
 (define *memoize-result-caches* '())
 

@@ -1,13 +1,23 @@
-;;;; fasl-write.scm
-;;;; February 23rd, 2006
-;;
-;; FASL Object Writer - Writes objects in FASL format. FASL format represents
-;; objects with a  one byte type code followed by a number of data bytes that
-;; varies based on the type of the object. There are two layers to this package:
-;; fast-* and fasl-*.  fast-* routines are low level routines that encode
-;; objects in binary form, but do not handle shared or circular structures, which
-;; can send them into an infinite loop.  The fasl-* layer is a higher layer
-;; set of routines, built on fast-*, that are used to generate FASL files.
+
+;;;; fasl-write.scm --
+;;;;
+;;;; FASL object writer.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
+;; FASL Object Writer - Writes objects in FASL format. FASL format
+;; represents objects with a  one byte type code followed by a number
+;;  of data bytes that varies based on the type of the object. There
+;; are two layers to this package: ;; fast-* and fasl-*.  fast-*
+;; routines are low level routines that encode objects in binary form,
+;; but do not handle shared or circular structures, which can send them
+;;  into an infinite loop.  The fasl-* layer is a higher layer set of
+;; routines, built on fast-*, that are used to generate FASL files.
 ;; These routines detect circularity and shared structure and generate
 ;; SET/REF opcodes to reconstruct it at load-time.
 

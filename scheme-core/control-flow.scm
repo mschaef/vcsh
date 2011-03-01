@@ -1,9 +1,14 @@
 
-;;;; control-flow.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
+;;;; control-flow.scm --
 ;;;;
 ;;;; Some control flow facilities
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define (throw tag :optional value)
   (%%throw tag value))

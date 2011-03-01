@@ -1,8 +1,14 @@
-;;;; unit-test.scm
-;;;; August 10th, 2007
-;;
-;;
-;; A set of facilities for implementing unit test suites.
+
+;;;; unit-test.scm -- 
+;;;;
+;;;; A set of facilities for implementing unit test suites.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define-package "unit-test"
   (:uses "scheme")

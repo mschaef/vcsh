@@ -1,22 +1,14 @@
-;;;; macro.scm
-;;;; October 27th, 2009
-;;;; Mike Schaeffer
-;;;
-;;; Macro support
 
-;; (define-structure %cmacro
-;;   transformer)
-
-;; (define (is-macro? m)
-;;   (or (%cmacro? m)
-;;       (macro? m)))
-
-;; (define (macro-transformer m)
-;;   (cond ((%cmacro? m) (%cmacro-transformer m))
-;;         ((macro? m) (scheme::%macro-transformer m))
-;;         (#t (error "Invalid macro: ~s" m))))
-
-;;; Constructor for Common Lisp style non-hygenic macros:
+;;;; macro.scm --
+;;;;
+;;;; Support for Common Lisp style non-hygenic macros.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (defmacro (defmacro lambda-list . macro-body) ;; REVISIT: Macros with :optional arguments
   (check valid-lambda-list? lambda-list)

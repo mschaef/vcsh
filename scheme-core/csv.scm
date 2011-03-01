@@ -1,6 +1,14 @@
-;;;; CSV importer
-;;; June 5th, 2008 - Taken from much older code
 
+;;;; csv.scm --
+;;;;
+;;;; CSV file import/export.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define-package "csv"
   (:uses "scheme")

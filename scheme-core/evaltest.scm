@@ -1,6 +1,15 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Random form generator - Randomly generates complex forms and
-; closures that evaluate to a particular value.
+
+;;;; evaltest.scm --
+;;;;
+;;;; Random form generator - Randomly generates complex forms and
+;;;; closures that evaluate to a particular value.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define *value-forms* '())
 

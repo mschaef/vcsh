@@ -1,6 +1,14 @@
-;;;; compiler-foptimize.scm
+
+;;;; compiler-foptimize.scm --
 ;;;;
-;;;; The compiler's FOP tree optimizer
+;;;; The FOP tree optimizer.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define *optimize* #t)
 

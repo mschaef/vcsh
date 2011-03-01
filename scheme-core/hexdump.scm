@@ -1,8 +1,14 @@
-;;;; hexdump.scm
-;;;; January 12th, 2006
-;;;; Mike Schaeffer
-;
-; A utility to dump binary files as hexadecimal
+
+;;;; hexdump.scm --
+;;;;
+;;;; A utility to dump binary files as hexadecimal
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define (number->field-string num width base)
   (let* ((s (string-append (make-string width #\0) (number->string num base)))

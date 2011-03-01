@@ -1,24 +1,30 @@
-;;;; dotty.scm
-;
-; Support for visualizinng Lisp data structures using dotty.
-;
-; REVISIT: Dotty could use some work:
-; - Factor out 'write-dotty-vertex' from write/dotty
-; - Add some controls to vary the level of detail
-; - Consider using generic functions for write-dotty-vertex and write/dotty
-; - Put lisp-name->c-name and quote-c-string in another module
-; - Add support for non-text characters to quote-c-string
-; - Add hash table support
-; - Add subr support
-; - Closures should display their names in their vertex
-;
 
+;;;; dotty-call-graph.scm --
+;;;;
+;;;; Support for visualizinng Lisp data structures using dotty.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define-package "dotty"
   (:uses "scheme")
   (:exports "write/dotty"
             "lisp-name->c-name"
             "dotty"))
+
+;;;; REVISIT: Dotty could use some work:
+;;;; - Factor out 'write-dotty-vertex' from write/dotty
+;;;; - Add some controls to vary the level of detail
+;;;; - Consider generic functions for write-dotty-vertex and write/dotty
+;;;; - Put lisp-name->c-name and quote-c-string in another module
+;;;; - Add support for non-text characters to quote-c-string
+;;;; - Add hash table support
+;;;; - Add subr support
+;;;; - Closures should display their names in their vertex
 
 (define (lisp-name->c-name name)
   "Converts a lisp style name to a c style name. Dashes are replaced

@@ -1,9 +1,15 @@
-;;;; deferred-execution.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; Deferred execution tools. Tools for scheduling code to run in the
-;;; future either as time permits or at scheduled times.
+
+;;;; deferred-execution.scm --
+;;;;
+;;;; Deferred execution tools. Tools for scheduling code to run in the
+;;;; future either as time permits or at scheduled times.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (defmacro (%with-disabled-interrupts . code)
   "Runs <code> with interrupts disabled. Interrupts are restored

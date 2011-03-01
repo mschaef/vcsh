@@ -1,4 +1,16 @@
 
+;;;; grovel-dependancies.scm --
+;;;;
+;;;; The dependancy groveler. This scans a source file for dependancies
+;;;; and emits a makefile rule that represents those dependancies.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
 (define (files-included-at-toplevel source-filename)
   "Scan through the file named by <source-filename>, returning a list
    of files included at the toplevel. This only looks for literal

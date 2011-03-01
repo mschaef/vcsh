@@ -1,7 +1,15 @@
-;;;; compiler-file.scm
-;;;
-;;; The file compiler. A compiler that uses the standard expression
-;;; compiler to compile files either ahead of time or at runtime.
+
+;;;; compiler-file.scm --
+;;;;
+;;;; The file compiler. A compiler that uses the standard expression
+;;;; compiler to compile files either ahead of time or at runtime.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (define *initial-package* "user")
 (define *disable-load-unit-boundaries* #f)

@@ -1,12 +1,16 @@
-;;;; list.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
-;;
-;; List utilities.
 
-;; Parts of the list utilities are basically straight out of the
-;; reference implementation of SRFI-1. The copyright of this code
-;; is as follows:
+;;;; list.scm --
+;;;;
+;;;; Lists. Portions of this code come from the reference implementation
+;;;; of SRFI-1.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;; (C) Portions Copyright 1998, 1999 by Olin Shivers.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 ;; SRFI-1 list-processing library                      -*- Scheme -*-
 ;; Reference implementation

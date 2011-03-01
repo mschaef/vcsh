@@ -1,8 +1,14 @@
-;;;; exports.scm
-;;;; October 19th, 2007
-;;;; Mike Schaeffer
+
+;;;; exports.scm --
 ;;;;
-;;;; Long lists of symbols exported from scheme and system
+;;;; Long lists of symbols exported from the image.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (export! '(*

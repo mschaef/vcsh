@@ -1,9 +1,20 @@
-;;; setup-image-compile.scm
-;;;
-;;; Set up for compiling a scheme image. This moves a running image out of the
-;;; way so that the new definitions created by an image compile don't overwrite
-;;; the running compiler. This also uses the host compiler  to build an environment
-;;; the target compiler can use to bootstrap itself.
+
+;;;; setup-image-compile.scm --
+;;;;
+;;;; Code loaded when compiling an image to set up the environment
+;;;; for the image compile.
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
+;;;; This moves a running image out of the way so that the new definitions
+;;;; created by an image compile don't overwrite the running compiler. This
+;;;; also uses the host compiler  to build an environment the target
+;;;; c ompiler can use to bootstrap itself.
 
 (define-package "compiler-cross-compile-setup"
   (:uses "scheme"

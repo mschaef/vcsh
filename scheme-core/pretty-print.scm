@@ -1,14 +1,23 @@
-;;;; pretty-print.scm
-;;;; December 15th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; A simple Scheme pretty printer. The design of this code is roughly inspired
-;;; both by the Common Lisp XP pretty-printer and by GNU Emacs' autoformat logic for
-;;; scheme-mode. From XP, this code takes a two stage approach to formatting/
-;;; The first stage of pretty printing linearizes a form into a series of
-;;; instructions for a second formatting stage.  From GNU Emacs, this code takes
-;;; an approach for specifying pretty print control variables. Each type of form
-;;; gets a control object that specifies how it is to be formatted.
+
+;;;; pretty-print.scm --
+;;;;
+;;;; A simple pretty printer for scheme forms
+;;;;
+;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+;;;;
+;;;; See the file "license.terms" for information on usage and
+;;;; redistribution of this file, and for a DISCLAIMER OF ALL
+;;;; WARRANTIES.
+
+;;; A simple Scheme pretty printer. The design of this code is roughly
+;;; inspired both by the Common Lisp XP pretty-printer and by GNU Emacs'
+;;; autoformat logic for scheme-mode. From XP, this code takes a two stage
+;;; approach to formatting. The first stage of pretty printing linearizes
+;;; a form into a series of instructions for a second formatting stage.
+;;; From GNU Emacs, this code takes an approach for specifying pretty print
+;;; control variables. Each type of form gets a control object that
+;;; specifies how it is to be formatted.
 
 (define (debug-formatter os pass-through)
   (lambda (tok arg)
@@ -18,16 +27,6 @@
 
 
 (define *pretty-print-width* 72)
-;;;; December 15th, 2007
-;;;; Mike Schaeffer
-;;;
-;;; A simple Scheme pretty printer. The design of this code is roughly inspired
-;;; both by the Common Lisp XP pretty-printer and by GNU Emacs' autoformat logic for
-;;; scheme-mode. From XP, this code takes a two stage approach to formatting/
-;;; The first stage of pretty printing linearizes a form into a series of
-;;; instructions for a second formatting stage.  From GNU Emacs, this code takes
-;;; an approach for specifying pretty print control variables. Each type of form
-;;; gets a control object that specifies how it is to be formatted.
 
 (define *pp-debug* #f)
 
