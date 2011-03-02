@@ -12,6 +12,9 @@ vcsh TODO
 * Unify all the base-* header files
 * Split out the public scan API into its own header file
 * There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.
+* Add a more proactive heap enlargement policy. (To the GC hook)
+* Swich to a memory-size based heap sizing model rather than a segment-count based model.
+* Add a compiler option that emits a cross reference file describing global references.
 
 0.7 - Short-term Performance
 --------
