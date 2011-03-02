@@ -21,6 +21,7 @@ indented:
 	$(MAKE) -r -C scheme-core indented
 
 clean:
+	rm *.scf *~
 	$(MAKE) -r -C vm clean
 	$(MAKE) -r -C util clean
 	$(MAKE) -r -C scheme-core clean
