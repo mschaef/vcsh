@@ -3,7 +3,8 @@
  * constants.i --
  *
  * Constant tables. This file is processed multiple times, with different
- * CONST_* flags set each time.
+ * CONST_* flags set each time. constants.cpp and constants.h both
+ * include this file for most of their source text.
  *
  *
  * (C) Copyright 2001-2011 East Coast Toolworks Inc.
@@ -16,7 +17,8 @@
 
 /* *INDENT-OFF* */
 
-/* Defined when included as a header file to emit enumerations and prototypes. */
+/* Defined when included as a header file to emit enumerations and
+ * prototypes. */
 #ifdef CONST_C_HEADER
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) enum table_name {
 #  define VM_CONSTANT(name, value) name = value,
@@ -24,7 +26,8 @@
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) }; const _TCHAR *name_fn_name(const table_name val); 
 #endif
 
-/* Defined when included as a source file to emit const->string mapping functions. */
+/* Defined when included as a source file to emit const->string mapping
+ * functions. */
 #ifdef CONST_C_IMPL
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) const _TCHAR *name_fn_name(const table_name val) { switch(val) {
 #  define VM_CONSTANT(name, value)  case name: return _T(#name);
@@ -50,14 +53,14 @@
  *    #\newline and #\cr as no-ops. That way, no matter how a textual comment
  *    string ends, we can still read past the line terminator.
  *
- * 3. #\# is treated the same way as #\;. to allow FASL files on Unix machines
- *    to point to an interpreter, like a shell script.
+ * 3. #\# is treated the same way as #\;. to allow FASL files on Unix
+ *    machines to point to an interpreter, like a shell script.
  *
  * 4. Control+Z is a no-op, since it's useful to cause DOS machines to stop
  *   typing a file to the screen.
  *
- * 5. #\nul is also a no-op, since it seems too important to use for arbitrary
- *    reasons.
+ * 5. #\nul is also a no-op, since it seems too important to use for
+ *    arbitrary reasons.
  */
 
 BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
@@ -101,7 +104,8 @@ BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_READER_DEFINITION,    193)
     VM_CONSTANT(FASL_OP_READER_REFERENCE,     194)
     VM_CONSTANT(FASL_OP_LOADER_DEFINEQ,       208)
-     /*  209 is the former FASL_OP_LOADER_DEFINE (which invoked the evaluator to determine the definition value.) */
+     /*  209 is the former FASL_OP_LOADER_DEFINE (which invoked
+      * the evaluator to determine the definition value.) */
     VM_CONSTANT(FASL_OP_LOADER_DEFINEA0,      210)
     VM_CONSTANT(FASL_OP_LOADER_APPLY0,        216)
     VM_CONSTANT(FASL_OP_LOADER_APPLYN,        217)
