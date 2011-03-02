@@ -79,11 +79,7 @@ endif
 all: ${TARGETS}
 
 todo:
-	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n XXX) || true
-	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n TODO) || true
-	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n TESTTHIS) || true
-	(find . \( -iname "*.cpp" -or -iname "*.h" -or -name "*.scm" -or -iname "TODO" \) | xargs grep -n REVISIT) || true
-
+	ack --noheading TODO\|REVISIT\|XXX
 
 clean-cov:
 	${RM_F} *.gcda *.gcov

@@ -1,4 +1,6 @@
 
+include build-settings
+
 .PHONY: tested vcsh vm util clean indented
 
 all: vcsh
