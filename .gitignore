@@ -12,6 +12,7 @@ build-settings
 *.i
 vm/fasl-dump
 vm/scansh0
+vm/constants.scm
 util/show-retval
 util/to-c-source
 scheme-core/vcsh
