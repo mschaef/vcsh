@@ -1,24 +1,53 @@
-To-Do For Release 2.0
+vcsh TODO
+================================
 
-Strategic Plan
-------------------------------------------------
+0.6 - Janitorial Work
+--------
+* Ensure that the compiler doesn't emit an output file on compile failures
+* Develop a standard approach for linking internal files. (Include autoload, csv, unit-test, etc.)
+* Add test case coverage
+* Verify correct operation of directory tools on both *nix and Windows.
+* Rename LRef and LObject to lref_t and lobject_t
+* Switch to standard C99 types for u32, etc.
+* Unify all the base-* header files
+* Split out the public scan API into its own header file
 
-* Windows pathname varients
-* Bytecode compiler
+0.7 - Short-term Performance
+--------
+* Switch Lisp stack to lref_t's
+* Move argument buffers onto Lisp stack
+* Add FOP's for looping, etc. Switch loop forms to FOPs
+* Switch to numeric-coordinate based lexical binding lookup
+* Add support for caching lexical frames on the lisp stack.
+
+0.8 - Fix Instances, Structures, and Generic Functions
+--------
+...
+
+Later
+--------
+* Linear bytecode compiler
 * Complete complex arithmetic
 * FFI (SIOD-FFI?)
-* Date/Time
+* Statisics that pass statistical reference data sets
+* char-ci=?, etc. has _terrible_ memory characteristics (70-80 conses per call)
+* Incorporate some kind of regex library
+* convert %with-disabled-interrupts to functional form
+* should list-all-packages really be all-packages ?
+* define instead of define-method trashes the entire generic fn. Not too user-friendly. (define rollback history)
+* add define/global set! hook to invalidate generic fn caches on class graph changes
+* Ensure structures use vectors as storage for auto slots
+* Replace class graph with above network of symbol refs
+* Switch to Unicode character encoding
+* Add Unicode translation modes to character streams
 
 
-Tactical Plan
-------------------------------------------------
 
 
-Deferred to v1.2:
-----------------------------------------------------------------
+vcalc TODO
+================================
 * Deferred rendering of clipboard contents (set-clipboard-data takes a closure...)
 * Load global state command
-* Statisics that pass statistical reference data sets
 * List ops (nth, length,  map, for-each, every?, any?, sum, group-by, product, member, cons)
 * poly-line
 * set-graphics-clip
@@ -46,18 +75,12 @@ Deferred to v1.2:
 * binary number bit width
 * Retarget default save file
 * Provide a way to update the display from Scheme code, guard for reentrancy
-* char-ci=?, etc. has _terrible_ memory characteristics (70-80 conses per call)
 * Switch to one scalable banner image
 * Add/Test fast-write/fast-read
-* Incorporate some kind of regex library
-
-Blue Sky:
-----------------------------------------------------------------
 * needs to be a break facility to interrupt long calculations/evaluations
 * Interface freezes during long macro execution
 * Tip of the day defaults to off
-* Look into abandoning MFC. We just don't get enough value out of it to
-  warrant either the complexity or the added .exe size.
+* Remove MFC
 * cord/rope implementation of strings
 * Read only symbol scoped bindings
 * Move evaluation code into leval
@@ -68,8 +91,6 @@ Blue Sky:
 * Keyhelp window doesn't autoslide
 * interactive stack
 * Progress dialog box
-* Switch to Unicode character encoding
-* Add Unicode translation modes to character streams
 * Grid-dataset editor
 * Hyperbolic trig
 * >2 columns/dataset
@@ -80,13 +101,7 @@ Blue Sky:
 * infix expresion parser
 * tip of the day in main window
 * tool tips
-* Ensure structures use vectors as storage for auto slots
-* Replace class graph with above network of symbol refs
-* add define/global set! hook to invalidate generic fn caches on class graph changes
-* do we really need all the ass*/let* special forms?
-* define instead of define-method trashes the entire generic fn. Not too user-friendly. (define rollback history)
-* should list-all-packages really be all-packages ?
 * lisp-name->c-name and vice-versa (see: dotty.scm)
 * conditional trace
-* refers to needs to descend into macro transformers and closures
-* convert %with-disabled-interrupts to functional form
+
+
