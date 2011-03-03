@@ -17,7 +17,6 @@
 // #define WITH_FOPLOG_SUPPORT
 
 #include "../util/base-types.h"
-#include "../util/base-assert.h"
 #include "../util/base-tchar.h"
 
 #include <setjmp.h>

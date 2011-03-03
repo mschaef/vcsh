@@ -14,6 +14,8 @@
 #ifndef __SYS_H
 #define __SYS_H
 
+#include <assert.h>
+
 #ifdef SCAN_UNIX                /*  REVISIT: Can these ifdef's be removed? */
 #  include <sys/time.h>
 #endif
@@ -26,7 +28,6 @@
 #include <limits.h>
 
 #include "../util/base-types.h"
-#include "../util/base-assert.h"
 #include "../util/base-tchar.h"
 
 #include "constants.h"
@@ -43,6 +44,20 @@
 
 BEGIN_NAMESPACE(scan)
 
+typedef void (*panic_handler_t) (void);
+
+panic_handler_t set_panic_handler(panic_handler_t new_handler);
+
+void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno);
+
+#define panic(str) scan::_panic(str, __FILE__, __LINE__)
+
+#ifdef CHECKED
+#	define checked_assert(exp) assert(exp)
+#else
+#	define checked_assert(exp)
+#endif
+
 void *safe_malloc(size_t size);
 void safe_free(void *block);
 
@@ -50,7 +65,6 @@ enum
 {
 
      DEFAULT_STACK_SIZE = 1024 * 1024,   /* The default stack size for a newly created thread */
-
      SECONDS_PER_MINUTE = 60    /* bar */
 };
 
