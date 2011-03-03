@@ -1,7 +1,7 @@
 
 include build-settings
 
-.PHONY: tested vcsh vm util clean indented
+.PHONY: tested vcsh vm clean indented
 
 all: vcsh
 
@@ -11,20 +11,15 @@ tested: vcsh
 vcsh: vm
 	$(MAKE) -r -C scheme-core
 
-vm: util
+vm:
 	$(MAKE) -r -C vm --jobs=2
-
-util:
-	$(MAKE) -r -C util
 
 indented:
 	$(MAKE) -r -C vm indented
-	$(MAKE) -r -C util indented
 	$(MAKE) -r -C scheme-core indented
 
 clean:
 	rm -f *.scf *~
 	$(MAKE) -r -C vm clean
-	$(MAKE) -r -C util clean
 	$(MAKE) -r -C scheme-core clean
 	$(MAKE) -r -C scheme-core clean-scheme

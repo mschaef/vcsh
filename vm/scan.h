@@ -16,7 +16,7 @@
 
 // #define WITH_FOPLOG_SUPPORT
 
-#include "../util/base-types.h"
+#include "base-types.h"
 
 #include <setjmp.h>
 #include <stdarg.h>

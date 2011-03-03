@@ -36,16 +36,16 @@ ifdef ${RANLIB}
 endif
 
 scheme${OBJ_EXT}: scheme.scf
-	echo \#include \"../util/base-types.h\" > scheme.cpp
-	../util/to-c-source scheme.scf scf_scheme >> scheme.cpp
+	echo \#include \"../vm/base-types.h\" > scheme.cpp
+	../vm/to-c-source scheme.scf scf_scheme >> scheme.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}scheme${OBJ_EXT} scheme.cpp
 
 scheme.scf:
 	$(SCC0) --load-file:setup-image-compile.scm scheme.scm
 
 compiler-run${OBJ_EXT}: compiler-run.scf
-	echo \#include \"../util/base-types.h\" > compiler-run.cpp
-	../util/to-c-source compiler-run.scf scf_compiler_run >> compiler-run.cpp
+	echo \#include \"../vm/base-types.h\" > compiler-run.cpp
+	../vm/to-c-source compiler-run.scf scf_compiler_run >> compiler-run.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}compiler-run${OBJ_EXT} compiler-run.cpp
 
 compiler-run.scf: compiler-run.scm

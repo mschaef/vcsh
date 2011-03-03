@@ -3,7 +3,7 @@
 
 .PHONY: indented
 
-TARGETS=scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} constants.scm TAGS
+TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} constants.scm TAGS
 
 include ../build-settings
 
@@ -60,6 +60,21 @@ ifdef ${RANLIB}
 	${RANLIB} scan-vm${LIB_EXT}
 endif
 
+
+TO_C_SOURCE_OBJS=to-c-source${OBJ_EXT}
+
+TO_C_SOURCE_SRCS:=$(TO_C_SOURCE_OBJS:${OBJ_EXT}=.cpp)
+
+to-c-source${EXE_EXT}: $(TO_C_SOURCE_OBJS)
+	${CC} ${LDFLAGS} ${NAMOBJFL}to-c-source${EXE_EXT} $(TO_C_SOURCE_OBJS)
+
+SHOW_RETVAL_OBJS=show-retval${OBJ_EXT}
+
+SHOW_RETVAL_SRCS:=$(SHOW_RETVAL_OBJS:${OBJ_EXT}=.cpp)
+
+show-retval${EXE_EXT}: $(SHOW_RETVAL_OBJS)
+	${CC} ${LDFLAGS} ${NAMOBJFL}show-retval${EXE_EXT} $(SHOW_RETVAL_OBJS)
+
 constants.scm: constants.i
 	cpp -DCONST_SCHEME -P $< $@
 
@@ -67,7 +82,7 @@ depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 indented:
-	gnuindent ${VM_SRCS} mt19937.h scan.h sys.h constants.i
+	gnuindent ${VM_SRCS} mt19937.h scan.h sys.h constants.i base-types.h
 
 clean-local:
 	rm -f constants.scm

@@ -27,7 +27,7 @@
 
 #include <limits.h>
 
-#include "../util/base-types.h"
+#include "base-types.h"
 
 #include "constants.h"
 
