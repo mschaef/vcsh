@@ -691,7 +691,7 @@ bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result)
 #ifdef FIXNUM_64BIT
      result = strtoll(string, &endobj, radix);
 
-     if (((result == I64_MIN) || (result == I64_MAX)) && (errno == ERANGE))     /*  REVISIT: errno causes problems with the _link_ */
+     if (((result == INT64_MIN) || (result == INT64_MAX)) && (errno == ERANGE))     /*  REVISIT: errno causes problems with the _link_ */
           overflow = true;
 #else
      result = strtol(string, &endobj, radix);

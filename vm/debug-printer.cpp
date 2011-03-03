@@ -646,7 +646,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                     if (return_next_value)
                          return_value = fixcons(ulong_arg_value);
 
-                    _sntprintf(buf, STACK_STRBUF_LEN, _T("%03o"), (u32_t) ulong_arg_value);
+                    _sntprintf(buf, STACK_STRBUF_LEN, _T("%03o"), (uint32_t) ulong_arg_value);
                     write_text(buf, _tcslen(buf), port);
                     break;
 
@@ -656,7 +656,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                     if (return_next_value)
                          return_value = fixcons(ulong_arg_value);
 
-                    _sntprintf(buf, STACK_STRBUF_LEN, _T("0x%02x"), (u32_t) ulong_arg_value);
+                    _sntprintf(buf, STACK_STRBUF_LEN, _T("0x%02x"), (uint32_t) ulong_arg_value);
                     write_text(buf, _tcslen(buf), port);
                     break;
 

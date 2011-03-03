@@ -17,7 +17,7 @@
 BEGIN_NAMESPACE(scan)
 
 
-void vmerror_stack_overflow(u8_t * obj)
+void vmerror_stack_overflow(uint8_t * obj)
 {
      UNREFERENCED(obj);
 

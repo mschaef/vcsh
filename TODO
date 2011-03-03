@@ -6,7 +6,6 @@ vcsh TODO
 * Develop a standard approach for linking internal files. (Include autoload, csv, unit-test, etc.)
 * Add test case coverage
 * Verify correct operation of directory tools on both *nix and Windows.
-* Switch to standard C99 types for u32, etc.
 * Unify all the base-* header files
 * Split out the public scan API into its own header file
 * There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.

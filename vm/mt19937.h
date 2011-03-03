@@ -17,7 +17,7 @@ void init_mt19937(unsigned long s);
 void init_mt19937_by_array(unsigned long init_key[], int key_length);
 
 unsigned long mt19937_int32(void);      /* generates a random number on [0,0xffffffff]-interval */
-u64_t mt19937_int64(void);      /* generates a random number on [0,0xffffffffffffffff]-interval */
+uint64_t mt19937_int64(void);      /* generates a random number on [0,0xffffffffffffffff]-interval */
 
 long mt19937_int31(void);       /* generates a random number on [0,0x7fffffff]-interval */
 

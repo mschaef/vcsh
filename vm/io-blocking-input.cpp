@@ -51,7 +51,7 @@ struct blocking_input_port_state
      blocking_input_close_port_fn_t _close_port;
      size_t _buffer_size;
      size_t _buffer_pos;
-     u8_t *_buffer;
+     uint8_t *_buffer;
      void *_userdata;
      bool _more_data;
 };
@@ -96,7 +96,7 @@ size_t blocking_input_port_read(void *buf, size_t size, size_t count, LRef port)
 
           if (bytes_available)
           {
-               memcpy(&((u8_t *) buf)[bytes_read], &((u8_t *) ps->_buffer)[ps->_buffer_pos],
+               memcpy(&((uint8_t *) buf)[bytes_read], &((uint8_t *) ps->_buffer)[ps->_buffer_pos],
                       bytes_available);
 
                bytes_read += bytes_available;
@@ -143,7 +143,7 @@ void blocking_input_post_data(LRef port, void *data, size_t size)
           ps->_buffer = NULL;
      }
 
-     ps->_buffer = (u8_t *) safe_malloc(size);
+     ps->_buffer = (uint8_t *) safe_malloc(size);
 
      memcpy(ps->_buffer, data, size);
 

@@ -452,7 +452,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
      assert(PORTP(port));
      assert(PORT_BINARYP(port));
 
-     u8_t bytes[sizeof(fixnum_t)];
+     uint8_t bytes[sizeof(fixnum_t)];
      size_t fixnums_read = read_raw(bytes, (size_t) length, 1, port);
 
      if (!fixnums_read)
@@ -462,17 +462,17 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
      switch (length)
      {
      case 1:
-          result = (signedp ? (fixnum_t) (*(i8_t *) bytes) : (fixnum_t) (*(u8_t *) bytes));
+          result = (signedp ? (fixnum_t) (*(int8_t *) bytes) : (fixnum_t) (*(uint8_t *) bytes));
           break;
      case 2:
-          result = (signedp ? (fixnum_t) (*(i16_t *) bytes) : (fixnum_t) (*(u16_t *) bytes));
+          result = (signedp ? (fixnum_t) (*(int16_t *) bytes) : (fixnum_t) (*(uint16_t *) bytes));
           break;
      case 4:
-          result = (signedp ? (fixnum_t) (*(i32_t *) bytes) : (fixnum_t) (*(u32_t *) bytes));
+          result = (signedp ? (fixnum_t) (*(int32_t *) bytes) : (fixnum_t) (*(uint32_t *) bytes));
           break;
 #ifdef FIXNUM_64BIT
      case 8:
-          result = (signedp ? (fixnum_t) (*(i64_t *) bytes) : (fixnum_t) (*(u64_t *) bytes));
+          result = (signedp ? (fixnum_t) (*(int64_t *) bytes) : (fixnum_t) (*(uint64_t *) bytes));
           break;
 #endif
      }
@@ -486,7 +486,7 @@ bool read_binary_flonum(LRef port, flonum_t & result)
      assert(PORTP(port));
      assert(PORT_BINARYP(port));
 
-     u8_t bytes[sizeof(flonum_t)];
+     uint8_t bytes[sizeof(flonum_t)];
      size_t flonums_read = read_raw(bytes, sizeof(flonum_t), 1, port);
 
      if (!flonums_read)
@@ -991,37 +991,37 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
 
      fixnum_t val = FIXNM(v);
 
-     u8_t bytes[sizeof(fixnum_t)];
+     uint8_t bytes[sizeof(fixnum_t)];
 
      switch (length)
      {
      case 1:
           if (signedp)
-               *(i8_t *) bytes = (i8_t) val;
+               *(int8_t *) bytes = (int8_t) val;
           else
-               *(u8_t *) bytes = (u8_t) val;
+               *(uint8_t *) bytes = (uint8_t) val;
           break;
 
      case 2:
           if (signedp)
-               *(i16_t *) bytes = (i16_t) val;
+               *(int16_t *) bytes = (int16_t) val;
           else
-               *(u16_t *) bytes = (u16_t) val;
+               *(uint16_t *) bytes = (uint16_t) val;
           break;
 
      case 4:
           if (signedp)
-               *(i32_t *) bytes = (i32_t) val;
+               *(int32_t *) bytes = (int32_t) val;
           else
-               *(u32_t *) bytes = (u32_t) val;
+               *(uint32_t *) bytes = (uint32_t) val;
           break;
 
 #ifdef FIXNUM_64BIT
      case 8:
           if (signedp)
-               *(i64_t *) bytes = (i64_t) val;
+               *(int64_t *) bytes = (int64_t) val;
           else
-               *(u64_t *) bytes = (u64_t) val;
+               *(uint64_t *) bytes = (uint64_t) val;
           break;
 #endif
      }
@@ -1051,7 +1051,7 @@ LRef lbinary_write_flonum(LRef v, LRef port)
 
      flonum_t val = get_c_double(v);
 
-     u8_t bytes[sizeof(flonum_t)];
+     uint8_t bytes[sizeof(flonum_t)];
 
      *(flonum_t *) bytes = val;
 

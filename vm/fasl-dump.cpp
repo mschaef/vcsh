@@ -117,7 +117,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, fixnum_t &result, size_t 
   assert ((length == 1) || (length == 2) || (length == 4));
 #endif
 
-  u8_t bytes[sizeof(fixnum_t)];
+  uint8_t bytes[sizeof(fixnum_t)];
   size_t fixnums_read = read_binary(bytes, (size_t)length, 1, ofs);
 
   if (!fixnums_read)
@@ -125,11 +125,11 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, fixnum_t &result, size_t 
 
   switch(length)
     {
-    case 1: result = (signedp ? (fixnum_t)(*(i8_t *)bytes) : (fixnum_t)(*(u8_t  *)bytes)); break;
-    case 2: result = (signedp ? (fixnum_t)(*(i16_t *)bytes) : (fixnum_t)(*(u16_t *)bytes)); break;
-    case 4: result = (signedp ? (fixnum_t)(*(i32_t *)bytes) : (fixnum_t)(*(u32_t *)bytes)); break;
+    case 1: result = (signedp ? (fixnum_t)(*(int8_t *)bytes) : (fixnum_t)(*(uint8_t  *)bytes)); break;
+    case 2: result = (signedp ? (fixnum_t)(*(int16_t *)bytes) : (fixnum_t)(*(uint16_t *)bytes)); break;
+    case 4: result = (signedp ? (fixnum_t)(*(int32_t *)bytes) : (fixnum_t)(*(uint32_t *)bytes)); break;
 #ifdef FIXNUM_64BIT
-    case 8: result = (signedp ? (fixnum_t)(*(i64_t *)bytes) : (fixnum_t)(*(u64_t *)bytes)); break;
+    case 8: result = (signedp ? (fixnum_t)(*(int64_t *)bytes) : (fixnum_t)(*(uint64_t *)bytes)); break;
 #endif
     }
 
@@ -138,7 +138,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, fixnum_t &result, size_t 
 
 bool read_binary_flonum(flonum_t &result)
 {
-  u8_t bytes[sizeof(flonum_t)];
+  uint8_t bytes[sizeof(flonum_t)];
   size_t flonums_read = read_binary(bytes, sizeof(flonum_t), 1);
 
   if (!flonums_read)

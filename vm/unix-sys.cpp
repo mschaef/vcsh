@@ -30,15 +30,15 @@ BEGIN_NAMESPACE(scan)
 static sys_retcode_t rc_to_sys_retcode_t(int rc);
 static sys_retcode_t sys_init_time();
 
-static u8_t *sys_stack_start;
+static uint8_t *sys_stack_start;
 
-u8_t *stack_limit_obj;
+uint8_t *stack_limit_obj;
 
 sys_retcode_t sys_init()
 {
      int stack_location;
 
-     sys_stack_start = (u8_t *) & stack_location;
+     sys_stack_start = (uint8_t *) & stack_location;
 
      if (sys_init_time() != SYS_OK)
           return SYS_E_FAIL;
@@ -440,13 +440,13 @@ void *sys_set_stack_limit(size_t new_size_limit)
       * a stack limit violation at the next check. This clamp keeps that
       * from happening.
       */
-     if (new_size_limit > (uptr_t) sys_stack_start)
+     if (new_size_limit > (uintptr_t) sys_stack_start)
           new_size_limit = 0;
 
      if (new_size_limit == 0)
-          stack_limit_obj = (u8_t *) 0;
+          stack_limit_obj = (uint8_t *) 0;
      else
-          stack_limit_obj = (u8_t *) (sys_stack_start - new_size_limit);
+          stack_limit_obj = (uint8_t *) (sys_stack_start - new_size_limit);
 
      return stack_limit_obj;
 }

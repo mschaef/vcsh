@@ -28,7 +28,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-extern i64_t malloc_bytes;      /* REVISIT: Should this be u64_t? Should this even be here? */
+extern int64_t malloc_bytes;      /* REVISIT: Should this be uint64_t? Should this even be here? */
 
 /*** Interpreter Paramaters ***/
 
@@ -141,38 +141,38 @@ enum lref_tag_t
 enum
 {
      /*  REVISIT: change to 'IPTR_MAX/MIN' */
-     MAX_LREF_FIXNUM = I32_MAX >> LREF1_TAG_SHIFT,
-     MIN_LREF_FIXNUM = I32_MIN >> LREF1_TAG_SHIFT,
+     MAX_LREF_FIXNUM = INT32_MAX >> LREF1_TAG_SHIFT,
+     MIN_LREF_FIXNUM = INT32_MIN >> LREF1_TAG_SHIFT,
 };
 
-INLINE LRef LREF1_CONS(lref_tag_t tag, iptr_t val)
+INLINE LRef LREF1_CONS(lref_tag_t tag, intptr_t val)
 {
      return (LRef) ((val << LREF1_TAG_SHIFT) | tag);
 }
 
-INLINE LRef LREF2_CONS(lref_tag_t tag, iptr_t val)
+INLINE LRef LREF2_CONS(lref_tag_t tag, intptr_t val)
 {
      return (LRef) ((val << LREF2_TAG_SHIFT) | tag);
 }
 
 INLINE lref_tag_t LREF1_TAG(LRef ref)
 {
-     return (lref_tag_t) ((iptr_t) ref & LREF1_TAG_MASK);
+     return (lref_tag_t) ((intptr_t) ref & LREF1_TAG_MASK);
 }
 
 INLINE lref_tag_t LREF2_TAG(LRef ref)
 {
-     return (lref_tag_t) ((iptr_t) ref & LREF2_TAG_MASK);
+     return (lref_tag_t) ((intptr_t) ref & LREF2_TAG_MASK);
 }
 
-INLINE iptr_t LREF1_VAL(LRef ref)
+INLINE intptr_t LREF1_VAL(LRef ref)
 {
-     return ((iptr_t) ref & ~LREF1_TAG_MASK) >> LREF1_TAG_SHIFT;
+     return ((intptr_t) ref & ~LREF1_TAG_MASK) >> LREF1_TAG_SHIFT;
 }
 
-INLINE iptr_t LREF2_VAL(LRef ref)
+INLINE intptr_t LREF2_VAL(LRef ref)
 {
-     return ((iptr_t) ref & ~LREF2_TAG_MASK) >> LREF2_TAG_SHIFT;
+     return ((intptr_t) ref & ~LREF2_TAG_MASK) >> LREF2_TAG_SHIFT;
 }
 
 INLINE bool LREF_IMMEDIATE_P(LRef ref)
@@ -741,7 +741,7 @@ INLINE LRef SET_NEXT_FREE_CELL(LRef x, LRef next)
   /*** fix/flonum **/
 #define fixabs labs
 
-LRef fixcons(u32_t high, u32_t low);
+LRef fixcons(uint32_t high, uint32_t low);
 LRef fixcons(fixnum_t x);
 LRef flocons(double x);
 LRef cmplxcons(flonum_t re, flonum_t im);
@@ -1629,7 +1629,7 @@ void vmerror_divide_by_zero();
 void vmerror_io_error(const _TCHAR *desc, LRef info);
 void fast_read_error(const _TCHAR * message, LRef port, LRef details = NIL);
 
-void vmerror_stack_overflow(u8_t * obj);
+void vmerror_stack_overflow(uint8_t * obj);
 
   /****** Memory management */
 
