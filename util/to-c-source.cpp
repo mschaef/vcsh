@@ -29,7 +29,7 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
           if ((ws->_bytes_transferred % 8) == 0)
                fprintf(ws->_out, "\n          ");
 
-          fprintf(ws->_out, "0x%02x, ", ((u8_t *) buf)[ii]);
+          fprintf(ws->_out, "0x%02x, ", ((uint8_t *) buf)[ii]);
 
           ws->_bytes_transferred++;
      }
@@ -39,7 +39,7 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
 
 size_t file_length(FILE * in)
 {
-     u8_t buf[BLOCK_SIZE];
+     uint8_t buf[BLOCK_SIZE];
 
      size_t total = 0;
 
@@ -71,7 +71,7 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
 
      fprintf(out, "     DATA_BLOCK_DATA_CAST {");
 
-     u8_t buf[BLOCK_SIZE];
+     uint8_t buf[BLOCK_SIZE];
 
      size_t total = 0;
 
