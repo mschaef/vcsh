@@ -113,6 +113,9 @@ struct sys_dirent_t
      char _name[SYS_NAME_MAX];  /* filename */
 };
 
+
+extern "C" int debug_printf(const _TCHAR *, ...);
+
 void output_debug_string(const _TCHAR * str);
 void debug_break();
 void *sys_get_stack_start();

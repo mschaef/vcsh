@@ -255,8 +255,5 @@ typedef char _TCHAR;
 #  endif
 #endif                          /* SCAN_WINDOWS */
 
-/*** debug_printf ***/
-
-extern "C" int debug_printf(const _TCHAR *, ...);
 
 #endif
