@@ -248,8 +248,8 @@
       (compile-file/simple filename output-fasl-stream)
       compile-error-count)))
 
-(define (compile-files filenames output-file-name)
-  (with-fasl-file output-fasl-stream output-file-name
+(define (compile-files filenames output-filename)
+  (with-fasl-file output-fasl-stream output-filename
     (let next-file ((filenames filenames) (error-count 0))
       (cond ((not (null? filenames))
              (next-file (cdr filenames)
@@ -260,7 +260,7 @@
             (#t
              ())))))
 
-(define (input-file-name->output-file-name input-filename)
+(define (input-filename->output-filename input-filename)
   (let retry ((input-filename input-filename))
     (cond ((list? input-filename)
            (if (length=1? input-filename)
@@ -271,33 +271,34 @@
           (#t
            (error "Invalid input filename: ~s" input-filename)))))
 
-;; This is an example of how another form of cross compilation might work
+(define (setup-initial-package!)
+  (aif (and *initial-package*
+            (find-package *initial-package*))
+       (scheme::%define-global compiler::*package-var* it)
+       (begin
+         (trace-message #t "Initial package not found: ~s" *initial-package*)
+         (throw 'end-compile-now 127))))
 
-(define (compile-file filename :optional (output-file-name #f))
-  (let ((output-file-name (cond ((string? output-file-name) output-file-name)
-                                ((not output-file-name) (input-file-name->output-file-name filename))
-                                (#t (error "Invalid output filename: ~s" filename))))
-        (filenames (if (list? filename) filename (list filename))))
+(define (compile-file input-filename :optional (output-filename #f))
+  (let ((output-filename (cond ((string? output-filename) output-filename)
+                               ((not output-filename) (input-filename->output-filename input-filename))
+                               (#t (error "Invalid output filename: ~s" output-filename))))
+        (input-filenames (->list input-filename)))
     (catch 'end-compile-now
       (handler-bind ((runtime-error
                       (if *debug*
                           handle-runtime-error
                           (lambda (message args)
-                            ;;(show-runtime-error message args)
                             (format *compiler-error-port*
                                     "\n\n\nINTERNAL COMPILER ERROR!, message=~s\n\targs=~s\n"
                                     message args)
                             (throw 'end-compile-now 127)))))
-
-        (aif (and *initial-package*
-                  (find-package *initial-package*))
-             (scheme::%define-global compiler::*package-var* it)
-             (begin
-               (format *compiler-error-port* "Initial package not found: ~s" *initial-package*)
-               (throw 'end-compile-now 127)))
-
+        
+        (setup-initial-package!)
+        
         (dynamic-let ((*location-mapping* (make-hash :eq)))
-          (compile-files filenames output-file-name))
+          (compile-files input-filenames output-filename))
+        
+        (trace-message #t "; Compile completed successfully.\n"))
 
-        (format *compiler-output-port* "; Compile completed successfully.\n"))
       0)))

@@ -443,24 +443,19 @@
 	    (#t
 	     (fast-write-using-shared-structure-table obj (fasl-stream-target-port stream)
 						      shared-structure-table))))
-
-    (when *fasl-write-debugging*
-      #;(display-shared-structures)
-      #f
-      )
-
     stream))
 
 (defmacro (with-fasl-stream s port . code)
   `(let ((,s (open-fasl-output-stream ,port)))
-     (unwind-protect (lambda () ,@code)
-		     (lambda () (commit-fasl-writes ,s)))))
+     (unwind-protect
+      (lambda () ,@code)
+      (lambda () (commit-fasl-writes ,s)))))
 
 (defmacro (with-fasl-file s filename . code)
   (with-gensyms (port-sym)
     `(with-port ,port-sym (open-output-file ,filename :binary)
        (with-fasl-stream ,s ,port-sym
-	 ,@code))))
+           ,@code))))
 
 
 (define close-fasl-stream commit-fasl-writes)
