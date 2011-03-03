@@ -224,12 +224,15 @@ extern "C" INLINE u64_t make_u64_t(u64_t high, u64_t low)
  * initialize a structure with an indefinate sized array at the end. */
 
 #if defined(_MSC_VER)
+
 typedef u8_t data_block_data_t[];
-#define DATA_BLOCK_DATA_CAST
+#  define DATA_BLOCK_DATA_CAST
+
 #else
+
 typedef u8_t *data_block_data_t;
-#define DATA_BLOCK_DATA_CAST (u8_t [])
-typedef unsigned long          size_t;
+#  define DATA_BLOCK_DATA_CAST (u8_t [])
+
 #endif
 
 #ifdef SCAN_WINDOWS
@@ -239,7 +242,7 @@ typedef unsigned long          size_t;
 
 struct data_block_t
 {
-     size_t _length;    
+     size_t _length;
      data_block_data_t _bytes;
 };
 
