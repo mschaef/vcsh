@@ -17,7 +17,19 @@
 #include <stddef.h>
 #include <limits.h>
 
-#include "base-stdint.h"
+#ifdef SCAN_UNIX
+#  include <stdint.h>
+#endif
+#ifdef SCAN_WINDOWS
+#  if defined(__MSC_VER)
+#    include "chemeris-stdint.h"
+#  endif
+#  if defined(__GNUC__)
+#    include <stdint.h>
+#  endif
+#endif
+
+
 #include "base-tchar.h"
 
 /*** Definitions for inlining ***/
