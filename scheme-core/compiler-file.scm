@@ -161,9 +161,8 @@
 
 ;;; Error reporting
 
-(define (end-compile-abnormally return-code output-fasl-stream)
-  (abort-fasl-writes output-fasl-stream)
-  (throw 'end-compile-now return-code))
+(define (end-compile-abnormally return-code)
+  (abort 'end-compile-now return-code))
 
 (define (compiler-message context-desc message-type message message-args)
   "Display a compiler message to the compiler error port. <context-desc> is a description
@@ -235,13 +234,13 @@
     (handler-bind ((compile-read-error
                     (lambda (message port port-location)
                       (compiler-message (port-location-string port port-location) :read-error message ())
-                      (end-compile-abnormally 1 output-fasl-stream)))
+                      (end-compile-abnormally 1)))
                    (compile-error
                     (lambda (context-form fatal? message details)
                       (compiler-message/form context-form :error message details)
                       (incr! compile-error-count)
                       (when fatal?
-                        (end-compile-abnormally 1 output-fasl-stream))))
+                        (end-compile-abnormally 1))))
                    (compile-warning
                     (lambda (context-form message args)
                       (compiler-message/form context-form :warning message args))))
@@ -250,15 +249,20 @@
 
 (define (do-compile-files filenames output-filename)
   (with-fasl-file output-fasl-stream output-filename
-    (let next-file ((filenames filenames) (error-count 0))
-      (cond ((not (null? filenames))
-             (next-file (cdr filenames)
-                        (+ error-count (compile-file/checked (car filenames) output-fasl-stream))))
-            ((> error-count 0)
-             (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
-             (end-compile-abnormally 2 output-fasl-stream))
-            (#t
-             ())))))
+
+      (handler-bind ((end-compile-now
+                      (lambda (return-code)
+                        (abort-fasl-writes output-fasl-stream))))
+
+        (let next-file ((filenames filenames) (error-count 0))
+          (cond ((not (null? filenames))
+                 (next-file (cdr filenames)
+                            (+ error-count (compile-file/checked (car filenames) output-fasl-stream))))
+                ((> error-count 0)
+                 (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
+                 (end-compile-abnormally 2))
+                (#t
+                 ()))))))
 
 (define (find-default-output-filename input-filenames)
   (if (length=1? input-filenames)
@@ -274,14 +278,14 @@
        (scheme::%define-global compiler::*package-var* it)
        (begin
          (trace-message #t "Initial package not found: ~s" *initial-package*)
-         (throw 'end-compile-now 127))))
+         (end-compile-abnormally 127))))
 
 (define (compiler-runtime-error-handler message args)
   (if *debug*
       (handle-runtime-error message args)
       (begin
         (trace-message #t "; Runtime error during compile:\n;   ~I\n"  message args)
-        (throw 'end-compile-now 127))))
+        (end-compile-abnormally 127))))
 
 (define (parse-compiler-filename-arguments input-filename output-filename)
   (let* ((input-filenames (->list input-filename))
@@ -297,10 +301,15 @@
   (mvbind (input-filenames output-filename)
       (parse-compiler-filename-arguments input-filename output-filename)
     (catch 'end-compile-now
-      (handler-bind ((runtime-error compiler-runtime-error-handler))
-                (setup-initial-package!)
-        (dynamic-let ((*location-mapping* (make-hash :eq)))
-          (do-compile-files input-filenames
-                            output-filename))
-        (trace-message #t "; Compile completed successfully.\n"))
-      0)))
+      (handler-bind ((end-compile-now
+                      (lambda (return-code)
+                        (when (file-exists? output-filename)
+                          (delete-file output-filename))
+                        (throw 'end-compile-now return-code))))
+        (handler-bind ((runtime-error compiler-runtime-error-handler))
+          (setup-initial-package!)
+          (dynamic-let ((*location-mapping* (make-hash :eq)))
+            (do-compile-files input-filenames
+                              output-filename))
+          (trace-message #t "; Compile completed successfully.\n"))
+        0))))

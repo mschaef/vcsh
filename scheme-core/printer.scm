@@ -398,7 +398,7 @@
     (next remaining-args all-args port)))
 
 (define (formatter/tilde next)
-  "Creates a formatter that displays a literal tildeand calls the
+  "Creates a formatter that displays a literal tilde and calls the
    <next> formatter."
   (lambda (remaining-args all-args port)
     (write-char #\~ port)
