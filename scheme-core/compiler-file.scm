@@ -248,7 +248,7 @@
       (compile-file/simple filename output-fasl-stream)
       compile-error-count)))
 
-(define (compile-files filenames output-filename)
+(define (do-compile-files filenames output-filename)
   (with-fasl-file output-fasl-stream output-filename
     (let next-file ((filenames filenames) (error-count 0))
       (cond ((not (null? filenames))
@@ -260,16 +260,13 @@
             (#t
              ())))))
 
-(define (input-filename->output-filename input-filename)
-  (let retry ((input-filename input-filename))
-    (cond ((list? input-filename)
-           (if (length=1? input-filename)
-               (retry (first input-filename))
-               "a.scf"))
-          ((string? input-filename)
-           (string-append (filename-no-extension input-filename) ".scf"))
-          (#t
-           (error "Invalid input filename: ~s" input-filename)))))
+(define (find-default-output-filename input-filenames)
+  (if (length=1? input-filenames)
+      (let ((input-filename (first input-filenames)))
+        (unless (string? input-filename)
+          (error "Invalid input filename: ~s" input-filename))
+        (string-append (filename-no-extension input-filename) ".scf"))
+      "a.scf"))
 
 (define (setup-initial-package!)
   (aif (and *initial-package*
@@ -279,26 +276,31 @@
          (trace-message #t "Initial package not found: ~s" *initial-package*)
          (throw 'end-compile-now 127))))
 
-(define (compile-file input-filename :optional (output-filename #f))
-  (let ((output-filename (cond ((string? output-filename) output-filename)
-                               ((not output-filename) (input-filename->output-filename input-filename))
-                               (#t (error "Invalid output filename: ~s" output-filename))))
-        (input-filenames (->list input-filename)))
-    (catch 'end-compile-now
-      (handler-bind ((runtime-error
-                      (if *debug*
-                          handle-runtime-error
-                          (lambda (message args)
-                            (format *compiler-error-port*
-                                    "\n\n\nINTERNAL COMPILER ERROR!, message=~s\n\targs=~s\n"
-                                    message args)
-                            (throw 'end-compile-now 127)))))
-        
-        (setup-initial-package!)
-        
-        (dynamic-let ((*location-mapping* (make-hash :eq)))
-          (compile-files input-filenames output-filename))
-        
-        (trace-message #t "; Compile completed successfully.\n"))
+(define (compiler-runtime-error-handler message args)
+  (if *debug*
+      (handle-runtime-error message args)
+      (begin
+        (trace-message #t "; Runtime error during compile:\n;   ~I\n"  message args)
+        (throw 'end-compile-now 127))))
 
+(define (parse-compiler-filename-arguments input-filename output-filename)
+  (let* ((input-filenames (->list input-filename))
+         (output-filename (aif output-filename
+                               it
+                               (find-default-output-filename input-filenames))))
+    (unless (string? output-filename)
+      (error "Invalid output filename: ~s" output-filename))
+    (values input-filenames
+            output-filename)))
+
+(define (compile-file input-filename :optional (output-filename #f))
+  (mvbind (input-filenames output-filename)
+      (parse-compiler-filename-arguments input-filename output-filename)
+    (catch 'end-compile-now
+      (handler-bind ((runtime-error compiler-runtime-error-handler))
+                (setup-initial-package!)
+        (dynamic-let ((*location-mapping* (make-hash :eq)))
+          (do-compile-files input-filenames
+                            output-filename))
+        (trace-message #t "; Compile completed successfully.\n"))
       0)))
