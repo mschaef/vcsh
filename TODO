@@ -3,11 +3,9 @@ vcsh TODO
 
 0.6 - Janitorial Work
 --------
-* Ensure that the compiler doesn't emit an output file on compile failures
 * Develop a standard approach for linking internal files. (Include autoload, csv, unit-test, etc.)
 * Add test case coverage
 * Verify correct operation of directory tools on both *nix and Windows.
-* Rename LRef and LObject to lref_t and lobject_t
 * Switch to standard C99 types for u32, etc.
 * Unify all the base-* header files
 * Split out the public scan API into its own header file
@@ -15,6 +13,8 @@ vcsh TODO
 * Add a more proactive heap enlargement policy. (To the GC hook)
 * Swich to a memory-size based heap sizing model rather than a segment-count based model.
 * Add a compiler option that emits a cross reference file describing global references.
+* Rename LRef and LObject to lref_t and lobject_t
+
 
 0.7 - Short-term Performance
 --------
