@@ -24,7 +24,7 @@ depend: $(VM_SRCS) $(SHO_SRCS)
 	$(CC) -MM $(CCFLAGS) $(DEFINES) $^ 1>.depend
 
 indented:
-	gnuindent ${SHOW_RETVAL_SRCS} ${TO_C_SOURCE_SRCS} base-tchar.h base-types.h
+	gnuindent ${SHOW_RETVAL_SRCS} ${TO_C_SOURCE_SRCS} base-types.h
 
 %${OBJ_EXT}: %.cpp Makefile
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<

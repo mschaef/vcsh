@@ -29,9 +29,6 @@
 #  endif
 #endif
 
-
-#include "base-tchar.h"
-
 /*** Definitions for inlining ***/
 
 #if defined(__GNUC__)
@@ -58,15 +55,6 @@
 #   define SIZE_T_PRINTF_PREFIX "I"
 #endif
 
-
-/* Couldn't find a better definition for these in the standard header files... */
-#ifdef _UNICODE
-#   define _TCHAR_MIN WCHAR_MIN
-#   define _TCHAR_MAX WCHAR_MAX
-#else
-#   define _TCHAR_MIN CHAR_MIN
-#   define _TCHAR_MAX CHAR_MAX
-#endif
 
 #if !defined(__GNUC__)
 #   define strtoll _strtoi64
@@ -167,8 +155,6 @@ typedef double flonum_t;
 #define BEGIN_NAMESPACE(name) namespace name {
 #define END_NAMESPACE }
 
-extern "C" int debug_printf(const _TCHAR *, ...);
-
 extern "C" INLINE int64_t make_i64(int64_t high, int64_t low)
 {
      return ((int64_t) high << 32) + (int64_t) low;
@@ -208,5 +194,69 @@ struct data_block_t
 #ifdef SCAN_WINDOWS
 #  pragma warning (pop)
 #endif
+
+/*** TCHAR ***/
+
+/* Couldn't find a better definition for these in the standard header files... */
+#ifdef _UNICODE
+#   define _TCHAR_MIN WCHAR_MIN
+#   define _TCHAR_MAX WCHAR_MAX
+#else
+#   define _TCHAR_MIN CHAR_MIN
+#   define _TCHAR_MAX CHAR_MAX
+#endif
+
+
+#ifdef SCAN_UNIX
+
+#  ifdef _UNICODE
+#    error Unicode unsupported on GNU C
+#  endif
+
+typedef char _TCHAR;
+
+#  define _T(x)     x
+
+#  define _vsntprintf  vsnprintf
+#  define _sntprintf   snprintf
+
+#  define _tcslen strlen
+#  define _tcscmp strcmp
+#  define _tcsncpy strncpy
+#  define _tcsncat strncat
+
+#  define _istupper isupper
+#  define _istlower islower
+#  define _istdigit isdigit
+#  define _totlower tolower
+#  define _istspace isspace
+#  define _istalpha isalpha
+#  define _istpunct ispunct
+#  define _totupper toupper
+#  define _stprintf sprintf
+#  define _tprintf  printf
+
+#  define _tmain main
+#endif                          /* SCAN_UNIX */
+
+#ifdef SCAN_WINDOWS
+#  if defined(_MSC_VER)
+#    include <tchar.h>
+#  endif
+#  if defined(__GNUC__)
+#    include "tchar.h"
+#    if !defined( __TEXT)
+#      if defined(_UNICODE)
+#        define __TEXT(string) L##string
+#      else
+#        define __TEXT(string) string
+#      endif
+#    endif
+#  endif
+#endif                          /* SCAN_WINDOWS */
+
+/*** debug_printf ***/
+
+extern "C" int debug_printf(const _TCHAR *, ...);
 
 #endif
