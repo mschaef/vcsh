@@ -39,6 +39,10 @@
 #define BEGIN_NAMESPACE(name) namespace name {
 #define END_NAMESPACE }
 
+/*** A macro that allow a variable to be denoted as unreferenced. ***/
+
+#define UNREFERENCED(x) ((void)x)
+
 /*** Definitions for inlining ***/
 
 #if defined(__GNUC__)
@@ -47,7 +51,7 @@
 #  define INLINE __forceinline
 #endif
 
-/*** Standard, useful types ***/
+/*** TRUE and FALSE ***/
 
 #ifndef TRUE
 #   define TRUE   (1==1)
@@ -57,20 +61,7 @@
 #   define FALSE (!TRUE)
 #endif
 
-#if defined(__GNUC__)
-#   define PRINTF_PREFIX_INT64 "ll"
-#   define PRINTF_PREFIX_SIZE_T "z"
-#elif defined(_MSC_VER)
-#   define PRINTF_PREFIX_INT64 "I64"
-#   define PRINTF_PREFIX_SIZE_T "I"
-#endif
-
-#if !defined(__GNUC__)
-#   define strtoll _strtoi64
-#endif
-
-/* Declare a variable otherwise unreferenced... */
-#define UNREFERENCED(x) ((void)x)
+/*** Build type flags ***/
 
 #ifdef _MSC_VER
 #  pragma warning (disable : 4127)      /* ...warning about the constants used to configure the build. */
@@ -92,6 +83,30 @@ enum {
 #endif
 };
 
+/*** 64-bit integer support ***/
+
+#if defined(__GNUC__)
+#   define PRINTF_PREFIX_INT64 "ll"
+#   define PRINTF_PREFIX_SIZE_T "z"
+#elif defined(_MSC_VER)
+#   define PRINTF_PREFIX_INT64 "I64"
+#   define PRINTF_PREFIX_SIZE_T "I"
+#endif
+
+extern "C" INLINE int64_t make_int64_t(int64_t high, int64_t low)
+{
+     return ((int64_t) high << 32) + (int64_t) low;
+}
+
+extern "C" INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
+{
+     return ((uint64_t) high << 32) + (uint64_t) low;
+}
+
+#if !defined(__GNUC__)
+#   define strtoll _strtoi64
+#endif
+
 /*** Minimum and Maximum ***/
 
 #ifndef MIN2
@@ -102,14 +117,22 @@ enum {
 #   define MAX2(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
+/*** Floating point aliases needed in MSVC ***/
+
 #if defined(_MSC_VER)
 #  include <float.h>
 
 #  define finite _finite
 #  define isnan _isnan
-#  define strncasecmp _strnicmp
 #  define ecvt _ecvt
 #endif
+
+/*** strncasecmp ***/
+
+#if defined(_MSC_VER)
+#  define strncasecmp _strnicmp
+#endif
+
 
 #ifdef SCAN_UNIX
 #  include <strings.h>
@@ -149,16 +172,6 @@ typedef double flonum_t;
 #define FLONUM_MAX DBL_MAX
 #define FLONUM_MIN -DBL_MAX
 #define FLONUM_EPSILON DBL_EPSILON
-
-extern "C" INLINE int64_t make_int64_t(int64_t high, int64_t low)
-{
-     return ((int64_t) high << 32) + (int64_t) low;
-}
-
-extern "C" INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
-{
-     return ((uint64_t) high << 32) + (uint64_t) low;
-}
 
 /*** TCHAR ***/
 
@@ -208,8 +221,8 @@ typedef char _TCHAR;
 #ifdef SCAN_WINDOWS
 #  if defined(_MSC_VER)
 #    include <tchar.h>
-#  endif
 #  if defined(__GNUC__)
+#  endif
 #    include "tchar.h"
 #    if !defined( __TEXT)
 #      if defined(_UNICODE)
