@@ -374,7 +374,7 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
 
   enum { MESSAGE_BUF_SIZE = 256 };
 
-  extern "C" int debug_printf(_TCHAR *format, ...)
+  extern "C" int debug_printf(const _TCHAR *format, ...)
   {
     int i;
     va_list args;
