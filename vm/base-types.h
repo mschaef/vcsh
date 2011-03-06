@@ -29,6 +29,16 @@
 #  endif
 #endif
 
+/* Macros for denoting C++ namespaces
+ * 
+ * Add macros for beginning and ending C++ namespaces. These are used to keep
+ * namespace blocks from confusing indent. If the namespace declarations are
+ * there, indent doesn't recognize function declarations as function
+ * declarations.
+ */
+#define BEGIN_NAMESPACE(name) namespace name {
+#define END_NAMESPACE }
+
 /*** Definitions for inlining ***/
 
 #if defined(__GNUC__)
@@ -109,7 +119,7 @@ enum {
 
 #define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
 
-/*** Global data types ***/
+/*** Fixnum and Flonum ***/
 
 #ifdef FIXNUM_64BIT
 typedef int64_t fixnum_t;
@@ -140,13 +150,7 @@ typedef double flonum_t;
 #define FLONUM_MIN -DBL_MAX
 #define FLONUM_EPSILON DBL_EPSILON
 
-/* Add macros for beginning and ending C++ namespaces. These are used to keep
- * namespace blocks from confusing indent. If the namespace declarations are
- * there, indent doesn't recognize function declarations as function declarations. */
-#define BEGIN_NAMESPACE(name) namespace name {
-#define END_NAMESPACE }
-
-extern "C" INLINE int64_t make_i64(int64_t high, int64_t low)
+extern "C" INLINE int64_t make_int64_t(int64_t high, int64_t low)
 {
      return ((int64_t) high << 32) + (int64_t) low;
 }
@@ -158,7 +162,8 @@ extern "C" INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
 
 /*** TCHAR ***/
 
-/* Couldn't find a better definition for these in the standard header files... */
+/* Couldn't find a better definition for these in the standard header
+ * files... */
 #ifdef _UNICODE
 #   define _TCHAR_MIN WCHAR_MIN
 #   define _TCHAR_MAX WCHAR_MAX

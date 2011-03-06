@@ -222,7 +222,7 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
     /*  REVISIT: Better way to get mode info? */
     buf->_mode    = (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? 0555 : 0777;
 
-    buf->_size    = make_i64(fd.nFileSizeHigh, fd.nFileSizeLow);
+    buf->_size    = make_int64_t(fd.nFileSizeHigh, fd.nFileSizeLow);
     buf->_atime   = filetime_to_time_t(fd.ftLastAccessTime);
     buf->_mtime   = filetime_to_time_t(fd.ftLastWriteTime);
     buf->_ctime   = filetime_to_time_t(fd.ftCreationTime);
