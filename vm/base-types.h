@@ -48,18 +48,16 @@
 #endif
 
 #if defined(__GNUC__)
-#   define INT64_PRINTF_PREFIX "ll"
-#   define SIZE_T_PRINTF_PREFIX "z"
+#   define PRINTF_PREFIX_INT64 "ll"
+#   define PRINTF_PREFIX_SIZE_T "z"
 #elif defined(_MSC_VER)
-#   define INT64_PRINTF_PREFIX "I64"
-#   define SIZE_T_PRINTF_PREFIX "I"
+#   define PRINTF_PREFIX_INT64 "I64"
+#   define PRINTF_PREFIX_SIZE_T "I"
 #endif
-
 
 #if !defined(__GNUC__)
 #   define strtoll _strtoi64
 #endif
-
 
 /* Declare a variable otherwise unreferenced... */
 #define UNREFERENCED(x) ((void)x)
@@ -70,26 +68,19 @@
 #  pragma warning (disable : 4061)      /* ...warning about enumerations unhandled by explicit case */
 #endif
 
+enum {
 #ifdef _DEBUG
-enum
-{ DEBUGGING_BUILD = TRUE };
-#   define REFERENCED_BY_DEBUG_BUILD(x)
+     DEBUGGING_BUILD = TRUE,
 #else
-enum
-{ DEBUGGING_BUILD = FALSE };
-#   define REFERENCED_BY_DEBUG_BUILD(x) UNREFERENCED(x)
+     DEBUGGING_BUILD = FALSE,
 #endif
-
 
 #ifdef CHECKED
-enum
-{ CHECKED_BUILD = TRUE };
-#   define REFERENCED_BY_CHECKED_BUILD(x)
+     CHECKED_BUILD = TRUE,
 #else
-enum
-{ CHECKED_BUILD = FALSE };
-#   define REFERENCED_BY_CHECKED_BUILD(x) UNREFERENCED(x)
+     CHECKED_BUILD = FALSE,
 #endif
+};
 
 /*** Minimum and Maximum ***/
 
@@ -129,7 +120,7 @@ typedef uint64_t unsigned_fixnum_t;
 #   define FIXNUM_MIN           INT64_MIN
 #   define FIXNUM_UNSIGNED_MAX  UINT64_MAX
 #   define FIXNUM_UNSIGNED_MIN  UINT64_MIN
-#   define FIXNUM_PRINTF_PREFIX  INT64_PRINTF_PREFIX
+#   define PRINTF_PREFIX_FIXNUM PRINTF_PREFIX_INT64
 
 #else
 typedef int32_t fixnum_t;
@@ -140,7 +131,7 @@ typedef uint32_t unsigned_fixnum_t;
 #   define FIXNUM_MIN           INT32_MIN
 #   define FIXNUM_UNSIGNED_MAX  UINT32_MAX
 #   define FIXNUM_UNSIGNED_MIN  UINT32_MIN
-#   define FIXNUM_PRINTF_PREFIX    ""
+#   define PRINTF_PREFIX_FIXNUM ""
 #endif
 
 typedef double flonum_t;
@@ -164,36 +155,6 @@ extern "C" INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
 {
      return ((uint64_t) high << 32) + (uint64_t) low;
 }
-
-/* Microsoft C and gcc appear to have differing opinions on how to
- * initialize a structure with an indefinate sized array at the end. */
-
-#if defined(_MSC_VER)
-
-typedef uint8_t data_block_data_t[];
-#  define DATA_BLOCK_DATA_CAST
-
-#else
-
-typedef uint8_t *data_block_data_t;
-#  define DATA_BLOCK_DATA_CAST (uint8_t [])
-
-#endif
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (push)
-#  pragma warning (disable: 4200)
-#endif
-
-struct data_block_t
-{
-     size_t _length;
-     data_block_data_t _bytes;
-};
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (pop)
-#endif
 
 /*** TCHAR ***/
 
@@ -255,5 +216,36 @@ typedef char _TCHAR;
 #  endif
 #endif                          /* SCAN_WINDOWS */
 
+/*** Data Block ***/
+
+/* Microsoft C and gcc appear to have differing opinions on how to
+ * initialize a structure with an indefinate sized array at the end. */
+
+#if defined(_MSC_VER)
+
+typedef uint8_t data_block_data_t[];
+#  define DATA_BLOCK_DATA_CAST
+
+#else
+
+typedef uint8_t *data_block_data_t;
+#  define DATA_BLOCK_DATA_CAST (uint8_t [])
+
+#endif
+
+#ifdef SCAN_WINDOWS
+#  pragma warning (push)
+#  pragma warning (disable: 4200)
+#endif
+
+struct data_block_t
+{
+     size_t _length;
+     data_block_data_t _bytes;
+};
+
+#ifdef SCAN_WINDOWS
+#  pragma warning (pop)
+#endif
 
 #endif

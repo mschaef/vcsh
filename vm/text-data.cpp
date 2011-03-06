@@ -630,7 +630,7 @@ LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
           {
           case 10:
                _sntprintf(buffer, STACK_STRBUF_LEN,
-                          signedp ? _T("%" FIXNUM_PRINTF_PREFIX "i") : _T("%" FIXNUM_PRINTF_PREFIX "u"),
+                          signedp ? _T("%" PRINTF_PREFIX_FIXNUM "i") : _T("%" PRINTF_PREFIX_FIXNUM "u"),
                           FIXNM(x));
 
                return strcons(buffer);
@@ -640,14 +640,14 @@ LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
                if (signedp)
                {
                     if (FIXNM(x) < 0)
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" FIXNUM_PRINTF_PREFIX "x"),
+                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "x"),
                                     -FIXNM(x));
                     else
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" FIXNUM_PRINTF_PREFIX "x"),
+                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "x"),
                                     FIXNM(x));
                }
                else
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" FIXNUM_PRINTF_PREFIX "x"), FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "x"), FIXNM(x));
                return strcons(buffer);
                break;
 
@@ -655,14 +655,14 @@ LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
                if (signedp)
                {
                     if (FIXNM(x) < 0)
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" FIXNUM_PRINTF_PREFIX "o"),
+                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "o"),
                                     -FIXNM(x));
                     else
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" FIXNUM_PRINTF_PREFIX "o"),
+                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "o"),
                                     FIXNM(x));
                }
                else
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" FIXNUM_PRINTF_PREFIX "o"), FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "o"), FIXNM(x));
                return strcons(buffer);
                break;
 

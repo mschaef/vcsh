@@ -1942,8 +1942,6 @@ void scan_postmortem_dump();
 
 INLINE bool DEBUG_FLAG(debug_flag_t flag)
 {
-     REFERENCED_BY_DEBUG_BUILD(flag);
-
      if (!DEBUGGING_BUILD)
           return false;
 
