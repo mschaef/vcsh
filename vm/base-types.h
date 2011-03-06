@@ -21,7 +21,9 @@
 #  include <stdint.h>
 #endif
 #ifdef SCAN_WINDOWS
-#  if defined(__MSC_VER)
+#  if defined(_MSC_VER)
+#    define __STDC_LIMIT_MACROS
+#    define __STDC_CONSTANT_MACROS
 #    include "chemeris-stdint.h"
 #  endif
 #  if defined(__GNUC__)

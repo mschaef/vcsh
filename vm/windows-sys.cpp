@@ -177,12 +177,11 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
  * are seconds from January 1st, 1970. The offset is itself
  * measured in FILETIME units.
  */
-  const u64_t FT_UNITS_PER_SECOND = U64(10000000);
-  const u64_t FT_UNITS_OFS        = U64(116444736000000000);
-
+  const uint64_t FT_UNITS_PER_SECOND = UINT64_C(10000000);
+  const uint64_t FT_UNITS_OFS        = UINT64_C(116444736000000000);
   static sys_time_t filetime_to_time_t(FILETIME ft)
   {
-    u64_t ftlinear = make_u64_t(ft.dwHighDateTime, ft.dwLowDateTime);
+    uint64_t ftlinear = make_uint64_t(ft.dwHighDateTime, ft.dwLowDateTime);
 
     return sys_time_t((ftlinear - FT_UNITS_OFS) / FT_UNITS_PER_SECOND);
   }
@@ -480,8 +479,8 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
   }
 
 
-  static u8_t *sys_stack_start;
-  u8_t *stack_limit_obj;
+  static uint8_t *sys_stack_start;
+  uint8_t *stack_limit_obj;
 
   static bool sys_initialized = false;
 
@@ -490,7 +489,7 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
        /*  REVISIT: Can this be done more efficiently with inline assembly? */
     int stack_location;
 
-    sys_stack_start = (u8_t *)&stack_location;
+    sys_stack_start = (uint8_t *)&stack_location;
 
     if (sys_init_time() != SYS_OK)
       return SYS_E_FAIL;
@@ -513,13 +512,13 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
      * a stack limit violation at the next check. This clamp keeps that
      * from happening.
      */
-    if (new_size_limit > (uptr_t)sys_stack_start)
+    if (new_size_limit > (uintptr_t)sys_stack_start)
       new_size_limit = 0;
 
     if (new_size_limit == 0)
-      stack_limit_obj = (u8_t *)0;
+      stack_limit_obj = (uint8_t *)0;
     else
-      stack_limit_obj = (u8_t *)(sys_stack_start - new_size_limit);
+      stack_limit_obj = (uint8_t *)(sys_stack_start - new_size_limit);
 
     return stack_limit_obj;
   }
