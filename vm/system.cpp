@@ -400,14 +400,14 @@ LRef lsystem_info()
      lhash_set(obj, keyword_intern(_T("maximum-name-length")), fixcons(SYS_NAME_MAX));
      lhash_set(obj, keyword_intern(_T("maximum-path-length")), fixcons(SYS_PATH_MAX));
 
-     lhash_set(obj, keyword_intern(_T("size-of-lobject")), fixcons(sizeof(LObject)));
+     lhash_set(obj, keyword_intern(_T("size-of-lobject")), fixcons(sizeof(lobject_t)));
      lhash_set(obj, keyword_intern(_T("size-of-fixnum")), fixcons(sizeof(fixnum_t)));
      lhash_set(obj, keyword_intern(_T("size-of-flonum")), fixcons(sizeof(flonum_t)));
      lhash_set(obj, keyword_intern(_T("size-of-lref")), fixcons(sizeof(LRef)));
 
 
      lhash_set(obj, keyword_intern(_T("heap-segment-size")),
-               fixcons(interp.gc_heap_segment_size * sizeof(LObject)));
+               fixcons(interp.gc_heap_segment_size * sizeof(lobject_t)));
      lhash_set(obj, keyword_intern(_T("current-heap-segments")),
                fixcons(interp.gc_current_heap_segments));
      lhash_set(obj, keyword_intern(_T("maximum-heap-segments")),

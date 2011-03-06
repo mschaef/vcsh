@@ -112,8 +112,8 @@ enum
 
 struct port_class_t;
 struct port_info_t;
-struct LObject;
-typedef LObject *LRef;
+struct lobject_t;
+typedef lobject_t *LRef;
 
 enum lref_tag_t
 {
@@ -200,7 +200,7 @@ struct hash_entry_t
 };
 
 #pragma pack(push, 4)
-struct LObject
+struct lobject_t
 {
      struct
      {
@@ -328,7 +328,7 @@ struct LObject
 };
 #pragma pack(pop)
 
-const LRef NIL = ((LObject *) 0);
+const LRef NIL = ((lobject_t *) 0);
 
 INLINE bool EQ(LRef x, LRef y)
 {
@@ -446,10 +446,10 @@ struct interpreter_thread_info_block_t
 
 struct interpreter_t
 {
-     /*  A statically allocated LObject used to hold a debugger output port.
+     /*  A statically allocated lobject_t used to hold a debugger output port.
       *  This is intended to be available before the GC heap is operational,
       *  so it has to be located here, and not on the heap. */
-     LObject debugger_output;
+     lobject_t debugger_output;
 
      /* Debugger flags. */
      debug_flag_t debug_flags;

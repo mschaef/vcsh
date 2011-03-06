@@ -2,7 +2,7 @@
 /*
  * memory.cpp --
  *
- * Garbage collected heap management. The GC heap is a heap of LObject's
+ * Garbage collected heap management. The GC heap is a heap of lobject_t's
  * managed by a conservative mark and sweep  garbage collector.
  *
  * (C) Copyright 2001-2011 East Coast Toolworks Inc.
@@ -129,7 +129,7 @@ static bool gc_enlarge_heap()
           return false;
      }
 
-     LRef seg_base = (LRef) safe_malloc(sizeof(LObject) * interp.gc_heap_segment_size);
+     LRef seg_base = (LRef) safe_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
 
      if (seg_base == NULL)
      {
@@ -141,7 +141,7 @@ static bool gc_enlarge_heap()
 
      interp.gc_current_heap_segments++;
 
-     interp.c_bytes_gc_threshold += (sizeof(LObject) * interp.gc_heap_segment_size);
+     interp.c_bytes_gc_threshold += (sizeof(lobject_t) * interp.gc_heap_segment_size);
 
      interp.gc_heap_segments[seg_idx] = seg_base;
 
@@ -170,8 +170,8 @@ static bool gc_possible_heap_pointer_p(LRef p)
           if ((p < h) || (p >= (h + interp.gc_heap_segment_size)))
                continue;
 
-          /*  Pointers are aligned at LObject boundaries */
-          if (((((uint8_t *) p) - ((uint8_t *) h)) % sizeof(LObject)) != 0)
+          /*  Pointers are aligned at lobject_t boundaries */
+          if (((((uint8_t *) p) - ((uint8_t *) h)) % sizeof(lobject_t)) != 0)
                continue;
 
           /*  Pointers have types */
