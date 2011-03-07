@@ -21,16 +21,16 @@ BEGIN_NAMESPACE(scan)
  * Traverse the heap segments, writing the FASL code of each cell to
  * a file of the specified name.
  */
-LRef ldump_heap_state(LRef port)
+lref_t ldump_heap_state(lref_t port)
 {
      for (size_t heap_no = 0; heap_no < interp.gc_max_heap_segments; heap_no++)
      {
           if (interp.gc_heap_segments[heap_no] == NULL)
                continue;
 
-          LRef obj;
-          LRef org = interp.gc_heap_segments[heap_no];
-          LRef end = org + interp.gc_heap_segment_size;
+          lref_t obj;
+          lref_t org = interp.gc_heap_segments[heap_no];
+          lref_t end = org + interp.gc_heap_segment_size;
           fixnum_t ii;
           
           for (obj = org, ii = 0; obj < end; obj++, ii++)
@@ -51,7 +51,7 @@ LRef ldump_heap_state(LRef port)
 
 void scan_postmortem_dump()
 {
-     LRef oport = CURRENT_DEBUG_PORT();
+     lref_t oport = CURRENT_DEBUG_PORT();
 
      for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
@@ -85,11 +85,11 @@ void scan_postmortem_dump()
      }
 }
 
-LRef lheap_cell_count_by_typecode()
+lref_t lheap_cell_count_by_typecode()
 {
-     LRef obj, org, end;
+     lref_t obj, org, end;
      typecode_t type;
-     LRef result = NIL;
+     lref_t result = NIL;
 
      size_t internal_type_counts[LAST_INTERNAL_TYPEC + 1];
 
@@ -122,7 +122,7 @@ LRef lheap_cell_count_by_typecode()
      return result;
 }
 
-LRef lmemref_byte(LRef addr)
+lref_t lmemref_byte(lref_t addr)
 {
      size_t baseaddr = (size_t) get_c_long(addr);
 
@@ -132,7 +132,7 @@ LRef lmemref_byte(LRef addr)
 }
 
 
-LRef lstress_lisp_heap(LRef c)
+lref_t lstress_lisp_heap(lref_t c)
 {
      if (!FIXNUMP(c))
           vmerror_wrong_type(1, c);
@@ -146,7 +146,7 @@ LRef lstress_lisp_heap(LRef c)
 }
 
 
-LRef lstress_c_heap(LRef c, LRef s)
+lref_t lstress_c_heap(lref_t c, lref_t s)
 {
      if (!FIXNUMP(c))
           vmerror_wrong_type(1, c);
@@ -163,17 +163,17 @@ LRef lstress_c_heap(LRef c, LRef s)
      return NIL;
 }
 
-LRef lsysob(LRef addr)          /* address->object */
+lref_t lsysob(lref_t addr)          /* address->object */
 {
-     return (LRef) get_c_long(addr);
+     return (lref_t) get_c_long(addr);
 };
 
-LRef lobaddr(LRef object)       /* object->address */
+lref_t lobaddr(lref_t object)       /* object->address */
 {
      return fixcons((fixnum_t) object);
 }
 
-LRef lset_debug_flags(LRef v)
+lref_t lset_debug_flags(lref_t v)
 {
      if (!FIXNUMP(v))
           vmerror_wrong_type(1, v);
@@ -186,7 +186,7 @@ LRef lset_debug_flags(LRef v)
      return fixcons(old_flags);
 }
 
-LRef ldebug_flags()
+lref_t ldebug_flags()
 {
      return fixcons(interp.debug_flags);
 }
@@ -209,7 +209,7 @@ enum
      BLOCKIN_MAX_BLOCK_SIZE = 256
 };
 
-bool test_blocking_input_read(LRef port, void *userdata)
+bool test_blocking_input_read(lref_t port, void *userdata)
 {
      uint8_t buf[BLOCKIN_MAX_BLOCK_SIZE];
 
@@ -229,7 +229,7 @@ bool test_blocking_input_read(LRef port, void *userdata)
      return info->_length > 0;
 }
 
-void test_blocking_input_close(LRef port, void *userdata)
+void test_blocking_input_close(lref_t port, void *userdata)
 {
      UNREFERENCED(port);
 
@@ -239,7 +239,7 @@ void test_blocking_input_close(LRef port, void *userdata)
 }
 
 
-LRef ltest_blocking_input(LRef block_size, LRef length, LRef binary)
+lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary)
 {
      if (!FIXNUMP(block_size))
           vmerror_wrong_type(1, block_size);
@@ -372,7 +372,7 @@ debug_flag_t debug_flags_from_environment(debug_flag_t initial)
 }
 
 
-LRef ltime_apply0(LRef fn)
+lref_t ltime_apply0(lref_t fn)
 {
      if (!PROCEDUREP(fn))
           vmerror_wrong_type(1, fn);
@@ -383,7 +383,7 @@ LRef ltime_apply0(LRef fn)
      flonum_t t = sys_runtime();
      flonum_t gc_t = interp.gc_total_run_time;
 
-     LRef argv[6];
+     lref_t argv[6];
 
      argv[0] = apply1(fn, 0, NULL);
 

@@ -192,15 +192,15 @@ static void process_vm_arguments(int argc, _TCHAR * argv[])
 
 static void accept_command_line_arguments(int argc, _TCHAR * argv[])
 {
-     LRef arg_list = NIL;
-     LRef arg_list_bud = NIL;
+     lref_t arg_list = NIL;
+     lref_t arg_list_bud = NIL;
 
      for (int ii = 0; ii < argc; ii++)
      {
           if (is_vm_argument(argv[ii]))
                continue;
 
-          LRef new_cell = lcons(strcons(argv[ii]), NIL);
+          lref_t new_cell = lcons(strcons(argv[ii]), NIL);
 
           if (NULLP(arg_list_bud))
           {
@@ -216,7 +216,7 @@ static void accept_command_line_arguments(int argc, _TCHAR * argv[])
      interp.startup_args = arg_list;
 }
 
-LRef listartup_args()
+lref_t listartup_args()
 {
      return interp.startup_args;
 }
@@ -529,8 +529,8 @@ static void global_environment_asserts()
       * in memory than the start of the stack */
      assert(&stack_start < stack_start);
 
-     /* An LObject is the size of four pointers (LRef's) */
-     assert(sizeof(lobject_t) == 4 * sizeof(LRef));
+     /* An LObject is the size of four pointers (lref_t's) */
+     assert(sizeof(lobject_t) == 4 * sizeof(lref_t));
 }
 
 
@@ -538,11 +538,11 @@ static void load_init_load_files()
 {
      for (size_t ii = 0; ii < interp.init_load_file_count; ii++)
      {
-          LRef fname = strcons(interp.init_load_file_name[ii]);
+          lref_t fname = strcons(interp.init_load_file_name[ii]);
 
           dscwritef(DF_ALWAYS, ("; Init Loading ~a...\n", fname));
 
-          LRef port = lopen_input_file(fname, keyword_intern(_T("binary")));
+          lref_t port = lopen_input_file(fname, keyword_intern(_T("binary")));
 
           liifasl_load(port);
 
@@ -615,7 +615,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
-     gc_protect(_T("frame-stack"), (lobject_t **)&(CURRENT_TIB()->frame_stack[0]), sizeof(CURRENT_TIB()->frame_stack) / sizeof(LRef));
+     gc_protect(_T("frame-stack"), (lobject_t **)&(CURRENT_TIB()->frame_stack[0]), sizeof(CURRENT_TIB()->frame_stack) / sizeof(lref_t));
 
      accept_command_line_arguments(argc, argv);
 
@@ -628,7 +628,7 @@ flonum_t time_since_launch()
      return sys_runtime() - interp.launch_realtime;
 }
 
-LRef run()
+lref_t run()
 {
      if (DEBUG_FLAG(DF_NO_STARTUP))
           return NIL;

@@ -26,12 +26,12 @@ BEGIN_NAMESPACE(scan)
 /**************************************************************
  * Character
  */
-LRef charcons(_TCHAR ch)
+lref_t charcons(_TCHAR ch)
 {
      return LREF2_CONS(LREF2_CHARACTER, ch);
 }
 
-LRef lchar2integer(LRef s)
+lref_t lchar2integer(lref_t s)
 {
      if (!CHARP(s))
           vmerror_wrong_type(1, s);
@@ -39,7 +39,7 @@ LRef lchar2integer(LRef s)
      return fixcons(CHARV(s));
 }
 
-LRef lcharp(LRef x)
+lref_t lcharp(lref_t x)
 {
      if (CHARP(x))
           return x;
@@ -47,7 +47,7 @@ LRef lcharp(LRef x)
           return boolcons(false);
 }
 
-LRef linteger2char(LRef s)
+lref_t linteger2char(lref_t s)
 {
      if (!NUMBERP(s))
           vmerror_wrong_type(1, s);
@@ -64,7 +64,7 @@ LRef linteger2char(LRef s)
  * String data type implementation
  */
 
-bool string_equal(LRef a, LRef b)
+bool string_equal(lref_t a, lref_t b)
 {
      size_t len;
 
@@ -105,7 +105,7 @@ static size_t string_storage_size(size_t bytes_to_be_stored)
      return storage_size;
 }
 
-LRef strrecons(LRef obj, size_t new_length)
+lref_t strrecons(lref_t obj, size_t new_length)
 {
      size_t space_needed;
      size_t space_already_allocated = 0;
@@ -139,17 +139,17 @@ LRef strrecons(LRef obj, size_t new_length)
 }
 
 
-LRef strcons()
+lref_t strcons()
 {
      return strcons(0, (const _TCHAR *) NULL);
 }
 
-LRef strcons(_TCHAR ch)
+lref_t strcons(_TCHAR ch)
 {
      return strcons(1, &ch);
 }
 
-LRef strcons(const _TCHAR * buffer)
+lref_t strcons(const _TCHAR * buffer)
 {
      assert(buffer);
 
@@ -157,29 +157,29 @@ LRef strcons(const _TCHAR * buffer)
 }
 
 
-LRef strcons(const _TCHAR * buffer, _TCHAR trailing)
+lref_t strcons(const _TCHAR * buffer, _TCHAR trailing)
 {
      assert(buffer);
 
      size_t len = _tcslen(buffer);
 
-     LRef retval = strcons(len + 1, buffer);
+     lref_t retval = strcons(len + 1, buffer);
 
      STRING_DATA(retval)[len] = trailing;
 
      return retval;
 }
 
-LRef strcons(LRef str)
+lref_t strcons(lref_t str)
 {
      assert(STRINGP(str));
 
      return strcons(STRING_DIM(str), STRING_DATA(str));
 }
 
-LRef strcons(size_t length, const _TCHAR * buffer)
+lref_t strcons(size_t length, const _TCHAR * buffer)
 {
-     LRef new_string = new_cell(TC_STRING);
+     lref_t new_string = new_cell(TC_STRING);
 
      SET_STRING_DATA(new_string, NULL);
      SET_STRING_OFS(new_string, 0);
@@ -193,7 +193,7 @@ LRef strcons(size_t length, const _TCHAR * buffer)
      return new_string;
 }
 
-LRef strcons_transfer_buffer(size_t length, _TCHAR * buffer)
+lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer)
 {
      /* This variant of strcons is used to transfer ownership
       * of <buffer> to the interpreter, so that the interpreter
@@ -201,7 +201,7 @@ LRef strcons_transfer_buffer(size_t length, _TCHAR * buffer)
       * must be dynamically allocated with safe_malloc for this
       * to work. */
 
-     LRef new_string = new_cell(TC_STRING);
+     lref_t new_string = new_cell(TC_STRING);
 
      assert(buffer[length] == _T('\0'));        /*  String buffers must be null terminated. */
 
@@ -215,7 +215,7 @@ LRef strcons_transfer_buffer(size_t length, _TCHAR * buffer)
 /* string-ref *************************************************
  * string-set! */
 
-LRef lstring_ref(LRef a, LRef i)
+lref_t lstring_ref(lref_t a, lref_t i)
 {
      if (!STRINGP(a))
           vmerror_wrong_type(1, a);
@@ -231,7 +231,7 @@ LRef lstring_ref(LRef a, LRef i)
      return charcons(STRING_DATA(a)[k]);
 }
 
-LRef lstring_set(LRef a, LRef i, LRef v)
+lref_t lstring_set(lref_t a, lref_t i, lref_t v)
 {
      if (!STRINGP(a))
           vmerror_wrong_type(1, a);
@@ -256,10 +256,10 @@ LRef lstring_set(LRef a, LRef i, LRef v)
 
 /* string-append **********************************************/
 
-LRef lstring_append(size_t argc, LRef argv[])
+lref_t lstring_append(size_t argc, lref_t argv[])
 {
      fixnum_t size = 0;
-     LRef current_string;
+     lref_t current_string;
 
      for (size_t ii = 0; ii < argc; ii++)
      {
@@ -283,7 +283,7 @@ LRef lstring_append(size_t argc, LRef argv[])
                vmerror_wrong_type(ii, argv[ii]);
      }
 
-     LRef s = strcons((size_t) size, NULL);
+     lref_t s = strcons((size_t) size, NULL);
 
      _TCHAR *data = STRING_DATA(s);
      size_t pos = 0;
@@ -319,7 +319,7 @@ LRef lstring_append(size_t argc, LRef argv[])
 
 /* substring **************************************************/
 
-LRef lsubstring(LRef str, LRef start, LRef end)
+lref_t lsubstring(lref_t str, lref_t start, lref_t end)
 {
      size_t s, e;
 
@@ -344,7 +344,7 @@ LRef lsubstring(LRef str, LRef start, LRef end)
 
 /* string-search **********************************************/
 
-size_t get_string_offset(LRef maybe_ofs)
+size_t get_string_offset(lref_t maybe_ofs)
 {
      if (NULLP(maybe_ofs))
           return 0;
@@ -360,7 +360,7 @@ size_t get_string_offset(LRef maybe_ofs)
      return (size_t) ofs;
 }
 
-LRef lstring_search(LRef tok, LRef str, LRef maybe_initial_ofs) /*  REVISIT: to Knuth-Morris-Pratt */
+lref_t lstring_search(lref_t tok, lref_t str, lref_t maybe_initial_ofs) /*  REVISIT: to Knuth-Morris-Pratt */
 {
      if (!STRINGP(tok) && !CHARP(tok))
           vmerror_wrong_type(1, tok);
@@ -392,7 +392,7 @@ LRef lstring_search(LRef tok, LRef str, LRef maybe_initial_ofs) /*  REVISIT: to 
      return boolcons(false);
 }
 
-LRef lstring_search_from_right(LRef tok, LRef str, LRef maybe_from)
+lref_t lstring_search_from_right(lref_t tok, lref_t str, lref_t maybe_from)
 {
 
      if (!STRINGP(tok) && !CHARP(tok))
@@ -437,7 +437,7 @@ LRef lstring_search_from_right(LRef tok, LRef str, LRef maybe_from)
  * string-trim-left
  * string-trim-right */
 
-LRef lstring_trim(LRef str, LRef tc)
+lref_t lstring_trim(lref_t str, lref_t tc)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);
@@ -465,7 +465,7 @@ LRef lstring_trim(LRef str, LRef tc)
      return strcons(end - start, &(STRING_DATA(str)[start]));
 }
 
-LRef lstring_trim_left(LRef str, LRef tc)
+lref_t lstring_trim_left(lref_t str, lref_t tc)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);
@@ -488,7 +488,7 @@ LRef lstring_trim_left(LRef str, LRef tc)
      return strcons(STRING_DIM(str) - start, &(STRING_DATA(str)[start]));
 }
 
-LRef lstring_trim_right(LRef str, LRef tc)
+lref_t lstring_trim_right(lref_t str, lref_t tc)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);
@@ -515,7 +515,7 @@ LRef lstring_trim_right(LRef str, LRef tc)
 /* string-upcase **********************************************
  * string-downcase */
 
-LRef lstring_upcased(LRef str)
+lref_t lstring_upcased(lref_t str)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);
@@ -527,7 +527,7 @@ LRef lstring_upcased(LRef str)
      return str;
 }
 
-LRef lstring_upcase(LRef str)
+lref_t lstring_upcase(lref_t str)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);
@@ -535,7 +535,7 @@ LRef lstring_upcase(LRef str)
      return lstring_upcased(strcons(str));
 }
 
-LRef lstring_downcased(LRef str)
+lref_t lstring_downcased(lref_t str)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);
@@ -547,7 +547,7 @@ LRef lstring_downcased(LRef str)
      return str;
 }
 
-LRef lstring_downcase(LRef str)
+lref_t lstring_downcase(lref_t str)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);
@@ -557,7 +557,7 @@ LRef lstring_downcase(LRef str)
 
 
 
-LRef lnumber2string(LRef x, LRef r, LRef s, LRef p)
+lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
 {
      _TCHAR buffer[STACK_STRBUF_LEN];
      fixnum_t radix = 10;
@@ -706,7 +706,7 @@ bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result)
           return true;
 }
 
-LRef lstring2number(LRef s, LRef r)
+lref_t lstring2number(lref_t s, lref_t r)
 {
      _TCHAR *string, *endobj;
      long radix = 10;
@@ -753,7 +753,7 @@ LRef lstring2number(LRef s, LRef r)
      return flocons(flo_result);
 }
 
-LRef lisp_strcmp(LRef s1, LRef s2)
+lref_t lisp_strcmp(lref_t s1, lref_t s2)
 {
      size_t loc;
 
@@ -778,7 +778,7 @@ LRef lisp_strcmp(LRef s1, LRef s2)
      return fixcons(0);
 }
 
-LRef lstringp(LRef x)
+lref_t lstringp(lref_t x)
 {
      if (STRINGP(x))
           return x;
@@ -786,13 +786,13 @@ LRef lstringp(LRef x)
           return boolcons(false);
 }
 
-LRef lstring_length(LRef string)
+lref_t lstring_length(lref_t string)
 {
      return fixcons(STRING_DIM(string));
 }
 
 
-LRef lstring_first_char(LRef string, LRef char_set, LRef maybe_initial_ofs)
+lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_ofs)
 {
      /*  REVISIT: string-first-char should take args in same order as string-search */
 
@@ -817,7 +817,7 @@ LRef lstring_first_char(LRef string, LRef char_set, LRef maybe_initial_ofs)
      return boolcons(false);
 }
 
-LRef lstring_first_substring(LRef string, LRef char_set, LRef maybe_initial_ofs)
+lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_initial_ofs)
 {
      /*  REVISIT: string-first-string should take args in same order as string-search */
 
@@ -848,7 +848,7 @@ LRef lstring_first_substring(LRef string, LRef char_set, LRef maybe_initial_ofs)
           return fixcons(loc);
 }
 
-LRef lstring_copy(LRef string)
+lref_t lstring_copy(lref_t string)
 {
      if (!STRINGP(string))
           vmerror_wrong_type(1, string);
@@ -856,7 +856,7 @@ LRef lstring_copy(LRef string)
      return strcons(string);
 }
 
-LRef lcharacter2string(LRef obj)
+lref_t lcharacter2string(lref_t obj)
 {
      if (!CHARP(obj))
           vmerror_wrong_type(1, obj);
@@ -867,7 +867,7 @@ LRef lcharacter2string(LRef obj)
 }
 
 
-int str_next_character(LRef obj)
+int str_next_character(lref_t obj)
 {
      size_t ofs;
      int ch;
@@ -885,7 +885,7 @@ int str_next_character(LRef obj)
      return ch;
 }
 
-void str_append_str(LRef obj, _TCHAR * str, size_t len)
+void str_append_str(lref_t obj, _TCHAR * str, size_t len)
 {
      assert(STRINGP(obj));
 
@@ -901,7 +901,7 @@ void str_append_str(LRef obj, _TCHAR * str, size_t len)
  * C string access
  */
 
-_TCHAR *try_get_c_string(LRef x)
+_TCHAR *try_get_c_string(lref_t x)
 {
      if (SYMBOLP(x))
      {
@@ -916,7 +916,7 @@ _TCHAR *try_get_c_string(LRef x)
           return NULL;
 }
 
-_TCHAR *get_c_string(LRef x)
+_TCHAR *get_c_string(lref_t x)
 {
      _TCHAR *str = try_get_c_string(x);
 
@@ -928,7 +928,7 @@ _TCHAR *get_c_string(LRef x)
      return NULL;
 }
 
-_TCHAR *get_c_string_dim(LRef x, size_t * len)
+_TCHAR *get_c_string_dim(lref_t x, size_t * len)
 {
      _TCHAR *rc = get_c_string(x);
 
@@ -1110,7 +1110,7 @@ size_t float_format(_TCHAR * buf, size_t buf_len,
      return result_loc - buf;
 }
 
-LRef linexact2display_string(LRef n, LRef sf, LRef sci, LRef s)
+lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
      float_seperator sep = NO_SEPERATOR;

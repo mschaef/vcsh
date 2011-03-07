@@ -28,17 +28,17 @@ BEGIN_NAMESPACE(scan)
  * state = FILE *
  * extended_state = Scheme object containing file name
  */
-INLINE void SET_PORT_FILE(LRef port, FILE * file)
+INLINE void SET_PORT_FILE(lref_t port, FILE * file)
 {
      PORT_PINFO(port)->_user_data = file;
 }
 
-INLINE FILE *PORT_FILE(LRef port)
+INLINE FILE *PORT_FILE(lref_t port)
 {
      return (FILE *) (PORT_PINFO(port)->_user_data);
 }
 
-LRef fileportcons(port_class_t * cls, port_mode_t mode, LRef filename)
+lref_t fileportcons(port_class_t * cls, port_mode_t mode, lref_t filename)
 {
      assert(STRINGP(filename) || NULLP(filename));
 
@@ -46,7 +46,7 @@ LRef fileportcons(port_class_t * cls, port_mode_t mode, LRef filename)
 }
 
 
-void file_port_open(LRef obj)
+void file_port_open(lref_t obj)
 {
      FILE *f = NULL;
 
@@ -73,7 +73,7 @@ void file_port_open(LRef obj)
 }
 
 
-size_t file_port_read(void *buf, size_t size, size_t count, LRef obj)
+size_t file_port_read(void *buf, size_t size, size_t count, lref_t obj)
 {
      FILE *f = PORT_FILE(obj);
 
@@ -82,7 +82,7 @@ size_t file_port_read(void *buf, size_t size, size_t count, LRef obj)
      return fread(buf, size, count, f);
 }
 
-size_t file_port_write(const void *buf, size_t size, size_t count, LRef obj)
+size_t file_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 {
      FILE *f = PORT_FILE(obj);
 
@@ -91,7 +91,7 @@ size_t file_port_write(const void *buf, size_t size, size_t count, LRef obj)
      return (int) fwrite(buf, size, count, f);
 }
 
-int file_port_flush(LRef obj)
+int file_port_flush(lref_t obj)
 {
      FILE *f = PORT_FILE(obj);
 
@@ -100,7 +100,7 @@ int file_port_flush(LRef obj)
      return fflush(f);
 }
 
-void file_port_close(LRef obj)
+void file_port_close(lref_t obj)
 {
      FILE *f = PORT_FILE(obj);
 
@@ -130,7 +130,7 @@ port_class_t file_port_class = {
      NULL,
 };
 
-bool get_c_port_mode(LRef mode)
+bool get_c_port_mode(lref_t mode)
 {
      if (NULLP(mode))
           return false;
@@ -148,7 +148,7 @@ bool get_c_port_mode(LRef mode)
      return false;
 }
 
-LRef lopen_input_file(LRef filename, LRef mode)
+lref_t lopen_input_file(lref_t filename, lref_t mode)
 {
      bool binary = get_c_port_mode(mode);
 
@@ -159,7 +159,7 @@ LRef lopen_input_file(LRef filename, LRef mode)
                          filename);
 }
 
-LRef lopen_output_file(LRef filename, LRef mode)
+lref_t lopen_output_file(lref_t filename, lref_t mode)
 {
      bool binary = get_c_port_mode(mode);
 
@@ -176,12 +176,12 @@ LRef lopen_output_file(LRef filename, LRef mode)
  * do their thing.
  */
 
-void stdio_port_close(LRef obj)
+void stdio_port_close(lref_t obj)
 {
      SET_PORT_FILE(obj, NULL);
 }
 
-void stdin_port_open(LRef obj)
+void stdin_port_open(lref_t obj)
 {
      SET_PORT_FILE(obj, stdin);
 }
@@ -204,7 +204,7 @@ port_class_t stdin_port_class = {
      NULL,
 };
 
-void stdout_port_open(LRef obj)
+void stdout_port_open(lref_t obj)
 {
      SET_PORT_FILE(obj, stdout);
 }
@@ -227,7 +227,7 @@ port_class_t stdout_port_class = {
      NULL,
 };
 
-void stderr_port_open(LRef obj)
+void stderr_port_open(lref_t obj)
 {
      SET_PORT_FILE(obj, stderr);
 }
@@ -253,9 +253,9 @@ port_class_t stderr_port_class = {
 
 void init_stdio_ports()
 {
-     LRef stdin_port = fileportcons(&stdin_port_class, PORT_INPUT, NIL);
-     LRef stdout_port = fileportcons(&stdout_port_class, PORT_OUTPUT, NIL);
-     LRef stderr_port = fileportcons(&stderr_port_class, PORT_OUTPUT, NIL);
+     lref_t stdin_port = fileportcons(&stdin_port_class, PORT_INPUT, NIL);
+     lref_t stdout_port = fileportcons(&stdout_port_class, PORT_OUTPUT, NIL);
+     lref_t stderr_port = fileportcons(&stderr_port_class, PORT_OUTPUT, NIL);
 
      interp.control_fields[VMCTRL_CURRENT_INPUT_PORT] = stdin_port;
      interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT] = stdout_port;

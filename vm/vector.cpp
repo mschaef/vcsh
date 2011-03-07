@@ -14,12 +14,12 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-LRef vectorcons(fixnum_t n, LRef initial)
+lref_t vectorcons(fixnum_t n, lref_t initial)
 {
-     LRef vec = new_cell(TC_VECTOR);
+     lref_t vec = new_cell(TC_VECTOR);
 
      SET_VECTOR_DIM(vec, (size_t) n);
-     SET_VECTOR_DATA(vec, (LRef *) safe_malloc(((size_t) n) * sizeof(LRef)));
+     SET_VECTOR_DATA(vec, (lref_t *) safe_malloc(((size_t) n) * sizeof(lref_t)));
 
      for (fixnum_t ii = 0; ii < n; ii++)
           SET_VECTOR_ELEM(vec, ii, initial);
@@ -28,7 +28,7 @@ LRef vectorcons(fixnum_t n, LRef initial)
 }
 
 
-bool vector_equal(LRef veca, LRef vecb)
+bool vector_equal(lref_t veca, lref_t vecb)
 {
      assert(VECTORP(veca));
      assert(VECTORP(vecb));
@@ -47,7 +47,7 @@ bool vector_equal(LRef veca, LRef vecb)
      return TRUE;
 }
 
-LRef lmake_vector(LRef dim, LRef initial)
+lref_t lmake_vector(lref_t dim, lref_t initial)
 {
      if (!NUMBERP(dim))
           vmerror_wrong_type(1, dim);
@@ -60,7 +60,7 @@ LRef lmake_vector(LRef dim, LRef initial)
      return vectorcons(d, initial);
 }
 
-LRef lvectorp(LRef obj)
+lref_t lvectorp(lref_t obj)
 {
      if (VECTORP(obj))
           return obj;
@@ -68,11 +68,11 @@ LRef lvectorp(LRef obj)
           return boolcons(false);
 }
 
-LRef lvector(size_t argc, LRef argv[])
+lref_t lvector(size_t argc, lref_t argv[])
 {
      assert(argc >= 0);
 
-     LRef result = vectorcons(argc);
+     lref_t result = vectorcons(argc);
 
      for (size_t ii = 0; ii < argc; ii++)
           SET_VECTOR_ELEM(result, ii, argv[ii]);
@@ -82,7 +82,7 @@ LRef lvector(size_t argc, LRef argv[])
 
 
 
-LRef lvector_ref(LRef vec, LRef i, LRef default_value)
+lref_t lvector_ref(lref_t vec, lref_t i, lref_t default_value)
 {
      if (!VECTORP(vec))
           vmerror_wrong_type(1, vec);
@@ -106,7 +106,7 @@ LRef lvector_ref(LRef vec, LRef i, LRef default_value)
 }
 
 
-LRef lvector_set(LRef vec, LRef i, LRef v)
+lref_t lvector_set(lref_t vec, lref_t i, lref_t v)
 {
      if (!VECTORP(vec))
           vmerror_wrong_type(1, vec);
@@ -131,10 +131,10 @@ LRef lvector_set(LRef vec, LRef i, LRef v)
      return NIL; // unreached
 }
 
-LRef lvector2list(LRef vec)
+lref_t lvector2list(lref_t vec)
 {
-     LRef list = NIL;
-     LRef tail = NIL;
+     lref_t list = NIL;
+     lref_t tail = NIL;
 
      if (!VECTORP(vec))
           vmerror_wrong_type(1, vec);
@@ -143,7 +143,7 @@ LRef lvector2list(LRef vec)
 
      for (fixnum_t jj = 0; jj < length; jj++)
      {
-          LRef cell = lcons(VECTOR_ELEM(vec, jj), NIL);
+          lref_t cell = lcons(VECTOR_ELEM(vec, jj), NIL);
 
           if (NULLP(list))
           {
@@ -160,13 +160,13 @@ LRef lvector2list(LRef vec)
      return list;
 }
 
-LRef llist2vector(LRef xs)
+lref_t llist2vector(lref_t xs)
 {
      fixnum_t length = object_length(xs);
 
-     LRef result = vectorcons(length);
+     lref_t result = vectorcons(length);
 
-     LRef l = xs;
+     lref_t l = xs;
 
      for (fixnum_t ii = 0; CONSP(l); l = lcdr(l), ii++)
      {
@@ -181,7 +181,7 @@ LRef llist2vector(LRef xs)
      return result;
 }
 
-LRef lvector_fill(LRef vec, LRef v)
+lref_t lvector_fill(lref_t vec, lref_t v)
 {
      if (!VECTORP(vec))
           vmerror_wrong_type(1, vec);
@@ -193,12 +193,12 @@ LRef lvector_fill(LRef vec, LRef v)
 }
 
 
-LRef lvector_copy(LRef vec)
+lref_t lvector_copy(lref_t vec)
 {
      if (!VECTORP(vec))
           vmerror_wrong_type(1, vec);
 
-     LRef result = vectorcons(VECTOR_DIM(vec));
+     lref_t result = vectorcons(VECTOR_DIM(vec));
 
      for (size_t ii = 0; ii < VECTOR_DIM(vec); ii++)
           SET_VECTOR_ELEM(result, ii, VECTOR_ELEM(vec, ii));
@@ -206,11 +206,11 @@ LRef lvector_copy(LRef vec)
      return result;
 }
 
-LRef vector_resize(LRef vec, size_t new_size, LRef new_element)
+lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element)
 {
      assert(VECTORP(vec));
 
-     LRef result = vectorcons(new_size);
+     lref_t result = vectorcons(new_size);
 
      for (size_t ii = 0; ii < new_size; ii++)
      {
@@ -222,7 +222,7 @@ LRef vector_resize(LRef vec, size_t new_size, LRef new_element)
 
      return result;
 }
-LRef lvector_resize(LRef vec, LRef ns, LRef new_element)
+lref_t lvector_resize(lref_t vec, lref_t ns, lref_t new_element)
 {
      if (!VECTORP(vec))
           vmerror_wrong_type(1, vec);

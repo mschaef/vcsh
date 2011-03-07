@@ -16,12 +16,12 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-static void instance_reallocate_in_place(LRef inst, size_t new_size)
+static void instance_reallocate_in_place(lref_t inst, size_t new_size)
 {
-     LRef *new_data = NULL;
+     lref_t *new_data = NULL;
 
      if (new_size > 0)
-          new_data = (LRef *) safe_malloc(new_size * sizeof(LRef *));
+          new_data = (lref_t *) safe_malloc(new_size * sizeof(lref_t *));
 
      if (INSTANCE_DATA(inst))
      {
@@ -35,9 +35,9 @@ static void instance_reallocate_in_place(LRef inst, size_t new_size)
      SET_INSTANCE_DATA(inst, new_data);
 }
 
-LRef instancecons(LRef proto)
+lref_t instancecons(lref_t proto)
 {
-     LRef z = new_cell(TC_INSTANCE);
+     lref_t z = new_cell(TC_INSTANCE);
 
      SET_INSTANCE_DIM(z, 0);
      SET_INSTANCE_DATA(z, NULL);
@@ -51,41 +51,41 @@ LRef instancecons(LRef proto)
      return z;
 }
 
-static LRef instance_map(LRef inst)
+static lref_t instance_map(lref_t inst)
 {
      assert(INSTANCEP(inst));
 
      assert(INSTANCE_DIM(inst) > 0);
 
-     LRef map = INSTANCE_MAP(inst);
+     lref_t map = INSTANCE_MAP(inst);
 
      assert(HASHP(map));
 
      return map;
 }
 
-static bool instance_map_ref(LRef inst, LRef key, LRef & value)
+static bool instance_map_ref(lref_t inst, lref_t key, lref_t & value)
 {
      return hash_ref(instance_map(inst), key, &value);
 }
 
-static LRef ensure_unique_map(LRef inst)
+static lref_t ensure_unique_map(lref_t inst)
 {
-     LRef map = lhash_copy(instance_map(inst));
+     lref_t map = lhash_copy(instance_map(inst));
 
      SET_INSTANCE_MAP(inst, map);
 
      return map;
 }
 
-static void instance_map_set(LRef inst, LRef key, LRef new_value)
+static void instance_map_set(lref_t inst, lref_t key, lref_t new_value)
 {
-     LRef map = ensure_unique_map(inst);
+     lref_t map = ensure_unique_map(inst);
 
      lhash_set(map, key, new_value);
 }
 
-bool instance_equal(LRef a, LRef b)
+bool instance_equal(lref_t a, lref_t b)
 {
      assert(INSTANCEP(a));
      assert(TYPE(a) == TYPE(b));
@@ -96,9 +96,9 @@ bool instance_equal(LRef a, LRef b)
      if (INSTANCE_DIM(a) != INSTANCE_DIM(b))
           return false;
 
-     LRef slot_name;
+     lref_t slot_name;
      hash_iter_t ii;
-     LRef amap = instance_map(a);
+     lref_t amap = instance_map(a);
      hash_iter_begin(amap, &ii);
      while (hash_iter_next(amap, &ii, &slot_name, NULL))
      {
@@ -111,7 +111,7 @@ bool instance_equal(LRef a, LRef b)
      return true;
 }
 
-LRef linstancep(LRef inst)
+lref_t linstancep(lref_t inst)
 {
      if (INSTANCEP(inst))
           return inst;
@@ -119,9 +119,9 @@ LRef linstancep(LRef inst)
           return boolcons(false);
 }
 
-LRef lmake_instance(LRef args)
+lref_t lmake_instance(lref_t args)
 {
-     LRef proto = boolcons(false);
+     lref_t proto = boolcons(false);
 
      if (!NULLP(args))
      {
@@ -132,7 +132,7 @@ LRef lmake_instance(LRef args)
      if (!(FALSEP(proto) || INSTANCEP(proto) || SYMBOLP(proto)))
           vmerror_wrong_type(1, proto);
 
-     LRef new_instance = instancecons(proto);
+     lref_t new_instance = instancecons(proto);
 
      if (init_slots(new_instance, args, true))
           vmerror_arg_out_of_range(args, _T("bad instance initialization list"));
@@ -140,12 +140,12 @@ LRef lmake_instance(LRef args)
      return new_instance;
 }
 
-LRef lclone_instance(LRef inst)
+lref_t lclone_instance(lref_t inst)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
 
-     LRef z = new_cell(TC_INSTANCE);
+     lref_t z = new_cell(TC_INSTANCE);
 
      SET_INSTANCE_DIM(z, 0);
      SET_INSTANCE_DATA(z, NULL);
@@ -160,7 +160,7 @@ LRef lclone_instance(LRef inst)
      return z;
 }
 
-LRef liinstance_map(LRef inst)
+lref_t liinstance_map(lref_t inst)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
@@ -168,7 +168,7 @@ LRef liinstance_map(LRef inst)
      return instance_map(inst);
 }
 
-LRef liinstance_proto(LRef inst)
+lref_t liinstance_proto(lref_t inst)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
@@ -176,12 +176,12 @@ LRef liinstance_proto(LRef inst)
      return INSTANCE_PROTO(inst);
 }
 
-LRef liinstance_slots(LRef inst)
+lref_t liinstance_slots(lref_t inst)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
 
-     LRef slots = vectorcons(INSTANCE_DIM(inst), NIL);
+     lref_t slots = vectorcons(INSTANCE_DIM(inst), NIL);
 
      for (size_t ii = 0; ii < INSTANCE_DIM(inst); ii++)
           SET_VECTOR_ELEM(slots, ii, INSTANCE_ELEM(inst, ii));
@@ -189,7 +189,7 @@ LRef liinstance_slots(LRef inst)
      return slots;
 }
 
-LRef liset_instance_proto(LRef inst, LRef new_proto)
+lref_t liset_instance_proto(lref_t inst, lref_t new_proto)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
@@ -207,14 +207,14 @@ LRef liset_instance_proto(LRef inst, LRef new_proto)
      return inst;
 }
 
-static bool try_slot_ref(LRef inst, LRef key, LRef * val)
+static bool try_slot_ref(lref_t inst, lref_t key, lref_t * val)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
 
      for (; INSTANCEP(inst); inst = INSTANCE_PROTO(inst))
      {
-          LRef slot_map_index;
+          lref_t slot_map_index;
 
           if (instance_map_ref(inst, key, slot_map_index))
           {
@@ -229,9 +229,9 @@ static bool try_slot_ref(LRef inst, LRef key, LRef * val)
      return false;
 }
 
-LRef lislot_ref(LRef inst, LRef key)
+lref_t lislot_ref(lref_t inst, lref_t key)
 {
-     LRef val = NIL;
+     lref_t val = NIL;
 
      if (!try_slot_ref(inst, key, &val))
           vmerror_arg_out_of_range(lcons(inst, key), _T("slot not found"));
@@ -239,14 +239,14 @@ LRef lislot_ref(LRef inst, LRef key)
      return val;
 }
 
-LRef lhas_slotp(LRef this_inst, LRef key)
+lref_t lhas_slotp(lref_t this_inst, lref_t key)
 {
      if (!INSTANCEP(this_inst))
           vmerror_wrong_type(1, this_inst);
 
-     for (LRef inst = this_inst; INSTANCEP(inst); inst = INSTANCE_PROTO(inst))
+     for (lref_t inst = this_inst; INSTANCEP(inst); inst = INSTANCE_PROTO(inst))
      {
-          LRef unused;
+          lref_t unused;
 
           if (instance_map_ref(inst, key, unused))
           {
@@ -260,7 +260,7 @@ LRef lhas_slotp(LRef this_inst, LRef key)
      return boolcons(false);
 }
 
-static size_t enrich_instance(LRef inst, LRef key)
+static size_t enrich_instance(lref_t inst, lref_t key)
 {
      size_t new_index = INSTANCE_DIM(inst);
 
@@ -271,12 +271,12 @@ static size_t enrich_instance(LRef inst, LRef key)
      return new_index;
 }
 
-LRef lislot_set(LRef inst, LRef key, LRef value)
+lref_t lislot_set(lref_t inst, lref_t key, lref_t value)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
 
-     LRef slot_map_index;
+     lref_t slot_map_index;
      size_t index;
 
      if (instance_map_ref(inst, key, slot_map_index))
@@ -292,7 +292,7 @@ LRef lislot_set(LRef inst, LRef key, LRef value)
      return inst;
 }
 
-bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols)    /*  REVISIT: should true really mean fail? */
+bool init_slots(lref_t obj, lref_t initargs, bool names_must_be_symbols)    /*  REVISIT: should true really mean fail? */
 {
      /* initargs takes the form of a property list:
       *
@@ -306,8 +306,8 @@ bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols)    /*  REVI
           if (!CONSP(CDR(initargs)))
                return true;
 
-          LRef name = CAR(initargs);
-          LRef value = CAR(CDR(initargs));
+          lref_t name = CAR(initargs);
+          lref_t value = CAR(CDR(initargs));
 
           if (names_must_be_symbols && !SYMBOLP(name))
                return true;
@@ -325,9 +325,9 @@ bool init_slots(LRef obj, LRef initargs, bool names_must_be_symbols)    /*  REVI
      return false;
 }
 
-static LRef llookup_message_handler(LRef lookup_context, LRef message)
+static lref_t llookup_message_handler(lref_t lookup_context, lref_t message)
 {
-     LRef handler = NIL;
+     lref_t handler = NIL;
 
      if (try_slot_ref(lookup_context, message, &handler))
           return handler;
@@ -335,7 +335,7 @@ static LRef llookup_message_handler(LRef lookup_context, LRef message)
      return boolcons(false);
 }
 
-static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LRef args)
+static lref_t lsend_message(lref_t self, lref_t lookup_ctx_inst, lref_t message_name, lref_t args)
 {
      if (!INSTANCEP(lookup_ctx_inst))
           vmerror_arg_out_of_range(lookup_ctx_inst, _T("bad message lookup context"));
@@ -343,7 +343,7 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
      if (!SYMBOLP(message_name))
           vmerror_arg_out_of_range(message_name, _T("bad message name"));
 
-     LRef message_handler = llookup_message_handler(lookup_ctx_inst, message_name);
+     lref_t message_handler = llookup_message_handler(lookup_ctx_inst, message_name);
 
      if (!TRUEP(message_handler))
      {
@@ -359,21 +359,21 @@ static LRef lsend_message(LRef self, LRef lookup_ctx_inst, LRef message_name, LR
      if (!PROCEDUREP(message_handler))
           vmerror_arg_out_of_range(lcons(lookup_ctx_inst, message_name), _T("bad message name"));
 
-     LRef argv[2];
+     lref_t argv[2];
      argv[0] = self;
      argv[1] = args;
 
      return apply1(message_handler, 2, argv);
 }
 
-LRef lsend(LRef args)
+lref_t lsend(lref_t args)
 {
      if (!CONSP(args))
           vmerror_wrong_type(1, NIL);
 
-     LRef self = CAR(args);
+     lref_t self = CAR(args);
 
-     LRef lookup_ctx = self;
+     lref_t lookup_ctx = self;
 
      if (!INSTANCEP(lookup_ctx))
           lookup_ctx = vmtrap(TRAP_PRIMITIVE_INSTANCE, VMT_MANDATORY_TRAP, 1, self);
@@ -382,7 +382,7 @@ LRef lsend(LRef args)
 
      assert(CONSP(args));
 
-     LRef message_name = CAR(args);
+     lref_t message_name = CAR(args);
 
      args = CDR(args);
 

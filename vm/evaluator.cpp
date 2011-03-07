@@ -27,7 +27,7 @@ BEGIN_NAMESPACE(scan)
 
 /***** stack limit checking *****/
 
-LRef lset_stack_limit(LRef amount)
+lref_t lset_stack_limit(lref_t amount)
 {
      size_t new_size_limit = 0;
      if (!NULLP(amount) && !FALSEP(amount))
@@ -49,7 +49,7 @@ LRef lset_stack_limit(LRef amount)
 
 /***** Interrupts *****/
 
-LRef lset_interrupt_mask(LRef new_mask)
+lref_t lset_interrupt_mask(lref_t new_mask)
 {
      if (!BOOLP(new_mask))
           vmerror_wrong_type(1, new_mask);
@@ -87,7 +87,7 @@ EVAL_INLINE void _process_interrupts()
 
 /***** Trap handling *****/
 
-static size_t get_trap_id(LRef trap_id)
+static size_t get_trap_id(lref_t trap_id)
 {
      if (!FIXNUMP(trap_id))
           vmerror_wrong_type(1, trap_id);
@@ -100,7 +100,7 @@ static size_t get_trap_id(LRef trap_id)
      return id;
 }
 
-LRef liset_trap_handler(LRef trap_id, LRef new_handler)
+lref_t liset_trap_handler(lref_t trap_id, lref_t new_handler)
 {
      if (!PROCEDUREP(new_handler))
           vmerror_wrong_type(2, new_handler);
@@ -114,7 +114,7 @@ LRef liset_trap_handler(LRef trap_id, LRef new_handler)
      return new_handler;
 }
 
-LRef litrap_handler(LRef trap_id)
+lref_t litrap_handler(lref_t trap_id)
 {
      return interp.trap_handlers[get_trap_id(trap_id)];
 }
@@ -128,14 +128,14 @@ static void vmtrap_panic(trap_type_t trap, const _TCHAR *msg)
      panic(buf);
 }
 
-LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
+lref_t vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 {
      assert((trap > 0) && (trap <= TRAP_LAST));
      assert(argc < ARG_BUF_LEN);
 
      dscwritef(DF_SHOW_TRAPS, (_T("; DEBUG: trap : ~cS\n"), trap_type_name(trap)));
      
-     LRef handler = interp.trap_handlers[trap];
+     lref_t handler = interp.trap_handlers[trap];
 
      if (!PROCEDUREP(handler))
      {
@@ -148,17 +148,17 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
           return NIL;
      }
 
-     LRef retval = NIL;
+     lref_t retval = NIL;
      va_list args;
 
      va_start(args, argc);
 
-     LRef argv[ARG_BUF_LEN];
+     lref_t argv[ARG_BUF_LEN];
 
      argv[0] = fixcons(trap);
      argv[1] = fixcons((fixnum_t)CURRENT_TIB()->fsp);
      for (size_t ii = 2; ii < argc + 2; ii++)
-          argv[ii] = va_arg(args, LRef);
+          argv[ii] = va_arg(args, lref_t);
 
      va_end(args);
 
@@ -172,11 +172,11 @@ LRef vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
 
 /***** The evaluator *****/
 
-static LRef execute_fast_op(LRef form, LRef env);
+static lref_t execute_fast_op(lref_t form, lref_t env);
 
-static LRef arg_list_from_buffer(size_t argc, LRef argv[])
+static lref_t arg_list_from_buffer(size_t argc, lref_t argv[])
 {
-     LRef result = NIL;
+     lref_t result = NIL;
 
      for (size_t ii = argc; ii > 0; ii--)
           result = lcons(argv[ii - 1], result);
@@ -184,7 +184,7 @@ static LRef arg_list_from_buffer(size_t argc, LRef argv[])
      return result;
 }
 
-static LRef extend_env(LRef actuals, LRef formals, LRef env)
+static lref_t extend_env(lref_t actuals, lref_t formals, lref_t env)
 {
      if (SYMBOLP(formals))
           return lcons(lcons(lcons(formals, NIL), lcons(actuals, NIL)), env);
@@ -192,18 +192,18 @@ static LRef extend_env(LRef actuals, LRef formals, LRef env)
           return lcons(lcons(formals, actuals), env);
 }
 
-LRef lenvlookup(LRef var, LRef env)
+lref_t lenvlookup(lref_t var, lref_t env)
 {
-     LRef frame;
+     lref_t frame;
 
      for (frame = env; CONSP(frame); frame = CDR(frame))
      {
-          LRef tmp = CAR(frame);
+          lref_t tmp = CAR(frame);
 
           if (!CONSP(tmp))
                panic("damaged frame");
 
-          LRef al, fl;
+          lref_t al, fl;
      
           for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
           {
@@ -247,7 +247,7 @@ EVAL_INLINE void leave_frame()
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
 
-EVAL_INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
+EVAL_INLINE lref_t subr_apply(lref_t function, size_t argc, lref_t argv[], lref_t * env, lref_t * retval)
 {
      UNREFERENCED(env);
 
@@ -288,7 +288,7 @@ EVAL_INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env,
           
       case SUBR_2N:
       {
-           LRef arg1 = _ARGV(0);
+           lref_t arg1 = _ARGV(0);
           
           arg1 = SUBR_F2(function) (arg1, _ARGV(1));
           
@@ -305,7 +305,7 @@ EVAL_INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env,
           
      case SUBR_N:
           {
-          LRef args = arg_list_from_buffer(argc, argv);
+          lref_t args = arg_list_from_buffer(argc, argv);
           *retval = (SUBR_F1(function) (args));
           }
           break;
@@ -316,7 +316,7 @@ EVAL_INLINE LRef subr_apply(LRef function, size_t argc, LRef argv[], LRef * env,
      return NIL;
 }
 
-EVAL_INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef * retval)
+EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t * env, lref_t * retval)
 {
      typecode_t type = TYPE(function);
 
@@ -327,7 +327,7 @@ EVAL_INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef
 
      if (type == TC_CLOSURE)
      {
-          LRef c_code = CLOSURE_CODE(function);
+          lref_t c_code = CLOSURE_CODE(function);
 
           *env = extend_env(arg_list_from_buffer(argc, argv), CAR(c_code), CLOSURE_ENV(function));
 
@@ -339,7 +339,7 @@ EVAL_INLINE LRef apply(LRef function, size_t argc, LRef argv[], LRef * env, LRef
      return NIL;                /*  avoid a warning, since the error case returns nothing. */
 }
 
-static frame_t *find_throw_target(frame_t *start_at, LRef tag)
+static frame_t *find_throw_target(frame_t *start_at, lref_t tag)
 {
      if (CURRENT_TIB()->throw_target != NULL)
           start_at = CURRENT_TIB()->throw_target - 1;
@@ -384,7 +384,7 @@ void unwind_stack_for_throw()
      }
 }
 
-static void lthrow(LRef tag, LRef retval)
+static void lthrow(lref_t tag, lref_t retval)
 {
      dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
@@ -398,9 +398,9 @@ static void lthrow(LRef tag, LRef retval)
             2, tag, retval);
 }
 
-static LRef execute_fast_op(LRef fop, LRef env)
+static lref_t execute_fast_op(lref_t fop, lref_t env)
 {
-     LRef retval = NIL;
+     lref_t retval = NIL;
 
      STACK_CHECK(&fop);
 
@@ -431,12 +431,12 @@ loop:
                
      case FOP_GLOBAL_REF:
      {
-          LRef sym = FAST_OP_ARG1(fop);
+          lref_t sym = FAST_OP_ARG1(fop);
                
           checked_assert(SYMBOLP(sym));
           checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
                
-          LRef binding = SYMBOL_VCELL(sym);
+          lref_t binding = SYMBOL_VCELL(sym);
                
           if (UNBOUND_MARKER_P(binding))
                vmerror_unbound(sym);
@@ -447,17 +447,17 @@ loop:
           
      case FOP_GLOBAL_SET:
      {
-          LRef sym = FAST_OP_ARG1(fop);
+          lref_t sym = FAST_OP_ARG1(fop);
                
           checked_assert(SYMBOLP(sym));
           checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
                
-          LRef binding = SYMBOL_VCELL(sym);
+          lref_t binding = SYMBOL_VCELL(sym);
                
           if (UNBOUND_MARKER_P(binding))
                vmerror_unbound(sym);
                
-          LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
+          lref_t val = execute_fast_op(FAST_OP_ARG2(fop), env);
                
           SET_SYMBOL_VCELL(sym, val);
           retval = val;
@@ -466,11 +466,11 @@ loop:
           
      case FOP_LOCAL_REF:
      { 
-          LRef sym = FAST_OP_ARG1(fop);
+          lref_t sym = FAST_OP_ARG1(fop);
                
           checked_assert(SYMBOLP(sym));
                
-          LRef binding = lenvlookup(sym, env);
+          lref_t binding = lenvlookup(sym, env);
                
           if (NULLP(binding))
                vmerror_unbound(sym);
@@ -481,16 +481,16 @@ loop:
           
      case FOP_LOCAL_SET:
      {
-          LRef sym = FAST_OP_ARG1(fop);
+          lref_t sym = FAST_OP_ARG1(fop);
                
           checked_assert(SYMBOLP(sym));
                
-          LRef binding = lenvlookup(sym, env);
+          lref_t binding = lenvlookup(sym, env);
                
           if (NULLP(binding))
                vmerror_unbound(sym);
                
-          LRef val = execute_fast_op(FAST_OP_ARG2(fop), env);
+          lref_t val = execute_fast_op(FAST_OP_ARG2(fop), env);
                
           SET_CAR(binding, val);
                
@@ -500,8 +500,8 @@ loop:
 
      case FOP_APPLY_GLOBAL:
      {
-          LRef sym = FAST_OP_ARG1(fop);               
-          LRef fn = SYMBOL_VCELL(sym);
+          lref_t sym = FAST_OP_ARG1(fop);               
+          lref_t fn = SYMBOL_VCELL(sym);
                
           checked_assert(SYMBOLP(sym));
           checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
@@ -510,8 +510,8 @@ loop:
                vmerror_unbound(sym);
 
           size_t argc = 0;
-          LRef argv[ARG_BUF_LEN];
-          LRef args = FAST_OP_ARG2(fop);
+          lref_t argv[ARG_BUF_LEN];
+          lref_t args = FAST_OP_ARG2(fop);
 
           while (CONSP(args))
           {
@@ -540,11 +540,11 @@ loop:
      case FOP_APPLY:
      {
           size_t argc = 0;
-          LRef argv[ARG_BUF_LEN];
+          lref_t argv[ARG_BUF_LEN];
 
-          LRef fn = execute_fast_op(FAST_OP_ARG1(fop), env);
+          lref_t fn = execute_fast_op(FAST_OP_ARG1(fop), env);
 
-          LRef args = FAST_OP_ARG2(fop);
+          lref_t args = FAST_OP_ARG2(fop);
 
           while (CONSP(args))
           {
@@ -589,7 +589,7 @@ loop:
                
      case FOP_OR2:
      {
-          LRef val = execute_fast_op(FAST_OP_ARG1(fop), env);
+          lref_t val = execute_fast_op(FAST_OP_ARG1(fop), env);
                
           if (TRUEP(val))
           {
@@ -614,7 +614,7 @@ loop:
 
      case FOP_CATCH:
      {
-          LRef tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+          lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
                
           frame_t *__frame = enter_frame();
           __frame->type = FRAME_EX_TRY;
@@ -643,7 +643,7 @@ loop:
 
           retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
-          LRef after = __frame->as.unwind.after;
+          lref_t after = __frame->as.unwind.after;
 
           leave_frame();
 
@@ -685,16 +685,16 @@ loop:
      return retval;
 }
 
-LRef apply1(LRef fn, size_t argc, LRef argv[])
+lref_t apply1(lref_t fn, size_t argc, lref_t argv[])
 {
      checked_assert((argc == 0) || (argv != NULL));
 
-     LRef retval = NIL;
+     lref_t retval = NIL;
 
      STACK_CHECK(&fn);
 
-     LRef env = NIL;
-     LRef next_form = apply(fn, argc, argv, &env, &retval);
+     lref_t env = NIL;
+     lref_t next_form = apply(fn, argc, argv, &env, &retval);
 
      if (NULLP(next_form))
           return retval;
@@ -703,12 +703,12 @@ LRef apply1(LRef fn, size_t argc, LRef argv[])
 }
 
 /*  REVISIT: lapply should be tail recursive */
-LRef lapply(size_t argc, LRef argv[])
+lref_t lapply(size_t argc, lref_t argv[])
 {
      size_t fn_argc = 0;
-     LRef fn_argv[ARG_BUF_LEN];
+     lref_t fn_argv[ARG_BUF_LEN];
 
-     LRef fn = (argc > 0) ? argv[0] : NIL;
+     lref_t fn = (argc > 0) ? argv[0] : NIL;
 
      if (!PROCEDUREP(fn))
           vmerror_wrong_type(1, fn);
@@ -722,7 +722,7 @@ LRef lapply(size_t argc, LRef argv[])
           fn_argc++;
      }
 
-     LRef args = (argc > 1) ? argv[argc - 1] : NIL;
+     lref_t args = (argc > 1) ? argv[argc - 1] : NIL;
      while (CONSP(args))
      {
           if (fn_argc >= ARG_BUF_LEN)
@@ -745,11 +745,11 @@ LRef lapply(size_t argc, LRef argv[])
 
 /***** Frame Management *****/
 
-LRef lget_current_frames(LRef sc)
+lref_t lget_current_frames(lref_t sc)
 {
      fixnum_t skip_count = get_c_fixnum(sc);
 
-     LRef frames = NIL;
+     lref_t frames = NIL;
 
      fixnum_t frame_count = 0;
      
@@ -757,7 +757,7 @@ LRef lget_current_frames(LRef sc)
 
      for(; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
-          LRef frame_obj = NIL;
+          lref_t frame_obj = NIL;
 
           frame_count++;
 
@@ -796,7 +796,7 @@ LRef lget_current_frames(LRef sc)
      return frames;
 }
 
-LRef topmost_primitive()
+lref_t topmost_primitive()
 {
      for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
      {
@@ -808,7 +808,7 @@ LRef topmost_primitive()
 }
 
 #if defined(WITH_FOPLOG_SUPPORT)
-LRef lifoplog_reset()
+lref_t lifoplog_reset()
 {
      for(int ii = 0; ii < FOPLOG_SIZE; ii++)
           CURRENT_TIB()->foplog[ii] = NIL;
@@ -818,18 +818,18 @@ LRef lifoplog_reset()
      return NIL;
 }
 
-LRef lifoplog_enable(LRef enablep)
+lref_t lifoplog_enable(lref_t enablep)
 {
-     LRef prev = boolcons(CURRENT_TIB()->foplog_enable);
+     lref_t prev = boolcons(CURRENT_TIB()->foplog_enable);
 
      CURRENT_TIB()->foplog_enable = TRUEP(enablep);
 
      return prev;
 }
 
-LRef lifoplog_snapshot()
+lref_t lifoplog_snapshot()
 {
-     LRef result = vectorcons(FOPLOG_SIZE, fixcons(-1));
+     lref_t result = vectorcons(FOPLOG_SIZE, fixcons(-1));
 
      for(int ii = 0; ii < FOPLOG_SIZE; ii++)
           SET_VECTOR_ELEM(result, ii, CURRENT_TIB()->foplog[ii]);

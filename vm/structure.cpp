@@ -16,18 +16,18 @@
 BEGIN_NAMESPACE(scan)
 
 /*  REVISIT: %structure-become */
-LRef lcopy_structure(LRef st)   /* REVISIT: how much of this can be shared with lstructurecons? */
+lref_t lcopy_structure(lref_t st)   /* REVISIT: how much of this can be shared with lstructurecons? */
 {
      if (!STRUCTUREP(st))
           vmerror_wrong_type(1, st);
 
-     LRef new_st = new_cell(TC_STRUCTURE);
+     lref_t new_st = new_cell(TC_STRUCTURE);
 
      size_t len = STRUCTURE_DIM(st);;
 
      SET_STRUCTURE_DIM(new_st, len);
      SET_STRUCTURE_LAYOUT(new_st, STRUCTURE_LAYOUT(st));
-     SET_STRUCTURE_DATA(new_st, (LRef *) safe_malloc(len * sizeof(LRef)));
+     SET_STRUCTURE_DATA(new_st, (lref_t *) safe_malloc(len * sizeof(lref_t)));
 
      for (size_t ii = 0; ii < len; ii++)
           SET_STRUCTURE_ELEM(new_st, ii, STRUCTURE_ELEM(st, ii));
@@ -35,7 +35,7 @@ LRef lcopy_structure(LRef st)   /* REVISIT: how much of this can be shared with 
      return new_st;
 }
 
-static void validate_structure_layout(size_t slots, LRef layout)
+static void validate_structure_layout(size_t slots, lref_t layout)
 {
      if (!CONSP(layout))
           vmerror_wrong_type(2, layout);
@@ -45,7 +45,7 @@ static void validate_structure_layout(size_t slots, LRef layout)
      if (len != 2)
           vmerror_arg_out_of_range(layout, _T("bad structure layout, length<>2"));
 
-     LRef slot_layout = CAR(CDR(layout));
+     lref_t slot_layout = CAR(CDR(layout));
 
      if (get_c_long(llength(slot_layout)) != (long) slots)
           vmerror_arg_out_of_range(lcons(slot_layout, fixcons(slots)),
@@ -63,7 +63,7 @@ static void validate_structure_layout(size_t slots, LRef layout)
      }
 }
 
-LRef lstructurecons(LRef slots, LRef layout)
+lref_t lstructurecons(lref_t slots, lref_t layout)
 {
      if (!VECTORP(slots))
           vmerror_wrong_type(1, slots);
@@ -72,11 +72,11 @@ LRef lstructurecons(LRef slots, LRef layout)
 
      validate_structure_layout(len, layout);
 
-     LRef st = new_cell(TC_STRUCTURE);
+     lref_t st = new_cell(TC_STRUCTURE);
 
      SET_STRUCTURE_DIM(st, len);
      SET_STRUCTURE_LAYOUT(st, layout);
-     SET_STRUCTURE_DATA(st, (LRef *) safe_malloc(len * sizeof(LRef)));
+     SET_STRUCTURE_DATA(st, (lref_t *) safe_malloc(len * sizeof(lref_t)));
 
      for (size_t ii = 0; ii < len; ii++)
           SET_STRUCTURE_ELEM(st, ii, VECTOR_ELEM(slots, ii));
@@ -84,7 +84,7 @@ LRef lstructurecons(LRef slots, LRef layout)
      return st;
 }
 
-LRef lstructurep(LRef st, LRef expected_layout)
+lref_t lstructurep(lref_t st, lref_t expected_layout)
 {
      if (!STRUCTUREP(st))
           return boolcons(false);
@@ -95,7 +95,7 @@ LRef lstructurep(LRef st, LRef expected_layout)
      return boolcons(true);
 }
 
-LRef lstructure_layout(LRef st)
+lref_t lstructure_layout(lref_t st)
 {
      if (!STRUCTUREP(st))
           vmerror_wrong_type(1, st);
@@ -103,7 +103,7 @@ LRef lstructure_layout(LRef st)
      return STRUCTURE_LAYOUT(st);
 }
 
-LRef lstructure_length(LRef st)
+lref_t lstructure_length(lref_t st)
 {
      if (!STRUCTUREP(st))
            vmerror_wrong_type(1, st);
@@ -111,7 +111,7 @@ LRef lstructure_length(LRef st)
      return fixcons(STRUCTURE_DIM(st));
 }
 
-LRef lstructure_ref(LRef st, LRef index)
+lref_t lstructure_ref(lref_t st, lref_t index)
 {
      if (!STRUCTUREP(st))
           vmerror_wrong_type(1, st);
@@ -129,7 +129,7 @@ LRef lstructure_ref(LRef st, LRef index)
      return NIL; // unreached
 }
 
-LRef lstructure_set(LRef st, LRef index, LRef value)
+lref_t lstructure_set(lref_t st, lref_t index, lref_t value)
 {
      if (!STRUCTUREP(st))
           vmerror_wrong_type(1, st);
@@ -151,7 +151,7 @@ LRef lstructure_set(LRef st, LRef index, LRef value)
      return NIL;
 }
 
-bool structure_equal(LRef sta, LRef stb)
+bool structure_equal(lref_t sta, lref_t stb)
 {
      assert(STRUCTUREP(sta));
      assert(STRUCTUREP(stb));

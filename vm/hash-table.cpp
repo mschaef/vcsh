@@ -22,28 +22,28 @@ INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
      return (_h1 * 17 + 1) ^ _h2;
 }
 
-INLINE void SET_HASH_SHALLOW(LRef hash, bool shallow_keys)
+INLINE void SET_HASH_SHALLOW(lref_t hash, bool shallow_keys)
 {
      assert(HASHP(hash));
 
      hash->storage_as.hash.info.shallow_keys = shallow_keys;
 }
 
-INLINE bool HASH_SHALLOW(LRef hash)
+INLINE bool HASH_SHALLOW(lref_t hash)
 {
      assert(HASHP(hash));
 
      return hash->storage_as.hash.info.shallow_keys;
 }
 
-INLINE void SET_HASH_COUNT(LRef hash, unsigned int count)
+INLINE void SET_HASH_COUNT(lref_t hash, unsigned int count)
 {
      assert(HASHP(hash));
 
      hash->storage_as.hash.info.count = count;
 }
 
-INLINE unsigned int HASH_COUNT(LRef hash)
+INLINE unsigned int HASH_COUNT(lref_t hash)
 {
      assert(HASHP(hash));
 
@@ -77,14 +77,14 @@ static bool hash_entry_deleted_p(hash_entry_t * entry)
      return UNBOUND_MARKER_P(entry->_key) && NULLP(entry->_val);
 }
 
-void hash_iter_begin(LRef hash, hash_iter_t * iter)
+void hash_iter_begin(lref_t hash, hash_iter_t * iter)
 {
      assert(HASHP(hash));
 
      *iter = 0;
 }
 
-bool hash_iter_next(LRef hash, hash_iter_t * iter, LRef * key, LRef * val)
+bool hash_iter_next(lref_t hash, hash_iter_t * iter, lref_t * key, lref_t * val)
 {
      assert(HASHP(hash));
 
@@ -108,7 +108,7 @@ bool hash_iter_next(LRef hash, hash_iter_t * iter, LRef * key, LRef * val)
      return false;
 }
 
-fixnum_t sxhash_eq(LRef obj)
+fixnum_t sxhash_eq(lref_t obj)
 {
      /* Slice off the tag bits, assuming that hashes will be mostly
       * homogeneous. */
@@ -119,7 +119,7 @@ fixnum_t sxhash_eq(LRef obj)
           return ((uintptr_t) obj) >> LREF1_TAG_SHIFT;
 }
 
-fixnum_t sxhash(LRef obj)
+fixnum_t sxhash(lref_t obj)
 {
      STACK_CHECK(&obj);
 
@@ -128,7 +128,7 @@ fixnum_t sxhash(LRef obj)
      if (NULLP(obj))
           return 0;
 
-     LRef tmp;
+     lref_t tmp;
      size_t ii;
 
      switch (TYPE(obj))
@@ -198,7 +198,7 @@ fixnum_t sxhash(LRef obj)
      return hash;
 }
 
-LRef lsxhash(LRef obj, LRef hash)       /*  if hash is bound, lsxhash matches its hash function */
+lref_t lsxhash(lref_t obj, lref_t hash)       /*  if hash is bound, lsxhash matches its hash function */
 {
      bool shallow = false;
 
@@ -258,9 +258,9 @@ static hash_entry_t *allocate_hash_data(size_t size)
      return data;
 }
 
-LRef hashcons(bool shallow, size_t size)
+lref_t hashcons(bool shallow, size_t size)
 {
-     LRef hash = new_cell(TC_HASH);
+     lref_t hash = new_cell(TC_HASH);
 
      size = round_up_to_power_of_two(size);
 
@@ -272,7 +272,7 @@ LRef hashcons(bool shallow, size_t size)
      return hash;
 }
 
-bool hash_equal(LRef a, LRef b)
+bool hash_equal(lref_t a, lref_t b)
 {
      assert(HASHP(a));
      assert(TYPE(a) == TYPE(b));
@@ -283,13 +283,13 @@ bool hash_equal(LRef a, LRef b)
      if (HASH_COUNT(a) != HASH_COUNT(b))
           return false;
 
-     LRef key, val;
+     lref_t key, val;
 
      hash_iter_t ii;
      hash_iter_begin(a, &ii);
      while (hash_iter_next(a, &ii, &key, &val))
      {
-          LRef other_item_value;
+          lref_t other_item_value;
 
           if (!hash_ref(b, key, &other_item_value))
                return false;
@@ -301,7 +301,7 @@ bool hash_equal(LRef a, LRef b)
      return true;
 }
 
-LRef lmake_hash(LRef key_type)
+lref_t lmake_hash(lref_t key_type)
 {
      bool shallow = false;
 
@@ -318,7 +318,7 @@ LRef lmake_hash(LRef key_type)
      return hashcons(shallow);
 }
 
-LRef lhashp(LRef obj)
+lref_t lhashp(lref_t obj)
 {
      if (HASHP(obj))
           return obj;
@@ -326,7 +326,7 @@ LRef lhashp(LRef obj)
           return boolcons(false);
 }
 
-static fixnum_t href_index(bool shallow_p, size_t mask, LRef key)
+static fixnum_t href_index(bool shallow_p, size_t mask, lref_t key)
 {
      fixnum_t index;
 
@@ -343,9 +343,9 @@ static fixnum_t href_next_index(size_t mask, fixnum_t index)
      return (index + 1) & mask;
 }
 
-LRef hash_set(LRef table, LRef key, LRef value, bool check_for_expand);
+lref_t hash_set(lref_t table, lref_t key, lref_t value, bool check_for_expand);
 
-static bool enlarge_hash(LRef hash)
+static bool enlarge_hash(lref_t hash)
 {
      assert(HASHP(hash));
 
@@ -362,7 +362,7 @@ static bool enlarge_hash(LRef hash)
 
      hash_entry_t *new_data = allocate_hash_data(new_size);
 
-     LRef key, val;
+     lref_t key, val;
 
      hash_iter_t ii;
      hash_iter_begin(hash, &ii);
@@ -391,7 +391,7 @@ static bool enlarge_hash(LRef hash)
      return true;
 }
 
-static hash_entry_t *hash_lookup_entry(LRef hash, LRef key)
+static hash_entry_t *hash_lookup_entry(lref_t hash, lref_t key)
 {
      assert(HASHP(hash));
 
@@ -423,7 +423,7 @@ static hash_entry_t *hash_lookup_entry(LRef hash, LRef key)
      return NULL;
 }
 
-bool hash_ref(LRef hash, LRef key, LRef *value_result)
+bool hash_ref(lref_t hash, lref_t key, lref_t *value_result)
 {
      hash_entry_t *entry = hash_lookup_entry(hash, key);
 
@@ -435,7 +435,7 @@ bool hash_ref(LRef hash, LRef key, LRef *value_result)
      return true;
 }
 
-LRef lhash_refs(LRef hash, LRef key)
+lref_t lhash_refs(lref_t hash, lref_t key)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
@@ -449,11 +449,11 @@ LRef lhash_refs(LRef hash, LRef key)
 }
 
 
-LRef lhash_ref(size_t argc, LRef argv[])
+lref_t lhash_ref(size_t argc, lref_t argv[])
 {
-     LRef hash = NIL;
-     LRef key = NIL;
-     LRef defaultValue = boolcons(false);
+     lref_t hash = NIL;
+     lref_t key = NIL;
+     lref_t defaultValue = boolcons(false);
 
      if (argc > 0)
           hash = argv[0];
@@ -475,7 +475,7 @@ LRef lhash_ref(size_t argc, LRef argv[])
           return entry->_val;
 }
 
-LRef lhash_hasp(LRef hash, LRef key)
+lref_t lhash_hasp(lref_t hash, lref_t key)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
@@ -486,7 +486,7 @@ LRef lhash_hasp(LRef hash, LRef key)
           return hash;
 }
 
-LRef hash_set(LRef hash, LRef key, LRef value, bool check_for_expand)
+lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
 {
      assert(HASHP(hash));
 
@@ -524,7 +524,7 @@ LRef hash_set(LRef hash, LRef key, LRef value, bool check_for_expand)
      return hash;
 }
 
-LRef lhash_set(LRef hash, LRef key, LRef value)
+lref_t lhash_set(lref_t hash, lref_t key, lref_t value)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
@@ -532,7 +532,7 @@ LRef lhash_set(LRef hash, LRef key, LRef value)
      return hash_set(hash, key, value, true);
 }
 
-LRef lhash_remove(LRef hash, LRef key)
+lref_t lhash_remove(lref_t hash, lref_t key)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
@@ -548,7 +548,7 @@ LRef lhash_remove(LRef hash, LRef key)
      return hash;
 };
 
-LRef lhash_clear(LRef hash)
+lref_t lhash_clear(lref_t hash)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
@@ -567,14 +567,14 @@ LRef lhash_clear(LRef hash)
  * This is intended to make it possible to write scheme functions
  * analyzing hash table performance.
  */
-LRef lihash_binding_vector(LRef hash)
+lref_t lihash_binding_vector(lref_t hash)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
 
      size_t hash_size = HASH_SIZE(hash);
 
-     LRef btable = vectorcons(hash_size);
+     lref_t btable = vectorcons(hash_size);
 
      for (size_t ii = 0; ii < hash_size; ii++)
      {
@@ -591,15 +591,15 @@ LRef lihash_binding_vector(LRef hash)
      return btable;
 }
 
-LRef llist2hash(LRef obj)
+lref_t llist2hash(lref_t obj)
 {
      if (!(CONSP(obj) || NULLP(obj)))
           vmerror_wrong_type(1, obj);
 
-     LRef key_type = lcar(obj);
-     LRef bindings = lcdr(obj);
+     lref_t key_type = lcar(obj);
+     lref_t bindings = lcdr(obj);
 
-     LRef hash = lmake_hash(key_type);
+     lref_t hash = lmake_hash(key_type);
 
      if (init_slots(hash, bindings, false))     /*  REVISIT: should this really be init_slots? */
           vmerror_arg_out_of_range(bindings, _T("Invalid hash binding"));
@@ -608,14 +608,14 @@ LRef llist2hash(LRef obj)
 }
 
 
-LRef lhash2alist(LRef hash)
+lref_t lhash2alist(lref_t hash)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
 
-     LRef a_list = NIL;
+     lref_t a_list = NIL;
 
-     LRef key, val;
+     lref_t key, val;
 
      hash_iter_t ii;
      hash_iter_begin(hash, &ii);
@@ -625,14 +625,14 @@ LRef lhash2alist(LRef hash)
      return a_list;
 }
 
-LRef lhash2list(LRef hash)
+lref_t lhash2list(lref_t hash)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(1, hash);
 
-     LRef new_list = NIL;
+     lref_t new_list = NIL;
 
-     LRef key, val;
+     lref_t key, val;
 
      hash_iter_t ii;
      hash_iter_begin(hash, &ii);
@@ -642,7 +642,7 @@ LRef lhash2list(LRef hash)
      return lcons(lhash_type(hash), new_list);
 }
 
-LRef lhash_type(LRef hash)
+lref_t lhash_type(lref_t hash)
 {
      if (!HASHP(hash))
           return boolcons(false);
@@ -653,14 +653,14 @@ LRef lhash_type(LRef hash)
           return keyword_intern(_T("equal"));
 }
 
-LRef lhash_copy(LRef hash)
+lref_t lhash_copy(lref_t hash)
 {
      if (!HASHP(hash))
           vmerror_wrong_type(hash);
 
-     LRef target_hash = hashcons(HASH_SHALLOW(hash));
+     lref_t target_hash = hashcons(HASH_SHALLOW(hash));
 
-     LRef key, val;
+     lref_t key, val;
 
      hash_iter_t ii;
      hash_iter_begin(hash, &ii);
@@ -670,7 +670,7 @@ LRef lhash_copy(LRef hash)
      return target_hash;
 }
 
-size_t hash_length(LRef hash)
+size_t hash_length(lref_t hash)
 {
      assert(HASHP(hash));
 

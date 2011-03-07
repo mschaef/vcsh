@@ -79,9 +79,9 @@ BEGIN_NAMESPACE(scan)
  *  stuff happens. (I think this can be resolveb by storig conses in the
  *  fasl_table and using references to their CAR's to store table entries...
  *  currently, the CONS will stay put even if the enderlying table is resized. */
-static void fast_read(LRef port, LRef * retval, bool allow_loader_ops = false);
+static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops = false);
 
-static fasl_opcode_t fast_read_opcode(LRef port)
+static fasl_opcode_t fast_read_opcode(lref_t port)
 {
      fixnum_t opcode = FASL_OP_EOF;
 
@@ -91,13 +91,13 @@ static fasl_opcode_t fast_read_opcode(LRef port)
           return FASL_OP_EOF;
 }
 
-static void fast_read_list(LRef port, bool read_listd, LRef * list)
+static void fast_read_list(lref_t port, bool read_listd, lref_t * list)
 {
      *list = NIL;
-     LRef list_bud = NIL;
-     LRef next_list_cell = NIL;
+     lref_t list_bud = NIL;
+     lref_t next_list_cell = NIL;
 
-     LRef list_length;
+     lref_t list_length;
      fast_read(port, &list_length);
 
      if (!FIXNUMP(list_length))
@@ -131,7 +131,7 @@ static void fast_read_list(LRef port, bool read_listd, LRef * list)
      }
 }
 
-static void fast_read_character(LRef port, LRef * retval)
+static void fast_read_character(lref_t port, lref_t * retval)
 {
      fixnum_t data = 0;
 
@@ -146,7 +146,7 @@ static void fast_read_character(LRef port, LRef * retval)
 }
 
 
-static void fast_read_integer(LRef port, size_t length, LRef * retval)
+static void fast_read_integer(lref_t port, size_t length, lref_t * retval)
 {
      fixnum_t data = 0;
 
@@ -156,7 +156,7 @@ static void fast_read_integer(LRef port, size_t length, LRef * retval)
           *retval = lmake_eof();
 }
 
-static void fast_read_float(LRef port, bool complex, LRef * retval)
+static void fast_read_float(lref_t port, bool complex, lref_t * retval)
 {
      flonum_t real_part = 0.0;
      flonum_t imag_part = 0.0;
@@ -178,9 +178,9 @@ static void fast_read_float(LRef port, bool complex, LRef * retval)
 }
 
 
-static void fast_read_string(LRef port, LRef * retval)
+static void fast_read_string(lref_t port, lref_t * retval)
 {
-     LRef l;
+     lref_t l;
      fast_read(port, &l);
 
      if (!FIXNUMP(l))
@@ -201,20 +201,20 @@ static void fast_read_string(LRef port, LRef * retval)
 }
 
 
-LRef lset_fasl_package_list(LRef packages)
+lref_t lset_fasl_package_list(lref_t packages)
 {
      interp.fasl_package_list = packages;
 
      return NIL;
 }
 
-static LRef find_package(LRef name)
+static lref_t find_package(lref_t name)
 {
      _TCHAR *n = get_c_string(name);
 
-     for (LRef l = interp.fasl_package_list; CONSP(l); l = CDR(l))
+     for (lref_t l = interp.fasl_package_list; CONSP(l); l = CDR(l))
      {
-          LRef p = CAR(l);
+          lref_t p = CAR(l);
 
           if (!PACKAGEP(p))
                panic("damaged package list");
@@ -226,9 +226,9 @@ static LRef find_package(LRef name)
      return boolcons(false);
 }
 
-static void fast_read_package(LRef port, LRef * package)
+static void fast_read_package(lref_t port, lref_t * package)
 {
-     LRef name;
+     lref_t name;
      fast_read(port, &name);
 
      if (!STRINGP(name))
@@ -240,15 +240,15 @@ static void fast_read_package(LRef port, LRef * package)
           fast_read_error("package not found", port, name);
 }
 
-static void fast_read_symbol(LRef port, LRef * retval)
+static void fast_read_symbol(lref_t port, lref_t * retval)
 {
-     LRef print_name;
+     lref_t print_name;
      fast_read(port, &print_name);
 
      if (!STRINGP(print_name))
           fast_read_error("symbols must have string print names", port, print_name);
 
-     LRef home;
+     lref_t home;
      fast_read(port, &home);
 
      if (!(PACKAGEP(home) || NULLP(home) || FALSEP(home)))
@@ -263,15 +263,15 @@ static void fast_read_symbol(LRef port, LRef * retval)
           fast_read_error("internal error creating symbol", port, print_name);
 }
 
-static void fast_read_subr(LRef port, LRef * retval)
+static void fast_read_subr(lref_t port, lref_t * retval)
 {
-     LRef subr_name;
+     lref_t subr_name;
      fast_read(port, &subr_name);
 
      if (!STRINGP(subr_name))
           fast_read_error("subrs must have string names", port, subr_name);
 
-     LRef subr = find_subr_by_name(subr_name);
+     lref_t subr = find_subr_by_name(subr_name);
 
      if (NULLP(subr))
           fast_read_error("subr not found", port, subr_name);
@@ -280,9 +280,9 @@ static void fast_read_subr(LRef port, LRef * retval)
 }
 
 
-static void fast_read_vector(LRef port, LRef * vec)
+static void fast_read_vector(lref_t port, lref_t * vec)
 {
-     LRef vec_length;
+     lref_t vec_length;
      fast_read(port, &vec_length);
 
      if (!FIXNUMP(vec_length))
@@ -292,7 +292,7 @@ static void fast_read_vector(LRef port, LRef * vec)
 
      for (fixnum_t ii = 0; ii < FIXNM(vec_length); ii++)
      {
-          LRef object;
+          lref_t object;
           fast_read(port, &object);
 
           if (EOFP(object))
@@ -302,19 +302,19 @@ static void fast_read_vector(LRef port, LRef * vec)
      }
 }
 
-static void fast_read_structure_layout(LRef port, LRef * st_layout)
+static void fast_read_structure_layout(lref_t port, lref_t * st_layout)
 {
-     LRef new_st_layout;
+     lref_t new_st_layout;
      fast_read(port, &new_st_layout);
 
      *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, new_st_layout);
 }
 
-static void fast_read_fast_op(int fast_op_arity, LRef port, LRef * fop)
+static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
 {
      assert((fast_op_arity >= 0) && (fast_op_arity <= 3));
 
-     LRef opcode_obj;
+     lref_t opcode_obj;
      fast_read(port, &opcode_obj);
 
      if (!FIXNUMP(opcode_obj))
@@ -322,7 +322,7 @@ static void fast_read_fast_op(int fast_op_arity, LRef port, LRef * fop)
 
      *fop = fast_op((int) FIXNM(opcode_obj), NIL, NIL, NIL);
 
-     LRef op_arg;
+     lref_t op_arg;
 
      if (fast_op_arity > 0)
      {
@@ -343,15 +343,15 @@ static void fast_read_fast_op(int fast_op_arity, LRef port, LRef * fop)
      }
 }
 
-static void fast_read_structure(LRef port, LRef * st)
+static void fast_read_structure(lref_t port, lref_t * st)
 {
-     LRef st_meta;
+     lref_t st_meta;
      fast_read(port, &st_meta); // REVISIT: This has to come from the structure layour resolution vmtrap. Find a way to enforce this.
 
      if (!CONSP(st_meta))
           fast_read_error("Expected list for structure metadata", port, st_meta);
 
-     LRef st_length;
+     lref_t st_length;
      fast_read(port, &st_length);
 
      if (!FIXNUMP(st_length))
@@ -361,7 +361,7 @@ static void fast_read_structure(LRef port, LRef * st)
 
      for (fixnum_t ii = 0; ii < FIXNM(st_length); ii++)
      {
-          LRef object;
+          lref_t object;
           fast_read(port, &object);
 
           if (EOFP(object))
@@ -371,9 +371,9 @@ static void fast_read_structure(LRef port, LRef * st)
      }
 }
 
-static void fast_read_instance_map(LRef port, LRef * new_instance)
+static void fast_read_instance_map(lref_t port, lref_t * new_instance)
 {
-     LRef proto = NIL;
+     lref_t proto = NIL;
      fast_read(port, &proto);
 
      if (!(INSTANCEP(proto) || FALSEP(proto) || SYMBOLP(proto)))
@@ -382,7 +382,7 @@ static void fast_read_instance_map(LRef port, LRef * new_instance)
 
      *new_instance = instancecons(proto);
 
-     LRef slot_names = NIL;
+     lref_t slot_names = NIL;
      fast_read(port, &slot_names);
 
      if (!(CONSP(slot_names) || NULLP(slot_names)))
@@ -400,9 +400,9 @@ static void fast_read_instance_map(LRef port, LRef * new_instance)
           fast_read_error("Malformed instance map slot name list.", port, slot_names);
 }
 
-static void fast_read_instance(LRef port, LRef * instance)
+static void fast_read_instance(lref_t port, lref_t * instance)
 {
-     LRef base_instance = NIL;
+     lref_t base_instance = NIL;
      fast_read(port, &base_instance);
 
      if (!INSTANCEP(base_instance))
@@ -410,7 +410,7 @@ static void fast_read_instance(LRef port, LRef * instance)
 
      *instance = lclone_instance(base_instance);
 
-     LRef vals;
+     lref_t vals;
      fast_read(port, &vals);
 
      for (size_t ii = 1; CONSP(vals); ii++, vals = CDR(vals))
@@ -420,9 +420,9 @@ static void fast_read_instance(LRef port, LRef * instance)
           fast_read_error("Bad slot value list, must be a proper list.", port, vals);
 }
 
-static void fast_read_hash(LRef port, LRef * hash)
+static void fast_read_hash(lref_t port, lref_t * hash)
 {
-     LRef shallow;
+     lref_t shallow;
 
      fast_read(port, &shallow);
      if (!BOOLP(shallow))
@@ -430,14 +430,14 @@ static void fast_read_hash(LRef port, LRef * hash)
 
      *hash = hashcons(BOOLV(shallow));
 
-     LRef elements;
+     lref_t elements;
      fast_read(port, &elements);
 
-     LRef loc = NIL;
+     lref_t loc = NIL;
 
      for (loc = elements; CONSP(loc); loc = CDR(loc))
      {
-          LRef kv = CAR(loc);
+          lref_t kv = CAR(loc);
 
           if (!CONSP(kv))
                fast_read_error("malformed key/value in hash table", port, kv);
@@ -449,9 +449,9 @@ static void fast_read_hash(LRef port, LRef * hash)
           fast_read_error("malformed key/value list for hash table", port, elements);
 }
 
-static void fast_read_closure(LRef port, LRef * retval)
+static void fast_read_closure(lref_t port, lref_t * retval)
 {
-     LRef env;
+     lref_t env;
      fast_read(port, &env);
 
      if (EOFP(env))
@@ -460,7 +460,7 @@ static void fast_read_closure(LRef port, LRef * retval)
      if (!(NULLP(env) || CONSP(env)))
           fast_read_error("malformed closure, bad environment", port, env);
 
-     LRef code;
+     lref_t code;
      fast_read(port, &code);
 
      if (EOFP(code))
@@ -469,7 +469,7 @@ static void fast_read_closure(LRef port, LRef * retval)
      if (!(NULLP(code) || CONSP(code)))
           fast_read_error("malformed closure, bad code", port, code);
 
-     LRef props;
+     lref_t props;
      fast_read(port, &props);
 
      if (EOFP(props))
@@ -481,7 +481,7 @@ static void fast_read_closure(LRef port, LRef * retval)
      *retval = lclosurecons(env, code, props);
 }
 
-void fast_read_to_newline(LRef port)
+void fast_read_to_newline(lref_t port)
 {
      _TCHAR ch = _T('\0');
 
@@ -490,9 +490,9 @@ void fast_read_to_newline(LRef port)
                break;
 }
 
-void fast_read_macro(LRef port, LRef * retval)
+void fast_read_macro(lref_t port, lref_t * retval)
 {
-     LRef macro_transformer;
+     lref_t macro_transformer;
      fast_read(port, &macro_transformer);
 
      if (!CLOSUREP(macro_transformer))
@@ -504,7 +504,7 @@ void fast_read_macro(LRef port, LRef * retval)
 /* REVISIT: Fasl table entries move around upon resize, which can screw up FASL load if
  * the loader as a pointer into the fasl table during a resize. */
 
-static void fasl_ensure_valid_table_index(LRef port, size_t index)
+static void fasl_ensure_valid_table_index(lref_t port, size_t index)
 {
      if (NULLP(PORT_PINFO(port)->_fasl_table))
      {
@@ -534,9 +534,9 @@ static void fasl_ensure_valid_table_index(LRef port, size_t index)
      assert(index < VECTOR_DIM(PORT_PINFO(port)->_fasl_table));
 }
 
-static fixnum_t fast_read_table_index(LRef port)
+static fixnum_t fast_read_table_index(lref_t port)
 {
-     LRef index;
+     lref_t index;
      fast_read(port, &index);
 
      if (!FIXNUMP(index))
@@ -550,16 +550,16 @@ static fixnum_t fast_read_table_index(LRef port)
      return FIXNM(index);
 }
 
-void fast_read_loader_definition(LRef port, fasl_opcode_t opcode)
+void fast_read_loader_definition(lref_t port, fasl_opcode_t opcode)
 {
-     LRef symbol_to_define;
+     lref_t symbol_to_define;
 
      fast_read(port, &symbol_to_define);
 
      if (!SYMBOLP(symbol_to_define))
           fast_read_error("Expected symbol for definition", port, symbol_to_define);
 
-     LRef definition;
+     lref_t definition;
      fast_read(port, &definition);
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS,
@@ -580,7 +580,7 @@ void fast_read_loader_definition(LRef port, fasl_opcode_t opcode)
      lidefine_global(symbol_to_define, definition);
 }
 
-static void fast_loader_stack_push(LRef port, LRef val)
+static void fast_loader_stack_push(lref_t port, lref_t val)
 {
      assert(PORTP(port) && PORT_BINARYP(port));
 
@@ -593,9 +593,9 @@ static void fast_loader_stack_push(LRef port, LRef val)
      pinfo->_fasl_stack_ptr++;
 }
 
-static LRef fast_loader_stack_pop(LRef port)
+static lref_t fast_loader_stack_pop(lref_t port)
 {
-     LRef val = NIL;
+     lref_t val = NIL;
 
      assert(PORTP(port) && PORT_BINARYP(port));
 
@@ -612,14 +612,14 @@ static LRef fast_loader_stack_pop(LRef port)
      return val;
 }
 
-void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
+void fast_read_loader_application(lref_t port, fasl_opcode_t opcode)
 {
      assert(PORTP(port) && PORT_BINARYP(port));
 
      port_info_t *pinfo = PORT_PINFO(port);
 
      size_t argc = 0;
-     LRef argv[FAST_LOAD_STACK_DEPTH];
+     lref_t argv[FAST_LOAD_STACK_DEPTH];
 
      fast_read(port, &argv[0]);
 
@@ -628,7 +628,7 @@ void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
 
      if (opcode == FASL_OP_LOADER_APPLYN)
      {
-          LRef ac;
+          lref_t ac;
 
           fast_read(port, &ac);
 
@@ -656,9 +656,9 @@ void fast_read_loader_application(LRef port, fasl_opcode_t opcode)
      pinfo->_fasl_accum = lapply(argc + 1, argv);
 }
 
-static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false */ )
+static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = false */ )
 {
-     LRef *fasl_table_entry = NULL;
+     lref_t *fasl_table_entry = NULL;
 
      *retval = NIL;
 
@@ -683,14 +683,14 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
           /*  Assume we're going to complete the read unless we find out otherwise.. */
           current_read_complete = true;
 
-          LRef opcode_location = NIL;
+          lref_t opcode_location = NIL;
 
           if (DEBUG_FLAG(DF_FASL_SHOW_OPCODES))
                opcode_location = lport_location(port);
 
           fasl_opcode_t opcode = fast_read_opcode(port);
           fixnum_t index = 0;
-          LRef name;
+          lref_t name;
 
           if (DEBUG_FLAG(DF_FASL_SHOW_OPCODES))
           {
@@ -909,23 +909,23 @@ static void fast_read(LRef port, LRef * retval, bool allow_loader_ops /* = false
      }
 }
 
-LRef lfast_read(LRef port)
+lref_t lfast_read(lref_t port)
 {
-     LRef retval;
+     lref_t retval;
 
      fast_read(port, &retval);
 
      return retval;
 }
 
-LRef liifasl_load(LRef port)
+lref_t liifasl_load(lref_t port)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL from : ~a\n"), port));
      
-     LRef form = NIL;
+     lref_t form = NIL;
 
      while (!EOFP(form))
           fast_read(port, &form, true);

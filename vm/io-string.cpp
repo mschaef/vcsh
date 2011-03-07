@@ -16,19 +16,19 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-INLINE void SET_PORT_STRING(LRef port, LRef string)
+INLINE void SET_PORT_STRING(lref_t port, lref_t string)
 {
      assert(STRINGP(string));
 
      PORT_PINFO(port)->_user_object = string;
 }
 
-INLINE LRef PORT_STRING(LRef port)
+INLINE lref_t PORT_STRING(lref_t port)
 {
      return PORT_PINFO(port)->_user_object;
 }
 
-size_t string_port_read(void *buf, size_t size, size_t count, LRef obj)
+size_t string_port_read(void *buf, size_t size, size_t count, lref_t obj)
 {
      size_t bytes_read;
 
@@ -51,7 +51,7 @@ size_t string_port_read(void *buf, size_t size, size_t count, LRef obj)
      return bytes_read;
 }
 
-size_t string_port_write(const void *buf, size_t size, size_t count, LRef obj)
+size_t string_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 {
      assert(size == sizeof(_TCHAR));
 
@@ -63,7 +63,7 @@ size_t string_port_write(const void *buf, size_t size, size_t count, LRef obj)
      return count;
 }
 
-size_t string_port_length(LRef port)
+size_t string_port_length(lref_t port)
 {
      if (NULLP(PORT_STRING(port)))
           return 0;
@@ -90,7 +90,7 @@ port_class_t string_port_class = {
 };
 
 
-LRef lopen_input_string(LRef string)
+lref_t lopen_input_string(lref_t string)
 {
      if (!STRINGP(string))
           vmerror_wrong_type(1, string);
@@ -101,12 +101,12 @@ LRef lopen_input_string(LRef string)
      return portcons(&string_port_class, NIL, PORT_INPUT, strcons(string), NULL);
 }
 
-LRef lopen_output_string()      /*  REVISIT: default string/length in oos? */
+lref_t lopen_output_string()      /*  REVISIT: default string/length in oos? */
 {
      return portcons(&string_port_class, NIL, PORT_OUTPUT, NIL, NULL);
 }
 
-LRef lget_output_string(LRef port)
+lref_t lget_output_string(lref_t port)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);

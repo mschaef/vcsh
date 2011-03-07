@@ -41,7 +41,7 @@ int _tmain(int argc, _TCHAR* argv[])
   scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_OUTPUT_PORT];
   scan::interp.control_fields[scan::VMCTRL_CURRENT_DEBUG_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT];
 
-  scan::LRef retval = scan::run();
+  scan::lref_t retval = scan::run();
 
   long return_status = 0;
 

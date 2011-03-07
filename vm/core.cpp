@@ -19,31 +19,31 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-LRef liimmediate_p(LRef obj)
+lref_t liimmediate_p(lref_t obj)
 {
      return boolcons(LREF_IMMEDIATE_P(obj) || NULLP(obj));
 }
 
 /***** Boolean *****/
 
-LRef lbooleanp(LRef x)
+lref_t lbooleanp(lref_t x)
 {
      return boolcons(BOOLP(x));
 }
 
-LRef lnotp(LRef x)
+lref_t lnotp(lref_t x)
 {
      return boolcons(!TRUEP(x));
 }
 
 /***** Equality tests *****/
 
-LRef leq(LRef x, LRef y)
+lref_t leq(lref_t x, lref_t y)
 {
      return boolcons(EQ(x, y));
 }
 
-LRef leql(LRef x, LRef y)
+lref_t leql(lref_t x, lref_t y)
 {
      bool rc = false;
 
@@ -59,7 +59,7 @@ LRef leql(LRef x, LRef y)
      return boolcons(rc);
 }
 
-bool equalp(LRef a, LRef b)
+bool equalp(lref_t a, lref_t b)
 {
      typecode_t atype;
 
@@ -122,24 +122,24 @@ bool equalp(LRef a, LRef b)
      }
 }
 
-LRef lequal(LRef a, LRef b)
+lref_t lequal(lref_t a, lref_t b)
 {
      return boolcons(equalp(a, b));
 }
 
-LRef lnullp(LRef x)
+lref_t lnullp(lref_t x)
 {
      return boolcons(NULLP(x));
 }
 
-LRef litypecode(LRef obj)
+lref_t litypecode(lref_t obj)
 {
      return fixcons(TYPE(obj));
 }
 
 /***** subrs *****/
 
-LRef lsubr_type_code(LRef subr)
+lref_t lsubr_type_code(lref_t subr)
 {
      if (!SUBRP(subr))
           vmerror_wrong_type(1, subr);
@@ -147,7 +147,7 @@ LRef lsubr_type_code(LRef subr)
      return fixcons(SUBR_TYPE(subr));
 }
 
-LRef lsubr_name(LRef subr)
+lref_t lsubr_name(lref_t subr)
 {
      if (!SUBRP(subr))
           vmerror_wrong_type(1, subr);
@@ -155,9 +155,9 @@ LRef lsubr_name(LRef subr)
      return SUBR_NAME(subr);
 }
 
-LRef subrcons(subr_arity_t type, LRef name, void *implementation)
+lref_t subrcons(subr_arity_t type, lref_t name, void *implementation)
 {
-     LRef z = new_cell(TC_SUBR);
+     lref_t z = new_cell(TC_SUBR);
 
      SET_SUBR_TYPE(z, type);
      SET_SUBR_NAME(z, name);
@@ -179,35 +179,35 @@ void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation
      if (implementation == NULL)
           dscwritef(DF_ALWAYS, (";;;; NULL SUBR IMPLEMENTATION: \"~cs\"!\n", name));
 
-     LRef subr_name = strcons(name);
+     lref_t subr_name = strcons(name);
 
-     LRef subr = subrcons(arity, subr_name, implementation);
+     lref_t subr = subrcons(arity, subr_name, implementation);
 
      lhash_set(interp.subr_table, subr_name, subr);
 }
 
-LRef find_subr_by_name(LRef subr_name)
+lref_t find_subr_by_name(lref_t subr_name)
 {
      assert(STRINGP(subr_name));
      assert(HASHP(interp.subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
 
-     LRef argv[2];
+     lref_t argv[2];
      argv[0] = interp.subr_table;
      argv[1] = subr_name;
 
      return lhash_ref(2, argv);
 }
 
-LRef lisubr_table()
+lref_t lisubr_table()
 {
      return interp.subr_table;
 }
 
 /***** closures *****/
 
-LRef lclosurecons(LRef env, LRef code, LRef property_list)
+lref_t lclosurecons(lref_t env, lref_t code, lref_t property_list)
 {
-     LRef z = new_cell(TC_CLOSURE);
+     lref_t z = new_cell(TC_CLOSURE);
 
      if (!(CONSP(code) || NULLP(code)))
           vmerror_wrong_type(2, code);
@@ -219,7 +219,7 @@ LRef lclosurecons(LRef env, LRef code, LRef property_list)
      return z;
 }
 
-LRef lset_closure_code(LRef exp, LRef code)
+lref_t lset_closure_code(lref_t exp, lref_t code)
 {
      if (!CLOSUREP(exp))
           vmerror_wrong_type(exp);
@@ -229,7 +229,7 @@ LRef lset_closure_code(LRef exp, LRef code)
      return exp;
 }
 
-LRef lclosure_code(LRef exp)
+lref_t lclosure_code(lref_t exp)
 {
      if (!CLOSUREP(exp))
           return boolcons(false);
@@ -237,7 +237,7 @@ LRef lclosure_code(LRef exp)
           return (CLOSURE_CODE(exp));
 }
 
-LRef lset_closure_env(LRef exp, LRef env)
+lref_t lset_closure_env(lref_t exp, lref_t env)
 {
      if (!CLOSUREP(exp))
           vmerror_wrong_type(exp);
@@ -247,7 +247,7 @@ LRef lset_closure_env(LRef exp, LRef env)
      return exp;
 }
 
-LRef lclosure_env(LRef exp)
+lref_t lclosure_env(lref_t exp)
 {
      if (!CLOSUREP(exp))
           return boolcons(false);
@@ -255,7 +255,7 @@ LRef lclosure_env(LRef exp)
           return (CLOSURE_ENV(exp));
 }
 
-LRef lset_property_list(LRef exp, LRef property_list)
+lref_t lset_property_list(lref_t exp, lref_t property_list)
 {
      if (CLOSUREP(exp))
           SET_CLOSURE_PROPERTY_LIST(exp, property_list);
@@ -270,7 +270,7 @@ LRef lset_property_list(LRef exp, LRef property_list)
      return property_list;
 }
 
-LRef lproperty_list(LRef exp)
+lref_t lproperty_list(lref_t exp)
 {
      if (CLOSUREP(exp))
           return CLOSURE_PROPERTY_LIST(exp);
@@ -282,7 +282,7 @@ LRef lproperty_list(LRef exp)
           return NIL;
 }
 
-LRef lprimitivep(LRef obj)
+lref_t lprimitivep(lref_t obj)
 {
      if (SUBRP(obj))
           return obj;
@@ -290,7 +290,7 @@ LRef lprimitivep(LRef obj)
           return boolcons(false);
 }
 
-LRef lclosurep(LRef obj)
+lref_t lclosurep(lref_t obj)
 {
      if (CLOSUREP(obj))
           return obj;
@@ -298,7 +298,7 @@ LRef lclosurep(LRef obj)
           return boolcons(false);
 }
 
-LRef lprocedurep(LRef exp)
+lref_t lprocedurep(lref_t exp)
 {
      if (PROCEDUREP(exp))
           return exp;
@@ -309,7 +309,7 @@ LRef lprocedurep(LRef exp)
 
 /***** Control Fields *****/
 
-static size_t get_control_field_id(LRef control_field_id)
+static size_t get_control_field_id(lref_t control_field_id)
 {
      if (!FIXNUMP(control_field_id))
           vmerror_wrong_type(1, control_field_id);
@@ -322,30 +322,30 @@ static size_t get_control_field_id(LRef control_field_id)
      return id;
 }
 
-LRef liset_control_field(LRef control_field_id, LRef new_value)
+lref_t liset_control_field(lref_t control_field_id, lref_t new_value)
 {
      interp.control_fields[get_control_field_id(control_field_id)] = new_value;
 
      return new_value;
 }
 
-LRef licontrol_field(LRef control_field_id)
+lref_t licontrol_field(lref_t control_field_id)
 {
      return interp.control_fields[get_control_field_id(control_field_id)];
 }
 
 /***** Values tuples *****/
 
-LRef lvalues(LRef values)
+lref_t lvalues(lref_t values)
 {
-     LRef z = new_cell(TC_VALUES_TUPLE);
+     lref_t z = new_cell(TC_VALUES_TUPLE);
 
      SET_VALUES_TUPLE_VALUES(z, values);
 
      return z;
 }
 
-LRef lvalues2list(LRef obj)
+lref_t lvalues2list(lref_t obj)
 {
      if (VALUES_TUPLE_P(obj))
           return VALUES_TUPLE_VALUES(obj);
@@ -355,9 +355,9 @@ LRef lvalues2list(LRef obj)
 
 /***** Fast-Ops *****/
 
-LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3)
+lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t arg3)
 {
-     LRef z = new_cell(TC_FAST_OP);
+     lref_t z = new_cell(TC_FAST_OP);
 
      SET_FAST_OP_OPCODE(z, opcode);
      SET_FAST_OP_ARG1(z, arg1);
@@ -367,7 +367,7 @@ LRef fast_op(int opcode, LRef arg1, LRef arg2, LRef arg3)
      return (z);
 }
 
-LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3)
+lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2, lref_t arg3)
 {
      if (!FIXNUMP(opcode))
           vmerror_wrong_type(1, opcode);
@@ -375,7 +375,7 @@ LRef lfast_op(LRef opcode, LRef arg1, LRef arg2, LRef arg3)
      return fast_op(FIXNM(opcode), arg1, arg2, arg3);
 }
 
-LRef lfast_op_opcode(LRef fastop)
+lref_t lfast_op_opcode(lref_t fastop)
 {
      if (!FAST_OP_P(fastop))
           vmerror_wrong_type(1, fastop);
@@ -383,7 +383,7 @@ LRef lfast_op_opcode(LRef fastop)
      return fixcons(FAST_OP_OPCODE(fastop));
 }
 
-LRef lfast_op_args(LRef fastop)
+lref_t lfast_op_args(lref_t fastop)
 {
      if (!FAST_OP_P(fastop))
           vmerror_wrong_type(1, fastop);
@@ -391,7 +391,7 @@ LRef lfast_op_args(LRef fastop)
      return listn(3, FAST_OP_ARG1(fastop), FAST_OP_ARG2(fastop), FAST_OP_ARG3(fastop));
 }
 
-bool fast_op_equal(LRef a, LRef b)
+bool fast_op_equal(lref_t a, lref_t b)
 {
      assert(FAST_OP_P(a));
      assert(FAST_OP_P(b));

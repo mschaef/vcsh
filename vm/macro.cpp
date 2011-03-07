@@ -15,16 +15,16 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-LRef macrocons(LRef t)          /*  REVISIT: Macros should be moved entirely to Lisp... */
+lref_t macrocons(lref_t t)          /*  REVISIT: Macros should be moved entirely to Lisp... */
 {
-     LRef z = new_cell(TC_MACRO);
+     lref_t z = new_cell(TC_MACRO);
 
      SET_MACRO_TRANSFORMER(z, t);
 
      return (z);
 }
 
-LRef limacrocons(LRef t)
+lref_t limacrocons(lref_t t)
 {
      if (!CLOSUREP(t))
           vmerror_wrong_type(1, t);
@@ -32,7 +32,7 @@ LRef limacrocons(LRef t)
      return macrocons(t);
 }
 
-LRef lmacro_transformer(LRef mac)
+lref_t lmacro_transformer(lref_t mac)
 {
      if (!MACROP(mac))
           vmerror_wrong_type(1, mac);
@@ -40,7 +40,7 @@ LRef lmacro_transformer(LRef mac)
      return MACRO_TRANSFORMER(mac);
 }
 
-LRef lmacrop(LRef obj)
+lref_t lmacrop(lref_t obj)
 {
      return MACROP(obj) ? obj : boolcons(false);
 }

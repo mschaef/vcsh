@@ -20,7 +20,7 @@
 
 
 BEGIN_NAMESPACE(scan)
-LRef lsystem(size_t argc, LRef argv[])
+lref_t lsystem(size_t argc, lref_t argv[])
 {
      size_t len = 0;
      _TCHAR *command_line = get_c_string_dim(lstring_append(argc, argv), &len);
@@ -31,16 +31,16 @@ LRef lsystem(size_t argc, LRef argv[])
      return fixcons(system(command_line));
 }
 
-LRef lenvironment()
+lref_t lenvironment()
 {
      _TCHAR **env_strings = sys_get_env_vars();
 
-     LRef vars = NIL;
+     lref_t vars = NIL;
 
      for (size_t i = 0; env_strings[i] != NULL; i++)
      {
-          LRef var_name = NIL;
-          LRef var_value = NIL;
+          lref_t var_name = NIL;
+          lref_t var_value = NIL;
 
           _TCHAR *loc = env_strings[i];
 
@@ -72,7 +72,7 @@ LRef lenvironment()
      return vars;
 }
 
-LRef lset_environment_variable(LRef varname, LRef value)
+lref_t lset_environment_variable(lref_t varname, lref_t value)
 {
      if (!STRINGP(varname) && !SYMBOLP(varname))
           vmerror_wrong_type(1, varname);
@@ -90,7 +90,7 @@ LRef lset_environment_variable(LRef varname, LRef value)
      return NIL;
 }
 
-LRef ltemporary_file_name(LRef p)       /*  REVISIT: This is a generally bad way to create temp files */
+lref_t ltemporary_file_name(lref_t p)       /*  REVISIT: This is a generally bad way to create temp files */
 {
      if (!(STRINGP(p) || NULLP(p)))
           vmerror_wrong_type(1, p);
@@ -109,7 +109,7 @@ LRef ltemporary_file_name(LRef p)       /*  REVISIT: This is a generally bad way
      return NIL;
 }
 
-LRef ldelete_file(LRef filename)
+lref_t ldelete_file(lref_t filename)
 {
      if (!STRINGP(filename))
           vmerror_wrong_type(1, filename);
@@ -126,11 +126,11 @@ LRef ldelete_file(LRef filename)
      /*  REVISIT: delete_file should detect directories and call RemoveDirectory */
 }
 
-LRef file_details_object(_TCHAR * filename, struct sys_stat_t * info)
+lref_t file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 {
-     LRef obj = hashcons(true);
+     lref_t obj = hashcons(true);
 
-     LRef file_type = NULL;
+     lref_t file_type = NULL;
 
      switch (info->_filetype)
      {
@@ -164,7 +164,7 @@ LRef file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 
      lhash_set(obj, keyword_intern(_T("file-type")), file_type);
 
-     LRef attrs = NIL;
+     lref_t attrs = NIL;
 
      if (info->_attrs & SYS_FATTR_TEMPORARY)
           attrs = lcons(keyword_intern(_T("temporary")), attrs);
@@ -194,7 +194,7 @@ LRef file_details_object(_TCHAR * filename, struct sys_stat_t * info)
      return obj;
 }
 
-LRef lifile_details(LRef path, LRef existance_onlyp)
+lref_t lifile_details(lref_t path, lref_t existance_onlyp)
 {
      if (!STRINGP(path))
           vmerror_wrong_type(1, path);
@@ -216,7 +216,7 @@ LRef lifile_details(LRef path, LRef existance_onlyp)
 
 /*  REVISIT: directory should be able to take lists of filename specifiers in addition to single specifiers. */
 
-LRef lidirectory(LRef dn, LRef m)
+lref_t lidirectory(lref_t dn, lref_t m)
 {
      bool include_dirs = true;
      bool include_files = true;
@@ -256,7 +256,7 @@ LRef lidirectory(LRef dn, LRef m)
           return NIL;
      }
 
-     LRef filenames = NULL;
+     lref_t filenames = NULL;
 
      bool done = false;
 
@@ -303,7 +303,7 @@ LRef lidirectory(LRef dn, LRef m)
 }
 
 
-LRef lsleep(LRef ms)
+lref_t lsleep(lref_t ms)
 {
      if (!NUMBERP(ms))
           vmerror_wrong_type(1, ms);
@@ -315,35 +315,35 @@ LRef lsleep(LRef ms)
      return NIL;
 }
 
-LRef lruntime(void)
+lref_t lruntime(void)
 {
      return flocons(sys_runtime());
 }
 
-LRef lrealtime(void)
+lref_t lrealtime(void)
 {
      return flocons(sys_realtime());
 }
 
-LRef lgc_runtime(void)
+lref_t lgc_runtime(void)
 {
      return flocons(interp.gc_total_run_time);
 }
 
-LRef lrealtime_time_zone_offset()
+lref_t lrealtime_time_zone_offset()
 {
      return flocons(sys_timezone_offset());
 }
 
-LRef lsystem_info()
+lref_t lsystem_info()
 {
      sys_info_t info;
 
      sys_get_info(&info);
 
-     LRef obj = hashcons(true);
+     lref_t obj = hashcons(true);
 
-     LRef eoln = boolcons(false);
+     lref_t eoln = boolcons(false);
 
      switch (info._eoln)
      {
@@ -366,14 +366,14 @@ LRef lsystem_info()
 
      _TCHAR system_name[STACK_STRBUF_LEN];
 
-     LRef name = boolcons(false);
+     lref_t name = boolcons(false);
 
      if (sys_gethostname(system_name, STACK_STRBUF_LEN) == SYS_OK)
           name = strcons(system_name);
 
      lhash_set(obj, keyword_intern(_T("system-name")), name);
 
-     LRef build_keyword = NIL;
+     lref_t build_keyword = NIL;
 
      if (CHECKED_BUILD)
           build_keyword = keyword_intern(_T("checked"));
@@ -403,7 +403,7 @@ LRef lsystem_info()
      lhash_set(obj, keyword_intern(_T("size-of-lobject")), fixcons(sizeof(lobject_t)));
      lhash_set(obj, keyword_intern(_T("size-of-fixnum")), fixcons(sizeof(fixnum_t)));
      lhash_set(obj, keyword_intern(_T("size-of-flonum")), fixcons(sizeof(flonum_t)));
-     lhash_set(obj, keyword_intern(_T("size-of-lref")), fixcons(sizeof(LRef)));
+     lhash_set(obj, keyword_intern(_T("size-of-lref")), fixcons(sizeof(lref_t)));
 
 
      lhash_set(obj, keyword_intern(_T("heap-segment-size")),

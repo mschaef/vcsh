@@ -16,7 +16,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-LRef lsymbol_vcell(LRef sym)
+lref_t lsymbol_vcell(lref_t sym)
 {
      if (!SYMBOLP(sym))
           vmerror_wrong_type(1, sym);
@@ -24,7 +24,7 @@ LRef lsymbol_vcell(LRef sym)
      return SYMBOL_VCELL(sym);
 }
 
-LRef lset_symbol_vcell(LRef sym, LRef val)
+lref_t lset_symbol_vcell(lref_t sym, lref_t val)
 {
      if (!SYMBOLP(sym))
           vmerror_wrong_type(1, sym);
@@ -34,19 +34,19 @@ LRef lset_symbol_vcell(LRef sym, LRef val)
      return sym;
 }
 
-LRef lunbound_marker()
+lref_t lunbound_marker()
 {
      return UNBOUND_MARKER;
 }
 
-LRef lisymbol_globally_boundp(LRef sym)
+lref_t lisymbol_globally_boundp(lref_t sym)
 {
      assert(SYMBOLP(sym));
 
      return boolcons(SYMBOL_VCELL(sym) != UNBOUND_MARKER);
 }
 
-LRef lidefine_global(LRef var, LRef val)
+lref_t lidefine_global(lref_t var, lref_t val)
 {
      assert(SYMBOLP(var));
 

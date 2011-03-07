@@ -24,7 +24,7 @@ int _tmain(int argc, _TCHAR * argv[])
 
      signal(SIGINT, sigint_handler);
 
-     scan::LRef retval = scan::run();
+     scan::lref_t retval = scan::run();
 
      long return_status = 0;
 

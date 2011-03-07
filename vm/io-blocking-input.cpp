@@ -23,9 +23,9 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-size_t blocking_input_port_read(void *buf, size_t size, size_t count, LRef port);
-void blocking_input_port_close(LRef port);
-bool blocking_input_read_readyp(LRef port);
+size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t port);
+void blocking_input_port_close(lref_t port);
+bool blocking_input_read_readyp(lref_t port);
 
 port_class_t blocking_input_port_class = {
      _T("BLOCKING-INPUT"),
@@ -56,12 +56,12 @@ struct blocking_input_port_state
      bool _more_data;
 };
 
-bool blocking_input_read_readyp(LRef port)
+bool blocking_input_read_readyp(lref_t port)
 {
      return blocking_input_is_data_available(port);
 }
 
-size_t blocking_input_port_read(void *buf, size_t size, size_t count, LRef port)
+size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
@@ -108,7 +108,7 @@ size_t blocking_input_port_read(void *buf, size_t size, size_t count, LRef port)
      return bytes_read / size;
 }
 
-void blocking_input_port_close(LRef port)
+void blocking_input_port_close(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
@@ -127,7 +127,7 @@ void blocking_input_port_close(LRef port)
      SET_PORT_MODE(port, PORT_CLOSED);
 }
 
-void blocking_input_post_data(LRef port, void *data, size_t size)
+void blocking_input_post_data(lref_t port, void *data, size_t size)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
      assert(!blocking_input_is_data_available(port));   /*  REVISIT: we really should allow this case */
@@ -151,7 +151,7 @@ void blocking_input_post_data(LRef port, void *data, size_t size)
      ps->_buffer_size = size;
 }
 
-void blocking_input_post_eof(LRef port)
+void blocking_input_post_eof(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
@@ -160,7 +160,7 @@ void blocking_input_post_eof(LRef port)
      ps->_more_data = false;
 }
 
-bool blocking_input_is_data_available(LRef port)
+bool blocking_input_is_data_available(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
@@ -170,7 +170,7 @@ bool blocking_input_is_data_available(LRef port)
          && (ps->_buffer != NULL) && (ps->_buffer_size > 0) && (ps->_buffer_pos < ps->_buffer_size);
 }
 
-LRef blocking_input_cons(const _TCHAR * port_name, bool binary,
+lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
                          blocking_input_read_data_fn_t read_fn,
                          blocking_input_close_port_fn_t close_fn, void *userdata)
 {

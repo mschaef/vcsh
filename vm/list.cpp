@@ -14,9 +14,9 @@
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)
-LRef lcons(LRef x, LRef y)
+lref_t lcons(lref_t x, lref_t y)
 {
-     LRef z = new_cell(TC_CONS);
+     lref_t z = new_cell(TC_CONS);
 
      SET_CAR(z, x);
      SET_CDR(z, y);
@@ -24,7 +24,7 @@ LRef lcons(LRef x, LRef y)
      return z;
 }
 
-LRef lconsp(LRef x)
+lref_t lconsp(lref_t x)
 {
      if (CONSP(x))
           return x;
@@ -33,7 +33,7 @@ LRef lconsp(LRef x)
 }
 
 
-LRef lcar(LRef x)
+lref_t lcar(lref_t x)
 {
      if (NULLP(x))
           return NIL;
@@ -44,7 +44,7 @@ LRef lcar(LRef x)
      return CAR(x);
 };
 
-LRef lcdr(LRef x)
+lref_t lcdr(lref_t x)
 {
      if (NULLP(x))
           return NIL;
@@ -56,7 +56,7 @@ LRef lcdr(LRef x)
 };
 
 
-LRef lsetcar(LRef cell, LRef value)
+lref_t lsetcar(lref_t cell, lref_t value)
 {
      if (!CONSP(cell))
           vmerror_wrong_type(1, cell);
@@ -65,7 +65,7 @@ LRef lsetcar(LRef cell, LRef value)
      return value;
 }
 
-LRef lsetcdr(LRef cell, LRef value)
+lref_t lsetcdr(lref_t cell, lref_t value)
 {
      if (!CONSP(cell))
           vmerror_wrong_type(1, cell);
@@ -75,7 +75,7 @@ LRef lsetcdr(LRef cell, LRef value)
 }
 
 
-static size_t list_length(LRef xs)      /*  REVISIT: extend to tolerate circularity? */
+static size_t list_length(lref_t xs)      /*  REVISIT: extend to tolerate circularity? */
 {
      size_t len = 0;
 
@@ -88,7 +88,7 @@ static size_t list_length(LRef xs)      /*  REVISIT: extend to tolerate circular
      return len;
 }
 
-size_t object_length(LRef obj)  /*  REVISIT: Is it really necessary to be this generic in C? */
+size_t object_length(lref_t obj)  /*  REVISIT: Is it really necessary to be this generic in C? */
 {
      switch (TYPE(obj))
      {
@@ -109,41 +109,41 @@ size_t object_length(LRef obj)  /*  REVISIT: Is it really necessary to be this g
      }
 }
 
-LRef llength(LRef obj)
+lref_t llength(lref_t obj)
 {
      return fixcons(object_length(obj));
 }
 
-LRef listn(long n, ...)
+lref_t listn(long n, ...)
 {
      va_list args;
 
      va_start(args, n);
 
-     LRef result = listv(n, args);
+     lref_t result = listv(n, args);
 
      va_end(args);
 
      return result;
 }
 
-LRef listv(long n, va_list args)
+lref_t listv(long n, va_list args)
 {
-     LRef result, obj;
+     lref_t result, obj;
      long jj;
 
      for (jj = 0, result = NIL; jj < n; ++jj)
           result = lcons(NIL, result);
 
      for (jj = 0, obj = result; jj < n; obj = lcdr(obj), ++jj)
-          lsetcar(obj, va_arg(args, LRef));
+          lsetcar(obj, va_arg(args, lref_t));
 
      return result;
 }
 
-LRef lista(size_t n, LRef args[])
+lref_t lista(size_t n, lref_t args[])
 {
-     LRef result, obj;
+     lref_t result, obj;
      size_t jj;
 
      for (jj = 0, result = NIL; jj < n; ++jj)

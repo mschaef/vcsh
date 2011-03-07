@@ -33,9 +33,9 @@ BEGIN_NAMESPACE(scan)
  */
 
 /*** Utility Functions ***/
-static bool list_of_packages_p(LRef pkgs)
+static bool list_of_packages_p(lref_t pkgs)
 {
-     LRef ii;
+     lref_t ii;
 
      for (ii = pkgs; CONSP(ii); ii = CDR(ii))
           if (!PACKAGEP(CAR(ii)))
@@ -49,11 +49,11 @@ static bool list_of_packages_p(LRef pkgs)
 
 /*** package constructor and accessors ***/
 
-LRef packagecons(LRef name, LRef bindings, LRef use_list)
+lref_t packagecons(lref_t name, lref_t bindings, lref_t use_list)
 {
      assert(STRINGP(name));
 
-     LRef new_package = new_cell(TC_PACKAGE);
+     lref_t new_package = new_cell(TC_PACKAGE);
 
      SET_PACKAGE_NAME(new_package, name);
      SET_PACKAGE_BINDINGS(new_package, bindings);
@@ -62,14 +62,14 @@ LRef packagecons(LRef name, LRef bindings, LRef use_list)
      return new_package;
 }
 
-LRef packagecons(LRef name)
+lref_t packagecons(lref_t name)
 {
      assert(STRINGP(name));
 
      return packagecons(name, hashcons(false), NIL);
 }
 
-LRef lipackagecons(LRef name)
+lref_t lipackagecons(lref_t name)
 {
      if (!STRINGP(name))
           vmerror_wrong_type(1, name);
@@ -77,7 +77,7 @@ LRef lipackagecons(LRef name)
      return packagecons(name);
 }
 
-LRef lpackagep(LRef x)
+lref_t lpackagep(lref_t x)
 {
      if (PACKAGEP(x))
           return x;
@@ -85,7 +85,7 @@ LRef lpackagep(LRef x)
           return boolcons(false);
 }
 
-LRef lpackage_name(LRef p)      /*  ONLY SCHEME */
+lref_t lpackage_name(lref_t p)      /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
           vmerror_wrong_type(1, p);
@@ -93,7 +93,7 @@ LRef lpackage_name(LRef p)      /*  ONLY SCHEME */
      return PACKAGE_NAME(p);
 }
 
-LRef lset_package_name(LRef p, LRef new_name)   /*  ONLY SCHEME */
+lref_t lset_package_name(lref_t p, lref_t new_name)   /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
           vmerror_wrong_type(1, p);
@@ -106,7 +106,7 @@ LRef lset_package_name(LRef p, LRef new_name)   /*  ONLY SCHEME */
      return p;
 }
 
-LRef lpackage_bindings(LRef p)  /*  ONLY SCHEME */
+lref_t lpackage_bindings(lref_t p)  /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
           vmerror_wrong_type(1, p);
@@ -114,7 +114,7 @@ LRef lpackage_bindings(LRef p)  /*  ONLY SCHEME */
      return PACKAGE_BINDINGS(p);
 }
 
-LRef lpackage_use_list(LRef p)  /*  ONLY SCHEME */
+lref_t lpackage_use_list(lref_t p)  /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
           vmerror_wrong_type(1, p);
@@ -122,7 +122,7 @@ LRef lpackage_use_list(LRef p)  /*  ONLY SCHEME */
      return PACKAGE_USE_LIST(p);
 }
 
-LRef lset_package_use_list(LRef p, LRef use_list)
+lref_t lset_package_use_list(lref_t p, lref_t use_list)
 {
      if (!PACKAGEP(p))
           vmerror_wrong_type(1, p);
@@ -138,10 +138,10 @@ LRef lset_package_use_list(LRef p, LRef use_list)
 /*** support primitives for symbols and name mappings  ***/
 
 /* Find a symbol record local to the specified package. */
-static LRef find_direct_symbol_record(LRef sym_spec, LRef package)
+static lref_t find_direct_symbol_record(lref_t sym_spec, lref_t package)
 {
-     LRef sym_rec;
-     LRef sym_name;
+     lref_t sym_rec;
+     lref_t sym_name;
 
      assert(PACKAGEP(package));
 
@@ -164,7 +164,7 @@ static LRef find_direct_symbol_record(LRef sym_spec, LRef package)
      return sym_rec;
 }
 
-LRef ladd_symbol_to_package(LRef symbol, LRef package)
+lref_t ladd_symbol_to_package(lref_t symbol, lref_t package)
 {
      if (!SYMBOLP(symbol))
           vmerror_wrong_type(1, symbol);
@@ -174,7 +174,7 @@ LRef ladd_symbol_to_package(LRef symbol, LRef package)
      /* keyword symbols are created with the external flag set to #t. */
      bool is_keyword = (package == interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
 
-     LRef symbol_record = lcons(symbol, boolcons(is_keyword));
+     lref_t symbol_record = lcons(symbol, boolcons(is_keyword));
 
      lhash_set(PACKAGE_BINDINGS(package), SYMBOL_PNAME(symbol), symbol_record);
 
@@ -184,7 +184,7 @@ LRef ladd_symbol_to_package(LRef symbol, LRef package)
 
 /*** symbol constructor and accessors ***/
 
-LRef symcons(_TCHAR * pname, LRef home)
+lref_t symcons(_TCHAR * pname, lref_t home)
 {
      assert(pname != NULL);
      assert(_tcslen(pname) > 0);
@@ -192,12 +192,12 @@ LRef symcons(_TCHAR * pname, LRef home)
      return symcons(strcons(pname), home);
 }
 
-LRef symcons(LRef pname, LRef home)
+lref_t symcons(lref_t pname, lref_t home)
 {
      assert(STRINGP(pname));
      assert(NULLP(home) || PACKAGEP(home));
 
-     LRef z = new_cell(TC_SYMBOL);
+     lref_t z = new_cell(TC_SYMBOL);
 
      SET_SYMBOL_PNAME(z, pname);
      SET_SYMBOL_VCELL(z, UNBOUND_MARKER);
@@ -206,7 +206,7 @@ LRef symcons(LRef pname, LRef home)
      return z;
 }
 
-LRef lsymbolp(LRef x)
+lref_t lsymbolp(lref_t x)
 {
      if (SYMBOLP(x))
           return x;
@@ -215,7 +215,7 @@ LRef lsymbolp(LRef x)
 }
 
 
-LRef lkeywordp(LRef x)
+lref_t lkeywordp(lref_t x)
 {
      if (SYMBOLP(x) && (SYMBOL_HOME(x) == interp.control_fields[VMCTRL_PACKAGE_KEYWORD]))
           return x;
@@ -225,7 +225,7 @@ LRef lkeywordp(LRef x)
 
 /* A simpler variant of intern that does not honor use lists
  * and reports errors via return value. */
-LRef simple_intern(LRef print_name, LRef package)
+lref_t simple_intern(lref_t print_name, lref_t package)
 {
      if (!STRINGP(print_name) || !PACKAGEP(package))
           return NIL;
@@ -233,31 +233,31 @@ LRef simple_intern(LRef print_name, LRef package)
      if (STRING_DIM(print_name) <= 0)
           return NIL;
 
-     LRef sym_rec = find_direct_symbol_record(print_name, package);
+     lref_t sym_rec = find_direct_symbol_record(print_name, package);
 
      if (!NULLP(sym_rec))
           return lcar(sym_rec);
 
-     LRef sym = symcons(print_name, package);
+     lref_t sym = symcons(print_name, package);
 
      ladd_symbol_to_package(sym, package);
 
      return sym;
 }
 
-LRef simple_intern(const _TCHAR * name, LRef package)
+lref_t simple_intern(const _TCHAR * name, lref_t package)
 {
      return simple_intern(strcons(name), package);
 }
 
-LRef keyword_intern(const _TCHAR * name)
+lref_t keyword_intern(const _TCHAR * name)
 {
      return simple_intern(strcons(name), interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
 }
 
 /*** Symbol primitives ***/
 
-LRef lsymbol_package(LRef sym)  /*   REVISIT: fix split between _home and _package */
+lref_t lsymbol_package(lref_t sym)  /*   REVISIT: fix split between _home and _package */
 {
      if (!SYMBOLP(sym))
           vmerror_wrong_type(1, sym);
@@ -268,7 +268,7 @@ LRef lsymbol_package(LRef sym)  /*   REVISIT: fix split between _home and _packa
           return SYMBOL_HOME(sym);
 }
 
-LRef lset_symbol_package(LRef sym, LRef package)
+lref_t lset_symbol_package(lref_t sym, lref_t package)
 {
      if (!SYMBOLP(sym))
           vmerror_wrong_type(1, sym);
@@ -280,7 +280,7 @@ LRef lset_symbol_package(LRef sym, LRef package)
      return sym;
 }
 
-LRef lisymbol_index(LRef symbol)
+lref_t lisymbol_index(lref_t symbol)
 {
      if (!SYMBOLP(symbol))
           vmerror_wrong_type(1, symbol);
@@ -289,7 +289,7 @@ LRef lisymbol_index(LRef symbol)
 }
 
 
-LRef lsymbol_name(LRef sym)
+lref_t lsymbol_name(lref_t sym)
 {
      if (!SYMBOLP(sym))
           vmerror_wrong_type(1, sym);
@@ -297,7 +297,7 @@ LRef lsymbol_name(LRef sym)
      return SYMBOL_PNAME(sym);
 }
 
-LRef lstring2uninterned_symbol(LRef str)
+lref_t lstring2uninterned_symbol(lref_t str)
 {
      if (!STRINGP(str))
           vmerror_wrong_type(1, str);

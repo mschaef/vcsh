@@ -26,19 +26,19 @@ BEGIN_NAMESPACE(scan)
 /*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
 
 /*** End-of-file object ***/
-LRef lmake_eof()
+lref_t lmake_eof()
 {
      return LREF2_CONS(LREF2_EOF, 0);
 }
 
-LRef leof_objectp(LRef obj)
+lref_t leof_objectp(lref_t obj)
 {
      return EOFP(obj) ? obj : boolcons(false);
 }
 
 /*** Port object ***/
 
-LRef port_gc_mark(LRef obj)
+lref_t port_gc_mark(lref_t obj)
 {
      gc_mark(PORT_PINFO(obj)->_port_name);
      gc_mark(PORT_PINFO(obj)->_user_object);
@@ -51,7 +51,7 @@ LRef port_gc_mark(LRef obj)
      return PORT_PINFO(obj)->_fasl_table;
 }
 
-void port_gc_free(LRef port)
+void port_gc_free(lref_t port)
 {
      assert(PORTP(port));
      assert(PORT_CLASS(port));
@@ -68,9 +68,9 @@ void port_gc_free(LRef port)
      safe_free(PORT_PINFO(port));
 }
 
-LRef initialize_port(LRef s,
+lref_t initialize_port(lref_t s,
                      port_class_t * cls,
-                     LRef port_name, port_mode_t mode, LRef user_object, void *user_data)
+                     lref_t port_name, port_mode_t mode, lref_t user_object, void *user_data)
 {
      bool binary = (mode & PORT_BINARY) == PORT_BINARY;
 
@@ -128,7 +128,7 @@ LRef initialize_port(LRef s,
      return (s);
 }
 
-size_t port_length(LRef port)
+size_t port_length(lref_t port)
 {
      assert(PORTP(port));
 
@@ -138,7 +138,7 @@ size_t port_length(LRef port)
      return 0;
 }
 
-size_t write_raw(const void *buf, size_t size, size_t count, LRef port)
+size_t write_raw(const void *buf, size_t size, size_t count, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -151,7 +151,7 @@ size_t write_raw(const void *buf, size_t size, size_t count, LRef port)
      return PORT_CLASS(port)->_write(buf, size, count, port);
 }
 
-size_t read_raw(void *buf, size_t size, size_t count, LRef port)
+size_t read_raw(void *buf, size_t size, size_t count, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -166,17 +166,17 @@ size_t read_raw(void *buf, size_t size, size_t count, LRef port)
      return actual_count;
 }
 
-LRef portcons(port_class_t * cls, LRef port_name, port_mode_t mode, LRef user_object,
+lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,
               void *user_data)
 {
-     LRef s = new_cell(TC_PORT);
+     lref_t s = new_cell(TC_PORT);
 
      return initialize_port(s, cls, port_name, mode, user_object, user_data);
 }
 
 /***** C I/O functions *****/
 
-int read_char(LRef port)
+int read_char(lref_t port)
 {
      int ch = EOF;
 
@@ -244,7 +244,7 @@ int read_char(LRef port)
      return ch;
 }
 
-int unread_char(int ch, LRef port)
+int unread_char(int ch, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -278,7 +278,7 @@ int unread_char(int ch, LRef port)
      return ch;
 }
 
-int peek_char(LRef port)
+int peek_char(lref_t port)
 {
      int ch = EOF;
 
@@ -293,7 +293,7 @@ int peek_char(LRef port)
      return ch;
 }
 
-void write_char(int ch, LRef port)
+void write_char(int ch, lref_t port)
 {
      _TCHAR tch = (_TCHAR) ch;
 
@@ -308,7 +308,7 @@ void write_char(int ch, LRef port)
           lflush_port(port);
 }
 
-size_t write_text(const _TCHAR * buf, size_t count, LRef port)
+size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -406,7 +406,7 @@ size_t write_text(const _TCHAR * buf, size_t count, LRef port)
      return count;
 }
 
-static int flush_whitespace(LRef port, bool skip_lisp_comments = true)
+static int flush_whitespace(lref_t port, bool skip_lisp_comments = true)
 {
      int c = '\0';
 
@@ -441,7 +441,7 @@ static int flush_whitespace(LRef port, bool skip_lisp_comments = true)
      return c;
 }
 
-bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & result)
+bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t & result)
 {
 #ifdef FIXNUM_64BIT
      assert((length == 1) || (length == 2) || (length == 4) || (length == 8));
@@ -481,7 +481,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, LRef port, fixnum_t & res
 }
 
 
-bool read_binary_flonum(LRef port, flonum_t & result)
+bool read_binary_flonum(lref_t port, flonum_t & result)
 {
      assert(PORTP(port));
      assert(PORT_BINARYP(port));
@@ -500,7 +500,7 @@ bool read_binary_flonum(LRef port, flonum_t & result)
 
 /***** Lisp-visible port functions *****/
 
-LRef linput_portp(LRef obj)
+lref_t linput_portp(lref_t obj)
 {
      if (PORTP(obj) && (PORT_MODE(obj) & PORT_INPUT))
           return obj;
@@ -508,7 +508,7 @@ LRef linput_portp(LRef obj)
           return boolcons(false);
 }
 
-LRef loutput_portp(LRef obj)
+lref_t loutput_portp(lref_t obj)
 {
      if (PORTP(obj) && (PORT_MODE(obj) & PORT_OUTPUT))
           return obj;
@@ -516,7 +516,7 @@ LRef loutput_portp(LRef obj)
           return boolcons(false);
 }
 
-LRef lbinary_portp(LRef obj)
+lref_t lbinary_portp(lref_t obj)
 {
      if (PORTP(obj) && (PORT_BINARYP(obj)))
           return obj;
@@ -524,7 +524,7 @@ LRef lbinary_portp(LRef obj)
           return boolcons(false);
 }
 
-LRef lport_mode(LRef obj)
+lref_t lport_mode(lref_t obj)
 {
      if (!PORTP(obj))
           vmerror_wrong_type(1, obj);
@@ -547,7 +547,7 @@ LRef lport_mode(LRef obj)
 }
 
 
-LRef lport_name(LRef port)
+lref_t lport_name(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -558,7 +558,7 @@ LRef lport_name(LRef port)
      return PORT_PINFO(port)->_port_name;
 }
 
-LRef lport_location(LRef port)
+lref_t lport_location(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -572,7 +572,7 @@ LRef lport_location(LRef port)
           return lcons(fixcons(PORT_TEXT_INFO(port)->_row), fixcons(PORT_TEXT_INFO(port)->_column));
 }
 
-LRef lport_translate_mode(LRef port)
+lref_t lport_translate_mode(lref_t port)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -583,7 +583,7 @@ LRef lport_translate_mode(LRef port)
           return boolcons(PORT_TEXT_INFO(port)->_crlf_translate);
 }
 
-LRef lport_set_translate_mode(LRef port, LRef mode)
+lref_t lport_set_translate_mode(lref_t port, lref_t mode)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -602,7 +602,7 @@ LRef lport_set_translate_mode(LRef port, LRef mode)
      return boolcons(old_translate_mode);
 }
 
-LRef lport_io_counts(LRef port)
+lref_t lport_io_counts(lref_t port)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -611,7 +611,7 @@ LRef lport_io_counts(LRef port)
                   fixcons(PORT_PINFO(port)->_bytes_written));
 }
 
-LRef lclose_port(LRef port)
+lref_t lclose_port(lref_t port)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -627,7 +627,7 @@ LRef lclose_port(LRef port)
      return port;
 }
 
-LRef lflush_port(LRef port)
+lref_t lflush_port(lref_t port)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
@@ -646,7 +646,7 @@ LRef lflush_port(LRef port)
 
 
 
-LRef lread_char(LRef port)
+lref_t lread_char(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -663,7 +663,7 @@ LRef lread_char(LRef port)
           return charcons((_TCHAR) ch);
 }
 
-LRef lunread_char(LRef ch, LRef port)
+lref_t lunread_char(lref_t ch, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -681,7 +681,7 @@ LRef lunread_char(LRef ch, LRef port)
 }
 
 
-LRef lpeek_char(LRef port)
+lref_t lpeek_char(lref_t port)
 {
      int ch;
 
@@ -699,7 +699,7 @@ LRef lpeek_char(LRef port)
           return charcons((_TCHAR) ch);
 }
 
-LRef lwrite_char(LRef ch, LRef port)
+lref_t lwrite_char(lref_t ch, lref_t port)
 {
      if (!CHARP(ch))
           vmerror_wrong_type(1, ch);
@@ -716,16 +716,16 @@ LRef lwrite_char(LRef ch, LRef port)
 }
 
 
-LRef lwrite_strings(size_t argc, LRef argv[])
+lref_t lwrite_strings(size_t argc, lref_t argv[])
 {
-     LRef port = (argc < 1) ? NIL : argv[0];
+     lref_t port = (argc < 1) ? NIL : argv[0];
 
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
      for (size_t ii = 1; ii < argc; ii++)
      {
-          LRef str = argv[ii];
+          lref_t str = argv[ii];
 
           if (STRINGP(str))
                write_text(STRING_DATA(str), STRING_DIM(str), port);
@@ -743,7 +743,7 @@ LRef lwrite_strings(size_t argc, LRef argv[])
 }
 
 
-LRef lchar_readyp(LRef port)
+lref_t lchar_readyp(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -768,7 +768,7 @@ LRef lchar_readyp(LRef port)
 }
 
 
-LRef lflush_whitespace(LRef port, LRef slc)
+lref_t lflush_whitespace(lref_t port, lref_t slc)
 {
      int ch = EOF;
 
@@ -801,7 +801,7 @@ LRef lflush_whitespace(LRef port, LRef slc)
 }
 
 
-LRef lread_binary_string(LRef l, LRef port)
+lref_t lread_binary_string(lref_t l, lref_t port)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
@@ -823,7 +823,7 @@ LRef lread_binary_string(LRef l, LRef port)
      if (remaining_length <= 0)
           vmerror_arg_out_of_range(l, _T(">0"));
 
-     LRef new_str = strcons();
+     lref_t new_str = strcons();
      size_t total_read = 0;
 
      while (remaining_length > 0)
@@ -851,7 +851,7 @@ LRef lread_binary_string(LRef l, LRef port)
 }
 
 
-LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
+lref_t lread_binary_fixnum(lref_t l, lref_t sp, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -885,7 +885,7 @@ LRef lread_binary_fixnum(LRef l, LRef sp, LRef port)
           return lmake_eof();
 }
 
-LRef lread_binary_flonum(LRef port)
+lref_t lread_binary_flonum(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -903,7 +903,7 @@ LRef lread_binary_flonum(LRef port)
           return lmake_eof();
 }
 
-LRef lread_line(LRef port)
+lref_t lread_line(lref_t port)
 {
      int ch;
 
@@ -914,7 +914,7 @@ LRef lread_line(LRef port)
 
      assert(PORTP(port));
 
-     LRef op = lopen_output_string();
+     lref_t op = lopen_output_string();
 
      bool read_anything = false;
 
@@ -931,7 +931,7 @@ LRef lread_line(LRef port)
      return lget_output_string(op);
 }
 
-LRef lwrite_binary_string(LRef string, LRef port)
+lref_t lwrite_binary_string(lref_t string, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -957,7 +957,7 @@ LRef lwrite_binary_string(LRef string, LRef port)
      return fixcons(chars_written);
 }
 
-LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
+lref_t lwrite_binary_fixnum(lref_t v, lref_t l, lref_t sp, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -1034,7 +1034,7 @@ LRef lwrite_binary_fixnum(LRef v, LRef l, LRef sp, LRef port)
      return fixcons(fixnums_written);
 }
 
-LRef lbinary_write_flonum(LRef v, LRef port)
+lref_t lbinary_write_flonum(lref_t v, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -1064,7 +1064,7 @@ LRef lbinary_write_flonum(LRef v, LRef port)
 }
 
 
-LRef lrich_write(LRef obj, LRef machine_readable, LRef port)
+lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -1082,7 +1082,7 @@ LRef lrich_write(LRef obj, LRef machine_readable, LRef port)
 }
 
 
-LRef lnewline(LRef port)
+lref_t lnewline(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -1095,7 +1095,7 @@ LRef lnewline(LRef port)
      return port;
 }
 
-LRef lfresh_line(LRef port)
+lref_t lfresh_line(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -1119,7 +1119,7 @@ LRef lfresh_line(LRef port)
  * Output port - Accepts all writes.
  */
 
-size_t null_port_read(void *buf, size_t size, size_t count, LRef obj)
+size_t null_port_read(void *buf, size_t size, size_t count, lref_t obj)
 {
      UNREFERENCED(buf);
      UNREFERENCED(size);
@@ -1129,7 +1129,7 @@ size_t null_port_read(void *buf, size_t size, size_t count, LRef obj)
      return 0;
 }
 
-size_t null_port_write(const void *buf, size_t size, size_t count, LRef obj)
+size_t null_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 {
      UNREFERENCED(buf);
      UNREFERENCED(size);
@@ -1157,7 +1157,7 @@ port_class_t null_port_class = {
 };
 
 
-LRef lopen_null_port()
+lref_t lopen_null_port()
 {
      return portcons(&null_port_class, NIL, (port_mode_t) (PORT_INPUT_OUTPUT | PORT_BINARY),
                      NIL, NULL);

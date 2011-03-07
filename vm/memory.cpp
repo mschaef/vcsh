@@ -35,7 +35,7 @@ static size_t gc_find_free_root()
      return -1;
 }
 
-void gc_protect(const _TCHAR * name, LRef * location, size_t n)
+void gc_protect(const _TCHAR * name, lref_t * location, size_t n)
 {
      size_t root_index = gc_find_free_root();
 
@@ -46,17 +46,17 @@ void gc_protect(const _TCHAR * name, LRef * location, size_t n)
      root->length = n;
 }
 
-static void gc_init_cell(LRef obj)
+static void gc_init_cell(lref_t obj)
 {
      SET_TYPE(obj, TC_FREE_CELL);
      SET_GC_MARK(obj, 0);
 }
 
-static int gc_sub_freelist_length(LRef current_freelist)
+static int gc_sub_freelist_length(lref_t current_freelist)
 {
      int len = 0;
 
-     for (LRef cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
+     for (lref_t cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
           len++;
 
      return len;
@@ -64,7 +64,7 @@ static int gc_sub_freelist_length(LRef current_freelist)
 
 void gc_dump_freelists()
 {
-     for (LRef flist = interp.global_freelist; flist != NULL; flist = NEXT_FREE_LIST(flist))
+     for (lref_t flist = interp.global_freelist; flist != NULL; flist = NEXT_FREE_LIST(flist))
      {
           dscwritef(DF_ALWAYS, ("{~c&:~cd}", flist, gc_sub_freelist_length(flist)));
      }
@@ -76,7 +76,7 @@ static size_t gc_heap_freelist_length(void)
 {
      size_t count = 0;
 
-     for (LRef flist = interp.global_freelist; flist != NULL;  flist = NEXT_FREE_LIST(flist))
+     for (lref_t flist = interp.global_freelist; flist != NULL;  flist = NEXT_FREE_LIST(flist))
           count++;
 
      return count;
@@ -89,14 +89,14 @@ static size_t gc_heap_freelist_length(void)
  * heaps, on an as-needed basis.
  */
 
-static void gc_init_heap_segment(LRef seg_base)
+static void gc_init_heap_segment(lref_t seg_base)
 {
-     LRef current_sub_freelist = NIL;
+     lref_t current_sub_freelist = NIL;
      size_t current_sub_freelist_size = 0;
 
      for (size_t ofs = 0; ofs < interp.gc_heap_segment_size; ofs++)
      {
-          LRef cell = &seg_base[ofs];
+          lref_t cell = &seg_base[ofs];
 
           gc_init_cell(cell);
 
@@ -129,7 +129,7 @@ static bool gc_enlarge_heap()
           return false;
      }
 
-     LRef seg_base = (LRef) safe_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
+     lref_t seg_base = (lref_t) safe_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
 
      if (seg_base == NULL)
      {
@@ -156,11 +156,11 @@ static bool gc_enlarge_heap()
  *
  * Heuristic used to determine if a value is conceivably a pointer.
  */
-static bool gc_possible_heap_pointer_p(LRef p)
+static bool gc_possible_heap_pointer_p(lref_t p)
 {
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
      {
-          LRef h = interp.gc_heap_segments[jj];
+          lref_t h = interp.gc_heap_segments[jj];
 
           /*  Skip unallocated gc_heap_segments; */
           if (h == NULL)
@@ -188,9 +188,9 @@ static bool gc_possible_heap_pointer_p(LRef p)
 /* gc_mark
  *
  * Mark an object and its descendants as being reachable. */
-void gc_mark(LRef initial_obj)
+void gc_mark(lref_t initial_obj)
 {
-     LRef obj = initial_obj;
+     lref_t obj = initial_obj;
 
      while (!NULLP(obj) && !LREF_IMMEDIATE_P(obj) && !GC_MARK(obj))
      {
@@ -287,11 +287,11 @@ void gc_mark(LRef initial_obj)
 }
 
 
-static void gc_mark_range_array(LRef * base, size_t n)
+static void gc_mark_range_array(lref_t * base, size_t n)
 {
      for (size_t jj = 0; jj < n; ++jj)
      {
-          LRef p = base[jj];
+          lref_t p = base[jj];
 
           if (gc_possible_heap_pointer_p(p))
                gc_mark(p);
@@ -305,11 +305,11 @@ static void gc_mark_roots(void)
                               interp.thread.gc_roots[root_idx].length);
 }
 
-static void gc_mark_range(LRef * start, LRef * end)
+static void gc_mark_range(lref_t * start, lref_t * end)
 {
      if (start > end)
      {
-          LRef *tmp = start;
+          lref_t *tmp = start;
           start = end;
           end = tmp;
      }
@@ -319,7 +319,7 @@ static void gc_mark_range(LRef * start, LRef * end)
      gc_mark_range_array(start, n);
 }
 
-static void gc_clear_cell(LRef obj)
+static void gc_clear_cell(lref_t obj)
 {
      switch (TYPE(obj))
      {
@@ -370,7 +370,7 @@ fixnum_t gc_sweep()
      fixnum_t free_cells = 0;
      fixnum_t cells_freed = 0;
 
-     LRef current_sub_freelist = NIL;
+     lref_t current_sub_freelist = NIL;
      size_t current_sub_freelist_size = 0;
 
 
@@ -379,10 +379,10 @@ fixnum_t gc_sweep()
           if (interp.gc_heap_segments[heap_num] == NULL)
                continue;
 
-          LRef org = interp.gc_heap_segments[heap_num];
-          LRef end = org + interp.gc_heap_segment_size;
+          lref_t org = interp.gc_heap_segments[heap_num];
+          lref_t end = org + interp.gc_heap_segment_size;
 
-          for (LRef obj = org; obj < end; ++obj)
+          for (lref_t obj = org; obj < end; ++obj)
           {
                if (GC_MARK(obj))
                {
@@ -426,13 +426,13 @@ fixnum_t gc_sweep()
 static void gc_mark_stack()
 {
      jmp_buf registers;
-     LRef stack_end;
+     lref_t stack_end;
 
      setjmp(registers);
 
-     gc_mark_range((LRef *) registers, (LRef *) (((uint8_t *) registers) + sizeof(registers)));
+     gc_mark_range((lref_t *) registers, (lref_t *) (((uint8_t *) registers) + sizeof(registers)));
 
-     gc_mark_range((LRef *) sys_get_stack_start(), (LRef *) & stack_end);
+     gc_mark_range((lref_t *) sys_get_stack_start(), (lref_t *) & stack_end);
 }
 
 
@@ -504,10 +504,10 @@ static fixnum_t gc_collect_garbage(void)
 }
 /*** Global freelist enqueue and dequeue */
 
-LRef gc_claim_freelist()
+lref_t gc_claim_freelist()
 {
      fixnum_t cells_freed = 0;
-     LRef new_freelist = NIL;
+     lref_t new_freelist = NIL;
 
      if (NULLP(interp.global_freelist)
          || ((malloc_bytes - interp.malloc_bytes_at_last_gc) > interp.c_bytes_gc_threshold)
@@ -531,7 +531,7 @@ LRef gc_claim_freelist()
 void gc_initialize_heap()
 {
      /* Initialize the heap table */
-     interp.gc_heap_segments = (LRef *) safe_malloc(sizeof(LRef) * interp.gc_max_heap_segments);
+     interp.gc_heap_segments = (lref_t *) safe_malloc(sizeof(lref_t) * interp.gc_max_heap_segments);
 
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
           interp.gc_heap_segments[jj] = NULL;
@@ -563,7 +563,7 @@ static size_t gc_count_active_heap_segments(void)
 /**** Scheme interface functions */
 
 
-LRef lenlarge_heap(LRef c)
+lref_t lenlarge_heap(lref_t c)
 {
      size_t requested = 1;
      size_t created = 0;
@@ -588,16 +588,16 @@ LRef lenlarge_heap(LRef c)
      return fixcons(interp.gc_current_heap_segments);
 }
 
-LRef lgc()
+lref_t lgc()
 {
      gc_collect_garbage();
 
      return NIL;
 }
 
-LRef lgc_info()
+lref_t lgc_info()
 {
-     LRef argv[8];
+     lref_t argv[8];
      argv[0] = fixcons(gc_count_active_heap_segments());
      argv[1] = fixcons(gc_heap_freelist_length());
      argv[2] = fixcons(interp.gc_total_cells_allocated);
@@ -617,12 +617,12 @@ LRef lgc_info()
  * the GC is picking up all object references.
  */
 
-LRef ligc_trip_wire()
+lref_t ligc_trip_wire()
 {
      return new_cell(TC_GC_TRIP_WIRE);
 }
 
-LRef liarm_gc_trip_wires(LRef f)
+lref_t liarm_gc_trip_wires(lref_t f)
 {
      bool new_state = TRUEP(f);
 

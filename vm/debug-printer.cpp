@@ -25,7 +25,7 @@ BEGIN_NAMESPACE(scan)
 #define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
 
 
-static void debug_print_flonum(LRef object, LRef port, bool machine_readable)
+static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
@@ -89,7 +89,7 @@ static void debug_print_flonum(LRef object, LRef port, bool machine_readable)
 }
 
 
-static void debug_print_string(LRef obj, LRef port, bool machine_readable)
+static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
 {
      assert(STRINGP(obj));
 
@@ -172,13 +172,13 @@ static void debug_print_string(LRef obj, LRef port, bool machine_readable)
 }
 
 
-static void debug_print_hash_elements(LRef obj, LRef port, bool machine_readable)
+static void debug_print_hash_elements(lref_t obj, lref_t port, bool machine_readable)
 {
      assert(HASHP(obj));
 
      fixnum_t count = 0;
 
-     LRef key, val;
+     lref_t key, val;
 
      hash_iter_t ii;
      hash_iter_begin(obj, &ii);
@@ -194,7 +194,7 @@ static void debug_print_hash_elements(LRef obj, LRef port, bool machine_readable
      }
 }
 
-static void debug_print_hash(LRef obj, LRef port, bool machine_readable)
+static void debug_print_hash(lref_t obj, lref_t port, bool machine_readable)
 {
      assert(HASHP(obj));
 
@@ -207,7 +207,7 @@ static void debug_print_hash(LRef obj, LRef port, bool machine_readable)
      write_char(')', port);
 }
 
-static void debug_print_instance(LRef obj, LRef port, bool machine_readable)
+static void debug_print_instance(lref_t obj, lref_t port, bool machine_readable)
 {
      assert(INSTANCEP(obj));
 
@@ -241,7 +241,7 @@ static const _TCHAR *charnames[] = {
 #define CHARNAMECOUNT (33)
 #define CHAREXTENDED (0x80)
 
-LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
+lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
@@ -250,9 +250,9 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
      if (DEBUG_FLAG(DF_PRINT_ADDRESSES))
           scwritef("#@~c&=", port, obj);
 
-     LRef tmp;
+     lref_t tmp;
      size_t ii;
-     LRef slots;
+     lref_t slots;
      const _TCHAR *fast_op_name;
 
      switch (TYPE(obj))
@@ -374,36 +374,36 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
           break;
 
      case TC_PACKAGE:
-          scwritef("~u ~a", port, (LRef) obj, PACKAGE_NAME(obj));
+          scwritef("~u ~a", port, (lref_t) obj, PACKAGE_NAME(obj));
           break;
 
      case TC_SUBR:
-          scwritef("~u,~cd:~a", port, (LRef) obj, SUBR_TYPE(obj), SUBR_NAME(obj));
+          scwritef("~u,~cd:~a", port, (lref_t) obj, SUBR_TYPE(obj), SUBR_NAME(obj));
           break;
 
      case TC_CLOSURE:
           if (DEBUG_FLAG(DF_PRINT_CLOSURE_CODE))
                scwritef("~u\n\tcode:~s\n\tenv:~s\n\tp-list:~s", port,
-                        (LRef) obj, CLOSURE_CODE(obj), CLOSURE_ENV(obj),
+                        (lref_t) obj, CLOSURE_CODE(obj), CLOSURE_ENV(obj),
                         CLOSURE_PROPERTY_LIST(obj));
 
           else
-               scwritef("~u", port, (LRef) obj);
+               scwritef("~u", port, (lref_t) obj);
           break;
 
      case TC_VALUES_TUPLE:
-          scwritef("~u ~s", port, (LRef) obj, VALUES_TUPLE_VALUES(obj));
+          scwritef("~u ~s", port, (lref_t) obj, VALUES_TUPLE_VALUES(obj));
           break;
 
      case TC_MACRO:
           if (DEBUG_FLAG(DF_PRINT_CLOSURE_CODE))
-               scwritef("~u ~s", port, (LRef) obj, MACRO_TRANSFORMER(obj));
+               scwritef("~u ~s", port, (lref_t) obj, MACRO_TRANSFORMER(obj));
           else
-               scwritef("~u", port, (LRef) obj);
+               scwritef("~u", port, (lref_t) obj);
           break;
 
      case TC_END_OF_FILE:
-          scwritef("~u", port, (LRef) obj);
+          scwritef("~u", port, (lref_t) obj);
           break;
 
      case TC_PORT:
@@ -418,10 +418,10 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
           fast_op_name = fast_op_opcode_name((fast_op_opcode_t)FAST_OP_OPCODE(obj));
 
           if (fast_op_name)
-               scwritef("#<FOP@~c&:~cs ~s ~s>", port, (LRef) obj,
+               scwritef("#<FOP@~c&:~cs ~s ~s>", port, (lref_t) obj,
                         fast_op_name, FAST_OP_ARG1(obj), FAST_OP_ARG2(obj), FAST_OP_ARG3(obj));
           else
-               scwritef("#<FOP@~c&:~cd ~s ~s>", port, (LRef) obj,
+               scwritef("#<FOP@~c&:~cd ~s ~s>", port, (lref_t) obj,
                         FAST_OP_OPCODE(obj), FAST_OP_ARG1(obj), FAST_OP_ARG2(obj), FAST_OP_ARG3(obj));
           break;
 
@@ -440,7 +440,7 @@ LRef debug_print_object(LRef obj, LRef port, bool machine_readable)
      return port;
 }
 
-LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p)
+lref_t lidebug_printer(lref_t obj, lref_t port, lref_t machine_readable_p)
 {
      if (!PORTP(port))
           vmerror_wrong_type(2, port);
@@ -469,7 +469,7 @@ LRef lidebug_printer(LRef obj, LRef port, LRef machine_readable_p)
  * Prefixing a format code with a #\! (ie. ~!L) causes the corresponding
  * value to be returned from the function as a Lisp object.
  */
-LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
+lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
 {
      char ch;
 
@@ -482,15 +482,15 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
      _TCHAR buf[STACK_STRBUF_LEN];
 
 
-     LRef lisp_arg_value = NULL;
+     lref_t lisp_arg_value = NULL;
      _TCHAR *str_arg_value = NULL;
      _TCHAR char_arg_value = _T('\0');
      long int long_arg_value = 0;
      unsigned long int ulong_arg_value = 0;
      flonum_t flonum_arg_value = 0.0;
 
-     LRef unprintable_object = NIL;
-     LRef return_value = NIL;
+     lref_t unprintable_object = NIL;
+     lref_t return_value = NIL;
 
      for (;;)
      {
@@ -524,7 +524,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
           switch (ch)
           {
           case 's':
-               lisp_arg_value = va_arg(arglist, LRef);
+               lisp_arg_value = va_arg(arglist, lref_t);
 
                if (return_next_value)
                     return_value = lisp_arg_value;
@@ -533,7 +533,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                break;
 
           case 'a':
-               lisp_arg_value = va_arg(arglist, LRef);
+               lisp_arg_value = va_arg(arglist, lref_t);
 
                if (return_next_value)
                     return_value = lisp_arg_value;
@@ -542,7 +542,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
                break;
 
           case 'u':
-               unprintable_object = va_arg(arglist, LRef);
+               unprintable_object = va_arg(arglist, lref_t);
 
                if (return_next_value)
                     return_value = unprintable_object;
@@ -681,7 +681,7 @@ LRef scvwritef(const _TCHAR * format_str, LRef port, va_list arglist)
      return return_value;
 }
 
-void scwritef(const _TCHAR * format_str, LRef port, ...)
+void scwritef(const _TCHAR * format_str, lref_t port, ...)
 {
      va_list arglist;
 
@@ -705,7 +705,7 @@ void dscwritef_impl(const _TCHAR * format_str, ...)
  * The standard debug port.
  */
 
-size_t debug_port_write(const void *buf, size_t size, size_t count, LRef obj)
+size_t debug_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 {
      UNREFERENCED(obj);
      assert(PORTP(obj));
@@ -760,14 +760,14 @@ port_class_t debug_port_class = {
 };
 
 
-LRef ldebug_write(LRef form)
+lref_t ldebug_write(lref_t form)
 {
      debug_print_object(form, CURRENT_DEBUG_PORT(), true);
 
      return lnewline(CURRENT_DEBUG_PORT());
 }
 
-LRef lopen_debug_port()
+lref_t lopen_debug_port()
 {
      return &interp.debugger_output;
 }

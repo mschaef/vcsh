@@ -25,7 +25,7 @@ struct c_data_port_state
 };
 
 
-size_t c_data_port_read(void *buf, size_t size, size_t count, LRef obj)
+size_t c_data_port_read(void *buf, size_t size, size_t count, lref_t obj)
 {
      if (!(PORT_MODE(obj) & PORT_INPUT))
           return 0;
@@ -45,7 +45,7 @@ size_t c_data_port_read(void *buf, size_t size, size_t count, LRef obj)
      return bytes / size;
 }
 
-void c_data_port_gc_free(LRef obj)
+void c_data_port_gc_free(lref_t obj)
 {
      assert(PORT_PINFO(obj)->_user_data);
 
@@ -53,7 +53,7 @@ void c_data_port_gc_free(LRef obj)
      PORT_PINFO(obj)->_user_data = NULL;
 }
 
-size_t c_data_port_length(LRef obj)
+size_t c_data_port_length(lref_t obj)
 {
      if (!(PORT_MODE(obj) & PORT_INPUT))
           return 0;
@@ -82,12 +82,12 @@ port_class_t c_data_port_class = {
 };
 
 
-LRef liinternal_files()
+lref_t liinternal_files()
 {
      return interp.internal_files;
 }
 
-LRef open_c_data_input(bool binary_data, data_block_t *data)
+lref_t open_c_data_input(bool binary_data, data_block_t *data)
 {
      c_data_port_state *ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));
 
@@ -101,12 +101,12 @@ LRef open_c_data_input(bool binary_data, data_block_t *data)
 
 void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data)
 {
-     LRef file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
+     lref_t file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
 
      interp.internal_files = lcons(file_record, interp.internal_files);
 }
 
-LRef lclone_c_data_port(LRef port)
+lref_t lclone_c_data_port(lref_t port)
 {
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
