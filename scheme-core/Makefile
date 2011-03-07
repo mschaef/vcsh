@@ -17,20 +17,15 @@ ctested: all scheme-tests.scf
 scheme-tests.scf: vcsh${EXE_EXT} scheme-tests.scm
 	./vcsh -c scheme-tests.scm
 
-VCSH_OBJS=vcsh${OBJ_EXT}
-
-VCSH_SRCS:= $(VCSH_OBJS:${OBJ_EXT}=.cpp)
-
-LIB_OBJS=scanlib${OBJ_EXT}
-
-LIB_SRCS:= $(LIB_OBJS:${OBJ_EXT}=.cpp)
-
-vcsh${EXE_EXT}: scanlib${LIB_EXT} $(VCSH_OBJS)
+vcsh${EXE_EXT}: vcsh0${EXE_EXT} vcsh${OBJ_EXT}
 	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh${EXE_EXT} vcsh${OBJ_EXT} scanlib${LIB_EXT}
 
-scanlib${LIB_EXT}: $(LIB_OBJS) scheme${OBJ_EXT} compiler-run${OBJ_EXT} ../vm/scan-vm${LIB_EXT}
+vcsh0${EXE_EXT}: scanlib${LIB_EXT} vcsh0${OBJ_EXT}
+	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh0${EXE_EXT} vcsh0${OBJ_EXT} scanlib${LIB_EXT}
+
+scanlib${LIB_EXT}: scanlib${OBJ_EXT} scheme${OBJ_EXT} compiler-run${OBJ_EXT} ../vm/scan-vm${LIB_EXT}
 	cp ../vm/scan-vm${LIB_EXT} scanlib${LIB_EXT}
-	${AR_RS} ${AROUTFL_RS}scanlib${LIB_EXT} $(LIB_OBJS) scheme${OBJ_EXT} compiler-run${OBJ_EXT}
+	${AR_RS} ${AROUTFL_RS}scanlib${LIB_EXT} scanlib${OBJ_EXT} scheme${OBJ_EXT} compiler-run${OBJ_EXT}
 ifdef ${RANLIB}
 	${RANLIB} scanlib${LIB_EXT}
 endif
@@ -64,7 +59,7 @@ depend: vcsh${EXE_EXT} grovel-dependancies.scm scheme.scm
 	./vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 indented:
-	gnuindent ${VCSH_SRCS} ${LIB_SRCS}
+	gnuindent vcsh.cpp scanlib.cpp
 
 ifneq ($(wildcard .depend),)
 include .depend

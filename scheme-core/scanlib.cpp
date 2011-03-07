@@ -1,9 +1,15 @@
 
-/* scanlib.cpp
- * January 16th, 2006
+/*
+ * scanlib.cpp --
  *
  * The interpreter library. This is the VM, plus some compiled scheme
  * source files.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
 #include "../vm/scan.h"
