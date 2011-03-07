@@ -18,7 +18,10 @@ scheme-tests.scf: vcsh${EXE_EXT} scheme-tests.scm
 	./vcsh -c scheme-tests.scm
 
 vcsh${EXE_EXT}: vcsh0${EXE_EXT} vcsh${OBJ_EXT} vcsh-standard-lib${OBJ_EXT}
-	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh${EXE_EXT} vcsh${OBJ_EXT} scanlib${LIB_EXT}
+	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh${EXE_EXT} vcsh${OBJ_EXT} vcsh-standard-lib${OBJ_EXT} scanlib${LIB_EXT}
+
+vcsh-standard-lib-registration.i: gen-register-calls.scm vcsh-standard-lib.cpp vcsh0${EXE_EXT}
+	./vcsh0 gen-register-calls.scm vcsh-standard-lib.cpp > vcsh-standard-lib-registration.i
 
 vcsh-standard-lib.cpp: csv.scf autoload.scf unit-test.scf
 	echo \#include \"../vm/scan.h\" > vcsh-standard-lib.cpp
@@ -58,6 +61,7 @@ clean-scheme:
 	${RM_F} compiler-run.cpp compiler-run.scf
 	${RM_F} scanlib.a scanlib.lib
 	${RM_F} vcsh-standard-lib.cpp
+	${RM_F} vcsh-standard-lib-registration.i
 
 %${OBJ_EXT}: %.cpp Makefile
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
@@ -70,6 +74,8 @@ depend: vcsh${EXE_EXT} grovel-dependancies.scm scheme.scm
 
 indented:
 	gnuindent vcsh.cpp scanlib.cpp
+
+vcsh.o:	vcsh.cpp vcsh-standard-lib-registration.i
 
 ifneq ($(wildcard .depend),)
 include .depend

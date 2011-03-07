@@ -24,10 +24,18 @@ void sigint_handler(int i)
      signal(SIGINT, sigint_handler);
 };
 
+#if !defined(NO_VCSH_STANDARD_LIBRARY)
+#  include "vcsh-standard-lib-registration.i"
+#endif
+
 int _tmain(int argc, _TCHAR * argv[])
 {
      scan::sys_init();
      scan::init(argc, argv, scan::DF_NONE);
+
+#if !defined(NO_VCSH_STANDARD_LIBRARY)
+     auto_register_internal_files();
+#endif
 
      signal(SIGINT, sigint_handler);
 
