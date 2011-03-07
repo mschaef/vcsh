@@ -28,8 +28,10 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
      {
           if ((ws->_bytes_transferred % 8) == 0)
                fprintf(ws->_out, "\n          ");
+          else
+               fprintf(ws->_out, " ");
 
-          fprintf(ws->_out, "0x%02x, ", ((uint8_t *) buf)[ii]);
+          fprintf(ws->_out, "0x%02x,", ((uint8_t *) buf)[ii]);
 
           ws->_bytes_transferred++;
      }
@@ -65,10 +67,10 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * blockname, _TCHAR * 
      s._out = out;
      s._bytes_transferred = 0;
 
-     fprintf(out, "struct scan::internal_file_t %s = \n", varname);
+     fprintf(out, "struct scan::internal_file_t %s =\n", varname);
      fprintf(out, "{\n");
-     fprintf(out, "     _T(\"%s\"), \n", blockname);
-     fprintf(out, "     %" PRINTF_PREFIX_SIZE_T "d, \n", file_length(in));
+     fprintf(out, "     _T(\"%s\"), %" PRINTF_PREFIX_SIZE_T "d,\n",
+             blockname, file_length(in));
 
      fprintf(out, "     INTERNAL_FILE_DATA_CAST {");
 
