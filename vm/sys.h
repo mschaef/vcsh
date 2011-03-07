@@ -98,9 +98,9 @@ struct sys_stat_t
 {
      sys_filetype_t _filetype;  /* type of the file */
      sys_file_attrs_t _attrs;   /* FAT-style file attributes. */
-     int64_t _mode;               /* unix-style permissions bits */
+     uint64_t _mode;            /* unix-style permissions bits */
 
-     int64_t _size;               /* total size, in bytes */
+     uint64_t _size;            /* total size, in bytes */
      sys_time_t _atime;         /* time of last access */
      sys_time_t _mtime;         /* time of last modification */
      sys_time_t _ctime;         /* time of last status change */
@@ -108,7 +108,7 @@ struct sys_stat_t
 
 struct sys_dirent_t
 {
-     fixnum_t _ino;             /* inode number */
+     uint64_t _ino;             /* inode number */
      sys_filetype_t _type;      /* type of file */
      char _name[SYS_NAME_MAX];  /* filename */
 };
@@ -128,11 +128,11 @@ void *sys_get_stack_start();
 #  define MAX2(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
-flonum_t sys_realtime(void);
-flonum_t sys_runtime(void);
-flonum_t sys_time_resolution();
-flonum_t sys_timezone_offset();
-flonum_t sys_time_since_launch();
+double sys_realtime(void);
+double sys_runtime(void);
+double sys_time_resolution();
+double sys_timezone_offset();
+double sys_time_since_launch();
 
 sys_retcode_t sys_init();
 

@@ -258,10 +258,10 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
   static __int64 runtime_ticks_per_sec = 0;
   static bool have_highres_timebase = false;
 
-static flonum_t realtime_offset = 0.0; /*  timebase offset to epoch */
-static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
+static double realtime_offset = 0.0; /*  timebase offset to epoch */
+static double runtime_offset = 0.0;  /*  timebase offset to interp start */
 
-  static flonum_t sys_timebase_time(void);
+  static double sys_timebase_time(void);
 
   static sys_retcode_t sys_init_time()
   {
@@ -284,7 +284,7 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
     FILETIME ft_runtime;
     GetSystemTimeAsFileTime(&ft_runtime);
 
-    realtime_offset = (flonum_t)filetime_to_time_t(ft_runtime) - sys_timebase_time();
+    realtime_offset = (double)filetime_to_time_t(ft_runtime) - sys_timebase_time();
 
     /*  Record the current time so that we can get a measure of uptime */
     runtime_offset = sys_timebase_time();
@@ -292,38 +292,38 @@ static flonum_t runtime_offset = 0.0;  /*  timebase offset to interp start */
     return SYS_OK;
   }
 
-  static flonum_t sys_timebase_time(void)
+  static double sys_timebase_time(void)
   {
     LARGE_INTEGER temp;
     __int64 counterValue;
 
     if (!have_highres_timebase)
-      return ((flonum_t)GetTickCount() / runtime_ticks_per_sec);
+      return ((double)GetTickCount() / runtime_ticks_per_sec);
 
     QueryPerformanceCounter(&temp);
     counterValue = temp.QuadPart;
 
-    return ((flonum_t)counterValue / (flonum_t)runtime_ticks_per_sec);
+    return ((double)counterValue / (double)runtime_ticks_per_sec);
   }
 
-  flonum_t sys_realtime(void)
+  double sys_realtime(void)
   {
     return sys_timebase_time() + realtime_offset;
   }
 
-  flonum_t sys_runtime(void)
+  double sys_runtime(void)
   {
     return sys_timebase_time() - runtime_offset;
   }
 
-  flonum_t sys_time_resolution()
+  double sys_time_resolution()
   {
     sys_runtime();
 
-    return (flonum_t)runtime_ticks_per_sec;
+    return (double)runtime_ticks_per_sec;
   }
 
-  flonum_t sys_timezone_offset()
+  double sys_timezone_offset()
   {
     TIME_ZONE_INFORMATION tz_info;
 

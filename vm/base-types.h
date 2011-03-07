@@ -140,40 +140,6 @@ extern "C" INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
 #  include <strings.h>
 #endif
 
-/*** Interpreter specific types ***/
-
-#define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
-
-/*** Fixnum and Flonum ***/
-
-#ifdef FIXNUM_64BIT
-typedef int64_t fixnum_t;
-typedef uint64_t unsigned_fixnum_t;
-
-#   define FIXNUM_BITS (64)
-#   define FIXNUM_MAX           INT64_MAX
-#   define FIXNUM_MIN           INT64_MIN
-#   define FIXNUM_UNSIGNED_MAX  UINT64_MAX
-#   define FIXNUM_UNSIGNED_MIN  UINT64_MIN
-#   define PRINTF_PREFIX_FIXNUM PRINTF_PREFIX_INT64
-
-#else
-typedef int32_t fixnum_t;
-typedef uint32_t unsigned_fixnum_t;
-
-#   define FIXNUM_BITS (32)
-#   define FIXNUM_MAX           INT32_MAX
-#   define FIXNUM_MIN           INT32_MIN
-#   define FIXNUM_UNSIGNED_MAX  UINT32_MAX
-#   define FIXNUM_UNSIGNED_MIN  UINT32_MIN
-#   define PRINTF_PREFIX_FIXNUM ""
-#endif
-
-typedef double flonum_t;
-
-#define FLONUM_MAX DBL_MAX
-#define FLONUM_MIN -DBL_MAX
-#define FLONUM_EPSILON DBL_EPSILON
 
 /*** TCHAR ***/
 
@@ -235,37 +201,5 @@ typedef char _TCHAR;
 #    endif
 #  endif
 #endif                          /* SCAN_WINDOWS */
-
-/*** Data Block ***/
-
-/* Microsoft C and gcc appear to have differing opinions on how to
- * initialize a structure with an indefinate sized array at the end. */
-
-#if defined(_MSC_VER)
-
-typedef uint8_t data_block_data_t[];
-#  define DATA_BLOCK_DATA_CAST
-
-#else
-
-typedef uint8_t *data_block_data_t;
-#  define DATA_BLOCK_DATA_CAST (uint8_t [])
-
-#endif
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (push)
-#  pragma warning (disable: 4200)
-#endif
-
-struct data_block_t
-{
-     size_t _length;
-     data_block_data_t _bytes;
-};
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (pop)
-#endif
 
 #endif

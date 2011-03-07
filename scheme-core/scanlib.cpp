@@ -1,15 +1,15 @@
 
 /* scanlib.cpp
  * January 16th, 2006
- * 
+ *
  * The interpreter library. This is the VM, plus some compiled scheme
  * source files.
  */
 
 #include "../vm/scan.h"
 
-extern data_block_t scf_compiler_run;
-extern data_block_t scf_scheme;
+extern scan::data_block_t scf_compiler_run;
+extern scan::data_block_t scf_scheme;
 
 BEGIN_NAMESPACE(scan)
 

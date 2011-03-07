@@ -244,9 +244,9 @@ sys_retcode_t sys_delete_file(_TCHAR * filename)
  * Time and Date
  */
 
-static flonum_t runtime_offset = 0.0;   /* timebase offset to interp start */
+static double runtime_offset = 0.0;   /* timebase offset to interp start */
 
-static flonum_t sys_timebase_time(void);
+static double sys_timebase_time(void);
 
 static sys_retcode_t sys_init_time()
 {
@@ -258,7 +258,7 @@ static sys_retcode_t sys_init_time()
      return SYS_OK;
 }
 
-static flonum_t sys_timebase_time(void)
+static double sys_timebase_time(void)
 {
      struct timeval tv;
 
@@ -267,29 +267,29 @@ static flonum_t sys_timebase_time(void)
      return tv.tv_sec + tv.tv_usec / 1000000.0;
 }
 
-flonum_t sys_realtime(void)
+double sys_realtime(void)
 {
      return sys_timebase_time();
 }
 
-flonum_t sys_runtime(void)
+double sys_runtime(void)
 {
      return sys_timebase_time() - runtime_offset;
 }
 
-flonum_t sys_time_resolution()
+double sys_time_resolution()
 {
      return 1000000.0;
 }
 
-flonum_t sys_timezone_offset() /* REVISIT: Verify that this has correct time/date in DST. */
+double sys_timezone_offset() /* REVISIT: Verify that this has correct time/date in DST. */
 {
      time_t current_time = time(NULL);
      struct tm ltbuf;
 
      localtime_r(&current_time, &ltbuf);
 
-     return (flonum_t) -ltbuf.tm_gmtoff;
+     return (double) -ltbuf.tm_gmtoff;
 }
 
 /****************************************************************

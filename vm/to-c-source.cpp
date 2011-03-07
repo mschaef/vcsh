@@ -65,7 +65,7 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
      s._out = out;
      s._bytes_transferred = 0;
 
-     fprintf(out, "struct data_block_t %s = \n", varname);
+     fprintf(out, "struct scan::data_block_t %s = \n", varname);
      fprintf(out, "{\n");
      fprintf(out, "     %" PRINTF_PREFIX_SIZE_T "d, \n", file_length(in));
 
