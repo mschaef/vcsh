@@ -87,7 +87,7 @@ lref_t liinternal_files()
      return interp.internal_files;
 }
 
-lref_t open_c_data_input(bool binary_data, data_block_t *data)
+lref_t open_c_data_input(internal_file_t *data)
 {
      c_data_port_state *ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));
 
@@ -96,12 +96,12 @@ lref_t open_c_data_input(bool binary_data, data_block_t *data)
      ps->_input_buffer_bytes = data->_length;
 
      return portcons(&c_data_port_class, NIL,
-                     (port_mode_t) (PORT_INPUT | (binary_data ? PORT_BINARY : 0)), NIL, ps);
+                     (port_mode_t) (PORT_INPUT | PORT_BINARY), NIL, ps);
 }
 
-void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data)
+void register_internal_file(internal_file_t *data)
 {
-     lref_t file_record = lcons(strcons(filename), open_c_data_input(binary_data, data));
+     lref_t file_record = lcons(strcons(data->_name), open_c_data_input(data));
 
      interp.internal_files = lcons(file_record, interp.internal_files);
 }

@@ -145,13 +145,13 @@ typedef double flonum_t;
 
 #if defined(_MSC_VER)
 
-typedef uint8_t data_block_data_t[];
-#  define DATA_BLOCK_DATA_CAST
+typedef uint8_t internal_file_data_t[];
+#  define INTERNAL_FILE_DATA_CAST
 
 #else
 
-typedef uint8_t *data_block_data_t;
-#  define DATA_BLOCK_DATA_CAST (uint8_t [])
+typedef uint8_t *internal_file_data_t;
+#  define INTERNAL_FILE_DATA_CAST (uint8_t [])
 
 #endif
 
@@ -160,10 +160,11 @@ typedef uint8_t *data_block_data_t;
 #  pragma warning (disable: 4200)
 #endif
 
-struct data_block_t
+struct internal_file_t
 {
+     _TCHAR *_name;
      size_t _length;
-     data_block_data_t _bytes;
+     internal_file_data_t _bytes;
 };
 
 #ifdef SCAN_WINDOWS
@@ -1632,9 +1633,9 @@ void dscwritef_impl(const _TCHAR * format_str, ...);
 
 lref_t debug_print_object(lref_t exp, lref_t port, bool machine_readable);
 
-void register_internal_file(const _TCHAR * filename, bool binary_data, data_block_t *data);
+void register_internal_file(internal_file_t *data);
 
-lref_t open_c_data_input(bool binary_data, data_block_t *data);
+lref_t open_c_data_input(internal_file_t *data);
 
 typedef bool(*blocking_input_read_data_fn_t) (lref_t port, void *userdata);
 typedef void (*blocking_input_close_port_fn_t) (lref_t port, void *userdata);

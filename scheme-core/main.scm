@@ -321,7 +321,7 @@
 (define-command-argument ("c" "compile")
   "Run in compiler mode. (Request help with this flag specified for more
    help on compiler-specific options.)"
-  (load-internal "compiler-run"))
+  (load-internal "compiler-run.scf"))
 
 (define-file-argument-handling
   (handler-bind ((runtime-error

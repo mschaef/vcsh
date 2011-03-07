@@ -17,8 +17,14 @@ ctested: all scheme-tests.scf
 scheme-tests.scf: vcsh${EXE_EXT} scheme-tests.scm
 	./vcsh -c scheme-tests.scm
 
-vcsh${EXE_EXT}: vcsh0${EXE_EXT} vcsh${OBJ_EXT}
+vcsh${EXE_EXT}: vcsh0${EXE_EXT} vcsh${OBJ_EXT} vcsh-standard-lib${OBJ_EXT}
 	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh${EXE_EXT} vcsh${OBJ_EXT} scanlib${LIB_EXT}
+
+vcsh-standard-lib.cpp: csv.scf autoload.scf unit-test.scf
+	echo \#include \"../vm/scan.h\" > vcsh-standard-lib.cpp
+	../vm/to-c-source csv.scf scf_csv >> vcsh-standard-lib.cpp
+	../vm/to-c-source autoload.scf scf_autoload >> vcsh-standard-lib.cpp
+	../vm/to-c-source unit-test.scf scf_unit_test >> vcsh-standard-lib.cpp
 
 vcsh0${EXE_EXT}: scanlib${LIB_EXT} vcsh0${OBJ_EXT}
 	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh0${EXE_EXT} vcsh0${OBJ_EXT} scanlib${LIB_EXT}
@@ -51,9 +57,13 @@ clean-scheme:
 	${RM_F} scheme.cpp scheme.scf
 	${RM_F} compiler-run.cpp compiler-run.scf
 	${RM_F} scanlib.a scanlib.lib
+	${RM_F} vcsh-standard-lib.cpp
 
 %${OBJ_EXT}: %.cpp Makefile
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
+
+%.scf: %.scm Makefile vcsh0${EXE_EXT}
+	./vcsh0${EXE_EXT} --compile --output-file=$@ $<
 
 depend: vcsh${EXE_EXT} grovel-dependancies.scm scheme.scm
 	./vcsh grovel-dependancies.scm scheme.scm 1> .depend

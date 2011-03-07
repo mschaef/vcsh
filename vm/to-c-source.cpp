@@ -58,18 +58,19 @@ size_t file_length(FILE * in)
      return total;
 }
 
-void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * varname)
+void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * blockname, _TCHAR * varname)
 {
      write_state s;
 
      s._out = out;
      s._bytes_transferred = 0;
 
-     fprintf(out, "struct scan::data_block_t %s = \n", varname);
+     fprintf(out, "struct scan::internal_file_t %s = \n", varname);
      fprintf(out, "{\n");
+     fprintf(out, "     _T(\"%s\"), \n", blockname);
      fprintf(out, "     %" PRINTF_PREFIX_SIZE_T "d, \n", file_length(in));
 
-     fprintf(out, "     DATA_BLOCK_DATA_CAST {");
+     fprintf(out, "     INTERNAL_FILE_DATA_CAST {");
 
      uint8_t buf[BLOCK_SIZE];
 
@@ -108,7 +109,7 @@ int main(int argc, char *argv[])        /* REVISIT: Enhance to map n files to 1 
           return 1;
      }
 
-     write_file_as_c_source(f, stdout, argv[2]);
+     write_file_as_c_source(f, stdout, argv[1], argv[2]);
 
      fclose(f);
 
