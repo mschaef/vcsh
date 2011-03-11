@@ -18,10 +18,9 @@
 #include <limits.h>
 #include <ctype.h>
 
-#ifdef SCAN_UNIX
+#if defined(SCAN_UNIX)
 #  include <stdint.h>
-#endif
-#ifdef SCAN_WINDOWS
+#elif defined(SCAN_WINDOWS)
 #  if defined(_MSC_VER)
 #    define __STDC_LIMIT_MACROS
 #    define __STDC_CONSTANT_MACROS
@@ -30,6 +29,8 @@
 #  if defined(__GNUC__)
 #    include <stdint.h>
 #  endif
+#else
+#  error Either SCAN_WINDOWS or SCAN_UNIX must be defined to pick a platform.
 #endif
 
 /* Macros for denoting C++ namespaces
