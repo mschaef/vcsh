@@ -32,7 +32,7 @@ SCHEME_MODULES=csv.scm autoload.scm unit-test.scm
 
 SCHEME_MODULES_CPP:=$(SCHEME_MODULES:.scm=.cpp)
 
-SCHEME_MODULES_O:=$(SCHEME_MODULES:.scm=.o)
+SCHEME_MODULES_O:=$(SCHEME_MODULES:.scm=${OBJ_EXT})
 
 vcsh${EXE_EXT}: vcsh0${EXE_EXT} vcsh${OBJ_EXT} ${SCHEME_MODULES_O}
 	${CC} ${LDFLAGS} ${NAMOBJFL}vcsh${EXE_EXT} vcsh${OBJ_EXT} ${SCHEME_MODULES_O} scanlib${LIB_EXT}
