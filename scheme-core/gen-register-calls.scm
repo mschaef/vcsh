@@ -38,6 +38,5 @@
   (format #t "\n"))
 
 (define (run)
-  (set-port-translate-mode! (current-output-port) #f)
   (write-registration-source
    (append-map internal-file-variables *files-to-scan*)))
