@@ -30,5 +30,3 @@ COVERAGE_TEST=off
 
 # on or off
 PROFILE=off
-
-include ../config.${PLATFORM}

@@ -11,6 +11,7 @@
 # WARRANTIES.
 
 include build-settings
+include config.${PLATFORM}
 
 .PHONY: tested vcsh vm clean indented
 

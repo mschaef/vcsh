@@ -15,6 +15,7 @@
 TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT}
 
 include ../build-settings
+include ../config.${PLATFORM}
 
 SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-run.scf
 

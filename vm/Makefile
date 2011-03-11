@@ -16,6 +16,7 @@
 TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} constants.scm TAGS
 
 include ../build-settings
+include ../config.${PLATFORM}
 
 SCC0=scc0/scc0
 
