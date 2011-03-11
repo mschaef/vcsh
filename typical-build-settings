@@ -1,3 +1,17 @@
+
+# typical-build-settings --
+#
+# Typical settings to control the build process. This file
+# can be copied to build-settings and updated to match the
+# target platform.
+#
+# (C) Copyright 2001-2011 East Coast Toolworks Inc.
+# (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+#
+# See the file "license.terms" for information on usage and
+# redistribution of this file, and for a DISCLAIMER OF ALL
+# WARRANTIES.
+
 # build-settings
 #
 # Settings for configuring the type of build to produce.

@@ -1,11 +1,27 @@
-# config.windows
-#
-# Makefile configuration paramaters for windows host.
 
-BUILD_VCALC=yes
+# config.windows --
+#
+# Makefile configuraton parameters for the Windows host.
+#
+# (C) Copyright 2001-2011 East Coast Toolworks Inc.
+# (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+#
+# See the file "license.terms" for information on usage and
+# redistribution of this file, and for a DISCLAIMER OF ALL
+# WARRANTIES.
+
+#### Prepreprocessor definitions and libraries common to all builds
 
 DEFINES=
 LIBS=
+
+#### Platform file extensions
+
+OBJ_EXT=.obj
+EXE_EXT=.exe
+LIB_EXT=.lib
+
+#### Names for components of the toolchain and standard arguments
 
 CC=cl
 LINK=link
@@ -21,6 +37,8 @@ DEBUG_OPTFL=/O2
 
 LDNAMEXEFL=/out:
 
+#### Compiler flags
+
 OPTFL=/O2
 DEBUGFL=/Zi
 CCFLAGS=/W4 /GS- /GR- /EHa- /EHs-c- /nologo /D_CRT_SECURE_NO_DEPRECATE /J /MT
@@ -28,13 +46,15 @@ LDFLAGS=/nologo /MT
 AROUTFL=/out:
 AROUTFL_RS=
 
-OBJ_EXT=.obj
-EXE_EXT=.exe
-LIB_EXT=.lib
+#### The platform name
 
 DEFINES+=${DEFFL}SCAN_WINDOWS
 
 LDFLAGS+=${DEBUGFL}
+
+#### Options for 32/64 bit pointer sizes
+
+#### Specific options for debug and checked modes
 
 ifeq (${BUILD_TYPE}, CHECKED)
   BUILD_TYPE=DEBUG
@@ -53,6 +73,8 @@ else
   endif
 endif
 
+#### Specific options for profiling and code coverage
+
 ifeq (${COVERAGE_TEST}, on)
    $(error Code coverage testing unsupported with MSC++)
 endif
@@ -61,6 +83,8 @@ ifeq (${PROFILE}, on)
    $(error Profiling unsupported with MSC++)
 endif
 .PHONY: all todo clean-cov clean-local clean TADS all
+
+#### Standard phony targets
 
 all: ${TARGETS}
 

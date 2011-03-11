@@ -1,11 +1,27 @@
-# config.unix
+
+# config.unix --
 #
-# Makefile configuration paramaters for Unix host.
+# Makefile configuraton parameters for the Unix host.
+#
+# (C) Copyright 2001-2011 East Coast Toolworks Inc.
+# (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+#
+# See the file "license.terms" for information on usage and
+# redistribution of this file, and for a DISCLAIMER OF ALL
+# WARRANTIES.
 
-BUILD_VCALC=no
-
+#### Prepreprocessor definitions and libraries common to all builds
+ 
 DEFINES=
 LIBS=
+
+#### Platform file extensions
+
+OBJ_EXT=.o
+EXE_EXT=
+LIB_EXT=.a
+
+#### Names for components of the toolchain and standard arguments
 
 CC=g++
 AR_RS=ar rs
@@ -21,6 +37,8 @@ DEBUG_OPTFL=-O
 
 LDNAMEXEFL=
 
+#### Compiler flags
+
 OPTFL=-O3
 DEBUGFL=-g
 CCFLAGS=-Wall -I. -funsigned-char -g
@@ -28,12 +46,13 @@ LDFLAGS=
 AROUTFL=
 AROUTFL_RS=
 
-OBJ_EXT=.o
-EXE_EXT=
-LIB_EXT=.a
+#### The platform name
 
 DEFINES+=${DEFFL}SCAN_UNIX
 
+LDFLAGS+=${DEBUGFL}
+
+#### Options for 32/64 bit pointer sizes
 
 ifeq (${POINTER_SIZE}, 64)
   CCFLAGS+=-m64
@@ -43,7 +62,7 @@ else
   LDFLAGS+=-m32
 endif
 
-LDFLAGS+=${DEBUGFL}
+#### Specific options for debug and checked modes
 
 ifeq (${BUILD_TYPE}, CHECKED)
   BUILD_TYPE=DEBUG
@@ -61,6 +80,8 @@ else
   endif
 endif
 
+#### Specific options for profiling and code coverage
+
 ifeq (${COVERAGE_TEST}, on)
    CCFLAGS+=-fprofile-arcs -ftest-coverage
    LDFLAGS+=-fprofile-arcs -lgcov
@@ -71,6 +92,7 @@ ifeq (${PROFILE}, on)
    LDFLAGS+=-pg
 endif
 
+#### Standard phony targets
 
 .PHONY: all todo clean-cov clean-local clean TADS all
 
