@@ -3,7 +3,6 @@ vcsh TODO
 
 0.6 - Janitorial Work
 --------
-* Develop a standard approach for linking internal files. (Include autoload, csv, unit-test, etc.)
 * Add test case coverage
 * Verify correct operation of directory tools on both *nix and Windows.
 * Split out the public scan API into its own header file
