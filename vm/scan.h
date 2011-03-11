@@ -30,7 +30,7 @@ extern int64_t malloc_bytes;      /* REVISIT: Should this be uint64_t? Should th
 
 /*** Interpreter Paramaters ***/
 
-#define SCAN_VERSION _T("SCAN 0.60")
+#define SCAN_VERSION _T("SCAN 0.60.1")
 
 enum
 {
