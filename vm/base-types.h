@@ -16,6 +16,7 @@
 
 #include <stddef.h>
 #include <limits.h>
+#include <ctype.h>
 
 #ifdef SCAN_UNIX
 #  include <stdint.h>

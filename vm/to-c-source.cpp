@@ -16,9 +16,17 @@
 
 #include "base-types.h"
 
+enum
+{
+     /* The block size used to read input files. */
+     BLOCK_SIZE = 256,
+
+     /* The length of the buffer used to hold the output variable name. */
+     NAME_BUF_SIZE = 32,
+};
+
 struct write_state
 {
-     FILE *_out;
      size_t _bytes_transferred;
 };
 
@@ -27,17 +35,15 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
      for (size_t ii = 0; ii < bytes; ii++)
      {
           if ((ws->_bytes_transferred % 8) == 0)
-               fprintf(ws->_out, "\n          ");
+               printf("\n          ");
           else
-               fprintf(ws->_out, " ");
+               printf(" ");
 
-          fprintf(ws->_out, "0x%02x,", ((uint8_t *) buf)[ii]);
+          printf("0x%02x,", ((uint8_t *) buf)[ii]);
 
           ws->_bytes_transferred++;
      }
 }
-
-#define BLOCK_SIZE (256)
 
 size_t file_length(FILE * in)
 {
@@ -60,19 +66,18 @@ size_t file_length(FILE * in)
      return total;
 }
 
-void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * blockname, _TCHAR * varname)
+void write_file_as_c_source(FILE * in, _TCHAR * blockname, _TCHAR * varname)
 {
      write_state s;
 
-     s._out = out;
      s._bytes_transferred = 0;
 
-     fprintf(out, "DECL_INTERNAL_FILE %s =\n", varname);
-     fprintf(out, "{\n");
-     fprintf(out, "     _T(\"%s\"), %" PRINTF_PREFIX_SIZE_T "d,\n",
+     printf("DECL_INTERNAL_FILE %s =\n", varname);
+     printf("{\n");
+     printf("     _T(\"%s\"), %" PRINTF_PREFIX_SIZE_T "d,\n",
              blockname, file_length(in));
 
-     fprintf(out, "     INTERNAL_FILE_DATA_CAST {");
+     printf("     INTERNAL_FILE_DATA_CAST {");
 
      uint8_t buf[BLOCK_SIZE];
 
@@ -90,30 +95,60 @@ void write_file_as_c_source(FILE * in, FILE * out, _TCHAR * blockname, _TCHAR * 
           total += bytes;
      }
 
-     fprintf(out, "\n     }\n");
+     printf("\n     }\n");
 
-     fprintf(out, "};\n");
+     printf("};\n");
+     printf("\n");
 }
 
-int main(int argc, char *argv[])        /* REVISIT: Enhance to map n files to 1 source file */
+bool valid_variable_character(_TCHAR ch)
 {
-     if (argc != 3)
+     return _istalpha(ch)
+          || _istdigit(ch)
+          || (ch == _T('_'))
+          || (ch == _T('\0'));
+}
+
+void find_variable_name(_TCHAR *name_buf, _TCHAR *filename, size_t name_buf_len)
+{
+     _sntprintf(name_buf, name_buf_len, "ifile_%s", filename);
+
+     for(size_t ii = 0; ii < name_buf_len; ii++)
      {
-          fprintf(stderr, "Usage: %s <filename> <varname>\n", argv[0]);
+          if (valid_variable_character(name_buf[ii]))
+               continue;
+
+          name_buf[ii] = _T('_');
+     }
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+     if (argc < 2)
+     {
+          fprintf(stderr, "Usage: %s <filename-1> ... <filename-n>\n", argv[0]);
           return 1;
      }
 
-     FILE *f = fopen(argv[1], "rb");
-
-     if (f == NULL)
+     for(int ii = 1; ii < argc; ii++)
      {
-          fprintf(stderr, "Error opening file %s\n", argv[1]);
-          return 1;
+          _TCHAR *filename = argv[ii];
+          _TCHAR varname_buf[NAME_BUF_SIZE];
+
+          find_variable_name(varname_buf, filename, NAME_BUF_SIZE);
+
+          FILE *f = fopen(filename, "rb");
+
+          if (f == NULL)
+          {
+               fprintf(stderr, "Error opening file: %s\n", filename);
+               return 1;
+          }
+
+          write_file_as_c_source(f, filename, varname_buf);
+
+          fclose(f);
      }
-
-     write_file_as_c_source(f, stdout, argv[1], argv[2]);
-
-     fclose(f);
 
      return 0;
 }
