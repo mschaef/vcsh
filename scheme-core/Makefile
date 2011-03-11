@@ -89,7 +89,7 @@ depend: vcsh${EXE_EXT} grovel-dependancies.scm scheme.scm
 indented:
 	gnuindent vcsh.cpp scanlib.cpp
 
-vcsh.o:	vcsh.cpp vcsh-standard-lib-registration.i
+vcsh${OBJ_EXT}:	vcsh.cpp vcsh-standard-lib-registration.i
 
 ifneq ($(wildcard .depend),)
 include .depend
