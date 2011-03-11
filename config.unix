@@ -18,17 +18,22 @@ NAMOBJFL=-o
 COMPILEFL=-c
 CHECKED_OPTFL=
 DEBUG_OPTFL=-O
+
+LDNAMEXEFL=
+
 OPTFL=-O3
 DEBUGFL=-g
-AROUTFL=
-AROUTFL_RS=
 CCFLAGS=-Wall -I. -funsigned-char -g
 LDFLAGS=
+AROUTFL=
+AROUTFL_RS=
+
 OBJ_EXT=.o
 EXE_EXT=
 LIB_EXT=.a
+
 DEFINES+=${DEFFL}SCAN_UNIX
-CHECKEDFL=
+
 
 ifeq (${POINTER_SIZE}, 64)
   CCFLAGS+=-m64
@@ -43,11 +48,11 @@ LDFLAGS+=${DEBUGFL}
 ifeq (${BUILD_TYPE}, CHECKED)
   BUILD_TYPE=DEBUG
   DEBUG_OPTFL=
-  CHECKEDFL=-DCHECKED
+  CHECKED_OPTFL=-DCHECKED
 endif
 
 ifeq (${BUILD_TYPE}, DEBUG)
-  CCFLAGS+=${DEFFL}_DEBUG ${DEBUGFL} ${DEBUG_OPTFL} ${CHECKEDFL}
+  CCFLAGS+=${DEFFL}_DEBUG ${DEBUGFL} ${DEBUG_OPTFL} ${CHECKED_OPTFL}
 else
   ifeq (${BUILD_TYPE}, RELEASE)
     CCFLAGS+=${OPTFL}
@@ -67,14 +72,7 @@ ifeq (${PROFILE}, on)
 endif
 
 
-# -H tells gcc to print the name of each loaded include file.
-# CCFLAGS+=-H
-
-# --save-temps tells gcc to save temporary files used during compilation (namely, the
-# preprocessed source)
-# CCFLAGS+=-save-temps
-
-.PHONY: todo clean-cov clean TAGS all
+.PHONY: all todo clean-cov clean-local clean TADS all
 
 all: ${TARGETS}
 
