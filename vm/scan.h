@@ -1709,6 +1709,9 @@ void gc_mark(lref_t obj);
 
 lref_t gc_claim_freelist();
 
+void *gc_malloc(size_t size);
+void gc_free(void *mem);
+
 /***** Time *****/
 flonum_t time_since_launch();
 

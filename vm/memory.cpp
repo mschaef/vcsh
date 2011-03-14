@@ -558,6 +558,27 @@ static size_t gc_count_active_heap_segments(void)
      return count;;
 }
 
+/**** Malloc/Free ****/
+
+
+void *gc_malloc(size_t size)
+{
+     void *mem = safe_malloc(size);
+
+     if (mem)
+     {
+          interp.gc_malloc_blocks++;
+          interp.gc_malloc_bytes += size;
+     }
+
+     return mem;
+}
+
+void gc_free(void *mem)
+{
+     safe_free(mem);
+}
+
 /**** Scheme interface functions */
 
 

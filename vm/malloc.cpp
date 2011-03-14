@@ -17,10 +17,6 @@
 
 BEGIN_NAMESPACE(scan)
 
-/* REVISIT: Is there not a better place to store malloc_blocks and malloc_bytes? */
-int64_t malloc_blocks = 0;
-int64_t malloc_bytes = 0;         /*  REVISIT: have malloc set flag based on user defined limit? use that to trigger GC? */
-
 /**** The C Heap
  *
  * These functions wrap the C malloc/free allocator, and
@@ -34,12 +30,7 @@ void *safe_malloc(size_t size)
      void *block;
 
      if (DEBUGGING_BUILD)
-     {
           size += sizeof(size_t);
-     }
-
-     malloc_blocks++;
-     malloc_bytes += size;
 
      block = (_TCHAR *) malloc((size) ? size : 1);
 
@@ -52,10 +43,7 @@ void *safe_malloc(size_t size)
      }
 
      if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
-     {
-          debug_printf("\"a\", %d, , %d, %d\n", malloc_blocks, block, size);
-     }
-
+          debug_printf("\"a\", %d, , %d, %d\n", interp.gc_malloc_blocks, block, size);
 
      if (DEBUGGING_BUILD)
      {
