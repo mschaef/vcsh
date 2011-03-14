@@ -168,9 +168,6 @@ struct sys_info_t
 
 void sys_get_info(sys_info_t * info);
 
-extern int64_t malloc_blocks;
-extern int64_t malloc_bytes;
-
 extern uint8_t *stack_limit_obj;
 
 # define STACK_CHECK(_obj)  if (((uint8_t *)_obj) < stack_limit_obj) vmerror_stack_overflow((uint8_t *) _obj);

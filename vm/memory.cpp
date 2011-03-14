@@ -444,10 +444,8 @@ static void gc_begin_stats(void)
      if (!DEBUG_FLAG(DF_SHOW_GC))
           return;
 
-     unsigned long bytes_alloced =
-          (unsigned long) (malloc_bytes - interp.malloc_bytes_at_last_gc);
-     unsigned long blocks_alloced =
-          (unsigned long) (malloc_blocks - interp.malloc_blocks_at_last_gc);
+     size_t bytes_alloced = interp.malloc_bytes - interp.malloc_bytes_at_last_gc;
+     size_t blocks_alloced = interp.malloc_blocks - interp.malloc_blocks_at_last_gc;
 
      if ((bytes_alloced > 0) || (blocks_alloced > 0))
           dscwritef(DF_ALWAYS, (_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"),
@@ -463,8 +461,8 @@ static void gc_end_stats(void)
 
      dscwritef(DF_SHOW_GC, (" ~cfs., ~cd cells freed\n", interp.gc_run_time, interp.gc_cells_collected));
 
-     interp.malloc_bytes_at_last_gc = malloc_bytes;
-     interp.malloc_blocks_at_last_gc = malloc_blocks;
+     interp.malloc_bytes_at_last_gc = interp.malloc_bytes;
+     interp.malloc_blocks_at_last_gc = interp.malloc_blocks;
 }
 
 fixnum_t gc_mark_and_sweep(void)
@@ -510,7 +508,7 @@ lref_t gc_claim_freelist()
      lref_t new_freelist = NIL;
 
      if (NULLP(interp.global_freelist)
-         || ((malloc_bytes - interp.malloc_bytes_at_last_gc) > interp.c_bytes_gc_threshold)
+         || ((interp.malloc_bytes - interp.malloc_bytes_at_last_gc) > interp.c_bytes_gc_threshold)
          || ALWAYS_GC)
           cells_freed = gc_collect_garbage();
 
@@ -602,9 +600,9 @@ lref_t lgc_info()
      argv[1] = fixcons(gc_heap_freelist_length());
      argv[2] = fixcons(interp.gc_total_cells_allocated);
      argv[3] = fixcons(0);
-     argv[4] = fixcons(malloc_bytes);
+     argv[4] = fixcons(interp.malloc_bytes);
      argv[5] = fixcons(interp.malloc_bytes_at_last_gc);
-     argv[6] = fixcons(malloc_blocks);
+     argv[6] = fixcons(interp.malloc_blocks);
      argv[7] = fixcons(interp.malloc_blocks_at_last_gc);
 
      return lvector(8, argv);
