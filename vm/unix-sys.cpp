@@ -25,6 +25,8 @@
 #include <errno.h>
 
 #include "sys.h"
+#include "scan.h"
+
 BEGIN_NAMESPACE(scan)
 
 static sys_retcode_t rc_to_sys_retcode_t(int rc);
@@ -72,7 +74,7 @@ struct sys_dir_t
 
 sys_retcode_t sys_opendir(const char *path, sys_dir_t ** dir)
 {
-     *dir = (sys_dir_t *) safe_malloc(sizeof(sys_dir_t));
+     *dir = (sys_dir_t *) gc_malloc(sizeof(sys_dir_t));
 
      if (*dir == NULL)
           return SYS_E_OUT_OF_MEMORY;
@@ -81,7 +83,7 @@ sys_retcode_t sys_opendir(const char *path, sys_dir_t ** dir)
 
      if ((*dir)->_dir == NULL)
      {
-          safe_free(*dir);
+          gc_free(*dir);
           *dir = NULL;
 
           return rc_to_sys_retcode_t(errno);
@@ -155,7 +157,7 @@ sys_retcode_t sys_closedir(sys_dir_t * dir)
      DIR *d = dir->_dir;
 
      dir->_dir = NULL;
-     safe_free(dir);
+     gc_free(dir);
 
      return rc_to_sys_retcode_t(closedir(d));
 }

@@ -19,12 +19,15 @@ BEGIN_NAMESPACE(scan)
 
 /**** The C Heap
  *
- * These functions wrap the C malloc/free allocator, to allow
- * for some optional detailed logging, and to guarantee they always
- * return. (This guarantee is made by terminating the process if the
- * allocation fails.)
+ * These functions wrap the C malloc/free allocator, to provide a few
+ * useful bits of additional functionality:
+ *
+ * 1) Optional detailed alloc/free logging.
+ * 2) Guaranteed to always return. (They terminate the process
+ *    on allocation failures.)
+ * 3) Maintenance of allocation counters for GC support.
  */
-void *safe_malloc(size_t size)
+void *gc_malloc(size_t size)
 {
      void *block = malloc(size ? size : 1);
 
@@ -42,7 +45,7 @@ void *safe_malloc(size_t size)
      return block;
 }
 
-void safe_free(void *block)
+void gc_free(void *block)
 {
      if (block == NULL)
           return;
@@ -52,8 +55,6 @@ void safe_free(void *block)
 
      free(block);
 }
-
-
 
 /*** GC heap startup and shutdown */
 
@@ -168,7 +169,7 @@ static bool gc_enlarge_heap()
           return false;
      }
 
-     lref_t seg_base = (lref_t) safe_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
+     lref_t seg_base = (lref_t) gc_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
 
      if (seg_base == NULL)
      {
@@ -567,7 +568,7 @@ lref_t gc_claim_freelist()
 void gc_initialize_heap()
 {
      /* Initialize the heap table */
-     interp.gc_heap_segments = (lref_t *) safe_malloc(sizeof(lref_t) * interp.gc_max_heap_segments);
+     interp.gc_heap_segments = (lref_t *) gc_malloc(sizeof(lref_t) * interp.gc_max_heap_segments);
 
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
           interp.gc_heap_segments[jj] = NULL;
@@ -582,7 +583,7 @@ void gc_release_heap()
 
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
           if (interp.gc_heap_segments[jj])
-               safe_free(interp.gc_heap_segments[jj]);
+               gc_free(interp.gc_heap_segments[jj]);
 }
 
 static size_t gc_count_active_heap_segments(void)
@@ -594,27 +595,6 @@ static size_t gc_count_active_heap_segments(void)
                count++;
 
      return count;;
-}
-
-/**** Malloc/Free ****/
-
-
-void *gc_malloc(size_t size)
-{
-     void *mem = safe_malloc(size);
-
-     if (mem)
-     {
-          interp.gc_malloc_blocks++;
-          interp.gc_malloc_bytes += size;
-     }
-
-     return mem;
-}
-
-void gc_free(void *mem)
-{
-     safe_free(mem);
 }
 
 /**** Scheme interface functions */

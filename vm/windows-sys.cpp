@@ -12,8 +12,6 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#include "scan.h"
-
 #include <memory.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -31,6 +29,7 @@
 
 #include "shlwapi.h"
 
+#include "scan.h"
 
 BEGIN_NAMESPACE(scan)
 
@@ -85,7 +84,7 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
         _tcsncat(path_buf, "*.*", SYS_PATH_MAX - path_len);
       }
 
-    *dir = (sys_dir_t *)safe_malloc(sizeof(sys_dir_t));
+    *dir = (sys_dir_t *)gc_malloc(sizeof(sys_dir_t));
 
     if (*dir == NULL)
       return SYS_E_OUT_OF_MEMORY;
@@ -97,7 +96,7 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
       {
         DWORD error_code = GetLastError();
 
-        safe_free(*dir);
+        gc_free(*dir);
         *dir = NULL;
 
         return rc_to_sys_retcode_t(error_code);
@@ -166,7 +165,7 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
 
     dir->_fh = NULL;
 
-    safe_free(dir);
+    gc_free(dir);
 
     return retcode;
   }

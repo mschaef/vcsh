@@ -57,9 +57,6 @@ void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno);
 #	define checked_assert(exp)
 #endif
 
-void *safe_malloc(size_t size);
-void safe_free(void *block);
-
 enum
 {
 
