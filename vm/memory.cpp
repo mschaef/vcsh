@@ -16,7 +16,6 @@
 
 BEGIN_NAMESPACE(scan)
 
-
 /**** The C Heap
  *
  * These functions wrap the C malloc/free allocator, to provide a few
@@ -55,8 +54,6 @@ void gc_free(void *block)
 
      free(block);
 }
-
-/*** GC heap startup and shutdown */
 
 /*** GC Root Registry ***/
 
@@ -565,6 +562,19 @@ lref_t gc_claim_freelist()
      return new_freelist;
 }
 
+static size_t gc_count_active_heap_segments(void)
+{
+     size_t count = 0;
+
+     for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
+          if (interp.gc_heap_segments[jj] != NULL)
+               count++;
+
+     return count;;
+}
+
+/*** GC heap startup and shutdown */
+
 void gc_initialize_heap()
 {
      /* Initialize the heap table */
@@ -584,17 +594,6 @@ void gc_release_heap()
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
           if (interp.gc_heap_segments[jj])
                gc_free(interp.gc_heap_segments[jj]);
-}
-
-static size_t gc_count_active_heap_segments(void)
-{
-     size_t count = 0;
-
-     for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
-          if (interp.gc_heap_segments[jj] != NULL)
-               count++;
-
-     return count;;
 }
 
 /**** Scheme interface functions */
