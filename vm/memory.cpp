@@ -16,6 +16,45 @@
 
 BEGIN_NAMESPACE(scan)
 
+
+/**** The C Heap
+ *
+ * These functions wrap the C malloc/free allocator, to allow
+ * for some optional detailed logging, and to guarantee they always
+ * return. (This guarantee is made by terminating the process if the
+ * allocation fails.)
+ */
+void *safe_malloc(size_t size)
+{
+     void *block = malloc(size ? size : 1);
+
+     if (block == NULL)
+     {
+          _TCHAR buf[STACK_STRBUF_LEN];
+
+          _sntprintf(buf, STACK_STRBUF_LEN, "Failed to allocate %zd bytes from system", size);
+          panic(buf);
+     }
+
+     if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
+          debug_printf("\"a\", %d, , %d, %d\n", interp.gc_malloc_blocks, block, size);
+
+     return block;
+}
+
+void safe_free(void *block)
+{
+     if (block == NULL)
+          return;
+
+     if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
+          debug_printf("\"d\", , , %d, \n", block);
+
+     free(block);
+}
+
+
+
 /*** GC heap startup and shutdown */
 
 /*** GC Root Registry ***/

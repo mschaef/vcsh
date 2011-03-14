@@ -20,6 +20,7 @@
 
 #include <setjmp.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 #include "constants.h"
 #include "sys.h"

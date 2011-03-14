@@ -46,7 +46,6 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        list${OBJ_EXT} \
        macro${OBJ_EXT} \
        main${OBJ_EXT} \
-       malloc${OBJ_EXT} \
        memory${OBJ_EXT} \
        mt19937${OBJ_EXT} \
        number${OBJ_EXT} \
@@ -58,7 +57,7 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
 
 VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.cpp)
 
-FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} constants${OBJ_EXT} $(PLATFORM)-sys${OBJ_EXT} malloc${OBJ_EXT}
+FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} constants${OBJ_EXT}
 
 FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:${OBJ_EXT}=.cpp)
 

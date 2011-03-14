@@ -174,7 +174,9 @@ static void dump_error(const _TCHAR *message)
   _TCHAR buf[STACK_STRBUF_LEN];
   _sntprintf(buf, STACK_STRBUF_LEN, "Error Reading FASL File: %s @ 0x%08zx.", message, g_current_ofs);
 
-  panic(buf);
+  fprintf(stderr, "Aborting Dump: %s\n", buf);
+
+  exit(1);
 }
 
 static fasl_opcode_t fast_read_opcode(size_t *ofs = NULL)
