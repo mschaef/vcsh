@@ -551,17 +551,16 @@ struct interpreter_t
      size_t gc_current_heap_segments;
      lref_t *gc_heap_segments;
 
-     lref_t global_freelist;
+     lref_t gc_global_freelist;
 
-     fixnum_t gc_total_cells_allocated;
-     fixnum_t gc_cells_collected;
+     size_t gc_total_cells_allocated;
+     size_t gc_cells_collected;
 
-     size_t malloc_bytes_at_last_gc;
-     size_t malloc_blocks_at_last_gc;
-     size_t c_bytes_gc_threshold;
-
-     size_t malloc_bytes;
-     size_t malloc_blocks;
+     size_t gc_malloc_bytes;
+     size_t gc_malloc_blocks;
+     size_t gc_malloc_bytes_at_last_gc;
+     size_t gc_malloc_blocks_at_last_gc;
+     size_t gc_malloc_bytes_threshold;
 
      flonum_t gc_total_run_time;
      flonum_t gc_run_time;

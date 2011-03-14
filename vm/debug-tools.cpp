@@ -380,8 +380,8 @@ lref_t ltime_apply0(lref_t fn)
           vmerror_wrong_type(1, fn);
 
      size_t cells = interp.gc_total_cells_allocated;
-     size_t c_blocks = interp.malloc_blocks;
-     size_t c_bytes = interp.malloc_bytes;
+     size_t c_blocks = interp.gc_malloc_blocks;
+     size_t c_bytes = interp.gc_malloc_bytes;
      flonum_t t = sys_runtime();
      flonum_t gc_t = interp.gc_total_run_time;
 
@@ -392,8 +392,8 @@ lref_t ltime_apply0(lref_t fn)
      argv[1] = flocons(sys_runtime() - t);
      argv[2] = flocons(interp.gc_total_run_time - gc_t);
      argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
-     argv[4] = fixcons(interp.malloc_blocks - c_blocks);
-     argv[5] = fixcons(interp.malloc_bytes - c_bytes);
+     argv[4] = fixcons(interp.gc_malloc_blocks - c_blocks);
+     argv[5] = fixcons(interp.gc_malloc_bytes - c_bytes);
 
      return lvector(6, argv);
 }
