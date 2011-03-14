@@ -27,7 +27,7 @@ lref_t lcopy_structure(lref_t st)   /* REVISIT: how much of this can be shared w
 
      SET_STRUCTURE_DIM(new_st, len);
      SET_STRUCTURE_LAYOUT(new_st, STRUCTURE_LAYOUT(st));
-     SET_STRUCTURE_DATA(new_st, (lref_t *) safe_malloc(len * sizeof(lref_t)));
+     SET_STRUCTURE_DATA(new_st, (lref_t *) gc_malloc(len * sizeof(lref_t)));
 
      for (size_t ii = 0; ii < len; ii++)
           SET_STRUCTURE_ELEM(new_st, ii, STRUCTURE_ELEM(st, ii));
@@ -76,7 +76,7 @@ lref_t lstructurecons(lref_t slots, lref_t layout)
 
      SET_STRUCTURE_DIM(st, len);
      SET_STRUCTURE_LAYOUT(st, layout);
-     SET_STRUCTURE_DATA(st, (lref_t *) safe_malloc(len * sizeof(lref_t)));
+     SET_STRUCTURE_DATA(st, (lref_t *) gc_malloc(len * sizeof(lref_t)));
 
      for (size_t ii = 0; ii < len; ii++)
           SET_STRUCTURE_ELEM(st, ii, VECTOR_ELEM(slots, ii));

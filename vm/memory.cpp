@@ -324,24 +324,23 @@ static void gc_clear_cell(lref_t obj)
      switch (TYPE(obj))
      {
      case TC_STRING:
-          safe_free(STRING_DATA(obj));
+          gc_free(STRING_DATA(obj));
           break;
 
      case TC_VECTOR:
-          safe_free(VECTOR_DATA(obj));
-          break;
-     
-     case TC_HASH:
-          safe_free(HASH_DATA(obj));
+          gc_free(VECTOR_DATA(obj));
           break;
 
+     case TC_HASH:
+          gc_free(HASH_DATA(obj));
+          break;
 
      case TC_PORT:
           port_gc_free(obj);
           break;
 
      case TC_INSTANCE:
-          safe_free(INSTANCE_DATA(obj));
+          gc_free(INSTANCE_DATA(obj));
           break;
 
      case TC_GC_TRIP_WIRE:

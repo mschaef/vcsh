@@ -19,7 +19,7 @@ lref_t vectorcons(fixnum_t n, lref_t initial)
      lref_t vec = new_cell(TC_VECTOR);
 
      SET_VECTOR_DIM(vec, (size_t) n);
-     SET_VECTOR_DATA(vec, (lref_t *) safe_malloc(((size_t) n) * sizeof(lref_t)));
+     SET_VECTOR_DATA(vec, (lref_t *) gc_malloc(((size_t) n) * sizeof(lref_t)));
 
      for (fixnum_t ii = 0; ii < n; ii++)
           SET_VECTOR_ELEM(vec, ii, initial);

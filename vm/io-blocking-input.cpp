@@ -118,9 +118,9 @@ void blocking_input_port_close(lref_t port)
           ps->_close_port(port, ps->_userdata);
 
      if (ps->_buffer)
-          safe_free(ps->_buffer);
+          gc_free(ps->_buffer);
 
-     safe_free(ps);
+     gc_free(ps);
 
      PORT_PINFO(port)->_user_data = NULL;
 
@@ -138,12 +138,12 @@ void blocking_input_post_data(lref_t port, void *data, size_t size)
 
      if (ps->_buffer)
      {
-          safe_free(ps->_buffer);
+          gc_free(ps->_buffer);
 
           ps->_buffer = NULL;
      }
 
-     ps->_buffer = (uint8_t *) safe_malloc(size);
+     ps->_buffer = (uint8_t *) gc_malloc(size);
 
      memcpy(ps->_buffer, data, size);
 
@@ -175,7 +175,7 @@ lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
                          blocking_input_close_port_fn_t close_fn, void *userdata)
 {
      blocking_input_port_state *ps =
-         (blocking_input_port_state *) safe_malloc(sizeof(blocking_input_port_state));
+         (blocking_input_port_state *) gc_malloc(sizeof(blocking_input_port_state));
 
      ps->_read_data = read_fn;
      ps->_close_port = close_fn;

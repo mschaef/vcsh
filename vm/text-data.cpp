@@ -119,7 +119,7 @@ lref_t strrecons(lref_t obj, size_t new_length)
 
      if (space_already_allocated != space_needed)
      {
-          _TCHAR *new_buffer = (_TCHAR *) safe_malloc(space_needed);
+          _TCHAR *new_buffer = (_TCHAR *) gc_malloc(space_needed);
 
           memset(new_buffer, 0, space_needed);
 
@@ -127,7 +127,7 @@ lref_t strrecons(lref_t obj, size_t new_length)
           {
                memcpy(new_buffer, STRING_DATA(obj), STRING_DIM(obj) + 1);
 
-               safe_free(STRING_DATA(obj));
+               gc_free(STRING_DATA(obj));
           }
 
           SET_STRING_DATA(obj, new_buffer);
@@ -198,7 +198,7 @@ lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer)
      /* This variant of strcons is used to transfer ownership
       * of <buffer> to the interpreter, so that the interpreter
       * will free the buffer when the cell is reclaimed. <buffer>
-      * must be dynamically allocated with safe_malloc for this
+      * must be dynamically allocated with gc_malloc for this
       * to work. */
 
      lref_t new_string = new_cell(TC_STRING);

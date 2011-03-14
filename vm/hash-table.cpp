@@ -251,7 +251,7 @@ static void clear_hash_data(hash_entry_t * entries, size_t size)
 
 static hash_entry_t *allocate_hash_data(size_t size)
 {
-     hash_entry_t *data = (hash_entry_t *) safe_malloc(size * sizeof(hash_entry_t));
+     hash_entry_t *data = (hash_entry_t *) gc_malloc(size * sizeof(hash_entry_t));
 
      clear_hash_data(data, size);
 
@@ -383,7 +383,7 @@ static bool enlarge_hash(lref_t hash)
           }
      }
 
-     safe_free(HASH_DATA(hash));
+     gc_free(HASH_DATA(hash));
 
      SET_HASH_MASK(hash, new_size - 1);
      SET_HASH_DATA(hash, new_data);

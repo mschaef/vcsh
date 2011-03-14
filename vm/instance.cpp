@@ -21,14 +21,14 @@ static void instance_reallocate_in_place(lref_t inst, size_t new_size)
      lref_t *new_data = NULL;
 
      if (new_size > 0)
-          new_data = (lref_t *) safe_malloc(new_size * sizeof(lref_t *));
+          new_data = (lref_t *) gc_malloc(new_size * sizeof(lref_t *));
 
      if (INSTANCE_DATA(inst))
      {
           for (size_t ii = 0; ii < MIN2(INSTANCE_DIM(inst), new_size); ii++)
                new_data[ii] = INSTANCE_ELEM(inst, ii);
 
-          safe_free(INSTANCE_DATA(inst));
+          gc_free(INSTANCE_DATA(inst));
      }
 
      SET_INSTANCE_DIM(inst, new_size);

@@ -49,7 +49,7 @@ void c_data_port_gc_free(lref_t obj)
 {
      assert(PORT_PINFO(obj)->_user_data);
 
-     safe_free(PORT_PINFO(obj)->_user_data);
+     gc_free(PORT_PINFO(obj)->_user_data);
      PORT_PINFO(obj)->_user_data = NULL;
 }
 
@@ -89,7 +89,7 @@ lref_t liinternal_files()
 
 lref_t open_c_data_input(internal_file_t *data)
 {
-     c_data_port_state *ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));
+     c_data_port_state *ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
 
      ps->_bytes_transferred  = 0;
      ps->_input_buffer       = data->_bytes;
@@ -115,7 +115,7 @@ lref_t lclone_c_data_port(lref_t port)
           vmerror_unsupported(_T("only c-data ports may be cloned"));
 
      c_data_port_state *old_ps = (c_data_port_state *) (PORT_PINFO(port)->_user_data);
-     c_data_port_state *new_ps = (c_data_port_state *) safe_malloc(sizeof(c_data_port_state));
+     c_data_port_state *new_ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
 
      new_ps->_bytes_transferred = old_ps->_bytes_transferred;
      new_ps->_input_buffer = old_ps->_input_buffer;

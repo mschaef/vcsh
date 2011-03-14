@@ -19,41 +19,27 @@ BEGIN_NAMESPACE(scan)
 
 /**** The C Heap
  *
- * These functions wrap the C malloc/free allocator, and
- * do a couple bits of additional accounting in debug builds.
- * Each block is prefixed with a u32 containing the size of
- * the block. This is used to track blocks allocated and freed
- * and bytes allocated and freed.
+ * These functions wrap the C malloc/free allocator, to allow
+ * for some optional detailed logging, and to guarantee they always
+ * return. (This guarantee is made by terminating the process if the
+ * allocation fails.)
  */
 void *safe_malloc(size_t size)
 {
-     void *block;
+     void *block = malloc(size ? size : 1);
 
-     if (DEBUGGING_BUILD)
-          size += sizeof(size_t);
-
-     block = (_TCHAR *) malloc((size) ? size : 1);
-
-     if (block == (void *) NULL)
+     if (block == NULL)
      {
           _TCHAR buf[STACK_STRBUF_LEN];
 
-          _sntprintf(buf, STACK_STRBUF_LEN, "failed to allocate %zd bytes from system", size);
+          _sntprintf(buf, STACK_STRBUF_LEN, "Failed to allocate %zd bytes from system", size);
           panic(buf);
      }
 
      if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
           debug_printf("\"a\", %d, , %d, %d\n", interp.gc_malloc_blocks, block, size);
 
-     if (DEBUGGING_BUILD)
-     {
-          size_t *tmp_block = (size_t *) block;
-          *tmp_block = (size - 4);
-          tmp_block += 1;
-          block = (void *) tmp_block;
-     }
-
-     return (block);
+     return block;
 }
 
 void safe_free(void *block)
@@ -61,17 +47,8 @@ void safe_free(void *block)
      if (block == NULL)
           return;
 
-     if (DEBUGGING_BUILD)
-     {
-          size_t *tmp_block;
-
-          tmp_block = (size_t *) block;
-          tmp_block -= 1;
-          block = (void *) tmp_block;
-
-          if (DETAILED_MEMORY_LOG)
-               debug_printf("\"d\", , , %d, \n", block);
-     }
+     if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
+          debug_printf("\"d\", , , %d, \n", block);
 
      free(block);
 }

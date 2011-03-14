@@ -188,7 +188,7 @@ static void fast_read_string(lref_t port, lref_t * retval)
 
      fixnum_t expected_length = FIXNM(l);
 
-     _TCHAR *buf = (_TCHAR *) safe_malloc((size_t) (expected_length + 1));
+     _TCHAR *buf = (_TCHAR *) gc_malloc((size_t) (expected_length + 1));
 
      memset(buf, 0, (size_t) (expected_length + 1));
 

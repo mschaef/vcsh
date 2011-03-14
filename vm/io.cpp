@@ -60,12 +60,12 @@ void port_gc_free(lref_t port)
           PORT_CLASS(port)->_close(port);
 
      if (PORT_TEXT_INFO(port))
-          safe_free(PORT_TEXT_INFO(port));
+          gc_free(PORT_TEXT_INFO(port));
 
      if (PORT_CLASS(port)->_gc_free)
           PORT_CLASS(port)->_gc_free(port);
 
-     safe_free(PORT_PINFO(port));
+     gc_free(PORT_PINFO(port));
 }
 
 lref_t initialize_port(lref_t s,
@@ -78,7 +78,7 @@ lref_t initialize_port(lref_t s,
      assert(cls->_valid_modes & mode);
      assert(!NULLP(s));
 
-     SET_PORT_PINFO(s, (port_info_t *) safe_malloc(sizeof(port_info_t)));
+     SET_PORT_PINFO(s, (port_info_t *) gc_malloc(sizeof(port_info_t)));
      SET_PORT_CLASS(s, cls);
 
      PORT_PINFO(s)->_port_name = port_name;
@@ -105,7 +105,7 @@ lref_t initialize_port(lref_t s,
      {
           SET_PORT_TEXT_INFO(s,
                              (port_text_translation_info_t *)
-                             safe_malloc(sizeof(port_text_translation_info_t)));
+                             gc_malloc(sizeof(port_text_translation_info_t)));
 
           memset(PORT_TEXT_INFO(s)->_unread_buffer, 0, sizeof(PORT_TEXT_INFO(s)->_unread_buffer));
           PORT_TEXT_INFO(s)->_unread_valid = 0;

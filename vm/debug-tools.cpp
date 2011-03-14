@@ -235,7 +235,7 @@ void test_blocking_input_close(lref_t port, void *userdata)
 
      assert(userdata);
 
-     safe_free(userdata);
+     gc_free(userdata);
 }
 
 
@@ -257,7 +257,7 @@ lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary)
           binary = boolcons(false);
 
      test_blocking_input_info_t *info =
-         (test_blocking_input_info_t *) safe_malloc(sizeof(test_blocking_input_info_t));
+         (test_blocking_input_info_t *) gc_malloc(sizeof(test_blocking_input_info_t));
 
      info->_block_size = FIXNM(block_size);
      info->_length = FIXNM(length);
