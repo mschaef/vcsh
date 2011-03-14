@@ -3,6 +3,8 @@ vcsh TODO
 
 0.6 - Janitorial Work
 --------
+* Isolate GC into separate file.
+* Remove global variables.
 * Split out the public scan API into its own header file
 * There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.
 * Add a more proactive heap enlargement policy. (To the GC hook)
