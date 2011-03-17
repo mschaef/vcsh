@@ -13,10 +13,13 @@
 (define *heap-enlarge-threshold* 0.25)
 
 (define (maybe-enlarge-heap cells-freed)
-  (dbind #(heap-segments heap-segment-cells) (gc-info)
-    (unless (> cells-freed
-               (* heap-segments heap-segment-cells *heap-enlarge-threshold*))
-      (%request-heap-size (+ 1 heap-segments)))))
+  (dbind #(heap-segments heap-segment-cells max-heap-segments) (gc-info)
+    (let ((target-free-cells (* heap-segments heap-segment-cells *heap-enlarge-threshold*)))
+      (unless (>= cells-freed target-free-cells)
+        (let ((heap-segments-needed (ceiling (/ (- target-free-cells cells-freed)
+                                                 heap-segment-cells))))
+          (%request-heap-size (min max-heap-segments
+                                   (+ heap-segments-needed heap-segments))))))))
 
 (define (trap-after-gc trapno fsp cells-freed)
   (maybe-enlarge-heap cells-freed))
