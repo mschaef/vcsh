@@ -594,7 +594,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.gc_malloc_bytes_threshold = (sizeof(lobject_t) * interp.gc_heap_segment_size);
 
      interp.gc_total_run_time = 0.0;
-     interp.gc_run_time = 0.0;
+     interp.gc_start_time = 0.0;
 
      interp.thread.fsp = &(interp.thread.frame_stack[0]);
 

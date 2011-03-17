@@ -564,7 +564,7 @@ struct interpreter_t
      size_t gc_malloc_bytes_threshold;
 
      flonum_t gc_total_run_time;
-     flonum_t gc_run_time;
+     flonum_t gc_start_time;
 
      /* Per-thread info. */
      interpreter_thread_info_block_t thread;

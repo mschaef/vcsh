@@ -62,15 +62,24 @@ void gc_free(void *block)
 
 static void gc_begin_timer()
 {
-     interp.gc_run_time = sys_runtime();
+     assert((interp.gc_start_time == 0.0)
+            && "Cannot recursively enter the GC timer.");
+
+     interp.gc_start_time = sys_runtime();
 }
 
 static double gc_end_timer()
 {
-     interp.gc_run_time = sys_runtime() - interp.gc_run_time;
-     interp.gc_total_run_time += interp.gc_run_time;
+     assert((interp.gc_start_time > 0.0)
+            && "The GC timer must have been begun to be ended.");
 
-     return interp.gc_run_time;
+     double gc_run_time = sys_runtime() - interp.gc_start_time;
+
+     interp.gc_start_time = 0.0;
+
+     interp.gc_total_run_time += gc_run_time;
+
+     return gc_run_time;
 }
 
 
