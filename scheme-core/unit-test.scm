@@ -41,7 +41,7 @@
 
 (dynamic-let ((*info* #f))
   (format #t "Expanding heap...\n")
-  (enlarge-heap 50))
+  (scheme::%request-heap-size 64))
 
 ;; A few Configuration options
 

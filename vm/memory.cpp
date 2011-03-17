@@ -627,7 +627,7 @@ void gc_release_heap()
 /**** Scheme interface functions */
 
 
-lref_t lenlarge_heap(lref_t c)
+lref_t lirequest_heap_size(lref_t c)
 {
      size_t requested = 1;
      size_t created = 0;

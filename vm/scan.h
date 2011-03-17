@@ -1761,7 +1761,6 @@ lref_t ldivide(lref_t x, lref_t y);
 lref_t ldo_external_symbols(lref_t args, lref_t env);
 lref_t ldo_symbols(lref_t args, lref_t env);
 lref_t ldump_heap_state(lref_t port);
-lref_t lenlarge_heap(lref_t count);
 lref_t lenvironment();
 lref_t lenvlookup(lref_t var, lref_t env);
 lref_t leof_objectp(lref_t obj);
@@ -1828,6 +1827,7 @@ lref_t linstancep(lref_t obj);
 lref_t linteger2char(lref_t s);     /*  REVISIT: rename to exact->char */
 lref_t lintegerp(lref_t x);
 lref_t lipackagecons(lref_t name);
+lref_t lirequest_heap_size(lref_t c);
 lref_t liset_control_field(lref_t control_field_id, lref_t new_value);
 lref_t liset_instance_proto(lref_t instance, lref_t new_proto);
 lref_t liset_trap_handler(lref_t trap_id, lref_t new_handler);

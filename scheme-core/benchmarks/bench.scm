@@ -14,7 +14,7 @@
 ;; To prevent timing inconsistancies caused by run-time heap
 ;; expansion, expand the heap ahead of time.
 
-(enlarge-heap 64)
+(scheme::%request-heap-size 64)
 
 ;;;; The benchmark result database
 

@@ -280,6 +280,10 @@ static void register_main_subrs()
     register_subr(_T("%packagecons"),                     SUBR_1,     (void*)lipackagecons                       );
     register_subr(_T("%panic"),                           SUBR_1,     (void*)lpanic                              );
     register_subr(_T("%property-list"),                   SUBR_1,     (void*)lproperty_list                      );
+    register_subr(_T("%request-heap-size"),               SUBR_1,     (void*)lirequest_heap_size                 );
+
+    register_subr(_T("enlarge-heap"),                     SUBR_1,     (void*)lirequest_heap_size                 );
+
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );
     register_subr(_T("%set-closure-env"),                 SUBR_2,     (void*)lset_closure_env                    );
     register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
@@ -358,7 +362,6 @@ static void register_main_subrs()
     register_subr(_T("cos"),                              SUBR_1,     (void*)lcos                                );
     register_subr(_T("debug-write"),                      SUBR_1,     (void*)ldebug_write                        );
     register_subr(_T("delete-file"),                      SUBR_1,     (void*)ldelete_file                        );
-    register_subr(_T("enlarge-heap"),                     SUBR_1,     (void*)lenlarge_heap                       );
     register_subr(_T("env-lookup"),                       SUBR_2,     (void*)lenvlookup                          );
     register_subr(_T("environment"),                      SUBR_0,     (void*)lenvironment                        );
     register_subr(_T("eof-object?"),                      SUBR_1,     (void*)leof_objectp                        );

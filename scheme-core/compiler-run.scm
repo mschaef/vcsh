@@ -77,7 +77,7 @@
 
 
 (define (run)
-  (enlarge-heap 50)
+  (scheme::%request-heap-size 64)
   (scheme::%set-stack-limit #f)
   (scheme::initialize-user-package)
     

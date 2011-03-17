@@ -311,7 +311,6 @@
              dynamic-let
              end-of-file
              end-of-list?
-             enlarge-heap
              ensure-package!
              env-lookup
              environment
