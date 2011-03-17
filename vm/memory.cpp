@@ -663,9 +663,9 @@ lref_t lgc_info()
 {
      lref_t argv[8];
      argv[0] = fixcons(gc_count_active_heap_segments());
-     argv[1] = fixcons(gc_heap_freelist_length());
-     argv[2] = fixcons(interp.gc_total_cells_allocated);
-     argv[3] = fixcons(0);
+     argv[1] = fixcons(interp.gc_heap_segment_size);
+     argv[2] = fixcons(gc_heap_freelist_length());
+     argv[3] = fixcons(interp.gc_total_cells_allocated);
      argv[4] = fixcons(interp.gc_malloc_bytes);
      argv[5] = fixcons(interp.gc_malloc_bytes_at_last_gc);
      argv[6] = fixcons(interp.gc_malloc_blocks);
