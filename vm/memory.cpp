@@ -34,12 +34,15 @@ void *gc_malloc(size_t size)
      {
           _TCHAR buf[STACK_STRBUF_LEN];
 
-          _sntprintf(buf, STACK_STRBUF_LEN, "Failed to allocate %zd bytes from system", size);
+          _sntprintf(buf, STACK_STRBUF_LEN,
+                     "Failed to allocate %zd bytes from system", size);
+
           panic(buf);
      }
 
      if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
-          debug_printf("\"a\", %d, , %d, %d\n", interp.gc_malloc_blocks, block, size);
+          debug_printf("\"a\", %d, , %d, %d\n",
+                       interp.gc_malloc_blocks, block, size);
 
      return block;
 }
@@ -93,7 +96,9 @@ static int gc_sub_freelist_length(lref_t current_freelist)
 {
      int len = 0;
 
-     for (lref_t cell = current_freelist; cell != NULL; cell = NEXT_FREE_CELL(cell))
+     for (lref_t cell = current_freelist;
+          cell != NULL;
+          cell = NEXT_FREE_CELL(cell))
           len++;
 
      return len;
@@ -101,9 +106,12 @@ static int gc_sub_freelist_length(lref_t current_freelist)
 
 void gc_dump_freelists()
 {
-     for (lref_t flist = interp.gc_global_freelist; flist != NULL; flist = NEXT_FREE_LIST(flist))
+     for (lref_t flist = interp.gc_global_freelist;
+          flist != NULL;
+          flist = NEXT_FREE_LIST(flist))
      {
-          dscwritef(DF_ALWAYS, ("{~c&:~cd}", flist, gc_sub_freelist_length(flist)));
+          dscwritef(DF_ALWAYS, ("{~c&:~cd}",
+                                flist, gc_sub_freelist_length(flist)));
      }
 
      dscwritef(DF_ALWAYS, ("\n"));
@@ -113,7 +121,9 @@ static size_t gc_heap_freelist_length(void)
 {
      size_t count = 0;
 
-     for (lref_t flist = interp.gc_global_freelist; flist != NULL;  flist = NEXT_FREE_LIST(flist))
+     for (lref_t flist = interp.gc_global_freelist;
+          flist != NULL;
+          flist = NEXT_FREE_LIST(flist))
           count++;
 
      return count;
@@ -122,8 +132,8 @@ static size_t gc_heap_freelist_length(void)
 /*** The heap segment allocator
  *
  * The GC heap is maintained as a variable sized array of heap segments. The VM
- * starts out with one subheap, and will allocate up to as many as HEAP_SEGMENT_LIMIT
- * heaps, on an as-needed basis.
+ * starts out with one subheap, and will allocate up to as many as
+ * HEAP_SEGMENT_LIMIT heaps, on an as-needed basis.
  */
 
 static void gc_init_heap_segment(lref_t seg_base)
@@ -145,7 +155,8 @@ static void gc_init_heap_segment(lref_t seg_base)
           if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
           {
                interp.gc_global_freelist =
-                   SET_NEXT_FREE_LIST(current_sub_freelist, interp.gc_global_freelist);
+                    SET_NEXT_FREE_LIST(current_sub_freelist,
+                                       interp.gc_global_freelist);
 
                current_sub_freelist_size = 0;
                current_sub_freelist = NIL;
@@ -153,32 +164,31 @@ static void gc_init_heap_segment(lref_t seg_base)
      }
 
      if (!NULLP(current_sub_freelist))
-          interp.gc_global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.gc_global_freelist);
+          interp.gc_global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist,
+                                                         interp.gc_global_freelist);
 }
 
 static bool gc_enlarge_heap()
 {
-     dscwritef(DF_SHOW_GC_DETAILS, (";;; attempting to enlarge heap\n"));
+     dscwritef(DF_SHOW_GC_DETAILS,
+               (";;; attempting to enlarge heap\n"));
 
      if (interp.gc_current_heap_segments > interp.gc_max_heap_segments)
      {
-          dscwritef(DF_SHOW_GC_DETAILS, (";;; HEAP ENLARGE FAILED! Too many segments.\n"));
+          dscwritef(DF_SHOW_GC_DETAILS,
+                    (";;; HEAP ENLARGE FAILED! Too many segments.\n"));
           return false;
      }
 
-     lref_t seg_base = (lref_t) gc_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
-
-     if (seg_base == NULL)
-     {
-          dscwritef(DF_SHOW_GC_DETAILS, (";;; HEAP ENLARGE FAILED! Could not allocate memory from system.\n"));
-          return false;
-     }
+     lref_t seg_base =
+          (lref_t) gc_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
 
      size_t seg_idx = interp.gc_current_heap_segments;
 
      interp.gc_current_heap_segments++;
 
-     interp.gc_malloc_bytes_threshold += (sizeof(lobject_t) * interp.gc_heap_segment_size);
+     interp.gc_malloc_bytes_threshold +=
+          (sizeof(lobject_t) * interp.gc_heap_segment_size);
 
      interp.gc_heap_segments[seg_idx] = seg_base;
 
@@ -242,7 +252,8 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_SYMBOL:
-               gc_mark((*obj).storage_as.symbol.props); /*  REVISIT: better accessor? */
+                /*  REVISIT: better accessor? */
+               gc_mark((*obj).storage_as.symbol.props);
                obj = SYMBOL_VCELL(obj);
                break;
 
@@ -316,8 +327,9 @@ void gc_mark(lref_t initial_obj)
                obj = FAST_OP_ARG3(obj);
 
           default:
-               /*  By default, objects are either immediate or otherwise self contained, and 
-                *  do not need special-case handling in gc_mark. */
+               /* By default, objects are either immediate or otherwise self
+                * contained, and do not need special-case handling in gc_mark.
+                */
                break;
           }
      }
@@ -386,8 +398,9 @@ static void gc_clear_cell(lref_t obj)
           break;
 
      default:
-          /*  By default, objects are either immediate or otherwise self contained, and
-           *  do not need special-case  */
+          /*  By default, objects are either immediate or otherwise self
+           * contained, and do not need special-case handling in
+           * gc_clear_cell. */
           break;
 
      }
@@ -401,7 +414,7 @@ static void gc_clear_cell(lref_t obj)
  * Sweeps all unmarked memory cells back into the interp.gc_heap_freelist,
  * calling the appropriate gc_free hooks along the way.
  */
-fixnum_t gc_sweep()
+static fixnum_t gc_sweep()
 {
      fixnum_t free_cells = 0;
      fixnum_t cells_freed = 0;
@@ -410,7 +423,9 @@ fixnum_t gc_sweep()
      size_t current_sub_freelist_size = 0;
 
 
-     for (size_t heap_num = 0; heap_num < interp.gc_max_heap_segments; heap_num++)
+     for (size_t heap_num = 0;
+          heap_num < interp.gc_max_heap_segments;
+          heap_num++)
      {
           if (interp.gc_heap_segments[heap_num] == NULL)
                continue;
@@ -436,11 +451,13 @@ fixnum_t gc_sweep()
                gc_clear_cell(obj);
 
                current_sub_freelist_size++;
-               current_sub_freelist = SET_NEXT_FREE_CELL(obj, current_sub_freelist);
+               current_sub_freelist =
+                    SET_NEXT_FREE_CELL(obj, current_sub_freelist);
 
                if (current_sub_freelist_size >= SUB_FREELIST_SIZE)
                {
-                    interp.gc_global_freelist = SET_NEXT_FREE_LIST(obj, interp.gc_global_freelist);
+                    interp.gc_global_freelist =
+                         SET_NEXT_FREE_LIST(obj, interp.gc_global_freelist);
 
                     current_sub_freelist_size = 0;
                     current_sub_freelist = NIL;
@@ -449,12 +466,14 @@ fixnum_t gc_sweep()
      }
 
      if (!NULLP(current_sub_freelist))
-          interp.gc_global_freelist = SET_NEXT_FREE_LIST(current_sub_freelist, interp.gc_global_freelist);
+          interp.gc_global_freelist =
+               SET_NEXT_FREE_LIST(current_sub_freelist,
+                                  interp.gc_global_freelist);
 
      interp.gc_cells_collected = cells_freed;
 
-     dscwritef(DF_SHOW_GC_DETAILS, (";;; GC sweep done, freed:~cd, free:~cd\n", cells_freed,
-                                    free_cells));
+     dscwritef(DF_SHOW_GC_DETAILS, (";;; GC sweep done, freed:~cd, free:~cd\n",
+                                    cells_freed, free_cells));
 
      return free_cells;
 }
@@ -466,9 +485,11 @@ static void gc_mark_stack()
 
      setjmp(registers);
 
-     gc_mark_range((lref_t *) registers, (lref_t *) (((uint8_t *) registers) + sizeof(registers)));
+     gc_mark_range((lref_t *) registers,
+                   (lref_t *) (((uint8_t *) registers) + sizeof(registers)));
 
-     gc_mark_range((lref_t *) sys_get_stack_start(), (lref_t *) & stack_end);
+     gc_mark_range((lref_t *) sys_get_stack_start(),
+                   (lref_t *) & stack_end);
 }
 
 
@@ -480,12 +501,15 @@ static void gc_begin_stats(void)
      if (!DEBUG_FLAG(DF_SHOW_GC))
           return;
 
-     size_t bytes_alloced = interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc;
-     size_t blocks_alloced = interp.gc_malloc_blocks - interp.gc_malloc_blocks_at_last_gc;
+     size_t bytes_alloced =
+          interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc;
+     size_t blocks_alloced =
+          interp.gc_malloc_blocks - interp.gc_malloc_blocks_at_last_gc;
 
      if ((bytes_alloced > 0) || (blocks_alloced > 0))
-          dscwritef(DF_ALWAYS, (_T("; ~cd C bytes in ~cd blocks allocated since last GC.\n"),
-                                bytes_alloced, blocks_alloced));
+          dscwritef(DF_ALWAYS,
+                    (_T("; ~cd/~cd C bytes/blocks allocated since last GC.\n"),
+                     bytes_alloced, blocks_alloced));
 
      dscwritef(DF_ALWAYS, (_T("; GC @ T+~cf:"), time_since_launch()));
 }
@@ -495,13 +519,15 @@ static void gc_end_stats(void)
      interp.gc_run_time = sys_runtime() - interp.gc_run_time;
      interp.gc_total_run_time += interp.gc_run_time;
 
-     dscwritef(DF_SHOW_GC, (" ~cfs., ~cd cells freed\n", interp.gc_run_time, interp.gc_cells_collected));
+     dscwritef(DF_SHOW_GC,
+               (" ~cfs., ~cd cells freed\n",
+                interp.gc_run_time, interp.gc_cells_collected));
 
      interp.gc_malloc_bytes_at_last_gc = interp.gc_malloc_bytes;
      interp.gc_malloc_blocks_at_last_gc = interp.gc_malloc_blocks;
 }
 
-fixnum_t gc_mark_and_sweep(void)
+static fixnum_t gc_mark_and_sweep(void)
 {
      fixnum_t cells_freed;
 
@@ -544,7 +570,8 @@ lref_t gc_claim_freelist()
      lref_t new_freelist = NIL;
 
      if (NULLP(interp.gc_global_freelist)
-         || ((interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc) > interp.gc_malloc_bytes_threshold)
+         || ((interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc)
+             > interp.gc_malloc_bytes_threshold)
          || ALWAYS_GC)
           cells_freed = gc_collect_garbage();
 
@@ -578,7 +605,8 @@ static size_t gc_count_active_heap_segments(void)
 void gc_initialize_heap()
 {
      /* Initialize the heap table */
-     interp.gc_heap_segments = (lref_t *) gc_malloc(sizeof(lref_t) * interp.gc_max_heap_segments);
+     interp.gc_heap_segments =
+          (lref_t *) gc_malloc(sizeof(lref_t) * interp.gc_max_heap_segments);
 
      for (size_t jj = 0; jj < interp.gc_max_heap_segments; jj++)
           interp.gc_heap_segments[jj] = NULL;
@@ -648,9 +676,9 @@ lref_t lgc_info()
 
 /* GC Trip wire support.
  *
- * GC trip wires pretty much do what they sound like, they blow up when the garbage
- * collector touches (attempts to free) them. They are used in tests to verify that
- * the GC is picking up all object references.
+ * GC trip wires pretty much do what they sound like, they blow up when the
+ * garbage collector touches (attempts to free) them. They are used in tests
+ * to verify that the GC is picking up all object references.
  */
 
 lref_t ligc_trip_wire()
