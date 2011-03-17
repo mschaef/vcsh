@@ -663,7 +663,7 @@ lref_t lirequest_heap_size(lref_t c)
      {
           fixnum_t r = get_c_fixnum(c);
 
-          if ((r < 1) || ((size_t) r >= interp.gc_max_heap_segments))
+          if ((r < 1) || ((size_t) r > interp.gc_max_heap_segments))
                vmerror_arg_out_of_range(c, _T("[1,MAX_HEAPS]"));
 
           requested = (size_t) r - interp.gc_current_heap_segments;
@@ -688,17 +688,19 @@ lref_t lgc()
 
 lref_t lgc_info()
 {
-     lref_t argv[8];
+     lref_t argv[9];
+
      argv[0] = fixcons(gc_count_active_heap_segments());
      argv[1] = fixcons(interp.gc_heap_segment_size);
-     argv[2] = fixcons(gc_heap_freelist_length());
-     argv[3] = fixcons(interp.gc_total_cells_allocated);
-     argv[4] = fixcons(interp.gc_malloc_bytes);
-     argv[5] = fixcons(interp.gc_malloc_bytes_at_last_gc);
-     argv[6] = fixcons(interp.gc_malloc_blocks);
-     argv[7] = fixcons(interp.gc_malloc_blocks_at_last_gc);
+     argv[2] = fixcons(interp.gc_max_heap_segments);
+     argv[3] = fixcons(gc_heap_freelist_length());
+     argv[4] = fixcons(interp.gc_total_cells_allocated);
+     argv[5] = fixcons(interp.gc_malloc_bytes);
+     argv[6] = fixcons(interp.gc_malloc_bytes_at_last_gc);
+     argv[7] = fixcons(interp.gc_malloc_blocks);
+     argv[8] = fixcons(interp.gc_malloc_blocks_at_last_gc);
 
-     return lvector(8, argv);
+     return lvector(9, argv);
 }
 
 /* GC Trip wire support.
