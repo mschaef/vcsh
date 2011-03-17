@@ -58,6 +58,22 @@ void gc_free(void *block)
      free(block);
 }
 
+/*** The GC Timer ***/
+
+static void gc_begin_timer()
+{
+     interp.gc_run_time = sys_runtime();
+}
+
+static double gc_end_timer()
+{
+     interp.gc_run_time = sys_runtime() - interp.gc_run_time;
+     interp.gc_total_run_time += interp.gc_run_time;
+
+     return interp.gc_run_time;
+}
+
+
 /*** GC Root Registry ***/
 
 static size_t gc_find_free_root()
@@ -180,6 +196,8 @@ static bool gc_enlarge_heap()
           return false;
      }
 
+     gc_begin_timer();
+
      lref_t seg_base =
           (lref_t) gc_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
 
@@ -193,6 +211,8 @@ static bool gc_enlarge_heap()
      interp.gc_heap_segments[seg_idx] = seg_base;
 
      gc_init_heap_segment(seg_base);
+
+     gc_end_timer();
 
      return true;
 }
@@ -492,10 +512,9 @@ static void gc_mark_stack()
                    (lref_t *) & stack_end);
 }
 
-
 static void gc_begin_stats(void)
 {
-     interp.gc_run_time = sys_runtime();
+     gc_begin_timer();
      interp.gc_cells_collected = 0;
 
      if (!DEBUG_FLAG(DF_SHOW_GC))
@@ -516,12 +535,11 @@ static void gc_begin_stats(void)
 
 static void gc_end_stats(void)
 {
-     interp.gc_run_time = sys_runtime() - interp.gc_run_time;
-     interp.gc_total_run_time += interp.gc_run_time;
+     double gc_run_time = gc_end_timer();
 
      dscwritef(DF_SHOW_GC,
                (" ~cfs., ~cd cells freed\n",
-                interp.gc_run_time, interp.gc_cells_collected));
+                gc_run_time, interp.gc_cells_collected));
 
      interp.gc_malloc_bytes_at_last_gc = interp.gc_malloc_bytes;
      interp.gc_malloc_blocks_at_last_gc = interp.gc_malloc_blocks;
