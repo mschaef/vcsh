@@ -80,6 +80,7 @@
 (include "fasl-write.scm")
 (include "date-time.scm")
 (include "exports.scm")
+(include "memory.scm")
 (include "compiler.scm")
 (include "eval.scm")
 
