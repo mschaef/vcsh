@@ -587,7 +587,6 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.gc_heap_segments = NULL;
 
      interp.gc_total_cells_allocated = 0;
-     interp.gc_cells_collected = 0;
 
      interp.gc_malloc_bytes_at_last_gc = 0;
      interp.gc_malloc_blocks_at_last_gc = 0;

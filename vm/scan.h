@@ -555,7 +555,6 @@ struct interpreter_t
      lref_t gc_global_freelist;
 
      size_t gc_total_cells_allocated;
-     size_t gc_cells_collected;
 
      size_t gc_malloc_bytes;
      size_t gc_malloc_blocks;

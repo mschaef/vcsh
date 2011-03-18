@@ -499,12 +499,10 @@ static fixnum_t gc_sweep()
                SET_NEXT_FREE_LIST(current_sub_freelist,
                                   interp.gc_global_freelist);
 
-     interp.gc_cells_collected = cells_freed;
-
      dscwritef(DF_SHOW_GC_DETAILS, (";;; GC sweep done, freed:~cd, free:~cd\n",
                                     cells_freed, free_cells));
 
-     return free_cells;
+     return cells_freed;
 }
 
 static void gc_mark_stack()
@@ -524,7 +522,6 @@ static void gc_mark_stack()
 static void gc_begin_stats(void)
 {
      gc_begin_timer();
-     interp.gc_cells_collected = 0;
 
      if (!DEBUG_FLAG(DF_SHOW_GC))
           return;
@@ -542,30 +539,27 @@ static void gc_begin_stats(void)
      dscwritef(DF_ALWAYS, (_T("; GC @ T+~cf:"), time_since_launch()));
 }
 
-static void gc_end_stats(void)
+static double gc_end_stats(void)
 {
-     double gc_run_time = gc_end_timer();
-
-     dscwritef(DF_SHOW_GC,
-               (" ~cfs., ~cd cells freed\n",
-                gc_run_time, interp.gc_cells_collected));
-
      interp.gc_malloc_bytes_at_last_gc = interp.gc_malloc_bytes;
      interp.gc_malloc_blocks_at_last_gc = interp.gc_malloc_blocks;
+
+     return gc_end_timer();
 }
 
 static fixnum_t gc_mark_and_sweep(void)
 {
-     fixnum_t cells_freed;
-
      gc_begin_stats();
 
      gc_mark_stack();
      gc_mark_roots();
 
-     cells_freed = gc_sweep();
+     fixnum_t cells_freed = gc_sweep();
 
-     gc_end_stats();
+     double gc_run_time  = gc_end_stats();
+
+     dscwritef(DF_SHOW_GC, (" ~cfs., ~cd cells freed\n", gc_run_time, cells_freed));
+
 
      return cells_freed;
 }
@@ -575,9 +569,7 @@ static fixnum_t gc_mark_and_sweep(void)
 
 static fixnum_t gc_collect_garbage(void)
 {
-     fixnum_t cells_freed = 0;
-
-     cells_freed = gc_mark_and_sweep();
+     fixnum_t cells_freed = gc_mark_and_sweep();
 
      if (NULLP(interp.gc_global_freelist))
           gc_enlarge_heap();
