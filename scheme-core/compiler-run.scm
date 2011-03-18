@@ -77,7 +77,11 @@
 
 
 (define (run)
-  (scheme::%request-heap-size 64)
+
+  (dynamic-let ((*info* #f))
+    (format #t "Expanding heap...\n")
+    (scheme::%request-heap-size 64))
+
   (scheme::%set-stack-limit #f)
   (scheme::initialize-user-package)
     

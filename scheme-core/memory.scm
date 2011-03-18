@@ -10,7 +10,7 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-(define *heap-enlarge-threshold* 0.25)
+(define *heap-enlarge-threshold* 0.33)
 
 (define (maybe-enlarge-heap cells-freed)
   (dbind #(heap-segments heap-segment-cells max-heap-segments) (gc-info)

@@ -39,9 +39,9 @@
 
 ;; Enlarge the heap for performance
 
-(dynamic-let ((*info* #f))
-  (format #t "Expanding heap...\n")
-  (scheme::%request-heap-size 64))
+;; (dynamic-let ((*info* #f))
+;;   (format #t "Expanding heap...\n")
+;;   (scheme::%request-heap-size 64))
 
 ;; A few Configuration options
 
