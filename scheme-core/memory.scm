@@ -10,11 +10,11 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-(define *heap-enlarge-threshold* 0.9)
+(define *gc-target-free-cell-factor* 0.9)
 
 (define (maybe-enlarge-heap cells-freed)
   (dbind #(heap-segments heap-segment-cells max-heap-segments) (gc-info)
-    (let ((target-free-cells (* heap-segments heap-segment-cells *heap-enlarge-threshold*)))
+    (let ((target-free-cells (* heap-segments heap-segment-cells *gc-target-free-cell-factor*)))
       (unless (>= cells-freed target-free-cells)
         (let ((heap-segments-needed (ceiling (/ (- target-free-cells cells-freed)
                                                  heap-segment-cells))))
