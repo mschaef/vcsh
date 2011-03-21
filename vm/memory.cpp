@@ -582,16 +582,20 @@ static fixnum_t gc_collect_garbage(void)
 }
 /*** Global freelist enqueue and dequeue */
 
+static bool gc_malloc_past_threshold()
+{
+     return ((interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc)
+             > interp.gc_malloc_bytes_threshold);
+}
+
 lref_t gc_claim_freelist()
 {
-     fixnum_t cells_freed = 0;
      lref_t new_freelist = NIL;
 
      if (NULLP(interp.gc_global_freelist)
-         || ((interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc)
-             > interp.gc_malloc_bytes_threshold)
+         || gc_malloc_past_threshold()
          || ALWAYS_GC)
-          cells_freed = gc_collect_garbage();
+          gc_collect_garbage();
 
      if (NULLP(interp.gc_global_freelist))
           gc_enlarge_heap();
