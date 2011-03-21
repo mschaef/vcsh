@@ -38,8 +38,12 @@
   (null-list? xs))
 
 (define (->list x)
-  "Ensures that <x> is a list by wrapping it in a list if it's not a pair."
-  (if (pair? x) x (cons x)))
+  "Ensures that <x> is a list by wrapping it in a list if it's not
+   a pair or null."
+  (if (or (pair? x)
+          (null? x))
+      x
+      (cons x)))
 
 (define (list . xs)
   "Returns a list of all arguments."

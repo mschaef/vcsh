@@ -5,11 +5,9 @@ vcsh TODO
 --------
 * Split out the public scan API into its own header file
 * There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.
-* Swich to a memory-size based heap sizing model rather than a segment-count based model.
 * Add a compiler option that emits a cross reference file describing global references.
 * Add test case coverage
 * Verify correct operation of directory tools on both *nix and Windows.
-* Specifying no files to 'vcsh -c' causes a run time error.
 * gen-register-calls.scm produces output that CL thinks is Mac format... something wrong with CR/LF translation?
 
 0.7 - Short-term Performance
@@ -26,6 +24,7 @@ vcsh TODO
 
 Later
 --------
+* Swich to a memory-size based heap sizing model rather than a segment-count based model.
 * Linear bytecode compiler
 * Complete complex arithmetic
 * FFI (SIOD-FFI?)
