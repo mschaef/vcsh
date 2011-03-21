@@ -34,10 +34,10 @@ BEGIN_NAMESPACE(scan)
 enum
 {
      /*  Default size of a heap segment, in cells */
-     DEFAULT_HEAP_SEGMENT_SIZE = 262144,
+     DEFAULT_HEAP_SEGMENT_SIZE = 1048576,
 
      /*  Default limit on the Maximum number of heap segments */
-     DEFAULT_MAX_HEAP_SEGMENTS = 256,
+     DEFAULT_MAX_HEAP_SEGMENTS = 32,
 
      /*  Default size for FASL loader tables */
      DEFAULT_FASL_TABLE_SIZE = 16384,

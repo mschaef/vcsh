@@ -502,7 +502,7 @@ static fixnum_t gc_sweep()
      dscwritef(DF_SHOW_GC_DETAILS, (";;; GC sweep done, freed:~cd, free:~cd\n",
                                     cells_freed, free_cells));
 
-     return cells_freed;
+     return free_cells;
 }
 
 static void gc_mark_stack()
@@ -554,14 +554,13 @@ static fixnum_t gc_mark_and_sweep(void)
      gc_mark_stack();
      gc_mark_roots();
 
-     fixnum_t cells_freed = gc_sweep();
+     fixnum_t free_cells = gc_sweep();
 
      double gc_run_time  = gc_end_stats();
 
-     dscwritef(DF_SHOW_GC, (" ~cfs., ~cd cells freed\n", gc_run_time, cells_freed));
+     dscwritef(DF_SHOW_GC, (" ~cfs., ~cd free cells\n", gc_run_time, free_cells));
 
-
-     return cells_freed;
+     return free_cells;
 }
 
 
@@ -569,7 +568,7 @@ static fixnum_t gc_mark_and_sweep(void)
 
 static fixnum_t gc_collect_garbage(void)
 {
-     fixnum_t cells_freed = gc_mark_and_sweep();
+     fixnum_t free_cells = gc_mark_and_sweep();
 
      if (NULLP(interp.gc_global_freelist))
           gc_enlarge_heap();
@@ -577,9 +576,9 @@ static fixnum_t gc_collect_garbage(void)
      if (NULLP(interp.gc_global_freelist))
           panic("ran out of storage");
 
-     vmtrap(TRAP_AFTER_GC, VMT_OPTIONAL_TRAP, 1, fixcons(cells_freed));
+     vmtrap(TRAP_AFTER_GC, VMT_OPTIONAL_TRAP, 1, fixcons(free_cells));
 
-     return cells_freed;
+     return free_cells;
 }
 /*** Global freelist enqueue and dequeue */
 
