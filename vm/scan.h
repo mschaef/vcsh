@@ -16,6 +16,8 @@
 
 // #define WITH_FOPLOG_SUPPORT
 
+#define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
+
 #include "base-types.h"
 
 #include <setjmp.h>
@@ -75,8 +77,6 @@ enum
      /* The number of frames that can be stored on the frame stack. */
      FRAME_STACK_SIZE = 2048,
 
-     /*** Hash table tuning settings ***/
-
      /*  Default initial size for hash tables */
      HASH_DEFAULT_INITIAL_SIZE = 8,
 
@@ -96,15 +96,15 @@ enum
 
      /* The maximum size of blocks of text sent to the debug port. */
      DEBUG_PORT_BLOCK_SIZE = 256,
-};
 
 #if defined(WITH_FOPLOG_SUPPORT)
-#  define FOPLOG_SIZE (1024 * 1024)
+     /* The number of FOPs that can be recorded in the FOPLOG */
+     FOPLOG_SIZE  = 1024 * 1024,
 #endif
+};
+
 
 /*** Interpreter specific types ***/
-
-#define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
 
 /*** Fixnum and Flonum ***/
 
@@ -454,7 +454,6 @@ INLINE bool TYPEP(lref_t object, typecode_t typeCode)
      return TYPE(object) == typeCode;
 }
 
-/*** Debugging flags ***/
 struct frame_t
 {
      frame_type_t type;
@@ -930,7 +929,11 @@ INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-                                                                                                                                                                              /*** structure ***//*  REVISIT:  how much of the structure representation can be shared with vectors? */
+/*** structure ***
+ *
+ * REVISIT:  how much of the structure representation can be shared
+ * with vectors?
+ */
 
 INLINE size_t STRUCTURE_DIM(lref_t obj)
 {
