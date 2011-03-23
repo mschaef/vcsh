@@ -12,7 +12,7 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#include "scan.h"
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 lref_t macrocons(lref_t t)          /*  REVISIT: Macros should be moved entirely to Lisp... */

@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 
-#include "scan.h"
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 INLINE void SET_PORT_STRING(lref_t port, lref_t string)

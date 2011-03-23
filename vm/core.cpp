@@ -16,7 +16,7 @@
 #include <float.h>
 #include <math.h>
 
-#include "scan.h"
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 

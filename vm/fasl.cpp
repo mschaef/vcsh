@@ -15,7 +15,7 @@
 #include <string.h>
 #include <memory.h>
 
-#include "scan.h"
+#include "scan-private.h"
 
 /* REVISIT: Possible improvement to FASL read/write
  *

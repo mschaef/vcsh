@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <signal.h>
 
-#include "scan.h"
+#include "scan-private.h"
 
 void sigint_handler(int i)
 {

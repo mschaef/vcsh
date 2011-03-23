@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <memory.h>
 
-#include "scan.h"
+#include "scan-private.h"
 
 /*  REVISIT: It would be nice if this emitted something directly loadable via the scheme reader */
 

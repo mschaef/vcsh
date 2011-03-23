@@ -29,7 +29,7 @@
 
 #include "shlwapi.h"
 
-#include "scan.h"
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 

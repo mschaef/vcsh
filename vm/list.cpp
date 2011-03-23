@@ -11,7 +11,7 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#include "scan.h"
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 lref_t lcons(lref_t x, lref_t y)

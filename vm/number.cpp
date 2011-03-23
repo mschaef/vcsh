@@ -22,7 +22,7 @@
 #include <errno.h>
 #include <float.h>
 
-#include "scan.h"
+#include "scan-private.h"
 #include "mt19937.h"
 
 BEGIN_NAMESPACE(scan)

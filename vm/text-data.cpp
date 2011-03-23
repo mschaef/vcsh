@@ -11,8 +11,6 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#include "scan.h"
-
 #include <limits.h>
 #include <float.h>
 #include <math.h>
@@ -20,6 +18,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 

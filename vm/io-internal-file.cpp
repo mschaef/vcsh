@@ -14,7 +14,7 @@
 
 #include <memory.h>
 
-#include "scan.h"
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 struct c_data_port_state
