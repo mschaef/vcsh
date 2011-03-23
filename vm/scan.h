@@ -16,7 +16,7 @@
 
 // #define WITH_FOPLOG_SUPPORT
 
-#define FIXNUM_64BIT            /* Support for MSC style 64-bit integers */
+#define SCAN_64BIT_FIXNUMS            /* Support for MSC style 64-bit integers */
 
 #include "base-types.h"
 
@@ -108,7 +108,7 @@ enum
 
 /*** Fixnum and Flonum ***/
 
-#ifdef FIXNUM_64BIT
+#ifdef SCAN_64BIT_FIXNUMS
 typedef int64_t fixnum_t;
 typedef uint64_t unsigned_fixnum_t;
 
@@ -276,7 +276,7 @@ struct lobject_t
           typecode_t type:8;
           unsigned int opcode:8;
           unsigned int gc_mark:1;
-#if defined(__LP64__)
+#if SCAN_WORDSIZE == 64
           unsigned int pad:32;  /*  Explicit pad to keep the LP64 header the same size as an LP64 pointer. */
 #endif
      } header;

@@ -111,7 +111,7 @@ size_t read_binary(void *buf, size_t size, size_t count, size_t *ofs = NULL)
 
 bool read_binary_fixnum(fixnum_t length, bool signedp, fixnum_t &result, size_t *ofs = NULL)
 {
-#ifdef FIXNUM_64BIT
+#ifdef SCAN_64BIT_FIXNUMS
   assert ((length == 1) || (length == 2) || (length == 4) || (length == 8));
 #else
   assert ((length == 1) || (length == 2) || (length == 4));
@@ -128,7 +128,7 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, fixnum_t &result, size_t 
     case 1: result = (signedp ? (fixnum_t)(*(int8_t *)bytes) : (fixnum_t)(*(uint8_t  *)bytes)); break;
     case 2: result = (signedp ? (fixnum_t)(*(int16_t *)bytes) : (fixnum_t)(*(uint16_t *)bytes)); break;
     case 4: result = (signedp ? (fixnum_t)(*(int32_t *)bytes) : (fixnum_t)(*(uint32_t *)bytes)); break;
-#ifdef FIXNUM_64BIT
+#ifdef SCAN_64BIT_FIXNUMS
     case 8: result = (signedp ? (fixnum_t)(*(int64_t *)bytes) : (fixnum_t)(*(uint64_t *)bytes)); break;
 #endif
     }

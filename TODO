@@ -24,6 +24,8 @@ vcsh TODO
 
 Later
 --------
+* Remove boxed fixnums
+* Add bignums
 * Swich to a memory-size based heap sizing model rather than a segment-count based model.
 * Linear bytecode compiler
 * Complete complex arithmetic

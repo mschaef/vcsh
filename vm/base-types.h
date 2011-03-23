@@ -33,8 +33,14 @@
 #  error Either SCAN_WINDOWS or SCAN_UNIX must be defined to pick a platform.
 #endif
 
+#if (defined(__GNUC__) && defined(__LP64__)) || (defined(_MSC_VER) && (_INTEGRAL_MAX_BITS == 64))
+#   define SCAN_WORDSIZE 64
+#else
+#   define SCAN_WORDSIZE 32
+#endif
+
 /* Macros for denoting C++ namespaces
- * 
+ *
  * Add macros for beginning and ending C++ namespaces. These are used to keep
  * namespace blocks from confusing indent. If the namespace declarations are
  * there, indent doesn't recognize function declarations as function
