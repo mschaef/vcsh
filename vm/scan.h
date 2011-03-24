@@ -25,6 +25,7 @@
 #include "scan-base.h"
 #include "scan-internal-file.h"
 #include "scan-constants.h"
+#include "scan-types.h"
 #include "scan-sys.h"
 
 BEGIN_NAMESPACE(scan)
