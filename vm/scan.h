@@ -1869,50 +1869,6 @@ lref_t lifoplog_enable(lref_t enablep);
 lref_t lifoplog_snapshot();
 #endif
 
-bool equalp(lref_t, lref_t);
-double round(double n);
-
-void scan_postmortem_dump();
-
-
-bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result);
-
-/* Structure base metaclass operations */
-
-bool init_slots(lref_t obj, lref_t initargs, bool names_must_be_symbols);
-
-void port_gc_free(lref_t port);
-lref_t port_gc_mark(lref_t obj);
-bool string_equal(lref_t a, lref_t b);
-bool hash_equal(lref_t a, lref_t b);
-bool instance_equal(lref_t a, lref_t b);
-bool vector_equal(lref_t a, lref_t b);
-bool structure_equal(lref_t sta, lref_t stb);
-bool fast_op_equal(lref_t a, lref_t b);
-
-void create_initial_packages();
-
-void init_debugger_output();
-void init_stdio_ports();
-
-extern port_class_t stderr_port_class;
-
-lref_t initialize_port(lref_t s,
-                     port_class_t * cls,
-                     lref_t port_name, port_mode_t mode, lref_t user_object, void *user_data);
-
-
-size_t object_length(lref_t obj);
-size_t hash_length(lref_t hash);
-size_t port_length(lref_t port);
-
-
-debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source_name,
-                                     const _TCHAR * str);
-debug_flag_t debug_flags_from_environment(debug_flag_t initial);
-
-lref_t topmost_primitive();
-
 END_NAMESPACE;
 
 #endif
