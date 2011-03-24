@@ -30,15 +30,11 @@
 
 BEGIN_NAMESPACE(scan)
 
-
-/**** Input/Output ****/
-
 lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t arg3);
 
 lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element);
 
 lref_t vectorcons(fixnum_t n, lref_t initial = NIL);
-
 
 lref_t listn(long n, ...);
 lref_t listv(long n, va_list args);
@@ -113,7 +109,6 @@ lref_t simple_intern(const _TCHAR * name, lref_t package);
 lref_t intern(lref_t name, lref_t package);
 lref_t keyword_intern(const _TCHAR * name);
 
-lref_t lcons(lref_t x, lref_t y);     /*  Forward decl */
 lref_t macrocons(lref_t t);
 lref_t strcons();
 lref_t strcons(_TCHAR ch);
@@ -183,10 +178,6 @@ bool blocking_input_is_data_available(lref_t port);
 lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
                          blocking_input_read_data_fn_t read_fn,
                          blocking_input_close_port_fn_t close_fn, void *userdata);
-
-  /****************************************************************
-                         The C API
-  ****************************************************************/
 
   /****** Startup/Shutdown, and custom extension */
 
