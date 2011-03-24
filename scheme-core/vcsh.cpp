@@ -54,7 +54,7 @@ int _tmain(int argc, _TCHAR * argv[])
           return_status = scan::get_c_long(retval);
 
      if (DEBUGGING_BUILD)
-          scwritef(_T(";;;; end run, rc=~cd\n"), scan::CURRENT_DEBUG_PORT(), return_status);
+          pdscwritef(DF_ALWAYS, (_T(";;;; end run, rc=~cd\n"), return_status));
 
      scan::shutdown();
 

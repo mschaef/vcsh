@@ -373,6 +373,10 @@ debug_flag_t debug_flags_from_environment(debug_flag_t initial)
                                     getenv("VCSH_DEBUG_FLAGS"));
 }
 
+bool is_debug_flag_set(debug_flag_t flag)
+{
+     return DEBUG_FLAG(flag);
+}
 
 lref_t ltime_apply0(lref_t fn)
 {
