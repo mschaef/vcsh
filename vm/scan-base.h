@@ -210,5 +210,82 @@ typedef char _TCHAR;
 #  endif
 #endif                          /* SCAN_WINDOWS */
 
+/**** Configuration Constants ****/
+
+BEGIN_NAMESPACE(scan)
+
+#define SCAN_VERSION _T("SCAN 0.60.1")
+
+enum
+{
+     /*  Default size of a heap segment, in cells */
+     DEFAULT_HEAP_SEGMENT_SIZE = 1048576,
+
+     /*  Default limit on the Maximum number of heap segments */
+     DEFAULT_MAX_HEAP_SEGMENTS = 32,
+
+     /*  Default size for FASL loader tables */
+     DEFAULT_FASL_TABLE_SIZE = 16384,
+
+     /*  Local (stack) string buffer size */
+     STACK_STRBUF_LEN = 256,
+
+     /* The number of characters that can be ungotten from a port */
+     PORT_UNGET_BUFFER_SIZE = 8,
+
+     /*  Record individual safe_mallocs to debug */
+     DETAILED_MEMORY_LOG = FALSE,
+
+     /*  Garbage collect on each call to newCell (Very slow) */
+     ALWAYS_GC = FALSE,
+
+     /*  The depth of the stack the FASL loader uses to store load unit state */
+     FAST_LOAD_STACK_DEPTH = 16,
+
+     /*  The number of arguments contained in argment buffers */
+     ARG_BUF_LEN = 32,
+
+     /*  The number of cells on a sub-freelist */
+     SUB_FREELIST_SIZE = 1024,
+
+     /*  The maximum number of GC roots per thread */
+     MAX_GC_ROOTS = 32,
+
+     /*  The debug printer's flonum precisionn */
+     DEBUG_FLONUM_PRINT_PRECISION = 8,
+
+     /* The maximum number of init load files. */
+     MAX_INIT_LOAD_FILES = 8,
+
+     /* The number of frames that can be stored on the frame stack. */
+     FRAME_STACK_SIZE = 2048,
+
+     /*  Default initial size for hash tables */
+     HASH_DEFAULT_INITIAL_SIZE = 8,
+
+     /* The maximum allowable load factor for a hash table. If the fraction of
+      * used table entries exceeds this, then the hash table is enlarged. */
+     HASH_MAX_LOAD_FACTOR = 67, /* percent */
+
+     /* The factor by which 'small' hash tables are enlarged. */
+     HASH_SMALL_ENLARGE_FACTOR = 2,
+
+     /* The factor by which 'large' hash tables are enlarged. */
+     HASH_LARGE_ENLARGE_FACTOR = 4,
+
+     /* The number of active elements a hash table needs in order to
+      * be considered 'large'. */
+     HASH_SMALL_ENLARGE_THRESHOLD = 50000,
+
+     /* The maximum size of blocks of text sent to the debug port. */
+     DEBUG_PORT_BLOCK_SIZE = 256,
+
+#if defined(WITH_FOPLOG_SUPPORT)
+     /* The number of FOPs that can be recorded in the FOPLOG */
+     FOPLOG_SIZE  = 1024 * 1024,
+#endif
+};
+
+END_NAMESPACE
 
 #endif
