@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include "scan-base.h"
+#include "scan-internal-file.h"
 #include "scan-constants.h"
 #include "scan-sys.h"
 
@@ -136,40 +137,6 @@ typedef double flonum_t;
 #define FLONUM_MIN -DBL_MAX
 #define FLONUM_EPSILON DBL_EPSILON
 
-/*** Data Block ***/
-
-/* Microsoft C and gcc appear to have differing opinions on how to
- * initialize a structure with an indefinate sized array at the end. */
-
-#if defined(_MSC_VER)
-
-typedef uint8_t internal_file_data_t[];
-#  define INTERNAL_FILE_DATA_CAST
-
-#else
-
-typedef uint8_t *internal_file_data_t;
-#  define INTERNAL_FILE_DATA_CAST (uint8_t [])
-
-#endif
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (push)
-#  pragma warning (disable: 4200)
-#endif
-
-struct internal_file_t
-{
-     _TCHAR *_name;
-     size_t _length;
-     internal_file_data_t _bytes;
-};
-
-#define DECL_INTERNAL_FILE struct scan::internal_file_t
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (pop)
-#endif
 
 /* _The_ type *************************************************
  *

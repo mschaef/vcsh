@@ -51,7 +51,7 @@ ifdef ${RANLIB}
 endif
 
 scheme${OBJ_EXT}: scheme.scf
-	echo \#include \"../vm/scan.h\" > scheme.cpp
+	echo \#include \"../vm/scan-internal-file.h\" > scheme.cpp
 	../vm/to-c-source scheme.scf >> scheme.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}scheme${OBJ_EXT} scheme.cpp
 
@@ -59,7 +59,7 @@ scheme.scf:
 	$(SCC0) --load-file:setup-image-compile.scm scheme.scm
 
 compiler-run${OBJ_EXT}: compiler-run.scf
-	echo \#include \"../vm/scan.h\" > compiler-run.cpp
+	echo \#include \"../vm/scan-internal-file.h\" > compiler-run.cpp
 	../vm/to-c-source compiler-run.scf >> compiler-run.cpp
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}compiler-run${OBJ_EXT} compiler-run.cpp
 
@@ -80,7 +80,7 @@ clean-scheme:
 	./vcsh0${EXE_EXT} --compile --output-file=$@ $<
 
 %.cpp: %.scf Makefile vcsh0${EXE_EXT} ../vm/to-c-source${EXE_EXT}
-	echo \#include \"../vm/scan.h\" > $@
+	echo \#include \"../vm/scan-internal-file.h\" > $@
 	../vm/to-c-source $< >> $@
 
 depend: vcsh${EXE_EXT} grovel-dependancies.scm scheme.scm
