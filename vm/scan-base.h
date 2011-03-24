@@ -1,8 +1,8 @@
 
 /*
- * base-types.h --
+ * scan-base.h --
  *
- * Standard types.
+ * Standard types and definitions.
  *
  * (C) Copyright 2001-2011 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
@@ -11,8 +11,8 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#ifndef __BASE_TYPES_H
-#define __BASE_TYPES_H
+#ifndef __SCAN_BASE_H
+#define __SCAN_BASE_H
 
 #include <stddef.h>
 #include <limits.h>

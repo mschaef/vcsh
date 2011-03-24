@@ -1,6 +1,6 @@
 
 /*
- * sys.h --
+ * scan-sys.h --
  *
  * The system abstraction layer's API.
  *
@@ -11,8 +11,8 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#ifndef __SYS_H
-#define __SYS_H
+#ifndef __SCAN_SYS_H
+#define __SCAN_SYS_H
 
 #include <assert.h>
 
@@ -27,9 +27,9 @@
 
 #include <limits.h>
 
-#include "base-types.h"
+#include "scan-base.h"
 
-#include "constants.h"
+#include "scan-constants.h"
 
 #ifdef SCAN_UNIX                /*  REVISIT: Can these ifdef's be removed? */
 #  define SYS_PATH_MAX PATH_MAX
@@ -182,4 +182,4 @@ END_NAMESPACE;
 
 extern char **environ;
 
-#endif                          /*  __SYS_H */
+#endif                          /*  __SCAN_SYS_H */

@@ -3,7 +3,7 @@
  * windows-sys.cpp --
  *
  * Windows specific system functions. This implements the API
- * defined in sys.h.
+ * defined in scan-sys.h.
  *
  * (C) Copyright 2001-2011 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.

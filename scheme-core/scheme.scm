@@ -24,7 +24,7 @@
 
 ;;; Load definitions for subrs and VM-specific constants
 
-(include "../vm/constants.scm")
+(include "../vm/scan-constants.scm")
 (include "subrs.scm")
 
 ;;; Set up the default package structure

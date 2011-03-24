@@ -13,8 +13,8 @@
 #ifndef __SCAN_PRIVATE_H
 #define __SCAN_PRIVATE_H
 
-#include "base-types.h"
-#include "constants.h"
+#include "scan-base.h"
+#include "scan-constants.h"
 #include "scan.h"
 
 BEGIN_NAMESPACE(scan)

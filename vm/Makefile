@@ -13,7 +13,7 @@
 
 .PHONY: indented
 
-TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} constants.scm TAGS
+TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} scan-constants.scm TAGS
 
 include ../build-settings
 include ../config.${PLATFORM}
@@ -85,17 +85,17 @@ SHOW_RETVAL_SRCS:=$(SHOW_RETVAL_OBJS:${OBJ_EXT}=.cpp)
 show-retval${EXE_EXT}: $(SHOW_RETVAL_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}show-retval${EXE_EXT} $(SHOW_RETVAL_OBJS)
 
-constants.scm: constants.i
+scan-constants.scm: scan-constants.i
 	cpp -DCONST_SCHEME -P $< $@
 
 depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 indented:
-	gnuindent ${VM_SRCS} mt19937.h scan.h sys.h constants.i base-types.h
+	gnuindent ${VM_SRCS} mt19937.h scan.h scan-private.h scan-sys.h scan-constants.i scan-base.h
 
 clean-local:
-	rm -f constants.scm
+	rm -f scan-constants.scm
 
 %${OBJ_EXT}: %.cpp Makefile scan.h
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<

@@ -11,7 +11,7 @@
 #ifndef __MT19937_H
 #define __MT19937_H
 
-#include "base-types.h"
+#include "scan-base.h"
 
 void init_mt19937(unsigned long s);
 void init_mt19937_by_array(unsigned long init_key[], int key_length);

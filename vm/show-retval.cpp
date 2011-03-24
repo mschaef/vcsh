@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "base-types.h"
+#include "scan-base.h"
 
 int main(int argc, char *argv[])
 {

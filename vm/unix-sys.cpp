@@ -3,7 +3,7 @@
  * unix-sys.cpp --
  *
  * Unix specific system functions. This implements the API
- * defined in sys.h.
+ * defined in scan-sys.h.
  *
  * (C) Copyright 2001-2011 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "sys.h"
+#include "scan-sys.h"
 #include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)

@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 
-#include "base-types.h"
+#include "scan-base.h"
 
 enum
 {

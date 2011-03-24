@@ -18,14 +18,13 @@
 
 #define SCAN_64BIT_FIXNUMS            /* Support for MSC style 64-bit integers */
 
-#include "base-types.h"
-
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "constants.h"
-#include "sys.h"
+#include "scan-base.h"
+#include "scan-constants.h"
+#include "scan-sys.h"
 
 BEGIN_NAMESPACE(scan)
 

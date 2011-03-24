@@ -1,6 +1,6 @@
 
 /*
- * constants.h --
+ * scan-constants.h --
  *
  * The include file for the constant tables.
  *
@@ -11,15 +11,15 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
-#ifndef __CONSTANTS_H
-#define __CONSTANTS_H
+#ifndef __SCAN_CONSTANTS_H
+#define __SCAN_CONSTANTS_H
 
 BEGIN_NAMESPACE(scan)
 
 #define CONST_C_HEADER
-#include "constants.i"
+#include "scan-constants.i"
 #undef CONST_C_HEADER
 
 END_NAMESPACE;
 
-#endif __CONSTANTS_H
+#endif __SCAN_CONSTANTS_H
