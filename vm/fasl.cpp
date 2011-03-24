@@ -101,7 +101,7 @@ static void fast_read_list(lref_t port, bool read_listd, lref_t * list)
      fast_read(port, &list_length);
 
      if (!FIXNUMP(list_length))
-          fast_read_error("expected fixnum for list length", port, list_length);
+          vmerror_fast_read("expected fixnum for list length", port, list_length);
 
      *list = NIL;
 
@@ -119,7 +119,7 @@ static void fast_read_list(lref_t port, bool read_listd, lref_t * list)
           fast_read(port, &_CAR(next_list_cell));
 
           if (EOFP(CAR(next_list_cell)))
-               fast_read_error("incomplete list definition", port);
+               vmerror_fast_read("incomplete list definition", port);
      }
 
      if (read_listd)
@@ -127,7 +127,7 @@ static void fast_read_list(lref_t port, bool read_listd, lref_t * list)
           fast_read(port, &_CDR(list_bud));
 
           if (EOFP(CDR(list_bud)))
-               fast_read_error("incomplete list defintion, missing cdr", port);
+               vmerror_fast_read("incomplete list defintion, missing cdr", port);
      }
 }
 
@@ -168,7 +168,7 @@ static void fast_read_float(lref_t port, bool complex, lref_t * retval)
                if (read_binary_flonum(port, imag_part))
                     *retval = cmplxcons(real_part, imag_part);
                else
-                    fast_read_error("incomplete complex number", port);
+                    vmerror_fast_read("incomplete complex number", port);
           }
           else
                *retval = flocons(real_part);
@@ -184,7 +184,7 @@ static void fast_read_string(lref_t port, lref_t * retval)
      fast_read(port, &l);
 
      if (!FIXNUMP(l))
-          fast_read_error("strings must have a fixnum length", port);
+          vmerror_fast_read("strings must have a fixnum length", port);
 
      fixnum_t expected_length = FIXNM(l);
 
@@ -195,7 +195,7 @@ static void fast_read_string(lref_t port, lref_t * retval)
      fixnum_t actual_length = read_raw(buf, sizeof(_TCHAR), (size_t) expected_length, port);
 
      if (actual_length != expected_length)
-          fast_read_error("EOF during string data", port);
+          vmerror_fast_read("EOF during string data", port);
 
      *retval = strcons((size_t) actual_length, buf);
 }
@@ -232,12 +232,12 @@ static void fast_read_package(lref_t port, lref_t * package)
      fast_read(port, &name);
 
      if (!STRINGP(name))
-          fast_read_error("packages must have string names", port, name);
+          vmerror_fast_read("packages must have string names", port, name);
 
      *package = find_package(name);
 
      if (FALSEP(*package))
-          fast_read_error("package not found", port, name);
+          vmerror_fast_read("package not found", port, name);
 }
 
 static void fast_read_symbol(lref_t port, lref_t * retval)
@@ -246,13 +246,13 @@ static void fast_read_symbol(lref_t port, lref_t * retval)
      fast_read(port, &print_name);
 
      if (!STRINGP(print_name))
-          fast_read_error("symbols must have string print names", port, print_name);
+          vmerror_fast_read("symbols must have string print names", port, print_name);
 
      lref_t home;
      fast_read(port, &home);
 
      if (!(PACKAGEP(home) || NULLP(home) || FALSEP(home)))
-          fast_read_error("a symbol must either have a package or NIL/#f for home", port, home);
+          vmerror_fast_read("a symbol must either have a package or NIL/#f for home", port, home);
 
      if (NULLP(home) || FALSEP(home))
           *retval = symcons(print_name, NIL);
@@ -260,7 +260,7 @@ static void fast_read_symbol(lref_t port, lref_t * retval)
           *retval = simple_intern(print_name, home);
 
      if (*retval == NIL)
-          fast_read_error("internal error creating symbol", port, print_name);
+          vmerror_fast_read("internal error creating symbol", port, print_name);
 }
 
 static void fast_read_subr(lref_t port, lref_t * retval)
@@ -269,12 +269,12 @@ static void fast_read_subr(lref_t port, lref_t * retval)
      fast_read(port, &subr_name);
 
      if (!STRINGP(subr_name))
-          fast_read_error("subrs must have string names", port, subr_name);
+          vmerror_fast_read("subrs must have string names", port, subr_name);
 
      lref_t subr = find_subr_by_name(subr_name);
 
      if (NULLP(subr))
-          fast_read_error("subr not found", port, subr_name);
+          vmerror_fast_read("subr not found", port, subr_name);
 
      *retval = subr;
 }
@@ -286,7 +286,7 @@ static void fast_read_vector(lref_t port, lref_t * vec)
      fast_read(port, &vec_length);
 
      if (!FIXNUMP(vec_length))
-          fast_read_error("Expected fixnum for vector length", port, vec_length);
+          vmerror_fast_read("Expected fixnum for vector length", port, vec_length);
 
      *vec = vectorcons(FIXNM(vec_length), NIL);
 
@@ -296,7 +296,7 @@ static void fast_read_vector(lref_t port, lref_t * vec)
           fast_read(port, &object);
 
           if (EOFP(object))
-               fast_read_error("incomplete vector definition", port, *vec);
+               vmerror_fast_read("incomplete vector definition", port, *vec);
 
           SET_VECTOR_ELEM(*vec, ii, object);
      }
@@ -318,7 +318,7 @@ static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
      fast_read(port, &opcode_obj);
 
      if (!FIXNUMP(opcode_obj))
-          fast_read_error("Expected fixnum for opcode.", port, opcode_obj);
+          vmerror_fast_read("Expected fixnum for opcode.", port, opcode_obj);
 
      *fop = fast_op((int) FIXNM(opcode_obj), NIL, NIL, NIL);
 
@@ -349,13 +349,13 @@ static void fast_read_structure(lref_t port, lref_t * st)
      fast_read(port, &st_meta); // REVISIT: This has to come from the structure layour resolution vmtrap. Find a way to enforce this.
 
      if (!CONSP(st_meta))
-          fast_read_error("Expected list for structure metadata", port, st_meta);
+          vmerror_fast_read("Expected list for structure metadata", port, st_meta);
 
      lref_t st_length;
      fast_read(port, &st_length);
 
      if (!FIXNUMP(st_length))
-          fast_read_error("Expected fixnum for structure length", port, st_length);
+          vmerror_fast_read("Expected fixnum for structure length", port, st_length);
 
      *st = lstructurecons(vectorcons(FIXNM(st_length), NIL), st_meta);
 
@@ -365,7 +365,7 @@ static void fast_read_structure(lref_t port, lref_t * st)
           fast_read(port, &object);
 
           if (EOFP(object))
-               fast_read_error("incomplete structure definition", port, *st);
+               vmerror_fast_read("incomplete structure definition", port, *st);
 
           SET_STRUCTURE_ELEM(*st, ii, object);
      }
@@ -377,7 +377,7 @@ static void fast_read_instance_map(lref_t port, lref_t * new_instance)
      fast_read(port, &proto);
 
      if (!(INSTANCEP(proto) || FALSEP(proto) || SYMBOLP(proto)))
-          fast_read_error("Bad prototype instance, must be #f, a symbol, or an instance", port,
+          vmerror_fast_read("Bad prototype instance, must be #f, a symbol, or an instance", port,
                           proto);
 
      *new_instance = instancecons(proto);
@@ -386,18 +386,18 @@ static void fast_read_instance_map(lref_t port, lref_t * new_instance)
      fast_read(port, &slot_names);
 
      if (!(CONSP(slot_names) || NULLP(slot_names)))
-          fast_read_error("Bad instance map slot names, must be a list", port, slot_names);
+          vmerror_fast_read("Bad instance map slot names, must be a list", port, slot_names);
 
      for (; CONSP(slot_names); slot_names = CDR(slot_names))
      {
           if (!SYMBOLP(CAR(slot_names)))
-               fast_read_error("Bad instance map slot name.", port, CAR(slot_names));
+               vmerror_fast_read("Bad instance map slot name.", port, CAR(slot_names));
 
           lislot_set(*new_instance, CAR(slot_names), NIL);
      }
 
      if (!NULLP(slot_names))
-          fast_read_error("Malformed instance map slot name list.", port, slot_names);
+          vmerror_fast_read("Malformed instance map slot name list.", port, slot_names);
 }
 
 static void fast_read_instance(lref_t port, lref_t * instance)
@@ -406,7 +406,7 @@ static void fast_read_instance(lref_t port, lref_t * instance)
      fast_read(port, &base_instance);
 
      if (!INSTANCEP(base_instance))
-          fast_read_error("Bad base instance.", port, base_instance);
+          vmerror_fast_read("Bad base instance.", port, base_instance);
 
      *instance = lclone_instance(base_instance);
 
@@ -417,7 +417,7 @@ static void fast_read_instance(lref_t port, lref_t * instance)
           SET_INSTANCE_ELEM(*instance, ii, CAR(vals));
 
      if (!NULLP(vals))
-          fast_read_error("Bad slot value list, must be a proper list.", port, vals);
+          vmerror_fast_read("Bad slot value list, must be a proper list.", port, vals);
 }
 
 static void fast_read_hash(lref_t port, lref_t * hash)
@@ -426,7 +426,7 @@ static void fast_read_hash(lref_t port, lref_t * hash)
 
      fast_read(port, &shallow);
      if (!BOOLP(shallow))
-          fast_read_error("expected boolean for hash table shallow", port, shallow);
+          vmerror_fast_read("expected boolean for hash table shallow", port, shallow);
 
      *hash = hashcons(BOOLV(shallow));
 
@@ -440,13 +440,13 @@ static void fast_read_hash(lref_t port, lref_t * hash)
           lref_t kv = CAR(loc);
 
           if (!CONSP(kv))
-               fast_read_error("malformed key/value in hash table", port, kv);
+               vmerror_fast_read("malformed key/value in hash table", port, kv);
 
           lhash_set(*hash, CAR(kv), CDR(kv));
      }
 
      if (!NULLP(loc))
-          fast_read_error("malformed key/value list for hash table", port, elements);
+          vmerror_fast_read("malformed key/value list for hash table", port, elements);
 }
 
 static void fast_read_closure(lref_t port, lref_t * retval)
@@ -455,28 +455,28 @@ static void fast_read_closure(lref_t port, lref_t * retval)
      fast_read(port, &env);
 
      if (EOFP(env))
-          fast_read_error("incomplete closure, missing environment", port);
+          vmerror_fast_read("incomplete closure, missing environment", port);
 
      if (!(NULLP(env) || CONSP(env)))
-          fast_read_error("malformed closure, bad environment", port, env);
+          vmerror_fast_read("malformed closure, bad environment", port, env);
 
      lref_t code;
      fast_read(port, &code);
 
      if (EOFP(code))
-          fast_read_error("Incomplete closure, missing code", port, NIL);
+          vmerror_fast_read("Incomplete closure, missing code", port, NIL);
 
      if (!(NULLP(code) || CONSP(code)))
-          fast_read_error("malformed closure, bad code", port, code);
+          vmerror_fast_read("malformed closure, bad code", port, code);
 
      lref_t props;
      fast_read(port, &props);
 
      if (EOFP(props))
-          fast_read_error("incomplete closure, missing property list", port);
+          vmerror_fast_read("incomplete closure, missing property list", port);
 
      if (!(NULLP(props) || CONSP(props)))
-          fast_read_error("malformed closure, bad property list", port, props);
+          vmerror_fast_read("malformed closure, bad property list", port, props);
 
      *retval = lclosurecons(env, code, props);
 }
@@ -496,7 +496,7 @@ void fast_read_macro(lref_t port, lref_t * retval)
      fast_read(port, &macro_transformer);
 
      if (!CLOSUREP(macro_transformer))
-          fast_read_error("malformed macro, bad transformer", macro_transformer);
+          vmerror_fast_read("malformed macro, bad transformer", macro_transformer);
 
      *retval = macrocons(macro_transformer);
 }
@@ -540,10 +540,10 @@ static fixnum_t fast_read_table_index(lref_t port)
      fast_read(port, &index);
 
      if (!FIXNUMP(index))
-          fast_read_error("Expected fixnum for FASL table index", port, index);
+          vmerror_fast_read("Expected fixnum for FASL table index", port, index);
 
      if (FIXNM(index) < 0)
-          fast_read_error("FASL table indicies must be >=0", port, index);
+          vmerror_fast_read("FASL table indicies must be >=0", port, index);
 
      fasl_ensure_valid_table_index(port, (size_t) FIXNM(index));
 
@@ -557,7 +557,7 @@ void fast_read_loader_definition(lref_t port, fasl_opcode_t opcode)
      fast_read(port, &symbol_to_define);
 
      if (!SYMBOLP(symbol_to_define))
-          fast_read_error("Expected symbol for definition", port, symbol_to_define);
+          vmerror_fast_read("Expected symbol for definition", port, symbol_to_define);
 
      lref_t definition;
      fast_read(port, &definition);
@@ -587,7 +587,7 @@ static void fast_loader_stack_push(lref_t port, lref_t val)
      port_info_t *pinfo = PORT_PINFO(port);
 
      if (pinfo->_fasl_stack_ptr == FAST_LOAD_STACK_DEPTH - 1)
-          fast_read_error(_T("Fast loader stack overflow."), port, lport_location(port));
+          vmerror_fast_read(_T("Fast loader stack overflow."), port, lport_location(port));
 
      pinfo->_fasl_stack[pinfo->_fasl_stack_ptr] = val;
      pinfo->_fasl_stack_ptr++;
@@ -602,7 +602,7 @@ static lref_t fast_loader_stack_pop(lref_t port)
      port_info_t *pinfo = PORT_PINFO(port);
 
      if (pinfo->_fasl_stack_ptr == 0)
-          fast_read_error(_T("Fast loader stack underflow."), port, lport_location(port));
+          vmerror_fast_read(_T("Fast loader stack underflow."), port, lport_location(port));
 
      pinfo->_fasl_stack_ptr--;
 
@@ -624,7 +624,7 @@ void fast_read_loader_application(lref_t port, fasl_opcode_t opcode)
      fast_read(port, &argv[0]);
 
      if (!(SUBRP(argv[0]) || CLOSUREP(argv[0])))
-          fast_read_error(_T("Invalid function to apply"), port, lport_location(port));
+          vmerror_fast_read(_T("Invalid function to apply"), port, lport_location(port));
 
      if (opcode == FASL_OP_LOADER_APPLYN)
      {
@@ -633,12 +633,12 @@ void fast_read_loader_application(lref_t port, fasl_opcode_t opcode)
           fast_read(port, &ac);
 
           if (!FIXNUMP(ac))
-               fast_read_error("Expected fixnum for loader application argc", port, ac);
+               vmerror_fast_read("Expected fixnum for loader application argc", port, ac);
 
           argc = (size_t)FIXNM(ac);
 
           if (argc > FAST_LOAD_STACK_DEPTH) /* Assuming FAST_LOAD_STACK_DEPTH <= ARG_BUF_LEN - 2 */
-               fast_read_error("Loader application argc too high", port, ac);
+               vmerror_fast_read("Loader application argc too high", port, ac);
 
           for(size_t ii = 0; ii < argc; ii++)
                argv[ii + 1] = fast_loader_stack_pop(port);
@@ -858,7 +858,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
           case FASL_OP_LOADER_DEFINEQ:
           case FASL_OP_LOADER_DEFINEA0:
                if (!allow_loader_ops)
-                    fast_read_error(_T("loader definitions not allowed outside loader"), port,
+                    vmerror_fast_read(_T("loader definitions not allowed outside loader"), port,
                                     lport_location(port));
 
                fast_read_loader_definition(port, opcode);
@@ -868,7 +868,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
           case FASL_OP_LOADER_APPLY0:
           case FASL_OP_LOADER_APPLYN:
                if (!allow_loader_ops)
-                    fast_read_error(_T("loader function applications not allowed outside loader"),
+                    vmerror_fast_read(_T("loader function applications not allowed outside loader"),
                                     port, lport_location(port));
 
                fast_read_loader_application(port, opcode);
@@ -876,7 +876,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
 
           case FASL_OP_BEGIN_LOAD_UNIT:
                if (!allow_loader_ops)
-                    fast_read_error(_T("load units are not allowed outside loader"), port,
+                    vmerror_fast_read(_T("load units are not allowed outside loader"), port,
                                     lport_location(port));
 
                fast_read(port, &name, allow_loader_ops);
@@ -886,7 +886,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
 
           case FASL_OP_END_LOAD_UNIT:
                if (!allow_loader_ops)
-                    fast_read_error(_T("load units are not allowed outside loader"), port,
+                    vmerror_fast_read(_T("load units are not allowed outside loader"), port,
                                     lport_location(port));
 
                fast_read(port, &name, allow_loader_ops);
@@ -904,7 +904,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
 
                
           default:
-               fast_read_error("invalid opcode", port, fixcons(opcode));
+               vmerror_fast_read("invalid opcode", port, fixcons(opcode));
           }
      }
 }

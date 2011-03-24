@@ -87,9 +87,9 @@ void vmerror_io_error(const _TCHAR *desc, lref_t info)
             3, topmost_primitive(), strcons(desc), info);
 }
 
-void fast_read_error(const _TCHAR * message, lref_t port, lref_t details /* = NIL */)
+void vmerror_fast_read(const _TCHAR * message, lref_t port, lref_t details /* = NIL */)
 {
-     /*  REVISIT: fast_read_errors don't always show valid port locations */
+     /*  REVISIT: vmerror_fast_read don't always show valid port locations */
      assert(PORTP(port));
 
      lref_t location = lport_location(port);

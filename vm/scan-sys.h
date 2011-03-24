@@ -129,7 +129,6 @@ double sys_realtime(void);
 double sys_runtime(void);
 double sys_time_resolution();
 double sys_timezone_offset();
-double sys_time_since_launch();
 
 sys_retcode_t sys_init();
 

@@ -135,8 +135,12 @@ struct interpreter_t
      interpreter_thread_info_block_t thread;
 };
 
-extern interpreter_t interp;    /*  One interpter... one global state variable. */
+extern interpreter_t interp;  /*  Interpeter global state variable. */
 
+INLINE interpreter_thread_info_block_t *CURRENT_TIB()
+{
+     return &interp.thread;
+}
 
 /**** Standard accessors for current port. ****/
 
@@ -192,13 +196,19 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 #define dscwritef(flag, args) \
      do { if (DEBUG_FLAG(flag)) ::scan::dscwritef_impl args; } while(0);
 
-/***** Memory Allocation *****/
+/***** Memory Management *****/
 
-INLINE interpreter_thread_info_block_t *CURRENT_TIB()
-{
-     return &interp.thread;
-}
+void gc_initialize_heap();
+void gc_release_heap();
 
+void gc_protect(const _TCHAR * name, lref_t * location, size_t n);
+
+void gc_mark(lref_t obj);
+
+lref_t gc_claim_freelist();
+
+void *gc_malloc(size_t size);
+void gc_free(void *mem);
 
 INLINE lref_t new_cell(typecode_t type)
 {
@@ -250,6 +260,9 @@ size_t port_length(lref_t port);
 bool equalp(lref_t, lref_t);
 double round(double n);
 
+flonum_t time_since_launch();
+
+lref_t find_subr_by_name(lref_t subr_name);
 
 END_NAMESPACE;
 

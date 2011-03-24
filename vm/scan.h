@@ -1495,7 +1495,7 @@ void shutdown();
 const _TCHAR *build_id_string();
 
 void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation);
-lref_t find_subr_by_name(lref_t subr_name);
+
 lref_t run();
 
   /****** Evaluator and Loader */
@@ -1524,26 +1524,8 @@ void vmerror_unsupported(const _TCHAR *desc);
 void vmerror_unimplemented(const _TCHAR *desc);
 void vmerror_divide_by_zero();
 void vmerror_io_error(const _TCHAR *desc, lref_t info);
-void fast_read_error(const _TCHAR * message, lref_t port, lref_t details = NIL);
-
+void vmerror_fast_read(const _TCHAR * message, lref_t port, lref_t details = NIL);
 void vmerror_stack_overflow(uint8_t * obj);
-
-  /****** Memory management */
-
-void gc_initialize_heap();
-void gc_release_heap();
-
-void gc_protect(const _TCHAR * name, lref_t * location, size_t n);
-
-void gc_mark(lref_t obj);
-
-lref_t gc_claim_freelist();
-
-void *gc_malloc(size_t size);
-void gc_free(void *mem);
-
-/***** Time *****/
-flonum_t time_since_launch();
 
 /***** Prototypes for C Primitives *****/
 
