@@ -1,6 +1,6 @@
 
 /*
- * constants.i --
+ * scan-constants.i --
  *
  * Constant tables. This file is processed multiple times, with different
  * CONST_* flags set each time. constants.cpp and constants.h both

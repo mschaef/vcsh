@@ -264,6 +264,8 @@ flonum_t time_since_launch();
 
 lref_t find_subr_by_name(lref_t subr_name);
 
+lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element);
+
 END_NAMESPACE;
 
 #endif
