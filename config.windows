@@ -103,6 +103,3 @@ clean: clean-cov clean-local
 
 TAGS:
 	etags *.[ch] *.cpp
-
-%${OBJ_EXT}: %.cpp Makefile scan.h
-	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<

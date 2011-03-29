@@ -11,9 +11,13 @@
 # redistribution of this file, and for a DISCLAIMER OF ALL
 # WARRANTIES.
 
-.PHONY: indented
+.PHONY: all indented
 
-TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} fasl-dump${EXE_EXT} scan-constants.scm TAGS
+TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} \
+        fasl-dump${EXE_EXT} scan-constants.scm TAGS
+
+SCAN_HEADERS=scan-base.h scan-constants.h scan-internal-file.h scan-private.h \
+             scan-sys.h scan-types.h scan.h scan-constants.i
 
 include ../build-settings
 include ../config.${PLATFORM}
@@ -92,12 +96,12 @@ depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
 
 indented:
-	gnuindent ${VM_SRCS} mt19937.h scan.h scan-private.h scan-sys.h scan-constants.i scan-base.h
+	gnuindent ${VM_SRCS} mt19937.h ${SCAN_HEADERS}
 
 clean-local:
 	rm -f scan-constants.scm
 
-%${OBJ_EXT}: %.cpp Makefile scan.h
+%${OBJ_EXT}: %.cpp Makefile $(SCAN_HEADERS)
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
 
 ifneq ($(wildcard .depend),)
