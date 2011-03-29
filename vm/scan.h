@@ -78,7 +78,6 @@ bool get_c_port_mode(lref_t mode);
 
 lref_t charcons(_TCHAR ch);
 
-lref_t symcons(_TCHAR * pname, lref_t home);
 lref_t symcons(lref_t pname, lref_t home);
 
 lref_t simple_intern(lref_t name, lref_t package);
@@ -159,10 +158,10 @@ void blocking_input_post_eof(lref_t port);
 bool blocking_input_is_data_available(lref_t port);
 
 lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
-                         blocking_input_read_data_fn_t read_fn,
-                         blocking_input_close_port_fn_t close_fn, void *userdata);
+                           blocking_input_read_data_fn_t read_fn,
+                           blocking_input_close_port_fn_t close_fn, void *userdata);
 
-  /****** Error handling and control */
+/**** Error handling and control ****/
 
 enum vmt_options_t {
      /* Use one of these... */

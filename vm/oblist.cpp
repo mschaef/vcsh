@@ -184,14 +184,6 @@ lref_t ladd_symbol_to_package(lref_t symbol, lref_t package)
 
 /*** symbol constructor and accessors ***/
 
-lref_t symcons(_TCHAR * pname, lref_t home)
-{
-     assert(pname != NULL);
-     assert(_tcslen(pname) > 0);
-
-     return symcons(strcons(pname), home);
-}
-
 lref_t symcons(lref_t pname, lref_t home)
 {
      assert(STRINGP(pname));
@@ -305,9 +297,7 @@ lref_t lstring2uninterned_symbol(lref_t str)
      if (STRING_DIM(str) <= 0)
           vmerror_arg_out_of_range(str, _T("length > 0"));
 
-     _TCHAR *sname = get_c_string(str);
-
-     return symcons(sname, NIL);
+     return symcons(str, NIL);
 }
 
 /**** Initialization code ****/
