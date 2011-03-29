@@ -164,7 +164,6 @@ INLINE lref_t CURRENT_DEBUG_PORT()
      return interp.control_fields[VMCTRL_CURRENT_DEBUG_PORT];
 }
 
-
 /***** Debugging tools *****/
 
 void init_debugger_output();
@@ -191,7 +190,6 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
 
      return ((fixnum_t) flag == (interp.debug_flags & (fixnum_t) flag));
 }
-
 
 #define dscwritef(flag, args) \
      do { if (DEBUG_FLAG(flag)) ::scan::dscwritef_impl args; } while(0);
@@ -227,13 +225,39 @@ INLINE lref_t new_cell(typecode_t type)
      return retval;
 }
 
+/**** Startup and Shutdown Routines for subsystems ****/
 
-/* Structure base metaclass operations */
+void create_initial_packages();
+
+void init_stdio_ports();
+
+/**** Structure/Instance ****/
 
 bool init_slots(lref_t obj, lref_t initargs, bool names_must_be_symbols);
 
 void port_gc_free(lref_t port);
 lref_t port_gc_mark(lref_t obj);
+
+/**** Subr Binding ****/
+
+lref_t find_subr_by_name(lref_t subr_name);
+
+/**** Port I/O ****/
+
+extern port_class_t stderr_port_class;
+
+lref_t initialize_port(lref_t s,
+                       port_class_t * cls,
+                       lref_t port_name, port_mode_t mode,
+                       lref_t user_object, void *user_data);
+
+/**** Length and Equal ****/
+
+size_t object_length(lref_t obj);
+size_t hash_length(lref_t hash);
+size_t port_length(lref_t port);
+
+bool equalp(lref_t, lref_t);
 
 bool string_equal(lref_t a, lref_t b);
 bool hash_equal(lref_t a, lref_t b);
@@ -242,29 +266,26 @@ bool vector_equal(lref_t a, lref_t b);
 bool structure_equal(lref_t sta, lref_t stb);
 bool fast_op_equal(lref_t a, lref_t b);
 
-void create_initial_packages();
-
-void init_stdio_ports();
-
-extern port_class_t stderr_port_class;
-
-lref_t initialize_port(lref_t s,
-                     port_class_t * cls,
-                     lref_t port_name, port_mode_t mode, lref_t user_object, void *user_data);
-
-
-size_t object_length(lref_t obj);
-size_t hash_length(lref_t hash);
-size_t port_length(lref_t port);
-
-bool equalp(lref_t, lref_t);
-double round(double n);
+/**** Time ****/
 
 flonum_t time_since_launch();
 
-lref_t find_subr_by_name(lref_t subr_name);
+/**** Vector Resizing ****/
 
 lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element);
+
+/**** String I/O Support ****/
+
+int str_next_character(lref_t obj);
+void str_append_str(lref_t obj, _TCHAR * str, size_t len);
+
+/**** Macro constructor ****/
+
+lref_t macrocons(lref_t t);
+
+/**** Fast Op Constructor ****/
+
+lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t arg3);
 
 END_NAMESPACE;
 

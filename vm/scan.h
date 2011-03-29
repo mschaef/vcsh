@@ -30,10 +30,12 @@
 
 BEGIN_NAMESPACE(scan)
 
-/*** Startup/Shutdown, and custom extension ***/
+/**** Startup/Shutdown ****/
 
 void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags);
 void init(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags);
+
+lref_t run();
 
 void signal_interrupt(vminterrupt_t intr);
 
@@ -41,24 +43,25 @@ void shutdown();
 
 const _TCHAR *build_id_string();
 
-void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation);
+/**** Custom Extensions ****/
 
-lref_t run();
+void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation);
 
 /*** The evaluator ***/
 
 lref_t apply1(lref_t fn, size_t argc, lref_t argv[]);
 
-/*** Object accessors and constructors ***/
-
-lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t arg3);
+/**** Vector Constuctor ****/
 
 lref_t vectorcons(fixnum_t n, lref_t initial = NIL);
 
+/**** Lists ****/
 
 lref_t listn(long n, ...);
 lref_t listv(long n, va_list args);
 lref_t lista(size_t n, lref_t args[]);
+
+/**** Numbers ****/
 
 #define fixabs labs
 
@@ -76,6 +79,8 @@ flonum_t get_c_flonum_im(lref_t x);
 
 lref_t charcons(_TCHAR ch);
 
+/**** Strings ****/
+
 lref_t symcons(lref_t pname, lref_t home);
 
 lref_t simple_intern(lref_t name, lref_t package);
@@ -84,7 +89,7 @@ lref_t simple_intern(const _TCHAR * name, lref_t package);
 lref_t intern(lref_t name, lref_t package);
 lref_t keyword_intern(const _TCHAR * name);
 
-lref_t macrocons(lref_t t);
+/**** Strings ****/
 
 lref_t strcons();
 lref_t strcons(_TCHAR ch);
@@ -98,10 +103,7 @@ _TCHAR *get_c_string(lref_t x);
 _TCHAR *get_c_string_dim(lref_t x, size_t *);
 _TCHAR *try_get_c_string(lref_t x);
 
-
-int str_next_character(lref_t obj);
-void str_append_str(lref_t obj, _TCHAR * str, size_t len);
-
+/**** Hash Tables ****/
 
 lref_t hashcons(bool shallow, size_t size = HASH_DEFAULT_INITIAL_SIZE);
 
@@ -112,6 +114,8 @@ void hash_iter_begin(lref_t hash, hash_iter_t * iter);
 bool hash_iter_next(lref_t hash, hash_iter_t * iter, lref_t * key, lref_t * val);
 
 lref_t instancecons(lref_t proto);
+
+/**** Port I/O ****/
 
 lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,
               void *user_data);
@@ -125,20 +129,10 @@ int peek_char(lref_t port);
 void write_char(int ch, lref_t port);
 size_t write_text(const _TCHAR * buf, size_t count, lref_t port);
 
-
 bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t & result);
 bool read_binary_flonum(lref_t port, flonum_t & result);
 
-void scwritef(const _TCHAR * format_str, lref_t port, ...);
-
-void dscwritef_impl(const _TCHAR * format_str, ...);
-
-bool is_debug_flag_set(debug_flag_t flag);
-
-#define pdscwritef(flag, args) \
-     do { if (is_debug_flag_set(flag)) ::scan::dscwritef_impl args; } while(0);
-
-lref_t debug_print_object(lref_t exp, lref_t port, bool machine_readable);
+/**** Internal Files and Blocking Input Ports ****/
 
 void register_internal_file(internal_file_t *data);
 
@@ -154,6 +148,19 @@ bool blocking_input_is_data_available(lref_t port);
 lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
                            blocking_input_read_data_fn_t read_fn,
                            blocking_input_close_port_fn_t close_fn, void *userdata);
+
+/**** Formatted and Debug I/O ****/
+
+void scwritef(const _TCHAR * format_str, lref_t port, ...);
+
+void dscwritef_impl(const _TCHAR * format_str, ...);
+
+bool is_debug_flag_set(debug_flag_t flag);
+
+#define pdscwritef(flag, args) \
+     do { if (is_debug_flag_set(flag)) ::scan::dscwritef_impl args; } while(0);
+
+lref_t debug_print_object(lref_t exp, lref_t port, bool machine_readable);
 
 /**** Error handling and control ****/
 
