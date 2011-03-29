@@ -74,8 +74,6 @@ flonum_t get_c_flonum(lref_t x);
 flonum_t get_c_flonum_im(lref_t x);
 
 
-bool get_c_port_mode(lref_t mode);
-
 lref_t charcons(_TCHAR ch);
 
 lref_t symcons(lref_t pname, lref_t home);
@@ -99,10 +97,6 @@ lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer);
 _TCHAR *get_c_string(lref_t x);
 _TCHAR *get_c_string_dim(lref_t x, size_t *);
 _TCHAR *try_get_c_string(lref_t x);
-
-
-int str_next_character(lref_t obj);
-void str_append_str(lref_t obj, _TCHAR * str, size_t len);
 
 
 int str_next_character(lref_t obj);
