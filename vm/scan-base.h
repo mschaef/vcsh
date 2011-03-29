@@ -33,7 +33,7 @@
 #  error Either SCAN_WINDOWS or SCAN_UNIX must be defined to pick a platform.
 #endif
 
-#if (defined(__GNUC__) && defined(__LP64__)) || (defined(_MSC_VER) && (_INTEGRAL_MAX_BITS == 64))
+#if (defined(__GNUC__) && defined(__LP64__)) || (defined(_MSC_VER) && defined(_M_X64))
 #   define SCAN_WORDSIZE 64
 #else
 #   define SCAN_WORDSIZE 32
