@@ -207,6 +207,8 @@ port_class_t stdin_port_class = {
 void stdout_port_open(lref_t obj)
 {
      SET_PORT_FILE(obj, stdout);
+
+     PORT_TEXT_INFO(obj)->_crlf_translate = false;
 }
 
 port_class_t stdout_port_class = {
@@ -230,6 +232,8 @@ port_class_t stdout_port_class = {
 void stderr_port_open(lref_t obj)
 {
      SET_PORT_FILE(obj, stderr);
+
+     PORT_TEXT_INFO(obj)->_crlf_translate = false;
 }
 
 port_class_t stderr_port_class = {

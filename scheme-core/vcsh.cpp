@@ -25,14 +25,7 @@ void sigint_handler(int i)
 };
 
 #if !defined(NO_VCSH_STANDARD_LIBRARY)
-#  if defined(SCAN_WINDOWS)
-#    pragma warning (push)
-#    pragma warning (disable: 4335)
-#  endif
 #  include "vcsh-standard-lib-registration.i"
-#  if defined(SCAN_WINDOWS)
-#    pragma warning (pop)
-#  endif
 #endif
 
 int _tmain(int argc, _TCHAR * argv[])

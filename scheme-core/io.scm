@@ -80,6 +80,7 @@
                              ((procedure? char-specifier) char-specifier)
                              (#t (error "Invalid character specifier: ~a" char-specifier)))))
     (let ((op (open-output-string)))
+      (set-port-translate-mode! op #f)
       (let loop ((ch (peek-char port)) (ii 0))
         (cond ((or (eof-object? ch) (char-matches? ch)
                    (and length-limit (>= ii length-limit)))
