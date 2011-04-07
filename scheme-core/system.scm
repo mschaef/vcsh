@@ -31,31 +31,36 @@
 
 (define *cached-platform* #f)
 
+(define (current-platform-name)
+  (unless *cached-platform*
+    (set! *cached-platform* (system-info :platform-name)))
+  *cached-platform*)
+
 (defmacro (platform-case . case-clauses)
   "A variant of case used to pick between branches of code based on the
    currently running platform.  The car of each case clause specifies
    the platform(s) on which the body of that case clause will run.  The
    car can either be one platform name or a list of platform names. The
    platform name is the second item of the list returned by (system-info)."
-  `(begin
-     (unless *cached-platform*
-       (set! *cached-platform* (system-info :platform-name)))
-     (case *cached-platform*
-       ,@case-clauses
-       (#t (error "Unsupported platform: ~s" *cached-platform*)))))
+  `(case (current-platform-name)
+     ,@case-clauses
+     (#t (error "Unsupported platform: ~s" *cached-platform*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The Runtime Environment
 
 (define *environment-vars* #f)
 
-(define (environment-variable name)
+(define (current-environment-vars)
   (unless *environment-vars*
     (set! *environment-vars*
           (map (lambda (binding)
                  (cons (string-downcase (car binding)) (cdr binding)))
                (environment))))
-  (aif (assoc (string-downcase name) *environment-vars*)
+  *environment-vars*)
+
+(define (environment-variable name)
+  (aif (assoc (string-downcase name) (current-environment-vars))
        (cdr it)
        #f))
 
