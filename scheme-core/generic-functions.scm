@@ -69,8 +69,9 @@
 (defmacro (define-generic-function lambda-list . code)
   (unless (list? lambda-list)
     (error "Generic function lambda lists must be proper lists: ~a" lambda-list))
-  (let ((fn-name (car lambda-list))
-        (fn-args (cdr lambda-list)))
+
+  (dbind (fn-name . fn-args) lambda-list
+
     (unless (symbol? fn-name)
       (error "Generic function names must be symbols: ~a" fn-name))
     (unless (every? symbol? fn-args)
@@ -81,15 +82,13 @@
         `(begin
            (%define-global ',fn-name (%generic-function ',fn-name ,(length fn-args) ,doc-string))
 
-           ,(if (null? code)
-                `(define-method (,fn-name ,@(map #L(list _ #t) (cdr lambda-list)))
-                   (error "generic function ~a undefined on arguments of type ~a" ,function-sym
-                          (list ,@(map (lambda (arg-name) `(type-of ,arg-name)) fn-args))))
-                `(define-method (,fn-name ,@(map #L(list _ #t) (cdr lambda-list)))
-                   ,@code))
+           (define-method (,fn-name ,@(map #L(list _ #t) (cdr lambda-list)))
+             ,(if (null? code)
+                  `(error "generic function ~a undefined on arguments of type ~a" ,function-sym
+                          (list ,@(map (lambda (arg-name) `(type-of ,arg-name)) fn-args)))
+                  `(begin ,@code)))
 
            ,fn-name)))))
-
 
 (define (generic-function-signatures function)
   "Returns a list of the defined signatures of generic function <function>."
@@ -120,23 +119,27 @@
     (error "Method signatures must be lists" method-signature))
 
   (invalidate-method-list-cache!)
-  (set-property! generic-function 'method-table
-                            (%update-method-list! (get-property generic-function 'method-table)
-                                                  method-signature method-closure)))
+  (set-property! generic-function
+                 'method-table
+                 (%update-method-list! (get-property generic-function 'method-table)
+                                       method-signature method-closure)))
 
 
 (defmacro (define-method lambda-list . code)
   (unless (list? lambda-list)
     (error "Method lambda lists must be proper lists: ~a" lambda-list))
-  (let ((fn-expr (car lambda-list))
-        (fn-args (cdr lambda-list)))
+
+
+  (dbind (fn-expr . fn-args) lambda-list
 
     (unless (every? (lambda (fn-arg) (or (symbol? fn-arg)
-                                         (and (list? fn-arg) (length=2? fn-arg))))
+                                         (and (list? fn-arg)
+                                              (length=2? fn-arg))))
                     fn-args)
       (error "Method arguments must be specified as 2-element lists or symbols." fn-args))
 
     (let ((fn-args (map (lambda (fn-arg) (if (symbol? fn-arg) (list fn-arg #t) fn-arg)) fn-args)))
+
       (unless (every? (lambda (argument) (symbol? (car argument))) fn-args)
         (error "Method argument names must be symbol." fn-args))
       (unless (every? (lambda (argument) (every? valid-class-name? (cdr argument))) fn-args)

@@ -4,7 +4,6 @@ vcsh TODO
 0.6 - Janitorial Work
 --------
 * Investigate switching iterate types back to conventional symbols.
-* Get gcov working once again.
 * Add test case coverage
 * Verify correct operation of directory tools on both *nix and Windows.
 
