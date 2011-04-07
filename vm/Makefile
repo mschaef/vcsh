@@ -11,7 +11,7 @@
 # redistribution of this file, and for a DISCLAIMER OF ALL
 # WARRANTIES.
 
-.PHONY: all indented
+.PHONY: all indented coverage
 
 TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} \
         fasl-dump${EXE_EXT} scan-constants.scm TAGS
@@ -61,9 +61,13 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
 
 VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.cpp)
 
+VM_GCOV:= $(VM_OBJS:${OBJ_EXT}=.gcov)
+
 FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} constants${OBJ_EXT}
 
 FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:${OBJ_EXT}=.cpp)
+
+coverage: $(VM_GCOV)
 
 fasl-dump${EXE_EXT}: $(FASL_DUMP_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}fasl-dump${EXE_EXT}  $(FASL_DUMP_OBJS)
@@ -100,6 +104,9 @@ indented:
 
 clean-local:
 	rm -f scan-constants.scm
+
+%.gcov: %.cpp %.gcda %.gcno scansh0${EXE_EXT}
+	gcov $<
 
 %${OBJ_EXT}: %.cpp Makefile $(SCAN_HEADERS)
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
