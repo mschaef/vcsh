@@ -77,7 +77,7 @@ clean-scheme:
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
 
 %.scf: %.scm Makefile vcsh0${EXE_EXT}
-	./vcsh0${EXE_EXT} --compile --output-file=$@ $<
+	./vcsh0${EXE_EXT} --compile --output=$@ $<
 
 %.cpp: %.scf Makefile vcsh0${EXE_EXT} ../vm/to-c-source${EXE_EXT}
 	echo \#include \"../vm/scan-internal-file.h\" > $@
