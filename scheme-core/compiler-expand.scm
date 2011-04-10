@@ -123,7 +123,7 @@
   (map #L(expand-form _ at-toplevel?) form))
 
 (define (expand/begin form at-toplevel?)
-  `(begin ,@(translate-form-sequence (cdr form) #f at-toplevel?)))
+  `(begin ,@(translate-form-sequence (cdr form) at-toplevel? at-toplevel?)))
 
 (define (valid-lambda-list? l-list)
   (let valid? ((l-list l-list))
