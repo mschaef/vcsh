@@ -182,6 +182,7 @@
             (print (car obj) port machine-readable? shared-structure-map)
             (let loop ((elem 1) (xs (cdr obj)))
               (cond ((at-length-check-limit? elem)
+                     ;;; TODO: This prints, even if (= (length xs) 0).
                      (unreadable (format port " #<... n=~a>)" (length xs))))
                     ((null? xs)
                      )

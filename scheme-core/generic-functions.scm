@@ -66,34 +66,51 @@
 
     new-gf))
 
-(defmacro (define-generic-function lambda-list . code)
-  (unless (list? lambda-list)
-    (error "Generic function lambda lists must be proper lists: ~a" lambda-list))
+(define (parse-method-spec method-spec)
+  (check list? method-spec  "Method specifiers must be proper lists: ~a")
+  
+  (dbind (method-name . lambda-list) method-spec
+    (check symbol? method-name "Method names must be symbols.")
 
-  (dbind (fn-name . fn-args) lambda-list
+    (let ((lambda-list (canonicalize-method-lambda-list lambda-list)))
+      (values method-name
+              (map car lambda-list)
+              (map cadr lambda-list)))))
 
-    (unless (symbol? fn-name)
-      (error "Generic function names must be symbols: ~a" fn-name))
-    (unless (every? symbol? fn-args)
-      (error "Generic function argument names must be symbols: ~a" fn-args))
+(define (parse-generic-function-spec gf-spec)
+  (check list? gf-spec  "Generic function specifiers must be proper lists: ~a")
+  
+  (dbind (gf-name . lambda-list) gf-spec
+    (check symbol? gf-name "Generic function names must be symbols.")
 
+    (unless (every? symbol? lambda-list)
+      (error "Generic function argument names must be symbols: ~a" lambda-list))
+
+    (values gf-name
+            lambda-list)))
+
+(defmacro (define-generic-function gf-spec . code)
+
+  (mvbind (gf-name lambda-list) (parse-generic-function-spec gf-spec)
+    
     (mvbind (doc-string declarations code) (parse-code-body code)
+
       `(begin
-         (%define-global ',fn-name (%generic-function ',fn-name ,(length fn-args) ,doc-string))
 
-         (define-method (,fn-name ,@(map #L(list _ #t) (cdr lambda-list)))
+         (%define-global ',gf-name
+                         (%generic-function ',gf-name ,(length lambda-list) ,doc-string))
+
+         (define-method (,gf-name ,@(map #L(list _ #t) (cdr gf-spec)))
            ,(if (null? code)
-                `(error "generic function ~a undefined on arguments of type ~a" ',fn-name
-                        (list ,@(map (lambda (arg-name) `(type-of ,arg-name)) fn-args)))
+                `(error "generic function ~a undefined on arguments of type ~a" ',gf-name
+                        (list ,@(map (lambda (arg-name) `(type-of ,arg-name)) lambda-list)))
                 `(begin ,@code)))
-
-         ,fn-name))))
+         
+         ,gf-name))))
 
 (define (generic-function-signatures function)
   "Returns a list of the defined signatures of generic function <function>."
-  (aif (get-property function 'method-table)
-       (map car it)
-       '()))
+  (map car (get-property function 'method-table ())))
 
 (define (%update-method-list! method-list method-signature method-closure)
   "Updates <method-list> to include <method-closure> as the definition
