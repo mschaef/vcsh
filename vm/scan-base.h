@@ -214,7 +214,7 @@ typedef char _TCHAR;
 
 BEGIN_NAMESPACE(scan)
 
-#define SCAN_VERSION _T("SCAN 0.60.1")
+#define SCAN_VERSION _T("SCAN 0.60.2")
 
 enum
 {
