@@ -11,10 +11,6 @@
             "bench"
             "fast-bench"))
 
-;; To prevent timing inconsistancies caused by run-time heap
-;; expansion, expand the heap ahead of time.
-
-(scheme::%request-heap-size 64)
 
 ;;;; The benchmark result database
 
