@@ -1,10 +1,6 @@
 vcsh TODO
 ================================
 
-0.6 - Janitorial Work
---------
-* Add test case coverage
-* Verify correct operation of directory tools on both *nix and Windows.
 
 0.7 - Short-term Performance
 --------
@@ -20,6 +16,8 @@ vcsh TODO
 
 Later
 --------
+* Add test case coverage
+* Verify correct operation of directory tools on both *nix and Windows.
 * There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.
 * Add a compiler option that emits a cross reference file describing global references.
 * Remove boxed fixnums
