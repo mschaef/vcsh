@@ -78,17 +78,16 @@
       (error "Generic function argument names must be symbols: ~a" fn-args))
 
     (mvbind (doc-string declarations code) (parse-code-body code)
-      (with-gensyms (function-sym)
-        `(begin
-           (%define-global ',fn-name (%generic-function ',fn-name ,(length fn-args) ,doc-string))
+      `(begin
+         (%define-global ',fn-name (%generic-function ',fn-name ,(length fn-args) ,doc-string))
 
-           (define-method (,fn-name ,@(map #L(list _ #t) (cdr lambda-list)))
-             ,(if (null? code)
-                  `(error "generic function ~a undefined on arguments of type ~a" ,function-sym
-                          (list ,@(map (lambda (arg-name) `(type-of ,arg-name)) fn-args)))
-                  `(begin ,@code)))
+         (define-method (,fn-name ,@(map #L(list _ #t) (cdr lambda-list)))
+           ,(if (null? code)
+                `(error "generic function ~a undefined on arguments of type ~a" ',fn-name
+                        (list ,@(map (lambda (arg-name) `(type-of ,arg-name)) fn-args)))
+                `(begin ,@code)))
 
-           ,fn-name)))))
+         ,fn-name))))
 
 (define (generic-function-signatures function)
   "Returns a list of the defined signatures of generic function <function>."
@@ -115,6 +114,15 @@
   (check generic-function? generic-function)
   (check closure? method-closure)
   (check list? arg-types)
+
+  (let ((gf-arity (get-property generic-function 'generic-function-arity -1))
+        (gf-name (get-property generic-function 'name))
+        (method-arity (length arg-types)))
+    (unless (= gf-arity method-arity)
+      (error "Arity mismatch in method definition for ~a, generic function expects ~a arguments, method expects ~a."
+             gf-name
+             gf-arity
+             method-arity)))
 
   (invalidate-method-list-cache!)
   (set-property! generic-function 'method-table
@@ -148,15 +156,7 @@
               (map cadr lambda-list)))))
 
 (defmacro (define-method method-spec . code)
-  (mvbind (method-name arg-names arg-types) (parse-method-spec method-spec)
-    `(begin
-
-       (unless (= ,(length arg-names) (get-property ,method-name 'generic-function-arity -1))
-         (error "Arity mismatch in method definition for ~a, generic function expects ~a arguments, method expects ~a."
-                ',method-name
-                (get-property ,method-name 'generic-function-arity -1)
-                (length ',arg-names)))
-       
-       (%extend-generic-function ,method-name ',arg-types
-                                 (lambda (call-next-method ,@arg-names)
-                                   ,@code)))))
+  (mvbind (gf-name arg-names arg-types) (parse-method-spec method-spec)
+    `(%extend-generic-function ,gf-name ',arg-types
+                               (lambda (call-next-method ,@arg-names)
+                                 ,@code))))
