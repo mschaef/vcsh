@@ -19,7 +19,7 @@
 
 (define (internal-file-variables source-filename)
   (let ((variables ()))
-    (doiterate ((:file-lines line source-filename))
+    (doiterate ((file-lines line source-filename))
       (when (string-search "DECL_INTERNAL_FILE" line)
         (push! (second (split-string line " "))
                variables)))

@@ -10,8 +10,8 @@
   "Given a list of column names, <columns>, return an instance with the slots
    listed in <columns>, each bound to the corresponding value in <data-values>."
  (let ((instance (make-instance base-instance)))
-   (iterate/r ((:list column columns)
-               (:list data-value data-values)) ()
+   (iterate/r ((list column columns)
+               (list data-value data-values)) ()
               (slot-set! instance column data-value)
               instance)))
 

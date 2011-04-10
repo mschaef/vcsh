@@ -262,8 +262,8 @@
   (inspect-print-object-summary ctx)
   (with-inspect-printing
    ;; REVISIT: Add a paging capability, in case the list of context items is large.
-   (doiterate ((:count ii 0)
-               (:list obj-elem (inspect-ctx-items ctx)))
+   (doiterate ((count ii 0)
+               (list obj-elem (inspect-ctx-items ctx)))
      (unless (null? ctx)
        (format #t "~s" ii)
        (awhen (inspect-item-desc obj-elem)
