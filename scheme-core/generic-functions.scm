@@ -108,51 +108,55 @@
          method-list)
        (insert-ordered method-list (cons method-signature method-closure) classes<=? car)))
 
-(define (%add-generic-function-method generic-function method-signature method-closure)
-  "Adds the method defined by <method-closure>, with the signature <method-signature>,
+(define (%extend-generic-function generic-function arg-types method-closure)
+  "Adds the method defined by <method-closure>, with the signature <arg-types>,
    to <generic-function>"
-  (unless (generic-function? generic-function)
-    (error "Generic function expected" generic-function))
-  (unless (closure? method-closure)
-    (error "Closure expected" method-closure))
-  (unless (or (null? method-signature) (list? method-signature))
-    (error "Method signatures must be lists" method-signature))
+
+  (check generic-function? generic-function)
+  (check closure? method-closure)
+  (check list? arg-types)
 
   (invalidate-method-list-cache!)
-  (set-property! generic-function
-                 'method-table
+  (set-property! generic-function 'method-table
                  (%update-method-list! (get-property generic-function 'method-table)
-                                       method-signature method-closure)))
+                                       arg-types
+                                       method-closure)))
 
 
-(defmacro (define-method lambda-list . code)
-  (unless (list? lambda-list)
-    (error "Method lambda lists must be proper lists: ~a" lambda-list))
+(define (valid-type-name? type-name)
+  (or (symbol? type-name)
+      (eq? type-name #t)))
 
+(define (canonicalize-method-lambda-list lambda-list)
+  (check list? lambda-list "Method lambda lists must be proper lists.")
+  (let ((canonical-lambda-list (map #L(if (atom? _) (list _ #t) _) lambda-list)))
+    (dolist (formal canonical-lambda-list)
+      (check (and list? length=2?) formal "Method arguments must be two element lists or symbols.")
+      (check symbol? (first formal) "Method argument names must be symbols.")
+      (check valid-type-name? (second formal)))
+    canonical-lambda-list))
 
-  (dbind (fn-expr . fn-args) lambda-list
+(define (parse-method-spec method-spec)
+  (check list? method-spec  "Method specifiers must be proper lists: ~a")
+  
+  (dbind (method-name . lambda-list) method-spec
+    (check symbol? method-name "Method names must be symbols.")
 
-    (unless (every? (lambda (fn-arg) (or (symbol? fn-arg)
-                                         (and (list? fn-arg)
-                                              (length=2? fn-arg))))
-                    fn-args)
-      (error "Method arguments must be specified as 2-element lists or symbols." fn-args))
+    (let ((lambda-list (canonicalize-method-lambda-list lambda-list)))
+      (values method-name
+              (map car lambda-list)
+              (map cadr lambda-list)))))
 
-    (let ((fn-args (map (lambda (fn-arg) (if (symbol? fn-arg) (list fn-arg #t) fn-arg)) fn-args)))
+(defmacro (define-method method-spec . code)
+  (mvbind (method-name arg-names arg-types) (parse-method-spec method-spec)
+    `(begin
 
-      (unless (every? (lambda (argument) (symbol? (car argument))) fn-args)
-        (error "Method argument names must be symbol." fn-args))
-      (unless (every? (lambda (argument) (every? valid-class-name? (cdr argument))) fn-args)
-        (error "Methods argument types must be classes." fn-args))
-
-      (let ((fn-arg-names (map car fn-args))
-            (fn-signature (map cadr fn-args)))
-        `(begin
-           (unless (= ,(length fn-args) (get-property ,fn-expr 'generic-function-arity -1))
-             (error "Arity mismatch in method definition for ~a, generic function expects ~a arguments, method expects ~a."
-                    ',fn-expr
-                    (get-property ,fn-expr 'generic-function-arity -1)
-                    (length ',fn-args)))
-
-           (%add-generic-function-method ,fn-expr ',fn-signature
-                                         (lambda (call-next-method ,@fn-arg-names)  ,@code)))))))
+       (unless (= ,(length arg-names) (get-property ,method-name 'generic-function-arity -1))
+         (error "Arity mismatch in method definition for ~a, generic function expects ~a arguments, method expects ~a."
+                ',method-name
+                (get-property ,method-name 'generic-function-arity -1)
+                (length ',arg-names)))
+       
+       (%extend-generic-function ,method-name ',arg-types
+                                 (lambda (call-next-method ,@arg-names)
+                                   ,@code)))))
