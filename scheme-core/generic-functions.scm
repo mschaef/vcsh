@@ -97,8 +97,8 @@
 
       `(begin
 
-         (%define-global ',gf-name
-                         (%generic-function ',gf-name ,(length lambda-list) ,doc-string))
+         (define ,gf-name
+           (%generic-function ',gf-name ,(length lambda-list) ,doc-string))
 
          (define-method (,gf-name ,@(map #L(list _ #t) (cdr gf-spec)))
            ,(if (null? code)
