@@ -21,9 +21,18 @@ BEGIN_NAMESPACE(scan)
 
 /**** Global Interpreter State ****/
 
+struct gc_root_t
+{
+     const _TCHAR *name;
+     lref_t *location;
+     size_t length;
+};
+
 struct frame_t
 {
      frame_type_t type;
+
+     frame_t *last_fsp;
 
      union
      {
@@ -48,14 +57,6 @@ struct frame_t
           } prim;
      } as;
 };
-
-struct gc_root_t
-{
-     const _TCHAR *name;
-     lref_t *location;
-     size_t length;
-};
-
 
 struct interpreter_thread_info_block_t
 {
@@ -89,8 +90,8 @@ struct interpreter_t
      /* Debugger flags. */
      debug_flag_t debug_flags;
 
-     vminterrupt_t interrupts_pending;
-     bool interrupts_masked;
+     vminterrupt_t intr_pending;
+     bool intr_masked;
 
      lref_t trap_handlers[TRAP_LAST + 1];
 

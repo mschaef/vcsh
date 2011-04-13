@@ -1,7 +1,6 @@
 vcsh TODO
 ================================
 
-
 0.7 - Short-term Performance
 --------
 * Switch Lisp stack to lref_t's

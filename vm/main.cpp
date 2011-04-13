@@ -571,8 +571,8 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.init_load_file_count = 0;
 
-     interp.interrupts_pending = VMINTR_NONE;
-     interp.interrupts_masked = false;
+     interp.intr_pending = VMINTR_NONE;
+     interp.intr_masked = false;
 
      interp.launch_realtime = sys_runtime();
 
@@ -596,6 +596,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.gc_start_time = 0.0;
 
      interp.thread.fsp = &(interp.thread.frame_stack[0]);
+     interp.thread.fsp->last_fsp = interp.thread.fsp;
 
      process_vm_arguments(argc, argv);
 
