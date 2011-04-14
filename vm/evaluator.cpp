@@ -354,18 +354,20 @@ EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t * e
      return NIL;
 }
 
-static frame_t *find_throw_target(frame_t *start_at, lref_t tag)
+static frame_t *find_throw_target(frame_t *start_frame, lref_t tag)
 {
      if (CURRENT_TIB()->throw_target != NULL)
-          start_at = CURRENT_TIB()->throw_target - 1;
+          start_frame = CURRENT_TIB()->throw_target - 1;
 
-     for(frame_t *fsp = start_at; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
+     for(frame_t *frame = start_frame;
+         frame > &(CURRENT_TIB()->frame_stack[0]);
+         frame--)
      {
-          if (fsp->type != FRAME_EX_TRY)
+          if (frame->type != FRAME_EX_TRY)
                continue;
 
-          if (NULLP(fsp->as.escape.tag) || EQ(fsp->as.escape.tag, tag))
-               return fsp;
+          if (NULLP(frame->as.escape.tag) || EQ(frame->as.escape.tag, tag))
+               return frame;
      }
 
      return NULL;
@@ -373,31 +375,31 @@ static frame_t *find_throw_target(frame_t *start_at, lref_t tag)
 
 void unwind_stack_for_throw()
 {
-     for(frame_t *fsp = CURRENT_TIB()->fsp;
-         fsp > &(CURRENT_TIB()->frame_stack[0]);
-         fsp--)
+     for(frame_t *frame = CURRENT_TIB()->fsp;
+         frame > &(CURRENT_TIB()->frame_stack[0]);
+         frame--)
      {
-          if (fsp->type == FRAME_EX_UNWIND)
+          if (frame->type == FRAME_EX_UNWIND)
           {
                dscwritef(DF_SHOW_THROWS,
-                         (_T("; DEBUG: throw invoking unwind : ~c&\n"), fsp));
+                         (_T("; DEBUG: throw invoking unwind : ~c&\n"), frame));
 
-               apply1(fsp->as.unwind.after, 0, NULL);
+               apply1(frame->as.unwind.after, 0, NULL);
 
                continue;
           }
 
-          if (fsp->type != FRAME_EX_TRY)
+          if (frame->type != FRAME_EX_TRY)
                continue;
 
-          if (fsp == CURRENT_TIB()->throw_target)
+          if (frame == CURRENT_TIB()->throw_target)
           {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, fsp));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, frame));
 
                CURRENT_TIB()->throw_target = NULL;
-               CURRENT_TIB()->fsp = fsp;
+               CURRENT_TIB()->fsp = frame;
 
-               longjmp(CURRENT_TIB()->fsp->as.escape.cframe, 1);
+               longjmp(frame->as.escape.cframe, 1);
           }
      }
 }
@@ -634,11 +636,11 @@ loop:
      {
           lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
 
-          frame_t *__frame = enter_frame();
-          __frame->type = FRAME_EX_TRY;
-          __frame->as.escape.tag = tag;
+          frame_t *frame = enter_frame();
+          frame->type = FRAME_EX_TRY;
+          frame->as.escape.tag = tag;
 
-          if (setjmp(CURRENT_TIB()->fsp->as.escape.cframe) == 0)
+          if (setjmp(frame->as.escape.cframe) == 0)
           {
                retval = execute_fast_op(FAST_OP_ARG2(fop), env);
           }
@@ -682,7 +684,7 @@ loop:
           break;
 
      case FOP_GET_FSP:
-          retval = fixcons((fixnum_t)CURRENT_TIB()->fsp++);
+          retval = fixcons((fixnum_t)CURRENT_TIB()->fsp++); // XXX: Why does this update FSP?
           break;
 
      case FOP_GET_HFRAMES:
@@ -771,33 +773,33 @@ lref_t lget_current_frames(lref_t sc)
 
      fixnum_t frame_count = 0;
 
-     frame_t *fsp = CURRENT_TIB()->fsp;
-
-     for(; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
+     for(frame_t *frame = CURRENT_TIB()->fsp;
+         frame > &(CURRENT_TIB()->frame_stack[0]);
+         frame--)
      {
           lref_t frame_obj = NIL;
 
           frame_count++;
 
-          switch (fsp->type)
+          switch (frame->type)
           {
           case FRAME_EVAL:
                frame_obj = listn(3,
-                                 *fsp->as.eval.form,
-                                 fsp->as.eval.initial_form,
-                                 fsp->as.eval.env);
+                                 *frame->as.eval.form,
+                                 frame->as.eval.initial_form,
+                                 frame->as.eval.env);
                break;
 
           case FRAME_EX_TRY:
-               frame_obj = listn(1, fsp->as.escape.tag);
+               frame_obj = listn(1, frame->as.escape.tag);
                break;
 
           case FRAME_EX_UNWIND:
-               frame_obj = listn(1, fsp->as.unwind.after);
+               frame_obj = listn(1, frame->as.unwind.after);
                break;
 
           case FRAME_PRIMITIVE:
-               frame_obj = listn(1, fsp->as.prim.function);
+               frame_obj = listn(1, frame->as.prim.function);
                break;
 
           default:
@@ -805,7 +807,7 @@ lref_t lget_current_frames(lref_t sc)
                break;
           }
 
-          frame_obj = lcons(fixcons(fsp->type), lcons(fixcons((fixnum_t)fsp), frame_obj));
+          frame_obj = lcons(fixcons(frame->type), lcons(fixcons((fixnum_t)frame), frame_obj));
 
           if (frame_count >= skip_count)
                frames = lcons(frame_obj, frames);
@@ -816,10 +818,12 @@ lref_t lget_current_frames(lref_t sc)
 
 lref_t topmost_primitive()
 {
-     for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
+     for(frame_t *frame = CURRENT_TIB()->fsp;
+         frame > &(CURRENT_TIB()->frame_stack[0]);
+         frame--)
      {
-          if (fsp->type == FRAME_PRIMITIVE)
-               return fsp->as.prim.function;
+          if (frame->type == FRAME_PRIMITIVE)
+               return frame->as.prim.function;
      }
 
      return NIL;
