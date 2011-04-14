@@ -282,8 +282,6 @@ static void register_main_subrs()
     register_subr(_T("%property-list"),                   SUBR_1,     (void*)lproperty_list                      );
     register_subr(_T("%request-heap-size"),               SUBR_1,     (void*)lirequest_heap_size                 );
 
-    register_subr(_T("enlarge-heap"),                     SUBR_1,     (void*)lirequest_heap_size                 );
-
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );
     register_subr(_T("%set-closure-env"),                 SUBR_2,     (void*)lset_closure_env                    );
     register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
