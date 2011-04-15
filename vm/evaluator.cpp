@@ -684,7 +684,7 @@ loop:
           break;
 
      case FOP_GET_FSP:
-          retval = fixcons((fixnum_t)CURRENT_TIB()->fsp++); // XXX: Why does this update FSP?
+          retval = fixcons((fixnum_t)CURRENT_TIB()->fsp);
           break;
 
      case FOP_GET_HFRAMES:
