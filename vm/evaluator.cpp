@@ -272,9 +272,9 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
 {
      UNREFERENCED(env);
 
-     frame_t  *__frame = enter_frame();
-     __frame->type              = FRAME_PRIMITIVE;
-     __frame->as.prim.function  = function;
+     frame_t  *frame = enter_frame();
+     frame->type              = FRAME_PRIMITIVE;
+     frame->as.prim.function  = function;
 
      switch (SUBR_TYPE(function))
      {
@@ -433,11 +433,11 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
 
      STACK_CHECK(&fop);
 
-     frame_t *__frame = enter_frame();
-     __frame->type                 = FRAME_EVAL;
-     __frame->as.eval.form         = &fop;
-     __frame->as.eval.initial_form = fop;
-     __frame->as.eval.env          = env;
+     frame_t *frame = enter_frame();
+     frame->type                 = FRAME_EVAL;
+     frame->as.eval.form         = &fop;
+     frame->as.eval.initial_form = fop;
+     frame->as.eval.env          = env;
 
 loop:
      _process_interrupts();
@@ -666,13 +666,13 @@ loop:
 
      case FOP_WITH_UNWIND_FN:
      {
-          frame_t *__frame = enter_frame();
-          __frame->type = FRAME_EX_UNWIND;
-          __frame->as.unwind.after = execute_fast_op(FAST_OP_ARG1(fop), env);
+          frame_t *frame = enter_frame();
+          frame->type = FRAME_EX_UNWIND;
+          frame->as.unwind.after = execute_fast_op(FAST_OP_ARG1(fop), env);
 
           retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
-          lref_t after = __frame->as.unwind.after;
+          lref_t after = frame->as.unwind.after;
 
           leave_frame();
 
