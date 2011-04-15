@@ -21,13 +21,6 @@ BEGIN_NAMESPACE(scan)
 
 /**** Global Interpreter State ****/
 
-struct gc_root_t
-{
-     const _TCHAR *name;
-     lref_t *location;
-     size_t length;
-};
-
 struct frame_t
 {
      frame_type_t type;
@@ -56,6 +49,14 @@ struct frame_t
                lref_t function;
           } prim;
      } as;
+};
+
+
+struct gc_root_t
+{
+     const _TCHAR *name;
+     lref_t *location;
+     size_t length;
 };
 
 struct interpreter_thread_info_block_t

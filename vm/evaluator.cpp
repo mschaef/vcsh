@@ -244,13 +244,14 @@ lref_t lenvlookup(lref_t var, lref_t env)
 
 EVAL_INLINE frame_t *enter_frame()
 {
-     CURRENT_TIB()->fsp++;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp + 1;
+
      return CURRENT_TIB()->fsp;
 }
 
 EVAL_INLINE void leave_frame()
 {
-     CURRENT_TIB()->fsp--;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
 }
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
