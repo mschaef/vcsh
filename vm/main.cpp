@@ -594,7 +594,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      interp.gc_start_time = 0.0;
 
      interp.thread.fsp = &(interp.thread.frame_stack[FRAME_STACK_SIZE - 1]);
-     interp.thread.fsp->last_fsp = NULL;
+     interp.thread.fsp->prev_frame = NULL;
 
      process_vm_arguments(argc, argv);
 

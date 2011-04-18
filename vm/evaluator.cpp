@@ -248,16 +248,16 @@ EVAL_INLINE frame_t *enter_frame()
 
      CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
 
-     CURRENT_TIB()->fsp->last_fsp = last_fsp;
+     CURRENT_TIB()->fsp->prev_frame = last_fsp;
 
      return CURRENT_TIB()->fsp;
 }
 
 EVAL_INLINE void leave_frame()
 {
-     frame_t *last_fsp = CURRENT_TIB()->fsp->last_fsp;
+     frame_t *last_fsp = CURRENT_TIB()->fsp->prev_frame;
 
-     CURRENT_TIB()->fsp->last_fsp = NULL;
+     CURRENT_TIB()->fsp->prev_frame = NULL;
 
      CURRENT_TIB()->fsp = last_fsp;
 }
@@ -370,7 +370,7 @@ static frame_t *find_throw_target(frame_t *start_frame, lref_t tag)
 
      for(frame_t *frame = start_frame;
          frame != NULL;
-         frame = frame->last_fsp)
+         frame = frame->prev_frame)
      {
           if (frame->type != FRAME_EX_TRY)
                continue;
@@ -386,7 +386,7 @@ void unwind_stack_for_throw()
 {
      for(frame_t *frame = CURRENT_TIB()->fsp;
          frame != NULL;
-         frame = frame->last_fsp)
+         frame = frame->prev_frame)
      {
           if (frame->type == FRAME_EX_UNWIND)
           {
@@ -784,7 +784,7 @@ lref_t lget_current_frames(lref_t sc)
 
      for(frame_t *frame = CURRENT_TIB()->fsp;
          frame != NULL;
-         frame = frame->last_fsp)
+         frame = frame->prev_frame)
      {
           lref_t frame_obj = NIL;
 
@@ -829,7 +829,7 @@ lref_t topmost_primitive()
 {
      for(frame_t *frame = CURRENT_TIB()->fsp;
          frame != NULL;
-         frame = frame->last_fsp)
+         frame = frame->prev_frame)
      {
           if (frame->type == FRAME_PRIMITIVE)
                return frame->as.prim.function;

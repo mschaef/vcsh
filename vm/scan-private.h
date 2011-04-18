@@ -25,7 +25,7 @@ struct frame_t
 {
      frame_type_t type;
 
-     frame_t *last_fsp;
+     frame_t *prev_frame;
 
      union
      {
