@@ -53,19 +53,21 @@ void scan_postmortem_dump()
 {
      lref_t oport = CURRENT_DEBUG_PORT();
 
-     for(frame_t *fsp = CURRENT_TIB()->fsp; fsp > &(CURRENT_TIB()->frame_stack[0]); fsp--)
+     for(frame_t *frame = CURRENT_TIB()->frame;
+         frame != NULL;
+         frame = frame->prev_frame)
      {
-          scwritef(_T("\n*** FSP=~cd: "), oport, fsp);
+          scwritef(_T("\n*** FRAME=~cd: "), oport, frame);
 
-          switch (fsp->type)
+          switch (frame->type)
           {
           case FRAME_EVAL:
-               scwritef(_T("eval > ~s in ~s\n"), oport, *fsp->as.eval.form,
-                        fsp->as.eval.initial_form);
+               scwritef(_T("eval > ~s in ~s\n"), oport, *frame->as.eval.form,
+                        frame->as.eval.initial_form);
                break;
 
           case FRAME_EX_TRY:
-               scwritef(_T("try > ~s\n"), oport, fsp->as.escape.tag);
+               scwritef(_T("try > ~s\n"), oport, frame->as.escape.tag);
                break;
 
           case FRAME_EX_UNWIND:
@@ -73,7 +75,7 @@ void scan_postmortem_dump()
                break;
 
           case FRAME_PRIMITIVE:
-               scwritef(_T("primitive > ~s\n"), oport, fsp->as.prim.function);
+               scwritef(_T("primitive > ~s\n"), oport, frame->as.prim.function);
                break;
 
           default:
