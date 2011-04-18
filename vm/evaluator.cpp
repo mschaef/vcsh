@@ -246,7 +246,7 @@ EVAL_INLINE frame_t *enter_frame()
 {
      frame_t *last_fsp = CURRENT_TIB()->fsp;
 
-     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp + 1;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
 
      CURRENT_TIB()->fsp->last_fsp = last_fsp;
 
@@ -369,8 +369,8 @@ static frame_t *find_throw_target(frame_t *start_frame, lref_t tag)
           start_frame = CURRENT_TIB()->throw_target - 1;
 
      for(frame_t *frame = start_frame;
-         frame > &(CURRENT_TIB()->frame_stack[0]);
-         frame--)
+         frame != NULL;
+         frame = frame->last_fsp)
      {
           if (frame->type != FRAME_EX_TRY)
                continue;
