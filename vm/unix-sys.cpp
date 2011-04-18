@@ -408,16 +408,25 @@ panic_handler_t set_panic_handler(panic_handler_t new_handler)
      return old_handler;
 }
 
+// REVISIT: Migrate this to common code
+
+static bool in_panic = false;
 
 void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno)
 {
      _TCHAR buf[MESSAGE_BUF_SIZE];
-     _sntprintf(buf, MESSAGE_BUF_SIZE, "Fatal Error: %s @ (%s:%ld)\n", str, filename, lineno);
+
+     _sntprintf(buf, MESSAGE_BUF_SIZE,
+                in_panic ? "Double Panic, Aborting: %s @ (%s:%ld)\n" : "Panic: %s @ (%s:%ld)\n",
+                str, filename, lineno);
 
      output_debug_string(buf);
 
-     if (current_panic_handler)
+     if (!in_panic && (current_panic_handler != NULL))
+     {
+          in_panic = true;
           current_panic_handler();
+     }
 
      exit(1);
 }
