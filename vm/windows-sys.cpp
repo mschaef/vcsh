@@ -371,16 +371,14 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
  * standard debugging output.
  */
 
-  enum { MESSAGE_BUF_SIZE = 256 };
-
   extern "C" int debug_printf(const _TCHAR *format, ...)
   {
     int i;
     va_list args;
-    _TCHAR buf[MESSAGE_BUF_SIZE];
+    _TCHAR buf[DEBUG_MESSAGE_BUF_SIZE];
 
     va_start(args, format);
-    i = _vsntprintf(buf, MESSAGE_BUF_SIZE, format, args);
+    i = _vsntprintf(buf, DEBUG_MESSAGE_BUF_SIZE, format, args);
     va_end(args);
 
     OutputDebugString(buf);
@@ -406,24 +404,11 @@ void sys_abnormally_terminate_vm(int rc)
      exit(rc);
 }
 
-  void _panic(const _TCHAR *str, const _TCHAR *filename, long lineno)
+  void sys_output_debug_string(const _TCHAR *str)
   {
-    _TCHAR buf[MESSAGE_BUF_SIZE];
-    _sntprintf(buf, MESSAGE_BUF_SIZE, "Panic: %s @ (%s:%d)\n", str, filename, lineno);
-
     fprintf(stderr, "%s", buf);
     fflush(stderr);
 
-    OutputDebugString(buf);
-
-    if (current_panic_handler)
-      current_panic_handler();
-
-    sys_abnormally_terminate_vm(1);
-  }
-
-  void sys_output_debug_string(const _TCHAR *str)
-  {
     OutputDebugString(str);
   }
 

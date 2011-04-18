@@ -214,7 +214,7 @@ typedef char _TCHAR;
 
 BEGIN_NAMESPACE(scan)
 
-#define SCAN_VERSION _T("SCAN 0.60.2")
+#define SCAN_VERSION _T("SCAN 0.60.3")
 
 enum
 {
@@ -279,6 +279,9 @@ enum
 
      /* The maximum size of blocks of text sent to the debug port. */
      DEBUG_PORT_BLOCK_SIZE = 256,
+
+     /* The buffer size used for debugging messages */
+     DEBUG_MESSAGE_BUF_SIZE = 256,
 
 #if defined(WITH_FOPLOG_SUPPORT)
      /* The number of FOPs that can be recorded in the FOPLOG */

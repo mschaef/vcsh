@@ -375,17 +375,14 @@ void sys_output_debug_string(const _TCHAR * str)
      fputs(str, stderr);
 }
 
-enum
-{ MESSAGE_BUF_SIZE = 256 };
-
 int debug_printf(const _TCHAR * format, ...)
 {
      int i;
      va_list args;
-     _TCHAR buf[MESSAGE_BUF_SIZE];
+     _TCHAR buf[DEBUG_MESSAGE_BUF_SIZE];
 
      va_start(args, format);
-     i = _vsntprintf(buf, MESSAGE_BUF_SIZE, format, args);
+     i = _vsntprintf(buf, DEBUG_MESSAGE_BUF_SIZE, format, args);
      va_end(args);
 
      sys_output_debug_string(buf);
@@ -397,43 +394,9 @@ int debug_printf(const _TCHAR * format, ...)
  * Panic Handling
  */
 
-static panic_handler_t current_panic_handler = NULL;
-
-panic_handler_t set_panic_handler(panic_handler_t new_handler)
-{
-     panic_handler_t old_handler = current_panic_handler;
-
-     current_panic_handler = new_handler;
-
-     return old_handler;
-}
-
 void sys_abnormally_terminate_vm(int rc)
 {
      exit(rc);
-}
-
-// REVISIT: Migrate this to common code
-
-static bool in_panic = false;
-
-void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno)
-{
-     _TCHAR buf[MESSAGE_BUF_SIZE];
-
-     _sntprintf(buf, MESSAGE_BUF_SIZE,
-                in_panic ? "Double Panic, Aborting: %s @ (%s:%ld)\n" : "Panic: %s @ (%s:%ld)\n",
-                str, filename, lineno);
-
-     sys_output_debug_string(buf);
-
-     if (!in_panic && (current_panic_handler != NULL))
-     {
-          in_panic = true;
-          current_panic_handler();
-     }
-
-     sys_abnormally_terminate_vm(1);
 }
 
 void sys_debug_break()

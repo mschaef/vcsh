@@ -43,6 +43,16 @@ void shutdown();
 
 const _TCHAR *build_id_string();
 
+/**** Fatal Errors ****/
+
+typedef void (*panic_handler_t) (void);
+
+panic_handler_t set_panic_handler(panic_handler_t new_handler);
+
+void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno);
+
+#define panic(str) scan::_panic(str, __FILE__, __LINE__)
+
 /**** Custom Extensions ****/
 
 void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation);

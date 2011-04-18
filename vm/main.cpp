@@ -43,6 +43,7 @@ static void scan_panic_handler()
           previous_panic_handler();
 }
 
+
 /* Command line argument handling. Arguments are divided into two classes:
  *
  * 1) VM arguments are handled before the VM gets set up and are not passed

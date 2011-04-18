@@ -45,14 +45,6 @@ BEGIN_NAMESPACE(scan)
 
 void sys_abnormally_terminate_vm(int rc);
 
-typedef void (*panic_handler_t) (void);
-
-panic_handler_t set_panic_handler(panic_handler_t new_handler);
-
-void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno);
-
-#define panic(str) scan::_panic(str, __FILE__, __LINE__)
-
 #ifdef CHECKED
 #	define checked_assert(exp) assert(exp)
 #else
@@ -61,9 +53,8 @@ void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno);
 
 enum
 {
-
      DEFAULT_STACK_SIZE = 1024 * 1024,   /* The default stack size for a newly created thread */
-     SECONDS_PER_MINUTE = 60    /* bar */
+     SECONDS_PER_MINUTE = 60
 };
 
 typedef time_t sys_time_t;
