@@ -16,6 +16,41 @@
 
 BEGIN_NAMESPACE(scan)
 
+/*** Interpreter Panic ***/
+
+static panic_handler_t current_panic_handler = NULL;
+
+panic_handler_t set_panic_handler(panic_handler_t new_handler)
+{
+     panic_handler_t old_handler = current_panic_handler;
+
+     current_panic_handler = new_handler;
+
+     return old_handler;
+}
+
+static bool in_panic = false;
+
+void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno)
+{
+     _TCHAR buf[DEBUG_MESSAGE_BUF_SIZE];
+
+     _sntprintf(buf, DEBUG_MESSAGE_BUF_SIZE,
+                in_panic ? "Double Panic, Aborting: %s @ (%s:%ld)\n" : "Panic: %s @ (%s:%ld)\n",
+                str, filename, lineno);
+
+     sys_output_debug_string(buf);
+
+     if (!in_panic && (current_panic_handler != NULL))
+     {
+          in_panic = true;
+          current_panic_handler();
+     }
+
+     sys_abnormally_terminate_vm(1);
+}
+
+/*** Default Error Handlers ***/
 
 void vmerror_stack_overflow(uint8_t * obj)
 {
@@ -25,7 +60,7 @@ void vmerror_stack_overflow(uint8_t * obj)
 
      /* TODO: Stack overflow should throw out to a catch block and then
       * invoke a overflow handler.
-      * 
+      *
       * REVISIT: Should the user be allowed to continue after an overflow? */
 }
 

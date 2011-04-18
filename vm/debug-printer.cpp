@@ -245,8 +245,6 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
-     STACK_CHECK(&obj);
-
      if (DEBUG_FLAG(DF_PRINT_ADDRESSES))
           scwritef("#@~c&=", port, obj);
 
@@ -735,7 +733,7 @@ size_t debug_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 
           block[block_loc] = '\0';
 
-          output_debug_string(block);
+          sys_output_debug_string(block);
      }
 
      return len;

@@ -371,16 +371,14 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
  * standard debugging output.
  */
 
-  enum { MESSAGE_BUF_SIZE = 256 };
-
   extern "C" int debug_printf(const _TCHAR *format, ...)
   {
     int i;
     va_list args;
-    _TCHAR buf[MESSAGE_BUF_SIZE];
+    _TCHAR buf[DEBUG_MESSAGE_BUF_SIZE];
 
     va_start(args, format);
-    i = _vsntprintf(buf, MESSAGE_BUF_SIZE, format, args);
+    i = _vsntprintf(buf, DEBUG_MESSAGE_BUF_SIZE, format, args);
     va_end(args);
 
     OutputDebugString(buf);
@@ -388,48 +386,29 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
     return i;
   }
 
-  static panic_handler_t current_panic_handler = NULL;
+void sys_debug_break(); /*  REVISIT: where does this prototype really go? */
 
-  panic_handler_t set_panic_handler(panic_handler_t new_handler)
+void sys_abnormally_terminate_vm(int rc)
+{
+     exit(rc);
+}
+
+  void sys_output_debug_string(const _TCHAR *str)
   {
-    panic_handler_t old_handler = current_panic_handler;
-
-    current_panic_handler = new_handler;
-
-    return old_handler;
-  }
-
-     void debug_break(); /*  REVISIT: where does this prototype really go? */
-
-  void _panic(const _TCHAR *str, const _TCHAR *filename, long lineno)
-  {
-    _TCHAR buf[MESSAGE_BUF_SIZE];
-    _sntprintf(buf, MESSAGE_BUF_SIZE, "Panic: %s @ (%s:%d)\n", str, filename, lineno);
-
-    fprintf(stderr, "%s", buf);
+    fprintf(stderr, "%s", str);
     fflush(stderr);
 
-    OutputDebugString(buf);
-
-    if (current_panic_handler)
-      current_panic_handler();
-
-    exit(1);
-  }
-
-  void output_debug_string(const _TCHAR *str)
-  {
     OutputDebugString(str);
   }
 
-  void debug_break()
+  void sys_debug_break()
   {
 #if defined(_MSC_VER)
     __debugbreak();
 #elif defined(__GNUC__)
     __asm__ __volatile__ ("int3");
 #else
-#error debug_break not supported.
+#error sys_debug_break not supported.
 #endif
   }
 
