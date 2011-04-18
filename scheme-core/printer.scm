@@ -83,7 +83,7 @@
   "Returns #t if a sequence element in position <elem> should
    not be displayed due to the length limit check."
   (and (exact? *print-length*)
-       (> elem *print-length*)))
+       (>= elem *print-length*)))
 
 (define (maybe-rich-write obj machine-readable? port)
   "Returns <port> if <obj> was successfully rich written to
@@ -182,8 +182,9 @@
             (print (car obj) port machine-readable? shared-structure-map)
             (let loop ((elem 1) (xs (cdr obj)))
               (cond ((at-length-check-limit? elem)
-                     ;;; TODO: This prints, even if (= (length xs) 0).
-                     (unreadable (format port " #<... n=~a>)" (length xs))))
+                     (let ((len (length xs)))
+                       (when (> len 0)
+                         (unreadable (format port " #<... n=~a>" (length xs))))))
                     ((null? xs)
                      )
                     ((or (atom? xs)
@@ -242,7 +243,10 @@
     (write-strings port "#(")
     (let loop ((ii 0) (need-space? #f))
       (cond ((at-length-check-limit? ii)
-             (unreadable (format port " #<... n=~a>)" (- (length obj) ii))))
+             (let ((len (- (length obj) ii)))
+               (when (> len 0)
+                 (unreadable (format port " #<... n=~a>" (- (length obj) ii))))
+               (format port ")")))
             ((< ii (length obj))
              (when need-space?
                (write-strings port " "))
