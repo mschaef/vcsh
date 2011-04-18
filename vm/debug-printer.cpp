@@ -245,8 +245,6 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
-     STACK_CHECK(&obj);
-
      if (DEBUG_FLAG(DF_PRINT_ADDRESSES))
           scwritef("#@~c&=", port, obj);
 
