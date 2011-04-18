@@ -386,17 +386,6 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
     return i;
   }
 
-  static panic_handler_t current_panic_handler = NULL;
-
-  panic_handler_t set_panic_handler(panic_handler_t new_handler)
-  {
-    panic_handler_t old_handler = current_panic_handler;
-
-    current_panic_handler = new_handler;
-
-    return old_handler;
-  }
-
 void sys_debug_break(); /*  REVISIT: where does this prototype really go? */
 
 void sys_abnormally_terminate_vm(int rc)
@@ -406,7 +395,7 @@ void sys_abnormally_terminate_vm(int rc)
 
   void sys_output_debug_string(const _TCHAR *str)
   {
-    fprintf(stderr, "%s", buf);
+    fprintf(stderr, "%s", str);
     fflush(stderr);
 
     OutputDebugString(str);
