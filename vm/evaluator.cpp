@@ -385,8 +385,8 @@ static frame_t *find_throw_target(frame_t *start_frame, lref_t tag)
 void unwind_stack_for_throw()
 {
      for(frame_t *frame = CURRENT_TIB()->fsp;
-         frame > &(CURRENT_TIB()->frame_stack[0]);
-         frame--)
+         frame != NULL;
+         frame = frame->last_fsp)
      {
           if (frame->type == FRAME_EX_UNWIND)
           {
@@ -783,8 +783,8 @@ lref_t lget_current_frames(lref_t sc)
      fixnum_t frame_count = 0;
 
      for(frame_t *frame = CURRENT_TIB()->fsp;
-         frame > &(CURRENT_TIB()->frame_stack[0]);
-         frame--)
+         frame != NULL;
+         frame = frame->last_fsp)
      {
           lref_t frame_obj = NIL;
 
@@ -828,8 +828,8 @@ lref_t lget_current_frames(lref_t sc)
 lref_t topmost_primitive()
 {
      for(frame_t *frame = CURRENT_TIB()->fsp;
-         frame > &(CURRENT_TIB()->frame_stack[0]);
-         frame--)
+         frame != NULL;
+         frame = frame->last_fsp)
      {
           if (frame->type == FRAME_PRIMITIVE)
                return frame->as.prim.function;
