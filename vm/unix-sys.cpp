@@ -370,7 +370,7 @@ static sys_retcode_t rc_to_sys_retcode_t(int rc)
  * Debug I/O
  */
 
-void output_debug_string(const _TCHAR * str)
+void sys_output_debug_string(const _TCHAR * str)
 {
      fputs(str, stderr);
 }
@@ -388,7 +388,7 @@ int debug_printf(const _TCHAR * format, ...)
      i = _vsntprintf(buf, MESSAGE_BUF_SIZE, format, args);
      va_end(args);
 
-     output_debug_string(buf);
+     sys_output_debug_string(buf);
 
      return i;
 }
@@ -408,6 +408,11 @@ panic_handler_t set_panic_handler(panic_handler_t new_handler)
      return old_handler;
 }
 
+void sys_abnormally_terminate_vm(int rc)
+{
+     exit(rc);
+}
+
 // REVISIT: Migrate this to common code
 
 static bool in_panic = false;
@@ -420,7 +425,7 @@ void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno)
                 in_panic ? "Double Panic, Aborting: %s @ (%s:%ld)\n" : "Panic: %s @ (%s:%ld)\n",
                 str, filename, lineno);
 
-     output_debug_string(buf);
+     sys_output_debug_string(buf);
 
      if (!in_panic && (current_panic_handler != NULL))
      {
@@ -428,10 +433,10 @@ void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno)
           current_panic_handler();
      }
 
-     exit(1);
+     sys_abnormally_terminate_vm(1);
 }
 
-void debug_break()
+void sys_debug_break()
 {
      /*  REVISIT: Is this the gdb way to simulate a breakpoint? */
 

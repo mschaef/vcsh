@@ -43,6 +43,8 @@
 
 BEGIN_NAMESPACE(scan)
 
+void sys_abnormally_terminate_vm(int rc);
+
 typedef void (*panic_handler_t) (void);
 
 panic_handler_t set_panic_handler(panic_handler_t new_handler);
@@ -113,8 +115,8 @@ struct sys_dirent_t
 
 extern "C" int debug_printf(const _TCHAR *, ...);
 
-void output_debug_string(const _TCHAR * str);
-void debug_break();
+void sys_output_debug_string(const _TCHAR * str);
+void sys_debug_break();
 void *sys_get_stack_start();
 
 #ifndef MIN2

@@ -399,7 +399,12 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
     return old_handler;
   }
 
-     void debug_break(); /*  REVISIT: where does this prototype really go? */
+void sys_debug_break(); /*  REVISIT: where does this prototype really go? */
+
+void sys_abnormally_terminate_vm(int rc)
+{
+     exit(rc);
+}
 
   void _panic(const _TCHAR *str, const _TCHAR *filename, long lineno)
   {
@@ -414,22 +419,22 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
     if (current_panic_handler)
       current_panic_handler();
 
-    exit(1);
+    sys_abnormally_terminate_vm(1);
   }
 
-  void output_debug_string(const _TCHAR *str)
+  void sys_output_debug_string(const _TCHAR *str)
   {
     OutputDebugString(str);
   }
 
-  void debug_break()
+  void sys_debug_break()
   {
 #if defined(_MSC_VER)
     __debugbreak();
 #elif defined(__GNUC__)
     __asm__ __volatile__ ("int3");
 #else
-#error debug_break not supported.
+#error sys_debug_break not supported.
 #endif
   }
 

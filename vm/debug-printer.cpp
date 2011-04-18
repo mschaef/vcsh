@@ -733,7 +733,7 @@ size_t debug_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 
           block[block_loc] = '\0';
 
-          output_debug_string(block);
+          sys_output_debug_string(block);
      }
 
      return len;
