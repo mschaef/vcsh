@@ -244,22 +244,26 @@ lref_t lenvlookup(lref_t var, lref_t env)
 
 EVAL_INLINE frame_t *enter_frame()
 {
-     frame_t *last_fsp = CURRENT_TIB()->fsp;
-
      CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
 
-     CURRENT_TIB()->fsp->prev_frame = last_fsp;
+     frame_t *frame = CURRENT_TIB()->fsp;
 
-     return CURRENT_TIB()->fsp;
+     frame->prev_frame = CURRENT_TIB()->frame;
+
+     CURRENT_TIB()->frame = frame;
+
+     return CURRENT_TIB()->frame;
 }
 
 EVAL_INLINE void leave_frame()
 {
-     frame_t *last_fsp = CURRENT_TIB()->fsp->prev_frame;
+     frame_t *frame = CURRENT_TIB()->frame;
 
-     CURRENT_TIB()->fsp->prev_frame = NULL;
+     CURRENT_TIB()->frame = CURRENT_TIB()->frame->prev_frame;
 
-     CURRENT_TIB()->fsp = last_fsp;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp + 1;
+
+     frame->prev_frame = NULL;
 }
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
@@ -406,7 +410,9 @@ void unwind_stack_for_throw()
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, frame));
 
                CURRENT_TIB()->throw_target = NULL;
-               CURRENT_TIB()->fsp = frame;
+               CURRENT_TIB()->fsp = frame->as.escape.fsp;
+               CURRENT_TIB()->frame = frame;
+
 
                longjmp(frame->as.escape.cframe, 1);
           }
@@ -648,6 +654,7 @@ loop:
           frame_t *frame = enter_frame();
           frame->type = FRAME_EX_TRY;
           frame->as.escape.tag = tag;
+          frame->as.escape.fsp = CURRENT_TIB()->fsp;
 
           if (setjmp(frame->as.escape.cframe) == 0)
           {
@@ -800,7 +807,9 @@ lref_t lget_current_frames(lref_t sc)
                break;
 
           case FRAME_EX_TRY:
-               frame_obj = listn(1, frame->as.escape.tag);
+               frame_obj = listn(2,
+                                 frame->as.escape.tag,
+                                 fixcons((fixnum_t)frame->as.escape.fsp));
                break;
 
           case FRAME_EX_UNWIND:

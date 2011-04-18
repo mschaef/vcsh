@@ -38,6 +38,7 @@ struct frame_t
           struct
           {
                lref_t tag;
+               frame_t *fsp;
                jmp_buf cframe;
           } escape;
           struct
@@ -69,6 +70,7 @@ struct interpreter_thread_info_block_t
 
      frame_t frame_stack[FRAME_STACK_SIZE];
      frame_t *fsp;
+     frame_t *frame;
 
      frame_t *throw_target;
      lref_t throw_value;
