@@ -242,28 +242,22 @@ lref_t lenvlookup(lref_t var, lref_t env)
  * the stack.
  */
 
-EVAL_INLINE frame_t *enter_frame()
+EVAL_INLINE void enter_frame()
 {
      CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
 
      frame_t *frame = CURRENT_TIB()->fsp;
-
      frame->prev_frame = CURRENT_TIB()->frame;
-
      CURRENT_TIB()->frame = frame;
-
-     return CURRENT_TIB()->frame;
 }
 
 EVAL_INLINE void leave_frame()
 {
      frame_t *frame = CURRENT_TIB()->frame;
-
      CURRENT_TIB()->frame = CURRENT_TIB()->frame->prev_frame;
+     frame->prev_frame = NULL;
 
      CURRENT_TIB()->fsp = CURRENT_TIB()->fsp + 1;
-
-     frame->prev_frame = NULL;
 }
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
@@ -276,9 +270,9 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
 {
      UNREFERENCED(env);
 
-     frame_t  *frame = enter_frame();
-     frame->type              = FRAME_PRIMITIVE;
-     frame->as.prim.function  = function;
+     enter_frame();
+     CURRENT_TIB()->frame->type              = FRAME_PRIMITIVE;
+     CURRENT_TIB()->frame->as.prim.function  = function;
 
      switch (SUBR_TYPE(function))
      {
@@ -439,11 +433,11 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
 
      STACK_CHECK(&fop);
 
-     frame_t *frame = enter_frame();
-     frame->type                 = FRAME_EVAL;
-     frame->as.eval.form         = &fop;
-     frame->as.eval.initial_form = fop;
-     frame->as.eval.env          = env;
+     enter_frame();
+     CURRENT_TIB()->frame->type                 = FRAME_EVAL;
+     CURRENT_TIB()->frame->as.eval.form         = &fop;
+     CURRENT_TIB()->frame->as.eval.initial_form = fop;
+     CURRENT_TIB()->frame->as.eval.env          = env;
 
 loop:
      _process_interrupts();
@@ -651,12 +645,12 @@ loop:
      {
           lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
 
-          frame_t *frame = enter_frame();
-          frame->type = FRAME_EX_TRY;
-          frame->as.escape.tag = tag;
-          frame->as.escape.fsp = CURRENT_TIB()->fsp;
+          enter_frame();
+          CURRENT_TIB()->frame->type = FRAME_EX_TRY;
+          CURRENT_TIB()->frame->as.escape.tag = tag;
+          CURRENT_TIB()->frame->as.escape.fsp = CURRENT_TIB()->fsp;
 
-          if (setjmp(frame->as.escape.cframe) == 0)
+          if (setjmp(CURRENT_TIB()->frame->as.escape.cframe) == 0)
           {
                retval = execute_fast_op(FAST_OP_ARG2(fop), env);
           }
@@ -673,13 +667,13 @@ loop:
 
      case FOP_WITH_UNWIND_FN:
      {
-          frame_t *frame = enter_frame();
-          frame->type = FRAME_EX_UNWIND;
-          frame->as.unwind.after = execute_fast_op(FAST_OP_ARG1(fop), env);
+          enter_frame();
+          CURRENT_TIB()->frame->type = FRAME_EX_UNWIND;
+          CURRENT_TIB()->frame->as.unwind.after = execute_fast_op(FAST_OP_ARG1(fop), env);
 
           retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
-          lref_t after = frame->as.unwind.after;
+          lref_t after = CURRENT_TIB()->frame->as.unwind.after;
 
           leave_frame();
 
