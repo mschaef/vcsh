@@ -88,11 +88,16 @@
                (#t
                 (error "Bad benchmark result: ~s" result))))))))
 
+
 (define (benchmark-system-info)
   "Return a list describing the current build of scan and the hardware it's
    running on."
+  (define (without-domain-name sys-name) ;; REVISIT: Make part of stdlib?
+    (aif (string-search "." sys-name)
+         (substring sys-name 0 it)
+         sys-name))
   (let ((si (system-info)))
-    (list (hash-ref si :system-name)
+    (list (without-domain-name (hash-ref si :system-name))
           (hash-ref si :platform-name)
           (hash-ref si :build-type))))
 
