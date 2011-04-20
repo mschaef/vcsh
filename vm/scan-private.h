@@ -31,6 +31,10 @@ struct frame_t
      {
           struct
           {
+               lref_t subr;
+          } subr;
+          struct
+          {
                lref_t *form;
                lref_t initial_form;
                lref_t env;
@@ -45,10 +49,6 @@ struct frame_t
           {
                lref_t after;
           } unwind;
-          struct
-          {
-               lref_t function;
-          } prim;
      } as;
 };
 
@@ -72,8 +72,8 @@ struct interpreter_thread_info_block_t
      frame_t *fsp;
      frame_t *frame;
 
-     frame_t *throw_target;
-     lref_t throw_value;
+     frame_t *escape_frame;
+     lref_t escape_value;
 
 #if defined(WITH_FOPLOG_SUPPORT)
      bool foplog_enable;

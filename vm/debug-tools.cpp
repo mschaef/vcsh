@@ -66,16 +66,16 @@ void scan_postmortem_dump()
                         frame->as.eval.initial_form);
                break;
 
-          case FRAME_EX_TRY:
+          case FRAME_ESCAPE:
                scwritef(_T("try > ~s\n"), oport, frame->as.escape.tag);
                break;
 
-          case FRAME_EX_UNWIND:
+          case FRAME_UNWIND:
                scwritef(_T("unwind-protect >\n"), oport);
                break;
 
-          case FRAME_PRIMITIVE:
-               scwritef(_T("primitive > ~s\n"), oport, frame->as.prim.function);
+          case FRAME_SUBR:
+               scwritef(_T("subr > ~s\n"), oport, frame->as.subr.subr);
                break;
 
           default:

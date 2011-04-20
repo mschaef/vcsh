@@ -271,8 +271,8 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
      UNREFERENCED(env);
 
      enter_frame();
-     CURRENT_TIB()->frame->type              = FRAME_PRIMITIVE;
-     CURRENT_TIB()->frame->as.prim.function  = function;
+     CURRENT_TIB()->frame->type         = FRAME_SUBR;
+     CURRENT_TIB()->frame->as.subr.subr = function;
 
      switch (SUBR_TYPE(function))
      {
@@ -361,16 +361,16 @@ EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t * e
      return NIL;
 }
 
-static frame_t *find_throw_target(frame_t *start_frame, lref_t tag)
+static frame_t *find_matching_escape(frame_t *start_frame, lref_t tag)
 {
-     if (CURRENT_TIB()->throw_target != NULL)
-          start_frame = CURRENT_TIB()->throw_target - 1;
+     if (CURRENT_TIB()->escape_frame != NULL)
+          start_frame = CURRENT_TIB()->escape_frame - 1;
 
      for(frame_t *frame = start_frame;
          frame != NULL;
          frame = frame->prev_frame)
      {
-          if (frame->type != FRAME_EX_TRY)
+          if (frame->type != FRAME_ESCAPE)
                continue;
 
           if (NULLP(frame->as.escape.tag) || EQ(frame->as.escape.tag, tag))
@@ -386,7 +386,7 @@ void unwind_stack_for_throw()
          frame != NULL;
          frame = frame->prev_frame)
      {
-          if (frame->type == FRAME_EX_UNWIND)
+          if (frame->type == FRAME_UNWIND)
           {
                dscwritef(DF_SHOW_THROWS,
                          (_T("; DEBUG: throw invoking unwind : ~c&\n"), frame));
@@ -396,14 +396,14 @@ void unwind_stack_for_throw()
                continue;
           }
 
-          if (frame->type != FRAME_EX_TRY)
+          if (frame->type != FRAME_ESCAPE)
                continue;
 
-          if (frame == CURRENT_TIB()->throw_target)
+          if (frame == CURRENT_TIB()->escape_frame)
           {
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, frame));
 
-               CURRENT_TIB()->throw_target = NULL;
+               CURRENT_TIB()->escape_frame = NULL;
                CURRENT_TIB()->fsp = frame->as.escape.fsp;
                CURRENT_TIB()->frame = frame;
 
@@ -417,8 +417,8 @@ static void lthrow(lref_t tag, lref_t retval)
 {
      dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
-     CURRENT_TIB()->throw_target = find_throw_target(CURRENT_TIB()->fsp, tag);
-     CURRENT_TIB()->throw_value = retval;
+     CURRENT_TIB()->escape_frame = find_matching_escape(CURRENT_TIB()->fsp, tag);
+     CURRENT_TIB()->escape_value = retval;
 
      unwind_stack_for_throw();
 
@@ -646,7 +646,7 @@ loop:
           lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
 
           enter_frame();
-          CURRENT_TIB()->frame->type = FRAME_EX_TRY;
+          CURRENT_TIB()->frame->type = FRAME_ESCAPE;
           CURRENT_TIB()->frame->as.escape.tag = tag;
           CURRENT_TIB()->frame->as.escape.fsp = CURRENT_TIB()->fsp;
 
@@ -656,10 +656,10 @@ loop:
           }
           else
           {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->escape_value));
 
-               retval = CURRENT_TIB()->throw_value;
-               CURRENT_TIB()->throw_value = NIL;
+               retval = CURRENT_TIB()->escape_value;
+               CURRENT_TIB()->escape_value = NIL;
           }
           leave_frame();
      }
@@ -668,7 +668,7 @@ loop:
      case FOP_WITH_UNWIND_FN:
      {
           enter_frame();
-          CURRENT_TIB()->frame->type = FRAME_EX_UNWIND;
+          CURRENT_TIB()->frame->type = FRAME_UNWIND;
           CURRENT_TIB()->frame->as.unwind.after = execute_fast_op(FAST_OP_ARG1(fop), env);
 
           retval = execute_fast_op(FAST_OP_ARG2(fop), env);
@@ -800,18 +800,18 @@ lref_t lget_current_frames(lref_t sc)
                                  frame->as.eval.env);
                break;
 
-          case FRAME_EX_TRY:
+          case FRAME_ESCAPE:
                frame_obj = listn(2,
                                  frame->as.escape.tag,
                                  fixcons((fixnum_t)frame->as.escape.fsp));
                break;
 
-          case FRAME_EX_UNWIND:
+          case FRAME_UNWIND:
                frame_obj = listn(1, frame->as.unwind.after);
                break;
 
-          case FRAME_PRIMITIVE:
-               frame_obj = listn(1, frame->as.prim.function);
+          case FRAME_SUBR:
+               frame_obj = listn(1, frame->as.subr.subr);
                break;
 
           default:
@@ -834,8 +834,8 @@ lref_t topmost_primitive()
          frame != NULL;
          frame = frame->prev_frame)
      {
-          if (frame->type == FRAME_PRIMITIVE)
-               return frame->as.prim.function;
+          if (frame->type == FRAME_SUBR)
+               return frame->as.subr.subr;
      }
 
      return NIL;

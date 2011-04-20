@@ -258,10 +258,10 @@ END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
  * stack. These are used to implement try/catch as well as some
  * debugging support. */
 BEGIN_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
-    VM_CONSTANT(FRAME_PRIMITIVE, 0)
-    VM_CONSTANT(FRAME_EVAL     , 1)
-    VM_CONSTANT(FRAME_EX_TRY   , 3)
-    VM_CONSTANT(FRAME_EX_UNWIND, 4)
+    VM_CONSTANT(FRAME_SUBR   , 0)
+    VM_CONSTANT(FRAME_EVAL   , 1)
+    VM_CONSTANT(FRAME_ESCAPE , 3)
+    VM_CONSTANT(FRAME_UNWIND , 4)
 END_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
 
 BEGIN_VM_CONSTANT_TABLE(vmctrl_field_t, vmctrl_field_name)
