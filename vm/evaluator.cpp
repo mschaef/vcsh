@@ -232,14 +232,12 @@ lref_t lenvlookup(lref_t var, lref_t env)
      return NIL;
 }
 
-/* Frames and exceptions
+/* Frame stack
  *
- * Frames are basically annotations on the dynamic stack. Each
- * frame has an "frame record" stored in an auto variable
- * local to a newly created scope. When the frame is entered,
- * the frame's frame record is registered on a global stack.
- * When the frame is left, the frame record is popped off of
- * the stack.
+ * The interpreter stack. This is used in a very similar fashion
+ * to the traditional C stack, with CURRENT_TIB()->frame and
+ * CURRENT_TIB()->fsp serving as base and stack pointers,
+ * respectively.
  */
 EVAL_INLINE void *fstack_alloca(size_t size)
 {
@@ -432,7 +430,6 @@ void unwind_stack_for_throw()
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, frame));
 
                CURRENT_TIB()->escape_frame = NULL;
-               
 
                CURRENT_TIB()->frame = (lref_t *)fstack_frame_val(frame, FOFS_ESCAPE_FRAME);
                CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
