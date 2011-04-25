@@ -680,12 +680,14 @@ loop:
 
           fstack_enter_frame(FRAME_ESCAPE);
           fstack_push((lref_t)tag);
-          fstack_push((lref_t)CURRENT_TIB()->fsp);
+          fstack_push((lref_t)CURRENT_TIB()->frame);
           fstack_push(NIL);
+
+          lref_t *jmpbuf_ptr = CURRENT_TIB()->fsp;
 
           jmp_buf *jmpbuf = (jmp_buf *)fstack_alloca(sizeof(jmp_buf));
 
-          *(CURRENT_TIB()->fsp) = (lref_t)jmpbuf;
+          *(jmpbuf_ptr) = (lref_t)jmpbuf;
 
           if (setjmp(*jmpbuf) == 0)
           {
