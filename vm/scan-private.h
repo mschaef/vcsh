@@ -21,38 +21,6 @@ BEGIN_NAMESPACE(scan)
 
 /**** Global Interpreter State ****/
 
-struct frame_t
-{
-     frame_type_t type;
-
-     frame_t *prev_frame;
-
-     union
-     {
-          struct
-          {
-               lref_t subr;
-          } subr;
-          struct
-          {
-               lref_t *form;
-               lref_t initial_form;
-               lref_t env;
-          } eval;
-          struct
-          {
-               lref_t tag;
-               frame_t *fsp;
-               jmp_buf cframe;
-          } escape;
-          struct
-          {
-               lref_t after;
-          } unwind;
-     } as;
-};
-
-
 struct gc_root_t
 {
      const _TCHAR *name;
@@ -68,11 +36,11 @@ struct interpreter_thread_info_block_t
 
      lref_t handler_frames;
 
-     frame_t frame_stack[FRAME_STACK_SIZE];
-     frame_t *fsp;
-     frame_t *frame;
+     lref_t frame_stack[FRAME_STACK_SIZE];
+     lref_t *fsp;
+     lref_t *frame;
 
-     frame_t *escape_frame;
+     lref_t *escape_frame;
      lref_t escape_value;
 
 #if defined(WITH_FOPLOG_SUPPORT)

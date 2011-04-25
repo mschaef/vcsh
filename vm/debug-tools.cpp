@@ -51,6 +51,7 @@ lref_t ldump_heap_state(lref_t port)
 
 void scan_postmortem_dump()
 {
+#if 0
      lref_t oport = CURRENT_DEBUG_PORT();
 
      for(frame_t *frame = CURRENT_TIB()->frame;
@@ -85,6 +86,7 @@ void scan_postmortem_dump()
 
           lflush_port(oport);
      }
+#endif
 }
 
 lref_t lheap_cell_count_by_typecode()
