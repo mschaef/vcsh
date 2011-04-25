@@ -243,8 +243,8 @@
   (repl-read *inspect-abbreviations*))
 
 (defmacro (with-inspect-printing . code)
-  `(dynamic-let ((*print-length* 3)
-                (*print-length* 3))
+  `(dynamic-let ((*print-length* 3) ;; TODO: Should be separately configurable
+                 (*print-length* 3)) ;; TODO: Why are there two occurrences of *print-length* in this dynamic-let
     ,@code))
 
 (define (inspect-print-object-summary ctx)
