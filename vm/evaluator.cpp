@@ -724,6 +724,10 @@ loop:
           retval = fixcons((fixnum_t)CURRENT_TIB()->fsp);
           break;
 
+     case FOP_GET_FRAME:
+          retval = fixcons((fixnum_t)CURRENT_TIB()->frame);
+          break;
+
      case FOP_GET_HFRAMES:
           retval = CURRENT_TIB()->handler_frames;
           break;

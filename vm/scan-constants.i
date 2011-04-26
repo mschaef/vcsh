@@ -142,6 +142,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
 
     VM_CONSTANT(FOP_GET_FSP,                  249)
+    VM_CONSTANT(FOP_GET_FRAME,                250)
     VM_CONSTANT(FOP_GET_HFRAMES,              251)
     VM_CONSTANT(FOP_SET_HFRAMES,              252)
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
