@@ -320,15 +320,6 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
           *retval = (SUBR_F4(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3)));
           break;
 
-     case SUBR_5:
-          *retval = (SUBR_F5(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4)));
-          break;
-
-     case SUBR_6:
-          *retval =
-               (SUBR_F6(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4), _ARGV(5)));
-          break;
-
       case SUBR_2N:
       {
            lref_t arg1 = _ARGV(0);

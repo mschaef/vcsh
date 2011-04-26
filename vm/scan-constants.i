@@ -213,8 +213,6 @@ BEGIN_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
     VM_CONSTANT(SUBR_2N,                      3  )  /*  2 or more homogenous argument, */
     VM_CONSTANT(SUBR_3,                       4  )
     VM_CONSTANT(SUBR_4,                       5  )
-    VM_CONSTANT(SUBR_5,                       6  )
-    VM_CONSTANT(SUBR_6,                       7  )
     VM_CONSTANT(SUBR_ARGC,                    8  )  /*  Arbitrary number of paramaters, passed as array. */
     VM_CONSTANT(SUBR_N,                       9  )  /*  Arbitrary number of paramaters, passed as list. */
 END_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
