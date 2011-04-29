@@ -214,7 +214,7 @@ typedef char _TCHAR;
 
 BEGIN_NAMESPACE(scan)
 
-#define SCAN_VERSION _T("SCAN 0.60.3")
+#define SCAN_VERSION _T("SCAN 0.60.4") // TODO: This is really the VM version, not the scan version.
 
 enum
 {
