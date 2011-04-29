@@ -659,23 +659,24 @@
    the list <xs>. Throws an error if there are not that many
    elements in the list"
   (check integer? n)
-  (let recur ((remaining-xs xs) (still-need n))
-    (cond ((= still-need 0)   ())
+  (let loop ((remaining-xs xs) (accum ()) (still-need n))
+    (cond ((= still-need 0)     (reverse! accum))
           ((null? remaining-xs) (error "Cannot take ~s items from ~s" n xs))
-          (#t                   (cons (car remaining-xs)
-                                      (recur (cdr remaining-xs) (- still-need 1)))))))
+          (#t                   (loop (cdr remaining-xs)
+                                      (cons (car remaining-xs) accum)
+                                      (- still-need 1))))))
 
 (define (take-up-to xs n)
   "Returns a new list consisting of the first <n> elements of
-   the list <xs>. Does not throw an error if there are not that
-   many  elements in the list"
+   the list <xs>. Throws an error if there are not that many
+   elements in the list"
   (check integer? n)
-  (let recur ((remaining-xs xs) (still-need n))
+  (let loop ((remaining-xs xs) (accum ()) (still-need n))
     (cond ((or (= still-need 0)
-               (null? remaining-xs))
-           ())
-          (#t                   (cons (car remaining-xs)
-                                      (recur (cdr remaining-xs) (- still-need 1)))))))
+               (null? remaining-xs))  (reverse! accum))
+          (#t                         (loop (cdr remaining-xs)
+                                            (cons (car remaining-xs) accum)
+                                            (- still-need 1))))))
 
 (define (take! xs n)
   "Returns a list consisting of the first <n> elements of the list
@@ -691,21 +692,22 @@
   "Returns a new list consisting of every item in <xs> up until
    the first item that does not satisfy <pred?>."
   (check procedure? pred?)
-  (let recur ((xs xs))
+  (let loop ((xs xs) (accum ()))
     (if (null-list? xs)
-        '()
+        (reverse! accum)
         (let ((x (car xs)))
           (if (pred? x)
-              (cons x (recur (cdr xs)))
-              '())))))
+              (loop (cdr xs) (cons x accum))
+            (reverse! accum))))))
 
 (define (take-until-dot xs)
   "Returns a new list consisting of every item in <xs>, aside from any
    atom in the last cdr."
-  (let recur ((xs xs))
+  (let loop ((xs xs) (accum ()))
     (if (or (null? xs) (atom? xs))
-        ()
-        (cons (car xs) (recur (cdr xs))))))
+        (reverse! accum)
+        (loop (cdr xs) 
+              (cons (car xs) accum)))))
 
 (define (take-while! pred? xs)
   "Returns a new list consisting of every item in <xs> up until
