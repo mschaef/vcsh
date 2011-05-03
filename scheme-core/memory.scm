@@ -21,7 +21,7 @@
           (%request-heap-size (min max-heap-segments
                                    (+ heap-segments-needed heap-segments))))))))
 
-(define (trap-after-gc trapno fsp cells-freed)
+(define (trap-after-gc trapno frp cells-freed)
   (maybe-enlarge-heap cells-freed))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

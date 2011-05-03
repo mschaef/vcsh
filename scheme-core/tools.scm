@@ -312,7 +312,7 @@
 
 (define *global-define-hook* ())
 
-(define (trap-global-define-handler trapno fsp symbol new-definition)
+(define (trap-global-define-handler trapno frp symbol new-definition)
   (invoke-hook '*global-define-hook* symbol new-definition))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

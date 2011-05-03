@@ -162,7 +162,7 @@ lref_t vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
      lref_t argv[ARG_BUF_LEN];
 
      argv[0] = fixcons(trap);
-     argv[1] = fixcons((fixnum_t)CURRENT_TIB()->fsp);
+     argv[1] = fixcons((fixnum_t)CURRENT_TIB()->frame);
      for (size_t ii = 2; ii < argc + 2; ii++)
           argv[ii] = va_arg(args, lref_t);
 

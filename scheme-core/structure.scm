@@ -174,7 +174,7 @@
   (unless (member structure-type-name *global-structure-dictionary*)
     (push! structure-type-name *global-structure-dictionary*)))
 
-(define (trap-resolve-fasl-struct-layout trapno fsp new-layout)
+(define (trap-resolve-fasl-struct-layout trapno frp new-layout)
   (unless (pair? new-layout)
     (error "Expected list for structure layout ~s" new-layout))
   (let* ((structure-type-name (car new-layout))

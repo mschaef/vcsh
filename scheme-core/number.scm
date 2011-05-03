@@ -10,7 +10,7 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-(define (trap-fixnum-overflow trapno fsp arg-0 arg-1)
+(define (trap-fixnum-overflow trapno frp arg-0 arg-1)
   (error "Fixnum overflow (trapno=~a, arg-0=~a, arg-1=~a)" trapno arg-0 arg-1))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
