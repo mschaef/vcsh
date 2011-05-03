@@ -184,6 +184,9 @@
 (define-special-form (scheme::%%get-fsp)
   `(:get-fsp))
 
+(define-special-form (scheme::%%get-frame)
+  `(:get-frame))
+
 (define-special-form (scheme::%%get-hframes)
   `(:get-hframes))
 
