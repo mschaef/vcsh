@@ -142,6 +142,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
 
     VM_CONSTANT(FOP_GET_FSP,                  249)
+    VM_CONSTANT(FOP_GET_FRAME,                250)
     VM_CONSTANT(FOP_GET_HFRAMES,              251)
     VM_CONSTANT(FOP_SET_HFRAMES,              252)
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
@@ -213,8 +214,6 @@ BEGIN_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
     VM_CONSTANT(SUBR_2N,                      3  )  /*  2 or more homogenous argument, */
     VM_CONSTANT(SUBR_3,                       4  )
     VM_CONSTANT(SUBR_4,                       5  )
-    VM_CONSTANT(SUBR_5,                       6  )
-    VM_CONSTANT(SUBR_6,                       7  )
     VM_CONSTANT(SUBR_ARGC,                    8  )  /*  Arbitrary number of paramaters, passed as array. */
     VM_CONSTANT(SUBR_N,                       9  )  /*  Arbitrary number of paramaters, passed as list. */
 END_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)
@@ -254,15 +253,31 @@ END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
 
 #define DF_ALWAYS ::scan::DF_NONE
 
-/* The interpreter maintains a stack of frames annotating the C
- * stack. These are used to implement try/catch as well as some
- * debugging support. */
+
 BEGIN_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
-    VM_CONSTANT(FRAME_PRIMITIVE, 0)
-    VM_CONSTANT(FRAME_EVAL     , 1)
-    VM_CONSTANT(FRAME_EX_TRY   , 3)
-    VM_CONSTANT(FRAME_EX_UNWIND, 4)
+    VM_CONSTANT(FRAME_SUBR   , 0)
+    VM_CONSTANT(FRAME_EVAL   , 1)
+    VM_CONSTANT(FRAME_ESCAPE , 3)
+    VM_CONSTANT(FRAME_UNWIND , 4)
 END_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
+
+
+BEGIN_VM_CONSTANT_TABLE(frame_ofs_t, frame_ofs_name)
+    VM_ANON_CONSTANT(FOFS_LINK              ,  0)
+    VM_ANON_CONSTANT(FOFS_FTYPE             , -1)
+
+    VM_ANON_CONSTANT(FOFS_SUBR_SUBR         , -2)
+
+    VM_ANON_CONSTANT(FOFS_EVAL_FORM_PTR     , -2)
+    VM_ANON_CONSTANT(FOFS_EVAL_IFORM        , -3)
+    VM_ANON_CONSTANT(FOFS_EVAL_ENV          , -4)
+
+    VM_ANON_CONSTANT(FOFS_UNWIND_AFTER      , -2)
+
+    VM_ANON_CONSTANT(FOFS_ESCAPE_TAG        , -2)
+    VM_ANON_CONSTANT(FOFS_ESCAPE_FRAME      , -3)
+    VM_ANON_CONSTANT(FOFS_ESCAPE_JMPBUF_PTR , -4)
+END_VM_CONSTANT_TABLE(frame_ofs_t, frame_ofs_name)
 
 BEGIN_VM_CONSTANT_TABLE(vmctrl_field_t, vmctrl_field_name)
   VM_CONSTANT(VMCTRL_CURRENT_INPUT_PORT , 0)

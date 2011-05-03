@@ -257,8 +257,8 @@ enum
      /* The maximum number of init load files. */
      MAX_INIT_LOAD_FILES = 8,
 
-     /* The number of frames that can be stored on the frame stack. */
-     FRAME_STACK_SIZE = 2048,
+     /* The number of lref_t's that can be stored on the frame stack. */
+     FRAME_STACK_SIZE = 16384,
 
      /*  Default initial size for hash tables */
      HASH_DEFAULT_INITIAL_SIZE = 8,

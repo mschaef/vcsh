@@ -232,38 +232,57 @@ lref_t lenvlookup(lref_t var, lref_t env)
      return NIL;
 }
 
-/* Frames and exceptions
+/* Frame stack
  *
- * Frames are basically annotations on the dynamic stack. Each
- * frame has an "frame record" stored in an auto variable
- * local to a newly created scope. When the frame is entered,
- * the frame's frame record is registered on a global stack.
- * When the frame is left, the frame record is popped off of
- * the stack.
+ * The interpreter stack. This is used in a very similar fashion
+ * to the traditional C stack, with CURRENT_TIB()->frame and
+ * CURRENT_TIB()->fsp serving as base and stack pointers,
+ * respectively.
  */
-
-EVAL_INLINE frame_t *enter_frame()
+EVAL_INLINE void *fstack_alloca(size_t size)
 {
-     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
+     size = (size / sizeof(lref_t)) + 1;
 
-     frame_t *frame = CURRENT_TIB()->fsp;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - size;
 
-     frame->prev_frame = CURRENT_TIB()->frame;
-
-     CURRENT_TIB()->frame = frame;
-
-     return CURRENT_TIB()->frame;
+     return (void *)(CURRENT_TIB()->fsp);
 }
 
-EVAL_INLINE void leave_frame()
+EVAL_INLINE void fstack_push(lref_t val)
 {
-     frame_t *frame = CURRENT_TIB()->frame;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
+     *(CURRENT_TIB()->fsp) = val;
+}
 
-     CURRENT_TIB()->frame = CURRENT_TIB()->frame->prev_frame;
+EVAL_INLINE void fstack_enter_frame(frame_type_t ft)
+{
+     fstack_push((lref_t)(CURRENT_TIB()->frame));
 
-     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp + 1;
+     CURRENT_TIB()->frame = CURRENT_TIB()->fsp;
 
-     frame->prev_frame = NULL;
+     fstack_push((lref_t)ft);
+}
+
+EVAL_INLINE void fstack_leave_frame()
+{
+     CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
+
+     CURRENT_TIB()->frame = *(lref_t **)(CURRENT_TIB()->frame);
+}
+
+EVAL_INLINE lref_t fstack_frame_val(lref_t *frame, frame_ofs_t fofs)
+{
+     return frame[fofs];
+}
+
+EVAL_INLINE lref_t *fstack_prev_frame(lref_t *frame)
+{
+     return (lref_t *)fstack_frame_val(frame, FOFS_LINK);
+}
+
+EVAL_INLINE frame_type_t fstack_frame_type(lref_t *frame)
+{
+     return (frame_type_t)((intptr_t)fstack_frame_val(frame, FOFS_FTYPE));
 }
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
@@ -276,9 +295,8 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
 {
      UNREFERENCED(env);
 
-     frame_t  *frame = enter_frame();
-     frame->type              = FRAME_PRIMITIVE;
-     frame->as.prim.function  = function;
+     fstack_enter_frame(FRAME_SUBR);
+     fstack_push((lref_t)function);
 
      switch (SUBR_TYPE(function))
      {
@@ -300,15 +318,6 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
 
      case SUBR_4:
           *retval = (SUBR_F4(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3)));
-          break;
-
-     case SUBR_5:
-          *retval = (SUBR_F5(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4)));
-          break;
-
-     case SUBR_6:
-          *retval =
-               (SUBR_F6(function) (_ARGV(0), _ARGV(1), _ARGV(2), _ARGV(3), _ARGV(4), _ARGV(5)));
           break;
 
       case SUBR_2N:
@@ -336,7 +345,7 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
           break;
      }
 
-     leave_frame();
+     fstack_leave_frame();
 
      return NIL;
 }
@@ -367,19 +376,21 @@ EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t * e
      return NIL;
 }
 
-static frame_t *find_throw_target(frame_t *start_frame, lref_t tag)
+static lref_t *find_matching_escape(lref_t *start_frame, lref_t tag)
 {
-     if (CURRENT_TIB()->throw_target != NULL)
-          start_frame = CURRENT_TIB()->throw_target - 1;
+     if (CURRENT_TIB()->escape_frame != NULL)
+          start_frame = fstack_prev_frame(CURRENT_TIB()->escape_frame);
 
-     for(frame_t *frame = start_frame;
+     for(lref_t *frame = start_frame;
          frame != NULL;
-         frame = frame->prev_frame)
+         frame = fstack_prev_frame(frame))
      {
-          if (frame->type != FRAME_EX_TRY)
+          if (fstack_frame_type(frame) != FRAME_ESCAPE)
                continue;
 
-          if (NULLP(frame->as.escape.tag) || EQ(frame->as.escape.tag, tag))
+          lref_t ftag = fstack_frame_val(frame, FOFS_ESCAPE_TAG);
+
+          if (NULLP(ftag) || EQ(ftag, tag))
                return frame;
      }
 
@@ -388,33 +399,36 @@ static frame_t *find_throw_target(frame_t *start_frame, lref_t tag)
 
 void unwind_stack_for_throw()
 {
-     for(frame_t *frame = CURRENT_TIB()->fsp;
+     for(lref_t *frame = CURRENT_TIB()->frame;
          frame != NULL;
-         frame = frame->prev_frame)
+         frame = fstack_prev_frame(frame))
      {
-          if (frame->type == FRAME_EX_UNWIND)
+          if (fstack_frame_type(frame) == FRAME_UNWIND)
           {
                dscwritef(DF_SHOW_THROWS,
                          (_T("; DEBUG: throw invoking unwind : ~c&\n"), frame));
 
-               apply1(frame->as.unwind.after, 0, NULL);
+               apply1(fstack_frame_val(frame, FOFS_UNWIND_AFTER), 0, NULL);
 
                continue;
           }
 
-          if (frame->type != FRAME_EX_TRY)
+          if (fstack_frame_type(frame) != FRAME_ESCAPE)
                continue;
 
-          if (frame == CURRENT_TIB()->throw_target)
+          if (frame == CURRENT_TIB()->escape_frame)
           {
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, frame));
 
-               CURRENT_TIB()->throw_target = NULL;
-               CURRENT_TIB()->fsp = frame->as.escape.fsp;
-               CURRENT_TIB()->frame = frame;
+               CURRENT_TIB()->escape_frame = NULL;
+
+               CURRENT_TIB()->frame = (lref_t *)fstack_frame_val(frame, FOFS_ESCAPE_FRAME);
+               CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
 
 
-               longjmp(frame->as.escape.cframe, 1);
+               longjmp((int *)fstack_frame_val(frame,
+                                               FOFS_ESCAPE_JMPBUF_PTR),
+                       1);
           }
      }
 }
@@ -423,8 +437,10 @@ static void lthrow(lref_t tag, lref_t retval)
 {
      dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
 
-     CURRENT_TIB()->throw_target = find_throw_target(CURRENT_TIB()->fsp, tag);
-     CURRENT_TIB()->throw_value = retval;
+     CURRENT_TIB()->escape_frame
+          = find_matching_escape(CURRENT_TIB()->frame, tag);
+     CURRENT_TIB()->escape_value
+          = retval;
 
      unwind_stack_for_throw();
 
@@ -439,11 +455,10 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
 
      STACK_CHECK(&fop);
 
-     frame_t *frame = enter_frame();
-     frame->type                 = FRAME_EVAL;
-     frame->as.eval.form         = &fop;
-     frame->as.eval.initial_form = fop;
-     frame->as.eval.env          = env;
+     fstack_enter_frame(FRAME_EVAL);
+     fstack_push((lref_t)&fop);
+     fstack_push((lref_t)fop);
+     fstack_push((lref_t)env);
 
 loop:
      _process_interrupts();
@@ -651,37 +666,43 @@ loop:
      {
           lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
 
-          frame_t *frame = enter_frame();
-          frame->type = FRAME_EX_TRY;
-          frame->as.escape.tag = tag;
-          frame->as.escape.fsp = CURRENT_TIB()->fsp;
+          fstack_enter_frame(FRAME_ESCAPE);
+          fstack_push((lref_t)tag);
+          fstack_push((lref_t)CURRENT_TIB()->frame);
+          fstack_push(NIL);
 
-          if (setjmp(frame->as.escape.cframe) == 0)
+          lref_t *jmpbuf_ptr = CURRENT_TIB()->fsp;
+
+          jmp_buf *jmpbuf = (jmp_buf *)fstack_alloca(sizeof(jmp_buf));
+
+          *(jmpbuf_ptr) = (lref_t)jmpbuf;
+
+          if (setjmp(*jmpbuf) == 0)
           {
                retval = execute_fast_op(FAST_OP_ARG2(fop), env);
           }
           else
           {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->throw_value));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->escape_value));
 
-               retval = CURRENT_TIB()->throw_value;
-               CURRENT_TIB()->throw_value = NIL;
+               retval = CURRENT_TIB()->escape_value;
+               CURRENT_TIB()->escape_value = NIL;
           }
-          leave_frame();
+
+          fstack_leave_frame();
      }
      break;
 
      case FOP_WITH_UNWIND_FN:
      {
-          frame_t *frame = enter_frame();
-          frame->type = FRAME_EX_UNWIND;
-          frame->as.unwind.after = execute_fast_op(FAST_OP_ARG1(fop), env);
+          fstack_enter_frame(FRAME_UNWIND);
+          fstack_push((lref_t)execute_fast_op(FAST_OP_ARG1(fop), env));
 
           retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
-          lref_t after = frame->as.unwind.after;
+          lref_t after = fstack_frame_val(CURRENT_TIB()->frame, FOFS_UNWIND_AFTER);
 
-          leave_frame();
+          fstack_leave_frame();
 
           apply1(after, 0, NULL);
      }
@@ -703,6 +724,10 @@ loop:
           retval = fixcons((fixnum_t)CURRENT_TIB()->fsp);
           break;
 
+     case FOP_GET_FRAME:
+          retval = fixcons((fixnum_t)CURRENT_TIB()->frame);
+          break;
+
      case FOP_GET_HFRAMES:
           retval = CURRENT_TIB()->handler_frames;
           break;
@@ -716,7 +741,7 @@ loop:
      }
 
 
-     leave_frame();
+     fstack_leave_frame();
 
      return retval;
 }
@@ -783,65 +808,17 @@ lref_t lapply(size_t argc, lref_t argv[])
 
 lref_t lget_current_frames(lref_t sc)
 {
-     fixnum_t skip_count = get_c_fixnum(sc);
-
-     lref_t frames = NIL;
-
-     fixnum_t frame_count = 0;
-
-     for(frame_t *frame = CURRENT_TIB()->fsp;
-         frame != NULL;
-         frame = frame->prev_frame)
-     {
-          lref_t frame_obj = NIL;
-
-          frame_count++;
-
-          switch (frame->type)
-          {
-          case FRAME_EVAL:
-               frame_obj = listn(3,
-                                 *frame->as.eval.form,
-                                 frame->as.eval.initial_form,
-                                 frame->as.eval.env);
-               break;
-
-          case FRAME_EX_TRY:
-               frame_obj = listn(2,
-                                 frame->as.escape.tag,
-                                 fixcons((fixnum_t)frame->as.escape.fsp));
-               break;
-
-          case FRAME_EX_UNWIND:
-               frame_obj = listn(1, frame->as.unwind.after);
-               break;
-
-          case FRAME_PRIMITIVE:
-               frame_obj = listn(1, frame->as.prim.function);
-               break;
-
-          default:
-               panic("invalid frame type.");
-               break;
-          }
-
-          frame_obj = lcons(fixcons(frame->type), lcons(fixcons((fixnum_t)frame), frame_obj));
-
-          if (frame_count >= skip_count)
-               frames = lcons(frame_obj, frames);
-     }
-
-     return frames;
+     return NIL;
 }
 
 lref_t topmost_primitive()
 {
-     for(frame_t *frame = CURRENT_TIB()->fsp;
+     for(lref_t *frame = CURRENT_TIB()->frame;
          frame != NULL;
-         frame = frame->prev_frame)
+         frame = fstack_prev_frame(frame))
      {
-          if (frame->type == FRAME_PRIMITIVE)
-               return frame->as.prim.function;
+          if (fstack_frame_type(frame) == FRAME_SUBR)
+               return fstack_frame_val(frame, FOFS_SUBR_SUBR);
      }
 
      return NIL;

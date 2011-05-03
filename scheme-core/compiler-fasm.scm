@@ -72,6 +72,7 @@
 (define-fast-op :get-env        #.system::FOP_GET_ENV                                  )
 (define-fast-op :global-def     #.system::FOP_GLOBAL_DEF     :symbol :literal :literal )
 (define-fast-op :get-fsp        #.system::FOP_GET_FSP                                  )
+(define-fast-op :get-frame      #.system::FOP_GET_FRAME                                )
 (define-fast-op :get-hframes    #.system::FOP_GET_HFRAMES                              )
 (define-fast-op :set-hframes    #.system::FOP_SET_HFRAMES    :fast-op                  )
 

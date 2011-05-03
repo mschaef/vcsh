@@ -1,0 +1,46 @@
+Notes on lref_t stack handling
+--------------------------------
+
+         +------------------------+
+         | prev_frame             |
+ frame-> +------------------------+
+         | frame_type             |
+         +------------------------+
+         | frame_word_0           |
+                    ....
+         | frame_word_n           |
+   fsp-> +------------------------+
+
+
+Enter frame
+----------------
+1) push frame pointer
+2) set frame pointer to TOS
+3) push frame type code
+4) push frame contents
+
+         +------------------------+
+         | prev_frame             |
+         +------------------------+ <-+
+         | frame_type             |   |
+         +------------------------+   |
+         | frame_word_0           |   |
+                    ....              |
+         | frame_word_n           |   |
+         +------------------------+   |
+         | prev_frame             | --+
+ frame-> +------------------------+
+         | frame_type             |
+         +------------------------+
+         | frame_word_0           |
+                    ....           
+         | frame_word_n           |
+   fsp-> +------------------------+
+
+Leave frame
+----------------
+1) set fsp to frame+sizeof(lref_t)
+2) set frame to prev_frame
+
+
+
