@@ -126,15 +126,14 @@ lref_t lheap_cell_count_by_typecode()
      return result;
 }
 
-lref_t lmemref_byte(lref_t addr)
+lref_t lmemref(lref_t addr)
 {
      size_t baseaddr = (size_t) get_c_long(addr);
 
-     uint8_t *obj = (uint8_t *) baseaddr;
+     intptr_t *obj = (intptr_t *) baseaddr;
 
-     return fixcons(*obj);
+     return fixcons((fixnum_t)*obj);
 }
-
 
 lref_t lstress_lisp_heap(lref_t c)
 {

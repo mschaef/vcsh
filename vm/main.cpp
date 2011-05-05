@@ -274,7 +274,7 @@ static void register_main_subrs()
     register_subr(_T("%macro-transformer"),               SUBR_1,     (void*)lmacro_transformer                  );
     register_subr(_T("%macrocons"),                       SUBR_1,     (void*)limacrocons                         );
     register_subr(_T("%make-eof"),                        SUBR_0,     (void*)lmake_eof                           );
-    register_subr(_T("%memref"),                          SUBR_1,     (void*)lmemref_byte                        );
+    register_subr(_T("%memref"),                          SUBR_1,     (void*)lmemref                             );
     register_subr(_T("%obaddr"),                          SUBR_1,     (void*)lobaddr                             );
     register_subr(_T("%package-bindings"),                SUBR_1,     (void*)lpackage_bindings                   );
     register_subr(_T("%package-use-list"),                SUBR_1,     (void*)lpackage_use_list                   );

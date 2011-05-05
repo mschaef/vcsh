@@ -338,7 +338,7 @@ lref_t lmake_instance(lref_t args);
 lref_t lmake_polar(lref_t r, lref_t theta);
 lref_t lmake_rectangular(lref_t re, lref_t im);
 lref_t lmake_vector(lref_t dim, lref_t initial);
-lref_t lmemref_byte(lref_t addr);
+lref_t lmemref(lref_t addr);
 lref_t lmodulo(lref_t x, lref_t y);
 lref_t lmultiply(lref_t x, lref_t y);
 lref_t lnanp(lref_t x);
