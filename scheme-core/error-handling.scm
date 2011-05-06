@@ -88,6 +88,23 @@
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
 
+;;;; Stack Trace Capture and Display
+
+(define *show-system-frames* #f)
+
+(define *system-stack-boundary* #f)
+
+(defmacro (with-preserved-stack-boundary . code)
+  `(dynamic-let ((*system-stack-boundary* *system-stack-boundary*))
+     ,@code))
+
+(defmacro (begin-user-stack form)
+  `(scheme::%preserve-initial-frame *system-stack-boundary* ,form))
+
+(define (show-frames frames op)
+  (dolist (frame frames)
+    (format op "> ~s\n" frame)))
+
 ;;;; Error handling
 
 (define *error* #t)
@@ -193,36 +210,6 @@
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
   (%set-trap-handler! system::TRAP_USER_BREAK trap-user-break)
   (%set-trap-handler! system::TRAP_UNCAUGHT_THROW trap-uncaught-throw))
-
-;;;; Stack Trace Capture and Display
-
-(define *show-system-frames* #f)
-
-(define *system-stack-boundary* #f)
-
-(defmacro (with-preserved-stack-boundary . code)
-  `(dynamic-let ((*system-stack-boundary* *system-stack-boundary*))
-     ,@code))
-
-(defmacro (begin-user-stack form)
-  `(scheme::%preserve-initial-frame *system-stack-boundary* ,form))
-
-(define (show-frames frame-list p)
-  (define (maybe-remove-system-frames frame-list)
-    (if (or *show-system-frames* (not *system-stack-boundary*))
-        frame-list
-        (take-while #L(> (second _) scheme::*system-stack-boundary*) frame-list)))
-  (let ((frame-list (filter (lambda (frame) (= (car frame) system::FRAME_EVAL))
-                            (maybe-remove-system-frames frame-list))))
-    (let loop ((frames (reverse frame-list))
-               (frame-index 0))
-      (unless (null? frames)
-        (let ((frame (car frames)))
-          (format p "~a> ~s\n\n" frame-index (third frame))
-          (unless (eq? (third frame) (fourth frame))
-            (format p "   -> ~s\n\n" (third frame))))
-        (loop (cdr frames) (+ frame-index 1))))))
-
 
 ;;;; Predicate checking
 
