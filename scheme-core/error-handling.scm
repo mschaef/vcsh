@@ -154,6 +154,13 @@
                         frp
                         :stop-at-frp? stop-at-frp?)))
 
+(define *current-frp* #f)
+
+(define (capture-current-stack)
+  (dynamic-let ((*current-frp* *current-frp*))
+    (scheme::%preserve-initial-frame *current-frp*
+                                     (capture-stack *current-frp*))))
+
 ;;;; Stack Trace Capture and Display
 
 (define *show-system-frames* #f)
@@ -206,7 +213,7 @@
 
 (define (error message . args)
   (unless *last-error-stack-trace*
-    (set! *last-error-stack-trace* (reverse (%get-current-frames 5)))) ; dynamic-let would complicate the stack trace
+    (set! *last-error-stack-trace* (capture-current-stack))) ; dynamic-let would complicate the stack trace
   (unwind-protect
    (lambda ()
      (catch 'ignore-error
