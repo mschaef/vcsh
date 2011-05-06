@@ -43,21 +43,26 @@
          (hash-set! frame :escape-frp   (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)))))
     frame))
 
-(define (fold-frames kons knil frp)
+(define (fold-frames kons knil frp :keyword (stop-at-frp? #f))
   (let loop ((knil knil) (frp frp))
-    (if frp
+    (if (and frp
+             (or (not (number? stop-at-frp?))
+                 (not (= frp stop-at-frp?))))
         (loop (kons frp knil) (frame-link frp))
         knil)))
 
-
-(define (fold-decoded-frames kons knil frp)
+(define (fold-decoded-frames kons knil frp :keyword (stop-at-frp? #f))
   (fold-frames (lambda (frp rest)
                  (kons (frame-decode frp) rest))
                knil
-               frp))
+               frp
+               :stop-at-frp? stop-at-frp?))
 
-(define (capture-stack frp)
-  (fold-decoded-frames (lambda (frame rest)
-                         (cons frame rest))
-                       ()
-                       frp))
+(define (capture-stack frp :keyword (stop-at-frp? #f))
+  (reverse!
+   (fold-decoded-frames (lambda (frame rest)
+                          (cons frame rest))
+                        ()
+                        frp
+                        :stop-at-frp? stop-at-frp?)))
+

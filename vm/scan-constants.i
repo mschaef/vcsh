@@ -254,6 +254,7 @@ END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
 #define DF_ALWAYS ::scan::DF_NONE
 
 
+
 BEGIN_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
     VM_CONSTANT(FRAME_SUBR   , 0)
     VM_CONSTANT(FRAME_EVAL   , 1)

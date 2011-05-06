@@ -688,6 +688,9 @@
         (set-cdr! (drop xs (- n 1)) '())
         xs)))
 
+;; TODO: take-until
+;; TODO: take-until!
+
 (define (take-while pred? xs)
   "Returns a new list consisting of every item in <xs> up until
    the first item that does not satisfy <pred?>."
