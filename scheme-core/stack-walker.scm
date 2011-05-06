@@ -4,7 +4,7 @@
     (case ref-type
       ((:raw) raw-value)
       ((:lref) (%sysob raw-value))
-      ((:lref-ptr (%sysob (%memref raw-value))))
+      ((:lref-ptr) (%sysob (%memref raw-value)))
       (#t (error "Bad ref-type in frame-ref: ~s" ref-type)))))
 
 (define (frame-lref frp ofs)
@@ -48,3 +48,13 @@
     (if frp
         (loop (kons frp knil) (frame-link frp))
         knil)))
+
+
+(define (fold-decoded-frames kons knil frp)
+  (fold-frames (lambda (frp rest)
+                 (kons (frame-decode frp) rest))
+               knil
+               frp))
+
+(define (capture-stack frp)
+  (fold-decoded-frames #L2(cons _0 _1) () frp))
