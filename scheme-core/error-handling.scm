@@ -10,6 +10,8 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
+;;;; Signal handling
+
 (define (valid-signal-handler-list? handler-list)
   (or (null? handler-list)
       (and (pair? handler-list)
@@ -78,14 +80,19 @@
                       (%panic (format #f "Unhandled Abort: ~s, args=~s" condition args)))))
 
 
-(define *info* #t)
+;;;; Info messaging 
 
+(define *info* #t)
 
 (define (info message . args)
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
 
+;;;; Error handling
+
 (define *error* #t)
+
+(define *enter-repl-on-runtime-error* #f)
 
 (define (show-runtime-error message args)
   (when *error*
@@ -94,9 +101,6 @@
           (show-frames *last-error-stack-trace* (current-error-port))
           (format (current-error-port) "--- NO STACK TRACE ---"))
       (format (current-error-port) "; Error: ~I\n" message args))))
-
-
-(define *enter-repl-on-runtime-error* #f)
 
 (define errobj #f)
 
