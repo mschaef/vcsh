@@ -1,18 +1,23 @@
 
-(define (frame-ref frp ofs)
-  (%memref (+ frp (* ofs (system-info :size-of-lref)))))
+(define (frame-ref frp ofs ref-type)
+  (let ((raw-value (%memref (+ frp (* ofs (system-info :size-of-lref))))))
+    (case ref-type
+      ((:raw) raw-value)
+      ((:lref) (%sysob raw-value))
+      ((:lref-ptr (%sysob (%memref raw-value))))
+      (#t (error "Bad ref-type in frame-ref: ~s" ref-type)))))
 
 (define (frame-lref frp ofs)
   (%sysob (frame-ref frp ofs)))
 
 (define (frame-link frp)
-  (let ((next-frp (frame-ref frp system::FOFS_LINK)))
+  (let ((next-frp (frame-ref frp system::FOFS_LINK :raw)))
     (if (= next-frp 0)
         #f
       next-frp)))
 
 (define (frame-type frp)
-  (case (frame-ref frp system::FOFS_FTYPE)
+  (case (frame-ref frp system::FOFS_FTYPE :raw)
     ((#.system::FRAME_SUBR  ) 'system::FRAME_SUBR  )
     ((#.system::FRAME_EVAL  ) 'system::FRAME_EVAL  )
     ((#.system::FRAME_ESCAPE) 'system::FRAME_ESCAPE)
@@ -26,17 +31,16 @@
       (hash-set! frame :frame-type ftype)
       (case ftype
         ((system::FRAME_SUBR)
-         (hash-set! frame :subr          (%sysob (frame-ref frp system::FOFS_SUBR_SUBR))))
+         (hash-set! frame :subr         (frame-ref frp system::FOFS_SUBR_SUBR :lref)))
         ((system::FRAME_EVAL)
-         (hash-set! frame :environment   (%sysob (frame-ref frp system::FOFS_EVAL_ENV)))
-         (hash-set! frame :initial-form  (%sysob (frame-ref frp system::FOFS_EVAL_IFORM)))
-         (hash-set! frame :current-form  (%sysob (%memref (frame-ref frp system::FOFS_EVAL_FORM_PTR)))))
+         (hash-set! frame :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref))
+         (hash-set! frame :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref))
+         (hash-set! frame :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)))
         ((system::FRAME_UNWIND)
-         (hash-set! frame :after-thunk   (%sysob (frame-ref frp system::FOFS_UNWIND_AFTER))))
+         (hash-set! frame :after-thunk  (frame-ref frp system::FOFS_UNWIND_AFTER :lref)))
         ((system::FRAME_ESCAPE)
-         (hash-set! frame :tag           (%sysob (frame-ref frp system::FOFS_ESCAPE_TAG)))
-         (hash-set! frame :escape-frp    (frame-ref frp system::FOFS_ESCAPE_FRAME))
-         )))
+         (hash-set! frame :tag          (frame-ref frp system::FOFS_ESCAPE_TAG :lref))
+         (hash-set! frame :escape-frp   (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)))))
     frame))
 
 (define (fold-frames kons knil frp)

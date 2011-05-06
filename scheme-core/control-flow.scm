@@ -224,6 +224,8 @@
                       `(,(clause-guard-predicate-form val-sym (car clause)) ,@(cdr clause)))
                     clauses)))))
 
+;; TODO: Add ecase
+
 (defmacro (while cond-form . body)
   (with-gensyms (while-loop-sym)
     `(begin
