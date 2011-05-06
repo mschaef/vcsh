@@ -212,15 +212,20 @@
 (define (ignore-user-break)
   (throw 'ignore-user-break))
 
+(define (error-with-stack stack message . args)
+  (dynamic-let ((*last-error-stack-trace* stack))
+    (unwind-protect
+     (lambda ()
+       (catch 'ignore-error
+         (abort 'runtime-error message args)))
+     (lambda ()
+       (set! *last-error-stack-trace* #f)))))
+
 (define (error message . args)
-  (unless *last-error-stack-trace*
-    (set! *last-error-stack-trace* (capture-stack-for-error))) ; dynamic-let would complicate the stack trace
-  (unwind-protect
-   (lambda ()
-     (catch 'ignore-error
-       (abort 'runtime-error message args)))
-   (lambda ()
-     (set! *last-error-stack-trace* #f))))
+  (apply error-with-stack
+         (capture-stack-for-error)
+         message
+         args))
 
 (define (ignore-error)
   (throw 'ignore-error))
@@ -239,36 +244,36 @@
 
 (define (trap-wrong-type trapno frp subr argno errval)
   (if (< argno 0)
-      (error "Invalid argument ~a to ~a: ~s" argno subr errval)
-      (error "Invalid argument to ~a: ~s" subr errval)))
+      (error-with-stack (capture-stack frp) "Invalid argument ~a to ~a: ~s" argno subr errval)
+      (error-with-stack (capture-stack frp) "Invalid argument to ~a: ~s" subr errval)))
 
 (define (trap-index-out-of-bounds trapno frp subr bad-index obj)
-  (error "Index ~a out of bounds while accessing ~s with ~s" bad-index obj subr))
+  (error-with-stack (capture-stack frp) "Index ~a out of bounds while accessing ~s with ~s" bad-index obj subr))
 
 (define (trap-arg-out-of-range trapno frp subr bad-arg range-desc)
   (if (null? range-desc)
-      (error "Argument to ~s out of range: ~s"  subr bad-arg)
-      (error "Argument to ~s out of range (~a): ~s" subr range-desc bad-arg)))
+      (error-with-stack (capture-stack frp) "Argument to ~s out of range: ~s"  subr bad-arg)
+      (error-with-stack (capture-stack frp) "Argument to ~s out of range (~a): ~s" subr range-desc bad-arg)))
 
 (define (trap-unimplemented trapno frp subr desc)
-  (error "Operation in ~s not yet implemented: ~a" subr desc))
+  (error-with-stack (capture-stack frp) "Operation in ~s not yet implemented: ~a" subr desc))
 
 (define (trap-unsupported trapno frp subr desc)
-  (error "Operation in ~s unsupported: ~a" subr desc))
+  (error-with-stack (capture-stack frp) "Operation in ~s unsupported: ~a" subr desc))
 
 (define (trap-divide-by-zero trapno frp subr)
-  (error "Divide by zero in ~s" subr))
+  (error-with-stack (capture-stack frp) "Divide by zero in ~s" subr))
 
 (define (trap-io-error trapno frp subr desc info)
   (if (null? info)
-      (error "Input/Output error in ~s: ~a" subr desc)
-      (error "Input/Output error in ~s: ~a (~s)" subr desc info)))
+      (error-with-stack (capture-stack frp) "Input/Output error in ~s: ~a" subr desc)
+      (error-with-stack (capture-stack frp) "Input/Output error in ~s: ~a (~s)" subr desc info)))
 
 (define (trap-unbound-global trapno frp subr var)
-  (error "unbound global: ~s" var))
+  (error-with-stack (capture-stack frp) "unbound global: ~s" var))
 
 (define (trap-fast-read-error trapno frp subr desc port location details)
-  (error "Error Reading FASL File: ~s @ ~s:~s" desc port location))
+  (error-with-stack (capture-stack frp) "Error Reading FASL File: ~s @ ~s:~s" desc port location))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_WRONG_TYPE trap-wrong-type)
