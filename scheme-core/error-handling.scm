@@ -79,6 +79,12 @@
 
 
 (define *info* #t)
+
+
+(define (info message . args)
+  (when *info*
+    (format (current-error-port) "; Info: ~I\n" message args)))
+
 (define *error* #t)
 
 (define (show-runtime-error message args)
@@ -124,15 +130,13 @@
 (define (ignore-error)
   (throw 'ignore-error))
 
-(define (info message . args)
-  (when *info*
-    (format (current-error-port) "; Info: ~I\n" message args)))
+;;;; System trap handlers
 
-(define (user-break-handler trapno)
+(define (trap-user-break trapno fsp)
   (catch 'ignore-user-break
     (signal 'user-break)))
 
-(define (uncaught-throw-handler trapno tag retval)
+(define (trap-uncaught-throw trapno fsp tag retval)
   (abort 'scheme::uncaught-throw tag retval))
 
 (define (trap-signal trapno frp tag retval)
@@ -183,8 +187,10 @@
   (%set-trap-handler! system::TRAP_FAST_READ_ERROR trap-fast-read-error)
 
   (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
-  (%set-trap-handler! system::TRAP_USER_BREAK user-break-handler)
-  (%set-trap-handler! system::TRAP_UNCAUGHT_THROW uncaught-throw-handler))
+  (%set-trap-handler! system::TRAP_USER_BREAK trap-user-break)
+  (%set-trap-handler! system::TRAP_UNCAUGHT_THROW trap-uncaught-throw))
+
+;;;; Stack Trace Capture and Display
 
 (define *show-system-frames* #f)
 
@@ -212,6 +218,9 @@
           (unless (eq? (third frame) (fourth frame))
             (format p "   -> ~s\n\n" (third frame))))
         (loop (cdr frames) (+ frame-index 1))))))
+
+
+;;;; Predicate checking
 
 (defmacro (check predicate value . msg)
   "Applies <predicate> to <value> and signals an error if false. <predicate>
