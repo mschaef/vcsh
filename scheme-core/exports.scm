@@ -24,6 +24,7 @@
              *global-readsharp-table*
              *idle-hook*
              *info*
+             *last-error*
              *location-mapping*
              *memoize-results?*
              *number-of-characters*
@@ -318,8 +319,7 @@
              eof-object?
              eq?
              equal?
-             eqv?
-             errobj
+             eqv?             
              error
              error-escape
              etypecase

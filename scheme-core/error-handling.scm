@@ -195,14 +195,14 @@
           (format (current-error-port) "--- NO STACK TRACE ---"))
       (format (current-error-port) "; Error: ~I\n" message args))))
 
-(define errobj #f)
+(define *last-error* #f)
 
 (define (handle-runtime-error message args)
   (handler-bind
       ((runtime-error (lambda (msg-2 args-2)
                         (%panic "Error during default error error handling!"))))
     (show-runtime-error message args)
-    (set! errobj (cons message args))
+    (set! *last-error* (cons message args))
     (when *enter-repl-on-runtime-error*
       (format (current-error-port) "Entering debug REPL\n")
       (handler-bind ((runtime-error handle-runtime-error))
