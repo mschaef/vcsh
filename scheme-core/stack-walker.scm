@@ -57,4 +57,7 @@
                frp))
 
 (define (capture-stack frp)
-  (fold-decoded-frames #L2(cons _0 _1) () frp))
+  (fold-decoded-frames (lambda (frame rest)
+                         (cons frame rest))
+                       ()
+                       frp))
