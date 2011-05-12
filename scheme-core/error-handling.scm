@@ -176,8 +176,19 @@
      (capture-stack *current-frp*))))
 
 (define (show-frames frames op)
-  (dolist (frame frames)
-    (format op "> ~s\n" frame)))
+  (let ((initial-frp (hash-ref (car frames) :frp)))
+    (dolist (frame (reverse frames))
+      (case (hash-ref frame :frame-type)
+        ((system::FRAME_SUBR)
+         (format op "  [SUBR: ~s]\n\n" (hash-ref frame :subr)))
+        ((system::FRAME_EVAL)
+         (format op "F+~a> ~s\n\n"
+                 (- (hash-ref frame :frp) initial-frp)
+                 (hash-ref frame :current-form)))
+        ((system::FRAME_ESCAPE)
+         (format op "  [ESCAPE: ~s]\n\n" (hash-ref frame :tag)))
+        ((system::FRAME_UNWIND)
+         (format op "  [UNWIND-PROTECT]\n\n"))))))
 
 ;;;; Error handling
 
