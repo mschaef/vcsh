@@ -202,7 +202,9 @@
       ((runtime-error (lambda (msg-2 args-2)
                         (%panic "Error during default error error handling!"))))
     (show-runtime-error message args)
-    (set! *last-error* (cons message args))
+    (set! *last-error* `#h(:eq :message ,message
+                               :args ,args
+                               :stack-trace ,*last-error-stack-trace*))
     (when *enter-repl-on-runtime-error*
       (format (current-error-port) "Entering debug REPL\n")
       (handler-bind ((runtime-error handle-runtime-error))
