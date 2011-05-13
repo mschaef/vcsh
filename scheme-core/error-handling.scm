@@ -131,28 +131,24 @@
          (hash-set! frame :escape-frp   (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)))))
     frame))
 
-(define (fold-frames kons knil frp :keyword (stop-at-frp? #f))
+(define (fold-frames kons knil frp)
   (let loop ((knil knil) (frp frp))
-    (if (and frp
-             (or (not (number? stop-at-frp?))
-                 (not (= frp stop-at-frp?))))
+    (if frp 
         (loop (kons frp knil) (frame-link frp))
         knil)))
 
-(define (fold-decoded-frames kons knil frp :keyword (stop-at-frp? #f))
+(define (fold-decoded-frames kons knil frp)
   (fold-frames (lambda (frp rest)
                  (kons (frame-decode frp) rest))
                knil
-               frp
-               :stop-at-frp? stop-at-frp?))
+               frp))
 
-(define (capture-stack frp :keyword (stop-at-frp? #f))
+(define (capture-stack frp)
   (reverse!
    (fold-decoded-frames (lambda (frame rest)
                           (cons frame rest))
                         ()
-                        frp
-                        :stop-at-frp? stop-at-frp?)))
+                        frp)))
 
 ;;;; Stack Trace Capture and Display
 
@@ -165,7 +161,8 @@
      ,@code))
 
 (defmacro (begin-user-stack form)
-  `(scheme::%preserve-initial-frame *system-stack-boundary* ,form))
+  `(scheme::%preserve-initial-frame *system-stack-boundary*
+      ,form))
 
 (define *current-frp* #f)
 
@@ -175,7 +172,7 @@
      *current-frp*
      (capture-stack *current-frp*))))
 
-(define (show-frames frames op)
+(define (show-frames frames op :keyword (stop-at-frp? #f))
   (let ((initial-frp (hash-ref (car frames) :frp)))
     (dolist (frame (reverse frames))
       (case (hash-ref frame :frame-type)
@@ -196,31 +193,39 @@
 
 (define *enter-repl-on-runtime-error* #f)
 
-(define *last-error-stack-trace* #f)
-
-(define (show-runtime-error message args)
+(define (show-runtime-error error-object)
   (when *error*
     (dynamic-let ((*print-readably* #f))
-      (if *last-error-stack-trace*
-          (show-frames *last-error-stack-trace* (current-error-port))
-          (format (current-error-port) "--- NO STACK TRACE ---"))
-      (format (current-error-port) "; Error: ~I\n" message args))))
+      (aif (hash-ref error-object :stack-trace #f)
+           (show-frames it (current-error-port))
+           (format (current-error-port) "--- NO STACK TRACE ---"))
+
+      (format (current-error-port) "; Error: ~I\n"
+              (hash-ref error-object :message)
+              (hash-ref error-object :args)))))
 
 (define *last-error* #f)
+
+(define *last-error-stack-trace* #f)
 
 (define (handle-runtime-error message args)
   (handler-bind
       ((runtime-error (lambda (msg-2 args-2)
                         (%panic "Error during default error error handling!"))))
-    (show-runtime-error message args)
-    (set! *last-error* `#h(:eq :message ,message
-                               :args ,args
-                               :stack-trace ,*last-error-stack-trace*))
-    (when *enter-repl-on-runtime-error*
-      (format (current-error-port) "Entering debug REPL\n")
-      (handler-bind ((runtime-error handle-runtime-error))
-        (repl)))
-    (throw 'error-escape)))
+
+    (let ((error-object `#h(:eq :message ,message
+                                :args ,args
+                                :stack-trace ,*last-error-stack-trace*)))
+
+      (show-runtime-error error-object)
+
+      (set! *last-error* error-object)
+
+      (when *enter-repl-on-runtime-error*
+        (format (current-error-port) "Entering debug REPL\n")
+        (handler-bind ((runtime-error handle-runtime-error))
+          (repl)))
+      (throw 'error-escape))))
 
 (define (ignore-user-break)
   (throw 'ignore-user-break))
