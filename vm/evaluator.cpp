@@ -736,6 +736,25 @@ loop:
           CURRENT_TIB()->handler_frames = execute_fast_op(FAST_OP_ARG1(fop), env);
           break;
 
+     case FOP_GLOBAL_PRESERVE_FRAME:
+     {
+          lref_t sym = FAST_OP_ARG1(fop);
+
+          checked_assert(SYMBOLP(sym));
+          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
+
+          lref_t binding = SYMBOL_VCELL(sym);
+
+          if (UNBOUND_MARKER_P(binding))
+               vmerror_unbound(sym);
+
+          SET_SYMBOL_VCELL(sym, fixcons((fixnum_t)CURRENT_TIB()->frame));
+
+          retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+     }
+     break;
+
+
      default:
           panic("Unsupported fast-op");
      }

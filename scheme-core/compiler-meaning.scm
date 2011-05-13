@@ -161,10 +161,9 @@
 
 (define-special-form (scheme::%preserve-initial-frame global-var body-form)
   (warn-if-global-unbound global-var)
-  `(:sequence
-    (:global-set! ,global-var (:get-frame))
+  `(:global-preserve-frame
+    ,global-var
     ,(expanded-form-meaning body-form cenv at-toplevel?)))
-
 
 (define-special-form (scheme::%%catch tag-form body-form)
   `(:catch
