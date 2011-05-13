@@ -280,11 +280,13 @@
          (trace-message #t "Initial package not found: ~s" *initial-package*)
          (end-compile-abnormally 127))))
 
-(define (compiler-runtime-error-handler message args)
+(define (compiler-runtime-error-handler error-info)
   (if *debug*
-      (handle-runtime-error message args)
+      (handle-runtime-error error-info)
       (begin
-        (trace-message #t "; Runtime error during compile:\n;   ~I\n"  message args)
+        (trace-message #t "; Runtime error during compile:\n;   ~I\n"
+                       (hash-ref error-info :message)
+                       (hash-ref error-info :arg))
         (end-compile-abnormally 127))))
 
 (define (parse-compiler-filename-arguments input-filename output-filename)

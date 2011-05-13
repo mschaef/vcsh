@@ -158,10 +158,10 @@
                       (format #t "Unhandled abort during evaluation: ~a\n\nargs=~a\n\n" condition args)
                       (throw 'abort-tests (list condition))))
                    (runtime-error
-                    (lambda  args
-                      (format #t "Unhandled runtime error during evaluation:\n\nargs=~a\n\n" args)
+                    (lambda (error-info)
+                      (format #t "Unhandled runtime error during evaluation:\n\nargs=~a\n\n" error-info)
                       (dynamic-let ((*error* #t))
-                        (apply handle-runtime-error args))))
+                        (handle-runtime-error error-info))))
                    (user-break
                     (lambda ()
                       (info "***USER BREAK***")

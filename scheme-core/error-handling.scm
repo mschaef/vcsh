@@ -133,7 +133,7 @@
 
 (define (fold-frames kons knil frp)
   (let loop ((knil knil) (frp frp))
-    (if frp 
+    (if frp ;;; TOOO: add safety checks to avoid faulting while walking stack, if we find an invalid frp
         (loop (kons frp knil) (frame-link frp))
         knil)))
 
@@ -193,51 +193,39 @@
 
 (define *enter-repl-on-runtime-error* #f)
 
-(define (show-runtime-error error-object)
+(define (show-runtime-error error-info)
   (when *error*
     (dynamic-let ((*print-readably* #f))
-      (aif (hash-ref error-object :stack-trace #f)
+      (aif (hash-ref error-info :stack-trace #f)
            (show-frames it (current-error-port))
            (format (current-error-port) "--- NO STACK TRACE ---"))
 
       (format (current-error-port) "; Error: ~I\n"
-              (hash-ref error-object :message)
-              (hash-ref error-object :args)))))
+              (hash-ref error-info :message)
+              (hash-ref error-info :args)))))
 
 (define *last-error* #f)
 
-(define *last-error-stack-trace* #f)
-
-(define (handle-runtime-error message args)
-  (handler-bind
-      ((runtime-error (lambda (msg-2 args-2)
-                        (%panic "Error during default error error handling!"))))
-
-    (let ((error-object `#h(:eq :message ,message
-                                :args ,args
-                                :stack-trace ,*last-error-stack-trace*)))
-
-      (show-runtime-error error-object)
-
-      (set! *last-error* error-object)
-
-      (when *enter-repl-on-runtime-error*
-        (format (current-error-port) "Entering debug REPL\n")
-        (handler-bind ((runtime-error handle-runtime-error))
-          (repl)))
-      (throw 'error-escape))))
+(define (handle-runtime-error error-info)
+  (handler-bind ((runtime-error #L0(%panic "Error during default error error handling!")))
+    (set! *last-error* error-info)
+    (show-runtime-error error-info)
+    (when *enter-repl-on-runtime-error*
+      (format (current-error-port) "Entering debug REPL\n")
+      (handler-bind ((runtime-error handle-runtime-error))
+        (repl)))
+    
+    (throw 'error-escape)))
 
 (define (ignore-user-break)
   (throw 'ignore-user-break))
 
-(define (error-with-stack stack message . args)
-  (dynamic-let ((*last-error-stack-trace* stack))
-    (unwind-protect
-     (lambda ()
-       (catch 'ignore-error
-         (abort 'runtime-error message args)))
-     (lambda ()
-       (set! *last-error-stack-trace* #f)))))
+(define (error-with-stack stack-trace message . args)
+  (let ((error-info `#h(:eq :message ,message
+                            :args ,args
+                            :stack-trace ,stack-trace)))
+    (catch 'ignore-error
+      (abort 'runtime-error error-info))))
 
 (define (error message . args)
   (apply error-with-stack

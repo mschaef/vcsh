@@ -325,9 +325,9 @@
 
 (define-file-argument-handling
   (handler-bind ((runtime-error
-                  (lambda (message args)
+                  (lambda (error-info)
                     (format (current-error-port) "; Error while reading file: ~s\n" arg)
-                    (handle-runtime-error message args))))
+                    (handle-runtime-error error-info))))
 
   (load-file arg)))
 

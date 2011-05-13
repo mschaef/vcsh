@@ -21,8 +21,8 @@
 	(symx2-name (random-string))
 	(p1 #f)
 	(p2 #f)
-    (p3 #f)
-    )
+    (p3 #f))
+
     (set! p1 (make-package! p1-name))
     (test-case (runtime-error? (make-package! p1-name)))
 
