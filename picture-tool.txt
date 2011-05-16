@@ -1,0 +1,35 @@
+* Requirements
+** Global Repository of Files
+*** Persistant, fire-safe backup
+**** 'Cold-Start' Recoverability... should be possible to recover with only Windows+Git
+*** Multiple instances distributed across PC's
+*** Out of band Metadata stored in readable format within repository
+*** Support non-picture content (arbitrary files, movies, music, etc.)
+*** Direct URL access to pictures
+*** Support multiple distributed local repositories
+*** Support partial repository snapshots
+
+** Automatic Picture Import
+*** One-step import (insert card, autodetected, pops up import dialog, starts/completes import)
+*** Import runs on Mac OS X, Windows, Linux
+*** Data duplication avoided, even for multiply imported pictures/videos
+*** Data automatically backed up to fire-safe, after import
+
+** Display
+*** Simple GUI tagging/display of pictures
+*** Drag/Drop (tags onto pictures, pictures onto tags)
+*** Pervasive Search
+
+* General Architecture
+** Storage Layer
+*** git back end storage for local repositories
+*** Fire-safe backup in Amazon S3
+**** jgit push/pull between S3 and local git
+** Picture Importer
+*** Listens for new pictures (using OS-specific mechanism).
+*** Computes SHA-1 hash for all picture, and moves into well-known git repository
+*** Adds/Commits Pictures
+** Data Flow
+*** Watches for git repo changes, and pushes upstream
+** vcsh for administration/scripting
+
