@@ -12,14 +12,13 @@
 
 (define (find-import-details filenames)
   (map (lambda (filename)
-         (let ((details (alist 'source-filename filename)))
-           (if (file-exists? filename)
-               (let ((source-digest (file-sha1-digest filename)))
-                 (alist 'source-digest source-digest
-                        'target-filename (make-filename *picture-target*
-                                                        (string-append source-digest "." (filename-extension filename)))
-                        details))
-               details)))
+         (let ((details `#h(:eq source-filename ,filename)))
+           (when (file-exists? filename)
+             (let ((source-digest (file-sha1-digest filename)))
+               (hash-set! details 'source-digest source-digest)
+               (hash-set! details 'target-filename (make-filename *picture-target*
+                                                                  (string-append source-digest "." (filename-extension filename))))))
+           details))
        filenames))
 
 (define (copy-file from to)
@@ -27,6 +26,6 @@
 
 (define (do-import filenames)
   (dolist (import-info (find-import-details filenames))
-    (when (assq 'target-filename import-info)
-      (copy-file (cdr (assq 'source-filename import-info ))
-                 (cdr (assq 'target-filename import-info ))))))
+    (when (hash-has? import-info 'target-filename)
+      (copy-file (hash-ref import-info 'source-filename)
+                 (hash-ref import-info 'target-filename)))))
