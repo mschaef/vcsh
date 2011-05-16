@@ -254,6 +254,7 @@ lref_t lfast_op_args(lref_t fast_op);
 lref_t lfast_op_opcode(lref_t fast_op);
 lref_t lfast_op_next(lref_t fast_op);
 lref_t lfast_read(lref_t port);
+lref_t lfile_sha1_digest(lref_t fn);
 lref_t lfloor(lref_t x);
 lref_t lflush_port(lref_t port);
 lref_t lflush_whitespace(lref_t port, lref_t slc);

@@ -374,6 +374,7 @@ static void register_main_subrs()
     register_subr(_T("exp"),                              SUBR_1,     (void*)lexp                                );
     register_subr(_T("expt"),                             SUBR_2,     (void*)lexpt                               );
     register_subr(_T("fast-read"),                        SUBR_1,     (void*)lfast_read                          );
+    register_subr(_T("file-sha1-digest"),                 SUBR_1,     (void*)lfile_sha1_digest                   );
     register_subr(_T("floor"),                            SUBR_1,     (void*)lfloor                              );
     register_subr(_T("flush-port"),                       SUBR_1,     (void*)lflush_port                         );
     register_subr(_T("flush-whitespace"),                 SUBR_2,     (void*)lflush_whitespace                   );

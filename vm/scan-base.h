@@ -287,6 +287,9 @@ enum
      /* The buffer size used for debugging messages */
      DEBUG_MESSAGE_BUF_SIZE = 256,
 
+     /* The buffer size used for SHA-1 hash computation. */
+     SHA1_BUF_SIZE = 256,
+
 #if defined(WITH_FOPLOG_SUPPORT)
      /* The number of FOPs that can be recorded in the FOPLOG */
      FOPLOG_SIZE  = 1024 * 1024,

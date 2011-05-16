@@ -16,8 +16,9 @@
 
 #include <sys/stat.h>
 
-#include "scan-private.h"
+#include <CommonCrypto/CommonDigest.h>
 
+#include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
 lref_t lsystem(size_t argc, lref_t argv[])
@@ -418,6 +419,68 @@ lref_t lsystem_info()
      lhash_set(obj, keyword_intern(_T("interpreter-state-size")), fixcons(sizeof(interpreter_t)));
 
      return obj;
+}
+
+static void sha1_find_digest(FILE *infile, uint8_t *digest)
+{
+     CC_SHA1_CTX ctx;
+     CC_SHA1_Init(&ctx);
+
+     for(;;)
+     {
+          uint8_t buf[SHA1_BUF_SIZE];
+
+          size_t bytes_read = fread(buf, 1, SHA1_BUF_SIZE, infile);
+
+          if (bytes_read == 0)
+               break;
+
+          CC_SHA1_Update(&ctx, buf, bytes_read);
+     }
+
+     CC_SHA1_Final(digest, &ctx);
+}
+
+static _TCHAR hexchar(int i) // REVISIT: standard way to do this?
+{
+     if ((i >= 0) && (i <= 9))
+          return _T('0') + i;
+     else
+          return _T('a') + (i - 10);
+}
+
+static lref_t sha1_encode_digest(uint8_t *digest)
+{
+     _TCHAR encoded_digest[CC_SHA1_DIGEST_LENGTH * 2];
+
+     for(size_t ii = 0; ii < CC_SHA1_DIGEST_LENGTH; ii++)
+     {
+          encoded_digest[ii * 2 + 0] = hexchar((digest[ii] >> 4) & 0xF);
+          encoded_digest[ii * 2 + 1] = hexchar((digest[ii] >> 0) & 0xF);
+     }
+
+     return strcons(CC_SHA1_DIGEST_LENGTH * 2, encoded_digest);
+}
+
+lref_t lfile_sha1_digest(lref_t fn)
+{
+     if (!STRINGP(fn))
+          vmerror_wrong_type(1, fn);
+
+     _TCHAR *filename = get_c_string(fn);
+
+     FILE *f = fopen(filename, "rb");
+
+     if (f == NULL)
+          vmerror_io_error(_T("cannot open file"), fn);
+
+     uint8_t sha1_digest[CC_SHA1_DIGEST_LENGTH];
+
+     sha1_find_digest(f, sha1_digest);
+
+     fclose(f);
+
+     return sha1_encode_digest(sha1_digest);
 }
 
 END_NAMESPACE
