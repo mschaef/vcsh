@@ -866,12 +866,16 @@
   "Create an alist from an arbitrary (non-zero) number of <key>/<value>
    pairs passed as arguments."
   (let recur ((k/vs k/vs))
-    (if (null? k/vs)
-        ()
-        (cons (cons (car k/vs) (cadr k/vs))
-              (recur (cddr k/vs))))))
+    (cond ((null? k/vs)
+           ())
+          ((null? (cdr k/vs))
+           (car k/vs))
+          (#t
+           (cons (cons (car k/vs)
+                       (cadr k/vs))
+                 (recur (cddr k/vs)))))))
 
-(define (minimal-alist elts :optional (in-list? assoc))
+(define (minimal-alist elts :optional (in-list? assoc)) ;; TODO: Reimplement with fold
   "Non-destructively computes the 'minimal' representation of
    the alist <elts>. The minimal representation has no duplicate
    keys, leaving only the 'current' bindings.  <in-list?> determines
