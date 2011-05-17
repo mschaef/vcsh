@@ -38,11 +38,8 @@
 
 (define (import-picture import-info)
   (when (hash-has? import-info 'target-filename)
-    ;; TODO: Extend slot-ref to work with hashes, so that the @(import-info source-filename) syntax will work
-    (copy-file (hash-ref import-info 'source-filename)
-               (hash-ref import-info 'target-filename))
-    (hash-set! import-info 'target-digest
-               (file-sha1-digest (hash-ref import-info 'target-filename)))))
+    (copy-file @(import-info source-filename) @(import-info target-filename))
+    (hash-set! import-info 'target-digest (file-sha1-digest @(import-info target-filename)))))
 
 (define (do-import filenames)
   (let ((details (find-import-details filenames)))
