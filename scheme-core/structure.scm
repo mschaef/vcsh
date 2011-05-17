@@ -287,23 +287,29 @@
                    (%structure-slot-index structure slot-name)
                    new-value))
 
-(define (slot-ref object key :optional (default-value ()))
+(define (slot-ref object key :optional (default-value #f))
   "Retrieves the value of the slot in <object> named by <key>. <object> can be
    either a hash, an instance, or a structure. Attempts to retrieve unknown
    slots from a structure will return <default-value>."
-  (if (structure? object)
-      (if (structure-has-slot? object key)
-          (structure-slot-by-name object key default-value)
-          default-value)
-      (%slot-ref object key default-value)))
+  (cond ((structure? object)
+         (if (structure-has-slot? object key)
+             (structure-slot-by-name object key default-value)
+             default-value))
+        ((hash? object)
+         (hash-ref object key default-value))
+        (#t
+         (%slot-ref object key default-value))))
 
 (define (slot-set! object key value)
   "Updates the value of the slot in <object> named by <key> to <value>. <object>
    can be either a hash, an instance, or a structure. In the case of a structure,
    attempts to set a non-existant <key> will throw an error."
-  (if (structure? object)
-      (set-structure-slot-by-name! object key value)
-      (%slot-set! object key value)))
+  (cond ((structure? object)
+          (set-structure-slot-by-name! object key value))
+        ((hash? object)
+         (hash-set! object key value))
+        (#t
+         (%slot-set! object key value))))
 
 (defmacro (define-structure name . slots)
   (mvbind (name meta procs) (parse-structure-definition name slots)

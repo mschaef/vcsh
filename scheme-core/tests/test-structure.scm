@@ -467,7 +467,7 @@
     (test-case (eq? (structure-slot-by-name s1 :dx) 1))
     (test-case (eq? (structure-slot-by-name s1 :dy) -2))
 
-    (test-case (eq? () (slot-ref s1 :bad-slot)))
+    (test-case (eq? #f (slot-ref s1 :bad-slot)))
     (test-case (eq? :xyzzy (slot-ref s1 :bad-slot :xyzzy)))
     (test-case (runtime-error? (slot-ref s1 23)))
     (test-case (runtime-error? (slot-ref 'ship :x)))

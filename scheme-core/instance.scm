@@ -101,7 +101,7 @@
      (slot-set! new-instance slot (slot-ref instance slot)))
    new-instance))
 
-(define (slots-ref instance slots :optional (default-value ())) ; REVISIT: some slot defaults are (), some are #f.
+(define (slots-ref instance slots :optional (default-value #f))
   "Returns a list of the values of the specified <slots> of
    <instance>. If a slot is not found, it is returned as <default-value>."
  (map #L(slot-ref instance _ default-value) slots))
