@@ -244,6 +244,8 @@
   (inspect-prompt)
   (repl-read *inspect-abbreviations*))
 
+(define *inspect-print-length* 3)
+
 (defmacro (with-inspect-printing . code)
   `(dynamic-let ((*print-length* *inspect-print-length*))
     ,@code))
