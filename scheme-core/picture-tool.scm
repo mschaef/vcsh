@@ -1,4 +1,7 @@
 
+(define-package "picture-tool"
+  (:uses "scheme"))
+
 (define file-sha1-digest #.(scheme::%subr-by-name "file-sha1-digest"))
 
 ;; TODO: Add ~ substitution, so that ~/picture-target will work.
@@ -27,7 +30,7 @@
            details))
        filenames))
 
-(define (copy-file from to)
+(define (copy-file from to) ;; TODO: Should be pushed down to OS-level call
   (cond ((file-exists? to)
          (format (current-error-port) "; Duplicate target file: ~s\n" to)
          :duplicate)
