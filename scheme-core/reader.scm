@@ -603,8 +603,13 @@
         (ref-form (read port)))
     (cond ((symbol? ref-form)
            `(slot-ref self ',ref-form))
-          ((and (list? ref-form) (length=2? ref-form) (symbol? (second ref-form)))
-           `(slot-ref ,(first ref-form) ',(second ref-form)))
+          ((and (list? ref-form)
+                (symbol? (second ref-form))
+                (or (length=2? ref-form)
+                    (length=3? ref-form)))
+           (if (length=2? ref-form)
+               `(slot-ref ,(first ref-form) ',(second ref-form))
+               `(slot-ref ,(first ref-form) ',(second ref-form) ,(third ref-form))))
           (#t
            (read-error :reader-bad-slot-reference port location)))))
 
