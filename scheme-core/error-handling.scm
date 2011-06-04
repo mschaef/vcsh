@@ -88,7 +88,7 @@
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
 
-;;;; System Stack Walker
+;;;; System Stack Frame Access and Decode Methods
 
 (define (frame-ref frp ofs ref-type)
   (let ((raw-value (%memref (+ frp (* ofs (system-info :size-of-lref))))))
@@ -131,25 +131,6 @@
          (hash-set! frame :escape-frp   (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)))))
     frame))
 
-(define (fold-frames kons knil frp)
-  (let loop ((knil knil) (frp frp))
-    (if frp ;;; TOOO: add safety checks to avoid faulting while walking stack, if we find an invalid frp
-        (loop (kons frp knil) (frame-link frp))
-        knil)))
-
-(define (fold-decoded-frames kons knil frp)
-  (fold-frames (lambda (frp rest)
-                 (kons (frame-decode frp) rest))
-               knil
-               frp))
-
-(define (capture-stack frp)
-  (reverse!
-   (fold-decoded-frames (lambda (frame rest)
-                          (cons frame rest))
-                        ()
-                        frp)))
-
 ;;;; Stack Trace Capture and Display
 
 (define *capture-system-frames* #f)
@@ -164,6 +145,25 @@
   `(scheme::%preserve-initial-frame *system-stack-boundary*
       ,form))
 
+(define (fold-stack-frames kons knil start-frp :optional (stop-frp? #f))
+  (let loop ((knil knil)
+             (frp start-frp))
+    ;; TOOO: add safety checks to avoid faulting while walking stack, if we find an invalid frp
+    (if (and frp
+             (not (eqv? frp stop-frp?))) 
+        (loop (kons frp knil) (frame-link frp))
+        knil)))
+
+(define (capture-stack start-frp :optional (stop-frp? #f))
+  (reverse!
+   (fold-stack-frames (lambda (frame rest)
+                        (cons (frame-decode frame) rest))
+                      ()
+                      start-frp
+                      (if *capture-system-frames*
+                          #f
+                          *system-stack-boundary*))))
+
 (define *current-frp* #f)
 
 (define (capture-stack-for-error)
@@ -172,7 +172,9 @@
      *current-frp*
      (capture-stack *current-frp*))))
 
-(define (show-frames frames op :keyword (stop-at-frp? #f))
+;;;; Stack display
+
+(define (show-frames frames op)
   (let ((initial-frp (hash-ref (car frames) :frp)))
     (dolist (frame (reverse frames))
       (case (hash-ref frame :frame-type)
