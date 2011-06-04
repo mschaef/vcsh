@@ -522,8 +522,7 @@ loop:
 
           lref_t binding = lenvlookup(sym, env);
 
-          if (NULLP(binding))
-               vmerror_unbound(sym);
+          checked_assert(!NULLP(binding));
 
           retval = CAR(binding);
      }
@@ -537,8 +536,7 @@ loop:
 
           lref_t binding = lenvlookup(sym, env);
 
-          if (NULLP(binding))
-               vmerror_unbound(sym);
+          checked_assert(!NULLP(binding));
 
           lref_t val = execute_fast_op(FAST_OP_ARG2(fop), env);
 
@@ -758,7 +756,6 @@ loop:
      default:
           panic("Unsupported fast-op");
      }
-
 
      fstack_leave_frame();
 
