@@ -74,6 +74,10 @@
     (maybe-integrate ?fn-sym ?args)
     fop))
 
+(define (integration-symbols)
+  ;; REVISIT: Currently unioning in toplevel special forms and type names... need to do something better
+  (map car (hash-keys *integrations*)))
+
 ;;;; The toplevel optimizer
 
 (define (optimize-fop-assembly fasm)

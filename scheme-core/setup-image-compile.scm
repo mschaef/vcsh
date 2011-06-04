@@ -66,6 +66,7 @@
                scheme::eq?
                scheme::equal?
                scheme::member)
+             (compiler::integration-symbols)
              (compiler::special-form-symbols)))
 
 ;; Exclude packages that are in common between the host and the target.
@@ -120,3 +121,4 @@
 ;; The host compiler needs to know about the target compiler's *package* variable,
 ;; so that incoming forms get read in the correct place.
 (set! host-compiler::*package-var* (scheme::intern! "*package*" "scheme"))
+
