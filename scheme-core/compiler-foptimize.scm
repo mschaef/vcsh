@@ -35,12 +35,48 @@
               `(,fop-name ,@(map-fop-args fop-formals fop-actuals))
               (error "Invalid FOP transformation result: ~s" fasm))))))
 
+;;;; Global application optimization
+
 (define (xform-global-apply fop)
   (bind-if-match (:apply (:global-ref ?sym) ?args) fop
      `(:apply-global ,?sym ,?args)
      fop))
 
+;;;; Primitive function integration
+
+(define *integrations* (make-hash))
+
+(define (register-integration-function! fn-sym arity fn)
+  (hash-set! *integrations* `(,fn-sym ,arity) fn))
+
+(defmacro (define-integration app-form fop-form)
+  (dbind (fn-sym . args) app-form
+    (check valid-lambda-list? args)
+    (mvbind (arity rest?) (lambda-list-arity args)
+      (check not rest?)
+      `(register-integration-function! ',fn-sym ,arity
+                                       (lambda ,args ,fop-form)))))
+
+(define (find-integration-function fn-sym arity)
+  (hash-ref *integrations* `(,fn-sym ,arity) #f))
+
+;; (define-integration (CAR x) `(:car ,x))
+;; (define-integration (CDR x) `(:cdr ,x))
+
+(define (maybe-integrate fn-sym args)
+  (aif (find-integration-function fn-sym (length args))
+       (it args)
+       `(:apply-global ,fn-sym ,args)))
+
+(define (xform-integrate fop)
+  (bind-if-match (:apply-global ?fn-sym ?args) fop
+    (maybe-integrate ?fn-sym ?args)
+    fop))
+
+;;;; The toplevel optimizer
+
 (define (optimize-fop-assembly fasm)
   (if *optimize*
-      (map-fop-assembly xform-global-apply fasm)
+      (map-fop-assembly xform-integrate
+                        (map-fop-assembly xform-global-apply fasm))
       fasm))
