@@ -243,6 +243,7 @@
              columns->instance
              complex
              complex?
+             compose
              cond
              cons
              cons*

@@ -400,7 +400,7 @@
      (error "~s unimplemented." ',proc-name)))
 
 (define (always x)
-  "Returns a closure that always returns <x>."
+  "Returns a function  that always returns <x>."
   (lambda () x))
 
 (define (negate pred?)
@@ -408,5 +408,16 @@
    as <pred?>"
   (lambda (x) (not (pred? x))))
 
+(define compose) ;; forward
 
-(define (identity x) x)
+(define (compose . fns)
+  "Returns an arity-1 function that evaluates the composition of the
+   functions in <fns>."
+  (if (null? fns)
+      identity
+      (lambda (x)
+        ((car fns) ((apply compose (cdr fns)) x)))))
+
+(define (identity x)
+  "The identity function. Returns <x>, unchanged."
+  x)

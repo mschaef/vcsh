@@ -80,8 +80,14 @@
 
 ;;;; The toplevel optimizer
 
+(define (optimize-pass/integrate-subrs fasm)
+  (map-fop-assembly xform-integrate fasm))
+
+(define (optimize-pass/global-applications fasm)
+  (map-fop-assembly xform-global-apply fasm))
+
 (define (optimize-fop-assembly fasm)
   (if *optimize*
-      (map-fop-assembly xform-integrate
-                        (map-fop-assembly xform-global-apply fasm))
+      (optimize-pass/integrate-subrs
+       (optimize-pass/global-applications fasm))
       fasm))
