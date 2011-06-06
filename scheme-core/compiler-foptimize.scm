@@ -46,7 +46,7 @@
 
 (define *integrations* (make-hash))
 
-(define (register-integration-function! fn-sym arity fn)
+(define (register-integration-expander! fn-sym arity fn)
   (hash-set! *integrations* `(,fn-sym ,arity) fn))
 
 (defmacro (define-integration app-form fop-form)
@@ -54,29 +54,28 @@
     (check valid-lambda-list? args)
     (mvbind (arity rest?) (lambda-list-arity args)
       (check not rest?)
-      (eval-when (:load-toplevel :compile-toplevel :execute)
-        `(register-integration-function! ',fn-sym ,arity
+      `(eval-when (:load-toplevel :compile-toplevel :execute)
+         (register-integration-expander! ,fn-sym ,arity
                                          (lambda ,args ,fop-form))))))
 
-(define (find-integration-function fn-sym arity)
+(define (find-integration-expander fn-sym arity)
   (hash-ref *integrations* `(,fn-sym ,arity) #f))
 
-(define-integration (car x) `(:car ,x))
-(define-integration (cdr x) `(:cdr ,x))
-
-(define (maybe-integrate fn-sym args)
-  (aif (find-integration-function fn-sym (length args))
+(define (find-integrated-form fn-sym args)
+  (aif (and (symbol-bound? fn-sym)
+            (find-integration-expander (symbol-value fn-sym)
+                                       (length args)))
        (apply it args)
-       `(:apply-global ,fn-sym ,args)))
+       #f))
 
 (define (xform-integrate fop)
   (bind-if-match (:apply-global ?fn-sym ?args) fop
-    (maybe-integrate ?fn-sym ?args)
+    (or (find-integrated-form ?fn-sym ?args)
+        fop)
     fop))
 
-(define (integration-symbols)
-  ;; REVISIT: Currently unioning in toplevel special forms and type names... need to do something better
-  (map car (hash-keys *integrations*)))
+(define-integration (car x) `(:car ,x))
+(define-integration (cdr x) `(:cdr ,x))
 
 ;;;; The toplevel optimizer
 

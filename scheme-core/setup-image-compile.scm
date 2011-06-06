@@ -66,7 +66,6 @@
                scheme::eq?
                scheme::equal?
                scheme::member)
-             (compiler::integration-symbols)
              (compiler::special-form-symbols)))
 
 ;; Exclude packages that are in common between the host and the target.
