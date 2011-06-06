@@ -651,6 +651,7 @@
              random-list-element
              random-subsequence
              rational?
+             rcompose
              read
              read-binary-fixnum
              read-binary-flonum

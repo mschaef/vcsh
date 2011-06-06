@@ -418,6 +418,14 @@
       (lambda (x)
         ((car fns) ((apply compose (cdr fns)) x)))))
 
+(define (rcompose . fns)
+  "Returns an arity-1 function that evaluates the reverse composition of
+   the functions in <fns>."
+  (if (null? fns)
+      identity
+      (lambda (x)
+        ((apply compose (cdr fns)) ((car fns) x)))))
+
 (define (identity x)
   "The identity function. Returns <x>, unchanged."
   x)
