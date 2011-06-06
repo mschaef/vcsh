@@ -12,6 +12,8 @@
 
 (define *optimize* #t)
 
+(define *optimize/integrate-subrs* #t)
+
 (define (fop-id x) x)
 
 (define map-fop-assembly) ;; forward
@@ -83,14 +85,19 @@
 
 ;;;; The toplevel optimizer
 
+(define (optional-pass enabled? pass-fn)
+  (if enabled? pass-fn identity))
+
 (define (optimize-pass/integrate-subrs fasm)
   (map-fop-assembly xform-integrate fasm))
 
 (define (optimize-pass/global-applications fasm)
   (map-fop-assembly xform-global-apply fasm))
 
+(define (optimize-pass/full fop)
+  ((rcompose optimize-pass/global-applications
+             (optional-pass *optimize/integrate-subrs* optimize-pass/integrate-subrs))
+   fop))
+
 (define (optimize-fop-assembly fasm)
-  (if *optimize*
-      (optimize-pass/integrate-subrs
-       (optimize-pass/global-applications fasm))
-      fasm))
+  ((optional-pass *optimize* optimize-pass/full) fasm))
