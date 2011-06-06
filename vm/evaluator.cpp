@@ -723,7 +723,7 @@ loop:
           break;
 
      case FOP_NULLP:
-          retval = boolcons((execute_fast_op(FAST_OP_ARG1(fop), env)));
+          retval = boolcons(NULLP(execute_fast_op(FAST_OP_ARG1(fop), env)));
           break;
 
      case FOP_EQP:
