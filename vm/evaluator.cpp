@@ -718,6 +718,20 @@ loop:
           retval = lcdr(execute_fast_op(FAST_OP_ARG1(fop), env));
           break;
 
+     case FOP_NOT:
+          retval = boolcons(!TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)));
+          break;
+
+     case FOP_NULLP:
+          retval = boolcons((execute_fast_op(FAST_OP_ARG1(fop), env)));
+          break;
+
+     case FOP_EQP:
+          retval = boolcons(EQ(execute_fast_op(FAST_OP_ARG1(fop), env),
+                               execute_fast_op(FAST_OP_ARG2(fop), env)));
+
+          break;
+
      case FOP_GET_ENV:
           retval = env;
           break;

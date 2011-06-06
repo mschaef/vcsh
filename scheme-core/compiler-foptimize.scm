@@ -77,6 +77,10 @@
 (define-integration (car x) `(:car ,x))
 (define-integration (cdr x) `(:cdr ,x))
 
+;; (define-integration (not x) `(:not ,x))
+;; (define-integration (eq? x y) `(:eqp ,x ,y))
+;; (define-integration (null? x) `(:nullp ,x))
+
 ;;;; The toplevel optimizer
 
 (define (optimize-pass/integrate-subrs fasm)
