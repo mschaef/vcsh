@@ -1,4 +1,5 @@
 
+
 ;;;; compiler-foptimize.scm --
 ;;;;
 ;;;; The FOP tree optimizer.
@@ -44,6 +45,9 @@
      `(:apply-global ,?sym ,?args)
      fop))
 
+(define (optimize-pass/global-applications fasm)
+  (map-fop-assembly xform-global-apply fasm))
+
 ;;;; Primitive function integration
 
 (define *integrations* (make-hash))
@@ -76,28 +80,48 @@
         fop)
     fop))
 
-(define-integration (car x) `(:car ,x))
-(define-integration (cdr x) `(:cdr ,x))
+(define-integration (car x)
+  `(:car ,x))
 
-(define-integration (not x) `(:not ,x))
-(define-integration (eq? x y) `(:eqp ,x ,y))
-(define-integration (null? x) `(:nullp ,x))
+(define-integration (cdr x)
+  `(:cdr ,x))
 
-;;;; The toplevel optimizer
+(define-integration (not x)
+  `(:not ,x))
 
-(define (optional-pass enabled? pass-fn)
-  (if enabled? pass-fn identity))
+(define-integration (eq? x y)
+  `(:eqp ,x ,y))
+
+(define-integration (null? x)
+  `(:nullp ,x))
 
 (define (optimize-pass/integrate-subrs fasm)
   (map-fop-assembly xform-integrate fasm))
 
-(define (optimize-pass/global-applications fasm)
-  (map-fop-assembly xform-global-apply fasm))
+;;;; The if-optimizer
+
+(define (xform-simplify-if fop)
+  (cond-match fop
+    ((:if-true (:not ?condition) ?then-clause ?else-clause)
+     `(:if-true ,?condition ,?else-clause ,?then-clause))
+    ((:if-true (:nullp ?condition) ?then-clause ?else-clause)
+     `(:if-nullp ,?condition ,?then-clause ,?else-clause))
+    (#t
+     fop)))
+
+(define (optimize-pass/simplify-if fasm)
+  (map-fop-assembly xform-simplify-if fasm))
+
+;;;; The toplevel optimizer
+
+(define (opt-pass enabled? pass-fn)
+  (if enabled? pass-fn identity))
 
 (define (optimize-pass/full fop)
   ((rcompose optimize-pass/global-applications
-             (optional-pass *optimize/integrate-subrs* optimize-pass/integrate-subrs))
+             (opt-pass *optimize/integrate-subrs* optimize-pass/integrate-subrs)
+             optimize-pass/simplify-if)
    fop))
 
 (define (optimize-fop-assembly fasm)
-  ((optional-pass *optimize* optimize-pass/full) fasm))
+  ((opt-pass *optimize* optimize-pass/full) fasm))

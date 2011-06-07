@@ -245,6 +245,7 @@
              complex?
              compose
              cond
+             cond-match
              cons
              cons*
              copy-structure

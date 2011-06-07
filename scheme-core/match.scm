@@ -142,9 +142,11 @@
           (if (null? clauses)
               '(values)
               (mvbind (pattern body) (parse-cond-clause (car clauses))
-                `(bind-if-match ,pattern ,val-sym
-                   ,(clause-body-statement body)
-                   ,(recur (cdr clauses)))))))))
+                (if (eq? #t pattern)
+                    (clause-body-statement body)
+                    `(bind-if-match ,pattern ,val-sym
+                       ,(clause-body-statement body)
+                       ,(recur (cdr clauses))))))))))
 
 (define (dbind-match-variables binding)
   "Returns the list of all match variables in the dbind pattern
