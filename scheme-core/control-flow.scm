@@ -156,15 +156,14 @@
    is only the case for #f."
   (eq? form #f))
 
+(define (parse-cond-clause clause)
+  (check list? clause "Invalid cond clause.")
+  (values (car clause) (cdr clause)))
+
+(define (clause-body-statement code)
+  (if (length=1? code) (car code) `(begin ,@code)))
+
 (defmacro (cond . clauses)
-
-  (define (parse-cond-clause clause)
-    (check list? clause "Invalid cond clause.")
-    (values (car clause) (cdr clause)))
-
-  (define (clause-body-statement code)
-    (if (length=1? code) (car code) `(begin ,@code)))
-
   (if (null? clauses)
       '(values)
       (mvbind (guard body) (parse-cond-clause (car clauses))
@@ -180,22 +179,19 @@
                     ,(clause-body-statement body)
                     (cond ,@(cdr clauses))))))))
 
+(define (check-case-clause clause)
+  (check list? clause "Invalid case clause.")
+  (check (or (eq? #t) list?) (first clause) "Invalid case guard."))
 
+(define (case-clause-guard-predicate-form val-sym clause-guard)
+  (cond ((eq? clause-guard #t)
+         #t)
+        ((length=1? clause-guard)
+         `(eq? ,val-sym ',(car clause-guard)))
+        (#t
+         `(or ,@(map (lambda (guard-val)`(eq? ,val-sym ',guard-val)) clause-guard)))))
 
 (defmacro (case value-form . clauses)
-
-  (define (check-case-clause clause)
-    (check list? clause "Invalid case clause.")
-    (check (or (eq? #t) list?) (first clause) "Invalid case guard."))
-
-  (define (clause-guard-predicate-form val-sym clause-guard)
-    (cond ((eq? clause-guard #t)
-           #t)
-          ((length=1? clause-guard)
-           `(eq? ,val-sym ',(car clause-guard)))
-          (#t
-           `(or ,@(map (lambda (guard-val)`(eq? ,val-sym ',guard-val)) clause-guard)))))
-
   (define (find-clause-guard-values clauses)
     (fold (lambda (guard-value all-guard-values)
             (when (memq guard-value all-guard-values)
@@ -221,7 +217,7 @@
   (with-gensyms (val-sym)
     `(let ((,val-sym ,value-form))
        (cond ,@(map (lambda (clause)
-                      `(,(clause-guard-predicate-form val-sym (car clause)) ,@(cdr clause)))
+                      `(,(case-clause-guard-predicate-form val-sym (car clause)) ,@(cdr clause)))
                     clauses)))))
 
 ;; TODO: Add ecase
@@ -418,13 +414,15 @@
       (lambda (x)
         ((car fns) ((apply compose (cdr fns)) x)))))
 
+(define rcompose) ;; forward
+
 (define (rcompose . fns)
   "Returns an arity-1 function that evaluates the reverse composition of
    the functions in <fns>."
   (if (null? fns)
       identity
       (lambda (x)
-        ((apply compose (cdr fns)) ((car fns) x)))))
+        ((apply rcompose (cdr fns)) ((car fns) x)))))
 
 (define (identity x)
   "The identity function. Returns <x>, unchanged."
