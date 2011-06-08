@@ -103,7 +103,8 @@
 (define (xform-simplify-if fop)
   (cond-match fop
     ((:if-true (:not ?condition) ?then-clause ?else-clause)
-     `(:if-true ,?condition ,?else-clause ,?then-clause))
+     (xform-simplify-if
+      `(:if-true ,?condition ,?else-clause ,?then-clause)))
     ((:if-true (:nullp ?condition) ?then-clause ?else-clause)
      `(:if-nullp ,?condition ,?then-clause ,?else-clause))
     (#t
