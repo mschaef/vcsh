@@ -62,7 +62,6 @@
 (define-fast-op :apply-global           #.system::FOP_APPLY_GLOBAL          :symbol (:fast-op)        )
 (define-fast-op :apply                  #.system::FOP_APPLY                 :fast-op (:fast-op)       )
 (define-fast-op :if-true                #.system::FOP_IF_TRUE               :fast-op :fast-op :fast-op)
-(define-fast-op :if-false               #.system::FOP_IF_FALSE              :fast-op :fast-op :fast-op)
 (define-fast-op :if-nullp               #.system::FOP_IF_NULLP              :fast-op :fast-op :fast-op)
 (define-fast-op :and/2                  #.system::FOP_AND2                  :fast-op :fast-op         )
 (define-fast-op :or/2                   #.system::FOP_OR2                   :fast-op :fast-op         )
