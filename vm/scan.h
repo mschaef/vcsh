@@ -14,10 +14,6 @@
 #ifndef __SCAN_H
 #define __SCAN_H
 
-// #define WITH_FOPLOG_SUPPORT
-
-#define SCAN_64BIT_FIXNUMS            /* Support for MSC style 64-bit integers */
-
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdio.h>
