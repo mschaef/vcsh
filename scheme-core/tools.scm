@@ -152,10 +152,6 @@
                (case opcode
                  ((:global-ref :local-ref :literal)
                   (format port "~s ~s\n" opcode (car args)))
-                 ((:global-set! :local-set!)
-                  (format port "~s ~s\n" opcode (car args))
-                  (in-trace-level
-                   (recur (cadr args))))
                  ((:global-set/rv! :local-set/rv!)
                   (format port "~s ~s\n" opcode (car args)))
                  ((:closure)

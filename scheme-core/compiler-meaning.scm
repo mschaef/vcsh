@@ -156,11 +156,12 @@
 (define-special-form (the-environment)
   `(:get-env))
 
-
 (define-special-form (scheme::%preserve-initial-fsp global-var body-form)
   (warn-if-global-unbound global-var)
   `(:sequence
-    (:global-set! ,global-var (:get-fsp))
+    (:sequence
+     (:get-fsp)
+     (:global-set/rv! ,global-var))
     ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
 (define-special-form (scheme::%preserve-initial-frame global-var body-form)
