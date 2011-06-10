@@ -45,7 +45,7 @@
 (define (fop-histogram :optional (log (%foplog-snapshot)))
   (hist (foplog->opcodes log)))
 
-(define (fop-seq-histogram :optional (length 2) (log (%foplog-snapshot)))
+(define (fop-seq-histogram :optional (log (%foplog-snapshot)) (length 2))
   (hist (foplog-seqs (foplog->opcodes log) length)))
 
 (defmacro (foplog-for expr)
