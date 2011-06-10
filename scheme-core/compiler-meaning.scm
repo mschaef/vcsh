@@ -134,10 +134,14 @@
   (cond ((keyword? var)
          (compile-error form "Cannot rebind a keyword: ~s" var))
         ((bound-in-cenv? var cenv)
-         `(:local-set! ,var ,(expanded-form-meaning val-form cenv at-toplevel?)))
+         `(:sequence
+           ,(expanded-form-meaning val-form cenv at-toplevel?)
+           (:local-set/rv! ,var)))
         (#t
          (warn-if-global-unbound var)
-         `(:global-set! ,var ,(expanded-form-meaning val-form cenv at-toplevel?)))))
+         `(:sequence
+           ,(expanded-form-meaning val-form cenv at-toplevel?)
+           (:global-set/rv! ,var)))))
 
 (define toplevel-form->thunk)
 

@@ -156,6 +156,8 @@
                   (format port "~s ~s\n" opcode (car args))
                   (in-trace-level
                    (recur (cadr args))))
+                 ((:global-set/rv! :local-set/rv!)
+                  (format port "~s ~s\n" opcode (car args)))
                  ((:closure)
                   (format port "~s ~s {\n" opcode (car args))
                   (in-trace-level

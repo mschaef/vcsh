@@ -18,7 +18,6 @@
 
 #define SCAN_64BIT_FIXNUMS            /* Support for MSC style 64-bit integers */
 
-
 #include <stddef.h>
 #include <limits.h>
 #include <ctype.h>
