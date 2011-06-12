@@ -495,25 +495,6 @@ loop:
      }
      break;
 
-     case FOP_GLOBAL_SET:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-
-          checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
-
-          lref_t binding = SYMBOL_VCELL(sym);
-
-          if (UNBOUND_MARKER_P(binding))
-               vmerror_unbound(sym);
-
-          lref_t val = execute_fast_op(FAST_OP_ARG2(fop), env);
-
-          SET_SYMBOL_VCELL(sym, val);
-          retval = val;
-     }
-     break;
-
      case FOP_GLOBAL_SETRV:
      {
           lref_t sym = FAST_OP_ARG1(fop);
@@ -541,24 +522,6 @@ loop:
           checked_assert(!NULLP(binding));
 
           retval = CAR(binding);
-     }
-     break;
-
-     case FOP_LOCAL_SET:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-
-          checked_assert(SYMBOLP(sym));
-
-          lref_t binding = lenvlookup(sym, env);
-
-          checked_assert(!NULLP(binding));
-
-          lref_t val = execute_fast_op(FAST_OP_ARG2(fop), env);
-
-          SET_CAR(binding, val);
-
-          retval = val;
      }
      break;
 
