@@ -726,6 +726,22 @@ loop:
           retval = boolcons(NULLP(execute_fast_op(FAST_OP_ARG1(fop), env)));
           break;
 
+     case FOP_CARRV:
+          retval = lcar(retval);
+          break;
+
+     case FOP_CDRRV:
+          retval = lcdr(retval);
+          break;
+
+     case FOP_NOTRV:
+          retval = boolcons(!TRUEP(retval));
+          break;
+
+     case FOP_NULLPRV:
+          retval = boolcons(NULLP(retval));
+          break;
+
      case FOP_EQP:
           retval = boolcons(EQ(execute_fast_op(FAST_OP_ARG1(fop), env),
                                execute_fast_op(FAST_OP_ARG2(fop), env)));

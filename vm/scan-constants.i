@@ -141,6 +141,11 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_NULLP,                    163)
     VM_CONSTANT(FOP_EQP,                      164)
 
+    VM_CONSTANT(FOP_CARRV,                    165)
+    VM_CONSTANT(FOP_CDRRV,                    166)
+    VM_CONSTANT(FOP_NOTRV,                    167)
+    VM_CONSTANT(FOP_NULLPRV,                  168)
+
     VM_CONSTANT(FOP_THROW,                    193)
 
     VM_CONSTANT(FOP_CATCH,                    195)

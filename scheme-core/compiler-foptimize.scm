@@ -81,19 +81,24 @@
     fop))
 
 (define-integration (car x)
-  `(:car ,x))
+  `(:sequence
+    ,x
+    (:car/rv)))
 
 (define-integration (cdr x)
-  `(:cdr ,x))
+  `(:sequence
+    ,x
+    (:cdr/rv)))
 
 (define-integration (not x)
-  `(:not ,x))
-
-(define-integration (eq? x y)
-  `(:eqp ,x ,y))
+  `(:sequence
+    ,x
+    (:not/rv)))
 
 (define-integration (null? x)
-  `(:nullp ,x))
+  `(:sequence
+    ,x
+    (:nullp/rv)))
 
 (define (optimize-pass/integrate-subrs fasm)
   (map-fop-assembly xform-integrate fasm))
