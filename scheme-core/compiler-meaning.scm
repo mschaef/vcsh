@@ -96,15 +96,16 @@
                                      at-toplevel?)
              ,p-list))
 
-;; REVISIT: begin, or, and and all have the same basic form, poss. refactor.
-;; REVISIT: begin, or, and and are all non-tail recursive
-
 (define-special-form (begin . args)
   (let recur ((args args))
-    (cond ((null? args)     `(:literal ()))
-          ((length=1? args) (expanded-form-meaning (car args) cenv at-toplevel?))
-          (#t `(:sequence ,(expanded-form-meaning (car args) cenv at-toplevel?)
-                          ,(recur (cdr args)))))))
+    (cond ((null? args)
+           `(:literal ()))
+          ((length=1? args)
+           (expanded-form-meaning (car args) cenv at-toplevel?))
+          (#t
+           `(:sequence
+             ,(expanded-form-meaning (car args) cenv at-toplevel?)
+             ,(recur (cdr args)))))))
 
 (define-special-form (or . args)
   (let recur ((args args))
