@@ -442,7 +442,13 @@ static void dump_fast_op(int arity)
   if (!read_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, true, fop_opcode))
        dump_error("Expected FOP opcode not found");
 
-  _tprintf(_T("%s"), fast_op_opcode_name((scan::fast_op_opcode_t)fop_opcode));
+  const _TCHAR *opcode_name = fast_op_opcode_name((scan::fast_op_opcode_t)fop_opcode);
+
+  if (opcode_name)
+       _tprintf(_T("%s"), opcode_name);
+  else
+       _tprintf(_T("<unknown-opcode %i>"), (unsigned int)fop_opcode);
+
   _TCHAR buf[STRBUF_SIZE];
 
   for(fixnum_t ii = 0; ii < arity; ii++)
