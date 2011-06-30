@@ -685,22 +685,6 @@ loop:
                                 lcdr(FAST_OP_ARG1(fop)));
           break;
 
-     case FOP_CAR:
-          retval = lcar(execute_fast_op(FAST_OP_ARG1(fop), env));
-          break;
-
-     case FOP_CDR:
-          retval = lcdr(execute_fast_op(FAST_OP_ARG1(fop), env));
-          break;
-
-     case FOP_NOT:
-          retval = boolcons(!TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)));
-          break;
-
-     case FOP_NULLP:
-          retval = boolcons(NULLP(execute_fast_op(FAST_OP_ARG1(fop), env)));
-          break;
-
      case FOP_CARRV:
           retval = lcar(retval);
           break;
