@@ -121,13 +121,13 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_LITERAL,                  8  )
     VM_CONSTANT(FOP_GLOBAL_REF,               16 )
     VM_CONSTANT(FOP_LOCAL_REF,                18 )
-    VM_CONSTANT(FOP_GLOBAL_SETRV,             20 )
-    VM_CONSTANT(FOP_LOCAL_SETRV,              21 )
+    VM_CONSTANT(FOP_GLOBAL_SET,               20 )
+    VM_CONSTANT(FOP_LOCAL_SET,                21 )
 
     VM_CONSTANT(FOP_APPLY_GLOBAL,             24 )
     VM_CONSTANT(FOP_APPLY,                    25 )
 
-    VM_CONSTANT(FOP_IF_TRUERV,                33 )
+    VM_CONSTANT(FOP_IF_TRUE,                  33 )
 
     VM_CONSTANT(FOP_RETVAL,                   48 )
 
@@ -136,10 +136,10 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
     VM_CONSTANT(FOP_EQP,                      164)
 
-    VM_CONSTANT(FOP_CARRV,                    165)
-    VM_CONSTANT(FOP_CDRRV,                    166)
-    VM_CONSTANT(FOP_NOTRV,                    167)
-    VM_CONSTANT(FOP_NULLPRV,                  168)
+    VM_CONSTANT(FOP_CAR,                      165)
+    VM_CONSTANT(FOP_CDR,                      166)
+    VM_CONSTANT(FOP_NOT,                      167)
+    VM_CONSTANT(FOP_NULLP,                    168)
 
     VM_CONSTANT(FOP_THROW,                    193)
 

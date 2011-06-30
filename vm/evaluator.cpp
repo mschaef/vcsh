@@ -495,7 +495,7 @@ loop:
      }
      break;
 
-     case FOP_GLOBAL_SETRV:
+     case FOP_GLOBAL_SET:
      {
           lref_t sym = FAST_OP_ARG1(fop);
 
@@ -525,7 +525,7 @@ loop:
      }
      break;
 
-     case FOP_LOCAL_SETRV:
+     case FOP_LOCAL_SET:
      {
           lref_t sym = FAST_OP_ARG1(fop);
 
@@ -611,7 +611,7 @@ loop:
      }
      break;
 
-     case FOP_IF_TRUERV:
+     case FOP_IF_TRUE:
           if (TRUEP(retval))
                fop = FAST_OP_ARG1(fop);
           else
@@ -685,19 +685,19 @@ loop:
                                 lcdr(FAST_OP_ARG1(fop)));
           break;
 
-     case FOP_CARRV:
+     case FOP_CAR:
           retval = lcar(retval);
           break;
 
-     case FOP_CDRRV:
+     case FOP_CDR:
           retval = lcdr(retval);
           break;
 
-     case FOP_NOTRV:
+     case FOP_NOT:
           retval = boolcons(!TRUEP(retval));
           break;
 
-     case FOP_NULLPRV:
+     case FOP_NULLP:
           retval = boolcons(NULLP(retval));
           break;
 

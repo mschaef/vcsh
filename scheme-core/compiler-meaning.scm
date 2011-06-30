@@ -116,7 +116,7 @@
           (#t
            `(:sequence
              ,(expanded-form-meaning (car args) cenv at-toplevel?)
-             (:if-true/rv
+             (:if-true
               (:retval)
               ,(recur (cdr args))))))))
 
@@ -129,21 +129,21 @@
           (#t
            `(:sequence
              ,(expanded-form-meaning (car args) cenv at-toplevel?)
-             (:if-true/rv
+             (:if-true
               ,(recur (cdr args))
               (:literal #f)))))))
 
 (define-special-form (if cond-form then-form)
   `(:sequence
     ,(expanded-form-meaning cond-form cenv at-toplevel?)
-    (:if-true/rv
+    (:if-true
      ,(expanded-form-meaning then-form cenv at-toplevel?)
      (:literal ()))))
 
 (define-special-form (if cond-form then-form else-form)
   `(:sequence
     ,(expanded-form-meaning cond-form cenv at-toplevel?)
-    (:if-true/rv
+    (:if-true
      ,(expanded-form-meaning then-form cenv at-toplevel?)
      ,(expanded-form-meaning else-form cenv at-toplevel?))))
 
@@ -153,12 +153,12 @@
         ((bound-in-cenv? var cenv)
          `(:sequence
            ,(expanded-form-meaning val-form cenv at-toplevel?)
-           (:local-set/rv! ,var)))
+           (:local-set! ,var)))
         (#t
          (warn-if-global-unbound var)
          `(:sequence
            ,(expanded-form-meaning val-form cenv at-toplevel?)
-           (:global-set/rv! ,var)))))
+           (:global-set! ,var)))))
 
 (define toplevel-form->thunk)
 
@@ -178,7 +178,7 @@
   `(:sequence
     (:sequence
      (:get-fsp)
-     (:global-set/rv! ,global-var))
+     (:global-set! ,global-var))
     ,(expanded-form-meaning body-form cenv at-toplevel?)))
 
 (define-special-form (scheme::%preserve-initial-frame global-var body-form)

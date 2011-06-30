@@ -152,7 +152,7 @@
                (case opcode
                  ((:global-ref :local-ref :literal)
                   (format port "~s ~s\n" opcode (car args)))
-                 ((:global-set/rv! :local-set/rv!)
+                 ((:global-set! :local-set!)
                   (format port "~s ~s\n" opcode (car args)))
                  ((:closure)
                   (format port "~s ~s {\n" opcode (car args))
