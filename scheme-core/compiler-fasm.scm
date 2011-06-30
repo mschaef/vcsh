@@ -128,7 +128,7 @@
         ((:global-def)
          (assemble-fast-op :global-def (cadr asm) (caddr asm) (cadddr asm)))
         ((:closure/2)
-         (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm))))
+         (assemble-fast-op :closure/2 (cadr asm) (fasm/inner (caddr asm))))
         ((:closure)
          (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm)) (cadddr asm)))
         ((:apply-global)
@@ -151,7 +151,14 @@
     (case (car asm)
       ((:closure)
        (dbind (opcode l-list src p-list) asm
-         (scheme::%closure () (cons l-list (fasm/inner src)) p-list)))
+         (scheme::%closure ()
+                           (cons l-list (fasm/inner src))
+                           p-list)))
+      ((:closure/2)
+       (dbind (opcode l/p-list src) asm
+         (scheme::%closure ()
+                           (cons l-list (fasm/inner src))
+                           (cdr l/p-list))))
       ((:literal)
        (dbind (opcode literal) asm
          literal))
