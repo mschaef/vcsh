@@ -108,17 +108,29 @@
 
 (define-special-form (or . args)
   (let recur ((args args))
-    (cond ((null? args)     `(:literal #f))
-          ((length=1? args) (expanded-form-meaning (car args) cenv at-toplevel?))
-          (#t `(:or/2 ,(expanded-form-meaning (car args) cenv at-toplevel?)
-                      ,(recur (cdr args)))))))
+    (cond ((null? args)
+           `(:literal #f))
+          ((length=1? args)
+           (expanded-form-meaning (car args) cenv at-toplevel?))
+          (#t
+           `(:sequence
+             ,(expanded-form-meaning (car args) cenv at-toplevel?)
+             (:if-true/rv
+              (:retval)
+              ,(recur (cdr args))))))))
 
 (define-special-form (and . args)
   (let recur ((args args))
-    (cond ((null? args)     `(:literal #t))
-          ((length=1? args) (expanded-form-meaning (car args) cenv at-toplevel?))
-          (#t `(:and/2 ,(expanded-form-meaning (car args) cenv at-toplevel?)
-                       ,(recur (cdr args)))))))
+    (cond ((null? args)
+           `(:literal #t))
+          ((length=1? args)
+           (expanded-form-meaning (car args) cenv at-toplevel?))
+          (#t
+           `(:sequence
+             ,(expanded-form-meaning (car args) cenv at-toplevel?)
+             (:if-true/rv
+              ,(recur (cdr args))
+              (:literal #f)))))))
 
 (define-special-form (if cond-form then-form)
   `(:if-true ,(expanded-form-meaning cond-form cenv at-toplevel?)

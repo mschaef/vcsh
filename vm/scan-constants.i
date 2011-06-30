@@ -128,7 +128,10 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_APPLY,                    25 )
 
     VM_CONSTANT(FOP_IF_TRUE,                  32 )
+    VM_CONSTANT(FOP_IF_TRUERV,                33 )
     VM_CONSTANT(FOP_IF_NULLP,                 34 )
+
+    VM_CONSTANT(FOP_RETVAL,                   48 )
 
     VM_CONSTANT(FOP_AND2,                     64 )
     VM_CONSTANT(FOP_OR2,                      65 )
