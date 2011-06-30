@@ -636,30 +636,6 @@ loop:
      case FOP_RETVAL:
           break;
 
-     case FOP_AND2:
-          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
-          {
-               fop = FAST_OP_ARG2(fop);
-               goto loop;
-          }
-
-          retval = boolcons(false);
-          break;
-
-     case FOP_OR2:
-     {
-          lref_t val = execute_fast_op(FAST_OP_ARG1(fop), env);
-
-          if (TRUEP(val))
-          {
-               retval = val;
-               break;
-          }
-
-          fop = FAST_OP_ARG2(fop);
-     }
-     goto loop;
-
      case FOP_SEQUENCE:
           retval = execute_fast_op(FAST_OP_ARG1(fop), env);
 

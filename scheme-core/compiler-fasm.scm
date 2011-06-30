@@ -65,8 +65,6 @@
 (define-fast-op :if-true/rv             #.system::FOP_IF_TRUERV             :fast-op :fast-op         )
 (define-fast-op :if-nullp               #.system::FOP_IF_NULLP              :fast-op :fast-op :fast-op)
 (define-fast-op :retval                 #.system::FOP_RETVAL                                          )
-(define-fast-op :and/2                  #.system::FOP_AND2                  :fast-op :fast-op         )
-(define-fast-op :or/2                   #.system::FOP_OR2                   :fast-op :fast-op         )
 (define-fast-op :sequence               #.system::FOP_SEQUENCE              :fast-op :fast-op         )
 (define-fast-op :throw                  #.system::FOP_THROW                 :fast-op :fast-op         )
 (define-fast-op :catch                  #.system::FOP_CATCH                 :fast-op :fast-op         )
