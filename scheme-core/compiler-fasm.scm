@@ -127,6 +127,8 @@
          (assemble-fast-op opcode (cadr asm)))
         ((:global-def)
          (assemble-fast-op :global-def (cadr asm) (caddr asm) (cadddr asm)))
+        ((:closure/2)
+         (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm))))
         ((:closure)
          (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm)) (cadddr asm)))
         ((:apply-global)
