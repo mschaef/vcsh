@@ -678,6 +678,13 @@ loop:
      }
      break;
 
+     case FOP_CLOSURE2:
+          retval = lclosurecons(env,
+                                lcons(lcar(FAST_OP_ARG1(fop)),
+                                      FAST_OP_ARG2(fop)),
+                                lcdr(FAST_OP_ARG1(fop)));
+          break;
+
      case FOP_CLOSURE:
           retval = lclosurecons(env, lcons(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop)), FAST_OP_ARG3(fop));
           break;

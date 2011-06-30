@@ -67,6 +67,7 @@
 (define-fast-op :throw                  #.system::FOP_THROW                 :fast-op :fast-op         )
 (define-fast-op :catch                  #.system::FOP_CATCH                 :fast-op :fast-op         )
 (define-fast-op :with-unwind-fn         #.system::FOP_WITH_UNWIND_FN        :fast-op :fast-op         )
+(define-fast-op :closure/2              #.system::FOP_CLOSURE2              :literal :fast-op         )
 (define-fast-op :closure                #.system::FOP_CLOSURE               :literal :fast-op :literal)
 (define-fast-op :car                    #.system::FOP_CAR                   :fast-op                  )
 (define-fast-op :cdr                    #.system::FOP_CDR                   :fast-op                  )

@@ -132,6 +132,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_RETVAL,                   48 )
 
     VM_CONSTANT(FOP_SEQUENCE,                 96 )
+    VM_CONSTANT(FOP_CLOSURE2,                 128)
     VM_CONSTANT(FOP_CLOSURE,                  129)
 
     VM_CONSTANT(FOP_CAR,                      160)
