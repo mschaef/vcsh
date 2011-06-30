@@ -103,21 +103,6 @@
 (define (optimize-pass/integrate-subrs fasm)
   (map-fop-assembly xform-integrate fasm))
 
-;;;; The if-optimizer
-
-(define (xform-simplify-if fop)
-  (cond-match fop
-    ((:if-true (:not ?condition) ?then-clause ?else-clause)
-     (xform-simplify-if
-      `(:if-true ,?condition ,?else-clause ,?then-clause)))
-    ((:if-true (:nullp ?condition) ?then-clause ?else-clause)
-     `(:if-nullp ,?condition ,?then-clause ,?else-clause))
-    (#t
-     fop)))
-
-(define (optimize-pass/simplify-if fasm)
-  (map-fop-assembly xform-simplify-if fasm))
-
 ;;;; The toplevel optimizer
 
 (define (opt-pass enabled? pass-fn)
@@ -125,8 +110,7 @@
 
 (define (optimize-pass/full fop)
   ((rcompose optimize-pass/global-applications
-             (opt-pass *optimize/integrate-subrs* optimize-pass/integrate-subrs)
-             optimize-pass/simplify-if)
+             (opt-pass *optimize/integrate-subrs* optimize-pass/integrate-subrs))
    fop))
 
 (define (optimize-fop-assembly fasm)

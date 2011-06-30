@@ -133,14 +133,18 @@
               (:literal #f)))))))
 
 (define-special-form (if cond-form then-form)
-  `(:if-true ,(expanded-form-meaning cond-form cenv at-toplevel?)
-             ,(expanded-form-meaning then-form cenv at-toplevel?)
-             (:literal ())))
+  `(:sequence
+    ,(expanded-form-meaning cond-form cenv at-toplevel?)
+    (:if-true/rv
+     ,(expanded-form-meaning then-form cenv at-toplevel?)
+     (:literal ()))))
 
 (define-special-form (if cond-form then-form else-form)
-  `(:if-true ,(expanded-form-meaning cond-form cenv at-toplevel?)
-             ,(expanded-form-meaning then-form cenv at-toplevel?)
-             ,(expanded-form-meaning else-form cenv at-toplevel?)))
+  `(:sequence
+    ,(expanded-form-meaning cond-form cenv at-toplevel?)
+    (:if-true/rv
+     ,(expanded-form-meaning then-form cenv at-toplevel?)
+     ,(expanded-form-meaning else-form cenv at-toplevel?))))
 
 (define-special-form (set! var val-form)
   (cond ((keyword? var)
