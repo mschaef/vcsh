@@ -611,26 +611,11 @@ loop:
      }
      break;
 
-     case FOP_IF_TRUE:
-          if (TRUEP(execute_fast_op(FAST_OP_ARG1(fop), env)))
-               fop = FAST_OP_ARG2(fop);
-          else
-               fop = FAST_OP_ARG3(fop);
-          goto loop;
-
-
      case FOP_IF_TRUERV:
           if (TRUEP(retval))
                fop = FAST_OP_ARG1(fop);
           else
                fop = FAST_OP_ARG2(fop);
-          goto loop;
-
-     case FOP_IF_NULLP:
-          if (NULLP(execute_fast_op(FAST_OP_ARG1(fop), env)))
-               fop = FAST_OP_ARG2(fop);
-          else
-               fop = FAST_OP_ARG3(fop);
           goto loop;
 
      case FOP_RETVAL:
