@@ -157,7 +157,7 @@
       ((:closure/2)
        (dbind (opcode l/p-list src) asm
          (scheme::%closure ()
-                           (cons l-list (fasm/inner src))
+                           (cons (car l/p-list) (fasm/inner src))
                            (cdr l/p-list))))
       ((:literal)
        (dbind (opcode literal) asm
