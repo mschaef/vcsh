@@ -113,7 +113,7 @@
 
 (define (fop-assemble outermost-asm)
 
-  (define (fasm/inner asm)
+  (define (fasm asm)
     (let ((opcode (car asm)))
       (case opcode ; REVISIT: can this be driven off of opcode metadata?
         ((:literal :global-ref :local-ref)
@@ -123,36 +123,27 @@
         ((:global-def)
          (assemble-fast-op :global-def (cadr asm) (caddr asm) (cadddr asm)))
         ((:closure)
-         (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm))))
+         (assemble-fast-op :closure (cadr asm) (fasm (caddr asm))))
         ((:apply-global)
-         (assemble-fast-op :apply-global (cadr asm) (map fasm/inner (caddr asm))))
+         (assemble-fast-op :apply-global (cadr asm) (map fasm (caddr asm))))
         ((:apply)
-         (assemble-fast-op :apply (fasm/inner (cadr asm)) (map fasm/inner (caddr asm))))
+         (assemble-fast-op :apply (fasm (cadr asm)) (map fasm (caddr asm))))
         ((:global-preserve-frame)
-         (assemble-fast-op :global-preserve-frame
-                           (cadr asm)
-                           (fasm/inner (caddr asm))))
+         (assemble-fast-op :global-preserve-frame (cadr asm) (fasm (caddr asm))))
         (#t
-         (apply assemble-fast-op opcode
-                (map fasm/inner (cdr asm)))))))
+         (apply assemble-fast-op opcode (map fasm (cdr asm)))))))
 
-  (define (fasm/outer asm)
-    (case (car asm)
-      ((:closure)
-       (dbind (opcode l/p-list src) asm
-         (scheme::%closure ()
-                           (cons (car l/p-list) (fasm/inner src))
-                           (cdr l/p-list))))
-      ((:literal)
-       (dbind (opcode literal) asm
-         literal))
+  (check list? outermost-asm "Malformed FOP assembler.")
 
-      (#t
-       (error "assemble expects to assemble either a literal or a closure: ~s") asm)))
-
-
-  (unless  (list? outermost-asm)
-    (error "assembler imput must be a proper list of fast-op definitions: ~s" outermost-asm))
-
-  (fasm/outer outermost-asm))
+  (case (car outermost-asm)
+    ((:closure)
+     (dbind (opcode l/p-list src) outermost-asm
+       (scheme::%closure ()
+                         (cons (car l/p-list) (fasm src))
+                         (cdr l/p-list))))
+    ((:literal)
+     (dbind (opcode literal) outermost-asm
+       literal))
+    (#t
+     (error "assemble expects to assemble either a literal or a closure: ~s" outermost-asm))))
 
