@@ -105,39 +105,49 @@
 (define (fast-op? obj)
   (eq? 'fast-op (type-of obj)))
 
+(define (lookup-fast-op op)
+    (let ((defn (hash-ref *fop-name->fop-defn* op #f)))
+      (unless defn
+        (error "Invalid fast-op: ~s." op))
+      (values (fop-defn-opcode defn)
+              (fop-defn-formals defn))))
+
+(define fasm) ;; forward
+
+(define (fasm asm)
+  (dbind (op . actuals) asm
+    (mvbind (opcode formals) (lookup-fast-op op)
+      (unless (= (length actuals) (length formals))
+        (error "Improper number of arguments while assembling ~s" asm))
+      (apply scheme::%fast-op
+             opcode
+             (map (lambda (formal actual)
+                    (case formal
+                      ((:literal) 
+                       actual)
+                      ((:fast-op) 
+                       (fasm actual))
+                      ((:fast-ops)
+                       (map fasm actual))
+                      ((:symbol)
+                       (check symbol? actual)
+                       actual)
+                      (#t
+                       (error "Invalid fast-op formal argument type: ~s" formal))))
+                  formals
+                  actuals)))))
+
 (define (fop-assemble outermost-asm)
-
-  (define (fasm asm)
-    (let ((opcode (car asm)))
-      (case opcode ; REVISIT: can this be driven off of opcode metadata?
-        ((:literal :global-ref :local-ref)
-         (assemble-fast-op opcode (cadr asm)))
-        ((:global-set! :local-set!)
-         (assemble-fast-op opcode (cadr asm)))
-        ((:global-def)
-         (assemble-fast-op :global-def (cadr asm) (caddr asm)))
-        ((:closure)
-         (assemble-fast-op :closure (cadr asm) (fasm (caddr asm))))
-        ((:apply-global)
-         (assemble-fast-op :apply-global (cadr asm) (map fasm (caddr asm))))
-        ((:apply)
-         (assemble-fast-op :apply (fasm (cadr asm)) (map fasm (caddr asm))))
-        ((:global-preserve-frame)
-         (assemble-fast-op :global-preserve-frame (cadr asm) (fasm (caddr asm))))
-        (#t
-         (apply assemble-fast-op opcode (map fasm (cdr asm)))))))
-
-  (check list? outermost-asm "Malformed FOP assembler.")
-
+  (check list? outermost-asm "Malformed FOP assembly syntax.")
   (case (car outermost-asm)
     ((:closure)
-     (dbind (opcode l/p-list src) outermost-asm
-       (scheme::%closure ()
-                         (cons (car l/p-list) (fasm src))
-                         (cdr l/p-list))))
+     (dbind (opcode (l-list . p-list) src) outermost-asm
+       (scheme::%closure () (cons l-list (fasm src)) p-list)))
     ((:literal)
      (dbind (opcode literal) outermost-asm
        literal))
     (#t
      (error "assemble expects to assemble either a literal or a closure: ~s" outermost-asm))))
+
+
 
