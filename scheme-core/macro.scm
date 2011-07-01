@@ -19,11 +19,12 @@
     (when (and (string? (car macro-body)) (> (length macro-body) 1))
       (set! macro-documentation (car macro-body))
       (set! macro-body (cdr macro-body)))
-    `(define ,macro-name (%macro (%lambda (,@(if macro-documentation
-                                                      `((documentation . ,(normalize-whitespace macro-documentation)))
-                                                      ())
-                                                (macro-name . ,macro-name)
-                                                (macro-formals . ,macro-formals))
-                                               (form env)
-                                               (dbind ,macro-formals (cdr form)
-                                                      ,@macro-body))))))
+    `(define ,macro-name
+       (%macrocons (%lambda (,@(if macro-documentation
+                                   `((documentation . ,(normalize-whitespace macro-documentation)))
+                                   ())
+                             (macro-name . ,macro-name)
+                             (macro-formals . ,macro-formals))
+                       (form env)
+                     (dbind ,macro-formals (cdr form)
+                       ,@macro-body))))))
