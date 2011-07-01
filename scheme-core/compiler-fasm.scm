@@ -23,15 +23,10 @@
 
 (define (valid-fop-formals? formals)
   (define (valid-formal-type? type)
-    (memq type '(:literal :symbol :fast-op)))
-  (define (valid-fop-formal? formal)
-    (or (valid-formal-type? formal)
-        (and (list? formal)
-             (length=1? formal)
-             (valid-fop-formal? (car formal)))))
+    (memq type '(:literal :symbol :fast-op :fast-ops)))
   (if (and (list? formals)
            (<= (length formals) 3)
-           (every? valid-fop-formal? formals))
+           (every? valid-formal-type? formals))
       formals
       #f))
 
@@ -58,8 +53,8 @@
 (define-fast-op :global-set!            #.system::FOP_GLOBAL_SET            :symbol            )
 (define-fast-op :local-ref              #.system::FOP_LOCAL_REF             :symbol            )
 (define-fast-op :local-set!             #.system::FOP_LOCAL_SET             :symbol            )
-(define-fast-op :apply-global           #.system::FOP_APPLY_GLOBAL          :symbol (:fast-op) )
-(define-fast-op :apply                  #.system::FOP_APPLY                 :fast-op (:fast-op))
+(define-fast-op :apply-global           #.system::FOP_APPLY_GLOBAL          :symbol :fast-ops  )
+(define-fast-op :apply                  #.system::FOP_APPLY                 :fast-op :fast-ops )
 (define-fast-op :if-true                #.system::FOP_IF_TRUE               :fast-op :fast-op  )
 (define-fast-op :retval                 #.system::FOP_RETVAL                                   )
 (define-fast-op :sequence               #.system::FOP_SEQUENCE              :fast-op :fast-op  )
