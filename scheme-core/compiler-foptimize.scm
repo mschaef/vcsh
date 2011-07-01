@@ -25,8 +25,8 @@
     (define (map-fop-arg formal actual)
       (cond ((eq? formal :fast-op)
              (map-fop-assembly fn actual))
-            ((pair? formal)
-             (map #L(map-fop-arg (car formal) _) actual))
+            ((eq? formal :fast-ops)
+             (map #L(map-fop-arg :fast-op _) actual))
             (#t
              actual)))
     (map map-fop-arg fop-formals fop-actuals))
