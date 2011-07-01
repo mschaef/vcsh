@@ -334,8 +334,7 @@
          `(unless ,(expand-predicate predicate value-sym)
             ,(if msg-text
                  ;;; TODO: These explicit error calls should be refactored into a check-error call of some sort
-                 `(error ,#"${msg-text} (Check of ~s failed: ~s. Value is ~s)"
-                         ,@msg-args ',value ',predicate ,value-sym)
-                 `(error "Check of ~s failed: ~s. Value is ~s"
-                         ',value ',predicate ,value-sym)))))))
+                 `(error ,#"${msg-text} (Check of ~s failed: ~s. Value is ~s)" ,@msg-args ',value ',predicate ,value-sym)
+                 `(error "Check of ~s failed: ~s. Value is ~s" ',value ',predicate ,value-sym)))
+         ,value-sym))))
 
