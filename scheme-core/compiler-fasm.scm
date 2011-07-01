@@ -68,7 +68,6 @@
 (define-fast-op :catch                  #.system::FOP_CATCH                 :fast-op :fast-op         )
 (define-fast-op :with-unwind-fn         #.system::FOP_WITH_UNWIND_FN        :fast-op :fast-op         )
 (define-fast-op :closure/2              #.system::FOP_CLOSURE2              :literal :fast-op         )
-(define-fast-op :closure                #.system::FOP_CLOSURE               :literal :fast-op :literal)
 (define-fast-op :car                    #.system::FOP_CAR                                             )
 (define-fast-op :cdr                    #.system::FOP_CDR                                             )
 (define-fast-op :not                    #.system::FOP_NOT                                             )
@@ -125,8 +124,6 @@
          (assemble-fast-op :global-def (cadr asm) (caddr asm) (cadddr asm)))
         ((:closure/2)
          (assemble-fast-op :closure/2 (cadr asm) (fasm/inner (caddr asm))))
-        ((:closure)
-         (assemble-fast-op :closure (cadr asm) (fasm/inner (caddr asm)) (cadddr asm)))
         ((:apply-global)
          (assemble-fast-op :apply-global (cadr asm) (map fasm/inner (caddr asm))))
         ((:apply)
@@ -145,11 +142,6 @@
 
   (define (fasm/outer asm)
     (case (car asm)
-      ((:closure)
-       (dbind (opcode l-list src p-list) asm
-         (scheme::%closure ()
-                           (cons l-list (fasm/inner src))
-                           p-list)))
       ((:closure/2)
        (dbind (opcode l/p-list src) asm
          (scheme::%closure ()
