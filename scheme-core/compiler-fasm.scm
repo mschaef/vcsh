@@ -113,7 +113,7 @@
 
 (define (fop-assemble outermost-asm)
 
- (define (fasm/inner asm)
+  (define (fasm/inner asm)
     (let ((opcode (car asm)))
       (case opcode ; REVISIT: can this be driven off of opcode metadata?
         ((:literal :global-ref :local-ref)
@@ -128,10 +128,6 @@
          (assemble-fast-op :apply-global (cadr asm) (map fasm/inner (caddr asm))))
         ((:apply)
          (assemble-fast-op :apply (fasm/inner (cadr asm)) (map fasm/inner (caddr asm))))
-        ((:macro)
-         (assemble-fast-op :literal
-                                   (dbind (opcode macro-fn) asm
-                                     (apply scheme::%macrocons (fasm/outer macro-fn) ()))))
         ((:global-preserve-frame)
          (assemble-fast-op :global-preserve-frame
                            (cadr asm)
@@ -150,9 +146,6 @@
       ((:literal)
        (dbind (opcode literal) asm
          literal))
-      ((:macro)
-       (dbind (opcode macro-fn) asm
-           (apply scheme::%macrocons (fasm/outer macro-fn) ())))
 
       (#t
        (error "assemble expects to assemble either a literal or a closure: ~s") asm)))

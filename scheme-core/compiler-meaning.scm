@@ -79,10 +79,6 @@
                          (dbind ,(cdr pattern) (cdr form)
                            ,@code))))))
 
-
-(define-special-form (scheme::%macro macro-form)
-  `(:macro ,(expanded-form-meaning macro-form () at-toplevel?)))
-
 (define-special-form (scheme::%lambda p-list l-list . body)
   (define (code-body-form body-forms)
     "Return a single form that is semantically equivalent to <body-forms>."
