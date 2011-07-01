@@ -160,8 +160,7 @@
 
 (define-special-form (scheme::%define name defn)
   `(:global-def ,name
-                ,((toplevel-form->thunk defn))
-                ()))
+                ,((toplevel-form->thunk defn))))
 
 (define-special-form (quote value)
   `(:literal ,value))
