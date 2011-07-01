@@ -90,7 +90,7 @@
       ((0) '(values))
       ((1) (first body-forms))
       (#t `(begin ,@body-forms))))
-  `(:closure/2 (,l-list . ,p-list)
+  `(:closure (,l-list . ,p-list)
                ,(expanded-form-meaning (code-body-form body)
                                        (extend-cenv l-list cenv)
                                        at-toplevel?)))
