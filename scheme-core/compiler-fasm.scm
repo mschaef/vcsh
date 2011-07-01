@@ -93,15 +93,6 @@
   (mvbind (opcode args) (parse-fast-op fast-op)
      args))
 
-(define (assemble-fast-op op . args)
-  (let ((defn (hash-ref *fop-name->fop-defn* op #f)))
-    (unless defn
-      (error "Invalid fast-op to assemble: ~s." op))
-    (unless (= (length args) (fop-defn-arity defn))
-       (error "Expected ~s argument(s) to fast-op ~s, got ~s"  ; REVISIT: pluralization?
-              (fop-defn-arity defn) op args))
-    (apply scheme::%fast-op (fop-defn-opcode defn) args)))
-
 (define (fast-op? obj)
   (eq? 'fast-op (type-of obj)))
 
@@ -123,15 +114,10 @@
              opcode
              (map (lambda (formal actual)
                     (case formal
-                      ((:literal) 
-                       actual)
-                      ((:fast-op) 
-                       (fasm actual))
-                      ((:fast-ops)
-                       (map fasm actual))
-                      ((:symbol)
-                       (check symbol? actual)
-                       actual)
+                      ((:literal)  actual)
+                      ((:fast-op)  (fasm actual))
+                      ((:fast-ops) (map fasm actual))
+                      ((:symbol)   (check symbol? actual))
                       (#t
                        (error "Invalid fast-op formal argument type: ~s" formal))))
                   formals
