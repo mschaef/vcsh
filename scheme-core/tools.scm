@@ -148,33 +148,34 @@
       (when *disassemble-show-fast-op-addresses*
         (format port "~@ " code))
       (cond ((compiler::fast-op? code)
-             (mvbind (opcode args) (compiler::parse-fast-op code)
-               (case opcode
-                 ((:global-ref :local-ref :literal)
-                  (format port "~s ~s\n" opcode (car args)))
-                 ((:global-set! :local-set!)
-                  (format port "~s ~s\n" opcode (car args)))
-                 ((:closure)
-                  (format port "~s ~s {\n" opcode (car args))
-                  (in-trace-level
-                   (recur (cadr args)))
-                  (trace-indent port)
-                  (format port "}\n"))
-                 ((:apply-global)
-                  (format port "~s ~s\n" opcode (car args))
-                  (in-trace-level
-                   (dolist (arg (cadr args))
-                     (recur arg))))
-                 ((:apply)
-                  (format port "~s\n" opcode)
-                  (in-trace-level
-                   (dolist (arg (cons (car args) (cadr args)))
-                     (recur arg))))
-                 (#t
-                  (format port "~s\n" opcode)
-                  (in-trace-level
-                   (dolist (arg args)
-                     (recur arg)))))))
+             (mvbind (opcode actuals) (compiler::parse-fast-op code)
+               (let ((formals (compiler::fop-name->formals opcode)))
+                 (cond
+                  ((not formals)
+                   (format port "INVALID-OPCODE: ~s\n" opcode))
+                  ((eq? :closure opcode)
+                   (format port "~s ~s {\n" opcode (car actuals))
+                   (in-trace-level
+                    (recur (cadr actuals)))
+                   (trace-indent port)
+                   (format port "}"))
+                  (#t
+                   (format port "~s" opcode)
+                   (for-each
+                    (lambda (formal actual)
+                      (case formal
+                        ((:fast-ops)
+                         (in-trace-level
+                          (dolist (op actual)
+                            (newline port)
+                            (recur op))))
+                        ((:fast-op)
+                         (in-trace-level
+                          (recur actual)))
+                        (#t
+                         (format port " ~s" actual))))
+                    formals
+                    actuals))))))
             (#t
              (format port "~s\n" code)))))
   (define (print-closure-disassembly closure)
