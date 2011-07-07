@@ -25,7 +25,7 @@
   "Returns a boolean signaling if the input port <port> is at its end."
   (eof-object? (peek-char port)))
 
-(define (call-with-port port fn)
+(define (call-with-port port fn) ;; REVISIT: This file name doesn't seem quite right, in comparision to call-with-output-port
   "Returns the result(s) of calling <fn> with the one argument <port>. <port> is
    guaranteed to be closed with a call to close-port when <fn> returns."
   (unwind-protect (lambda () (fn port))
