@@ -166,8 +166,10 @@
              call-next-method
              call-with-default-read-error-handling
              call-with-input-file
+             call-with-input-port
              call-with-new-print-level
              call-with-output-file
+             call-with-output-port
              call-with-output-to-string
              call-with-package
              call-with-port
@@ -910,6 +912,8 @@
              with-fasl-file
              with-fasl-stream
              with-gensyms
+             with-input-port
+             with-output-port
              with-output-to-string
              with-package
              with-port

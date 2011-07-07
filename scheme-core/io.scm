@@ -177,21 +177,44 @@
   (with-port ip (open-input-file filename)
     (readall ip read-line)))
 
+(define (call-with-output-port fn port)
+  "Calls function <fn>, with the current output port bound to <port>."
+  (let ((last-port (current-output-port)))
+    (unwind-protect
+     (lambda ()
+       (set-current-output-port port)
+       (fn))
+     (lambda ()
+       (set-current-output-port last-port)))))
+
+(define (call-with-input-port fn port)
+  "Calls function <fn>, with the current input port bound to <port>."
+  (let ((last-port (current-input-port)))
+    (unwind-protect
+     (lambda ()
+       (set-current-input-port port)
+       (fn))
+     (lambda ()
+       (set-current-input-port last-port)))))
+
 (define (call-with-output-to-string fn)
   "Calls function <fn>, capturing output to the current output port as a string. The
    current output port is reset to its original value on exit.  If <fn> alters the
    current output port itself, output after the change will not necessarily be captured."
-  (let ((saved-output-port (current-output-port))
-        (output-string (open-output-string)))
-    (unwind-protect (lambda ()
-                      (set-current-output-port output-string)
-                      (fn)
-                      (get-output-string output-string))
-                    (lambda ()
-                      (set-current-output-port saved-output-port)))))
+  (let ((output-string (open-output-string)))
+    (call-with-output-port fn output-string)
+    (get-output-string output-string)))
+
+(defmacro (with-output-port port . code)
+  `(call-with-output-port (lambda () ,@code) ,port))
+
+(defmacro (with-input-port port . code)
+  `(call-with-input-port (lambda () ,@code) ,port))
 
 (defmacro (with-output-to-string . code)
   `(call-with-output-to-string (lambda () ,@code)))
+
+;;; TODO: with-input-from-string
 
 (define *use-debug-printer* #f)
 
