@@ -179,10 +179,13 @@
             (#t
              (format port "~s\n" code)))))
   (define (print-closure-disassembly closure)
-    (format  (current-debug-port) "; disassemble\n; ----------------\n")
-    (format  (current-debug-port) "; l-list: ~s\n" (car (%closure-code closure)))
-    (format  (current-debug-port) "; env   : ~s\n" (%closure-env closure))
-    (format  (current-debug-port) "; p-list: ~s\n" (%property-list closure))
+    (format  (current-debug-port) ";;;; Disassembly of ~s\n" closure)
+    (format  (current-debug-port) ";; args: ~s\n" (car (%closure-code closure)))
+    (format  (current-debug-port) ";; lenv: ~s\n" (%closure-env closure))
+    (dolist (property-binding (%property-list closure))
+      (format  (current-debug-port) ";; prop ~s: ~s\n"
+               (car property-binding)
+               (cdr property-binding)))
     (print-closure-code (cdr (%closure-code closure)) (current-debug-port)))
   (dynamic-let ((*print-readably* #f))
     (dolist (f functions)
