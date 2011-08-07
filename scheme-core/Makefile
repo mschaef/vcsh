@@ -19,7 +19,7 @@ include ../config.${PLATFORM}
 
 SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-run.scf
 
-tested: all scheme-tests.scf
+tested: all
 	./vcsh unit-test.scm tests/run-tests.scm
 
 ctested: all scheme-tests.scf

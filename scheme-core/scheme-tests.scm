@@ -9,6 +9,7 @@
                    (lambda (x y) (> 0 (strcmp x y))))))
 
 (define (run)
+  (in-package! "unit-test-suite")
   (if (time (test))
       0
       1))
