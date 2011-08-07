@@ -21,8 +21,8 @@
 (define (closure-global-bindings fn)
   (list->set/eq
    (let recur ((fast-op (cdr (scheme::%closure-code fn))))
-     (mvbind (opcode args) (compiler::parse-fast-op fast-op)
-       (case opcode
+     (mvbind (opcode opname args) (compiler::parse-fast-op fast-op)
+       (case opname
          ((:literal :local-ref :get-env)
           ())
          ((:global-ref)

@@ -75,14 +75,17 @@
 (define-fast-op :set-hframes            #.system::FOP_SET_HFRAMES           :fast-op           )
 (define-fast-op :global-preserve-frame  #.system::FOP_GLOBAL_PRESERVE_FRAME :symbol :fast-op   )
 
-(define (parse-fast-op fast-op :optional (parse-opcode? #t))
+(define (parse-fast-op fast-op)
   (let ((opcode (scheme::%fast-op-opcode fast-op))
         (args (scheme::%fast-op-args fast-op)))
     (let ((defn (hash-ref *fop-opcode->fop-defn* opcode #f)))
-      (if (and defn parse-opcode?)
-          (values (fop-defn-name defn)
-                  (take args (fop-defn-arity defn)))
-          (values opcode args)))))
+      (values opcode
+              (if defn
+                  (fop-defn-name defn)
+                  #f)
+              (if defn
+                  (take args (fop-defn-arity defn))
+                  args)))))
 
 (define (fop-name->formals fop-name)
   (aif (hash-ref *fop-name->fop-defn* fop-name #f)
@@ -90,7 +93,7 @@
        #f))
 
 (define (fast-op-args fast-op)
-  (mvbind (opcode args) (parse-fast-op fast-op)
+  (mvbind (opcode op-name args) (parse-fast-op fast-op)
      args))
 
 (define (fast-op? obj)

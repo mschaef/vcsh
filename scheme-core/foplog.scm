@@ -24,7 +24,8 @@
 
 (define (opcode->name op)
   (if (not (null? op))
-      (mvbind (opcode args) (compiler::parse-fast-op op) opcode)
+      (mvbind (opcode opname args) (compiler::parse-fast-op op)
+        opname)
       #f))
 
 (define (foplog->opcodes log)

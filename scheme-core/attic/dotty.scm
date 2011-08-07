@@ -174,7 +174,7 @@
            (loop (car x))
            (loop (cdr x)))
           ((fast-op)
-           (mvbind (opcode args) (compiler::parse-fast-op x)
+           (mvbind (opcode opname args) (compiler::parse-fast-op x)
              (format p "~a [ shape=record, label=\"#fop:~a|" (dotty-object-name x) opcode)
              (doiterate ((list arg args)
                          (count ii 0))

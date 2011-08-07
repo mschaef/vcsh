@@ -148,8 +148,8 @@
       (when *disassemble-show-fast-op-addresses*
         (format port "~@ " code))
       (cond ((compiler::fast-op? code)
-             (mvbind (opcode actuals) (compiler::parse-fast-op code)
-               (let ((formals (compiler::fop-name->formals opcode)))
+             (mvbind (opcode name actuals) (compiler::parse-fast-op code)
+               (let ((formals (compiler::fop-name->formals name)))
                  (cond
                   ((not formals)
                    (format port "INVALID-OPCODE: ~s\n" opcode))
@@ -204,7 +204,7 @@
 ;;; Printer support for fast-ops
 
 (define-method (print-object (obj fast-op) port machine-readable? shared-structure-map)
-  (mvbind (op-name args) (compiler::parse-fast-op obj)
+  (mvbind (op-code op-name args) (compiler::parse-fast-op obj)
      (scheme::print-unreadable-object obj port
        (print op-name port machine-readable? shared-structure-map)
        (dolist (arg args)

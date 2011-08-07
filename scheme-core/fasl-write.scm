@@ -277,7 +277,7 @@
            (check-sharing-and-write (%structure-ref object ii)))))
 
       ((fast-op)
-       (mvbind (fop-opcode args) (compiler::parse-fast-op object #f)
+       (mvbind (fop-opcode fop-name args) (compiler::parse-fast-op object #f)
           (fast-write-opcode (case (length args)
                                ((0) system::FASL_OP_FAST_OP_0)
                                ((1) system::FASL_OP_FAST_OP_1)
