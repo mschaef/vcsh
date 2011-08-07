@@ -10,7 +10,7 @@
 # redistribution of this file, and for a DISCLAIMER OF ALL
 # WARRANTIES.
 
-.PHONY: indented tested ctested
+.PHONY: indented tested
 
 TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT}
 
@@ -19,10 +19,7 @@ include ../config.${PLATFORM}
 
 SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-run.scf
 
-tested: all
-	./vcsh unit-test.scm tests/run-tests.scm
-
-ctested: all scheme-tests.scf
+tested: all scheme-tests.scf
 	 ./vcsh scheme-tests.scf
 
 scheme-tests.scf: vcsh${EXE_EXT} scheme-tests.scm
