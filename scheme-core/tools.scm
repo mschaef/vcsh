@@ -148,19 +148,19 @@
       (when *disassemble-show-fast-op-addresses*
         (format port "~@ " code))
       (cond ((compiler::fast-op? code)
-             (mvbind (opcode name actuals) (compiler::parse-fast-op code)
-               (let ((formals (compiler::fop-name->formals name)))
+             (mvbind (opcode opname actuals) (compiler::parse-fast-op code)
+               (let ((formals (compiler::fop-name->formals opname)))
                  (cond
                   ((not formals)
                    (format port "INVALID-OPCODE: ~s\n" opcode))
-                  ((eq? :closure opcode)
-                   (format port "~s ~s {\n" opcode (car actuals))
+                  ((eq? :closure opname)
+                   (format port "~s ~s {\n" opname (car actuals))
                    (in-trace-level
                     (recur (cadr actuals)))
                    (trace-indent port)
                    (format port "}"))
                   (#t
-                   (format port "~s" opcode)
+                   (format port "~s" opname)
                    (for-each
                     (lambda (formal actual)
                       (case formal
