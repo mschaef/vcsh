@@ -12,7 +12,7 @@
 
 (define (form->fop-assembly form :optional (at-toplevel? #f))
   (expanded-form-meaning
-   (expand-form form at-toplevel?) () at-toplevel?))
+   (expand-form form at-toplevel?) ()))
 
 (define (compile-form form :optional (at-toplevel? #f))
   "Accept a <form> and compile it into the corresponding closure or literal. <form>

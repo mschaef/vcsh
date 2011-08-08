@@ -192,6 +192,7 @@
 
 (defmacro (define name . defn)
   (cond ((symbol? name)
+         ;; TODO: Add support for documentation of variables
          `(%define ,name ,(first defn)))
         ((and (pair? name) (symbol? (car name)))
          `(%define ,(car name)
