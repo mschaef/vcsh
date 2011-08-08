@@ -433,22 +433,6 @@ void unwind_stack_for_throw()
      }
 }
 
-static void lthrow(lref_t tag, lref_t retval)
-{
-     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, retval));
-
-     CURRENT_TIB()->escape_frame
-          = find_matching_escape(CURRENT_TIB()->frame, tag);
-     CURRENT_TIB()->escape_value
-          = retval;
-
-     unwind_stack_for_throw();
-
-     /* If we don't find a matching catch for the throw, we have a problem and need to invoke a trap. */
-     vmtrap(TRAP_UNCAUGHT_THROW, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            2, tag, retval);
-}
-
 static lref_t execute_fast_op(lref_t fop, lref_t env)
 {
      lref_t retval = NIL;
@@ -628,9 +612,27 @@ loop:
           goto loop;
 
      case FOP_THROW:
-          lthrow(execute_fast_op(FAST_OP_ARG1(fop), env),
-                 execute_fast_op(FAST_OP_ARG2(fop), env));
-          break;
+     {
+          lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+          lref_t retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+
+          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"),
+                                     tag, retval));
+
+          CURRENT_TIB()->escape_frame
+               = find_matching_escape(CURRENT_TIB()->frame, tag);
+          CURRENT_TIB()->escape_value
+               = retval;
+
+          unwind_stack_for_throw();
+
+          /* If we don't find a matching catch for the throw, we have a
+           * problem and need to invoke a trap. */
+          vmtrap(TRAP_UNCAUGHT_THROW,
+                 (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+                 2, tag, retval);
+     }
+     break;
 
      case FOP_CATCH:
      {
