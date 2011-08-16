@@ -73,48 +73,40 @@
   ;; Note that this would be an expansion step, were it not for the fact
   ;; that this takes a list of forms and produces a list of forms. (Instead
   ;; of form to form.)
-  (define (begin-block? form) (and (pair? form) (eq? (car form) 'begin)))
-  (define (define? form) (and (pair? form) (eq? (car form) 'scheme::%define)))
-  (define (define-binding-pair form) (cons (cadr form) (cddr form)))
+  (define (begin-block? form)
+    (and (pair? form) (eq? (car form) 'begin)))
+  (define (define? form)
+    (and (pair? form) (eq? (car form) 'scheme::%define)))
+  (define (define-binding-pair form)
+    (cons (cadr form) (cddr form)))
 
-  (let expand-next-form ((remaining-forms forms)
-                         (local-definitions ())
-                         (body-forms ()))
+  (let loop ((forms forms) (ldefs ()) (body-forms ()))
 
-    (let ((next-form (compiler-macroexpand (car remaining-forms) at-toplevel?)))
+    (let ((current-form (compiler-macroexpand (car forms) at-toplevel?)))
       (cond
-       ((begin-block? next-form)
-        (expand-next-form (append (cdr next-form) (cdr remaining-forms))
-                          local-definitions
-                          body-forms))
-       ((define? next-form)
+       ((begin-block? current-form)
+        (loop (append (cdr current-form) (cdr forms)) ldefs body-forms))
+
+       ((define? current-form)
         (unless allow-definitions?
-         (compile-error next-form "Definitions not allowed here."))
+         (compile-error current-form "Definitions not allowed here."))
 
         (cond (at-toplevel?
-               ;; We allow definitions anywhere in a toplevel form, because they
-               ;; are not transformed into a letrec.
-               (expand-next-form (cdr remaining-forms)
-                                 local-definitions
-                                 (append body-forms (cons next-form))))
+               (loop (cdr forms) ldefs (append body-forms (cons current-form))))
+              ((not (null? body-forms))
+               (compile-error current-form "Local defines must be the first forms in a block."))
               (#t
-               (unless (null? body-forms)
-                 (compile-error next-form "Local defines must be the first forms in a block."))
-               (expand-next-form (cdr remaining-forms)
-                                 (cons (define-binding-pair next-form) local-definitions)
-                                 body-forms))))
+               (loop (cdr forms) (cons (define-binding-pair current-form) ldefs) body-forms))))
 
-       ((null? remaining-forms)
-        (if (null? local-definitions)
+       ((null? forms)
+        (if (null? ldefs)
             `(,@(map #L(expand-form _ at-toplevel?) body-forms))
             (expand-form
-             `((letrec ,local-definitions
+             `((letrec ,ldefs
                  ,@body-forms))
              at-toplevel?)))
        (#t
-        (expand-next-form (cdr remaining-forms)
-                          local-definitions
-                          (append body-forms (cons next-form))))))))
+        (loop (cdr forms) ldefs (append body-forms (cons current-form))))))))
 
 
 (define (expand/if form at-toplevel?)

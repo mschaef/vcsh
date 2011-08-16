@@ -1,5 +1,4 @@
 
-
 ;;;; compiler-foptimize.scm --
 ;;;;
 ;;;; The FOP tree optimizer.
