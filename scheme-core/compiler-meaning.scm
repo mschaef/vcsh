@@ -155,11 +155,11 @@
            ,(expanded-form-meaning val-form cenv)
            (:global-set! ,var)))))
 
-(define toplevel-form->thunk)
+(define compile)
 
 (define-special-form (scheme::%define name defn)
   `(:global-def ,name
-                ,((toplevel-form->thunk defn))))
+                ,((compile defn))))
 
 (define-special-form (quote value)
   `(:literal ,value))

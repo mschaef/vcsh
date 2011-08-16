@@ -19,7 +19,7 @@
      (expand-form form #t)
      ()))))
 
-(define (toplevel-form->thunk form)
+(define (compile form)
   "Accept a <form> and compile it into a closure that can be invoked to produce the
   effect of evaluating that form at toplevel."
   (compile-form `(compiler::%toplevel-lambda ,form)))

@@ -38,5 +38,5 @@
             "*initial-package*"
             "*disable-load-unit-boundaries*"
             "compile-form"
-            "toplevel-form->thunk"
+            "compile"
             ))

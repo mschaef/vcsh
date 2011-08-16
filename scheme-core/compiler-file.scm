@@ -104,7 +104,7 @@
 
 (define (process-toplevel-define form output-fasl-stream)
   (let* ((var (second form))
-         (val-thunk (toplevel-form->thunk (third form)))
+         (val-thunk (compile (third form)))
          (val (val-thunk)))
 
     (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" var val)
@@ -117,7 +117,7 @@
 
 (define (emit-action form output-fasl-stream)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (toplevel-form->thunk form)) output-fasl-stream))
+  (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (compile form)) output-fasl-stream))
 
 (define process-toplevel-form)
 (define process-%%begin-load-unit-boundaries)

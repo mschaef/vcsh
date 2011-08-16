@@ -128,15 +128,12 @@
 
 (define (fop-assemble outermost-asm)
   (check list? outermost-asm "Malformed FOP assembly syntax.")
-  (case (car outermost-asm)
-    ((:closure)
-     (dbind (opcode (l-list . p-list) src) outermost-asm
-       (scheme::%closure () (cons l-list (fasm src)) p-list)))
-    ((:literal)
-     (dbind (opcode literal) outermost-asm
-       literal))
-    (#t
-     (error "assemble expects to assemble either a literal or a closure: ~s" outermost-asm))))
+
+  (unless (eq? (car outermost-asm) :closure)
+    (error "assemble expects to assemble either a closure: ~s" outermost-asm))
+
+  (dbind (opcode (l-list . p-list) src) outermost-asm
+    (scheme::%closure () (cons l-list (fasm src)) p-list)))
 
 
 

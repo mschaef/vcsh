@@ -22,5 +22,5 @@
                    (compiler::compile-warning
                     (lambda (context-form message args)
                       (compiler::compiler-message context-form :warning message args))))
-      (let ((form-fn (compiler::toplevel-form->thunk form)))
+      (let ((form-fn (compiler::compile form)))
         (form-fn)))))
