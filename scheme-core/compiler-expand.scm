@@ -100,7 +100,7 @@
 
        ((null? forms)
         (if (null? ldefs)
-            `(,@(map #L(expand-form _ at-toplevel?) body-forms))
+            (map #L(expand-form _ at-toplevel?) body-forms)
             (expand-form
              `((letrec ,ldefs
                  ,@body-forms))
