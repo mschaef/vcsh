@@ -115,3 +115,6 @@
 
 (define (optimize-fop-assembly fasm)
   ((opt-pass *optimize* optimize-pass/full) fasm))
+
+(define (cpass/fasm-optimize fasm)
+  (optimize-fop-assembly fasm))

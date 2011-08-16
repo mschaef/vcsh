@@ -203,3 +203,6 @@
 
 (define (expand-form form at-toplevel?)
   (apply-expander form-expander form at-toplevel?))
+
+(define (cpass/expand form)
+  (expand-form form #t))

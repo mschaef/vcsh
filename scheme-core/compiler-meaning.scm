@@ -226,3 +226,5 @@
              (meaning/application form cenv))))
     form))
 
+(define (cpass/meaning form)
+  (expanded-form-meaning form ()))

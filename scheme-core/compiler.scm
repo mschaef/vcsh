@@ -37,6 +37,5 @@
             "*files-to-compile*"
             "*initial-package*"
             "*disable-load-unit-boundaries*"
-            "compile-form"
             "compile"
             ))

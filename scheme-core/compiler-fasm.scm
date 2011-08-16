@@ -135,5 +135,5 @@
   (dbind (opcode (l-list . p-list) src) outermost-asm
     (scheme::%closure () (cons l-list (fasm src)) p-list)))
 
-
-
+(define (cpass/fasm fasm)
+  (fop-assemble fasm))
