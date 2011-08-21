@@ -64,7 +64,8 @@
 (define *special-form-handlers* #h(:eq))
 
 (define (special-form-symbols)
-  ;; REVISIT: Currently unioning in toplevel special forms and type names... need to do something better
+  ;; REVISIT: Currently unioning in toplevel special forms and
+  ;; type names... need to do something better
   (hash-keys *special-form-handlers*))
 
 (defmacro (define-special-form pattern . code)

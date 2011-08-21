@@ -84,6 +84,7 @@
 
     (let ((current-form (compiler-macroexpand (car forms) at-toplevel?)))
       (cond
+
        ((begin-block? current-form)
         (loop (append (cdr current-form) (cdr forms)) ldefs body-forms))
 
@@ -107,7 +108,6 @@
              at-toplevel?)))
        (#t
         (loop (cdr forms) ldefs (append body-forms (cons current-form))))))))
-
 
 (define (expand/if form at-toplevel?)
   (unless (or (length=3? form) (length=4? form))

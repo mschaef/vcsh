@@ -122,6 +122,9 @@
 (define process-toplevel-form)
 (define process-%%begin-load-unit-boundaries)
 
+(define (process-toplevel-begin form load-time-eval? compile-time-eval? output-fasl-stream)
+  (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream))
+
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
@@ -135,7 +138,7 @@
       ((scheme::%define)
        (process-toplevel-define form output-fasl-stream))
       ((begin)
-       (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream))
+       (process-toplevel-begin form load-time-eval? compile-time-eval? output-fasl-stream))
       ((include)
        (process-toplevel-include form output-fasl-stream))
       ((eval-when)
