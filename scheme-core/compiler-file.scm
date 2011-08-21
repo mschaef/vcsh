@@ -139,11 +139,11 @@
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
   (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (compile form)) output-fasl-stream))
 
-(define process-toplevel-form)
 (define process-%%begin-load-unit-boundaries)
 
-(define (process-toplevel-begin form load-time-eval? compile-time-eval? output-fasl-stream)
-  (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream))
+(define-toplevel-form (begin . forms)
+  (process-toplevel-forms (form-list-reader forms)
+                          load-time-eval? compile-time-eval? output-fasl-stream))
 
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
@@ -161,8 +161,6 @@
       (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream))
      ((eq? (car form) 'scheme::%define)
       (process-toplevel-define              form load-time-eval? compile-time-eval? output-fasl-stream))
-     ((eq? (car form) 'begin)
-      (process-toplevel-begin               form load-time-eval? compile-time-eval? output-fasl-stream))
      ((eq? (car form) 'eval-when)
       (process-toplevel-eval-when           form load-time-eval? compile-time-eval? output-fasl-stream))
      (#t
