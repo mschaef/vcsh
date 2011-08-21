@@ -136,7 +136,10 @@
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
   (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (compile form)) output-fasl-stream))
 
-(define process-%%begin-load-unit-boundaries)
+(define begin-load-unit-boundaries)
+
+(define-toplevel-form (%%begin-load-unit-boundaries filename)
+  (begin-load-unit-boundaries filename output-fasl-stream))
 
 (define-toplevel-form (begin . forms)
   (process-toplevel-forms (form-list-reader forms)
@@ -155,8 +158,6 @@
       (aif (find #L((car _) form) (hash-ref *toplevel-form-handlers* (car form)))
            ((cdr it) form load-time-eval? compile-time-eval? output-fasl-stream)
            (error "Invalid syntax for toplevel form ~a: ~s" (car form) form)))
-     ((eq? (car form) '%%begin-load-unit-boundaries)
-      (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream))
      (#t
       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
         (cond (expanded?
@@ -223,15 +224,14 @@
     (fasl-write-op system::FASL_OP_LOADER_APPLYN (list system::LOAD-TIME-SET-PACKAGE! 1) output-fasl-stream)
     (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream)))
 
-(define (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream)
-  (dbind (fn filename) form
-    (unless *disable-load-unit-boundaries*
-      (error "Cannot begin load unit boundaries unless they have already been disabled on the command line."))
-    (unless (string? filename)
-      (error "Bad filename for beginning load unit boundaries: ~s" filename))
-    (trace-message #t "; Beginning load unit boundaries with filename: ~a\n" filename)
-    (set! *disable-load-unit-boundaries* #f)
-    (begin-load-unit filename output-fasl-stream)))
+(define (begin-load-unit-boundaries filename output-fasl-stream)
+  (unless *disable-load-unit-boundaries*
+    (error "Cannot begin load unit boundaries unless they have already been disabled on the command line."))
+  (unless (string? filename)
+    (error "Bad filename for beginning load unit boundaries: ~s" filename))
+  (trace-message #t "; Beginning load unit boundaries with filename: ~a\n" filename)
+  (set! *disable-load-unit-boundaries* #f)
+  (begin-load-unit filename output-fasl-stream))
 
 (define (compile-file/simple filename output-fasl-stream)
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
