@@ -148,15 +148,18 @@
     (compile-error "Invalid set!, bad length." form))
   `(set! ,(cadr form) ,(expand-form (caddr form) at-toplevel?)))
 
+(define (validate-eval-when-situations situations form)
+  (unless (and (or (null? situations)
+                   (list? situations))
+               (every? #L(member _ '(:compile-toplevel :load-toplevel :execute)) situations))
+    (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute.")))
 
 (define (parse-eval-when form)
   (unless (> (length form) 2)
     (compile-error form "Incomplete eval-when."))
   (let ((situations (cadr form))
         (forms (cddr form)))
-    (unless (and (or (null? situations) (list? situations))
-                 (every? #L(member _ '(:compile-toplevel :load-toplevel :execute)) situations))
-      (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute."))
+    (validate-eval-when-situations situations form)
     (values situations forms)))
 
 (define (expand/eval-when form at-toplevel?)

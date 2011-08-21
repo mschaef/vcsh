@@ -46,14 +46,14 @@
 
 ;;; The main loop
 
+(define *toplevel-form-handlers* #h(:eq))
+
 (define (toplevel-file-form-symbols)
   '(%%begin-load-unit-boundaries
     scheme::%define
     begin
     include
     eval-when))
-
-(define *toplevel-form-handlers* #h(:eq))
 
 (defmacro (define-toplevel-form pattern . code) ;; TODO: share with the (very similar) code in compiler-meaning.
   (check pair? pattern)
@@ -81,14 +81,15 @@
 
 (define process-toplevel-forms) ; forward
 
-(define (process-toplevel-eval-when form load-time-eval? compile-time-eval? *toplevel-forms*)
-  (mvbind (situations forms) (parse-eval-when form)
-    (let ((load-time-eval? (and load-time-eval? (member :load-toplevel situations)))
-          (compile-time-eval? (or (member :compile-toplevel situations)
-                                  (and compile-time-eval?
-                                       (member :execute-toplevel situations)))))
-      (when (or load-time-eval? compile-time-eval?)
-        (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? *toplevel-forms*)))))
+(define-toplevel-form (eval-when situations . forms)
+  (validate-eval-when-situations situations form)
+  (let ((load-time-eval? (and load-time-eval? (member :load-toplevel situations)))
+        (compile-time-eval? (or (member :compile-toplevel situations)
+                                (and compile-time-eval?
+                                     (member :execute-toplevel situations)))))
+    (when (or load-time-eval?
+              compile-time-eval?)
+      (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? output-fasl-stream))))
 
 (define *files-currently-compiling* ())
 
@@ -145,6 +146,7 @@
   (process-toplevel-forms (form-list-reader forms)
                           load-time-eval? compile-time-eval? output-fasl-stream))
 
+
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
@@ -161,8 +163,6 @@
       (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream))
      ((eq? (car form) 'scheme::%define)
       (process-toplevel-define              form load-time-eval? compile-time-eval? output-fasl-stream))
-     ((eq? (car form) 'eval-when)
-      (process-toplevel-eval-when           form load-time-eval? compile-time-eval? output-fasl-stream))
      (#t
       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
         (cond (expanded?
