@@ -46,6 +46,28 @@
 
 ;;; The main loop
 
+(define (toplevel-file-form-symbols)
+  '(%%begin-load-unit-boundaries
+    scheme::%define
+    begin
+    include
+    eval-when))
+
+(define *toplevel-form-handlers* #h(:eq))
+
+(defmacro (define-toplevel-form pattern . code) ;; TODO: share with the (very similar) code in compiler-meaning.
+  (check pair? pattern)
+  (check symbol? (car pattern))
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (hash-push! *toplevel-form-handlers* ',(car pattern)
+                 (cons (lambda (form)
+                         (and (pair? form)
+                              (dbind-matches? ,(cdr pattern) (cdr form))))
+                       (lambda (form load-time-eval? compile-time-eval? output-fasl-stream)
+                         (dbind ,(cdr pattern) (cdr form)
+                           ,@code))))))
+
+
 (define (form-list-reader forms)
   "Makes a reader for the list of forms <forms>. A reader is a closure
    that returns a form on each call and an eof-object when there are no
@@ -77,22 +99,20 @@
 
 (define compile-file/simple)
 
-(define (process-toplevel-include form load-time-eval? compile-time-eval? output-fasl-stream)
-  (unless (and (list? form) (length=2? form) (string? (second form)))
-    (compile-error #f "Invalid include form: ~s" form))
-  (let ((file-spec (second form)))
-    (define (file-spec-files)
-      (if (wild-glob-pattern? file-spec) ;; REVISIT: Always glob
-          (directory file-spec)
-          (list file-spec)))
-    (dolist (filename (file-spec-files))
-      (call-with-compiler-tracing *show-actions* '("BEGIN-INCLUDE" "END-INCLUDE")
-                                  (lambda (filename)
-                                    (when (currently-compiling-file? filename)
-                                      (compile-fatal-error #f "Recursive include of ~s while compiling ~s"
-                                                           filename *files-currently-compiling*))
-                                    (compile-file/simple filename output-fasl-stream))
-        filename))))
+(define-toplevel-form (include file-spec)
+  (define (file-spec-files)
+    (if (wild-glob-pattern? file-spec) ;; REVISIT: Always glob
+        (directory file-spec)
+        (list file-spec)))
+  (dolist (filename (file-spec-files))
+    (call-with-compiler-tracing *show-actions* '("BEGIN-INCLUDE" "END-INCLUDE")
+                                (lambda (filename)
+                                  (when (currently-compiling-file? filename)
+                                    (compile-fatal-error #f "Recursive include of ~s while compiling ~s"
+                                                         filename *files-currently-compiling*))
+                                  (compile-file/simple filename output-fasl-stream))
+      filename)))
+
 
 
 (define (evaluated-object? obj)
@@ -125,27 +145,6 @@
 (define (process-toplevel-begin form load-time-eval? compile-time-eval? output-fasl-stream)
   (process-toplevel-forms (form-list-reader (cdr form)) load-time-eval? compile-time-eval? output-fasl-stream))
 
-(define (toplevel-file-form-symbols)
-  '(%%begin-load-unit-boundaries
-    scheme::%define
-    begin
-    include
-    eval-when))
-
-(define *toplevel-form-handlers* #h(:eq))
-
-(defmacro (define-toplevel-form pattern . code)
-  (check pair? pattern)
-  (check symbol? (car pattern))
-  `(eval-when (:compile-toplevel :load-toplevel :execute)
-     (hash-push! *toplevel-form-handlers* ',(car pattern)
-                 (cons (lambda (form)
-                         (and (pair? form)
-                              (dbind-matches? ,(cdr pattern) (cdr form))))
-                       (lambda (form load-time-eval? compile-time-eval? output-fasl-stream)
-                         (dbind ,(cdr pattern) (cdr form)
-                           ,@code))))))
-
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
@@ -164,8 +163,6 @@
       (process-toplevel-define              form load-time-eval? compile-time-eval? output-fasl-stream))
      ((eq? (car form) 'begin)
       (process-toplevel-begin               form load-time-eval? compile-time-eval? output-fasl-stream))
-     ((eq? (car form) 'include)
-      (process-toplevel-include             form load-time-eval? compile-time-eval? output-fasl-stream))
      ((eq? (car form) 'eval-when)
       (process-toplevel-eval-when           form load-time-eval? compile-time-eval? output-fasl-stream))
      (#t
