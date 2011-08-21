@@ -114,27 +114,23 @@
                                   (compile-file/simple filename output-fasl-stream))
       filename)))
 
+(define (compile-toplevel-definition symbol value-form output-fasl-stream)
+  (let* ((value-thunk (compile value-form))
+         (value (value-thunk)))
 
-
-(define (evaluated-object? obj)
-  "Returns true if <obj> is an object that has specific handling in the scheme
-   evaluator. If <obj> evaluates to itself, returns #f."
-  (or (fast-op? obj)
-      (symbol? obj)
-      (pair? obj)))
-
-(define (process-toplevel-define form load-time-eval? compile-time-eval? output-fasl-stream)
-  (let* ((var (second form))
-         (val-thunk (compile (third form)))
-         (val (val-thunk)))
-
-    (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" var val)
-    (trace-message *verbose* "; defining ~a\n" var)
+    (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" symbol value)
+    (trace-message *verbose* "; defining ~a\n" symbol)
 
     ;; error checking here???
-    (scheme::%define-global var val)
+    (scheme::%define-global symbol value)
 
-    (fasl-write-op system::FASL_OP_LOADER_DEFINEA0 (list var val-thunk) output-fasl-stream)))
+    (fasl-write-op system::FASL_OP_LOADER_DEFINEA0 (list symbol value-thunk) output-fasl-stream)))
+
+(define-toplevel-form (scheme::%define symbol value-form)
+  (compile-toplevel-definition symbol value-form output-fasl-stream))
+
+(define-toplevel-form (scheme::%define symbol)
+  (compile-toplevel-definition symbol () output-fasl-stream))
 
 (define (emit-action form output-fasl-stream)
   (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
@@ -161,8 +157,6 @@
            (error "Invalid syntax for toplevel form ~a: ~s" (car form) form)))
      ((eq? (car form) '%%begin-load-unit-boundaries)
       (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream))
-     ((eq? (car form) 'scheme::%define)
-      (process-toplevel-define              form load-time-eval? compile-time-eval? output-fasl-stream))
      (#t
       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
         (cond (expanded?
