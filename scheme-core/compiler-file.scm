@@ -77,7 +77,7 @@
 
 (define compile-file/simple)
 
-(define (process-toplevel-include form output-fasl-stream)
+(define (process-toplevel-include form load-time-eval? compile-time-eval? output-fasl-stream)
   (unless (and (list? form) (length=2? form) (string? (second form)))
     (compile-error #f "Invalid include form: ~s" form))
   (let ((file-spec (second form)))
@@ -102,7 +102,7 @@
       (symbol? obj)
       (pair? obj)))
 
-(define (process-toplevel-define form output-fasl-stream)
+(define (process-toplevel-define form load-time-eval? compile-time-eval? output-fasl-stream)
   (let* ((var (second form))
          (val-thunk (compile (third form)))
          (val (val-thunk)))
@@ -134,15 +134,15 @@
   (when (pair? form)
     (case (car form)
       ((%%begin-load-unit-boundaries)
-       (process-%%begin-load-unit-boundaries form output-fasl-stream))
+       (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream))
       ((scheme::%define)
-       (process-toplevel-define form output-fasl-stream))
+       (process-toplevel-define              form load-time-eval? compile-time-eval? output-fasl-stream))
       ((begin)
-       (process-toplevel-begin form load-time-eval? compile-time-eval? output-fasl-stream))
+       (process-toplevel-begin               form load-time-eval? compile-time-eval? output-fasl-stream))
       ((include)
-       (process-toplevel-include form output-fasl-stream))
+       (process-toplevel-include             form load-time-eval? compile-time-eval? output-fasl-stream))
       ((eval-when)
-       (process-toplevel-eval-when form load-time-eval? compile-time-eval? output-fasl-stream))
+       (process-toplevel-eval-when           form load-time-eval? compile-time-eval? output-fasl-stream))
       (#t
        (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
          (cond (expanded?
@@ -209,7 +209,7 @@
     (fasl-write-op system::FASL_OP_LOADER_APPLYN (list system::LOAD-TIME-SET-PACKAGE! 1) output-fasl-stream)
     (fasl-write-op system::FASL_OP_END_LOAD_UNIT (list filename) output-fasl-stream)))
 
-(define (process-%%begin-load-unit-boundaries form output-fasl-stream)
+(define (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream)
   (dbind (fn filename) form
     (unless *disable-load-unit-boundaries*
       (error "Cannot begin load unit boundaries unless they have already been disabled on the command line."))
