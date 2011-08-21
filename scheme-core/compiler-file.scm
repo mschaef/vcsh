@@ -132,6 +132,20 @@
     include
     eval-when))
 
+(define *toplevel-form-handlers* #h(:eq))
+
+(defmacro (define-toplevel-form pattern . code)
+  (check pair? pattern)
+  (check symbol? (car pattern))
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+     (hash-push! *toplevel-form-handlers* ',(car pattern)
+                 (cons (lambda (form)
+                         (and (pair? form)
+                              (dbind-matches? ,(cdr pattern) (cdr form))))
+                       (lambda (form load-time-eval? compile-time-eval? output-fasl-stream)
+                         (dbind ,(cdr pattern) (cdr form)
+                           ,@code))))))
+
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
                  (if load-time-eval? " [load-time]" "")
@@ -139,26 +153,30 @@
                  form)
   ;; Forms that aren't lists evaluate to themselves and can be ignored
   (when (pair? form)
-    (case (car form)
-      ((%%begin-load-unit-boundaries)
-       (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream))
-      ((scheme::%define)
-       (process-toplevel-define              form load-time-eval? compile-time-eval? output-fasl-stream))
-      ((begin)
-       (process-toplevel-begin               form load-time-eval? compile-time-eval? output-fasl-stream))
-      ((include)
-       (process-toplevel-include             form load-time-eval? compile-time-eval? output-fasl-stream))
-      ((eval-when)
-       (process-toplevel-eval-when           form load-time-eval? compile-time-eval? output-fasl-stream))
-      (#t
-       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
-         (cond (expanded?
-                (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream))
-               (#t
-                (when compile-time-eval?
-                  (compiler-evaluate form))
-                (when load-time-eval?
-                  (emit-action form output-fasl-stream)))))))))
+    (cond
+     ((hash-has? *toplevel-form-handlers* (car form))
+      (aif (find #L((car _) form) (hash-ref *toplevel-form-handlers* (car form)))
+           ((cdr it) form load-time-eval? compile-time-eval? output-fasl-stream)
+           (error "Invalid syntax for toplevel form ~a: ~s" (car form) form)))
+     ((eq? (car form) '%%begin-load-unit-boundaries)
+      (process-%%begin-load-unit-boundaries form load-time-eval? compile-time-eval? output-fasl-stream))
+     ((eq? (car form) 'scheme::%define)
+      (process-toplevel-define              form load-time-eval? compile-time-eval? output-fasl-stream))
+     ((eq? (car form) 'begin)
+      (process-toplevel-begin               form load-time-eval? compile-time-eval? output-fasl-stream))
+     ((eq? (car form) 'include)
+      (process-toplevel-include             form load-time-eval? compile-time-eval? output-fasl-stream))
+     ((eq? (car form) 'eval-when)
+      (process-toplevel-eval-when           form load-time-eval? compile-time-eval? output-fasl-stream))
+     (#t
+      (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
+        (cond (expanded?
+               (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream))
+              (#t
+               (when compile-time-eval?
+                 (compiler-evaluate form))
+               (when load-time-eval?
+                 (emit-action form output-fasl-stream)))))))))
 
 (define (process-toplevel-forms reader load-time-eval? compile-time-eval? output-fasl-stream)
   (let loop ((next-form (reader)))
