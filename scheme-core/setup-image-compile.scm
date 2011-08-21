@@ -23,11 +23,12 @@
 (compiler::trace-message #t ";;;; Configuring for cross compile of Scheme image.\n")
 
 (define *shared-target-symbols* ;; REVISIT: Better way to build this list? Please?
-  (set-union '(compiler::%%begin-load-unit-boundaries
-               scheme::%define
-               scheme::begin
-               scheme::include
-               scheme::eval-when)
+  (set-union ;;(compiler::toplevel-file-form-symbols)
+   '(compiler::%%begin-load-unit-boundaries
+     scheme::%define
+     scheme::begin
+     scheme::include
+     scheme::eval-when)
              '(scheme::free-cell
                scheme::nil
                scheme::boolean
