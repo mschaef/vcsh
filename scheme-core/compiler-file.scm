@@ -44,16 +44,33 @@
         (trace-message *show-actions* "* READ in ~s\n" *package*)
         (*compiler-reader* port)))))
 
-;;; The main loop
+(define (form-list-reader forms)
+  "Makes a reader for the list of forms <forms>. A reader is a closure
+   that returns a form on each call and an eof-object when there are no
+   more forms to be read."
+  (lambda ()
+    (if (null? forms)
+        (scheme::%make-eof)
+        (let ((form (car forms)))
+          (set! forms (cdr forms))
+          form))))
+
+
+(define *files-currently-compiling* ())
+
+(define (currently-compiling-file? filename)
+  (if (any? #L(filename-string=? _ filename) *files-currently-compiling*)
+      filename
+      #f))
+
+(define compile-file/simple)
+
+;;;; Toplevel form handlers
 
 (define *toplevel-form-handlers* #h(:eq))
 
 (define (toplevel-file-form-symbols)
-  '(%%begin-load-unit-boundaries
-    scheme::%define
-    begin
-    include
-    eval-when))
+  (hash-keys *toplevel-form-handlers*))
 
 (defmacro (define-toplevel-form pattern . code) ;; TODO: share with the (very similar) code in compiler-meaning.
   (check pair? pattern)
@@ -67,18 +84,6 @@
                          (dbind ,(cdr pattern) (cdr form)
                            ,@code))))))
 
-
-(define (form-list-reader forms)
-  "Makes a reader for the list of forms <forms>. A reader is a closure
-   that returns a form on each call and an eof-object when there are no
-   more forms to be read."
-  (lambda ()
-    (if (null? forms)
-        (scheme::%make-eof)
-        (let ((form (car forms)))
-          (set! forms (cdr forms))
-          form))))
-
 (define process-toplevel-forms) ; forward
 
 (define-toplevel-form (eval-when situations . forms)
@@ -91,14 +96,21 @@
               compile-time-eval?)
       (process-toplevel-forms (form-list-reader forms) load-time-eval? compile-time-eval? output-fasl-stream))))
 
-(define *files-currently-compiling* ())
+(define (compile-toplevel-definition symbol value-form output-fasl-stream)
+  (let* ((value-thunk (compile value-form))
+         (value (value-thunk)))
 
-(define (currently-compiling-file? filename)
-  (if (any? #L(filename-string=? _ filename) *files-currently-compiling*)
-      filename
-      #f))
+    (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" symbol value)
+    (trace-message *verbose* "; defining ~a\n" symbol)
 
-(define compile-file/simple)
+    ;; error checking here???
+    (scheme::%define-global symbol value)
+
+    (fasl-write-op system::FASL_OP_LOADER_DEFINEA0 (list symbol value-thunk) output-fasl-stream)))
+
+(define begin-load-unit-boundaries)
+
+;;;; Toplevel special forms
 
 (define-toplevel-form (include file-spec)
   (define (file-spec-files)
@@ -114,29 +126,11 @@
                                   (compile-file/simple filename output-fasl-stream))
       filename)))
 
-(define (compile-toplevel-definition symbol value-form output-fasl-stream)
-  (let* ((value-thunk (compile value-form))
-         (value (value-thunk)))
-
-    (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" symbol value)
-    (trace-message *verbose* "; defining ~a\n" symbol)
-
-    ;; error checking here???
-    (scheme::%define-global symbol value)
-
-    (fasl-write-op system::FASL_OP_LOADER_DEFINEA0 (list symbol value-thunk) output-fasl-stream)))
-
 (define-toplevel-form (scheme::%define symbol value-form)
   (compile-toplevel-definition symbol value-form output-fasl-stream))
 
 (define-toplevel-form (scheme::%define symbol)
   (compile-toplevel-definition symbol () output-fasl-stream))
-
-(define (emit-action form output-fasl-stream)
-  (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (compile form)) output-fasl-stream))
-
-(define begin-load-unit-boundaries)
 
 (define-toplevel-form (%%begin-load-unit-boundaries filename)
   (begin-load-unit-boundaries filename output-fasl-stream))
@@ -145,6 +139,11 @@
   (process-toplevel-forms (form-list-reader forms)
                           load-time-eval? compile-time-eval? output-fasl-stream))
 
+;;;; The toplevel form main loop
+
+(define (emit-action form output-fasl-stream)
+  (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
+  (fasl-write-op system::FASL_OP_LOADER_APPLY0 (list (compile form)) output-fasl-stream))
 
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
@@ -153,12 +152,10 @@
                  form)
   ;; Forms that aren't lists evaluate to themselves and can be ignored
   (when (pair? form)
-    (cond
-     ((hash-has? *toplevel-form-handlers* (car form))
-      (aif (find #L((car _) form) (hash-ref *toplevel-form-handlers* (car form)))
-           ((cdr it) form load-time-eval? compile-time-eval? output-fasl-stream)
-           (error "Invalid syntax for toplevel form ~a: ~s" (car form) form)))
-     (#t
+    (aif (hash-ref *toplevel-form-handlers* (car form))
+      (aif (find #L((car _) form) it)
+        ((cdr it) form load-time-eval? compile-time-eval? output-fasl-stream)
+        (error "Invalid syntax for toplevel form ~a: ~s" (car form) form))
       (mvbind (expanded? expanded-form) (maybe-expand-user-macro form #t)
         (cond (expanded?
                (process-toplevel-form expanded-form load-time-eval? compile-time-eval? output-fasl-stream))
@@ -166,7 +163,7 @@
                (when compile-time-eval?
                  (compiler-evaluate form))
                (when load-time-eval?
-                 (emit-action form output-fasl-stream)))))))))
+                 (emit-action form output-fasl-stream))))))))
 
 (define (process-toplevel-forms reader load-time-eval? compile-time-eval? output-fasl-stream)
   (let loop ((next-form (reader)))
