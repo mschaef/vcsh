@@ -87,7 +87,9 @@
 (define process-toplevel-forms) ; forward
 
 (define-toplevel-form (eval-when situations . forms)
-  (validate-eval-when-situations situations form)
+  (unless (and (list? situations)
+               (every? #L(member _ '(:compile-toplevel :load-toplevel :execute)) situations))
+    (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute."))
   (let ((load-time-eval? (and load-time-eval? (member :load-toplevel situations)))
         (compile-time-eval? (or (member :compile-toplevel situations)
                                 (and compile-time-eval?

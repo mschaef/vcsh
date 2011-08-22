@@ -94,20 +94,23 @@
 
         (cond (at-toplevel?
                (loop (cdr forms) ldefs (append body-forms (cons current-form))))
-              ((not (null? body-forms))
-               (compile-error current-form "Local defines must be the first forms in a block."))
+              ((null? body-forms)
+               (loop (cdr forms) (cons (define-binding-pair current-form) ldefs) body-forms))
               (#t
-               (loop (cdr forms) (cons (define-binding-pair current-form) ldefs) body-forms))))
+               (compile-error current-form "Local defines must be the first forms in a block."))))
 
-       ((null? forms)
-        (if (null? ldefs)
-            (map #L(expand-form _ at-toplevel?) body-forms)
-            (expand-form
-             `((letrec ,ldefs
-                 ,@body-forms))
-             at-toplevel?)))
+       ((not (null? forms))
+        (loop (cdr forms) ldefs (append body-forms (cons current-form))))
+
+       ;; Tail cases... 
+       ((null? ldefs)
+        (map #L(expand-form _ at-toplevel?) body-forms))
+
        (#t
-        (loop (cdr forms) ldefs (append body-forms (cons current-form))))))))
+        (expand-form
+         `((letrec ,ldefs
+             ,@body-forms))
+         at-toplevel?))))))
 
 (define (expand/if form at-toplevel?)
   (unless (or (length=3? form) (length=4? form))
@@ -147,13 +150,6 @@
   (unless (length=3? form)
     (compile-error "Invalid set!, bad length." form))
   `(set! ,(cadr form) ,(expand-form (caddr form) at-toplevel?)))
-
-(define (validate-eval-when-situations situations form)
-  (unless (and (or (null? situations)
-                   (list? situations))
-               (every? #L(member _ '(:compile-toplevel :load-toplevel :execute)) situations))
-    (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute.")))
-
 
 (define (expand/logical form at-toplevel?)
   `(,(car form) ,@(map #L(expand-form _ at-toplevel?) (cdr form))))
