@@ -154,19 +154,6 @@
                (every? #L(member _ '(:compile-toplevel :load-toplevel :execute)) situations))
     (compile-error form "Bad situations list, situations must be :compile-toplevel, :load-toplevel, or :execute.")))
 
-(define (parse-eval-when form)
-  (unless (> (length form) 2)
-    (compile-error form "Incomplete eval-when."))
-  (let ((situations (cadr form))
-        (forms (cddr form)))
-    (validate-eval-when-situations situations form)
-    (values situations forms)))
-
-(define (expand/eval-when form at-toplevel?)
-  (mvbind (situations forms) (parse-eval-when form)
-    (if (member :load-toplevel situations)
-        `(begin ,@(translate-form-sequence forms #t at-toplevel?))
-        #f)))
 
 (define (expand/logical form at-toplevel?)
   `(,(car form) ,@(map #L(expand-form _ at-toplevel?) (cdr form))))
@@ -183,7 +170,6 @@
            ((%toplevel-lambda)    (expand/%toplevel-lambda form at-toplevel?))
            ((set!)                (expand/set!             form at-toplevel?))
            ((begin)               (expand/begin            form at-toplevel?))
-           ((eval-when)           (expand/eval-when        form at-toplevel?))
            (#t
             (mvbind (expanded? expanded-form) (maybe-expand-user-macro form at-toplevel?)
               (cond (expanded?
