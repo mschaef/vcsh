@@ -108,6 +108,56 @@
        (#t
         (loop (cdr forms) ldefs (append body-forms (cons current-form))))))))
 
+
+(define (primitive-definition-form? form)
+  "Return <form> if it is a primitive definition form, #f otherwise."
+  (if (and (pair? form)
+           (eq? (car form) 'scheme::%define))
+      form
+      #f))
+
+(define (disallow-definitions forms)
+  "Scan the list of <forms> for primitive defintions. Signal a compile
+   error if any are found."
+  (awhen (any? primitive-definition-form? forms)
+    (compile-error it "Definition not allowed"))
+  forms)
+
+(define (extract-form-sequence-definitions forms)
+  "Split up <forms> into a list of definitions and a list of executable
+   forms. If any definitions follow executable forms, a compile error is signaled."
+  (let loop ((remaining forms) (definitions ()) (output ()))
+    (if (null? remaining)
+        (values (reverse definitions)
+                (reverse output))
+        (let ((next-form (car remaining)))
+          (if (primitive-definition-form? next-form)
+              (begin
+                (unless (null? output)
+                  (compile-error (car forms) "Definitions must be the first form in a block."))
+                (loop (cdr remaining) (cons next-form definitions) output))
+              (loop (cdr remaining) definitions (cons next-form output)))))))
+
+(define (flatten-form-sequence forms at-toplevel?)
+  "Translates a sequence of forms into another sequence of forms by removing
+   expanding all macros and removing any nested begins."
+  ;; Note that this would be an expansion step, were it not for the fact
+  ;; that this takes a list of forms and produces a list of forms. (Instead
+  ;; of form to form.)
+  (define (begin-block? form)
+    (and (pair? form)
+         (eq? (car form) 'begin)))
+
+  (let loop ((remaining forms) (flattened ()))
+    (let ((current-form (compiler-macroexpand (car remaining) at-toplevel?)))
+      (cond
+       ((begin-block? current-form)
+        (loop (append (cdr current-form) (cdr remaining)) flattened))
+       ((null? remaining)
+        flattened)
+       (#t
+        (loop (cdr remaining) (append flattened (cons current-form))))))))
+
 (define (expand/if form at-toplevel?)
   (unless (or (length=3? form) (length=4? form))
     (compile-error form "Invalid if, bad length."))
