@@ -79,40 +79,6 @@
            ,@body-forms))
        at-toplevel?)))
 
-(define (translate-form-sequence forms allow-definitions? at-toplevel?)
-  "Translates a sequence of forms into another sequence of forms by removing
-   any nested begins or defines."
-  ;; Note that this would be an expansion step, were it not for the fact
-  ;; that this takes a list of forms and produces a list of forms. (Instead
-  ;; of form to form.)
-  (define (begin-block? form)        (and (pair? form) (eq? (car form) 'begin)))
-  (define (define? form)             (and (pair? form) (eq? (car form) 'scheme::%define)))
-  (define (define-binding-pair form) (cons (cadr form) (cddr form)))
-
-  (let loop ((forms forms) (ldefs ()) (body-forms ()))
-
-    (let ((current-form (compiler-macroexpand (car forms) at-toplevel?)))
-      (cond
-       ((begin-block? current-form)
-        (loop (append (cdr current-form) (cdr forms)) ldefs body-forms))
-
-       ((define? current-form)
-        (unless allow-definitions?
-         (compile-error current-form "Definitions not allowed here."))
-        (cond (at-toplevel?
-               (loop (cdr forms) ldefs (append body-forms (cons current-form))))
-              ((null? body-forms)
-               (loop (cdr forms) (cons (define-binding-pair current-form) ldefs) body-forms))
-              (#t
-               (compile-error current-form "Local defines must be the first forms in a block."))))
-
-       ((null? forms)
-        (make-translated-form-sequence body-forms ldefs at-toplevel?))
-
-       (#t
-        (loop (cdr forms) ldefs (append body-forms (cons current-form))))))))
-
-
 (define (primitive-definition-form? form)
   "Return <form> if it is a primitive definition form, #f otherwise."
   (if (and (pair? form)
