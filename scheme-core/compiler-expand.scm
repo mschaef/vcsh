@@ -138,9 +138,6 @@
                 (loop (cdr remaining) (cons next-form definitions) output))
               (loop (cdr remaining) definitions (cons next-form output)))))))
 
-(define (expand-sequence-forms body-forms at-toplevel?)
-  (map #L(expand-form _ at-toplevel?) body-forms))
-
 (define (flatten-form-sequence forms at-toplevel?)
   "Translates a sequence of forms into another sequence of forms by removing
    expanding all macros and removing any nested begins."
@@ -159,7 +156,7 @@
        ((null? remaining)
         flattened)
        (#t
-        (loop (cdr remaining) (append flattened (cons current-form))))))))
+        (loop (cdr remaining) (append flattened (cons (expand-form current-form at-toplevel?)))))))))
 
 (define (expand/if form at-toplevel?)
   (unless (or (length=3? form) (length=4? form))
@@ -167,7 +164,7 @@
   (map #L(expand-form _ at-toplevel?) form))
 
 (define (expand/begin form at-toplevel?)
-  `(begin ,@(expand-sequence-forms (flatten-form-sequence (cdr form) at-toplevel?) at-toplevel?)))
+  `(begin ,@(flatten-form-sequence (cdr form) at-toplevel?)))
 
 (define (valid-lambda-list? l-list)
   (let valid? ((l-list l-list))
