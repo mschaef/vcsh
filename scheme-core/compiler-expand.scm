@@ -190,7 +190,7 @@
       ,@(translate-form-sequence (cdddr form) #t #f)))
 
 (define (expand/%toplevel-lambda form at-toplevel?)
-  `(scheme::%lambda () () ,@(translate-form-sequence (cdr form) #t #t)))
+  `(scheme::%lambda () () ,@(flatten-form-sequence (cdr form) #t)))
 
 (define (expand/set! form at-toplevel?)
   (unless (length=3? form)
