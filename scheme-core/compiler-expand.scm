@@ -68,10 +68,14 @@
 (define expand-form) ; forward
 
 (define (make-translated-form-sequence body-forms ldefs at-toplevel?)
+  (define (define->let-binding def)
+    (dbind (ignored sym defn) def
+      `(,sym ,defn)))
+
   (if (null? ldefs)
       (map #L(expand-form _ at-toplevel?) body-forms)
       (expand-form
-       `((letrec ,ldefs
+       `((letrec ,(map define->let-binding ldefs)
            ,@body-forms))
        at-toplevel?)))
 
@@ -138,6 +142,11 @@
                 (loop (cdr remaining) (cons next-form definitions) output))
               (loop (cdr remaining) definitions (cons next-form output)))))))
 
+(define (expand-lambda-sequence forms at-toplevel?)
+  (mvbind (definitions forms) (extract-form-sequence-definitions
+                               (flatten-form-sequence forms at-toplevel?))
+    (make-translated-form-sequence forms definitions at-toplevel?)))
+
 (define (flatten-form-sequence forms at-toplevel?)
   "Translates a sequence of forms into another sequence of forms by removing
    expanding all macros and removing any nested begins."
@@ -187,7 +196,7 @@
   (unless (valid-lambda-list? (caddr form))
     (compile-error form "Invalid %lambda, bad lambda list"))
   `(scheme::%lambda ,(cadr form) ,(caddr form)
-      ,@(translate-form-sequence (cdddr form) #t #f)))
+      ,@(expand-lambda-sequence (cdddr form) #f)))
 
 (define (expand/%toplevel-lambda form at-toplevel?)
   `(scheme::%lambda () () ,@(flatten-form-sequence (cdr form) #t)))
