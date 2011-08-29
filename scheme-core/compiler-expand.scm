@@ -14,33 +14,31 @@
 
 (define *show-expansions* #f)
 
-(define (apply-expander expander form at-toplevel?)
+(define (apply-expander expander form)
   (call-with-compiler-tracing (and *show-expansions* (pair? form))
-      (if at-toplevel?
-          '("EXPAND-TOPLEVEL" "INTO-TOPLEVEL")
-          '("EXPAND" "INTO"))
-      (lambda (form) (expander form at-toplevel?))
+      '("EXPAND" "INTO")
+      (lambda (form) (expander form))
     form))
 
-(define (compiler-macroexpand-1 form at-toplevel?)
+(define (compiler-macroexpand-1 form)
   (aif (and (pair? form)
             (symbol? (car form))
             (symbol-bound? (car form))
             (macro? (symbol-value (car form))))
        (values #t
-               (apply-expander (lambda (form at-toplevel?)
+               (apply-expander (lambda (form)
                                  (let ((transformer (scheme::%macro-transformer it)))
                                    (transformer form ())))
                                form
-                               at-toplevel?))
+                              ))
        (values #f form)))
 
 (define compiler-macroexpand)
 
-(define (compiler-macroexpand form at-toplevel?)
-  (mvbind (expanded? expanded-form) (compiler-macroexpand-1 form at-toplevel?)
+(define (compiler-macroexpand form)
+  (mvbind (expanded? expanded-form) (compiler-macroexpand-1 form)
     (if expanded?
-        (compiler-macroexpand expanded-form at-toplevel?)
+        (compiler-macroexpand expanded-form)
         form)))
 
 (define (scheme::macroexpand-1 form)
@@ -54,7 +52,7 @@
    no more macros apply. The return value is the result of this full expansion."
   (compiler-macroexpand form #f #f))
 
-(define (maybe-expand-user-macro form at-toplevel?)
+(define (maybe-expand-user-macro form)
   (catch 'end-compiler-macroexpand
     (handler-bind
         ((runtime-error
@@ -63,21 +61,21 @@
               (lambda (message args . rest)
                 (compile-error form (format #f "Macro signaled error: ~I" message args) args)
                 (throw 'end-compiler-macroexpand (values #f ()))))))
-      (compiler-macroexpand-1 form at-toplevel?))))
+      (compiler-macroexpand-1 form))))
 
 (define expand-form) ; forward
 
-(define (make-translated-form-sequence body-forms ldefs at-toplevel?)
+(define (make-translated-form-sequence body-forms ldefs)
   (define (define->let-binding def)
     (dbind (ignored sym defn) def
       `(,sym ,defn)))
 
   (if (null? ldefs)
-      (map #L(expand-form _ at-toplevel?) body-forms)
+      (map expand-form body-forms)
       (expand-form
        `((letrec ,(map define->let-binding ldefs)
            ,@body-forms))
-       at-toplevel?)))
+      )))
 
 (define (primitive-definition-form? form)
   "Return <form> if it is a primitive definition form, #f otherwise."
@@ -108,12 +106,12 @@
                 (loop (cdr remaining) (cons next-form definitions) output))
               (loop (cdr remaining) definitions (cons next-form output)))))))
 
-(define (expand-lambda-sequence forms at-toplevel?)
+(define (expand-lambda-sequence forms)
   (mvbind (definitions forms) (extract-form-sequence-definitions
-                               (flatten-form-sequence forms at-toplevel?))
-    (make-translated-form-sequence forms definitions at-toplevel?)))
+                               (flatten-form-sequence forms))
+    (make-translated-form-sequence forms definitions)))
 
-(define (flatten-form-sequence forms at-toplevel?)
+(define (flatten-form-sequence forms)
   "Translates a sequence of forms into another sequence of forms by removing
    expanding all macros and removing any nested begins."
   ;; Note that this would be an expansion step, were it not for the fact
@@ -124,22 +122,22 @@
          (eq? (car form) 'begin)))
 
   (let loop ((remaining forms) (flattened ()))
-    (let ((current-form (compiler-macroexpand (car remaining) at-toplevel?)))
+    (let ((current-form (compiler-macroexpand (car remaining))))
       (cond
        ((begin-block? current-form)
         (loop (append (cdr current-form) (cdr remaining)) flattened))
        ((null? remaining)
         flattened)
        (#t
-        (loop (cdr remaining) (append flattened (cons (expand-form current-form at-toplevel?)))))))))
+        (loop (cdr remaining) (append flattened (cons (expand-form current-form)))))))))
 
-(define (expand/if form at-toplevel?)
+(define (expand/if form)
   (unless (or (length=3? form) (length=4? form))
     (compile-error form "Invalid if, bad length."))
-  (map #L(expand-form _ at-toplevel?) form))
+  (map expand-form form))
 
-(define (expand/begin form at-toplevel?)
-  `(begin ,@(flatten-form-sequence (cdr form) at-toplevel?)))
+(define (expand/begin form)
+  `(begin ,@(flatten-form-sequence (cdr form))))
 
 (define (valid-lambda-list? l-list)
   (let valid? ((l-list l-list))
@@ -156,7 +154,7 @@
              (symbol? (car vars))
              (valid? (cdr vars))))))
 
-(define (expand/%lambda form at-toplevel?)
+(define (expand/%lambda form)
   (unless (or (list? (cadr form)) (null? (cadr form)))
     (compile-error form "Invalid %lambda, expected property list"))
   (unless (valid-lambda-list? (caddr form))
@@ -164,43 +162,43 @@
   `(scheme::%lambda ,(cadr form) ,(caddr form)
       ,@(expand-lambda-sequence (cdddr form) #f)))
 
-(define (expand/%toplevel-lambda form at-toplevel?)
+(define (expand/%toplevel-lambda form)
   `(scheme::%lambda () () ,@(flatten-form-sequence (cdr form) #t)))
 
-(define (expand/set! form at-toplevel?)
+(define (expand/set! form)
   (unless (length=3? form)
     (compile-error "Invalid set!, bad length." form))
-  `(set! ,(cadr form) ,(expand-form (caddr form) at-toplevel?)))
+  `(set! ,(cadr form) ,(expand-form (caddr form))))
 
-(define (expand/logical form at-toplevel?)
-  `(,(car form) ,@(map #L(expand-form _ at-toplevel?) (cdr form))))
+(define (expand/logical form)
+  `(,(car form) ,@(map expand-form (cdr form))))
 
-(define (form-expander form at-toplevel?)
+(define (form-expander form)
   (cond ((null? form)
          ())
         ((list? form)
          (case (car form)
            ((quote)               form)
-           ((or and)              (expand/logical          form at-toplevel?))
-           ((if)                  (expand/if               form at-toplevel?))
-           ((scheme::%lambda)     (expand/%lambda          form at-toplevel?))
-           ((%toplevel-lambda)    (expand/%toplevel-lambda form at-toplevel?))
-           ((set!)                (expand/set!             form at-toplevel?))
-           ((begin)               (expand/begin            form at-toplevel?))
+           ((or and)              (expand/logical          form))
+           ((if)                  (expand/if               form))
+           ((scheme::%lambda)     (expand/%lambda          form))
+           ((%toplevel-lambda)    (expand/%toplevel-lambda form))
+           ((set!)                (expand/set!             form))
+           ((begin)               (expand/begin            form))
            (#t
-            (mvbind (expanded? expanded-form) (maybe-expand-user-macro form at-toplevel?)
+            (mvbind (expanded? expanded-form) (maybe-expand-user-macro form)
               (cond (expanded?
-                     (expand-form expanded-form at-toplevel?))
+                     (expand-form expanded-form))
                     ((atom? expanded-form)
-                     (expand-form expanded-form at-toplevel?))
+                     (expand-form expanded-form))
                     (#t
-                     (map #L(expand-form _ at-toplevel?) form)))))))
+                     (map expand-form form)))))))
         ((symbol? form) form)
         ((atom? form)   form)
         (#t             (error "Don't know how to expand this form: ~s" form))))
 
-(define (expand-form form at-toplevel?)
-  (apply-expander form-expander form at-toplevel?))
+(define (expand-form form)
+  (apply-expander form-expander form))
 
 (define (cpass/expand form)
-  (expand-form form #t))
+  (expand-form form))
