@@ -64,16 +64,16 @@
 
 (define expand-form) ; forward
 
-(define (make-translated-form-sequence body-forms ldefs)
+(define (make-translated-form-sequence expanded-body-forms local-definitions)
   (define (define->let-binding def)
     (dbind (ignored sym defn) def
       `(,sym ,defn)))
 
-  (if (null? ldefs)
-      body-forms
-      (expand-form  ;; REVISIT: duplicate expansion pass on body of letrec (flatten-* also expanded)
-       `((letrec ,(map define->let-binding ldefs)
-           ,@body-forms)))))
+  (if (null? local-definitions)
+      expanded-body-forms
+      (list (expand-form ;; REVISIT: duplicate expansion pass on body of letrec (flatten-* also expanded)
+             `(letrec ,(map define->let-binding local-definitions)
+                ,@expanded-body-forms)))))
 
 (define (primitive-definition-form? form)
   "Return <form> if it is a primitive definition form, #f otherwise."
