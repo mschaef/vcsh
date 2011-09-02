@@ -233,7 +233,6 @@ struct lobject_t
           {
                lref_t arg1;
                lref_t arg2;
-               lref_t arg3;
           } fast_op;
 
           struct
@@ -1272,19 +1271,6 @@ INLINE void SET_FAST_OP_ARG2(lref_t fo, lref_t arg2)
      checked_assert(FAST_OP_P(fo));
      ((*fo).storage_as.fast_op.arg2) = arg2;
 }
-
-INLINE lref_t FAST_OP_ARG3(lref_t fo)
-{
-     checked_assert(FAST_OP_P(fo));
-     return ((*fo).storage_as.fast_op.arg3);
-}
-
-INLINE void SET_FAST_OP_ARG3(lref_t fo, lref_t arg3)
-{
-     checked_assert(FAST_OP_P(fo));
-     ((*fo).storage_as.fast_op.arg3) = arg3;
-}
-
 
 END_NAMESPACE;
 

@@ -603,7 +603,6 @@ static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
     case FASL_OP_FAST_OP_0:             dump_fast_op(0);        break;
     case FASL_OP_FAST_OP_1:             dump_fast_op(1);        break;
     case FASL_OP_FAST_OP_2:             dump_fast_op(2);        break;
-    case FASL_OP_FAST_OP_3:             dump_fast_op(3);        break;
 
     case FASL_OP_NOP_1:
     case FASL_OP_NOP_2:

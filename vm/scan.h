@@ -248,7 +248,7 @@ lref_t lexact2inexact(lref_t x);
 lref_t lexactp(lref_t x);
 lref_t lexp(lref_t x);
 lref_t lexpt(lref_t x, lref_t y);
-lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2, lref_t arg3);
+lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2);
 lref_t lfast_op_args(lref_t fastop);
 lref_t lfast_op_opcode(lref_t fastop);
 lref_t lfast_read(lref_t port);

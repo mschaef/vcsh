@@ -320,7 +320,7 @@ static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
      if (!FIXNUMP(opcode_obj))
           vmerror_fast_read("Expected fixnum for opcode.", port, opcode_obj);
 
-     *fop = fast_op((int) FIXNM(opcode_obj), NIL, NIL, NIL);
+     *fop = fast_op((int) FIXNM(opcode_obj), NIL, NIL);
 
      lref_t op_arg;
 
@@ -334,12 +334,6 @@ static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
      {
           fast_read(port, &op_arg);
           SET_FAST_OP_ARG2(*fop, op_arg);
-     }
-
-     if (fast_op_arity > 2)
-     {
-          fast_read(port, &op_arg);
-          SET_FAST_OP_ARG3(*fop, op_arg);
      }
 }
 
@@ -805,10 +799,6 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
 
           case FASL_OP_FAST_OP_2:
                fast_read_fast_op(2, port, retval);
-               break;
-
-          case FASL_OP_FAST_OP_3:
-               fast_read_fast_op(3, port, retval);
                break;
 
           case FASL_OP_NOP_1:
