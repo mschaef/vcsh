@@ -29,8 +29,7 @@
                (apply-expander (lambda (form)
                                  (let ((transformer (scheme::%macro-transformer it)))
                                    (transformer form ())))
-                               form
-                              ))
+                               form))
        (values #f form)))
 
 (define compiler-macroexpand)
@@ -71,11 +70,10 @@
       `(,sym ,defn)))
 
   (if (null? ldefs)
-      (map expand-form body-forms)
-      (expand-form
+      body-forms
+      (expand-form  ;; REVISIT: duplicate expansion pass on body of letrec (flatten-* also expanded)
        `((letrec ,(map define->let-binding ldefs)
-           ,@body-forms))
-      )))
+           ,@body-forms)))))
 
 (define (primitive-definition-form? form)
   "Return <form> if it is a primitive definition form, #f otherwise."

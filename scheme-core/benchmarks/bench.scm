@@ -73,6 +73,7 @@
 (define (load-benchmark-results)
   "Loads the current set of benchmark results from disk."
   (catch-all
+   (format (current-debug-port) "; Loading benchmark results\n")
    (with-port ip (open-input-file *benchmark-results-filename*)
      (hash-clear! *reference-benchmark-result-sets*)
      (let loop ((max-seq -1))
@@ -86,7 +87,8 @@
                             result)
                 (loop (max max-seq (benchmark-result-seq result))))
                (#t
-                (error "Bad benchmark result: ~s" result))))))))
+                (error "Bad benchmark result: ~s" result))))))
+   (format (current-debug-port) "; Loading benchmark results\n")))
 
 
 (define (benchmark-system-info)
