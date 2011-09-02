@@ -16,4 +16,8 @@
   (cpass/fasm
    (cpass/fasm-optimize
     (cpass/meaning
-     (cpass/expand  `(compiler::%toplevel-lambda ,form))))))
+     (cpass/expand `(compiler::%toplevel-lambda ,form))))))
+
+(define (compile-form form)
+  "Accept a <form> and translate it into its compiled representation."
+  ((compile form)))

@@ -243,6 +243,7 @@
              closure-bindings
              closure?
              columns->instance
+             compile-form
              complex
              complex?
              compose
