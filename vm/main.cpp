@@ -261,6 +261,7 @@ static void register_main_subrs()
     register_subr(_T("%fast-op"),                         SUBR_4,     (void*)lfast_op                            );
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
     register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
+    register_subr(_T("%fast-op-next"),                    SUBR_1,     (void*)lfast_op_next                       );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );

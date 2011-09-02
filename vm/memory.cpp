@@ -352,7 +352,9 @@ void gc_mark(lref_t initial_obj)
 
           case TC_FAST_OP:
                gc_mark(FAST_OP_ARG1(obj));
-               obj = FAST_OP_ARG2(obj);
+               gc_mark(FAST_OP_ARG2(obj));
+               obj = FAST_OP_NEXT(obj);
+               break;
 
           default:
                /* By default, objects are either immediate or otherwise self

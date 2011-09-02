@@ -356,23 +356,26 @@ lref_t lvalues2list(lref_t obj)
 
 /***** Fast-Ops *****/
 
-lref_t fast_op(int opcode, lref_t arg1, lref_t arg2)
+lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t next)
 {
      lref_t z = new_cell(TC_FAST_OP);
 
      SET_FAST_OP_OPCODE(z, opcode);
      SET_FAST_OP_ARG1(z, arg1);
      SET_FAST_OP_ARG2(z, arg2);
+     SET_FAST_OP_NEXT(z, next);
 
-     return (z);
+     return z;
 }
 
-lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2)
+lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2, lref_t next)
 {
      if (!FIXNUMP(opcode))
           vmerror_wrong_type(1, opcode);
+     if (!FAST_OP_P(next) && !NULLP(next))
+          vmerror_wrong_type(2, next);
 
-     return fast_op(FIXNM(opcode), arg1, arg2);
+     return fast_op(FIXNM(opcode), arg1, arg2, next);
 }
 
 lref_t lfast_op_opcode(lref_t fastop)
@@ -383,12 +386,20 @@ lref_t lfast_op_opcode(lref_t fastop)
      return fixcons(FAST_OP_OPCODE(fastop));
 }
 
-lref_t lfast_op_args(lref_t fastop)
+lref_t lfast_op_args(lref_t fast_op)
 {
-     if (!FAST_OP_P(fastop))
-          vmerror_wrong_type(1, fastop);
+     if (!FAST_OP_P(fast_op))
+          vmerror_wrong_type(1, fast_op);
 
-     return listn(2, FAST_OP_ARG1(fastop), FAST_OP_ARG2(fastop));
+     return listn(2, FAST_OP_ARG1(fast_op), FAST_OP_ARG2(fast_op));
+}
+
+lref_t lfast_op_next(lref_t fast_op)
+{
+     if (!FAST_OP_P(fast_op))
+          vmerror_wrong_type(1, fast_op);
+
+     return FAST_OP_NEXT(fast_op);
 }
 
 bool fast_op_equal(lref_t a, lref_t b)
@@ -403,6 +414,9 @@ bool fast_op_equal(lref_t a, lref_t b)
           return false;
 
      if (FAST_OP_ARG2(a) != FAST_OP_ARG2(b))
+          return false;
+
+     if (FAST_OP_NEXT(a) != FAST_OP_NEXT(b))
           return false;
 
      return true;

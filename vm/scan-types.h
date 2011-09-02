@@ -231,6 +231,8 @@ struct lobject_t
           } values_tuple;
           struct
           {
+               lref_t next;
+
                lref_t arg1;
                lref_t arg2;
           } fast_op;
@@ -1270,6 +1272,18 @@ INLINE void SET_FAST_OP_ARG2(lref_t fo, lref_t arg2)
 {
      checked_assert(FAST_OP_P(fo));
      ((*fo).storage_as.fast_op.arg2) = arg2;
+}
+
+INLINE lref_t FAST_OP_NEXT(lref_t fo)
+{
+     checked_assert(FAST_OP_P(fo));
+     return ((*fo).storage_as.fast_op.next);
+}
+
+INLINE void SET_FAST_OP_NEXT(lref_t fo, lref_t next)
+{
+     checked_assert(FAST_OP_P(fo));
+     ((*fo).storage_as.fast_op.next) = next;
 }
 
 END_NAMESPACE;

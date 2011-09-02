@@ -329,7 +329,7 @@ static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
      if (fast_op_arity > 1)
           fast_read(port, &op_arg2);
 
-     *fop = fast_op((int) FIXNM(opcode_obj), op_arg1, op_arg2);
+     *fop = fast_op((int) FIXNM(opcode_obj), op_arg1, op_arg2, NIL);
 }
 
 static void fast_read_structure(lref_t port, lref_t * st)

@@ -257,7 +257,7 @@ lref_t macrocons(lref_t t);
 
 /**** Fast Op Constructor ****/
 
-lref_t fast_op(int opcode, lref_t arg1, lref_t arg2);
+lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t next);
 
 END_NAMESPACE;
 
