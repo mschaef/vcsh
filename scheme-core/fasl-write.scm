@@ -282,7 +282,6 @@
                                ((0) system::FASL_OP_FAST_OP_0)
                                ((1) system::FASL_OP_FAST_OP_1)
                                ((2) system::FASL_OP_FAST_OP_2)
-                               ((3) system::FASL_OP_FAST_OP_3)
                                (#t (error "Unsupported fast-op arity: ~s" object)))
                              port)
           (check-sharing-and-write fop-opcode)
