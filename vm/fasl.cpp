@@ -312,7 +312,7 @@ static void fast_read_structure_layout(lref_t port, lref_t * st_layout)
 
 static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
 {
-     assert((fast_op_arity >= 0) && (fast_op_arity <= 3));
+     assert((fast_op_arity >= 0) && (fast_op_arity <= 2));
 
      lref_t opcode_obj;
      fast_read(port, &opcode_obj);
@@ -320,21 +320,16 @@ static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
      if (!FIXNUMP(opcode_obj))
           vmerror_fast_read("Expected fixnum for opcode.", port, opcode_obj);
 
-     *fop = fast_op((int) FIXNM(opcode_obj), NIL, NIL);
-
-     lref_t op_arg;
+     lref_t op_arg1 = NIL;
+     lref_t op_arg2 = NIL;
 
      if (fast_op_arity > 0)
-     {
-          fast_read(port, &op_arg);
-          SET_FAST_OP_ARG1(*fop, op_arg);
-     }
+          fast_read(port, &op_arg1);
 
      if (fast_op_arity > 1)
-     {
-          fast_read(port, &op_arg);
-          SET_FAST_OP_ARG2(*fop, op_arg);
-     }
+          fast_read(port, &op_arg2);
+
+     *fop = fast_op((int) FIXNM(opcode_obj), op_arg1, op_arg2);
 }
 
 static void fast_read_structure(lref_t port, lref_t * st)
