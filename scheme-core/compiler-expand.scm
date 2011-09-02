@@ -71,7 +71,7 @@
 
   (if (null? local-definitions)
       expanded-body-forms
-      (list (expand-form ;; REVISIT: duplicate expansion pass on body of letrec (flatten-* also expanded)
+      (list (compiler-macroexpand ; Reuse the letrec macro for local defines.
              `(letrec ,(map define->let-binding local-definitions)
                 ,@expanded-body-forms)))))
 
