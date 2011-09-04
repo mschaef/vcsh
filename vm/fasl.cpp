@@ -310,7 +310,7 @@ static void fast_read_structure_layout(lref_t port, lref_t * st_layout)
      *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, new_st_layout);
 }
 
-static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
+static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t port, lref_t * fop)
 {
      assert((fast_op_arity >= 0) && (fast_op_arity <= 2));
 
@@ -322,6 +322,7 @@ static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
 
      lref_t op_arg1 = NIL;
      lref_t op_arg2 = NIL;
+     lref_t next = NIL;
 
      if (fast_op_arity > 0)
           fast_read(port, &op_arg1);
@@ -329,7 +330,10 @@ static void fast_read_fast_op(int fast_op_arity, lref_t port, lref_t * fop)
      if (fast_op_arity > 1)
           fast_read(port, &op_arg2);
 
-     *fop = fast_op((int) FIXNM(opcode_obj), op_arg1, op_arg2, NIL);
+     if (has_next)
+          fast_read(port, &next);
+
+     *fop = fast_op((int) FIXNM(opcode_obj), op_arg1, op_arg2, next);
 }
 
 static void fast_read_structure(lref_t port, lref_t * st)
@@ -785,15 +789,27 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
                break;
 
           case FASL_OP_FAST_OP_0:
-               fast_read_fast_op(0, port, retval);
+               fast_read_fast_op(0, false, port, retval);
                break;
 
           case FASL_OP_FAST_OP_1:
-               fast_read_fast_op(1, port, retval);
+               fast_read_fast_op(1, false, port, retval);
                break;
 
           case FASL_OP_FAST_OP_2:
-               fast_read_fast_op(2, port, retval);
+               fast_read_fast_op(2, false, port, retval);
+               break;
+
+          case FASL_OP_FAST_OP_0N:
+               fast_read_fast_op(0, true, port, retval);
+               break;
+
+          case FASL_OP_FAST_OP_1N:
+               fast_read_fast_op(1, true, port, retval);
+               break;
+
+          case FASL_OP_FAST_OP_2N:
+               fast_read_fast_op(2, true, port, retval);
                break;
 
           case FASL_OP_NOP_1:

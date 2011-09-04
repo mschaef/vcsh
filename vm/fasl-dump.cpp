@@ -426,7 +426,7 @@ static void dump_structure_layout()
     dump_error("Expected list for structure layout");
 }
 
-static void dump_fast_op(int arity)
+static void dump_fast_op(int arity, bool has_next)
 {
   size_t offset;
 
@@ -597,12 +597,16 @@ static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
     case FASL_OP_SYMBOL:		dump_symbol();		break;
     case FASL_OP_SUBR:                  dump_subr();            break;
 
-    case FASL_OP_STRUCTURE:             dump_structure();       break;
-    case FASL_OP_STRUCTURE_LAYOUT:      dump_structure_layout();break;
+    case FASL_OP_STRUCTURE:             dump_structure();             break;
+    case FASL_OP_STRUCTURE_LAYOUT:      dump_structure_layout();      break;
 
-    case FASL_OP_FAST_OP_0:             dump_fast_op(0);        break;
-    case FASL_OP_FAST_OP_1:             dump_fast_op(1);        break;
-    case FASL_OP_FAST_OP_2:             dump_fast_op(2);        break;
+    case FASL_OP_FAST_OP_0:             dump_fast_op(0, false);       break;
+    case FASL_OP_FAST_OP_1:             dump_fast_op(1, false);       break;
+    case FASL_OP_FAST_OP_2:             dump_fast_op(2, false);       break;
+
+    case FASL_OP_FAST_OP_0N:            dump_fast_op(0, true);        break;
+    case FASL_OP_FAST_OP_1N:            dump_fast_op(1, true);        break;
+    case FASL_OP_FAST_OP_2N:            dump_fast_op(2, true);        break;
 
     case FASL_OP_NOP_1:
     case FASL_OP_NOP_2:
