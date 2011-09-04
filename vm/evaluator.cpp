@@ -461,6 +461,7 @@ loop:
      {
      case FOP_LITERAL:
           retval = FAST_OP_ARG1(fop);
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_GLOBAL_REF:
@@ -476,6 +477,8 @@ loop:
                vmerror_unbound(sym);
 
           retval = binding;
+
+          fop = FAST_OP_NEXT(fop);
      }
      break;
 
@@ -492,6 +495,8 @@ loop:
                vmerror_unbound(sym);
 
           SET_SYMBOL_VCELL(sym, retval);
+
+          fop = FAST_OP_NEXT(fop);
      }
      break;
 
@@ -506,6 +511,8 @@ loop:
           checked_assert(!NULLP(binding));
 
           retval = CAR(binding);
+
+          fop = FAST_OP_NEXT(fop);
      }
      break;
 
@@ -520,6 +527,8 @@ loop:
           checked_assert(!NULLP(binding));
 
           SET_CAR(binding, retval);
+
+          fop = FAST_OP_NEXT(fop);
      }
      break;
 
@@ -556,9 +565,6 @@ loop:
                vmerror_arg_out_of_range(FAST_OP_ARG2(fop), _T("bad formal argument list"));
 
           fop = apply(fn, argc, argv, &env, &retval);
-
-          if (!NULLP(fop))
-               goto loop;
      }
      break;
 
@@ -589,9 +595,6 @@ loop:
                vmerror_arg_out_of_range(FAST_OP_ARG2(fop), _T("bad formal argument list"));
 
           fop = apply(fn, argc, argv, &env, &retval);
-
-          if (!NULLP(fop))
-               goto loop;
      }
      break;
 
@@ -600,16 +603,17 @@ loop:
                fop = FAST_OP_ARG1(fop);
           else
                fop = FAST_OP_ARG2(fop);
-          goto loop;
+          break;
 
      case FOP_RETVAL:
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_SEQUENCE:
           retval = execute_fast_op(FAST_OP_ARG1(fop), env);
 
           fop = FAST_OP_ARG2(fop);
-          goto loop;
+          break;
 
      case FOP_THROW:
      {
@@ -631,6 +635,8 @@ loop:
           vmtrap(TRAP_UNCAUGHT_THROW,
                  (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
                  2, tag, retval);
+
+          fop = FAST_OP_NEXT(fop);
      }
      break;
 
@@ -662,6 +668,8 @@ loop:
           }
 
           fstack_leave_frame();
+
+          fop = FAST_OP_NEXT(fop);
      }
      break;
 
@@ -677,6 +685,8 @@ loop:
           fstack_leave_frame();
 
           apply1(after, 0, NULL);
+
+          fop = FAST_OP_NEXT(fop);
      }
      break;
 
@@ -685,52 +695,63 @@ loop:
                                 lcons(lcar(FAST_OP_ARG1(fop)),
                                       FAST_OP_ARG2(fop)),
                                 lcdr(FAST_OP_ARG1(fop)));
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_CAR:
           retval = lcar(retval);
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_CDR:
           retval = lcdr(retval);
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_NOT:
           retval = boolcons(!TRUEP(retval));
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_NULLP:
           retval = boolcons(NULLP(retval));
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_EQP:
           retval = boolcons(EQ(execute_fast_op(FAST_OP_ARG1(fop), env),
                                execute_fast_op(FAST_OP_ARG2(fop), env)));
-
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_GET_ENV:
           retval = env;
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_GLOBAL_DEF: // three args, third was genv, but currently unused
           retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_GET_FSP:
           retval = fixcons((fixnum_t)CURRENT_TIB()->fsp);
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_GET_FRAME:
           retval = fixcons((fixnum_t)CURRENT_TIB()->frame);
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_GET_HFRAMES:
           retval = CURRENT_TIB()->handler_frames;
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_SET_HFRAMES:
           CURRENT_TIB()->handler_frames = execute_fast_op(FAST_OP_ARG1(fop), env);
+          fop = FAST_OP_NEXT(fop);
           break;
 
      case FOP_GLOBAL_PRESERVE_FRAME:
@@ -748,13 +769,16 @@ loop:
           SET_SYMBOL_VCELL(sym, fixcons((fixnum_t)CURRENT_TIB()->frame));
 
           retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+          fop = FAST_OP_NEXT(fop);
      }
      break;
-
 
      default:
           panic("Unsupported fast-op");
      }
+
+     if (!NULLP(fop))
+          goto loop;
 
      fstack_leave_frame();
 
