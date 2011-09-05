@@ -233,42 +233,42 @@
 (define *disassemble-show-fast-op-addresses* #f)
 
 (define (disassemble . functions)
-  (define (print-closure-code code port)
+  (define (print-closure-code code)
     (let recur ((code code))
-      (trace-indent port)
+      (trace-indent)
       (when *disassemble-show-fast-op-addresses*
-        (format port "~@ " code))
+        (dformat "~@ " code))
       (cond ((compiler::fast-op? code)
              (mvbind (opcode opname actuals) (compiler::parse-fast-op code)
                (let ((formals (compiler::fop-name->formals opname)))
                  (cond
                   ((not formals)
-                   (format port "INVALID-OPCODE: ~s\n" opcode))
+                   (dformat "INVALID-OPCODE: ~s\n" opcode))
                   ((eq? :closure opname)
-                   (format port "~s ~s {\n" opname (car actuals))
+                   (dformat "~s ~s {\n" opname (car actuals))
                    (in-trace-level
                     (recur (cadr actuals)))
-                   (trace-indent port)
-                   (format port "}"))
+                   (trace-indent)
+                   (dformat "}"))
                   (#t
-                   (format port "~s" opname)
+                   (dformat "~s" opname)
                    (for-each
                     (lambda (formal actual)
                       (case formal
                         ((:fast-ops)
                          (in-trace-level
                           (dolist (op actual)
-                            (newline port)
+                            (dformat "\n")
                             (recur op))))
                         ((:fast-op)
                          (in-trace-level
                           (recur actual)))
                         (#t
-                         (format port " ~s" actual))))
+                         (dformat " ~s" actual))))
                     formals
                     actuals))))))
             (#t
-             (format port "~s\n" code)))))
+             (dformat "~s\n" code)))))
   (define (print-closure-disassembly closure)
     (dformat ";;;; Disassembly of ~s\n" closure)
     (dformat ";; args: ~s\n" (car (%closure-code closure)))
@@ -276,7 +276,7 @@
     (dolist (property-binding (%property-list closure))
       (dbind (prop-name . prop-value) property-binding
         (dformat ";; prop ~s: ~s\n" prop-name prop-value)))
-    (print-closure-code (cdr (%closure-code closure)) (current-debug-port)))
+    (print-closure-code (cdr (%closure-code closure))))
   (dynamic-let ((*print-readably* #f))
     (dolist (f functions)
       (let ((f (if (symbol? f) (symbol-value f) f)))
@@ -319,7 +319,7 @@
   `(dynamic-let ((*trace-level* (+ 1 *trace-level*)))
      ,@code))
 
-(define (trace-indent :optional (port (current-output-port)))
+(define (trace-indent :optional (port (current-debug-port)))
   (fresh-line port)
   (indent *trace-level* #\space port))
 
@@ -362,20 +362,20 @@
              (traced-procedure
               (lambda args
                 (in-trace-level
-                 (trace-indent (current-debug-port))
+                 (trace-indent)
                  (dformat " > TRACE ~s" (cons fn-name args))
                  (let ((normal-return #f))
                    (unwind-protect
                     (lambda ()
                       (let ((rc (apply fn args)))
                         (when write-returns?
-                          (trace-indent (current-debug-port))
+                          (trace-indent)
                           (dformat " < TRACE-RETURNS=~s" rc))
                         (set! normal-return #t)
                         rc))
                     (lambda ()
                       (unless normal-return
-                        (trace-indent (current-debug-port))
+                        (trace-indent)
                         (dformat " <<< TRACE-ESCAPING")))))))))
         (set-property! traced-procedure `%traced-procedure fn)
         traced-procedure)))
