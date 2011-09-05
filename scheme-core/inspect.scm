@@ -289,4 +289,5 @@
     (inspect-repl obj))
    (values))
 
-(push! '(:i inspect) *repl-abbreviations*)
+(define-repl-abbreviation :i inspect)
+

@@ -187,8 +187,8 @@
   (%apropos search-for #f)
   (values))
 
-(push! '(:a apropos  :quote) *repl-abbreviations*)
-(push! '(:A apropos-any-package  :quote) *repl-abbreviations*)
+(define-repl-abbreviation :a 'apropos)
+(define-repl-abbreviation :A 'apropos-any-package)
 
 ;;;; Environment watch mechanisms
 
@@ -432,10 +432,10 @@
 (define (untrace-all)
   (for-each untrace-global-function (map car *traced-procedure-list*)))
 
-(push! '(:t trace) *repl-abbreviations*)
-(push! '(:tnr trace/no-returns) *repl-abbreviations*)
-(push! '(:ut untrace) *repl-abbreviations*)
-(push! '(:uta untrace-all) *repl-abbreviations*)
+(define-repl-abbreviation :t trace)
+(define-repl-abbreviation :tnr trace/no-returns)
+(define-repl-abbreviation :ut untrace)
+(define-repl-abbreviation :uta untrace-all)
 
 (define (display-packages :optional (display-symbols? #f))
 
@@ -455,7 +455,7 @@
   (dformat "\n")
   (values))
 
-(push! '(:dp display-packages) *repl-abbreviations*)
+(define-repl-abbreviation :dp display-packages)
 
 ;;;; Short Lambda
 ;;
@@ -587,19 +587,19 @@
 
 (add-hook-function! '*repl-post-hook* 'show-repl-auto-watches)
 
-(push! '(:raw repl-auto-watch  :quote) *repl-abbreviations*)
-(push! '(:rau repl-auto-unwatch) *repl-abbreviations*)
-(push! '(:raua repl-auto-unwatch-all) *repl-abbreviations*)
+(define-repl-abbreviation :raw 'repl-auto-watch)
+(define-repl-abbreviation :rau repl-auto-unwatch)
+(define-repl-abbreviation :raua repl-auto-unwatch-all)
 
 ;; Other useful REPL abbreviations
 
-(push! '(:r require-package!  :quote) *repl-abbreviations*)
-(push! '(:l load  :quote) *repl-abbreviations*)
-(push! '(:ip in-package!  :quote) *repl-abbreviations*)
-(push! '(:use use-package!  :quote) *repl-abbreviations*)
-(push! '(:dis disassemble) *repl-abbreviations*)
-(push! '(:mx macroexpand  :quote) *repl-abbreviations*)
-(push! '(:mx1 macroexpand-1  :quote) *repl-abbreviations*)
+(define-repl-abbreviation :r 'require-package!)
+(define-repl-abbreviation :l 'load)
+(define-repl-abbreviation :ip 'in-package!)
+(define-repl-abbreviation :use 'use-package!)
+(define-repl-abbreviation :dis disassemble)
+(define-repl-abbreviation :mx 'macroexpand)
+(define-repl-abbreviation :mx1 'macroexpand-1)
 
 ;; A utility mechanism that allows a single form to be evaluated
 ;; in the specified package.
@@ -612,7 +612,7 @@
 
 (add-hook-function! '*repl-post-hook* 'restore-package)
 
-(push! '(:ip1 in-package-for-one-form!  :quote) *repl-abbreviations*)
+(define-repl-abbreviation :ip1 'in-package-for-one-form!)
 
 (define (in-package-for-one-form! package)
   (let ((old-package *package*))
@@ -638,7 +638,7 @@
     (dolist (entry (qsort ts > cdr))
       (dformat "; ~a = ~a cells\n" (pad-to-width (car entry) max-type-length) (cdr entry)))))
 
-(push! '(:sts show-type-stats) *repl-abbreviations*)
+(define-repl-abbreviation :sts show-type-stats)
 
 (define (annotate-type-stats ts)
   (let ((rv ()))
@@ -661,4 +661,5 @@
            (type-stats-delta (annotate-type-stats final-ts)
                              (annotate-type-stats ,initial-ts-sym))))))))
 
-(push! '(:std show-type-delta) *repl-abbreviations*)
+(define-repl-abbreviation :std show-type-delta)
+

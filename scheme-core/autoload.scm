@@ -92,8 +92,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (add-hook-function! '*pre-load-hook* 'notice-load)
-  (add-hook-function! '*repl-pre-read-hook* 'update-loaded-files)
+  (add-hook-function! '*repl-pre-read-hook* 'update-loaded-files))
 
-  (push! '(:update update-loaded-files) scheme::*repl-abbreviations*)
-  (push! '(:loaded show-loaded-files)  scheme::*repl-abbreviations*)
-  )
+(define-repl-abbreviation :update update-loaded-files)
+(define-repl-abbreviation :loaded show-loaded-files)

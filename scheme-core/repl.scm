@@ -110,10 +110,23 @@
 (define *repl-abbreviations* ())
 (define *repl-abbreviations-enabled* #t)
 
-(push! '(:crh clear-repl-history!) *repl-abbreviations*)
-(push! '(:x exit-repl) *repl-abbreviations*)
-(push! '(:X exit) *repl-abbreviations*)
-(push! '(:top toplevel) *repl-abbreviations*)
+(define (extend-repl-abbreviations! abbreviation fn quoted?)
+  (check keyword? abbreviation)
+  (when (assoc abbreviation *repl-abbreviations*)
+    (info "Duplicate REPL abbreviation: ~s" abbreviation))
+  (push! `(,abbreviation ,fn ,@(if quoted? '(:quote) ()))
+         *repl-abbreviations*))
+
+(defmacro (define-repl-abbreviation abbreviation fn)
+  (let ((fn (if (pair? fn) (second fn) fn))
+        (quoted? (and (pair? fn) (eq? 'quote (first fn)))))
+    `(eval-when (:compile-toplevel :load-toplevel :execute)
+       (extend-repl-abbreviations! ',abbreviation ',fn ,quoted?))))
+
+(define-repl-abbreviation :crh clear-repl-history!)
+(define-repl-abbreviation :x exit-repl)
+(define-repl-abbreviation :X exit)
+(define-repl-abbreviation :top toplevel)
 
 (define (read-error error-type port location . args)
   "Signals a read error."

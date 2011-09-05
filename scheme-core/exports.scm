@@ -287,6 +287,7 @@
              define-method
              define-package
              define-proto
+             define-repl-abbreviation
              define-structure
              define-text
              defmacro
