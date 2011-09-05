@@ -252,21 +252,19 @@
                    (dformat "}"))
                   (#t
                    (dformat "~s" opname)
-                   (for-each
-                    (lambda (formal actual)
-                      (case formal
-                        ((:fast-ops)
-                         (in-trace-level
-                          (dolist (op actual)
-                            (dformat "\n")
-                            (recur op))))
-                        ((:fast-op)
-                         (in-trace-level
-                          (recur actual)))
-                        (#t
-                         (dformat " ~s" actual))))
-                    formals
-                    actuals))))))
+                   (doiterate ((list formal formals)
+                               (list actual actuals))
+                     (case formal
+                       ((:fast-ops)
+                        (in-trace-level
+                         (dolist (op actual)
+                           (dformat "\n")
+                           (recur op))))
+                       ((:fast-op)
+                        (in-trace-level
+                         (recur actual)))
+                       (#t
+                        (dformat " ~s" actual)))))))))
             (#t
              (dformat "~s\n" code)))))
   (define (print-closure-disassembly closure)
