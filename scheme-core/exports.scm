@@ -297,6 +297,7 @@
              delete-package!
              delq
              describe
+             dformat
              direct-instance-slots
              directory
              disassemble
@@ -748,7 +749,6 @@
              split-string-once
              split-string-once-from-right
              sqrt
-             stable
              stats-list?
              strcmp
              string
@@ -818,7 +818,6 @@
              symbol?
              system
              system-info
-             table
              table->instances
              take
              take!
@@ -832,7 +831,6 @@
              the-environment
              third
              throw
-             thru-table
              time
              time-difference
              time-difference!

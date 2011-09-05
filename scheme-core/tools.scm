@@ -11,6 +11,14 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
+
+(define (dformat format-str . args)
+  "Display a formatted message to the current debug port."
+  (apply format
+         (current-debug-port)
+         format-str
+         args))
+
 (define (frame->a-list frame)
   "Given a local environment frame <frame>, return the frame's bindings
    as an a-list."
@@ -47,19 +55,20 @@
 (define *time-flonum-print-precision* 5)
 
 (define (call-with-time-output fn)
-  "Times the execution of a call to the paramaterless function <fn>, printing out a
-   message to stdout with timing information."
+  "Times the execution of a call to the paramaterless function <fn>,
+   printing out a message to the debug output port with timing information."
   (let ((result (%time-apply0 fn)))
     (dynamic-let ((*print-addresses* #f)
                   (*flonum-print-precision* *time-flonum-print-precision*))
-      (format #t  "~&; time = ~a ms (~a gc), ~a cons work\n"
+      (dformat "~&; time = ~a ms (~a gc), ~a cons work\n"
               (* 1000.0 (vector-ref result 1))
               (* 1000.0 (vector-ref result 2))
               (vector-ref result 3)))
     (vector-ref result 0)))
 
 (defmacro (time . code)
-  "Times the execution of <code>, printing out a message to stdout with timing information."
+  "Times the execution of <code>, printing out a message to the debug
+   output port with timing information."
   `(call-with-time-output (lambda () ,@code)))
 
 (define (call-with-port-bandwidth port fn)
@@ -67,13 +76,13 @@
          (result (%time-apply0 fn))
          (ending-counts (port-io-counts port)))
     (newline)
-    (format #t "; read bandwidth = ~a\n" (/ (- (car ending-counts)
-                                               (car starting-counts))
-                                            (vector-ref result 1)))
+    (dformat "; read bandwidth = ~a\n" (/ (- (car ending-counts)
+                                             (car starting-counts))
+                                          (vector-ref result 1)))
 
-    (format #t "; write bandwidth = ~a\n" (/ (- (cdr ending-counts)
-                                                (cdr starting-counts))
-                                             (vector-ref result 1)))
+    (dformat "; write bandwidth = ~a\n" (/ (- (cdr ending-counts)
+                                              (cdr starting-counts))
+                                           (vector-ref result 1)))
     (vector-ref result 0)))
 
 (defmacro (port-bandwidth port . code)
@@ -88,7 +97,7 @@
    objects that cannot have documentation strings)."
   (cond ((traced-procedure? obj)
          (aif (documentation (traced-procedure? obj))
-              (format #f "~a THIS PROCEDURE IS CURRENTLY TRACED AND DOES NOT ELIMIMINATE TAIL CALLS." it)
+              (dformat "~a THIS PROCEDURE IS CURRENTLY TRACED AND DOES NOT ELIMIMINATE TAIL CALLS." it)
               #f))
         ((procedure? obj)
          (aif (assq 'documentation (%property-list obj))
@@ -100,29 +109,26 @@
               #f))
         (#t #f)))
 
-
 (define (dump-frame frame frame-no)
   "Display the specified environment <frame> to standard
    output. It is displayed with the frame number <frame-no>."
-  (map (lambda (var value)
-         (format (current-debug-port) "F[~a]: ~s = ~s\n" frame-no var value))
-       (car frame) (cdr frame)))
+  (doiterate ((count var-no 0)
+              (list var (car frame))
+              (list val (cdr frame)))
+    (dformat "; F[~a,~a]: ~s = ~s\n" frame-no var-no var val)))
 
 (define (dump-environment env)
   "Display the specified environment <env> to standard output."
-  (define (loop rest frame-no)
-    (unless (null? rest)
-      (dump-frame (car rest) frame-no)
-      (loop (cdr rest) (- frame-no 1))))
-  (display "Environment---\n" (current-debug-port))
-  (loop env 0)
-  (display "--------------\n" (current-debug-port)))
+  (dformat "; Environment:\n")
+  (doiterate ((count frame-no 0)
+              (list frame env))
+    (dump-frame frame frame-no)))
 
 (defmacro (watch-locals)
   "Establish a watch on the topmost environment frame. The frame
    will be displayed to standard output at each execution of the
    watch."
-  `(dump-frame (car (the-environment))))
+  `(dump-frame (car (the-environment)) :locals))
 
 (defmacro (watch-environment)
   "Establish a watch on the entire environment. The environment
@@ -136,7 +142,7 @@
    of the watch."
   `(begin
      ,@(map (lambda (expr)
-              `(format #t "WATCH: ~s = ~s\n" ',expr ,expr))
+              `(dformat "; WATCH: ~s = ~s\n" ',expr ,expr))
             exprs)))
 
 (define *disassemble-show-fast-op-addresses* #f)
@@ -179,23 +185,22 @@
             (#t
              (format port "~s\n" code)))))
   (define (print-closure-disassembly closure)
-    (format  (current-debug-port) ";;;; Disassembly of ~s\n" closure)
-    (format  (current-debug-port) ";; args: ~s\n" (car (%closure-code closure)))
-    (format  (current-debug-port) ";; lenv: ~s\n" (%closure-env closure))
+    (dformat ";;;; Disassembly of ~s\n" closure)
+    (dformat ";; args: ~s\n" (car (%closure-code closure)))
+    (dformat ";; lenv: ~s\n" (%closure-env closure))
     (dolist (property-binding (%property-list closure))
-      (format  (current-debug-port) ";; prop ~s: ~s\n"
-               (car property-binding)
-               (cdr property-binding)))
+      (dbind (prop-name . prop-value) property-binding
+        (dformat ";; prop ~s: ~s\n" prop-name prop-value)))
     (print-closure-code (cdr (%closure-code closure)) (current-debug-port)))
   (dynamic-let ((*print-readably* #f))
     (dolist (f functions)
       (let ((f (if (symbol? f) (symbol-value f) f)))
         (cond ((generic-function? f)
-               (format  (current-debug-port) "generic function disassembly:\n\n")
+               (dformat  "generic function disassembly:\n\n")
                (dolist (method (generic-function-methods f))
-                 (format  (current-debug-port) "\nmethod disassemble ~s:\n" (car method))
+                 (dformat "\nmethod disassemble ~s:\n" (car method))
                  (print-closure-disassembly (cdr method))
-                 (newline (current-debug-port))))
+                 (dformat "\n")))
               ((closure? f)
                (print-closure-disassembly f))
               (#t
@@ -263,21 +268,20 @@
               (lambda args
                 (in-trace-level
                  (trace-indent (current-debug-port))
-                 (format (current-debug-port) " > TRACE ~s" (cons fn-name args))
+                 (dformat " > TRACE ~s" (cons fn-name args))
                  (let ((normal-return #f))
                    (unwind-protect
                     (lambda ()
                       (let ((rc (apply fn args)))
                         (when write-returns?
                           (trace-indent (current-debug-port))
-                          (format  (current-debug-port) " < TRACE-RETURNS=~s" rc))
+                          (dformat " < TRACE-RETURNS=~s" rc))
                         (set! normal-return #t)
                         rc))
                     (lambda ()
                       (unless normal-return
                         (trace-indent (current-debug-port))
-                        (format  (current-debug-port) " <<< TRACE-ESCAPING"))
-                      )))))))
+                        (dformat " <<< TRACE-ESCAPING")))))))))
         (set-property! traced-procedure `%traced-procedure fn)
         traced-procedure)))
 
@@ -357,52 +361,18 @@
 
   (define (display-symbols package)
     (call-with-package *package*
-                       #L0(dohash (symbol-text symbol-binding (sort-package-list (%package-bindings package)))
-                                  (format (current-debug-port) "   ; ~s -> ~s\n" symbol-text symbol-binding))))
+                       #L0(dohash (symbol-text symbol-binding  (%package-bindings package))
+                            (dformat "   ; ~s -> ~s\n" symbol-text symbol-binding))))
 
-  (format  (current-debug-port) "\n; *package* = ~s\n" *package*)
+  (dformat "\n; *package* = ~s\n" *package*)
   (dolist (package (sort-package-list (list-all-packages)))
-    (format  (current-debug-port) "; ~s -> ~s\n" package (%package-use-list package))
+    (dformat "; ~s -> ~s\n" package (%package-use-list package))
     (when display-symbols?
       (display-symbols package)))
-  (newline (current-debug-port))
+  (dformat "\n")
   (values))
 
 (push! '(:dp display-packages) *repl-abbreviations*)
-
-(define (stable xs :optional (port (current-output-port)))
-  "Displays the list <xs> in tabular form and returns nil. Does
-   not display a line number marker for each line."
-  (dolist (x xs)
-    (display (format #f " ~s" x) port)
-    (newline port)))
-
-(define (table xs :optional (indent-by #f) (port (current-output-port)))
-  "Displays <xs> in tabular form and returns nil. <xs> can be either
-   a vector, list, or hash table."
-  (typecase xs
-    ((vector)
-     (table (vector->list xs) indent-by port))
-    ((hash)
-     (table (hash->a-list xs) indent-by port))
-    (#t
-     (let ((i 0))
-       (dolist (x xs)
-         ;; format to string is much faster than format to certain ports
-         (when indent-by
-           (indent indent-by " " port))
-         (display (format #f "~a> ~s" i x) port)
-         (newline port)
-         (incr! i))
-       ()))))
-
-
-(define (thru-table xs :optional (label ""))
-  "Displays the list <xs> in tabular form and returns <xs>. The table is
-   labled with the text <label>."
-  (format #t "---------- ~a\n" label)
-  (table xs)
-  xs)
 
 (define *default-width* 72)
 
@@ -621,17 +591,17 @@
   (dolist (watch *repl-auto-watches*)
     (catch 'abort-watch-print
       (handler-bind ((runtime-error (lambda (message args)
-                                      (format (current-error-port) "; Watch Print Error: ~I" message args)
+                                      (dformat "; Watch Print Error: ~I" message args)
                                       (throw 'abort-watch-print))))
-        (format (current-debug-port) "; ~s " watch)
+        (dformat "; ~s " watch)
         (mvbind values (catch-all (eval watch))
           (case (length values)
-            ((0) (newline  (current-debug-port)))
-            ((1) (format (current-debug-port) "=> ~s\n" (car values)))
+            ((0) (dformat "\n"))
+            ((1) (dformat "=> ~s\n" (car values)))
             (#t
-             (newline (current-debug-port))
+             (dformat "\n")
              (dolist (value values)
-               (format (current-debug-port) ";    => ~s\n" value)))))))))
+               (dformat ";    => ~s\n" value)))))))))
 
 (add-hook-function! '*repl-post-hook* 'show-repl-auto-watches)
 
@@ -680,12 +650,12 @@
     (aif (assq type x) (cdr it) 0))
   (map #L(cons (car _) ( - (lookup-x (car _)) (cdr _))) y))
 
-(define (write-type-stats-table ts :optional (op (current-output-port)))
+(define (write-type-stats-table ts)
   (define (type-name type)
     (format #f "~s" type))
   (let ((max-type-length (apply max (map #L(length (type-name (car _))) ts))))
     (dolist (entry (qsort ts > cdr))
-      (format op "; ~a = ~a cells\n" (pad-to-width (car entry) max-type-length) (cdr entry)))))
+      (dformat "; ~a = ~a cells\n" (pad-to-width (car entry) max-type-length) (cdr entry)))))
 
 (push! '(:sts show-type-stats) *repl-abbreviations*)
 
@@ -696,8 +666,7 @@
     rv))
 
 (define (show-type-stats)
-  (write-type-stats-table (annotate-type-stats (scheme::%heap-cell-count-by-typecode))
-                          (current-debug-port))
+  (write-type-stats-table (annotate-type-stats (scheme::%heap-cell-count-by-typecode)))
   (values))
 
 (defmacro (show-type-delta expr)
@@ -706,9 +675,9 @@
        (begin-1
         ,expr
         (let ((final-ts (%heap-cell-count-by-typecode)))
-          (format (current-debug-port) "; Type stats delta (note that this reflects GC's)\n;\n")
-          (write-type-stats-table (type-stats-delta (annotate-type-stats final-ts)
-                                                    (annotate-type-stats ,initial-ts-sym))
-                                  (current-debug-port)))))))
+          (dformat "; Type stats delta (note that this reflects GC's)\n;\n")
+          (write-type-stats-table
+           (type-stats-delta (annotate-type-stats final-ts)
+                             (annotate-type-stats ,initial-ts-sym))))))))
 
 (push! '(:std show-type-delta) *repl-abbreviations*)
