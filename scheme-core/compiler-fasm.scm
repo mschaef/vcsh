@@ -111,7 +111,7 @@
 (define (fasm asm)
   (dbind (op . actuals) asm
     (mvbind (opcode formals) (lookup-fast-op op)
-      (unless (= (length actuals) (length formals))
+      (unless (same-length? actuals formals)
         (error "Improper number of arguments while assembling ~s" asm))
       (apply scheme::%fast-op
              opcode
