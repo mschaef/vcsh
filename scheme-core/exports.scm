@@ -683,8 +683,6 @@
              rectangular->list
              rectangular-values
              recursive-list-copy
-             referred-symbol-grep
-             referred-symbols
              remainder
              remote
              remove

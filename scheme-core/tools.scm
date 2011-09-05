@@ -88,8 +88,7 @@
 (defmacro (port-bandwidth port . code)
   `(call-with-port-bandwidth ,port `(lambda () ,@code)))
 
-;;; Documentation access
-
+;;;; Documentation access and symbol search
 
 (define (documentation obj) ;; REVISIT: Should be a generic function
   "Return the documentation string associated with the object <obj>.
@@ -108,6 +107,90 @@
               it
               #f))
         (#t #f)))
+
+(define *default-width* 72)
+
+(define (apropos-description obj)
+  "Describes the object <obj> by returning the associated documentation string."
+  (define (description-lambda-list obj)
+    (mvbind (lambda-list source-lambda-list) (procedure-lambda-list obj)
+      (if source-lambda-list  source-lambda-list  lambda-list)))
+  (define (macro-lambda-list obj)
+    (let ((transformer (%macro-transformer obj)))
+      (let ((macro-name (get-property transformer 'macro-name #f))
+            (macro-formals (get-property transformer 'macro-formals #f)))
+        (if macro-name
+            (cons macro-name macro-formals)
+            "<unknown>"))))
+  (define (print-value? val)
+    (member (type-of val) '(symbol character fixnum flonum nil boolean)))
+  (aif (traced-procedure? obj)
+       (format #f "Traced ~a" (apropos-description it))
+       (cond
+        ((primitive? obj)
+         (format #f "Primitive function: ~s" (procedure-name obj)))
+        ((procedure? obj)
+         (let ((pkg (aif (procedure-name obj)
+                         (symbol-package it)
+                         *package*)))
+           (dynamic-let ((*package* pkg))
+             (format #f "~aFunction lambda: ~s" (if (primitive? obj) "Primitive " "")
+                     (description-lambda-list obj)))))
+        ((macro? obj)
+         (format #f "Macro: ~a ~a" (macro-lambda-list obj)))
+        ((print-value? obj)
+         (format #f "~a (~a)" (type-of obj) obj))
+        (#t
+         (format #f "~a" (type-of obj))))))
+
+(define (%apropos search-for :optional (search-package *package*))
+  "Prints a list describing each symbol apropos of all of the search
+   terms in <search-for>. The symbols are restricted to public
+   symbols in <search-package>, unless <search-package> is #f, in
+   which case all packages are searched."
+  (define (symbol-search-text symbol)
+    (check symbol? symbol)
+    (if (not (symbol-bound? symbol))
+        ""
+        (string-append (symbol-name symbol)
+                       (aif (documentation (symbol-value symbol)) it ""))))
+  (dynamic-let ((*info* #f))
+    (let ((accum '())
+          (search-for (map ->string search-for)))
+      (display "--------------------------------\n")
+      (dolist (sym (qsort (filter (lambda (sym)
+                                    (string-contains-all-of?
+                                     search-for (symbol-search-text sym)))
+                                  (if search-package
+                                      (all-package-symbols search-package)
+                                      (all-symbols)))
+                          string<
+                          symbol-name))
+        (let ((val (symbol-value sym)))
+          (format #t "** ~a - ~a\n"
+                  sym (apropos-description val))
+          (awhen (documentation val)
+            (dolist (line (break-lines it *default-width*))
+              (format #t "  ~a\n" line))
+            (newline))))))
+  (values))
+
+(define (apropos . search-for)
+  "Prints a list describing each symbol public to the current package that
+   is apropos of all of the search terms in <search-for>."
+  (%apropos search-for)
+  (values))
+
+(define (apropos-any-package . search-for)
+  "Prints a list describing each symbol visible in any package that is
+   apropos of all of the search terms in <search-for>."
+  (%apropos search-for #f)
+  (values))
+
+(push! '(:a apropos  :quote) *repl-abbreviations*)
+(push! '(:A apropos-any-package  :quote) *repl-abbreviations*)
+
+;;;; Environment watch mechanisms
 
 (define (dump-frame frame frame-no)
   "Display the specified environment <frame> to standard
@@ -144,6 +227,8 @@
      ,@(map (lambda (expr)
               `(dformat "; WATCH: ~s = ~s\n" ',expr ,expr))
             exprs)))
+
+;;;; The fast-op disassembler
 
 (define *disassemble-show-fast-op-addresses* #f)
 
@@ -206,7 +291,7 @@
               (#t
                (error "Cannot disassemble: ~s" f)))))))
 
-;;; Printer support for fast-ops
+;;;; Printer support for fast-ops
 
 (define-method (print-object (obj fast-op) port machine-readable? shared-structure-map)
   (mvbind (op-code op-name args) (compiler::parse-fast-op obj)
@@ -216,7 +301,17 @@
          (write-strings port " ")
          (print arg port machine-readable? shared-structure-map)))))
 
-;;; The function tracer
+;;;; The global define hook
+
+(define *global-define-hook* ())
+
+(define (trap-global-define-handler trapno frp symbol new-definition)
+  (invoke-hook '*global-define-hook* symbol new-definition))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (%set-trap-handler! system::TRAP_DEFINE trap-global-define-handler))
+
+;;;; The function tracer
 
 (define *trace-level* 0)
 
@@ -315,15 +410,6 @@
                                           *traced-procedure-list*)))
   (map car *traced-procedure-list*))
 
-
-(define *global-define-hook* ())
-
-(define (trap-global-define-handler trapno frp symbol new-definition)
-  (invoke-hook '*global-define-hook* symbol new-definition))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_DEFINE trap-global-define-handler))
-
 (defmacro (trace . function-names) ;; REVISIT: Can't watch anonymous functions
   `(begin ,@(map (lambda (function-name)
                    `(trace-global-function ',function-name))
@@ -347,7 +433,6 @@
 
 (define (untrace-all)
   (for-each untrace-global-function (map car *traced-procedure-list*)))
-
 
 (push! '(:t trace) *repl-abbreviations*)
 (push! '(:tnr trace/no-returns) *repl-abbreviations*)
@@ -374,111 +459,9 @@
 
 (push! '(:dp display-packages) *repl-abbreviations*)
 
-(define *default-width* 72)
-
-(define (apropos-description obj)
-  "Describes the object <obj> by returning the associated documentation string."
-  (define (description-lambda-list obj)
-    (mvbind (lambda-list source-lambda-list) (procedure-lambda-list obj)
-      (if source-lambda-list  source-lambda-list  lambda-list)))
-  (define (macro-lambda-list obj)
-    (let ((transformer (%macro-transformer obj)))
-      (let ((macro-name (get-property transformer 'macro-name #f))
-            (macro-formals (get-property transformer 'macro-formals #f)))
-        (if macro-name
-            (cons macro-name macro-formals)
-            "<unknown>"))))
-  (define (print-value? val)
-    (member (type-of val) '(symbol character fixnum flonum nil boolean)))
-  (aif (traced-procedure? obj)
-       (format #f "Traced ~a" (apropos-description it))
-       (cond
-        ((primitive? obj)
-         (format #f "Primitive function: ~s" (procedure-name obj)))
-        ((procedure? obj)
-         (let ((pkg (aif (procedure-name obj)
-                         (symbol-package it)
-                         *package*)))
-           (dynamic-let ((*package* pkg))
-             (format #f "~aFunction lambda: ~s" (if (primitive? obj) "Primitive " "")
-                     (description-lambda-list obj)))))
-        ((macro? obj)
-         (format #f "Macro: ~a ~a" (macro-lambda-list obj)))
-        ((print-value? obj)
-         (format #f "~a (~a)" (type-of obj) obj))
-        (#t
-         (format #f "~a" (type-of obj))))))
-
-(define (%apropos search-for :optional (search-package *package*))
-  "Prints a list describing each symbol apropos of all of the search
-   terms in <search-for>. The symbols are restricted to public
-   symbols in <search-package>, unless <search-package> is #f, in
-   which case all packages are searched."
-  (define (symbol-search-text symbol)
-    (check symbol? symbol)
-    (if (not (symbol-bound? symbol))
-        ""
-        (string-append (symbol-name symbol)
-                       (aif (documentation (symbol-value symbol)) it ""))))
-  (dynamic-let ((*info* #f))
-    (let ((accum '())
-          (search-for (map ->string search-for)))
-      (display "--------------------------------\n")
-      (dolist (sym (qsort (filter (lambda (sym)
-                                    (string-contains-all-of?
-                                     search-for (symbol-search-text sym)))
-                                  (if search-package
-                                      (all-package-symbols search-package)
-                                      (all-symbols)))
-                          string<
-                          symbol-name))
-        (let ((val (symbol-value sym)))
-          (format #t "** ~a - ~a\n"
-                  sym (apropos-description val))
-          (awhen (documentation val)
-            (dolist (line (break-lines it *default-width*))
-              (format #t "  ~a\n" line))
-            (newline))))))
-  (values))
-
-(define (apropos . search-for)
-  "Prints a list describing each symbol public to the current package that
-   is apropos of all of the search terms in <search-for>."
-  (%apropos search-for)
-  (values))
-
-(define (apropos-any-package . search-for)
-  "Prints a list describing each symbol visible in any package that is
-   apropos of all of the search terms in <search-for>."
-  (%apropos search-for #f)
-  (values))
-
-(push! '(:a apropos  :quote) *repl-abbreviations*)
-(push! '(:A apropos-any-package  :quote) *repl-abbreviations*)
-
-(define (referred-symbols fn)
-  "Returns a list of all the symbols referred to by the code of function
-   <fn>.  If <fn> is a symbol itself, it is taken to be the name of a
-   function to be analyzed. Non-functions have no code to refer to symbols,
-   refer to no symbols, and so this function returns () when called on a
-   non-function."
-  (cond ((closure? fn)
-         (filter symbol? (set-union (flatten (cdr (%closure-code fn))))))
-        ((and (symbol? fn) (not (keyword? fn)) (symbol-bound? fn))
-         (referred-symbols (symbol-value fn)))
-        (#t
-         ())))
-
-(define (referred-symbol-grep grep-for)
-  "Returns a list of all symbols bound to functions that refer to
-   the symbol <grep-for> within their code."
-  (filter (lambda (sym)
-            (member grep-for (referred-symbols sym)))
-          (all-symbols)))
-
-(push! '(:rsg referred-symbol-grep :quote) *repl-abbreviations*)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; short-lambda ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Short Lambda
+;;
+;; Abbreviated syntax for lambda expressions.
 
 (defmacro (shorter-lambda . form)
   "Defines a function with an implicit lambda list of (_). This
@@ -500,6 +483,8 @@
       `(shorter-lambda ,(read port))
       `(short-lambda ,(read port) ,(read port))))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (set-char-syntax! *readsharp-syntax* #\L 'read-short-lambda))
 
 ;;; String quasiquote
 ;;;
@@ -552,9 +537,9 @@
     `(string-quasiquote ,*package* ,(read port))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *readsharp-syntax* #\L 'read-short-lambda)
-
   (set-char-syntax! *readsharp-syntax* #\" 'read-string-quasiquote))
+
+;;;; A tool for getting a free cell
 
 (define (%get-free-cell)
   "Return a pointer to an unallocated free cell on the heap."
@@ -563,7 +548,6 @@
     (set! x ())
     (gc)
     (%sysob (- x-addr 17))))
-
 
 ;;;; An auto watch facility that evaluates and prints watch expressions after
 ;;;; each interactive form.
@@ -609,7 +593,6 @@
 (push! '(:rau repl-auto-unwatch) *repl-abbreviations*)
 (push! '(:raua repl-auto-unwatch-all) *repl-abbreviations*)
 
-
 ;; Other useful REPL abbreviations
 
 (push! '(:r require-package!  :quote) *repl-abbreviations*)
@@ -643,7 +626,7 @@
                     (set! *package-restore-proc* #f)))))
     (in-package! package)))
 
-;; Memory utilities
+;;;; Memory utilities
 
 (define (type-stats-delta x y)
   (define (lookup-x type)
