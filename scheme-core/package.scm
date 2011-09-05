@@ -262,6 +262,22 @@
    load terminates successfully."
   (add-hook-function! '*finalize-load-hook* #L0(provide-package! package-spec)))
 
+(define (load-internal-if-exists internal-file-name)
+  (and (find-internal-file internal-file-name)
+       (load-internal internal-file-name)
+       #t))
+
+(define (load-if-exists file-name)
+  (and (file-exists? file-name)
+       (load file-name)
+       #t))
+
+(define (load-package package-name)
+  (or (load-if-exists #"${package-name}.scm")
+      (load-if-exists #"${package-name}.scf")
+      (load-internal-if-exists #"${package-name}.scm")
+      (load-internal-if-exists #"${package-name}.scf")))
+
 (define (attempt-to-provide-package package-name)
   "Attempts to provide the package named by <package-name>. If the package
    is currently unprovided, it will be loaded from either an internal
@@ -277,9 +293,9 @@
              (error "Circular package dependancy on ~a while loading ~a."
                     package-name *loading-packages*))
            (dynamic-let ((*loading-packages* (cons package-name *loading-packages*)))
-             (if (find-internal-file package-name)
-                 (load-internal package-name)
-                 (load (string-append package-name ".scm")))
+             (unless (load-package package-name)
+               (error "Could not load package: ~a"))
+
              (let ((loaded-package (find-package package-name)))
                (when loaded-package
                  (provide-package! package-name))
