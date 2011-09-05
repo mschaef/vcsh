@@ -10,13 +10,16 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
+(define (compile-to-fasm form)
+ (cpass/fasm-optimize
+  (cpass/meaning
+   (cpass/expand form))))
+
 (define (compile form)
   "Accept a <form> and compile it into a closure that can be invoked to produce the
   effect of evaluating that form at toplevel."
   (cpass/fasm
-   (cpass/fasm-optimize
-    (cpass/meaning
-     (cpass/expand `(compiler::%toplevel-lambda ,form))))))
+   (compile-to-fasm `(compiler::%toplevel-lambda ,form))))
 
 (define (compile-form form)
   "Accept a <form> and translate it into its compiled representation."
