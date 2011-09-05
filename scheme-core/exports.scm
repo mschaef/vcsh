@@ -701,6 +701,7 @@
              run
              runtime
              runtime-error
+             same-length?
              second
              seconds->realtime
              self

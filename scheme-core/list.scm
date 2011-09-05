@@ -1007,6 +1007,19 @@
 
 ;;;; Duplicate list element detection
 
+(define (same-length? xs ys)
+  "Return #t if <xs> and <ys> have the same length, #f otherwise."
+  (let loop ((xs xs) (ys ys))
+    ;; TODO: Add circular list detection.
+    ;; REVISIT: Should this return the list length?
+    (cond ((null? xs)
+           (null? ys))
+          ((or (atom? xs) (atom? ys))
+           #f)
+          (#t
+           (loop (cdr xs) (cdr ys))))))
+
+
 (define (duplicates xs :optional (same-elt? eq?))
   "Compute the set of duplicate elements in <xs>. An element is considered
    the same as another if <same-elt?> returns true when called on both. This
