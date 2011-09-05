@@ -128,7 +128,7 @@
             (s xs))
         (while (and (not (eq? f s))
                     (pair? s))
-               (set! f (blithe-cdr (blithe-cdr f)))
+               (set! f (cdr* (cdr* f)))
                (set! s (cdr s)))
         (null? s))
       (null? xs)))
@@ -139,7 +139,7 @@
             (s xs))
         (while (and (not (eq? f s))
                     (pair? s))
-               (set! f (blithe-cdr (blithe-cdr f)))
+               (set! f (cdr* (cdr* f)))
                (set! s (cdr s)))
         (not (null? s)))
       #f))
@@ -1008,8 +1008,8 @@
 ;;;; Duplicate list element detection
 
 (define (same-length? xs ys)
-  "Return the length of the lists,  if <xs> and <ys> have the same length,
-   #f otherwise."
+  "If <xs> and <ys> have the same length, return the length of the lists,  
+   otherwise return #f."
   (let loop ((count 0) (xs xs) (ys ys))
     ;; TODO: Add circular list detection.
     (cond ((null? xs)
