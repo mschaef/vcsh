@@ -111,6 +111,7 @@
 (%define boolean? #.(host-scheme::%subr-by-name "boolean?"))
 (%define car #.(host-scheme::%subr-by-name "car"))
 (%define cdr #.(host-scheme::%subr-by-name "cdr"))
+(%define cdr* #.(host-scheme::%subr-by-name "cdr*"))
 (%define ceiling #.(host-scheme::%subr-by-name "ceiling"))
 (%define char->integer #.(host-scheme::%subr-by-name "char->integer"))
 (%define char-ready? #.(host-scheme::%subr-by-name "char-ready?"))

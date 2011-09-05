@@ -55,6 +55,13 @@ lref_t lcdr(lref_t x)
      return CDR(x);
 };
 
+lref_t lcdrs(lref_t x)
+{
+     if (NULLP(x) || !CONSP(x))
+          return NIL;
+
+     return CDR(x);
+};
 
 lref_t lsetcar(lref_t cell, lref_t value)
 {

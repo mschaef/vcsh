@@ -195,6 +195,7 @@
              cdddr
              cddr
              cdr
+             cdr*
              ceiling
              ceval
              char->integer

@@ -214,6 +214,7 @@ lref_t lbitwise_xor(lref_t x, lref_t y);
 lref_t lbooleanp(lref_t x);
 lref_t lcar(lref_t x);
 lref_t lcdr(lref_t x);
+lref_t lcdrs(lref_t x);
 lref_t lceiling(lref_t x);
 lref_t lchar2integer(lref_t s);
 lref_t lchar_readyp(lref_t port);

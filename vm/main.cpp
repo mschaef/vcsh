@@ -348,6 +348,7 @@ static void register_main_subrs()
     register_subr(_T("boolean?"),                         SUBR_1,     (void*)lbooleanp                           );
     register_subr(_T("car"),                              SUBR_1,     (void*)lcar                                );
     register_subr(_T("cdr"),                              SUBR_1,     (void*)lcdr                                );
+    register_subr(_T("cdr*"),                             SUBR_1,     (void*)lcdrs                               );
     register_subr(_T("ceiling"),                          SUBR_1,     (void*)lceiling                            );
     register_subr(_T("char->integer"),                    SUBR_1,     (void*)lchar2integer                       );
     register_subr(_T("char-ready?"),                      SUBR_1,     (void*)lchar_readyp                        );
