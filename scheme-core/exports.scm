@@ -24,6 +24,7 @@
              *global-readsharp-table*
              *idle-hook*
              *info*
+             *inspect-print-length*
              *last-error*
              *location-mapping*
              *memoize-results?*

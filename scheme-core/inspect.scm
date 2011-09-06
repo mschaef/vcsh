@@ -238,13 +238,14 @@
 ;; need a way of getting the inspector context down into the inspect-set! function,
 ;; which faces the same problems as the would-be :eval command.
 
+(define *inspect-print-length* 3)
+
 (define (inspect-read)
   (inspect-prompt)
   (repl-read *inspect-abbreviations*))
 
 (defmacro (with-inspect-printing . code)
-  `(dynamic-let ((*print-length* 3) ;; TODO: Should be separately configurable
-                 (*print-length* 3)) ;; TODO: Why are there two occurrences of *print-length* in this dynamic-let
+  `(dynamic-let ((*print-length* *inspect-print-length*))
     ,@code))
 
 (define (inspect-print-object-summary ctx)
