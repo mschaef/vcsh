@@ -23,54 +23,23 @@
 
 ;; REVISIT: The API design for the FASL writer is pretty confusing.
 
-(define *fasl-write-debugging* #f)
 (define *fasl-write-check-structure-sharing* #t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fast-*
 
-(define *fasl-bytes-written* 0)
-
 (define (fast-write-float value port)
-  "Wraps write-binary-flonum, adding debugging output to the current error
-   port if *fasl-write-debugging* is true."
-  (incr! *fasl-bytes-written* 8)
-  (when *fasl-write-debugging*
-    (format (current-error-port) " [~s]" value))
   (write-binary-flonum value port))
 
 (define (fast-write-integer value length signed port)
-  "Wraps write-binary-fixnum, adding debugging output to the current error
-   port if *fasl-write-debugging* is true."
-  (incr! *fasl-bytes-written* length)
-  (when *fasl-write-debugging*
-    (format (current-error-port) " ~s" value))
   (write-binary-fixnum value length signed port))
 
 (define (fast-write-characters value port)
-  "Wraps write-binary-string, adding debugging output to the current error
-   port if *fasl-write-debugging* is true."
-  (when *fasl-write-debugging*
-    (incr! *fasl-bytes-written* (length value))
-    (format (current-error-port) " ~s" value))
   (write-binary-string value port))
 
 (define (fast-write-opcode code port)
   "Writes a type code <code> to <port>."
   (fast-write-integer code 1 #f port))
-
-(define (fast-write-comment text port)
-  "Writes <text> in FASL comment format on <port>. If <text> is composed of
-   multiple lines of text, it is broken up into multiple FASL comment records."
-  (aif (string-search "\n" text)
-    (begin
-      (fast-write-comment (substring text 0 it) port)
-      (fast-write-comment (substring text (+ 1 it)) port))
-    (begin
-      (fast-write-opcode 59 port)
-      (fast-write-characters " " port)
-      (fast-write-characters text port)
-      (fast-write-characters "\n" port))))
 
 
 ;; Note: these next symbols are generated at load/compile time, and used by the
@@ -116,18 +85,16 @@
              (hash-has? shared-structure-table object))
         (aif (hash-ref shared-structure-table object)
              (begin
-               (when *fasl-write-debugging* (newline))
                (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                (fast-write-object it))
              (begin
                (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
                  (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
                  (hash-set! shared-structure-table object next-index)
-                 (when *fasl-write-debugging* (newline))
                  (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                  (fast-write-object next-index)
                  (fast-write-object object))))
-	(fast-write-object object)))
+        (fast-write-object object)))
 
   (define (check-sharing-and-write-instance-map inst)
     (let ((inst-map (%instance-map inst)))
@@ -139,14 +106,12 @@
                (hash-has? shared-structure-table inst-map))
           (aif (hash-ref shared-structure-table inst-map)
                (begin
-                 (when *fasl-write-debugging* (newline))
                  (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
                  (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
                    (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
                    (hash-set! shared-structure-table inst-map next-index)
-                   (when *fasl-write-debugging* (newline))
                    (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
                    (write-map))))
@@ -160,22 +125,18 @@
         (let ((layout-table (hash-ref shared-structure-table  *fasl-structure-layout-key*)))
           (aif (hash-ref layout-table layout)
                (begin
-                 (when *fasl-write-debugging* (newline))
                  (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
                  (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
                    (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
                    (hash-set! layout-table layout next-index)
-                   (when *fasl-write-debugging* (newline))
                    (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
                    (do-write)))))
-          (do-write)))
+        (do-write)))
 
   (define (fast-write-object object)
-    (when *fasl-write-debugging*
-      (newline (current-error-port)))
 
     (case (%representation-of object)
       ((nil)
@@ -185,34 +146,34 @@
        (fast-write-opcode (if object system::FASL_OP_TRUE system::FASL_OP_FALSE) port))
 
       ((character)
-       (fast-write-opcode system::FASL_OP_CHARACTER port) ; 4 for UCS 16, 5 for UCS 32
+       (fast-write-opcode system::FASL_OP_CHARACTER port)
        (fast-write-integer (char->integer object) 1 #f port))
 
       ((cons)
        (mvbind (len dotted?) (length-excluding-shared object shared-structure-table)
-	 (fast-write-opcode (if dotted? system::FASL_OP_LISTD system::FASL_OP_LIST) port)
-	 (check-sharing-and-write len)
-	 (let loop ((i 0) (xs object))
-	   (cond ((< i len)
-		  (check-sharing-and-write (car xs))
-		  (loop (+ i 1) (cdr xs)))
-		 (dotted?
-		  (check-sharing-and-write xs))))))
+         (fast-write-opcode (if dotted? system::FASL_OP_LISTD system::FASL_OP_LIST) port)
+         (check-sharing-and-write len)
+         (let loop ((i 0) (xs object))
+           (cond ((< i len)
+                  (check-sharing-and-write (car xs))
+                  (loop (+ i 1) (cdr xs)))
+                 (dotted?
+                  (check-sharing-and-write xs))))))
 
       ((fixnum)
        (cond
-	((and (>= object -128) (<= object 127))
-	 (fast-write-opcode system::FASL_OP_FIX8 port)
-	 (fast-write-integer object 1 #t port))
-	((and (>= object -32768) (<= object 32767))
-	 (fast-write-opcode system::FASL_OP_FIX16 port)
-	 (fast-write-integer object 2 #t port))
-	((and (>= object -2147483648) (<= object 2147483647))
-	 (fast-write-opcode system::FASL_OP_FIX32 port)
-	 (fast-write-integer object 4 #t port))
-	(#t
-	 (fast-write-opcode system::FASL_OP_FIX64 port)
-	 (fast-write-integer object 8 #t port))))
+        ((and (>= object -128) (<= object 127))
+         (fast-write-opcode system::FASL_OP_FIX8 port)
+         (fast-write-integer object 1 #t port))
+        ((and (>= object -32768) (<= object 32767))
+         (fast-write-opcode system::FASL_OP_FIX16 port)
+         (fast-write-integer object 2 #t port))
+        ((and (>= object -2147483648) (<= object 2147483647))
+         (fast-write-opcode system::FASL_OP_FIX32 port)
+         (fast-write-integer object 4 #t port))
+        (#t
+         (fast-write-opcode system::FASL_OP_FIX64 port)
+         (fast-write-integer object 8 #t port))))
 
       ((flonum)
        (fast-write-opcode system::FASL_OP_FLOAT port)
@@ -278,15 +239,15 @@
 
       ((fast-op)
        (mvbind (fop-opcode fop-name args) (compiler::parse-fast-op object #f)
-          (fast-write-opcode (case (length args)
-                               ((0) system::FASL_OP_FAST_OP_0)
-                               ((1) system::FASL_OP_FAST_OP_1)
-                               ((2) system::FASL_OP_FAST_OP_2)
-                               (#t (error "Unsupported fast-op arity: ~s" object)))
-                             port)
-          (check-sharing-and-write fop-opcode)
-          (dolist (arg args)
-            (check-sharing-and-write arg))))
+         (fast-write-opcode (case (length args)
+                              ((0) system::FASL_OP_FAST_OP_0)
+                              ((1) system::FASL_OP_FAST_OP_1)
+                              ((2) system::FASL_OP_FAST_OP_2)
+                              (#t (error "Unsupported fast-op arity: ~s" object)))
+                            port)
+         (check-sharing-and-write fop-opcode)
+         (dolist (arg args)
+           (check-sharing-and-write arg))))
 
       (#t
        (error "fast-write of unsupported type ~a : ~s" (%representation-of object) object))))
@@ -368,9 +329,6 @@
   (objects-to-write :default ())
   visited-objects)
 
-(define-structure fasl-comment
-  comment-text)
-
 (define-structure fasl-op
   fasl-opcode
   param-objects)
@@ -386,10 +344,6 @@
    to the stream's target port until the stream itself is closed."
   (set-fasl-stream-objects-to-write! stream (cons object (fasl-stream-objects-to-write stream)))
   stream)
-
-(define (fasl-write-comment comment-text stream)
-  "Writes a human readable comment, <comment-text>, to FASL stream <stream>."
-  (fasl-write (make-fasl-comment :comment-text comment-text) stream))
 
 (define (fasl-write-op fasl-opcode param-objects stream)
   "Writes an arbitrary FASL opcode, <fasl-opcode>, to FASL stream <stream>. The paramater
@@ -432,16 +386,14 @@
 
     (dolist (obj (reverse (fasl-stream-objects-to-write stream)))
       (cond ((fasl-op? obj)
-	     (fast-write-opcode (fasl-op-fasl-opcode obj) (fasl-stream-target-port stream))
+             (fast-write-opcode (fasl-op-fasl-opcode obj) (fasl-stream-target-port stream))
              (dolist (obj (fasl-op-param-objects obj))
                (fast-write-using-shared-structure-table obj
                                                         (fasl-stream-target-port stream)
                                                         shared-structure-table)))
-	    ((fasl-comment? obj)
-	     (fast-write-comment (fasl-comment-comment-text obj) (fasl-stream-target-port stream)))
-	    (#t
-	     (fast-write-using-shared-structure-table obj (fasl-stream-target-port stream)
-						      shared-structure-table))))
+            (#t
+             (fast-write-using-shared-structure-table obj (fasl-stream-target-port stream)
+                                                      shared-structure-table))))
     stream))
 
 (defmacro (with-fasl-stream s port . code)
@@ -455,6 +407,5 @@
     `(with-port ,port-sym (open-output-file ,filename :binary)
        (with-fasl-stream ,s ,port-sym
            ,@code))))
-
 
 (define close-fasl-stream commit-fasl-writes)
