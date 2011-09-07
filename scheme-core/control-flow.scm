@@ -96,9 +96,7 @@
 (defmacro (dolist head . body)
   (unless (list? head)
     (error "dolist requires a list for <head>" head))
-  (let ((var (car head))
-        (list-form (cadr head))
-        (result-form (caddr head)))
+  (dbind (var list-form result-form) head
     (unless (symbol? var)
       (error "dolist requires a symbol for a variable binding" var))
     `(begin
@@ -127,9 +125,7 @@
 (defmacro (dovec head . body)
   (unless (list? head)
     (error "dovec requires a list for <head>" head))
-  (let ((var (car head))
-        (list-form (cadr head))
-        (result-form (caddr head)))
+  (dbind (var list-form result-form) head
     (unless (symbol? var)
       (error "dovec requires a symbol for a variable binding" var))
     `(begin
@@ -225,6 +221,9 @@
               (,while-loop-sym)))
        (values))))
 
+(defmacro (until test . body)
+  `(while (not ,test) ,@body))
+
 (defmacro (repeat limit-form . body)
   (with-gensyms (ii-sym limit-value-sym)
     `(let ((,ii-sym 0)
@@ -251,9 +250,6 @@
      (while it
             (set! it ,test)
             (when it ,@body))))
-
-(defmacro (until test . body)
-  `(while (not ,test) ,@body))
 
 (defmacro (aand . conditions)
   (cond ((null? conditions)
