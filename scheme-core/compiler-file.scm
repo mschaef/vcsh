@@ -84,7 +84,7 @@
                          (dbind ,(cdr pattern) (cdr form)
                            ,@code))))))
 
-(define process-toplevel-forms) ; forward
+(forward process-toplevel-forms)
 
 (define-toplevel-form (eval-when situations . forms)
   (unless (and (list? situations)

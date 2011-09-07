@@ -106,7 +106,7 @@
       (values (fop-defn-opcode defn)
               (fop-defn-formals defn))))
 
-(define fasm) ;; forward
+(forward fasm)
 
 (define (fasm asm)
   (dbind (op . actuals) asm

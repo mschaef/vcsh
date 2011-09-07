@@ -16,7 +16,7 @@
 
 (define (fop-id x) x)
 
-(define map-fop-assembly) ;; forward
+(forward map-fop-assembly)
 
 (define (map-fop-assembly fn fasm)
 

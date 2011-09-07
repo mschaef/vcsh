@@ -10,6 +10,9 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
+(defmacro (forward sym)
+  `(define ,sym))
+
 (define (throw tag :optional value)
   (%%throw tag value))
 
@@ -365,7 +368,7 @@
    as <pred?>"
   (lambda (x) (not (pred? x))))
 
-(define compose) ;; forward
+(forward compose)
 
 (define (compose . fns)
   "Returns an arity-1 function that evaluates the composition of the
@@ -375,7 +378,7 @@
       (lambda (x)
         ((car fns) ((apply compose (cdr fns)) x)))))
 
-(define rcompose) ;; forward
+(forward rcompose)
 
 (define (rcompose . fns)
   "Returns an arity-1 function that evaluates the reverse composition of

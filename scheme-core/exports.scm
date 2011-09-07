@@ -388,6 +388,7 @@
              for-each
              forget-all-memoized-results
              form-source-location
+             forward
              format
              formatter
              fourth

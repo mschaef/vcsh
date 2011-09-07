@@ -37,7 +37,7 @@
                  #t
                  (loop (cdr rest))))))))
 
-(define expanded-form-meaning) ; forward decl
+(forward expanded-form-meaning)
 
 (define (symbol-binding-type-of sym)
   (if (symbol-bound? sym)

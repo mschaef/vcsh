@@ -70,7 +70,7 @@
     (write-csv xss p)
     (get-output-string p)))
 
-(define read-csv) ;; forward
+(forward read-csv)
 
 (define (csv-string->list string)
   (let ((p (open-input-string string)))

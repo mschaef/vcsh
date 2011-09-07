@@ -62,7 +62,7 @@
                 (throw 'end-compiler-macroexpand (values #f ()))))))
       (compiler-macroexpand-1 form))))
 
-(define expand-form) ; forward
+(forward expand-form)
 
 (define (make-translated-form-sequence expanded-body-forms local-definitions)
   (define (define->let-binding def)
