@@ -376,7 +376,7 @@
 
 ;;;; Map amd fold
 
-(define map)
+(forward map)
 
 (define (cars+cdrs xs)
   (values (map car xs)

@@ -58,11 +58,6 @@
           (#t
            (when last-resort-handler (last-resort-handler))))))
 
-(define (show-signal-handlers)
-  "Shows a list of all current signal handlers"
-  (format (current-error-port) "Current Signal Handlers:\n--------------------------------\n")
-  (table (%%get-hframes) #f (current-error-port)))
-
 (define (signal condition . args)
   "Signals condition <condition> with the specified arguments. The signal
    is signaled for informational purposes only: execution will continue
