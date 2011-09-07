@@ -654,7 +654,6 @@
              quotient
              radix-sort
              random
-             random-case
              random-list-element
              random-subsequence
              rational?
