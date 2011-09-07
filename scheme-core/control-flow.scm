@@ -21,12 +21,6 @@
 (defmacro (catch tag-form . body)
   `(%%catch ,tag-form (begin ,@body)))
 
-(defmacro (block . forms)
-  `(catch '%return-target ,@forms))
-
-(defmacro (return value)
-  `(throw '%return-target ,value))
-
 (defmacro (catch-all . forms)
   `(catch () ,@forms))
 

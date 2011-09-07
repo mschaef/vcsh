@@ -142,7 +142,6 @@
              bitwise-shift-left
              bitwise-shift-right
              bitwise-xor
-             block
              boolean
              boolean?
              break
@@ -696,7 +695,6 @@
              repl-choose
              require-package!
              rest
-             return
              reverse
              reverse!
              round
