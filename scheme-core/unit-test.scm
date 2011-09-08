@@ -306,7 +306,7 @@
   (let ((test-filename (temporary-file-name "sct")))
     (with-port p (open-output-file test-filename :binary)
       (with-fasl-stream s p
-                        (fasl-write object s)))
+                        (fasl-write s object)))
     (let ((object ()))
       (when dump-fasl-file?
         (system (format #f "../vm/fasl-dump ~a" test-filename)))

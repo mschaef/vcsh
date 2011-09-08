@@ -333,19 +333,18 @@
   "Open a new FASL output stream targeting <port>."
   (make-fasl-stream :target-port port))
 
-(define (fasl-write object stream)
+(define (fasl-write stream object)
   "Write <object> to FASL stream <stream>.  Note that the object is not actually writen
    to the stream's target port until the stream itself is closed."
   (set-fasl-stream-objects-to-write! stream (cons object (fasl-stream-objects-to-write stream)))
   stream)
 
-(define (fasl-write-op fasl-opcode param-objects stream)
+(define (fasl-write-op stream fasl-opcode . params)
   "Writes an arbitrary FASL opcode, <fasl-opcode>, to FASL stream <stream>. The paramater
    objects in the list <param-objects>, are written to the FASL stream immediately after
    the opcode."
-  (fasl-write (make-fasl-op :fasl-opcode fasl-opcode
-                            :param-objects param-objects)
-	      stream))
+  (fasl-write stream (make-fasl-op :fasl-opcode fasl-opcode
+                                   :param-objects params)))
 
 (define (abort-fasl-writes stream)
   "Aborts all pending writes to <stream> since the stream was opened
