@@ -323,8 +323,7 @@
 
 (define-structure fasl-stream
   target-port
-  (objects-to-write :default ())
-  visited-objects)
+  (objects-to-write :default ()))
 
 (define-structure fasl-op
   fasl-opcode
@@ -332,9 +331,7 @@
 
 (define (open-fasl-output-stream port)
   "Open a new FASL output stream targeting <port>."
-  (make-fasl-stream
-   :target-port port
-   :visited-objects (make-hash :eq)))
+  (make-fasl-stream :target-port port))
 
 (define (fasl-write object stream)
   "Write <object> to FASL stream <stream>.  Note that the object is not actually writen
@@ -346,9 +343,8 @@
   "Writes an arbitrary FASL opcode, <fasl-opcode>, to FASL stream <stream>. The paramater
    objects in the list <param-objects>, are written to the FASL stream immediately after
    the opcode."
-  (fasl-write (make-fasl-op
-               :fasl-opcode fasl-opcode
-               :param-objects param-objects)
+  (fasl-write (make-fasl-op :fasl-opcode fasl-opcode
+                            :param-objects param-objects)
 	      stream))
 
 (define (abort-fasl-writes stream)
@@ -360,13 +356,7 @@
 (define (commit-fasl-writes stream)
   "Commits FASL stream <stream>. This is the FASL stream operation that actually
    writes the stream's content's to the target port."
-  (let ((shared-structure-table (shared-structures (fasl-stream-objects-to-write stream)))
-        (index 0))
-
-    (define (fasl-index< x y)
-      (cond ((not x) (fasl-index< -1 y))
-            ((not y) (fasl-index< x -1))
-            (#t (< x y))))
+  (let ((shared-structure-table (shared-structures (fasl-stream-objects-to-write stream))))
 
     (hash-set! shared-structure-table *fasl-index-key* 0)
     (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (fasl-stream-target-port stream))
