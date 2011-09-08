@@ -23,8 +23,6 @@
 
 ;; REVISIT: The API design for the FASL writer is pretty confusing.
 
-(define *fasl-write-check-structure-sharing* #t)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; fast-*
 
@@ -302,8 +300,7 @@
                   (dolist (op-piece (scheme::%fast-op-args o))
                     (visit op-piece)))
                  (#t
-                  ()
-                  ))))))
+                  ()))))))
     (let ((table (make-hash :eq)))
       (dohash (k v visited-objects (hash-set! (hash-set! table *fasl-structure-layout-key*
                                                          visited-layouts)
@@ -363,26 +360,16 @@
 (define (commit-fasl-writes stream)
   "Commits FASL stream <stream>. This is the FASL stream operation that actually
    writes the stream's content's to the target port."
-  (let ((shared-structure-table (if *fasl-write-check-structure-sharing*
-				    (shared-structures (fasl-stream-objects-to-write stream))
-				    #f))
-	(index 0))
+  (let ((shared-structure-table (shared-structures (fasl-stream-objects-to-write stream)))
+        (index 0))
 
     (define (fasl-index< x y)
       (cond ((not x) (fasl-index< -1 y))
-	    ((not y) (fasl-index< x -1))
-	    (#t (< x y))))
-
-    (define (display-shared-structures)
-      (format (current-error-port) "\n\nShared Object Indices\n--------------------------------\n")
-      (dolist (obj/index (qsort (hash->a-list shared-structure-table) fasl-index< cdr))
-	(format (current-error-port) "~a: ~a\n" (cdr obj/index) (car obj/index)))
-      (newline))
+            ((not y) (fasl-index< x -1))
+            (#t (< x y))))
 
     (hash-set! shared-structure-table *fasl-index-key* 0)
-
-    (when *fasl-write-check-structure-sharing*
-      (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (fasl-stream-target-port stream)))
+    (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (fasl-stream-target-port stream))
 
     (dolist (obj (reverse (fasl-stream-objects-to-write stream)))
       (cond ((fasl-op? obj)
@@ -407,5 +394,3 @@
     `(with-port ,port-sym (open-output-file ,filename :binary)
        (with-fasl-stream ,s ,port-sym
            ,@code))))
-
-(define close-fasl-stream commit-fasl-writes)

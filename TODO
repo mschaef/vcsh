@@ -3,6 +3,7 @@ vcsh TODO
 
 0.7 - Short-term Performance
 --------
+* Clean up calling conventions in fasl-write
 * Switch Lisp stack to lref_t's
 * Move argument buffers onto Lisp stack
 * Add FOP's for looping, etc. Switch loop forms to FOPs
