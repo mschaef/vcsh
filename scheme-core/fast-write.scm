@@ -14,18 +14,65 @@
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (ensure-package! "compiler"))
 
-(define (fast-write-float value port)
-  (write-binary-flonum value port))
-
-(define (fast-write-integer value length signed port)
-  (write-binary-fixnum value length signed port))
-
-(define (fast-write-characters value port)
-  (write-binary-string value port))
-
-(define (fast-write-opcode code port)
+(defmacro (fast-write-opcode code port)
   "Writes a type code <code> to <port>."
-  (fast-write-integer code 1 #f port))
+  `(write-binary-fixnum ,code 1 #f ,port))
+
+(define (shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
+  "Returns an identity hash of all objects referenced by <object>
+   more than once. This includes both circular and shared structure. The
+   value associated with each hash is #f."
+  (let ((visited-objects (make-hash :eq))
+        (visited-layouts (make-hash :eq)))
+    (let visit ((o object))
+      (unless (%immediate? o) ; Ignore immediates, they're shared by definition
+        (cond ((hash-has? visited-objects o)
+               (hash-set! visited-objects o #t))
+              (#t
+               (hash-set! visited-objects o #f)
+               (case (%representation-of o)
+                 ((closure)
+                  (visit (%closure-code o))
+                  (visit (%closure-env o))
+                  (visit (%property-list o)))
+                 ((macro)
+                  (visit (%macro-transformer o)))
+                 ((cons)
+                  (visit (car o))
+                  (visit (cdr o)))
+                 ((symbol)
+                  (visit (symbol-package o))
+                  (visit (symbol-name o)))
+                 ((vector)
+                  (dolist (x o)
+                    (visit x)))
+                 ((structure)
+                  (hash-set! visited-layouts (%structure-layout o) #f)
+                  (dotimes (ii (%structure-length o))
+                    (visit (%structure-ref o ii))))
+                 ((instance)
+                  (visit (%instance-proto o))
+                  (visit (%instance-map o))
+                  (dolist (slot-name (direct-instance-slots o))
+                    (visit slot-name)
+                    (visit (slot-ref o slot-name))))
+                 ((hash)
+                  (dolist (k/v (hash->a-list o))
+                    (visit (car k/v))
+                    (visit (cdr k/v))))
+                 ((fast-op)
+                  (dolist (op-piece (scheme::%fast-op-args o))
+                    (visit op-piece)))
+                 (#t
+                  ()))))))
+
+    (let ((shared-object-map (make-hash :eq)))
+      (dohash (object shared? visited-objects)
+        (when shared?
+          (hash-set! shared-object-map object #f)))
+      (hash-set! shared-object-map *fasl-structure-layout-key* visited-layouts)
+      (hash-set! shared-object-map *fasl-index-key* 0)
+      shared-object-map)))
 
 ;; Note: these next symbols are generated at load/compile time, and used by the
 ;; FASL writer to keep track of shared object indices and a table of shared
@@ -127,7 +174,7 @@
 
       ((character)
        (fast-write-opcode system::FASL_OP_CHARACTER port)
-       (fast-write-integer (char->integer object) 1 #f port))
+       (write-binary-fixnum (char->integer object) 1 #f port))
 
       ((cons)
        (mvbind (len dotted?) (length-excluding-shared object shared-structure-table)
@@ -144,30 +191,30 @@
        (cond
         ((and (>= object -128) (<= object 127))
          (fast-write-opcode system::FASL_OP_FIX8 port)
-         (fast-write-integer object 1 #t port))
+         (write-binary-fixnum object 1 #t port))
         ((and (>= object -32768) (<= object 32767))
          (fast-write-opcode system::FASL_OP_FIX16 port)
-         (fast-write-integer object 2 #t port))
+         (write-binary-fixnum object 2 #t port))
         ((and (>= object -2147483648) (<= object 2147483647))
          (fast-write-opcode system::FASL_OP_FIX32 port)
-         (fast-write-integer object 4 #t port))
+         (write-binary-fixnum object 4 #t port))
         (#t
          (fast-write-opcode system::FASL_OP_FIX64 port)
-         (fast-write-integer object 8 #t port))))
+         (write-binary-fixnum object 8 #t port))))
 
       ((flonum)
        (fast-write-opcode system::FASL_OP_FLOAT port)
-       (fast-write-float object port))
+       (write-binary-flonum object port))
 
       ((complex)
        (fast-write-opcode system::FASL_OP_COMPLEX port)
-       (fast-write-float (real-part object) port)
-       (fast-write-float (imag-part object) port))
+       (write-binary-flonum (real-part object) port)
+       (write-binary-flonum (imag-part object) port))
 
       ((string)
        (fast-write-opcode system::FASL_OP_STRING port)
        (check-sharing-and-write (length object))
-       (fast-write-characters object port))
+       (write-binary-string object port))
 
       ((package)
        (fast-write-opcode system::FASL_OP_PACKAGE port)
@@ -233,60 +280,6 @@
        (error "fast-write of unsupported type ~a : ~s" (%representation-of object) object))))
 
   (check-sharing-and-write object))
-
-(define (shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
-  "Returns an identity hash of all objects referenced by <object>
-   more than once. This includes both circular and shared structure. The
-   value associated with each hash is #f."
-  (let ((visited-objects (make-hash :eq))
-        (visited-layouts (make-hash :eq)))
-    (let visit ((o object))
-      (unless (%immediate? o) ; Ignore immediates, they're shared by definition
-        (cond ((hash-has? visited-objects o)
-               (hash-set! visited-objects o #t))
-              (#t
-               (hash-set! visited-objects o #f)
-               (case (%representation-of o)
-                 ((closure)
-                  (visit (%closure-code o))
-                  (visit (%closure-env o))
-                  (visit (%property-list o)))
-                 ((macro)
-                  (visit (%macro-transformer o)))
-                 ((cons)
-                  (visit (car o))
-                  (visit (cdr o)))
-                 ((symbol)
-                  (visit (symbol-package o))
-                  (visit (symbol-name o)))
-                 ((vector)
-                  (dolist (x o)
-                    (visit x)))
-                 ((structure)
-                  (hash-set! visited-layouts (%structure-layout o) #f)
-                  (dotimes (ii (%structure-length o))
-                    (visit (%structure-ref o ii))))
-                 ((instance)
-                  (visit (%instance-proto o))
-                  (visit (%instance-map o))
-                  (dolist (slot-name (direct-instance-slots o))
-                    (visit slot-name)
-                    (visit (slot-ref o slot-name))))
-                 ((hash)
-                  (dolist (k/v (hash->a-list o))
-                    (visit (car k/v))
-                    (visit (cdr k/v))))
-                 ((fast-op)
-                  (dolist (op-piece (scheme::%fast-op-args o))
-                    (visit op-piece)))
-                 (#t
-                  ()))))))
-    (let ((table (make-hash :eq)))
-      (dohash (k v visited-objects (hash-set! (hash-set! table *fasl-structure-layout-key*
-                                                         visited-layouts)
-                                              *fasl-index-key* 0))
-          (when v
-            (hash-set! table k #f))))))
 
 (define (fast-write/ignore-sharing object port)
   "Writes <object> to <port> in FASL format. No attempt is made to preserve
