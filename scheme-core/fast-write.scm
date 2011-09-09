@@ -1,7 +1,7 @@
 
-;;;; fasl-write.scm --
+;;;; fast-write.scm --
 ;;;;
-;;;; FASL object writer.
+;;;; Fast Load object writer
 ;;;;
 ;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
 ;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
@@ -10,21 +10,9 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-;; FASL Object Writer - Writes objects in FASL format. FASL format
-;; represents objects with a  one byte type code followed by a number
-;;  of data bytes that varies based on the type of the object. There
-;; are two layers to this package: ;; fast-* and fasl-*.  fast-*
-;; routines are low level routines that encode objects in binary form,
-;; but do not handle shared or circular structures, which can send them
-;;  into an infinite loop.  The fasl-* layer is a higher layer set of
-;; routines, built on fast-*, that are used to generate FASL files.
-;; These routines detect circularity and shared structure and generate
-;; SET/REF opcodes to reconstruct it at load-time.
-
-;; REVISIT: The API design for the FASL writer is pretty confusing.
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; fast-*
+;; Need this to support forward reference to compiler::parse-fast-op
+(eval-when (:load-toplevel :compile-toplevel :execute)
+  (ensure-package! "compiler"))
 
 (define (fast-write-float value port)
   (write-binary-flonum value port))
@@ -39,7 +27,6 @@
   "Writes a type code <code> to <port>."
   (fast-write-integer code 1 #f port))
 
-
 ;; Note: these next symbols are generated at load/compile time, and used by the
 ;; FASL writer to keep track of shared object indices and a table of shared
 ;; structure layout information.  There is a possibility that when this file,
@@ -49,11 +36,6 @@
 
 (define *fasl-index-key* (gensym "fasl-index-key"))
 (define *fasl-structure-layout-key* (gensym "fasl-structure-layout-key"))
-
-;; Need this to support forward reference to compiler::parse-fast-op
-(eval-when (:load-toplevel :compile-toplevel :execute)
-  (ensure-package! "compiler"))
-
 
 (define (fast-write-using-shared-structure-table object port shared-structure-table)
   "Writes <object> on <port> in FASL format. <shared-structure-table> is a hash table
@@ -252,8 +234,6 @@
 
   (check-sharing-and-write object))
 
-;;;; fasl-*
-
 (define (shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
   "Returns an identity hash of all objects referenced by <object>
    more than once. This includes both circular and shared structure. The
@@ -318,68 +298,3 @@
   "Writes <object> to <port> in FASL format."
   (fast-write-using-shared-structure-table object port (shared-structures object)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; FASL Layer
-
-(define-structure fasl-stream
-  target-port
-  (objects-to-write :default ()))
-
-(define-structure fasl-op
-  fasl-opcode
-  param-objects)
-
-(define (open-fasl-output-stream port)
-  "Open a new FASL output stream targeting <port>."
-  (make-fasl-stream :target-port port))
-
-(define (fasl-write stream object)
-  "Write <object> to FASL stream <stream>.  Note that the object is not actually writen
-   to the stream's target port until the stream itself is closed."
-  (set-fasl-stream-objects-to-write! stream (cons object (fasl-stream-objects-to-write stream)))
-  stream)
-
-(define (fasl-write-op stream fasl-opcode . params)
-  "Writes an arbitrary FASL opcode, <fasl-opcode>, to FASL stream <stream>. The paramater
-   objects in the list <param-objects>, are written to the FASL stream immediately after
-   the opcode."
-  (fasl-write stream (make-fasl-op :fasl-opcode fasl-opcode
-                                   :param-objects params)))
-
-(define (abort-fasl-writes stream)
-  "Aborts all pending writes to <stream> since the stream was opened
-   or last committed."
-  (set-fasl-stream-objects-to-write! stream ())
-  ())
-
-(define (commit-fasl-writes stream)
-  "Commits FASL stream <stream>. This is the FASL stream operation that actually
-   writes the stream's content's to the target port."
-  (let ((shared-structure-table (shared-structures (fasl-stream-objects-to-write stream))))
-
-    (hash-set! shared-structure-table *fasl-index-key* 0)
-    (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (fasl-stream-target-port stream))
-
-    (dolist (obj (reverse (fasl-stream-objects-to-write stream)))
-      (cond ((fasl-op? obj)
-             (fast-write-opcode (fasl-op-fasl-opcode obj) (fasl-stream-target-port stream))
-             (dolist (obj (fasl-op-param-objects obj))
-               (fast-write-using-shared-structure-table obj
-                                                        (fasl-stream-target-port stream)
-                                                        shared-structure-table)))
-            (#t
-             (fast-write-using-shared-structure-table obj (fasl-stream-target-port stream)
-                                                      shared-structure-table))))
-    stream))
-
-(defmacro (with-fasl-stream s port . code)
-  `(let ((,s (open-fasl-output-stream ,port)))
-     (unwind-protect
-      (lambda () ,@code)
-      (lambda () (commit-fasl-writes ,s)))))
-
-(defmacro (with-fasl-file s filename . code)
-  (with-gensyms (port-sym)
-    `(with-port ,port-sym (open-output-file ,filename :binary)
-       (with-fasl-stream ,s ,port-sym
-           ,@code))))
