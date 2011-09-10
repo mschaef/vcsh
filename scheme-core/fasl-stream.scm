@@ -44,9 +44,8 @@
 (define (commit-fasl-writes stream)
   "Commits FASL stream <stream>. This is the FASL stream operation that actually
    writes the stream's content's to the target port."
-  (let ((shared-structure-table (shared-structures (fasl-stream-objects-to-write stream))))
+  (let ((shared-structure-table (find-shared-structures (fasl-stream-objects-to-write stream))))
 
-    (hash-set! shared-structure-table *fasl-index-key* 0)
     (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (fasl-stream-target-port stream))
 
     (dolist (obj (reverse (fasl-stream-objects-to-write stream)))

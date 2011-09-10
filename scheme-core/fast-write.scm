@@ -18,7 +18,12 @@
   "Writes a type code <code> to <port>."
   `(write-binary-fixnum ,code 1 #f ,port))
 
-(define (shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
+(define-structure sharing-map
+  (indicies :default (make-hash :eq))
+  (next-index :default 0)
+  (structure-layouts :default (make-hash :eq)))
+
+(define (find-shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
   "Returns an identity hash of all objects referenced by <object>
    more than once. This includes both circular and shared structure. The
    value associated with each hash is #f."
@@ -66,13 +71,11 @@
                  (#t
                   ()))))))
 
-    (let ((shared-object-map (make-hash :eq)))
+    (let ((smap (make-sharing-map :structure-layouts visited-layouts)))
       (dohash (object shared? visited-objects)
         (when shared?
-          (hash-set! shared-object-map object #f)))
-      (hash-set! shared-object-map *fasl-structure-layout-key* visited-layouts)
-      (hash-set! shared-object-map *fasl-index-key* 0)
-      shared-object-map)))
+          (hash-set! (sharing-map-indicies smap) object #f)))
+      smap)))
 
 ;; Note: these next symbols are generated at load/compile time, and used by the
 ;; FASL writer to keep track of shared object indices and a table of shared
@@ -84,21 +87,21 @@
 (define *fasl-index-key* (gensym "fasl-index-key"))
 (define *fasl-structure-layout-key* (gensym "fasl-structure-layout-key"))
 
-(define (fast-write-using-shared-structure-table object port shared-structure-table)
-  "Writes <object> on <port> in FASL format. <shared-structure-table> is a hash table
+(define (fast-write-using-shared-structure-table object port smap)
+  "Writes <object> on <port> in FASL format. <smap> is a hash table
   `mapping shared objects to object IDs.  It is used to avoid writing shared
-   objects (including circular references) more than once. <shared-structure-table> can
+   objects (including circular references) more than once. <smap> can
    also be #f, which disables shared structure detection. In this case, this
    function will not terminate when passed a circular structure."
 
   (define (length-excluding-shared xs)
     "Returns the length of the object <xs> and a boolean indicating if the
    measured list has a non-null final CDR. If <xs> is a list, it stops
-   counting if it encounters structures in the hash <shared-structure-table>,
+   counting if it encounters structures in the hash <smap>,
    other than the first instance of <xs> itself."
     (define (is-shared? object)
-      (and shared-structure-table
-           (hash-has? shared-structure-table object)))
+      (and smap
+           (hash-has? (sharing-map-indicies smap) object)))
     (if (pair? xs)
         (let loop ((len 1) (xs (cdr xs)))
           (if (or (atom? xs)
@@ -108,16 +111,16 @@
         (values (length xs) #f)))
 
   (define (check-sharing-and-write object)
-    (if (and shared-structure-table
-             (hash-has? shared-structure-table object))
-        (aif (hash-ref shared-structure-table object)
+    (if (and smap
+             (hash-has? (sharing-map-indicies smap) object))
+        (aif (hash-ref (sharing-map-indicies smap) object)
              (begin
                (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                (fast-write-object it))
              (begin
-               (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
-                 (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
-                 (hash-set! shared-structure-table object next-index)
+               (let ((next-index (sharing-map-next-index smap)))
+                 (set-sharing-map-next-index! smap (+ next-index 1))
+                 (hash-set! (sharing-map-indicies smap) object next-index)
                  (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                  (fast-write-object next-index)
                  (fast-write-object object))))
@@ -129,16 +132,16 @@
         (fast-write-opcode system::FASL_OP_INSTANCE_MAP port)
         (check-sharing-and-write (%instance-proto inst))
         (fast-write-object (direct-instance-slots inst)))
-      (if (and shared-structure-table
-               (hash-has? shared-structure-table inst-map))
-          (aif (hash-ref shared-structure-table inst-map)
+      (if (and smap
+               (hash-has? (sharing-map-indicies smap) inst-map))
+          (aif (hash-ref (sharing-map-indicies smap) inst-map)
                (begin
                  (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
-                 (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
-                   (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
-                   (hash-set! shared-structure-table inst-map next-index)
+                 (let ((next-index (sharing-map-next-index smap)))
+                   (set-sharing-map-next-index! smap (+ next-index 1))
+                   (hash-set! (sharing-map-indicies smap) inst-map next-index)
                    (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
                    (write-map))))
@@ -148,15 +151,15 @@
     (define (do-write)
       (fast-write-opcode system::FASL_OP_STRUCTURE_LAYOUT port)
       (check-sharing-and-write layout))
-    (if shared-structure-table
-        (let ((layout-table (hash-ref shared-structure-table  *fasl-structure-layout-key*)))
+    (if smap
+        (let ((layout-table (sharing-map-structure-layouts smap)))
           (aif (hash-ref layout-table layout)
                (begin
                  (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
-                 (let ((next-index (hash-ref shared-structure-table *fasl-index-key*)))
-                   (hash-set! shared-structure-table *fasl-index-key* (+ next-index 1))
+                 (let ((next-index (sharing-map-next-index smap)))
+                   (set-sharing-map-next-index! smap (+ next-index 1))
                    (hash-set! layout-table layout next-index)
                    (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
@@ -177,7 +180,7 @@
        (write-binary-fixnum (char->integer object) 1 #f port))
 
       ((cons)
-       (mvbind (len dotted?) (length-excluding-shared object shared-structure-table)
+       (mvbind (len dotted?) (length-excluding-shared object smap)
          (fast-write-opcode (if dotted? system::FASL_OP_LISTD system::FASL_OP_LIST) port)
          (check-sharing-and-write len)
          (let loop ((i 0) (xs object))
@@ -289,5 +292,5 @@
 
 (define (fast-write object port)
   "Writes <object> to <port> in FASL format."
-  (fast-write-using-shared-structure-table object port (shared-structures object)))
+  (fast-write-using-shared-structure-table object port (find-shared-structures object)))
 
