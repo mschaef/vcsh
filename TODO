@@ -1,7 +1,11 @@
 vcsh TODO
 ================================
 
-0.7 - Short-term Performance
+0.7 - Fix Instances, Structures, and Generic Functions
+--------
+...
+
+0.8 - Short-term Performance
 --------
 * Clean up calling conventions in fasl-write
 * Switch Lisp stack to lref_t's
@@ -9,10 +13,6 @@ vcsh TODO
 * Add FOP's for looping, etc. Switch loop forms to FOPs
 * Switch to numeric-coordinate based lexical binding lookup
 * Add support for caching lexical frames on the lisp stack.
-
-0.8 - Fix Instances, Structures, and Generic Functions
---------
-...
 
 Later
 --------

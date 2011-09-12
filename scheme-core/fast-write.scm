@@ -77,16 +77,6 @@
           (hash-set! (sharing-map-indicies smap) object #f)))
       smap)))
 
-;; Note: these next symbols are generated at load/compile time, and used by the
-;; FASL writer to keep track of shared object indices and a table of shared
-;; structure layout information.  There is a possibility that when this file,
-;; fasl-write.scm, is itself compiled and FASL written, that the presence of
-;; this symbol in the output stream will cause the shared object index counter
-;; to be overwritten... Beware!
-
-(define *fasl-index-key* (gensym "fasl-index-key"))
-(define *fasl-structure-layout-key* (gensym "fasl-structure-layout-key"))
-
 (define (fast-write-using-shared-structure-table object port smap)
   "Writes <object> on <port> in FASL format. <smap> is a hash table
   `mapping shared objects to object IDs.  It is used to avoid writing shared
@@ -94,14 +84,20 @@
    also be #f, which disables shared structure detection. In this case, this
    function will not terminate when passed a circular structure."
 
+  (define (is-shared? object)
+    (and smap
+         (hash-has? (sharing-map-indicies smap) object)))
+
+  (define (get-next-index!)
+    (let ((next-index (sharing-map-next-index smap)))
+      (set-sharing-map-next-index! smap (+ next-index 1))
+      next-index))
+
   (define (length-excluding-shared xs)
     "Returns the length of the object <xs> and a boolean indicating if the
    measured list has a non-null final CDR. If <xs> is a list, it stops
    counting if it encounters structures in the hash <smap>,
    other than the first instance of <xs> itself."
-    (define (is-shared? object)
-      (and smap
-           (hash-has? (sharing-map-indicies smap) object)))
     (if (pair? xs)
         (let loop ((len 1) (xs (cdr xs)))
           (if (or (atom? xs)
@@ -110,21 +106,19 @@
               (loop (+ len 1) (cdr xs))))
         (values (length xs) #f)))
 
-  (define (check-sharing-and-write object)
-    (if (and smap
-             (hash-has? (sharing-map-indicies smap) object))
+  (define (check-sharing-and-write object :optional (do-write fast-write-object))
+    (if (is-shared? object)
         (aif (hash-ref (sharing-map-indicies smap) object)
              (begin
                (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                (fast-write-object it))
              (begin
-               (let ((next-index (sharing-map-next-index smap)))
-                 (set-sharing-map-next-index! smap (+ next-index 1))
+               (let ((next-index (get-next-index!)))
                  (hash-set! (sharing-map-indicies smap) object next-index)
                  (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                  (fast-write-object next-index)
-                 (fast-write-object object))))
-        (fast-write-object object)))
+                 (do-write object))))
+        (do-write object)))
 
   (define (check-sharing-and-write-instance-map inst)
     (let ((inst-map (%instance-map inst)))
@@ -132,15 +126,13 @@
         (fast-write-opcode system::FASL_OP_INSTANCE_MAP port)
         (check-sharing-and-write (%instance-proto inst))
         (fast-write-object (direct-instance-slots inst)))
-      (if (and smap
-               (hash-has? (sharing-map-indicies smap) inst-map))
+      (if (is-shared? inst-map)
           (aif (hash-ref (sharing-map-indicies smap) inst-map)
                (begin
                  (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
-                 (let ((next-index (sharing-map-next-index smap)))
-                   (set-sharing-map-next-index! smap (+ next-index 1))
+                 (let ((next-index (get-next-index!)))
                    (hash-set! (sharing-map-indicies smap) inst-map next-index)
                    (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
@@ -158,8 +150,7 @@
                  (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                  (fast-write-object it))
                (begin
-                 (let ((next-index (sharing-map-next-index smap)))
-                   (set-sharing-map-next-index! smap (+ next-index 1))
+                 (let ((next-index (get-next-index!)))
                    (hash-set! layout-table layout next-index)
                    (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                    (fast-write-object next-index)
