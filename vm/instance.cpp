@@ -116,37 +116,4 @@ lref_t lislot_set(lref_t inst, lref_t key, lref_t value)
      return inst;
 }
 
-bool init_slots(lref_t obj, lref_t initargs, bool names_must_be_symbols)    /*  REVISIT: should true really mean fail? */
-{
-     /* initargs takes the form of a property list:
-      *
-      * ( name1 value1 name2 value2 ...)
-      */
-     while (!NULLP(initargs))
-     {
-          if (!CONSP(initargs))
-               return true;
-
-          if (!CONSP(CDR(initargs)))
-               return true;
-
-          lref_t name = CAR(initargs);
-          lref_t value = CAR(CDR(initargs));
-
-          if (names_must_be_symbols && !SYMBOLP(name))
-               return true;
-
-          if (INSTANCEP(obj))
-               lislot_set(obj, name, value);
-          else if (HASHP(obj))
-               lhash_set(obj, name, value);
-          else
-               vmerror_wrong_type(1, obj);
-
-          initargs = CDR(CDR(initargs));
-     }
-
-     return false;
-}
-
 END_NAMESPACE

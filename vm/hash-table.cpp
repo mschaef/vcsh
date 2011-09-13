@@ -591,6 +591,38 @@ lref_t lihash_binding_vector(lref_t hash)
      return btable;
 }
 
+
+static bool init_slots(lref_t obj, lref_t initargs)
+{
+     if (!HASHP(obj))
+          vmerror_wrong_type(1, obj);
+
+     /* initargs takes the form of a property list:
+      *
+      * ( name1 value1 name2 value2 ...)
+      */
+     while (!NULLP(initargs))
+     {
+          if (!CONSP(initargs))
+               return true;
+
+          if (!CONSP(CDR(initargs)))
+               return true;
+
+          lref_t name = CAR(initargs);
+          lref_t value = CAR(CDR(initargs));
+
+          if (!SYMBOLP(name))
+               return true;
+
+          lhash_set(obj, name, value);
+
+          initargs = CDR(CDR(initargs));
+     }
+
+     return false;
+}
+
 lref_t llist2hash(lref_t obj)
 {
      if (!(CONSP(obj) || NULLP(obj)))
@@ -601,7 +633,7 @@ lref_t llist2hash(lref_t obj)
 
      lref_t hash = lmake_hash(key_type);
 
-     if (init_slots(hash, bindings, false))     /*  REVISIT: should this really be init_slots? */
+     if (init_slots(hash, bindings))
           vmerror_arg_out_of_range(bindings, _T("Invalid hash binding"));
 
      return hash;

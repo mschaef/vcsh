@@ -205,8 +205,6 @@ void init_stdio_ports();
 
 /**** Structure/Instance ****/
 
-bool init_slots(lref_t obj, lref_t initargs, bool names_must_be_symbols);
-
 void port_gc_free(lref_t port);
 lref_t port_gc_mark(lref_t obj);
 
