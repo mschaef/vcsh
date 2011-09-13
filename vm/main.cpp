@@ -268,9 +268,7 @@ static void register_main_subrs()
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
     register_subr(_T("%instancecons"),                    SUBR_1,     (void*)liinstancecons                      );
-    register_subr(_T("%instance-map"),                    SUBR_1,     (void*)liinstance_map                      );
     register_subr(_T("%instance-proto"),                  SUBR_1,     (void*)liinstance_proto                    );
-    register_subr(_T("%instance-slots"),                  SUBR_1,     (void*)liinstance_slots                    );
     register_subr(_T("%internal-files"),                  SUBR_0,     (void*)liinternal_files                    );
     register_subr(_T("%list->values"),                    SUBR_1,     (void*)lvalues                             );
     register_subr(_T("%macro-transformer"),               SUBR_1,     (void*)lmacro_transformer                  );
@@ -356,7 +354,6 @@ static void register_main_subrs()
     register_subr(_T("char?"),                            SUBR_1,     (void*)lcharp                              );
     register_subr(_T("character->string"),                SUBR_1,     (void*)lcharacter2string                   );
     register_subr(_T("clone-c-data-port"),                SUBR_1,     (void*)lclone_c_data_port                  );
-    register_subr(_T("clone-instance"),                   SUBR_1,     (void*)lclone_instance                     );
     register_subr(_T("close-port"),                       SUBR_1,     (void*)lclose_port                         );
     register_subr(_T("closure?"),                         SUBR_1,     (void*)lclosurep                           );
     register_subr(_T("complex?"),                         SUBR_1,     (void*)lcomplexp                           );
@@ -414,7 +411,6 @@ static void register_main_subrs()
     register_subr(_T("macro?"),                           SUBR_1,     (void*)lmacrop                             );
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
     register_subr(_T("make-hash"),                        SUBR_1,     (void*)lmake_hash                          );
-    register_subr(_T("make-instance"),                    SUBR_N,     (void*)lmake_instance                      );
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );
     register_subr(_T("make-vector"),                      SUBR_2,     (void*)lmake_vector                        );
@@ -459,7 +455,6 @@ static void register_main_subrs()
     register_subr(_T("rich-write"),                       SUBR_3,     (void*)lrich_write                         );
     register_subr(_T("round"),                            SUBR_1,     (void*)lround                              );
     register_subr(_T("runtime"),                          SUBR_0,     (void*)lruntime                            );
-    register_subr(_T("send"),                             SUBR_N,     (void*)lsend                               );
     register_subr(_T("set-car!"),                         SUBR_2,     (void*)lsetcar                             );
     register_subr(_T("set-cdr!"),                         SUBR_2,     (void*)lsetcdr                             );
     register_subr(_T("set-environment-variable!"),        SUBR_2,     (void*)lset_environment_variable           );

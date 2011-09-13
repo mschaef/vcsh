@@ -395,22 +395,21 @@ static void fast_read_instance_map(lref_t port, lref_t * new_instance)
 
 static void fast_read_instance(lref_t port, lref_t * instance)
 {
-     lref_t base_instance = NIL;
-     fast_read(port, &base_instance);
+     lref_t proto = NIL;
+     fast_read(port, &proto);
 
-     if (!INSTANCEP(base_instance))
-          vmerror_fast_read("Bad base instance.", port, base_instance);
+     if (!(INSTANCEP(proto) || SYMBOLP(proto)))
+          vmerror_fast_read("Bad instance proto.", port, proto);
 
-     *instance = lclone_instance(base_instance);
+     *instance = liinstancecons(proto);
 
-     lref_t vals;
-     fast_read(port, &vals);
+     lref_t slots;
+     fast_read(port, &slots);
 
-     for (size_t ii = 1; CONSP(vals); ii++, vals = CDR(vals))
-          SET_INSTANCE_ELEM(*instance, ii, CAR(vals));
+     if (!HASHP(slots))
+          vmerror_fast_read("Bad instance slots.", port, slots);
 
-     if (!NULLP(vals))
-          vmerror_fast_read("Bad slot value list, must be a proper list.", port, vals);
+     SET_INSTANCE_PROTO(*instance, slots);
 }
 
 static void fast_read_hash(lref_t port, lref_t * hash)

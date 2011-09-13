@@ -209,9 +209,8 @@ struct lobject_t
           } vector;
           struct
           {
-               lref_t _map;
-               size_t _dim;
-               lref_t *_data;
+               lref_t _proto;
+               lref_t _slots;
           } instance;
           struct
           {
@@ -1037,66 +1036,29 @@ INLINE hash_entry_t *SET_HASH_DATA(lref_t obj, hash_entry_t * data)
 }
 
 /*** instance ***/
-INLINE lref_t INSTANCE_MAP(lref_t obj)
-{
-     checked_assert(INSTANCEP(obj));
-     return ((obj)->storage_as.instance._map);
-}
-
-INLINE void SET_INSTANCE_MAP(lref_t obj, lref_t map)
-{
-     checked_assert(INSTANCEP(obj));
-     ((obj)->storage_as.instance._map) = map;
-}
-
-INLINE size_t INSTANCE_DIM(lref_t obj)
-{
-     checked_assert(INSTANCEP(obj));
-     return ((obj)->storage_as.instance._dim);
-}
-
-INLINE void SET_INSTANCE_DIM(lref_t obj, size_t dim)
-{
-     checked_assert(INSTANCEP(obj));
-     ((obj)->storage_as.instance._dim) = dim;
-}
-
-INLINE lref_t *INSTANCE_DATA(lref_t obj)
-{
-     checked_assert(INSTANCEP(obj));
-     return ((obj)->storage_as.instance._data);
-}
-
-INLINE void SET_INSTANCE_DATA(lref_t obj, lref_t * data)
-{
-     checked_assert(INSTANCEP(obj));
-     ((obj)->storage_as.instance._data) = data;
-}
-
-INLINE lref_t INSTANCE_ELEM(lref_t obj, size_t index)
-{
-     checked_assert(INSTANCEP(obj));
-     assert(index < INSTANCE_DIM(obj));
-     return ((obj)->storage_as.instance._data)[index];
-}
-
-INLINE void SET_INSTANCE_ELEM(lref_t obj, size_t index, lref_t new_value)
-{
-     checked_assert(INSTANCEP(obj));
-     assert(index < INSTANCE_DIM(obj));
-     ((obj)->storage_as.instance._data)[index] = new_value;
-}
-
 INLINE lref_t INSTANCE_PROTO(lref_t obj)
 {
-     return INSTANCE_ELEM(obj, 0);
+     checked_assert(INSTANCEP(obj));
+     return ((obj)->storage_as.instance._proto);
 }
 
 INLINE void SET_INSTANCE_PROTO(lref_t obj, lref_t proto)
 {
-     SET_INSTANCE_ELEM(obj, 0, proto);
+     checked_assert(INSTANCEP(obj));
+     ((obj)->storage_as.instance._proto) = proto;
 }
 
+INLINE lref_t INSTANCE_SLOTS(lref_t obj)
+{
+     checked_assert(INSTANCEP(obj));
+     return ((obj)->storage_as.instance._slots);
+}
+
+INLINE void SET_INSTANCE_SLOTS(lref_t obj, lref_t slots)
+{
+     checked_assert(INSTANCEP(obj));
+     ((obj)->storage_as.instance._slots) = slots;
+}
 
 /*** port ***/
 enum port_mode_t

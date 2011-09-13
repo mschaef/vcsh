@@ -345,9 +345,8 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_INSTANCE:
-               gc_mark(INSTANCE_MAP(obj));
-               for (size_t jj = 0; jj < INSTANCE_DIM(obj); jj++)
-                    gc_mark(INSTANCE_ELEM(obj, jj));
+               gc_mark(INSTANCE_PROTO(obj));
+               obj = INSTANCE_SLOTS(obj);
                break;
 
           case TC_FAST_OP:
@@ -416,10 +415,6 @@ static void gc_clear_cell(lref_t obj)
 
      case TC_PORT:
           port_gc_free(obj);
-          break;
-
-     case TC_INSTANCE:
-          gc_free(INSTANCE_DATA(obj));
           break;
 
      case TC_GC_TRIP_WIRE:

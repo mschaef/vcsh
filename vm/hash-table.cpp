@@ -176,8 +176,8 @@ fixnum_t sxhash(lref_t obj)
           break;
 
      case TC_INSTANCE:
-          for (ii = 0; ii < INSTANCE_DIM(obj); ii++)
-               hash = HASH_COMBINE(hash, sxhash(INSTANCE_ELEM(obj, ii)));
+          hash = HASH_COMBINE(hash, sxhash(INSTANCE_PROTO(obj)));
+          hash = HASH_COMBINE(hash, sxhash(INSTANCE_SLOTS(obj)));
           break;
 
      case TC_HASH:

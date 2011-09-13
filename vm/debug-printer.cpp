@@ -217,11 +217,7 @@ static void debug_print_instance(lref_t obj, lref_t port, bool machine_readable)
 
      WRITE_TEXT_CONSTANT(_T(")"), port);
 
-     for (size_t ii = 0; ii < INSTANCE_DIM(obj); ii++)
-     {
-          WRITE_TEXT_CONSTANT(_T(" "), port);
-          debug_print_object(INSTANCE_ELEM(obj, ii), port, machine_readable);
-     }
+     debug_print_object(INSTANCE_SLOTS(obj), port, machine_readable);
 
      write_char('>', port);
 }
