@@ -373,7 +373,7 @@ static void fast_read_instance_map(lref_t port, lref_t * new_instance)
           vmerror_fast_read("Bad prototype instance, must be #f, a symbol, or an instance", port,
                           proto);
 
-     *new_instance = instancecons(proto);
+     *new_instance = liinstancecons(proto);
 
      lref_t slot_names = NIL;
      fast_read(port, &slot_names);

@@ -35,7 +35,7 @@ static void instance_reallocate_in_place(lref_t inst, size_t new_size)
      SET_INSTANCE_DATA(inst, new_data);
 }
 
-lref_t instancecons(lref_t proto)
+lref_t liinstancecons(lref_t proto)
 {
      lref_t z = new_cell(TC_INSTANCE);
 
@@ -132,7 +132,7 @@ lref_t lmake_instance(lref_t args)
      if (!(FALSEP(proto) || INSTANCEP(proto) || SYMBOLP(proto)))
           vmerror_wrong_type(1, proto);
 
-     lref_t new_instance = instancecons(proto);
+     lref_t new_instance = liinstancecons(proto);
 
      if (init_slots(new_instance, args, true))
           vmerror_arg_out_of_range(args, _T("bad instance initialization list"));

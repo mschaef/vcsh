@@ -267,6 +267,7 @@ static void register_main_subrs()
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
+    register_subr(_T("%instancecons"),                    SUBR_1,     (void*)liinstancecons                      );
     register_subr(_T("%instance-map"),                    SUBR_1,     (void*)liinstance_map                      );
     register_subr(_T("%instance-proto"),                  SUBR_1,     (void*)liinstance_proto                    );
     register_subr(_T("%instance-slots"),                  SUBR_1,     (void*)liinstance_slots                    );

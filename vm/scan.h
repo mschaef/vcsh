@@ -119,7 +119,7 @@ typedef size_t hash_iter_t;
 void hash_iter_begin(lref_t hash, hash_iter_t * iter);
 bool hash_iter_next(lref_t hash, hash_iter_t * iter, lref_t * key, lref_t * val);
 
-lref_t instancecons(lref_t proto);
+lref_t liinstancecons(lref_t proto);
 
 /**** Port I/O ****/
 

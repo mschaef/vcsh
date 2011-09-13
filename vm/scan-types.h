@@ -213,7 +213,6 @@ struct lobject_t
                size_t _dim;
                lref_t *_data;
           } instance;
-
           struct
           {
                port_class_t *_class;
@@ -236,7 +235,6 @@ struct lobject_t
                lref_t arg1;
                lref_t arg2;
           } fast_op;
-
           struct
           {
                size_t _mask;
@@ -248,7 +246,6 @@ struct lobject_t
                     unsigned int count:31;
                } info;
           } hash;
-
           struct
           {
                lref_t name;

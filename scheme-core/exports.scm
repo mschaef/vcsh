@@ -537,7 +537,6 @@
              make-composite-symbol
              make-filename
              make-hash
-             make-instance
              make-iterate-sequence-expansion
              make-list
              make-package!
