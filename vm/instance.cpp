@@ -17,9 +17,35 @@
 
 BEGIN_NAMESPACE(scan)
 
+static bool valid_proto_p(lref_t proto)
+{
+     return INSTANCEP(proto) || SYMBOLP(proto) || NULLP(proto);
+}
+
+static lref_t next_instance(lref_t proto)
+{
+     if (SYMBOLP(proto))
+     {
+          lref_t binding = SYMBOL_VCELL(proto);
+
+          if (UNBOUND_MARKER_P(binding))
+               vmerror_unbound(proto);
+
+          proto = binding;
+     }
+
+     if (NULLP(proto))
+          return NIL;
+
+     if (!INSTANCEP(proto))
+          vmerror_wrong_type(proto);
+
+     return proto;
+}
+
 lref_t liinstancecons(lref_t proto)
 {
-     if (!(INSTANCEP(proto) || SYMBOLP(proto) || FALSEP(proto)))
+     if (!valid_proto_p(proto))
           vmerror_wrong_type(1, proto);
 
      lref_t new_instance = new_cell(TC_INSTANCE);
@@ -73,8 +99,8 @@ lref_t liset_instance_proto(lref_t inst, lref_t new_proto)
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
 
-     if (!(INSTANCEP(new_proto) || SYMBOLP(new_proto)))
-          vmerror_wrong_type(1, new_proto);
+     if (!valid_proto_p(new_proto))
+          vmerror_wrong_type(2, new_proto);
 
      SET_INSTANCE_PROTO(inst, new_proto);
 
@@ -88,10 +114,15 @@ lref_t lislot_ref(lref_t inst, lref_t key)
 
      lref_t val = NIL;
 
-     if (!hash_ref(INSTANCE_SLOTS(inst), key, &val))
-          return boolcons(false);
+     while(INSTANCEP(inst))
+     {
+          if (hash_ref(INSTANCE_SLOTS(inst), key, &val))
+               return val;
 
-     return val;
+          inst = next_instance(inst);
+     }
+
+     return boolcons(false);
 }
 
 lref_t lhas_slotp(lref_t this_inst, lref_t key)
