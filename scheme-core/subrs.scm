@@ -143,7 +143,6 @@
 (%define gc-info #.(host-scheme::%subr-by-name "gc-info"))
 (%define gc-runtime #.(host-scheme::%subr-by-name "gc-runtime"))
 (%define get-output-string #.(host-scheme::%subr-by-name "get-output-string"))
-(%define has-slot? #.(host-scheme::%subr-by-name "has-slot?"))
 (%define hash->a-list #.(host-scheme::%subr-by-name "hash->a-list"))
 (%define hash->list #.(host-scheme::%subr-by-name "hash->list"))
 (%define hash-clear! #.(host-scheme::%subr-by-name "hash-clear!"))
