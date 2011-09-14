@@ -125,18 +125,6 @@ lref_t lislot_ref(lref_t inst, lref_t key)
      return boolcons(false);
 }
 
-lref_t lhas_slotp(lref_t this_inst, lref_t key)
-{
-     if (!INSTANCEP(this_inst))
-          vmerror_wrong_type(1, this_inst);
-
-     lref_t val = NIL;
-
-     bool has_slot = hash_ref(INSTANCE_SLOTS(this_inst), key, &val);
-
-     return boolcons(has_slot);
-}
-
 lref_t lislot_set(lref_t inst, lref_t key, lref_t value)
 {
      if (!INSTANCEP(inst))

@@ -265,7 +265,6 @@ lref_t lgc_status(lref_t new_gc_status);
 lref_t lget_current_frames(lref_t skip_count);
 lref_t lget_output_string(lref_t port);
 lref_t lhandler_frames();
-lref_t lhas_slotp(lref_t this_obj, lref_t key);
 lref_t lhash2alist(lref_t hash);
 lref_t lhash2list(lref_t hash);
 lref_t lhash_clear(lref_t hash);

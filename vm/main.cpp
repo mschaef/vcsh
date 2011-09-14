@@ -381,7 +381,6 @@ static void register_main_subrs()
     register_subr(_T("gc-info"),                          SUBR_0,     (void*)lgc_info                            );
     register_subr(_T("gc-runtime"),                       SUBR_0,     (void*)lgc_runtime                         );
     register_subr(_T("get-output-string"),                SUBR_1,     (void*)lget_output_string                  );
-    register_subr(_T("has-slot?"),                        SUBR_2,     (void*)lhas_slotp                          );
     register_subr(_T("hash->a-list"),                     SUBR_1,     (void*)lhash2alist                         );
     register_subr(_T("hash->list"),                       SUBR_1,     (void*)lhash2list                          );
     register_subr(_T("hash-clear!"),                      SUBR_1,     (void*)lhash_clear                         );
