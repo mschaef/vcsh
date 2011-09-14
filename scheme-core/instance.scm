@@ -119,9 +119,19 @@
    returns #f otherwise. An instance is deemed to understand a message if it contains
    a slot of that name and that slot is bound to a procedure of at least arity 1 (for
    the self argument)."
-  (and (instance-with-slot? obj message-name)
+  (and #f ;; TODO: interim measure
+       (instance-with-slot? obj message-name)
        (aand (slot-ref obj message-name)
              (procedure? it)
              (mvbind (arity rest?) (procedure-arity it)
                (> arity 0)))))
 
+(define (slot-ref instance key)
+  "Retrieves the value of the slot in <instance> named by <key>."
+  (aif (%find-slot-instance instance key)
+       (%slot-ref it key)
+       (error "Slot ~s not found in instance ~s" instance key)))
+
+(define (slot-set! instance key value)
+  "Updates the value of the slot in <instance> named by <key> to <value>."
+  (%slot-set! instance key value))

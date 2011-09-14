@@ -40,7 +40,7 @@ static lref_t next_instance(lref_t proto)
      if (!INSTANCEP(proto))
           vmerror_wrong_type(proto);
 
-     return proto;
+     return INSTANCE_PROTO(proto);
 }
 
 lref_t liinstancecons(lref_t proto)
