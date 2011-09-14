@@ -746,14 +746,14 @@
     (with-fasl-file os test-filename
       (account
        (bench-repeat 65536
-                     (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os))))
+                     (fasl-write os (make-benchmark-structure :f1 1 :f2 2 :f3 3)))))
     (delete-file test-filename)))
 
 (defbench structure/fasl-read
   (let ((test-filename (temporary-file-name "sct")))
     (with-fasl-file os test-filename
       (bench-repeat 65536
-                    (fasl-write (make-benchmark-structure :f1 1 :f2 2 :f3 3) os)))
+                    (fasl-write os (make-benchmark-structure :f1 1 :f2 2 :f3 3))))
     (account (fasl-load test-filename))
     (delete-file test-filename)))
 
