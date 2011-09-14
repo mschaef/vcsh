@@ -32,6 +32,7 @@
 (%define %immediate? #.(host-scheme::%subr-by-name "%immediate?"))
 (%define %instancecons #.(host-scheme::%subr-by-name "%instancecons"))
 (%define %instance-proto #.(host-scheme::%subr-by-name "%instance-proto"))
+(%define %instance-slots #.(host-scheme::%subr-by-name "%instance-slots"))
 (%define %internal-files #.(host-scheme::%subr-by-name "%internal-files"))
 (%define %list->values #.(host-scheme::%subr-by-name "%list->values"))
 (%define %macro-transformer #.(host-scheme::%subr-by-name "%macro-transformer"))

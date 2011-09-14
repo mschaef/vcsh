@@ -537,6 +537,7 @@
              make-composite-symbol
              make-filename
              make-hash
+             make-instance
              make-iterate-sequence-expansion
              make-list
              make-package!
@@ -739,7 +740,6 @@
              sleep
              slot-ref
              slot-set!
-             slots-ref
              span
              span!
              split-string

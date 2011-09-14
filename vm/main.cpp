@@ -270,6 +270,7 @@ static void register_main_subrs()
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
     register_subr(_T("%instancecons"),                    SUBR_1,     (void*)liinstancecons                      );
     register_subr(_T("%instance-proto"),                  SUBR_1,     (void*)liinstance_proto                    );
+    register_subr(_T("%instance-slots"),                  SUBR_1,     (void*)liinstance_slots                    );
     register_subr(_T("%internal-files"),                  SUBR_0,     (void*)liinternal_files                    );
     register_subr(_T("%list->values"),                    SUBR_1,     (void*)lvalues                             );
     register_subr(_T("%macro-transformer"),               SUBR_1,     (void*)lmacro_transformer                  );

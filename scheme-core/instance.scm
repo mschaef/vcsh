@@ -20,10 +20,31 @@
   (%set-trap-handler! system::TRAP_MSG_NOT_UNDERSTOOD message-not-understood-handler)
   (%set-trap-handler! system::TRAP_PRIMITIVE_INSTANCE primitive-instance-handler))
 
+(define (has-slot? instance slot-name)
+  (if (%find-slot-instance instance slot-name)
+      instance
+      #f))
+
+(define (slot-ref instance key)
+  "Retrieves the value of the slot in <instance> named by <key>."
+  (aif (%find-slot-instance instance key)
+       (%slot-ref it key)
+       (error "Slot ~s not found in instance ~s" instance key)))
+
+(define (slot-set! instance key value)
+  "Updates the value of the slot in <instance> named by <key> to <value>."
+  (%slot-set! instance key value))
+
 (define (is-a? object type)
   "Determines if <object> is of the type specified by <type>."
   (cond ((symbol? type) (eq? (type-of object) type))
         (#t (error "Wrong type for type specifier: ~s" type))))
+
+(define (make-instance proto . slots)
+  (p-list-fold (lambda (slot-name slot-value instance)
+                 (slot-set! instance slot-name slot-value))
+               (%instancecons proto)
+               slots))
 
 (defmacro (define-proto proto-name . init-values)
   "Defines an object prototype. proto-name can be either a symbol naming the
@@ -66,23 +87,12 @@
                            (symbol-value proto-slot-value))
                           (#t
                            proto-slot-value))))
-    (unless (or (instance? prototype) (eq? prototype #f))
-      (error "Invalid prototype ~s for instance ~s." prototype instance))
-    prototype))
+    (and (not (null? prototype))
+         prototype)))
 
 (define (direct-instance-slots instance)
   "Returns a list of all slots directly defined in <instance>."
-  ;; This function makes the guarantee that instance slots are ordered
-  ;; in the list as they are ordered in the in-memory layout of the
-  ;; object. (This is also the same as the order in which they
-  ;; were ordered to the object). This guarantee is explicitly
-  ;; unmade to consumers of this function outside of the languauge
-  ;; itself: it's way too implementation-specific.
-  (let ((map-table (%instance-map instance)))
-    (qsort (hash-keys map-table)
-           <
-           #L(hash-ref map-table _))))
-
+  (hash-keys (%instance-slots instance)))
 
 (define (all-instance-slots instance)
   "Returns a list of all the slots available to <instance>, regardless of
@@ -106,7 +116,6 @@
    <instance>. If a slot is not found, it is returned as <default-value>."
  (map #L(slot-ref instance _ default-value) slots))
 
-
 (define (instance-with-slot? obj slot-name)
   "Determines if <obj> is an instance that contains a slot named <slot-name>. If it is,
    return a symbol indicating the type of slot, which will be either :local or :inherited.
@@ -119,19 +128,8 @@
    returns #f otherwise. An instance is deemed to understand a message if it contains
    a slot of that name and that slot is bound to a procedure of at least arity 1 (for
    the self argument)."
-  (and #f ;; TODO: interim measure
-       (instance-with-slot? obj message-name)
+  (and (instance-with-slot? obj message-name)
        (aand (slot-ref obj message-name)
              (procedure? it)
              (mvbind (arity rest?) (procedure-arity it)
                (> arity 0)))))
-
-(define (slot-ref instance key)
-  "Retrieves the value of the slot in <instance> named by <key>."
-  (aif (%find-slot-instance instance key)
-       (%slot-ref it key)
-       (error "Slot ~s not found in instance ~s" instance key)))
-
-(define (slot-set! instance key value)
-  "Updates the value of the slot in <instance> named by <key> to <value>."
-  (%slot-set! instance key value))
