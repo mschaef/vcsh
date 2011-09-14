@@ -107,7 +107,7 @@ lref_t liset_instance_proto(lref_t inst, lref_t new_proto)
      return inst;
 }
 
-lref_t lislot_ref(lref_t inst, lref_t key)
+lref_t lifind_slot_instance(lref_t inst, lref_t key)
 {
      if (!INSTANCEP(inst))
           vmerror_wrong_type(1, inst);
@@ -117,12 +117,25 @@ lref_t lislot_ref(lref_t inst, lref_t key)
      while(INSTANCEP(inst))
      {
           if (hash_ref(INSTANCE_SLOTS(inst), key, &val))
-               return val;
+               return inst;
 
           inst = next_instance(inst);
      }
 
      return boolcons(false);
+}
+
+lref_t lislot_ref(lref_t inst, lref_t key)
+{
+     if (!INSTANCEP(inst))
+          vmerror_wrong_type(1, inst);
+
+     lref_t val = NIL;
+
+     if (!hash_ref(INSTANCE_SLOTS(inst), key, &val))
+          vmerror_unbound(key);
+
+     return val;
 }
 
 lref_t lislot_set(lref_t inst, lref_t key, lref_t value)

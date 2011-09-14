@@ -285,6 +285,7 @@ lref_t lidefine_global(lref_t var, lref_t val);
 lref_t lidirectory(lref_t dirname, lref_t mode);
 lref_t lieee754_bits_to(lref_t x);
 lref_t lifile_details(lref_t path, lref_t existance_onlyp);
+lref_t lifind_slot_instance(lref_t inst, lref_t key);
 lref_t ligc_trip_wire();
 lref_t lihash_binding_vector(lref_t hash);
 lref_t liifasl_load(lref_t port);

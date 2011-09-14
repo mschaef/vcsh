@@ -263,6 +263,7 @@ static void register_main_subrs()
     register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
     register_subr(_T("%fast-op-next"),                    SUBR_1,     (void*)lfast_op_next                       );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
+    register_subr(_T("%find-slot-instance"),              SUBR_2,     (void*)lifind_slot_instance                );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
