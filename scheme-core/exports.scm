@@ -291,7 +291,7 @@
              define-structure
              define-text
              defmacro
-             defmesg
+             define-message
              delete
              delete!
              delete-file
@@ -563,7 +563,6 @@
              memv-index
              min
              minimal-alist
-             mlambda
              modified-julian-day->time-monotonic
              modified-julian-day->time-tai
              modified-julian-day->time-utc

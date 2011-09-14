@@ -67,20 +67,19 @@
                                   'class-name ',name
                                   ,@init-values))))
 
-(defmacro (mlambda args . body)
+(defmacro (message-lambda args . body)
   "Syntax for a lambda suitable for use as an instance message handler."
   `(lambda (self . ,args) ,@body))
 
-(defmacro (defmesg proto lambda-list . code)
+(defmacro (define-message proto lambda-list . code)
   (unless (and (pair? lambda-list)
                (symbol? (car lambda-list)))
-    (error "defmesg: invalid lambda-list: ~s" lambda-list))
+    (error "define-message: invalid lambda-list: ~s" lambda-list))
   `(slot-set! ,proto ',(car lambda-list)
-              (mlambda ,(cdr lambda-list) ,@code)))
+              (message-lambda ,(cdr lambda-list) ,@code)))
 
 (define (instance-proto instance)
-  "Returns the prototype instance of <instance>, #f if none. Throws an error
-   if the prototype is invalid."
+  "Returns the prototype instance of <instance>, #f if none."
   (check instance? instance)
   (let* ((proto-slot-value (%instance-proto instance))
          (prototype (cond ((symbol? proto-slot-value)
@@ -132,4 +131,5 @@
        (aand (slot-ref obj message-name)
              (procedure? it)
              (mvbind (arity rest?) (procedure-arity it)
-               (> arity 0)))))
+               (or (> arity 0)
+                   rest?)))))
