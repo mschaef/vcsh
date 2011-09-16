@@ -35,6 +35,11 @@
   "Updates the value of the slot in <instance> named by <key> to <value>."
   (%slot-set! instance key value))
 
+(define (send instance message . args)
+  (aif (%find-slot-instance instance message)
+       (apply (%slot-ref it message) instance args)
+       (error "Message ~s not understood by instance ~s" message instance)))
+
 (define (is-a? object type)
   "Determines if <object> is of the type specified by <type>."
   (cond ((symbol? type) (eq? (type-of object) type))
@@ -53,7 +58,7 @@
    identifying objects with the same class-name as the prototype"
   (define (parse-proto-name)
     (cond ((symbol? proto-name)
-           (values proto-name #f))
+           (values proto-name ()))
           ((and (list? proto-name) (length=2? proto-name))
            (values (first proto-name) (second proto-name)))
           (#t
