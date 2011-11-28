@@ -218,11 +218,7 @@ typedef char _TCHAR;
 
 BEGIN_NAMESPACE(scan)
 
-<<<<<<< HEAD
 #define SCAN_VERSION _T("SCAN 0.70.0") // TODO: This is really the VM version, not the scan version.
-=======
-#define SCAN_VERSION _T("SCAN 0.60.5") // TODO: This is VM version, not vcsh
->>>>>>> Update version.
 
 enum
 {
