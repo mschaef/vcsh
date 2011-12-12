@@ -1,104 +1,108 @@
-vcsh TODO
-================================
-
-0.7 - Fix Instances, Structures, and Generic Functions
---------
-...
-
-0.8 - Short-term Performance
---------
-* Clean up calling conventions in fasl-write
-* Switch Lisp stack to lref_t's
-* Move argument buffers onto Lisp stack
-* Add FOP's for looping, etc. Switch loop forms to FOPs
-* Switch to numeric-coordinate based lexical binding lookup
-* Add support for caching lexical frames on the lisp stack.
-
-Later
---------
-* Add test case coverage
-* Verify correct operation of directory tools on both *nix and Windows.
-* There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.
-* Add a compiler option that emits a cross reference file describing global references.
-* Remove boxed fixnums
-* Add bignums
-* Swich to a memory-size based heap sizing model rather than a segment-count based model.
-* Linear bytecode compiler
-* Complete complex arithmetic
-* FFI (SIOD-FFI?)
-* Statisics that pass statistical reference data sets
-* char-ci=?, etc. has _terrible_ memory characteristics (70-80 conses per call)
-* Incorporate some kind of regex library
-* convert %with-disabled-interrupts to functional form
-* should list-all-packages really be all-packages ?
-* define instead of define-method trashes the entire generic fn. Not too user-friendly. (define rollback history)
-* add define/global set! hook to invalidate generic fn caches on class graph changes
-* Ensure structures use vectors as storage for auto slots
-* Replace class graph with above network of symbol refs
-* Switch to Unicode character encoding
-* Add Unicode translation modes to character streams
-
-
-
-
-vcalc TODO
-================================
-* Deferred rendering of clipboard contents (set-clipboard-data takes a closure...)
-* Load global state command
-* List ops (nth, length,  map, for-each, every?, any?, sum, group-by, product, member, cons)
-* poly-line
-* set-graphics-clip
-* rename multiple-eval to repeat
-* Data set macro apply
-* dataset nth/mth column extract
-* Quick Register
-* find, assoc, filter, remove
-* Romberg Integration
-* Secant/Bisection Solver
-* Normal Distribution/Erf
-* (visit ...) in lisp
-* Flow-based text layout
-* Periodic Table of the Elements
-* TVM
-* IRR
-* NPV
-* Keymap refinements - Layered Modes
-* Custom menus
-* Decorationless window
-* 'Linger' message (sent if mouse stays put)
-* Bond Calculations
-* Depreciation
-* GCD/LCM/IsPrime/Factor
-* binary number bit width
-* Retarget default save file
-* Provide a way to update the display from Scheme code, guard for reentrancy
-* Switch to one scalable banner image
-* Add/Test fast-write/fast-read
-* needs to be a break facility to interrupt long calculations/evaluations
-* Interface freezes during long macro execution
-* Tip of the day defaults to off
-* Remove MFC
-* cord/rope implementation of strings
-* Read only symbol scoped bindings
-* Move evaluation code into leval
-* O(1) lexical binding lookup
-* Emacs bundles subr metadata with the subr itself, this is a _good_ idea
-* Start defining the interface to Scan more cleanly
-* get-window-image, get-desktop-image
-* Keyhelp window doesn't autoslide
-* interactive stack
-* Progress dialog box
-* Grid-dataset editor
-* Hyperbolic trig
-* >2 columns/dataset
-* named dataset columns
-* computed datset columns
-* dataset query/join
-* dataset XML export/import
-* infix expresion parser
-* tip of the day in main window
-* tool tips
-* lisp-name->c-name and vice-versa (see: dotty.scm)
-* conditional trace
+* vcsh
+** 0.7 - Fix Instances, Structures, and Generic Functions
+*** type-of does not allow instances to return anything other than instance
+*** scheme-core allows for default values from slot-ref, although lislot_ref doesn't support them.
+*** Add support for setting slots via @(inst slot-name) syntax
+*** Remove uses of structure
+**** compiler-fasm.scm:15:(define-structure fop-defn
+**** date-time.scm:233:(define-structure time
+**** date-time.scm:551:(define-structure date
+**** fasl-stream.scm:13:(define-structure fasl-stream
+**** fasl-stream.scm:17:(define-structure fasl-op
+**** fast-write.scm:21:(define-structure sharing-map
+**** inspect.scm:19:(define-structure inspect-ctx
+**** inspect.scm:25:(define-structure inspect-item
+**** iterate.scm:18:(define-structure iterate-sequence-expansion
+**** reader.scm:17:(define-structure syntax-table
+**** unit-test.scm:60:(define-structure test-case
+*** unit-test.scm:77:(define-structure test-failure
+** Backlog
+*** Clean up calling conventions in fasl-write
+*** Switch Lisp stack to lref_t's
+*** Move argument buffers onto Lisp stack
+*** Add FOP's for looping, etc. Switch loop forms to FOPs
+*** Switch to numeric-coordinate based lexical binding lookup
+*** Add support for caching lexical frames on the lisp stack.
+*** Split out character codec's from I/O in the io package.
+*** Add SHA-1 hash logic, preferably inside the VM, rather than in an outside library
+*** Add test case coverage
+*** Verify correct operation of directory tools on both *nix and Windows.
+*** There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.
+*** Add a compiler option that emits a cross reference file describing global references.
+*** Remove boxed fixnums
+*** Add bignums
+*** Swich to a memory-size based heap sizing model rather than a segment-count based model.
+*** Linear bytecode compiler
+*** Complete complex arithmetic
+*** FFI (SIOD-FFI?)
+*** Statisics that pass statistical reference data sets
+*** char-ci=?, etc. has _terrible_ memory characteristics (70-80 conses per call)
+*** Incorporate some kind of regex library
+*** convert %with-disabled-interrupts to functional form
+*** should list-all-packages really be all-packages ?
+*** define instead of define-method trashes the entire generic fn. Not too user-friendly. (define rollback history)
+*** add define/global set! hook to invalidate generic fn caches on class graph changes
+*** Ensure structures use vectors as storage for auto slots
+*** Replace class graph with above network of symbol refs
+*** Switch to Unicode character encoding
+*** Add Unicode translation modes to character streams
+* vcalc
+** Deferred rendering of clipboard contents (set-clipboard-data takes a closure...)
+** Load global state command
+** List ops (nth, length,  map, for-each, every?, any?, sum, group-by, product, member, cons)
+** poly-line
+** set-graphics-clip
+** rename multiple-eval to repeat
+** Data set macro apply
+** dataset nth/mth column extract
+** Quick Register
+** find, assoc, filter, remove
+** Romberg Integration
+** Secant/Bisection Solver
+** Normal Distribution/Erf
+** (visit ...) in lisp
+** Flow-based text layout
+** Periodic Table of the Elements
+** TVM
+** IRR
+** NPV
+** Keymap refinements - Layered Modes
+** Custom menus
+** Decorationless window
+** 'Linger' message (sent if mouse stays put)
+** Bond Calculations
+** Depreciation
+** GCD/LCM/IsPrime/Factor
+** binary number bit width
+** Retarget default save file
+** Provide a way to update the display from Scheme code, guard for reentrancy
+** Switch to one scalable banner image
+** Add/Test fast-write/fast-read
+** needs to be a break facility to interrupt long calculations/evaluations
+** Interface freezes during long macro execution
+** Tip of the day defaults to off
+** Remove MFC
+** cord/rope implementation of strings
+** Read only symbol scoped bindings
+** Move evaluation code into leval
+** O(1) lexical binding lookup
+** Emacs bundles subr metadata with the subr itself, this is a _good_ idea
+** Start defining the interface to Scan more cleanly
+** get-window-image, get-desktop-image
+** Keyhelp window doesn't autoslide
+** interactive stack
+** Progress dialog box
+** Grid-dataset editor
+** Hyperbolic trig
+** >2 columns/dataset
+** named dataset columns
+** computed datset columns
+** dataset query/join
+** dataset XML export/import
+** infix expresion parser
+** tip of the day in main window
+** tool tips
+** lisp-name->c-name and vice-versa (see: dotty.scm)
+** conditional trace
 
 
