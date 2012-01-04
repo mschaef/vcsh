@@ -609,13 +609,7 @@ static bool init_slots(lref_t obj, lref_t initargs)
           if (!CONSP(CDR(initargs)))
                return true;
 
-          lref_t name = CAR(initargs);
-          lref_t value = CAR(CDR(initargs));
-
-          if (!SYMBOLP(name))
-               return true;
-
-          lhash_set(obj, name, value);
+          lhash_set(obj, CAR(initargs), CAR(CDR(initargs)));
 
           initargs = CDR(CDR(initargs));
      }

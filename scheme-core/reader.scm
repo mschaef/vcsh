@@ -239,7 +239,9 @@
          (init-list (read-list port))
          (base-instance (car init-list))
          (init-args (cdr init-list)))
-    (unless (or (symbol? base-instance) (not base-instance) (instance? base-instance))
+    (unless (or (not base-instance)
+                (symbol? base-instance)
+                (instance? base-instance))
       (read-error :reader-bad-base-instance port instance-location))
     (apply make-instance base-instance init-args)))
 

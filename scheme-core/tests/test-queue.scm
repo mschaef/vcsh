@@ -2,7 +2,7 @@
 
 (define-test queue
   (test-case (runtime-error? (q-items :not-a-queue)))
-  (test-case (runtime-error? (q-enqueue! x :not-a-queue)))
+  (test-case (runtime-error? (q-enqueue! 'q :not-a-queue)))
   (test-case (runtime-error? (q-dequeue! :not-a-queue)))
   (test-case (runtime-error? (q-empty? :not-a-queue)))
 

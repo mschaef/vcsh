@@ -19,7 +19,7 @@ BEGIN_NAMESPACE(scan)
 
 static bool valid_proto_p(lref_t proto)
 {
-     return INSTANCEP(proto) || SYMBOLP(proto) || NULLP(proto);
+     return INSTANCEP(proto) || SYMBOLP(proto) || FALSEP(proto);
 }
 
 static lref_t next_instance(lref_t proto)
@@ -34,7 +34,7 @@ static lref_t next_instance(lref_t proto)
           proto = binding;
      }
 
-     if (NULLP(proto))
+     if (FALSEP(proto))
           return NIL;
 
      if (!INSTANCEP(proto))

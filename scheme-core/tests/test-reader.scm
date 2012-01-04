@@ -1,6 +1,7 @@
 (use-package! "unit-test")
 
 
+
 (define-test read
   (test-case (runtime-error? (read 12)))
   (test-case (runtime-error? (read (current-output-port) #f))))
@@ -244,7 +245,7 @@
 
 
 (define base-point
-  (let ((o (make-instance)))
+  (let ((o (make-instance #f)))
     (slot-set! o 'class-name 'base-point)
     (slot-set! o 't 'nothing-to-see-here)
     o))

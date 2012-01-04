@@ -18,7 +18,7 @@
     (test-case (eq? (has-slot? point-4 'x) :inherited))
     (test-case (eq? (has-slot? point-4 'not-there) #f))
 
-    (defmesg point-2 (r)
+    (define-message point-2 (r)
       (sqrt (+ (* @x @x) 
                (* @y @y))))
     

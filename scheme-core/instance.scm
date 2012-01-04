@@ -58,7 +58,7 @@
    identifying objects with the same class-name as the prototype"
   (define (parse-proto-name)
     (cond ((symbol? proto-name)
-           (values proto-name ()))
+           (values proto-name #f))
           ((and (list? proto-name) (length=2? proto-name))
            (values (first proto-name) (second proto-name)))
           (#t
@@ -110,7 +110,7 @@
   "Returns a copy of <instance> with a flattened prototype chain. The returned
    instance has no protoype and has a local binding for each slot visible in
    <instance>."
- (let ((new-instance (make-instance)))
+ (let ((new-instance (make-instance #f)))
    (dolist (slot (all-instance-slots instance))
      (slot-set! new-instance slot (slot-ref instance slot)))
    new-instance))
