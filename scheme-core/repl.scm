@@ -142,9 +142,9 @@
                                        (car location)
                                        (cdr location))
                                (throw 'read-failed ())))
-                 (runtime-error (lambda (message args)
+                 (runtime-error (lambda (error-info)
                                   (format (current-error-port) "; Error while reading:\n")
-                                  (format (current-error-port) "; Error: ~I\n" message args)
+                                  (show-runtime-error error-info)
                                   (throw 'read-failed ()))))
     (fn)))
 
