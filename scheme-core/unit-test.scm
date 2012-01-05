@@ -159,9 +159,9 @@
                       (throw 'abort-tests (list condition))))
                    (runtime-error
                     (lambda (error-info)
-                      (format #t "Unhandled runtime error during evaluation:\n\nargs=~a\n\n" error-info)
+                      (format #t "; Unhandled runtime error during test evaluation.\n")
                       (dynamic-let ((*error* #t))
-                        (handle-runtime-error error-info))))
+                        (show-runtime-error error-info))))
                    (user-break
                     (lambda ()
                       (info "***USER BREAK***")
@@ -181,7 +181,7 @@
                   (when *show-failed-test-forms*
                         (format #t " >  ~s\n" (test-failure-form failure)))
                   (awhen (test-failure-cause failure)
-                         (format #t " >  caused by: ~s\n" it)))
+                    (format #t " >  caused by: ~s\n" (hash-ref (second it) :message))))
           (format #t "\n\n~a Failure(s)!\n" (length *check-fails*))
           (format #t "--------------------------------\n"))
         (format #t "\n~a total checks run.\n" *total-check-count*)

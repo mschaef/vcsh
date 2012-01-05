@@ -128,10 +128,6 @@
 (define-repl-abbreviation :X exit)
 (define-repl-abbreviation :top toplevel)
 
-(define (read-error error-type port location . args)
-  "Signals a read error."
-  (abort 'read-error error-type port location args))
-
 (define (call-with-default-read-error-handling fn)
   "Calls <fn> with default read error handling. Default read
    error handling is to print an error message to the current

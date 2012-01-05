@@ -137,6 +137,10 @@
 
 ;;;; The main reader
 
+(define (read-error error-type port location . args)
+  "Signals a read error."
+  (abort 'read-error error-type port location args))
+
 (define *location-mapping* (make-hash :eq))
 
 (define (open-output-buffer)
