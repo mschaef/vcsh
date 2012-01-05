@@ -78,6 +78,7 @@
   name
   source-location
   form
+  (type :default :test-failed)
   (cause :default #f))
 
 (define (report-failure test-failure)
@@ -147,6 +148,22 @@
                                  (make-filename load-directory filename-template)
                                  filename-template)))))
 
+(define (show-check-fails)
+  (unless (null? *check-fails*)
+    (format #t "--------------------------------\n")
+    (dolist (failure (reverse *check-fails*))
+      (format #t "~a: failure in ~s\n"
+              (test-location-string (test-failure-source-location failure))
+              (test-failure-name failure))
+      (when *show-failed-test-forms*
+        (format #t " >  ~s\n" (test-failure-form failure)))
+      (when (eq? (test-failure-type failure) :runtime-error)
+        (format #t " >  caused by: ~I\n"
+                (hash-ref (test-failure-cause failure) :message)
+                (hash-ref (test-failure-cause failure) :args))))
+    (format #t "\n\n~a Failure(s)!\n" (length *check-fails*))
+    (format #t "--------------------------------\n")))
+
 (define (test . specific-tests)
   (catch 'abort-tests
     (handler-bind ((uncaught-throw
@@ -172,28 +189,18 @@
         (newline)
         (dolist (test-name (if (null? specific-tests) (all-tests) specific-tests))
           (execute-test test-name))
-        (unless (null? *check-fails*)
-          (format #t "--------------------------------\n")
-          (dolist (failure (reverse *check-fails*))
-                  (format #t "~a: failure in ~s\n"
-                          (test-location-string (test-failure-source-location failure))
-                          (test-failure-name failure))
-                  (when *show-failed-test-forms*
-                        (format #t " >  ~s\n" (test-failure-form failure)))
-                  (awhen (test-failure-cause failure)
-                    (format #t " >  caused by: ~s\n" (hash-ref (second it) :message))))
-          (format #t "\n\n~a Failure(s)!\n" (length *check-fails*))
-          (format #t "--------------------------------\n"))
+        (show-check-fails)
         (format #t "\n~a total checks run.\n" *total-check-count*)
         (null? *check-fails*)))))
 
 ;;;; Condition checking
 
 (define (check-condition condition-passed? condition-form source-location)
-  (define (condition-failed :optional (cause #f))
+  (define (condition-failed failure-type :optional (cause #f))
     (report-failure (make-test-failure :name            *running-test-case*
                                        :source-location source-location
                                        :form            condition-form
+                                       :type            failure-type
                                        :cause           cause)))
   (incr! *check-count*)
   (incr! *total-check-count*)
@@ -202,19 +209,19 @@
     (format #t "Checking Condition: ~s\n" condition-form))
   (catch *check-escape*
     (unless (handler-bind ((runtime-error
-                            (lambda args
-                              (condition-failed (cons 'runtime-error args))
+                            (lambda (error-info)
+                              (condition-failed :runtime-error error-info)
                               (throw *check-escape* #f)))
                            (unhandled-abort
                             (lambda args
-                              (condition-failed (cons 'unhandled-abort args))
+                              (condition-failed :unhandled-abort args)
                               (throw *check-escape* #f)))
                            (uncaught-throw
                             (lambda args
-                              (condition-failed (cons 'uncaught-throw args))
+                              (condition-failed :uncaught-throw args)
                               (throw *check-escape* #f))))
               (condition-passed?))
-      (condition-failed))))
+      (condition-failed :test-failed))))
 
 (defmacro (test-case condition)
   `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
