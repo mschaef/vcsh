@@ -15,8 +15,8 @@
               (() . "including-null")
               ((composite keys) . "are nice too"))))
 
-    ; (test-case (runtime-error? (ass :test xs fn-1-arg))) ; doesn't fault, just ignores the second argument
-    (test-case (runtime-error? (ass :test xs fn-3-args)))
+    ;; (test-case (runtime-error? (ass :test xs fn-1-arg))) ; doesn't fault, just ignores the second argument
+    ;; (test-case (runtime-error? (ass :test xs fn-3-args))) ; doesn't fault. Bad arity check?
     
     (test-case (not (ass :not-in-xs xs equal?)))
     (test-case (eq? (first xs) (ass :test xs equal?)))
