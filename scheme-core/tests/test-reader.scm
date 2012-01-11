@@ -250,34 +250,6 @@
     (slot-set! o 't 'nothing-to-see-here)
     o))
 
-(define-test read-instance
-  (let ((ob #f))
-    
-    (test-case (read-error? (read-from-string "#I12")))
-    (test-case (read-error? (read-from-string "#I(12)")))
-    (test-case (read-error? (read-from-string "#I(12 x 12)")))
-    (test-case (read-error? (read-from-string "#I(#f (x . 12) (y . 16)")))
-    (test-case (runtime-error? (read-from-string "#I(#I(#f) (x . 12) (y . 16))")))
-    (test-case (runtime-error? (read-from-string "#I(#f 12 12)")))
-
-    (test-case (not (non-local-escape?
-                     (set! ob (read-from-string "#I(#f)")))))
-
-    (test-case (not (has-slot? ob 'class-name)))
-    (test-case (not (has-slot? ob 'x)))
-    (test-case (not (has-slot? ob 'y)))
-    (test-case (not (has-slot? ob 'r)))
-    (test-case (not (has-slot? ob 't)))
-
-    (test-case (not (non-local-escape? 
-                     (set! ob (read-from-string "#I(#f x 12 y 13 r 20)")))))
-
-    (test-case (not (has-slot? ob 'class-name)))
-    (test-case (eq? 12    (slot-ref ob 'x)))
-    (test-case (eq? 13    (slot-ref ob 'y)))
-    (test-case (eq? 20    (slot-ref ob 'r)))
-    (test-case (not (has-slot? ob 't)))
-    ))
 
 (define-test read-quasiquote-syntax
   (test-case (eq? 'quasiquote       (car (read-from-string "`a"))))

@@ -237,18 +237,6 @@
                           (read-error :reader-bad-character-code port char-location))
                   (string-ref char-text 0)))))))
 
-(define (read-instance port)
-  (read-char port)
-  (let* ((instance-location (port-location port))
-         (init-list (read-list port))
-         (base-instance (car init-list))
-         (init-args (cdr init-list)))
-    (unless (or (not base-instance)
-                (symbol? base-instance)
-                (instance? base-instance))
-      (read-error :reader-bad-base-instance port instance-location))
-    (apply make-instance base-instance init-args)))
-
 (define (read-structure port)
   (read-char port)
   (apply make-structure-by-name (read port)))
@@ -377,7 +365,6 @@
   (read port))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *readsharp-syntax* #\I 'read-instance)
   (set-char-syntax! *readsharp-syntax* #\\ 'read-character)
   (set-char-syntax! *readsharp-syntax* #\f 'read-false)
   (set-char-syntax! *readsharp-syntax* #\t 'read-true)
