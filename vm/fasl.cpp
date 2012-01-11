@@ -364,52 +364,38 @@ static void fast_read_structure(lref_t port, lref_t * st)
      }
 }
 
-static void fast_read_instance_map(lref_t port, lref_t * new_instance)
-{
-     lref_t proto = NIL;
-     fast_read(port, &proto);
-
-     if (!(INSTANCEP(proto) || FALSEP(proto) || SYMBOLP(proto)))
-          vmerror_fast_read("Bad prototype instance, must be #f, a symbol, or an instance", port,
-                          proto);
-
-     *new_instance = liinstancecons(proto);
-
-     lref_t slot_names = NIL;
-     fast_read(port, &slot_names);
-
-     if (!(CONSP(slot_names) || NULLP(slot_names)))
-          vmerror_fast_read("Bad instance map slot names, must be a list", port, slot_names);
-
-     for (; CONSP(slot_names); slot_names = CDR(slot_names))
-     {
-          if (!SYMBOLP(CAR(slot_names)))
-               vmerror_fast_read("Bad instance map slot name.", port, CAR(slot_names));
-
-          lislot_set(*new_instance, CAR(slot_names), NIL);
-     }
-
-     if (!NULLP(slot_names))
-          vmerror_fast_read("Malformed instance map slot name list.", port, slot_names);
-}
 
 static void fast_read_instance(lref_t port, lref_t * instance)
 {
      lref_t proto = NIL;
      fast_read(port, &proto);
 
-     if (!(INSTANCEP(proto) || SYMBOLP(proto)))
-          vmerror_fast_read("Bad instance proto.", port, proto);
+
+     if (!(INSTANCEP(proto) || FALSEP(proto) || SYMBOLP(proto)))
+          vmerror_fast_read("Bad prototype instance, must be #f, a symbol, or an instance", port,
+                          proto);
 
      *instance = liinstancecons(proto);
 
-     lref_t slots;
-     fast_read(port, &slots);
+     lref_t elements;
+     fast_read(port, &elements);
 
-     if (!HASHP(slots))
-          vmerror_fast_read("Bad instance slots.", port, slots);
+     lref_t loc = NIL;
+     for (loc = elements; CONSP(loc); loc = CDR(loc))
+     {
+          lref_t kv = CAR(loc);
 
-     SET_INSTANCE_PROTO(*instance, slots);
+          if (!CONSP(kv))
+               vmerror_fast_read("malformed slot-name/value in instance", port, kv);
+
+          if (!SYMBOLP(CAR(kv)))
+               vmerror_fast_read("Bad instance slot name.", port, CAR(kv));
+
+          lhash_set(INSTANCE_SLOTS(*instance), CAR(kv), CDR(kv));
+     }
+
+     if (!NULLP(loc))
+          vmerror_fast_read("malformed slot list for instance", port, elements);
 }
 
 static void fast_read_hash(lref_t port, lref_t * hash)
@@ -815,10 +801,6 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
           case FASL_OP_NOP_2:
           case FASL_OP_NOP_3:
                current_read_complete = false;
-               break;
-
-          case FASL_OP_INSTANCE_MAP:
-               fast_read_instance_map(port, retval);
                break;
 
           case FASL_OP_COMMENT_1:

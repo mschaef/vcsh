@@ -341,25 +341,12 @@ static void dump_vector()
     }
 }
 
-static void dump_instance_map()
+static void dump_instance()
 {
   fasl_opcode_t op = dump_next_object(_T("proto"));
 
   if ((op != FASL_OP_FALSE) && (op != FASL_OP_INSTANCE) && (op != FASL_OP_SYMBOL))
     dump_error("malformed proto in instance map");
-
-  op = dump_next_object(_T("slot-names"));
-
-  if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST))
-    dump_error("malformed slot-names in instance map");
-}
-
-static void dump_instance()
-{
-  fasl_opcode_t op = dump_next_object(_T("map"));
-
-  if (op != FASL_OP_INSTANCE_MAP)
-    dump_error("missing instance map in instance.");
 
   op = dump_next_object(_T("slots"));
 
@@ -613,8 +600,6 @@ static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
     case FASL_OP_NOP_3:
       current_read_complete = false;
       break;
-
-    case FASL_OP_INSTANCE_MAP:          dump_instance_map();    break;
 
     case FASL_OP_COMMENT_1:
     case FASL_OP_COMMENT_2:

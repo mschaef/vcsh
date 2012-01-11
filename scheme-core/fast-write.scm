@@ -57,7 +57,6 @@
                     (visit (%structure-ref o ii))))
                  ((instance)
                   (visit (%instance-proto o))
-                  (visit (%instance-map o))
                   (dolist (slot-name (direct-instance-slots o))
                     (visit slot-name)
                     (visit (slot-ref o slot-name))))
@@ -120,24 +119,6 @@
                  (do-write object))))
         (do-write object)))
 
-  (define (check-sharing-and-write-instance-map inst)
-    (let ((inst-map (%instance-map inst)))
-      (define (write-map)
-        (fast-write-opcode system::FASL_OP_INSTANCE_MAP port)
-        (check-sharing-and-write (%instance-proto inst))
-        (fast-write-object (direct-instance-slots inst)))
-      (if (is-shared? inst-map)
-          (aif (hash-ref (sharing-map-indicies smap) inst-map)
-               (begin
-                 (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
-                 (fast-write-object it))
-               (begin
-                 (let ((next-index (get-next-index!)))
-                   (hash-set! (sharing-map-indicies smap) inst-map next-index)
-                   (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
-                   (fast-write-object next-index)
-                   (write-map))))
-          (write-map))))
 
   (define (fast-write-structure-layout layout)
     (define (do-write)
@@ -227,9 +208,8 @@
 
       ((instance)
        (fast-write-opcode system::FASL_OP_INSTANCE port)
-       (check-sharing-and-write-instance-map object)
-       (check-sharing-and-write (map #L(slot-ref object _)
-                                     (direct-instance-slots object))))
+       (check-sharing-and-write (%instance-proto object))
+       (check-sharing-and-write (hash->a-list (%instance-slots object))))
 
       ((hash)
        (fast-write-opcode system::FASL_OP_HASH port)
