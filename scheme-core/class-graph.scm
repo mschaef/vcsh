@@ -136,7 +136,6 @@
             (hash-set! classes sub #t)
             (hash-set! classes super #t))))
 
-
 (make-class< 'fixnum 'number)
 (make-class< 'flonum 'number)
 (make-class< 'complex 'flonum)

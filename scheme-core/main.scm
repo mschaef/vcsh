@@ -85,7 +85,7 @@
   (define (parse-command-argument-lambda-list original)
     (let retry ((l-list original))
       (cond ((string? l-list)
-             (retry ((,l-list))))
+             (retry `((,l-list))))
             ((not (pair? l-list))
              (error "Invalid command argument lambda list: ~s" original))
             ((and (list? l-list) (every? string? l-list))
