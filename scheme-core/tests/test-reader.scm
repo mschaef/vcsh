@@ -255,7 +255,6 @@
   (test-case (eq? 'quasiquote       (car (read-from-string "`a"))))
   (test-case (eq? 'unquote          (car (read-from-string ",a"))))
   (test-case (eq? 'unquote-splicing (car (read-from-string ",@a"))))
-
   (test-case (eq? 'quote            (car (read-from-string "'a"))))
 
   (test-case

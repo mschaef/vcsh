@@ -148,7 +148,7 @@
   "Returns the type of <obj> as a symbol. For instances, the name of the type
    is the name of the prototype symbol closest up the prototype list. For
    structures, returns the structure type name."
-  (cond ((instance? obj) ; REVISIT: Is there a need for instances to define their own type?
+  (cond ((instance? obj)
          'instance)
         ((structure? obj)
          (structure-type obj))
