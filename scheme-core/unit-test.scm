@@ -43,6 +43,7 @@
 (define *show-test-messages* #f)
 (define *force-gc-on-check* #f)
 (define *show-failed-test-forms* #f)
+(define *show-failed-test-causes* #f)
 
 ;;;; Unit test definitions.
 
@@ -156,7 +157,9 @@
               (test-location-string (test-failure-source-location failure))
               (test-failure-name failure))
       (when *show-failed-test-forms*
-        (format #t " >  ~s\n" (test-failure-form failure)))
+        (format #t " form >  ~s\n" (test-failure-form failure)))
+      (when *show-failed-test-causes*
+        (format #t " cause >  ~s\n" (test-failure-cause failure)))
       (when (eq? (test-failure-type failure) :runtime-error)
         (format #t " >  caused by: ~I\n"
                 (hash-ref (test-failure-cause failure) :message)
