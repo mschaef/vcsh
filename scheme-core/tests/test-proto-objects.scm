@@ -1,7 +1,7 @@
 (use-package! "unit-test")
 
 (define-test proto-objects
-  (let* ((point-2 (make-instance))
+  (let* ((point-2 (make-instance #f))
          (point-3 (make-instance point-2))
          (point-4 (make-instance point-3)))
     
@@ -30,8 +30,8 @@
     (test-case (eq? @(point-3 class-name) 'point-2))
     (test-case (eq? @(point-4 class-name) 'point-2))
 
-    (test-case (slot-set! point-2 'x 6.0))
-    (test-case (slot-set! point-2 'y 8.0))
+    (slot-set! point-2 'x 6.0)
+    (slot-set! point-2 'y 8.0)
 
     (test-case (inexact-= [point-2 r] 10.0))
     (test-case (inexact-= [point-3 r] 10.0))
