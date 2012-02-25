@@ -206,7 +206,7 @@
            (dbind ,binding ,value-sym ,if-true-form)
            ,if-false-form))))
 
-(defmacro (dbind binding value . code)
+(defmacro (dbind binding value . code) ; TODO: :optional
   (define (find-dbind-binding-forms binding value)
     ;; REVISIT: no dbind specific typechecking. Does this matter?
     (cond ((symbol? binding)

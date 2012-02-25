@@ -36,7 +36,7 @@
 (defmacro (dohash head . body)
   (unless (list? head)
     (error "dolist requires a list for <head>" head))
-  (let ((k-var (first head))
+  (let ((k-var (first head)) ; TODO: switch to dbind
         (v-var (second head))
         (hash-form (third head))
         (result-form (fourth head)))

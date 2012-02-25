@@ -159,6 +159,8 @@ lref_t lopen_input_file(lref_t filename, lref_t mode)
                          filename);
 }
 
+// TODO: append
+
 lref_t lopen_output_file(lref_t filename, lref_t mode)
 {
      bool binary = get_c_port_mode(mode);

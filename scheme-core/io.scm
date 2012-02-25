@@ -173,9 +173,12 @@
             (reverse! objects)
             (loop (cons (object-reader port) objects))))))
 
+(define (read-lines port)
+  (readall port read-line))
+
 (define (file-lines filename)
   (with-port ip (open-input-file filename)
-    (readall ip read-line)))
+    (read-lines port)))
 
 (define (call-with-output-port fn port)
   "Calls function <fn>, with the current output port bound to <port>."
