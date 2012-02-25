@@ -21,9 +21,11 @@
   (%set-trap-handler! system::TRAP_PRIMITIVE_INSTANCE primitive-instance-handler))
 
 (define (has-slot? instance slot-name)
-  (if (%find-slot-instance instance slot-name)
-      instance
-      #f))
+  (aif (%find-slot-instance instance slot-name)
+       (if (eq? it instance)
+           :local
+           :inherited)
+       #f))
 
 (define (slot-ref instance key)
   "Retrieves the value of the slot in <instance> named by <key>."
