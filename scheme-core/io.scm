@@ -21,6 +21,24 @@
        (cdr it)
        #f))
 
+(define (input-port? port)
+  "Determines if <port> is an input port. Returns the port if it is an
+input port and #f otherwise."
+  (if (and (port? port)
+           (or (eq? (port-mode port) :input)
+               (eq? (port-mode port) :input/output)))
+      port
+      #f))
+
+(define (output-port? port)
+  "Determines if <port> is an input port. Returns the port if it is an
+input port and #f otherwise."
+  (if (and (port? port)
+           (or (eq? (port-mode port) :output)
+               (eq? (port-mode port) :input/output)))
+      port
+      #f))
+
 (define (port-closed? port)
   "Determines if <port> is closed. Returns the port if it is closed,
 and #f otherwise. If <port> is not a port, throws an error."
