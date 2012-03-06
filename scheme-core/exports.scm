@@ -619,12 +619,15 @@
              pop!
              population-count
              port
+             port?
              port-at-end?
              port-bandwidth
+             port-closed?
              port-io-counts
              port-location
              port-mode
              port-name
+             port-open?
              port-translate-mode
              positive?
              primitive?
@@ -671,6 +674,7 @@
              read-from-string
              read-in-package
              read-line
+             read-lines
              read-text-until-character
              read-time
              read-token

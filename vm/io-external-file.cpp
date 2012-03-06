@@ -159,7 +159,7 @@ lref_t lopen_input_file(lref_t filename, lref_t mode)
                          filename);
 }
 
-// TODO: append
+// TODO: file open in append mode
 
 lref_t lopen_output_file(lref_t filename, lref_t mode)
 {

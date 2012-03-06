@@ -1,7 +1,7 @@
 
-(define *automatic-files* (make-hash :equal))
+(define *auto-files* (make-hash :equal))
 
-(define (parse-automatic-filename file-desc)
+(define (parse-auto-filename file-desc)
   (check string? file-desc)
   (check (> 2) (length file-desc))
   (let ((mode-flag (string-ref file-desc 0))
@@ -12,28 +12,29 @@
               (#t (error "Bad automatic file mode descriptor: ~a" file-desc)))
             filename)))
 
-(define (open-automatic-file filename)
-  (mvbind (mode name) (parse-automatic-filename filename)
+(define (open-auto-file filename)
+  (mvbind (mode name) (parse-auto-filename filename)
     (case mode
       ((:input)
        (open-input-file name))
       ((:output)
        (open-output-file name)))))
 
-(define (->automatic-file filename)
-  (aif (hash-ref *automatic-files* filename #f)
-       it
-       (let ((port (open-automatic-file filename)))
-         (hash-set! *automatic-files* filename port)
-         port)))
+(define (->auto-file filename)
+  (let ((auto-port (hash-ref *auto-files* filename #f)))
+    (if (and auto-port (port-open? auto-port))
+        auto-port
+        (let ((port (open-auto-file filename)))
+          (hash-set! *auto-files* filename port)
+          port))))
 
-(define (reset-automatic-files!)
-  (dohash (filename port *automatic-files*) 
+(define (reset-auto-files!)
+  (dohash (filename port *auto-files*) 
      (catch-all
       (close-port port))
-     (hash-clear! *automatic-files*)))
+     (hash-clear! *auto-files*)))
 
 (define (->file file)
   (if (string? file)
-      (->automatic-file file)
+      (->auto-file file)
       file))
