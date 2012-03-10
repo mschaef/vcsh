@@ -3,8 +3,8 @@
 (define-test write-strings
   (test-case (runtime-error? (write-strings)))
   (test-case (runtime-error? (write-strings :not-a-port)))
-  (test-case (runtime-error? (write-strings (open-null-port) :not-a-string)))
-  (test-case (runtime-error? (write-strings (open-null-port) "string" "yup, another" :not-a-string)))
+  (test-case (runtime-error? (write-strings (open-null-output-port) :not-a-string)))
+  (test-case (runtime-error? (write-strings (open-null-output-port) "string" "yup, another" :not-a-string)))
 
   (let ((os (open-output-string)))
     (write-strings os "test")

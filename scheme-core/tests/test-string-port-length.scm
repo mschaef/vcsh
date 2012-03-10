@@ -30,7 +30,8 @@
 
 (define-test port-mode
   (test-case (runtime-error? (port-mode #f)))
-  (test-case (eq? :input/output (port-mode (open-null-port))))
+  (test-case (eq? :input (port-mode (open-null-input-port))))
+  (test-case (eq? :output (port-mode (open-null-output-port))))
 
   (let ((ip (current-input-port)))
     (test-case (input-port? ip))

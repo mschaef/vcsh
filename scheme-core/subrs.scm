@@ -186,7 +186,6 @@
 (%define open-debug-port #.(host-scheme::%subr-by-name "open-debug-port"))
 (%define open-input-file #.(host-scheme::%subr-by-name "open-input-file"))
 (%define open-input-string #.(host-scheme::%subr-by-name "open-input-string"))
-(%define open-null-port #.(host-scheme::%subr-by-name "open-null-port"))
 (%define open-null-input-port #.(host-scheme::%subr-by-name "open-null-input-port"))
 (%define open-null-output-port #.(host-scheme::%subr-by-name "open-null-output-port"))
 (%define open-output-file #.(host-scheme::%subr-by-name "open-output-file"))
