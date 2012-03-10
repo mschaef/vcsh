@@ -1111,7 +1111,6 @@ struct port_info_t
 struct port_class_t
 {
      const _TCHAR *_name;
-     port_mode_t _valid_modes;
 
      void (*_open) (lref_t);
 

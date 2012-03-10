@@ -73,7 +73,6 @@ size_t string_port_length(lref_t port)
 
 port_class_t string_port_class = {
      _T("STRING"),
-     PORT_INPUT_OUTPUT,
 
      NULL,
 

@@ -739,7 +739,6 @@ size_t debug_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 
 port_class_t debug_port_class = {
      _T("STANDARD-DEBUG"),
-     PORT_OUTPUT,
 
      NULL,
 

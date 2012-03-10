@@ -114,7 +114,6 @@ void file_port_close(lref_t obj)
 
 port_class_t file_port_class = {
      _T("STANDARD-FILE"),
-     PORT_INPUT_OUTPUT,
 
      file_port_open,
 
@@ -190,7 +189,6 @@ void stdin_port_open(lref_t obj)
 
 port_class_t stdin_port_class = {
      _T("STANDARD-INPUT"),
-     PORT_INPUT,
 
      stdin_port_open,
 
@@ -215,7 +213,6 @@ void stdout_port_open(lref_t obj)
 
 port_class_t stdout_port_class = {
      _T("STANDARD-OUTPUT"),
-     PORT_OUTPUT,
 
      stdout_port_open,
 
@@ -240,7 +237,6 @@ void stderr_port_open(lref_t obj)
 
 port_class_t stderr_port_class = {
      _T("STANDARD-ERROR"),
-     PORT_OUTPUT,
 
      stderr_port_open,
 

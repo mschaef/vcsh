@@ -65,7 +65,6 @@ size_t c_data_port_length(lref_t obj)
 
 port_class_t c_data_port_class = {
      _T("C-DATA"),
-     PORT_INPUT,
 
      NULL,
 

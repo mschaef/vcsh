@@ -29,7 +29,6 @@ bool blocking_input_read_readyp(lref_t port);
 
 port_class_t blocking_input_port_class = {
      _T("BLOCKING-INPUT"),
-     PORT_INPUT,
 
      NULL,
 

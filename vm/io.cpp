@@ -75,7 +75,6 @@
       bool binary = (mode & PORT_BINARY) == PORT_BINARY;
 
       assert(cls != NULL);
-      assert(cls->_valid_modes & mode);
       assert(!NULLP(s));
 
       SET_PORT_PINFO(s, (port_info_t *) gc_malloc(sizeof(port_info_t)));
@@ -542,8 +541,6 @@
            return keyword_intern(_T("input"));
       case PORT_OUTPUT:
            return keyword_intern(_T("output"));
-      case PORT_INPUT_OUTPUT:
-           return keyword_intern(_T("input/output"));
       }
 
       panic(_T("corrupt port"));
@@ -1145,7 +1142,6 @@ size_t null_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 
 port_class_t null_port_class = {
      _T("NULL"),
-     PORT_INPUT_OUTPUT,
 
      NULL,
 

@@ -25,8 +25,7 @@
   "Determines if <port> is an input port. Returns the port if it is an
 input port and #f otherwise."
   (if (and (port? port)
-           (or (eq? (port-mode port) :input)
-               (eq? (port-mode port) :input/output)))
+            (eq? (port-mode port) :input))
       port
       #f))
 
@@ -34,8 +33,7 @@ input port and #f otherwise."
   "Determines if <port> is an input port. Returns the port if it is an
 input port and #f otherwise."
   (if (and (port? port)
-           (or (eq? (port-mode port) :output)
-               (eq? (port-mode port) :input/output)))
+           (eq? (port-mode port) :output))
       port
       #f))
 
