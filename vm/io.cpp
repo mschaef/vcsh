@@ -1162,11 +1162,16 @@ port_class_t null_port_class = {
 };
 
 
-lref_t lopen_null_port()
+lref_t lopen_null_input_port()
 {
-     return portcons(&null_port_class, NIL, (port_mode_t) (PORT_INPUT_OUTPUT | PORT_BINARY),
+     return portcons(&null_port_class, NIL, (port_mode_t) (PORT_INPUT | PORT_BINARY),
                      NIL, NULL);
 }
 
+lref_t lopen_null_output_port()
+{
+     return portcons(&null_port_class, NIL, (port_mode_t) (PORT_OUTPUT | PORT_BINARY),
+                     NIL, NULL);
+}
 
 END_NAMESPACE
