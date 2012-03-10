@@ -591,6 +591,8 @@
              open-input-file
              open-input-string
              open-null-port
+             open-null-input-port
+             open-null-output-port
              open-output-file
              open-output-string
              or
