@@ -207,6 +207,7 @@ void init_stdio_ports();
 
 void port_gc_free(lref_t port);
 lref_t port_gc_mark(lref_t obj);
+lref_t fasl_stream_gc_mark(lref_t obj);
 
 /**** Subr Binding ****/
 

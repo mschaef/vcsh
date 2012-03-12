@@ -421,6 +421,12 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
                         FAST_OP_NEXT(obj));
           break;
 
+     case TC_FASL_STREAM:
+          scwritef(_T("~u~s"), port,
+                   obj,
+                   FASL_STREAM_PORT(obj));
+          break;
+
      case TC_UNBOUND_MARKER:
           scwritef("#<UNBOUND-MARKER>", port);
           break;

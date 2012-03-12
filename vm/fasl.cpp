@@ -59,6 +59,26 @@
 
 BEGIN_NAMESPACE(scan)
 
+lref_t faslstreamcons(lref_t port)
+{
+     lref_t z = new_cell(TC_FASL_STREAM);
+
+     SET_FASL_STREAM_PORT(z, port);
+     SET_FASL_STREAM_STREAM(z, (fasl_stream_t *)gc_malloc(sizeof(fasl_stream_t)));
+
+     return z;
+}
+
+lref_t fasl_stream_gc_mark(lref_t obj)
+{
+     for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)
+          gc_mark(FASL_STREAM_STREAM(obj)->_stack[ii]);
+
+     gc_mark(FASL_STREAM_STREAM(obj)->_accum);
+
+     return FASL_STREAM_STREAM(obj)->_table;
+}
+
 /* This code depends on using an output paramater, rather than a
  * function return code. For self-referential data structures, this
  * allows the reader definition table be updated before the definition
@@ -884,7 +904,6 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
                fast_loader_stack_pop(port);
                break;
 
-               
           default:
                vmerror_fast_read("invalid opcode", port, fixcons(opcode));
           }

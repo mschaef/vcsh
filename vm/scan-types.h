@@ -57,6 +57,7 @@ struct port_class_t;
 struct port_info_t;
 struct lobject_t;
 typedef lobject_t *lref_t;
+struct fasl_stream_t;
 
 /*** Constants for the two level tagging scheme ***/
 
@@ -268,6 +269,7 @@ struct lobject_t
           struct
           {
                lref_t port;
+               fasl_stream_t *stream;
           } fasl_stream;
 
      } storage_as;
@@ -1080,6 +1082,18 @@ INLINE void SET_FASL_STREAM_PORT(lref_t obj, lref_t port)
 {
      checked_assert(FASL_STREAM_P(obj));
      ((obj)->storage_as.fasl_stream.port) = port;
+}
+
+INLINE fasl_stream_t *FASL_STREAM_STREAM(lref_t obj)
+{
+     checked_assert(FASL_STREAM_P(obj));
+     return ((obj)->storage_as.fasl_stream.stream);
+}
+
+INLINE void SET_FASL_STREAM_STREAM(lref_t obj, fasl_stream_t *stream)
+{
+     checked_assert(FASL_STREAM_P(obj));
+     ((obj)->storage_as.fasl_stream.stream) = stream;
 }
 
 /*** port ***/

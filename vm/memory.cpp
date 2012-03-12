@@ -355,6 +355,10 @@ void gc_mark(lref_t initial_obj)
                obj = FAST_OP_NEXT(obj);
                break;
 
+          case TC_FASL_STREAM:
+               obj = fasl_stream_gc_mark(obj);
+               break;
+
           default:
                /* By default, objects are either immediate or otherwise self
                 * contained, and do not need special-case handling in gc_mark.
