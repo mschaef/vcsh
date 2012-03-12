@@ -1110,6 +1110,14 @@ struct port_text_translation_info_t
      fixnum_t _previous_line_length;
 };
 
+struct fasl_stream_t
+{
+     lref_t _fasl_table;
+     lref_t _fasl_stack[FAST_LOAD_STACK_DEPTH];
+     size_t _fasl_stack_ptr;
+     lref_t _fasl_accum;
+};
+
 struct port_info_t
 {
      lref_t _port_name;
@@ -1117,10 +1125,7 @@ struct port_info_t
      void *_user_data;
      lref_t _user_object;
 
-     lref_t _fasl_table;
-     lref_t _fasl_stack[FAST_LOAD_STACK_DEPTH];
-     size_t _fasl_stack_ptr;
-     lref_t _fasl_accum;
+     fasl_stream_t *_fasl_stream;
 
      port_mode_t _mode;
 
