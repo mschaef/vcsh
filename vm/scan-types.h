@@ -1112,10 +1112,10 @@ struct port_text_translation_info_t
 
 struct fasl_stream_t
 {
-     lref_t _fasl_table;
-     lref_t _fasl_stack[FAST_LOAD_STACK_DEPTH];
-     size_t _fasl_stack_ptr;
-     lref_t _fasl_accum;
+     lref_t _table;
+     lref_t _stack[FAST_LOAD_STACK_DEPTH];
+     size_t _sp;
+     lref_t _accum;
 };
 
 struct port_info_t

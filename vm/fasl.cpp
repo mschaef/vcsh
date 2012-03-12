@@ -484,32 +484,32 @@ void fast_read_macro(lref_t port, lref_t * retval)
 
 static void fasl_ensure_valid_table_index(lref_t port, size_t index)
 {
-     if (NULLP(PORT_PINFO(port)->_fasl_stream->_fasl_table))
+     if (NULLP(PORT_PINFO(port)->_fasl_stream->_table))
      {
-          PORT_PINFO(port)->_fasl_stream->_fasl_table =
+          PORT_PINFO(port)->_fasl_stream->_table =
               vectorcons((index >=
                           DEFAULT_FASL_TABLE_SIZE) ? index +
                          DEFAULT_FASL_TABLE_SIZE : DEFAULT_FASL_TABLE_SIZE, NIL);
      }
      else
      {
-          assert(VECTORP(PORT_PINFO(port)->_fasl_stream->_fasl_table));
+          assert(VECTORP(PORT_PINFO(port)->_fasl_stream->_table));
 
-          size_t old_len = VECTOR_DIM(PORT_PINFO(port)->_fasl_stream->_fasl_table);
+          size_t old_len = VECTOR_DIM(PORT_PINFO(port)->_fasl_stream->_table);
 
           if (index >= old_len)
           {
                size_t new_len =
                    (index >= old_len * 2) ? index + DEFAULT_FASL_TABLE_SIZE : (old_len * 2);
 
-               PORT_PINFO(port)->_fasl_stream->_fasl_table =
-                   vector_resize(PORT_PINFO(port)->_fasl_stream->_fasl_table,
+               PORT_PINFO(port)->_fasl_stream->_table =
+                   vector_resize(PORT_PINFO(port)->_fasl_stream->_table,
                                  new_len > SIZE_MAX ? SIZE_MAX : (size_t) new_len, NIL);
           }
      }
 
-     assert(VECTORP(PORT_PINFO(port)->_fasl_stream->_fasl_table));
-     assert(index < VECTOR_DIM(PORT_PINFO(port)->_fasl_stream->_fasl_table));
+     assert(VECTORP(PORT_PINFO(port)->_fasl_stream->_table));
+     assert(index < VECTOR_DIM(PORT_PINFO(port)->_fasl_stream->_table));
 }
 
 static fixnum_t fast_read_table_index(lref_t port)
@@ -564,11 +564,11 @@ static void fast_loader_stack_push(lref_t port, lref_t val)
 
      port_info_t *pinfo = PORT_PINFO(port);
 
-     if (pinfo->_fasl_stream->_fasl_stack_ptr == FAST_LOAD_STACK_DEPTH - 1)
+     if (pinfo->_fasl_stream->_sp == FAST_LOAD_STACK_DEPTH - 1)
           vmerror_fast_read(_T("Fast loader stack overflow."), port, lport_location(port));
 
-     pinfo->_fasl_stream->_fasl_stack[pinfo->_fasl_stream->_fasl_stack_ptr] = val;
-     pinfo->_fasl_stream->_fasl_stack_ptr++;
+     pinfo->_fasl_stream->_stack[pinfo->_fasl_stream->_sp] = val;
+     pinfo->_fasl_stream->_sp++;
 }
 
 static lref_t fast_loader_stack_pop(lref_t port)
@@ -579,13 +579,13 @@ static lref_t fast_loader_stack_pop(lref_t port)
 
      port_info_t *pinfo = PORT_PINFO(port);
 
-     if (pinfo->_fasl_stream->_fasl_stack_ptr == 0)
+     if (pinfo->_fasl_stream->_sp == 0)
           vmerror_fast_read(_T("Fast loader stack underflow."), port, lport_location(port));
 
-     pinfo->_fasl_stream->_fasl_stack_ptr--;
+     pinfo->_fasl_stream->_sp--;
 
-     val = pinfo->_fasl_stream->_fasl_stack[pinfo->_fasl_stream->_fasl_stack_ptr];
-     pinfo->_fasl_stream->_fasl_stack[pinfo->_fasl_stream->_fasl_stack_ptr] = NULL;
+     val = pinfo->_fasl_stream->_stack[pinfo->_fasl_stream->_sp];
+     pinfo->_fasl_stream->_stack[pinfo->_fasl_stream->_sp] = NULL;
 
      return val;
 }
@@ -631,7 +631,7 @@ void fast_read_loader_application(lref_t port, fasl_opcode_t opcode)
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL applying ~s (argc=~cd)\n"), argv[0], argc));
 
-     pinfo->_fasl_stream->_fasl_accum = lapply(argc + 1, argv);
+     pinfo->_fasl_stream->_accum = lapply(argc + 1, argv);
 }
 
 static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = false */ )
@@ -649,7 +649,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
 
      port_info_t *pinfo = PORT_PINFO(port);
 
-     assert(NULLP(pinfo->_fasl_stream->_fasl_table) || VECTORP(pinfo->_fasl_stream->_fasl_table));
+     assert(NULLP(pinfo->_fasl_stream->_table) || VECTORP(pinfo->_fasl_stream->_table));
 
      /* The core of this function is wrapped in a giant while loop to remove
       * tail recursive calls. Some opcodes don't directly return anything:
@@ -810,19 +810,19 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
                break;
 
           case FASL_OP_RESET_READER_DEFS:
-               pinfo->_fasl_stream->_fasl_table = NIL;
+               pinfo->_fasl_stream->_table = NIL;
                current_read_complete = false;
                break;
 
           case FASL_OP_READER_DEFINITION:
                index = fast_read_table_index(port);
 
-               fasl_table_entry = &_VECTOR_ELEM(pinfo->_fasl_stream->_fasl_table, index);
+               fasl_table_entry = &_VECTOR_ELEM(pinfo->_fasl_stream->_table, index);
 
                fast_read(port, fasl_table_entry, allow_loader_ops);
 
                /* REVISIT: This assert throws if the fasl table was resized during the reader definition. */
-               assert(fasl_table_entry == &_VECTOR_ELEM(pinfo->_fasl_stream->_fasl_table, index));
+               assert(fasl_table_entry == &_VECTOR_ELEM(pinfo->_fasl_stream->_table, index));
 
                *retval = *fasl_table_entry;
                break;
@@ -830,7 +830,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
           case FASL_OP_READER_REFERENCE:
                index = fast_read_table_index(port);
 
-               *retval = VECTOR_ELEM(pinfo->_fasl_stream->_fasl_table, index);
+               *retval = VECTOR_ELEM(pinfo->_fasl_stream->_table, index);
                break;
 
           case FASL_OP_EOF:
@@ -877,7 +877,7 @@ static void fast_read(lref_t port, lref_t * retval, bool allow_loader_ops /* = f
                break;
 
           case FASL_OP_LOADER_PUSH:
-               fast_loader_stack_push(port, pinfo->_fasl_stream->_fasl_accum);
+               fast_loader_stack_push(port, pinfo->_fasl_stream->_accum);
                break;
 
           case FASL_OP_LOADER_DROP:
