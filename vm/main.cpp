@@ -284,7 +284,6 @@ static void register_main_subrs()
     register_subr(_T("%panic"),                           SUBR_1,     (void*)lpanic                              );
     register_subr(_T("%property-list"),                   SUBR_1,     (void*)lproperty_list                      );
     register_subr(_T("%request-heap-size"),               SUBR_1,     (void*)lirequest_heap_size                 );
-
     register_subr(_T("%set-closure-code"),                SUBR_2,     (void*)lset_closure_code                   );
     register_subr(_T("%set-closure-env"),                 SUBR_2,     (void*)lset_closure_env                    );
     register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
@@ -411,6 +410,7 @@ static void register_main_subrs()
     register_subr(_T("log"),                              SUBR_1,     (void*)llog                                );
     register_subr(_T("macro?"),                           SUBR_1,     (void*)lmacrop                             );
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
+    register_subr(_T("make-fasl-reader"),                 SUBR_1,     (void*)lmake_fasl_reader                   );
     register_subr(_T("make-hash"),                        SUBR_1,     (void*)lmake_hash                          );
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );

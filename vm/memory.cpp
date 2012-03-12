@@ -355,8 +355,8 @@ void gc_mark(lref_t initial_obj)
                obj = FAST_OP_NEXT(obj);
                break;
 
-          case TC_FASL_STREAM:
-               obj = fasl_stream_gc_mark(obj);
+          case TC_FASL_READER:
+               obj = fasl_reader_gc_mark(obj);
                break;
 
           default:

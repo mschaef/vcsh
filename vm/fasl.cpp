@@ -61,22 +61,33 @@ BEGIN_NAMESPACE(scan)
 
 lref_t faslstreamcons(lref_t port)
 {
-     lref_t z = new_cell(TC_FASL_STREAM);
+     lref_t z = new_cell(TC_FASL_READER);
 
-     SET_FASL_STREAM_PORT(z, port);
-     SET_FASL_STREAM_STREAM(z, (fasl_stream_t *)gc_malloc(sizeof(fasl_stream_t)));
+     SET_FASL_READER_PORT(z, port);
+     SET_FASL_READER_STREAM(z, (fasl_stream_t *)gc_malloc(sizeof(fasl_stream_t)));
 
      return z;
 }
 
-lref_t fasl_stream_gc_mark(lref_t obj)
+lref_t lmake_fasl_reader(lref_t port)
+{
+     if (!PORTP(port))
+          vmerror_wrong_type(1, port);
+
+     if (!PORT_BINARYP(port))
+          vmerror_unsupported(_T("fasl streams not supported on text ports"));
+
+     return faslstreamcons(port);
+}
+
+lref_t fasl_reader_gc_mark(lref_t obj)
 {
      for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)
-          gc_mark(FASL_STREAM_STREAM(obj)->_stack[ii]);
+          gc_mark(FASL_READER_STREAM(obj)->_stack[ii]);
 
-     gc_mark(FASL_STREAM_STREAM(obj)->_accum);
+     gc_mark(FASL_READER_STREAM(obj)->_accum);
 
-     return FASL_STREAM_STREAM(obj)->_table;
+     return FASL_READER_STREAM(obj)->_table;
 }
 
 /* This code depends on using an output paramater, rather than a

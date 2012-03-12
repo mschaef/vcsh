@@ -535,6 +535,7 @@
              magnitude
              make-class<
              make-composite-symbol
+             make-fasl-reader
              make-filename
              make-hash
              make-instance

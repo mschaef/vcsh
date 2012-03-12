@@ -172,6 +172,7 @@
 (%define log #.(host-scheme::%subr-by-name "log"))
 (%define macro? #.(host-scheme::%subr-by-name "macro?"))
 (%define magnitude #.(host-scheme::%subr-by-name "magnitude"))
+(%define make-fasl-reader #.(host-scheme::%subr-by-name "make-fasl-reader"))
 (%define make-hash #.(host-scheme::%subr-by-name "make-hash"))
 (%define make-polar #.(host-scheme::%subr-by-name "make-polar"))
 (%define make-rectangular #.(host-scheme::%subr-by-name "make-rectangular"))

@@ -331,6 +331,7 @@ lref_t lmacro_transformer(lref_t mac);
 lref_t lmacrop(lref_t obj);
 lref_t lmagnitude(lref_t cmplx);
 lref_t lmake_eof();
+lref_t lmake_fasl_reader(lref_t port);
 lref_t lmake_hash(lref_t key_type);
 lref_t lmake_polar(lref_t r, lref_t theta);
 lref_t lmake_rectangular(lref_t re, lref_t im);

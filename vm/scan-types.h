@@ -270,7 +270,7 @@ struct lobject_t
           {
                lref_t port;
                fasl_stream_t *stream;
-          } fasl_stream;
+          } fasl_reader;
 
      } storage_as;
 };
@@ -472,9 +472,9 @@ INLINE bool FAST_OP_P(lref_t x)
      return TYPEP(x, TC_FAST_OP);
 }
 
-INLINE bool FASL_STREAM_P(lref_t x)
+INLINE bool FASL_READER_P(lref_t x)
 {
-     return TYPEP(x, TC_FASL_STREAM);
+     return TYPEP(x, TC_FASL_READER);
 }
 
 INLINE bool TRUEP(lref_t x)
@@ -1072,28 +1072,28 @@ INLINE void SET_INSTANCE_SLOTS(lref_t obj, lref_t slots)
 
 /*** fasl-stream ***/
 
-INLINE lref_t FASL_STREAM_PORT(lref_t obj)
+INLINE lref_t FASL_READER_PORT(lref_t obj)
 {
-     checked_assert(FASL_STREAM_P(obj));
-     return ((obj)->storage_as.fasl_stream.port);
+     checked_assert(FASL_READER_P(obj));
+     return ((obj)->storage_as.fasl_reader.port);
 }
 
-INLINE void SET_FASL_STREAM_PORT(lref_t obj, lref_t port)
+INLINE void SET_FASL_READER_PORT(lref_t obj, lref_t port)
 {
-     checked_assert(FASL_STREAM_P(obj));
-     ((obj)->storage_as.fasl_stream.port) = port;
+     checked_assert(FASL_READER_P(obj));
+     ((obj)->storage_as.fasl_reader.port) = port;
 }
 
-INLINE fasl_stream_t *FASL_STREAM_STREAM(lref_t obj)
+INLINE fasl_stream_t *FASL_READER_STREAM(lref_t obj)
 {
-     checked_assert(FASL_STREAM_P(obj));
-     return ((obj)->storage_as.fasl_stream.stream);
+     checked_assert(FASL_READER_P(obj));
+     return ((obj)->storage_as.fasl_reader.stream);
 }
 
-INLINE void SET_FASL_STREAM_STREAM(lref_t obj, fasl_stream_t *stream)
+INLINE void SET_FASL_READER_STREAM(lref_t obj, fasl_stream_t *stream)
 {
-     checked_assert(FASL_STREAM_P(obj));
-     ((obj)->storage_as.fasl_stream.stream) = stream;
+     checked_assert(FASL_READER_P(obj));
+     ((obj)->storage_as.fasl_reader.stream) = stream;
 }
 
 /*** port ***/
