@@ -216,8 +216,9 @@ BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)
     VM_CONSTANT(TC_UNBOUND_MARKER,            20 )
     VM_CONSTANT(TC_GC_TRIP_WIRE,              21 )
     VM_CONSTANT(TC_FAST_OP,                   22 )
+    VM_CONSTANT(TC_FASL_STREAM,               23 )
 
-    VM_ANON_CONSTANT(LAST_INTERNAL_TYPEC,     22 )
+    VM_ANON_CONSTANT(LAST_INTERNAL_TYPEC,     23 )
 END_VM_CONSTANT_TABLE(typecode_t, typecode_name)
 
 BEGIN_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)

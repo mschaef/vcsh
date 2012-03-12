@@ -83,9 +83,9 @@
       PORT_PINFO(s)->_port_name = port_name;
       PORT_PINFO(s)->_user_data = user_data;
       PORT_PINFO(s)->_user_object = user_object;
+
       PORT_PINFO(s)->_fasl_table = NIL;
       PORT_PINFO(s)->_fasl_accum = NIL;
-
       PORT_PINFO(s)->_fasl_stack_ptr = 0;
 
       for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)
@@ -113,13 +113,11 @@
            sys_get_info(&sinf);
 
            PORT_TEXT_INFO(s)->_crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
-
            PORT_TEXT_INFO(s)->_needs_lf = FALSE;
            PORT_TEXT_INFO(s)->_column = 0;
            PORT_TEXT_INFO(s)->_row = 1;
            PORT_TEXT_INFO(s)->_previous_line_length = 0;
       }
-
 
       if (PORT_CLASS(s)->_open)
            PORT_CLASS(s)->_open(s);
@@ -166,7 +164,7 @@
  }
 
  lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,
-               void *user_data)
+                 void *user_data)
  {
       lref_t s = new_cell(TC_PORT);
 

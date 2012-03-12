@@ -265,6 +265,10 @@ struct lobject_t
                     void *ptr;
                } code;
           } subr;
+          struct
+          {
+               lref_t port;
+          } fasl_stream;
 
      } storage_as;
 };
@@ -466,6 +470,11 @@ INLINE bool FAST_OP_P(lref_t x)
      return TYPEP(x, TC_FAST_OP);
 }
 
+INLINE bool FASL_STREAM_P(lref_t x)
+{
+     return TYPEP(x, TC_FASL_STREAM);
+}
+
 INLINE bool TRUEP(lref_t x)
 {
      return (x) != LREF2_CONS(LREF2_BOOL, 0);
@@ -475,7 +484,6 @@ INLINE bool FALSEP(lref_t x)
 {
      return !TRUEP(x);
 }
-
 
 /*** Boxed data accessors ***/
 
@@ -1060,6 +1068,20 @@ INLINE void SET_INSTANCE_SLOTS(lref_t obj, lref_t slots)
      ((obj)->storage_as.instance._slots) = slots;
 }
 
+/*** fasl-stream ***/
+
+INLINE lref_t FASL_STREAM_PORT(lref_t obj)
+{
+     checked_assert(FASL_STREAM_P(obj));
+     return ((obj)->storage_as.fasl_stream.port);
+}
+
+INLINE void SET_FASL_STREAM_PORT(lref_t obj, lref_t port)
+{
+     checked_assert(FASL_STREAM_P(obj));
+     ((obj)->storage_as.fasl_stream.port) = port;
+}
+
 /*** port ***/
 enum port_mode_t
 {
@@ -1094,8 +1116,8 @@ struct port_info_t
 
      void *_user_data;
      lref_t _user_object;
-     lref_t _fasl_table;
 
+     lref_t _fasl_table;
      lref_t _fasl_stack[FAST_LOAD_STACK_DEPTH];
      size_t _fasl_stack_ptr;
      lref_t _fasl_accum;
@@ -1114,17 +1136,17 @@ struct port_class_t
 
      void (*_open) (lref_t);
 
-      bool(*_read_readyp) (lref_t);
-      size_t(*_read) (void *, size_t, size_t, lref_t);
+     bool(*_read_readyp) (lref_t);
+     size_t(*_read) (void *, size_t, size_t, lref_t);
 
-      size_t(*_write) (const void *, size_t, size_t, lref_t);
-      bool(*_rich_write) (lref_t, bool, lref_t);
+     size_t(*_write) (const void *, size_t, size_t, lref_t);
+     bool(*_rich_write) (lref_t, bool, lref_t);
 
      int (*_flush) (lref_t);
      void (*_close) (lref_t);
      void (*_gc_free) (lref_t);
 
-      size_t(*_length) (lref_t);
+     size_t(*_length) (lref_t);
 };
 
 INLINE port_info_t *PORT_PINFO(lref_t x)
