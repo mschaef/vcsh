@@ -59,7 +59,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-lref_t faslreadercons(lref_t port)
+static lref_t faslreadercons(lref_t port)
 {
      lref_t z = new_cell(TC_FASL_READER);
 
@@ -490,7 +490,7 @@ static void fast_read_closure(lref_t port, lref_t * retval)
      *retval = lclosurecons(env, code, props);
 }
 
-void fast_read_to_newline(lref_t port)
+static void fast_read_to_newline(lref_t port)
 {
      _TCHAR ch = _T('\0');
 
@@ -499,7 +499,7 @@ void fast_read_to_newline(lref_t port)
                break;
 }
 
-void fast_read_macro(lref_t port, lref_t * retval)
+static void fast_read_macro(lref_t port, lref_t * retval)
 {
      lref_t macro_transformer;
      fast_read(port, &macro_transformer);
@@ -559,7 +559,7 @@ static fixnum_t fast_read_table_index(lref_t port)
      return FIXNM(index);
 }
 
-void fast_read_loader_definition(lref_t port, fasl_opcode_t opcode)
+static void fast_read_loader_definition(lref_t port, fasl_opcode_t opcode)
 {
      lref_t symbol_to_define;
 
@@ -621,7 +621,7 @@ static lref_t fast_loader_stack_pop(lref_t port)
      return val;
 }
 
-void fast_read_loader_application(lref_t port, fasl_opcode_t opcode)
+static void fast_read_loader_application(lref_t port, fasl_opcode_t opcode)
 {
      assert(PORTP(port) && PORT_BINARYP(port));
 
@@ -936,7 +936,7 @@ lref_t liifasl_load(lref_t port)
           vmerror_wrong_type(1, port);
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL from : ~a\n"), port));
-     
+
      lref_t form = NIL;
 
      while (!EOFP(form))
