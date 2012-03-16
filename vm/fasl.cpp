@@ -59,7 +59,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-lref_t faslstreamcons(lref_t port)
+lref_t faslreadercons(lref_t port)
 {
      lref_t z = new_cell(TC_FASL_READER);
 
@@ -77,7 +77,7 @@ lref_t lmake_fasl_reader(lref_t port)
      if (!PORT_BINARYP(port))
           vmerror_unsupported(_T("fasl streams not supported on text ports"));
 
-     return faslstreamcons(port);
+     return faslreadercons(port);
 }
 
 lref_t fasl_reader_gc_mark(lref_t obj)
