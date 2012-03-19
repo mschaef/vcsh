@@ -122,15 +122,15 @@ void vmerror_io_error(const _TCHAR *desc, lref_t info)
             3, topmost_primitive(), strcons(desc), info);
 }
 
-void vmerror_fast_read(const _TCHAR * message, lref_t port, lref_t details /* = NIL */)
+void vmerror_fast_read(const _TCHAR * message, lref_t reader, lref_t details /* = NIL */)
 {
      /*  REVISIT: vmerror_fast_read don't always show valid port locations */
-     assert(PORTP(port));
+     assert(FASL_READER_P(reader));
 
-     lref_t location = lport_location(port);
+     lref_t location = lport_location(FASL_READER_PORT(reader));
 
      vmtrap(TRAP_FAST_READ_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            5, topmost_primitive(), strcons(message), port, location, details);
+            5, topmost_primitive(), strcons(message), reader, location, details);
 }
 
 
