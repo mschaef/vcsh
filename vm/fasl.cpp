@@ -64,7 +64,13 @@ static lref_t faslreadercons(lref_t port)
      lref_t z = new_cell(TC_FASL_READER);
 
      SET_FASL_READER_PORT(z, port);
-     SET_FASL_READER_STREAM(z, (fasl_stream_t *)gc_malloc(sizeof(fasl_stream_t)));
+
+     fasl_stream_t *stream =
+          (fasl_stream_t *)gc_malloc(sizeof(fasl_stream_t));
+
+     memset(stream, 0, sizeof(fasl_stream_t));
+
+     SET_FASL_READER_STREAM(z, stream);
 
      return z;
 }
