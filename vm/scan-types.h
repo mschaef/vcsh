@@ -1139,8 +1139,6 @@ struct port_info_t
      void *_user_data;
      lref_t _user_object;
 
-     fasl_stream_t *_fasl_stream;
-
      port_mode_t _mode;
 
      port_text_translation_info_t *_text_info;

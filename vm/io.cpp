@@ -41,14 +41,8 @@
  lref_t port_gc_mark(lref_t obj)
  {
       gc_mark(PORT_PINFO(obj)->_port_name);
-      gc_mark(PORT_PINFO(obj)->_user_object);
 
-      for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)
-           gc_mark(PORT_PINFO(obj)->_fasl_stream->_stack[ii]);
-
-      gc_mark(PORT_PINFO(obj)->_fasl_stream->_accum);
-
-      return PORT_PINFO(obj)->_fasl_stream->_table;
+      return PORT_PINFO(obj)->_user_object;
  }
 
  void port_gc_free(lref_t port)
@@ -65,8 +59,7 @@
       if (PORT_CLASS(port)->_gc_free)
            PORT_CLASS(port)->_gc_free(port);
 
-      gc_free(PORT_PINFO(port)->_fasl_stream);
-      gc_free(PORT_PINFO(port));
+       gc_free(PORT_PINFO(port));
  }
 
  lref_t initialize_port(lref_t s,
@@ -85,13 +78,6 @@
       PORT_PINFO(s)->_user_data = user_data;
       PORT_PINFO(s)->_user_object = user_object;
 
-      PORT_PINFO(s)->_fasl_stream = (fasl_stream_t *)gc_malloc(sizeof(fasl_stream_t));
-      PORT_PINFO(s)->_fasl_stream->_table = NIL;
-      PORT_PINFO(s)->_fasl_stream->_accum = NIL;
-      PORT_PINFO(s)->_fasl_stream->_sp = 0;
-
-      for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)
-           PORT_PINFO(s)->_fasl_stream->_stack[ii] = NIL;
 
       PORT_PINFO(s)->_mode = mode;
 
