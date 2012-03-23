@@ -62,6 +62,26 @@
        gc_free(PORT_PINFO(port));
  }
 
+static port_text_translation_info_t *initialize_text_info()
+{
+     port_text_translation_info_t *tinfo =
+          (port_text_translation_info_t *)gc_malloc(sizeof(port_text_translation_info_t));
+
+     memset(tinfo->_unread_buffer, 0, sizeof(tinfo->_unread_buffer));
+     tinfo->_unread_valid = 0;
+
+     sys_info_t sinf;
+     sys_get_info(&sinf);
+
+     tinfo->_crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
+     tinfo->_needs_lf = FALSE;
+     tinfo->_column = 0;
+     tinfo->_row = 1;
+     tinfo->_previous_line_length = 0;
+
+     return tinfo;
+}
+
  lref_t initialize_port(lref_t s,
                       port_class_t * cls,
                       lref_t port_name, port_mode_t mode, lref_t user_object, void *user_data)
@@ -78,39 +98,20 @@
       PORT_PINFO(s)->_user_data = user_data;
       PORT_PINFO(s)->_user_object = user_object;
 
-
       PORT_PINFO(s)->_mode = mode;
 
       PORT_PINFO(s)->_bytes_read = 0;
       PORT_PINFO(s)->_bytes_written = 0;
 
       if (binary)
-      {
            SET_PORT_TEXT_INFO(s, NULL);
-      }
       else
-      {
-           SET_PORT_TEXT_INFO(s,
-                              (port_text_translation_info_t *)
-                              gc_malloc(sizeof(port_text_translation_info_t)));
-
-           memset(PORT_TEXT_INFO(s)->_unread_buffer, 0, sizeof(PORT_TEXT_INFO(s)->_unread_buffer));
-           PORT_TEXT_INFO(s)->_unread_valid = 0;
-
-           sys_info_t sinf;
-           sys_get_info(&sinf);
-
-           PORT_TEXT_INFO(s)->_crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
-           PORT_TEXT_INFO(s)->_needs_lf = FALSE;
-           PORT_TEXT_INFO(s)->_column = 0;
-           PORT_TEXT_INFO(s)->_row = 1;
-           PORT_TEXT_INFO(s)->_previous_line_length = 0;
-      }
+           SET_PORT_TEXT_INFO(s, initialize_text_info());
 
       if (PORT_CLASS(s)->_open)
            PORT_CLASS(s)->_open(s);
 
-      return (s);
+      return s;
  }
 
  size_t port_length(lref_t port)
