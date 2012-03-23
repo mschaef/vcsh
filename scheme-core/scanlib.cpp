@@ -28,7 +28,9 @@ void init1()
      register_internal_file(&ifile_compiler_run_scf);
      register_internal_file(&ifile_scheme_scf);
 
-     liifasl_load(open_c_data_input(&ifile_scheme_scf));
+     lref_t port = open_c_data_input(&ifile_scheme_scf);
+
+     liifasl_load(lmake_fasl_reader(port));
 }
 
 void init(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)

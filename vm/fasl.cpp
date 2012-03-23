@@ -914,22 +914,10 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
 // Lisp Entry Points
 
-static lref_t ensure_reader(lref_t source)
+lref_t lfast_read(lref_t reader)
 {
-     if (FASL_READER_P(source))
-          return source;
-     else if (PORTP(source))
-          return lmake_fasl_reader(source);
-     else {
-          vmerror_wrong_type(1, source);
-
-          return NIL;
-     }
-}
-
-lref_t lfast_read(lref_t source)
-{
-     lref_t reader = ensure_reader(source);
+     if (!FASL_READER_P(reader))
+          vmerror_wrong_type(1, reader);
 
      lref_t retval;
 
@@ -938,9 +926,10 @@ lref_t lfast_read(lref_t source)
      return retval;
 }
 
-lref_t liifasl_load(lref_t source)
+lref_t liifasl_load(lref_t reader)
 {
-     lref_t reader = ensure_reader(source);
+     if (!FASL_READER_P(reader))
+          vmerror_wrong_type(1, reader);
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL from : ~a\n"), reader));
 

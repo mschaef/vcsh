@@ -548,7 +548,7 @@ static void load_init_load_files()
 
           lref_t port = lopen_input_file(fname, keyword_intern(_T("binary")));
 
-          liifasl_load(port);
+          liifasl_load(lmake_fasl_reader(port));
 
           lclose_port(port);
      }
