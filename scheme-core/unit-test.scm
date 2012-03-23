@@ -321,7 +321,7 @@
       (when dump-fasl-file?
         (system (format #f "../vm/fasl-dump ~a" test-filename)))
       (with-port p (open-input-file test-filename :binary)
-        (set! object (fast-read p)))
+        (set! object (fast-read (make-fasl-reader p))))
       (delete-file test-filename)
       object)))
 

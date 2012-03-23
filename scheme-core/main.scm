@@ -110,7 +110,7 @@
 (define (fasl-load filename)
   (check string? filename)
   (with-port ip (open-input-file filename :binary)
-    (%%fasl-load ip)))
+    (%%fasl-load (make-fasl-reader ip))))
 
 (define *location-mapping* #f)
 
@@ -187,7 +187,7 @@
        (let ((port (clone-c-data-port it)))
          (info "Loading Internal File: ~a" filename)
          (if (binary-port? port)
-             (do-load %%fasl-load port)
+             (do-load %%fasl-load (make-fasl-reader port))
              (do-load %text-load port)))
        (error "Internal file not found: ~a\n" filename)))
 
