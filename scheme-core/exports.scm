@@ -624,9 +624,7 @@
              port
              port?
              port-at-end?
-             port-bandwidth
              port-closed?
-             port-io-counts
              port-location
              port-mode
              port-name

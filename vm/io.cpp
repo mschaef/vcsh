@@ -83,8 +83,11 @@ static port_text_translation_info_t *initialize_text_info()
 }
 
  lref_t initialize_port(lref_t s,
-                      port_class_t * cls,
-                      lref_t port_name, port_mode_t mode, lref_t user_object, void *user_data)
+                        port_class_t * cls,
+                        lref_t port_name,
+                        port_mode_t mode,
+                        lref_t user_object,
+                        void *user_data)
  {
       bool binary = (mode & PORT_BINARY) == PORT_BINARY;
 

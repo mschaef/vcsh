@@ -71,23 +71,6 @@
    output port with timing information."
   `(call-with-time-output (lambda () ,@code)))
 
-(define (call-with-port-bandwidth port fn)
-  (let* ((starting-counts (port-io-counts port))
-         (result (%time-apply0 fn))
-         (ending-counts (port-io-counts port)))
-    (newline)
-    (dformat "; read bandwidth = ~a\n" (/ (- (car ending-counts)
-                                             (car starting-counts))
-                                          (vector-ref result 1)))
-
-    (dformat "; write bandwidth = ~a\n" (/ (- (cdr ending-counts)
-                                              (cdr starting-counts))
-                                           (vector-ref result 1)))
-    (vector-ref result 0)))
-
-(defmacro (port-bandwidth port . code)
-  `(call-with-port-bandwidth ,port `(lambda () ,@code)))
-
 ;;;; Documentation access and symbol search
 
 (define (documentation obj) ;; REVISIT: Should be a generic function
