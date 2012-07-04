@@ -100,7 +100,6 @@ static port_text_translation_info_t *allocate_text_info()
       PORT_PINFO(s)->_port_name = port_name;
       PORT_PINFO(s)->_user_data = user_data;
       PORT_PINFO(s)->_user_object = user_object;
-
       PORT_PINFO(s)->_mode = mode;
 
       SET_PORT_TEXT_INFO(s, binary ? NULL : allocate_text_info());
@@ -148,7 +147,10 @@ static port_text_translation_info_t *allocate_text_info()
       return actual_count;
  }
 
- lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,
+ lref_t portcons(port_class_t * cls,
+                 lref_t port_name,
+                 port_mode_t mode,
+                 lref_t user_object,
                  void *user_data)
  {
       lref_t s = new_cell(TC_PORT);
@@ -1148,14 +1150,90 @@ port_class_t null_port_class = {
 
 lref_t lopen_null_input_port()
 {
-     return portcons(&null_port_class, NIL, (port_mode_t) (PORT_INPUT | PORT_BINARY),
-                     NIL, NULL);
+     return portcons(&null_port_class,
+                     NIL,
+                     (port_mode_t) (PORT_INPUT | PORT_BINARY),
+                     NIL,
+                     NULL);
 }
 
 lref_t lopen_null_output_port()
 {
-     return portcons(&null_port_class, NIL, (port_mode_t) (PORT_OUTPUT | PORT_BINARY),
-                     NIL, NULL);
+     return portcons(&null_port_class,
+                     NIL,
+                     (port_mode_t) (PORT_OUTPUT | PORT_BINARY),
+                     NIL,
+                     NULL);
+}
+
+/*** Text port object ***/
+
+size_t text_port_read(void *buf, size_t size, size_t count, lref_t obj)
+{
+     return 0;
+}
+
+size_t text_port_write(const void *buf, size_t size, size_t count, lref_t obj)
+{
+     return 0;
+}
+
+
+int text_port_flush(lref_t obj)
+{
+     return 0;
+}
+
+void text_port_close(lref_t obj)
+{
+}
+
+port_class_t text_port_class = {
+     _T("TEXT"),
+
+     NULL,
+
+     NULL,
+     text_port_read,
+
+     text_port_write,
+     NULL,
+
+     text_port_flush,
+     text_port_close,
+     NULL,
+
+     NULL
+};
+
+lref_t lopen_text_input_port(lref_t underlying)
+{
+     if (!PORTP(underlying))
+          vmerror_wrong_type(1, underlying);
+
+     if (!PORT_BINARYP(underlying))
+          vmerror_unsupported(_T("cannot open text input on text port"));
+
+     return portcons(&text_port_class,
+                     NIL,
+                     PORT_INPUT,
+                     underlying,
+                     NULL);
+}
+
+lref_t lopen_text_output_port(lref_t underlying)
+{
+     if (!PORTP(underlying))
+          vmerror_wrong_type(1, underlying);
+
+     if (!PORT_BINARYP(underlying))
+          vmerror_unsupported(_T("cannot open text output on text port"));
+
+     return portcons(&text_port_class,
+                     NIL,
+                     PORT_OUTPUT,
+                     underlying,
+                     NULL);
 }
 
 END_NAMESPACE
