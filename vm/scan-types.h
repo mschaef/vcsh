@@ -1225,6 +1225,18 @@ INLINE size_t PORT_BYTES_READ(lref_t x)
      return (PORT_PINFO(x)->_bytes_read);
 }
 
+INLINE lref_t PORT_USER_OBJECT(lref_t x)
+{
+     checked_assert(PORTP(x));
+     return (PORT_PINFO(x)->_user_object);
+}
+
+INLINE void SET_PORT_USER_OBJECT(lref_t x, lref_t user_object)
+{
+     checked_assert(PORTP(x));
+     (PORT_PINFO(x)->_user_object) = user_object;
+}
+
 /*** values-tuple ***/
 INLINE lref_t VALUES_TUPLE_VALUES(lref_t vt)
 {

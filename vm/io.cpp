@@ -42,7 +42,7 @@
  {
       gc_mark(PORT_PINFO(obj)->_port_name);
 
-      return PORT_PINFO(obj)->_user_object;
+      return PORT_USER_OBJECT(obj);
  }
 
  void port_gc_free(lref_t port)

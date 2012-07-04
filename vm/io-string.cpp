@@ -16,18 +16,18 @@
 #include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
+
 INLINE void SET_PORT_STRING(lref_t port, lref_t string)
 {
      assert(STRINGP(string));
 
-     PORT_PINFO(port)->_user_object = string;
+     SET_PORT_USER_OBJECT(port, string);
 }
 
 INLINE lref_t PORT_STRING(lref_t port)
 {
-     return PORT_PINFO(port)->_user_object;
+     return PORT_USER_OBJECT(port);
 }
-
 size_t string_port_read(void *buf, size_t size, size_t count, lref_t obj)
 {
      size_t bytes_read;
