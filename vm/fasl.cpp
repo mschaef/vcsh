@@ -690,7 +690,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           lref_t opcode_location = NIL;
 
           if (DEBUG_FLAG(DF_FASL_SHOW_OPCODES))
-               opcode_location = lport_location(FASL_READER_PORT(reader));
+               opcode_location = NIL; // XXX lport_location(FASL_READER_PORT(reader));
 
           fasl_opcode_t opcode = fast_read_opcode(reader);
           fixnum_t index = 0;

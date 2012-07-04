@@ -538,21 +538,6 @@ static port_text_translation_info_t *allocate_text_info()
       return PORT_PINFO(port)->_port_name;
  }
 
- lref_t lport_location(lref_t port)
- {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
-
-      if (!PORTP(port))
-           vmerror_wrong_type(1, port);
-
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot get location of binary ports"));
-
-      return lcons(fixcons(PORT_TEXT_INFO(port)->_row),
-                   fixcons(PORT_TEXT_INFO(port)->_column));
- }
-
  lref_t lport_column(lref_t port)
  {
       if (NULLP(port))

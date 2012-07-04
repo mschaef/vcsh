@@ -368,7 +368,6 @@ lref_t lpanic(lref_t msg);
 lref_t lpeek_char(lref_t port);
 lref_t lportp(lref_t port);
 lref_t lport_column(lref_t port);
-lref_t lport_location(lref_t port);
 lref_t lport_row(lref_t port);
 lref_t lport_mode(lref_t obj);
 lref_t lport_name(lref_t port);
