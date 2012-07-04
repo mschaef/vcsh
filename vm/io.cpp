@@ -62,7 +62,7 @@
        gc_free(PORT_PINFO(port));
  }
 
-static port_text_translation_info_t *initialize_text_info()
+static port_text_translation_info_t *allocate_text_info()
 {
      port_text_translation_info_t *tinfo =
           (port_text_translation_info_t *)gc_malloc(sizeof(port_text_translation_info_t));
@@ -103,13 +103,7 @@ static port_text_translation_info_t *initialize_text_info()
 
       PORT_PINFO(s)->_mode = mode;
 
-      PORT_PINFO(s)->_bytes_read = 0;
-      PORT_PINFO(s)->_bytes_written = 0;
-
-      if (binary)
-           SET_PORT_TEXT_INFO(s, NULL);
-      else
-           SET_PORT_TEXT_INFO(s, initialize_text_info());
+      SET_PORT_TEXT_INFO(s, binary ? NULL : allocate_text_info());
 
       if (PORT_CLASS(s)->_open)
            PORT_CLASS(s)->_open(s);
@@ -135,8 +129,6 @@ static port_text_translation_info_t *initialize_text_info()
       assert(!NULLP(port));
       assert(PORT_CLASS(port)->_write);
 
-      PORT_PINFO(port)->_bytes_written += (size * count);
-
       return PORT_CLASS(port)->_write(buf, size, count, port);
  }
 
@@ -148,11 +140,7 @@ static port_text_translation_info_t *initialize_text_info()
       assert(!NULLP(port));
       assert(PORT_CLASS(port)->_read);
 
-      size_t actual_count = PORT_CLASS(port)->_read(buf, size, count, port);
-
-      PORT_PINFO(port)->_bytes_read += (size * actual_count);
-
-      return actual_count;
+      return  PORT_CLASS(port)->_read(buf, size, count, port);
  }
 
  lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,
@@ -559,9 +547,10 @@ static port_text_translation_info_t *initialize_text_info()
            vmerror_wrong_type(1, port);
 
       if (PORT_BINARYP(port))
-           return fixcons(PORT_PINFO(port)->_bytes_read);
-      else
-           return lcons(fixcons(PORT_TEXT_INFO(port)->_row), fixcons(PORT_TEXT_INFO(port)->_column));
+           vmerror_unsupported(_T("cannot get location of binary ports"));
+
+      return lcons(fixcons(PORT_TEXT_INFO(port)->_row),
+                   fixcons(PORT_TEXT_INFO(port)->_column));
  }
 
  lref_t lport_translate_mode(lref_t port)
@@ -592,15 +581,6 @@ static port_text_translation_info_t *initialize_text_info()
       PORT_TEXT_INFO(port)->_crlf_translate = TRUEP(mode);
 
       return boolcons(old_translate_mode);
- }
-
- lref_t lport_io_counts(lref_t port)
- {
-      if (!PORTP(port))
-           vmerror_wrong_type(1, port);
-
-      return lcons(fixcons(PORT_PINFO(port)->_bytes_read),
-                   fixcons(PORT_PINFO(port)->_bytes_written));
  }
 
  lref_t lclose_port(lref_t port)

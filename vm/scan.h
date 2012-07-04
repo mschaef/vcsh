@@ -366,7 +366,6 @@ lref_t lpackage_use_list(lref_t p);
 lref_t lpackagep(lref_t x);
 lref_t lpanic(lref_t msg);
 lref_t lpeek_char(lref_t port);
-lref_t lport_io_counts(lref_t port);
 lref_t lportp(lref_t port);
 lref_t lport_location(lref_t port);
 lref_t lport_mode(lref_t obj);
