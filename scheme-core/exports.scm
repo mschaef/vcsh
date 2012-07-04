@@ -625,7 +625,9 @@
              port?
              port-at-end?
              port-closed?
+             port-column
              port-location
+             port-row
              port-mode
              port-name
              port-open?

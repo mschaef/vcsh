@@ -553,6 +553,34 @@ static port_text_translation_info_t *allocate_text_info()
                    fixcons(PORT_TEXT_INFO(port)->_column));
  }
 
+ lref_t lport_column(lref_t port)
+ {
+      if (NULLP(port))
+           port = CURRENT_INPUT_PORT();
+
+      if (!PORTP(port))
+           vmerror_wrong_type(1, port);
+
+      if (PORT_BINARYP(port))
+           vmerror_unsupported(_T("cannot get column of binary ports"));
+
+      return fixcons(PORT_TEXT_INFO(port)->_column);
+ }
+
+ lref_t lport_row(lref_t port)
+ {
+      if (NULLP(port))
+           port = CURRENT_INPUT_PORT();
+
+      if (!PORTP(port))
+           vmerror_wrong_type(1, port);
+
+      if (PORT_BINARYP(port))
+           vmerror_unsupported(_T("cannot get row of binary ports"));
+
+      return fixcons(PORT_TEXT_INFO(port)->_row);
+ }
+
  lref_t lport_translate_mode(lref_t port)
  {
       if (!PORTP(port))

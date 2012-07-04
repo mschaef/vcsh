@@ -435,7 +435,9 @@ static void register_main_subrs()
     register_subr(_T("pair?"),                            SUBR_1,     (void*)lconsp                              );
     register_subr(_T("peek-char"),                        SUBR_1,     (void*)lpeek_char                          );
     register_subr(_T("port?"),                            SUBR_1,     (void*)lportp                              );
+    register_subr(_T("port-column"),                    SUBR_1,     (void*)lport_column                      );
     register_subr(_T("port-location"),                    SUBR_1,     (void*)lport_location                      );
+    register_subr(_T("port-row"),                         SUBR_1,     (void*)lport_row                           );
     register_subr(_T("port-mode"),                        SUBR_1,     (void*)lport_mode                          );
     register_subr(_T("port-name"),                        SUBR_1,     (void*)lport_name                          );
     register_subr(_T("port-translate-mode"),              SUBR_1,     (void*)lport_translate_mode                );
