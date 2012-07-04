@@ -687,10 +687,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           /*  Assume we're going to complete the read unless we find out otherwise.. */
           current_read_complete = true;
 
-          lref_t opcode_location = NIL;
-
-          if (DEBUG_FLAG(DF_FASL_SHOW_OPCODES))
-               opcode_location = NIL; // XXX lport_location(FASL_READER_PORT(reader));
+          size_t opcode_location = PORT_BYTES_READ(reader);
 
           fasl_opcode_t opcode = fast_read_opcode(reader);
           fixnum_t index = 0;
@@ -702,7 +699,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
                dscwritef(DF_FASL_SHOW_OPCODES,
                          (_T("; DEBUG: fasl-opcode@~cx :~cS\n"),
-                          get_c_long(opcode_location), opcode_name ? opcode_name : _T("<INVALID>")));
+                         opcode_location, opcode_name ? opcode_name : _T("<INVALID>")));
           }
 
           switch (opcode)

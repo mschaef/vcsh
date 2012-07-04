@@ -127,10 +127,10 @@ void vmerror_fast_read(const _TCHAR * message, lref_t reader, lref_t details /* 
      /*  REVISIT: vmerror_fast_read don't always show valid port locations */
      assert(FASL_READER_P(reader));
 
-     lref_t location = NIL; // XXX: lport_location(FASL_READER_PORT(reader));
+     size_t location = PORT_BYTES_READ(reader);
 
      vmtrap(TRAP_FAST_READ_ERROR, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            5, topmost_primitive(), strcons(message), reader, location, details);
+            5, topmost_primitive(), strcons(message), reader, fixcons(location), details);
 }
 
 

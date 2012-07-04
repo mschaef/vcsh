@@ -132,7 +132,7 @@ static port_text_translation_info_t *allocate_text_info()
       return PORT_CLASS(port)->_write(buf, size, count, port);
  }
 
- size_t read_raw(void *buf, size_t size, size_t count, lref_t port)
+ size_t read_raw(void *buf, size_t size, size_t target_count, lref_t port)
  {
       if (NULLP(port))
            port = CURRENT_INPUT_PORT();
@@ -140,7 +140,12 @@ static port_text_translation_info_t *allocate_text_info()
       assert(!NULLP(port));
       assert(PORT_CLASS(port)->_read);
 
-      return  PORT_CLASS(port)->_read(buf, size, count, port);
+      size_t actual_count =
+           PORT_CLASS(port)->_read(buf, size, target_count, port);
+
+      PORT_PINFO(port)->_bytes_read += (actual_count * size);
+
+      return actual_count;
  }
 
  lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,

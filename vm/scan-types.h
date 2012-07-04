@@ -1144,7 +1144,6 @@ struct port_info_t
      port_text_translation_info_t *_text_info;
 
      size_t _bytes_read;
-     size_t _bytes_written;
 };
 
 struct port_class_t
@@ -1218,6 +1217,12 @@ INLINE void SET_PORT_MODE(lref_t x, port_mode_t mode)
 INLINE bool PORT_BINARYP(lref_t x)
 {
      return (PORT_TEXT_INFO(x) == NULL);
+}
+
+INLINE size_t PORT_BYTES_READ(lref_t x)
+{
+     checked_assert(PORTP(x));
+     return (PORT_PINFO(x)->_bytes_read);
 }
 
 /*** values-tuple ***/
