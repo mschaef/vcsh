@@ -197,7 +197,6 @@
 (%define peek-char #.(host-scheme::%subr-by-name "peek-char"))
 (%define port? #.(host-scheme::%subr-by-name "port?"))
 (%define port-column #.(host-scheme::%subr-by-name "port-column"))
-(%define port-location #.(host-scheme::%subr-by-name "port-location"))
 (%define port-row #.(host-scheme::%subr-by-name "port-row"))
 (%define port-mode #.(host-scheme::%subr-by-name "port-mode"))
 (%define port-name #.(host-scheme::%subr-by-name "port-name"))

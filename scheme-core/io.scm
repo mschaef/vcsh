@@ -183,6 +183,12 @@ and #f otherwise. If <port> is not a port, throws an error."
    (%control-field system::VMCTRL_CURRENT_DEBUG_PORT)
    (%set-control-field system::VMCTRL_CURRENT_DEBUG_PORT port)))
 
+(define (port-location port)
+  "Returns the location of <port> as a cons cell, with the row in the
+car and the column in the cdr."
+  (cons (port-row port)
+        (port-column port)))
+
 (define *location-mapping* #f) ; REVISIT: fix the need for this fwd decl.
 
 (define (read-from-string string :optional (location-map #f))

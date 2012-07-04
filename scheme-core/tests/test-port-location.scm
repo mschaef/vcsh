@@ -97,25 +97,44 @@
   (let ((raw-port (open-output-string)))
     (set-port-translate-mode! raw-port #f)
 
-    (test-case (equal? (port-location raw-port) '(1 . 0)))
+    (test-case (equal? (port-row raw-port) 1))
+    (test-case (equal? (port-column raw-port) 0))
+
     (fresh-line raw-port)
-    (test-case (equal? (port-location raw-port) '(1 . 0)))
+
+    (test-case (equal? (port-row raw-port) 1))
+    (test-case (equal? (port-column raw-port) 0))
+
     (fresh-line raw-port)
-    (test-case (equal? (port-location raw-port) '(1 . 0)))
+
+    (test-case (equal? (port-row raw-port) 1))
+    (test-case (equal? (port-column raw-port) 0))
+
     (display "foo" raw-port)
     (fresh-line raw-port)
-    (test-case (equal? (port-location raw-port) '(2 . 0))))
+
+    (test-case (equal? (port-row raw-port) 2))
+    (test-case (equal? (port-column raw-port) 0)))
 
   (let ((translate-port (open-output-string)))
     (set-port-translate-mode! translate-port #t)
 
-    (test-case (equal? (port-location translate-port) '(1 . 0)))
+    (test-case (equal? (port-row translate-port) 1))
+    (test-case (equal? (port-column translate-port) 0))
+
     (fresh-line translate-port)
-    (test-case (equal? (port-location translate-port) '(1 . 0)))
+
+    (test-case (equal? (port-row translate-port) 1))
+    (test-case (equal? (port-column translate-port) 0))
+
     (fresh-line translate-port)
-    (test-case (equal? (port-location translate-port) '(1 . 0)))
+
+    (test-case (equal? (port-row translate-port) 1))
+    (test-case (equal? (port-column translate-port) 0))
+
     (display "foo" translate-port)
     (fresh-line translate-port)
-    (test-case (equal? (port-location translate-port) '(2 . 0))))
-  )
+
+    (test-case (equal? (port-row translate-port) 2))
+    (test-case (equal? (port-column translate-port) 0))))
 
