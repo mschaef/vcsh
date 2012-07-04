@@ -1178,14 +1178,18 @@ size_t text_port_write(const void *buf, size_t size, size_t count, lref_t obj)
      return 0;
 }
 
-
-int text_port_flush(lref_t obj)
+void text_port_flush(lref_t obj)
 {
-     return 0;
+     assert(PORTP(PORT_USER_OBJECT(obj)));
+
+     lflush_port(PORT_USER_OBJECT(obj));
 }
 
 void text_port_close(lref_t obj)
 {
+     assert(PORTP(PORT_USER_OBJECT(obj)));
+
+     lclose_port(PORT_USER_OBJECT(obj));
 }
 
 port_class_t text_port_class = {

@@ -1158,7 +1158,7 @@ struct port_class_t
      size_t(*_write) (const void *, size_t, size_t, lref_t);
      bool(*_rich_write) (lref_t, bool, lref_t);
 
-     int (*_flush) (lref_t);
+     void (*_flush) (lref_t);
      void (*_close) (lref_t);
      void (*_gc_free) (lref_t);
 

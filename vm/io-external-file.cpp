@@ -91,13 +91,13 @@ size_t file_port_write(const void *buf, size_t size, size_t count, lref_t obj)
      return (int) fwrite(buf, size, count, f);
 }
 
-int file_port_flush(lref_t obj)
+void file_port_flush(lref_t obj)
 {
      FILE *f = PORT_FILE(obj);
 
      assert(f);
 
-     return fflush(f);
+     fflush(f);
 }
 
 void file_port_close(lref_t obj)
