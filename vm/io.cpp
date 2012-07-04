@@ -324,7 +324,7 @@ static port_text_translation_info_t *allocate_text_info()
       else
       {
            /* This code divides the text to be written into blocks seperated
-            * by line seperators. raw_write is called for each block to
+            * by line seperators. write_raw is called for each block to
             * actually do the write, and line seperators are correctly
             * translated to CR+LF pairs. */
 
@@ -1170,12 +1170,16 @@ lref_t lopen_null_output_port()
 
 size_t text_port_read(void *buf, size_t size, size_t count, lref_t obj)
 {
-     return 0;
+     assert(PORTP(PORT_USER_OBJECT(obj)));
+
+     return read_raw(buf, size, count, PORT_USER_OBJECT(obj));
 }
 
 size_t text_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 {
-     return 0;
+     assert(PORTP(PORT_USER_OBJECT(obj)));
+
+     return write_raw(buf, size, count, PORT_USER_OBJECT(obj));
 }
 
 void text_port_flush(lref_t obj)
