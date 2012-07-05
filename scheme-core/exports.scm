@@ -596,6 +596,8 @@
              open-null-output-port
              open-output-file
              open-output-string
+             open-text-input-port 
+             open-text-output-port
              or
              or*
              orphaned-structure?

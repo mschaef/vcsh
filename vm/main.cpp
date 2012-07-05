@@ -429,13 +429,15 @@ static void register_main_subrs()
     register_subr(_T("open-null-output-port"),            SUBR_0,     (void*)lopen_null_output_port              );
     register_subr(_T("open-output-file"),                 SUBR_2,     (void*)lopen_output_file                   );
     register_subr(_T("open-output-string"),               SUBR_0,     (void*)lopen_output_string                 );
+    register_subr(_T("open-text-input-port"),             SUBR_1,     (void*)lopen_text_input_port               );
+    register_subr(_T("open-text-output-port"),            SUBR_1,     (void*)lopen_text_output_port              );
     register_subr(_T("output-port?"),                     SUBR_1,     (void*)loutput_portp                       );
     register_subr(_T("package-name"),                     SUBR_1,     (void*)lpackage_name                       );
     register_subr(_T("package?"),                         SUBR_1,     (void*)lpackagep                           );
     register_subr(_T("pair?"),                            SUBR_1,     (void*)lconsp                              );
     register_subr(_T("peek-char"),                        SUBR_1,     (void*)lpeek_char                          );
     register_subr(_T("port?"),                            SUBR_1,     (void*)lportp                              );
-    register_subr(_T("port-column"),                      SUBR_1,     (void*)lport_column                      );
+    register_subr(_T("port-column"),                      SUBR_1,     (void*)lport_column                        );
     register_subr(_T("port-row"),                         SUBR_1,     (void*)lport_row                           );
     register_subr(_T("port-mode"),                        SUBR_1,     (void*)lport_mode                          );
     register_subr(_T("port-name"),                        SUBR_1,     (void*)lport_name                          );
