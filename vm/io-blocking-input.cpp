@@ -85,7 +85,7 @@ size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t por
                     ps->_more_data = false;
 
                /*  Handle the case where the read callback actually closed the port on us. */
-               if (PORT_MODE(port) == PORT_CLOSED)
+               if (PORT_CLOSEDP(port))
                     break;
 
                bytes_available = ps->_buffer_size - ps->_buffer_pos;

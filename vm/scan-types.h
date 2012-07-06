@@ -1219,6 +1219,11 @@ INLINE bool PORT_BINARYP(lref_t x)
      return (PORT_TEXT_INFO(x) == NULL);
 }
 
+INLINE bool PORT_CLOSEDP(lref_t port)
+{
+     return (PORT_MODE(port) & PORT_DIRECTION) == PORT_CLOSED;
+}
+
 INLINE bool PORT_INPUTP(lref_t port)
 {
      return (PORT_MODE(port) & PORT_INPUT);

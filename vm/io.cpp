@@ -513,26 +513,22 @@ static port_text_translation_info_t *allocate_text_info()
            return boolcons(false);
  }
 
- lref_t lport_mode(lref_t obj)
- {
-      if (!PORTP(obj))
-           vmerror_wrong_type(1, obj);
+lref_t lport_mode(lref_t obj)
+{
+     if (!PORTP(obj))
+          vmerror_wrong_type(1, obj);
 
-      switch (PORT_MODE(obj) & PORT_DIRECTION)
-      {
-      case PORT_CLOSED:
-           return keyword_intern(_T("closed"));
-      case PORT_INPUT:
-           return keyword_intern(_T("input"));
-      case PORT_OUTPUT:
-           return keyword_intern(_T("output"));
-      }
+     if (PORT_CLOSEDP(obj))
+          return keyword_intern(_T("closed"));
+     else if (PORT_INPUTP(obj))
+          return keyword_intern(_T("input"));
+     else if (PORT_OUTPUTP(obj))
+          return keyword_intern(_T("output"));
 
-      panic(_T("corrupt port"));
+     panic(_T("corrupt port"));
 
-      return NIL;
- }
-
+     return NIL;
+}
 
  lref_t lport_name(lref_t port)
  {
