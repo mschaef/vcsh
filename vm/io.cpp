@@ -169,7 +169,7 @@ static port_text_translation_info_t *allocate_text_info()
 
       assert(!NULLP(port));
 
-      if (!(PORT_MODE(port) & PORT_INPUT))
+      if (!PORT_INPUTP(port))
            return ch;
 
       /* Read the next character, perhaps from the unread buffer... */
@@ -299,7 +299,7 @@ static port_text_translation_info_t *allocate_text_info()
 
       assert(PORTP(port));
 
-      if ((PORT_PINFO(port)->_mode & PORT_OUTPUT) != PORT_OUTPUT)
+      if (!PORT_OUTPUTP(port))
            return 0;
 
       if (PORT_BINARYP(port))
@@ -491,23 +491,23 @@ static port_text_translation_info_t *allocate_text_info()
 
  lref_t linput_portp(lref_t obj)
  {
-      if (PORTP(obj) && (PORT_MODE(obj) & PORT_INPUT))
+      if (PORTP(obj) && PORT_INPUTP(obj))
            return obj;
-      else
-           return boolcons(false);
+
+      return boolcons(false);
  }
 
  lref_t loutput_portp(lref_t obj)
  {
-      if (PORTP(obj) && (PORT_MODE(obj) & PORT_OUTPUT))
+      if (PORTP(obj) && PORT_OUTPUTP(obj))
            return obj;
-      else
-           return boolcons(false);
+
+      return boolcons(false);
  }
 
  lref_t lbinary_portp(lref_t obj)
  {
-      if (PORTP(obj) && (PORT_BINARYP(obj)))
+      if (PORTP(obj) && PORT_BINARYP(obj))
            return obj;
       else
            return boolcons(false);
@@ -608,7 +608,7 @@ static port_text_translation_info_t *allocate_text_info()
       if (!PORTP(port))
            vmerror_wrong_type(1, port);
 
-      if (PORT_PINFO(port)->_mode & PORT_OUTPUT)
+      if (PORT_OUTPUTP(port))
            lflush_port(port);
 
       if (PORT_CLASS(port)->_close)
@@ -783,7 +783,7 @@ lref_t lflush_whitespace(lref_t port, lref_t slc)
 
      assert(!NULLP(port));
 
-     if (PORT_MODE(port) & PORT_INPUT)
+     if (PORT_INPUTP(port))
           ch = flush_whitespace(port, skip_lisp_comments);
 
      if (ch == EOF)

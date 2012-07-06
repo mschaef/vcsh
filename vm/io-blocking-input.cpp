@@ -64,7 +64,7 @@ size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t por
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
-     if (!(PORT_MODE(port) & PORT_INPUT))
+     if (!PORT_INPUTP(port))
           return 0;
 
      blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->_user_data);
@@ -186,7 +186,9 @@ lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
 
      return portcons(&blocking_input_port_class,
                      strcons(port_name),
-                     binary ? (port_mode_t) (PORT_INPUT | PORT_BINARY) : PORT_INPUT, NIL, ps);
+                     binary ? (port_mode_t) (PORT_INPUT | PORT_BINARY) : PORT_INPUT,
+                     NIL,
+                     ps);
 
 }
 

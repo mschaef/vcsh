@@ -53,9 +53,9 @@ void file_port_open(lref_t obj)
 
      assert(STRINGP(PORT_PINFO(obj)->_port_name));
 
-     if (PORT_MODE(obj) & PORT_OUTPUT)
+     if (PORT_OUTPUTP(obj))
           f = fopen(get_c_string(PORT_PINFO(obj)->_port_name), "wb");
-     else if (PORT_MODE(obj) & PORT_INPUT)
+     else if (PORT_INPUTP(obj))
           f = fopen(get_c_string(PORT_PINFO(obj)->_port_name), "rb");
      else
           panic("File port open for closed port");
@@ -154,7 +154,8 @@ lref_t lopen_input_file(lref_t filename, lref_t mode)
      if (!STRINGP(filename))
           vmerror_wrong_type(1, filename);
 
-     return fileportcons(&file_port_class, (port_mode_t) (PORT_INPUT | (binary ? PORT_BINARY : 0)),
+     return fileportcons(&file_port_class,
+                         (port_mode_t) (PORT_INPUT | (binary ? PORT_BINARY : 0)),
                          filename);
 }
 
@@ -167,7 +168,8 @@ lref_t lopen_output_file(lref_t filename, lref_t mode)
      if (!STRINGP(filename))
           vmerror_wrong_type(1, filename);
 
-     return fileportcons(&file_port_class, (port_mode_t) (PORT_OUTPUT | (binary ? PORT_BINARY : 0)),
+     return fileportcons(&file_port_class,
+                         (port_mode_t) (PORT_OUTPUT | (binary ? PORT_BINARY : 0)),
                          filename);
 }
 

@@ -1219,6 +1219,16 @@ INLINE bool PORT_BINARYP(lref_t x)
      return (PORT_TEXT_INFO(x) == NULL);
 }
 
+INLINE bool PORT_INPUTP(lref_t port)
+{
+     return (PORT_MODE(port) & PORT_INPUT);
+}
+
+INLINE bool PORT_OUTPUTP(lref_t port)
+{
+     return (PORT_MODE(port) & PORT_OUTPUT);
+}
+
 INLINE size_t PORT_BYTES_READ(lref_t x)
 {
      checked_assert(PORTP(x));

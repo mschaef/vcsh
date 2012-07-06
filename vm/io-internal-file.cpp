@@ -27,7 +27,7 @@ struct c_data_port_state
 
 size_t c_data_port_read(void *buf, size_t size, size_t count, lref_t obj)
 {
-     if (!(PORT_MODE(obj) & PORT_INPUT))
+     if (!PORT_INPUTP(obj))
           return 0;
 
      c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->_user_data);
@@ -55,7 +55,7 @@ void c_data_port_gc_free(lref_t obj)
 
 size_t c_data_port_length(lref_t obj)
 {
-     if (!(PORT_MODE(obj) & PORT_INPUT))
+     if (!PORT_INPUTP(obj))
           return 0;
 
      c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->_user_data);
@@ -94,8 +94,11 @@ lref_t open_c_data_input(internal_file_t *data)
      ps->_input_buffer       = data->_bytes;
      ps->_input_buffer_bytes = data->_length;
 
-     return portcons(&c_data_port_class, NIL,
-                     (port_mode_t) (PORT_INPUT | PORT_BINARY), NIL, ps);
+     return portcons(&c_data_port_class,
+                     NIL,
+                     (port_mode_t) (PORT_INPUT | PORT_BINARY),
+                     NIL,
+                     ps);
 }
 
 void register_internal_file(internal_file_t *data)
@@ -110,8 +113,11 @@ lref_t lclone_c_data_port(lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type(1, port);
 
-     if (!(PORT_MODE(port) & PORT_INPUT) || (PORT_CLASS(port) != &c_data_port_class))
+     if (PORT_CLASS(port) != &c_data_port_class)
           vmerror_unsupported(_T("only c-data ports may be cloned"));
+
+     if (!PORT_INPUTP(port))
+          vmerror_unsupported(_T("only input ports may be cloned"));
 
      c_data_port_state *old_ps = (c_data_port_state *) (PORT_PINFO(port)->_user_data);
      c_data_port_state *new_ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));

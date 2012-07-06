@@ -779,7 +779,10 @@ void init_debugger_output()
 
      initialize_port(&interp.debugger_output,
                      DEBUG_FLAG(DF_DEBUGGER_TO_ODS) ? &debug_port_class : &stderr_port_class,
-                     NIL, PORT_OUTPUT, NIL, NULL);
+                     NIL,
+                     PORT_OUTPUT,
+                     NIL,
+                     NULL);
 }
 
 END_NAMESPACE
