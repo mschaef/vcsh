@@ -1220,7 +1220,7 @@ lref_t lopen_text_input_port(lref_t underlying)
           vmerror_unsupported(_T("cannot open text input on text port"));
 
      return portcons(&text_port_class,
-                     NIL,
+                     lcons(keyword_intern(_T("text")), lport_name(underlying)),
                      PORT_INPUT,
                      underlying,
                      NULL);
@@ -1235,7 +1235,7 @@ lref_t lopen_text_output_port(lref_t underlying)
           vmerror_unsupported(_T("cannot open text output on text port"));
 
      return portcons(&text_port_class,
-                     NIL,
+                     lcons(keyword_intern(_T("text")), lport_name(underlying)),
                      PORT_OUTPUT,
                      underlying,
                      NULL);
