@@ -584,6 +584,7 @@ lref_t lport_mode(lref_t obj)
  {
       if (!PORTP(port))
            vmerror_wrong_type(1, port);
+
       if (!BOOLP(mode))
            vmerror_wrong_type(2, mode);
 

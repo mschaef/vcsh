@@ -210,7 +210,8 @@ void stdout_port_open(lref_t obj)
 {
      SET_PORT_FILE(obj, stdout);
 
-     PORT_TEXT_INFO(obj)->_crlf_translate = false;
+     if (!PORT_BINARYP(obj))
+          PORT_TEXT_INFO(obj)->_crlf_translate = false;
 }
 
 port_class_t stdout_port_class = {
@@ -234,7 +235,8 @@ void stderr_port_open(lref_t obj)
 {
      SET_PORT_FILE(obj, stderr);
 
-     PORT_TEXT_INFO(obj)->_crlf_translate = false;
+     if (!PORT_BINARYP(obj))
+          PORT_TEXT_INFO(obj)->_crlf_translate = false;
 }
 
 port_class_t stderr_port_class = {
@@ -257,9 +259,14 @@ port_class_t stderr_port_class = {
 
 void init_stdio_ports()
 {
-     lref_t stdin_port = fileportcons(&stdin_port_class, PORT_INPUT, NIL);
-     lref_t stdout_port = fileportcons(&stdout_port_class, PORT_OUTPUT, NIL);
-     lref_t stderr_port = fileportcons(&stderr_port_class, PORT_OUTPUT, NIL);
+     lref_t stdin_port =
+          lopen_text_input_port(fileportcons(&stdin_port_class, (port_mode_t)(PORT_INPUT | PORT_BINARY), NIL));
+
+     lref_t stdout_port =
+          lopen_text_output_port(fileportcons(&stdout_port_class,  (port_mode_t)(PORT_OUTPUT | PORT_BINARY), NIL));
+
+     lref_t stderr_port =
+          lopen_text_output_port(fileportcons(&stderr_port_class,  (port_mode_t)(PORT_OUTPUT | PORT_BINARY), NIL));
 
      interp.control_fields[VMCTRL_CURRENT_INPUT_PORT] = stdin_port;
      interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT] = stdout_port;
