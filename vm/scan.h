@@ -358,6 +358,8 @@ lref_t lopen_null_input_port();
 lref_t lopen_null_output_port();
 lref_t lopen_output_file(lref_t filename, lref_t mode);
 lref_t lopen_output_string();
+lref_t lopen_raw_input_file(lref_t filename);
+lref_t lopen_raw_output_file(lref_t filename);
 lref_t lopen_text_input_port(lref_t underlying);
 lref_t lopen_text_output_port(lref_t underlying);
 lref_t loutput_portp(lref_t obj);

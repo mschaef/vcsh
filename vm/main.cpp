@@ -429,6 +429,8 @@ static void register_main_subrs()
     register_subr(_T("open-null-output-port"),            SUBR_0,     (void*)lopen_null_output_port              );
     register_subr(_T("open-output-file"),                 SUBR_2,     (void*)lopen_output_file                   );
     register_subr(_T("open-output-string"),               SUBR_0,     (void*)lopen_output_string                 );
+    register_subr(_T("open-raw-input-file"),              SUBR_1,     (void*)lopen_raw_input_file                );
+    register_subr(_T("open-raw-output-file"),             SUBR_1,     (void*)lopen_raw_output_file               );
     register_subr(_T("open-text-input-port"),             SUBR_1,     (void*)lopen_text_input_port               );
     register_subr(_T("open-text-output-port"),            SUBR_1,     (void*)lopen_text_output_port              );
     register_subr(_T("output-port?"),                     SUBR_1,     (void*)loutput_portp                       );
@@ -548,7 +550,7 @@ static void load_init_load_files()
 
           dscwritef(DF_ALWAYS, ("; Init Loading ~a...\n", fname));
 
-          lref_t port = lopen_input_file(fname, keyword_intern(_T("binary")));
+          lref_t port = lopen_raw_input_file(fname);
 
           liifasl_load(lmake_fasl_reader(port));
 

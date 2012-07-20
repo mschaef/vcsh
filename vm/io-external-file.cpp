@@ -147,6 +147,26 @@ bool get_c_port_mode(lref_t mode)
      return false;
 }
 
+lref_t lopen_raw_input_file(lref_t filename)
+{
+     if (!STRINGP(filename))
+          vmerror_wrong_type(1, filename);
+
+     return fileportcons(&file_port_class,
+                         (port_mode_t)(PORT_INPUT | PORT_BINARY),
+                         filename);
+}
+
+lref_t lopen_raw_output_file(lref_t filename) // TODO: Append Mode
+{
+     if (!STRINGP(filename))
+          vmerror_wrong_type(1, filename);
+
+     return fileportcons(&file_port_class,
+                         (port_mode_t)(PORT_OUTPUT | PORT_BINARY),
+                         filename);
+}
+
 lref_t lopen_input_file(lref_t filename, lref_t mode)
 {
      bool binary = get_c_port_mode(mode);
@@ -159,9 +179,7 @@ lref_t lopen_input_file(lref_t filename, lref_t mode)
                          filename);
 }
 
-// TODO: file open in append mode
-
-lref_t lopen_output_file(lref_t filename, lref_t mode)
+lref_t lopen_output_file(lref_t filename, lref_t mode) // TODO: Append Mode
 {
      bool binary = get_c_port_mode(mode);
 
@@ -172,6 +190,7 @@ lref_t lopen_output_file(lref_t filename, lref_t mode)
                          (port_mode_t) (PORT_OUTPUT | (binary ? PORT_BINARY : 0)),
                          filename);
 }
+
 
 /* Standard I/O ***********************************************
  *
