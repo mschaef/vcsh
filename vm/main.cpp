@@ -423,11 +423,9 @@ static void register_main_subrs()
     register_subr(_T("number->string"),                   SUBR_4,     (void*)lnumber2string                      );
     register_subr(_T("number?"),                          SUBR_1,     (void*)lnumberp                            );
     register_subr(_T("open-debug-port"),                  SUBR_0,     (void*)lopen_debug_port                    );
-    register_subr(_T("open-input-file"),                  SUBR_2,     (void*)lopen_input_file                    );
     register_subr(_T("open-input-string"),                SUBR_1,     (void*)lopen_input_string                  );
     register_subr(_T("open-null-input-port"),             SUBR_0,     (void*)lopen_null_input_port               );
     register_subr(_T("open-null-output-port"),            SUBR_0,     (void*)lopen_null_output_port              );
-    register_subr(_T("open-output-file"),                 SUBR_2,     (void*)lopen_output_file                   );
     register_subr(_T("open-output-string"),               SUBR_0,     (void*)lopen_output_string                 );
     register_subr(_T("open-raw-input-file"),              SUBR_1,     (void*)lopen_raw_input_file                );
     register_subr(_T("open-raw-output-file"),             SUBR_1,     (void*)lopen_raw_output_file               );

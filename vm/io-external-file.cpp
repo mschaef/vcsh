@@ -167,31 +167,6 @@ lref_t lopen_raw_output_file(lref_t filename) // TODO: Append Mode
                          filename);
 }
 
-lref_t lopen_input_file(lref_t filename, lref_t mode)
-{
-     bool binary = get_c_port_mode(mode);
-
-     if (!STRINGP(filename))
-          vmerror_wrong_type(1, filename);
-
-     return fileportcons(&file_port_class,
-                         (port_mode_t) (PORT_INPUT | (binary ? PORT_BINARY : 0)),
-                         filename);
-}
-
-lref_t lopen_output_file(lref_t filename, lref_t mode) // TODO: Append Mode
-{
-     bool binary = get_c_port_mode(mode);
-
-     if (!STRINGP(filename))
-          vmerror_wrong_type(1, filename);
-
-     return fileportcons(&file_port_class,
-                         (port_mode_t) (PORT_OUTPUT | (binary ? PORT_BINARY : 0)),
-                         filename);
-}
-
-
 /* Standard I/O ***********************************************
  *
  * These ports depend on some code from the C file ports to
