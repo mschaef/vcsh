@@ -109,7 +109,7 @@
 
 (define (fasl-load filename)
   (check string? filename)
-  (with-port ip (open-input-file filename :binary)
+  (with-port ip (open-file filename :encoding :binary)
     (%%fasl-load (make-fasl-reader ip))))
 
 (define *location-mapping* #f)

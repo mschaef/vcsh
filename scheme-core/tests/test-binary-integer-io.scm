@@ -2,7 +2,7 @@
 
 (define-test binary-integer-io
   (let ((test-filename (temporary-file-name "sct")))
-    (with-port p (open-output-file test-filename :binary)
+    (with-port p (open-file test-filename :mode :write :encoding :binary)
       (test-case (not (runtime-error? (write-binary-fixnum -128 1 #t p)))) ; min - 1s
       (test-case (not (runtime-error? (write-binary-fixnum -34 1 #t p)))) ; -n - 1s
       (test-case (not (runtime-error? (write-binary-fixnum -2 1 #t p)))) ; -2 - 1s
@@ -53,12 +53,12 @@
       (test-case (not (runtime-error? (write-binary-fixnum 4294967295 4 #f p)))) ; max-u - 4u
       )
     (test-case (file-exists? test-filename))
-    (with-port p (open-input-file test-filename :binary)
+    (with-port p (open-file test-filename :mode :read :encoding :binary)
       (let ((binary-string (read-binary-string 1000 p)))
 	(test-case (= 112 (length binary-string)))
 	(test-case (equal? binary-string "\200\336\376\377\000\001\002\"\177\000\001\002\"\177\202\377\000\200\237\270\376\377\377\377\000\000\001\000\002\000\2661\377\177\000\000\001\000\002\000\2661\377\177\270\210\377\377\000\000\000\200\235G\232\376\376\377\377\377\377\377\377\377\000\000\000\000\001\000\000\000\002\000\000\000\226*\017\002\377\377\377\177\000\000\000\000\001\000\000\000\002\000\000\000\226*\017\002\377\377\377\177\000\371\002\225\377\377\377\377")))
       (test-case (eof-object? (read-binary-string 1 p))))
-    (with-port p (open-input-file test-filename :binary)
+    (with-port p (open-file test-filename :mode :read :encoding :binary)
 					; exception on write ; <min - 1s
       (test-case (equal? (read-binary-fixnum 1 #t p)  -128)); min - 1s
       (test-case (equal? (read-binary-fixnum 1 #t p)  -34)); -n - 1s

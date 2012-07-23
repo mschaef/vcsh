@@ -132,7 +132,7 @@
   (with-gensyms (file-lines-port-sym)
     (make-iterate-sequence-expansion
      :body-vars         `((,line-var (read-line ,file-lines-port-sym)))
-     :enclosing-form    `(with-port ,file-lines-port-sym (open-input-file ,filename))
+     :enclosing-form    `(with-port ,file-lines-port-sym (open-file ,filename))
      :terminate?-form   `(port-at-end? ,file-lines-port-sym))))
 
 (define-iterate-sequence-expander (file-forms line-var filename)
@@ -144,7 +144,7 @@
   (with-gensyms (file-forms-port-sym)
     (make-iterate-sequence-expansion
      :body-vars         `((,line-var (read ,file-forms-port-sym)))
-     :enclosing-form    `(with-port ,file-forms-port-sym (open-input-file ,filename))
+     :enclosing-form    `(with-port ,file-forms-port-sym (open-file ,filename))
      :terminate?-form   `(port-at-end? ,file-forms-port-sym))))
 
 

@@ -40,7 +40,7 @@
 ;; A few Configuration options
 
 (define *show-check-conditions* #f) ;; REVISIT: flag configurable
-(define *show-test-messages* #f)
+(define *show-test-messages* #t)
 (define *force-gc-on-check* #f)
 (define *show-failed-test-forms* #f)
 (define *show-failed-test-causes* #f)
@@ -314,13 +314,13 @@
   "Returns the result of fast writing <object> to a binary file and
    reading it back in. (Theoretically, this should be the same thing.)"
   (let ((test-filename (temporary-file-name "sct")))
-    (with-port p (open-output-file test-filename :binary)
+    (with-port p (open-file test-filename :mode :write :encoding :binary)
       (with-fasl-stream s p
                         (fasl-write s object)))
     (let ((object ()))
       (when dump-fasl-file?
         (system (format #f "../vm/fasl-dump ~a" test-filename)))
-      (with-port p (open-input-file test-filename :binary)
+      (with-port p (open-file test-filename :encoding :binary)
         (set! object (fast-read (make-fasl-reader p))))
       (delete-file test-filename)
       object)))

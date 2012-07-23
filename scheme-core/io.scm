@@ -69,19 +69,19 @@ and #f otherwise. If <port> is not a port, throws an error."
   <code> returns."
   `(call-with-port ,open-expr (lambda (,v) ,@code)))
 
-(define (call-with-input-file filename fn :optional (mode :text))
+(define (call-with-input-file filename fn :optional (encoding :text))
   "Returns the result(s) of calling <fn> with a file input port for the
    file named by <filename>. The resulting port is guaranteed to be closed
    with a call to close-port when <fn> returns."
-  (call-with-port (open-input-file filename mode) fn))
+  (call-with-port (open-file filename :mode :read :encoding encoding) fn))
 
 ;; REVISIT: with-input-file
 
-(define (call-with-output-file filename fn :optional (mode :text))
+(define (call-with-output-file filename fn :optional (encoding :text))
   "Returns the result(s) of calling <fn> with a file output port for the
    file named by <filename>. The resulting port is guaranteed to be closed
    with a call to close-port when <fn> returns."
-  (call-with-port (open-output-file filename mode) fn))
+  (call-with-port (open-file filename :mode :write :encoding encoding) fn))
 
 ;; REVISIT: with-output-file
 
@@ -215,7 +215,7 @@ car and the column in the cdr."
   (readall port read-line))
 
 (define (file-lines filename)
-  (with-port ip (open-input-file filename)
+  (with-port ip (open-file filename)
     (read-lines ip)))
 
 (define (call-with-output-port fn port)

@@ -94,7 +94,7 @@
      (catch-all ; we never want to go interactive, even for errors
       (when *input-filename*
 	(format #t "; ~a\n" *input-filename*)
-	(with-port input-port (open-input-file *input-filename* :binary)
+	(with-port input-port (open-file *input-filename* :encoding :binary)
 	  (dump-port input-port)))))))
 
 

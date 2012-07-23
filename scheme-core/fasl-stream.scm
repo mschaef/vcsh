@@ -68,6 +68,6 @@
 
 (defmacro (with-fasl-file s filename . code)
   (with-gensyms (port-sym)
-    `(with-port ,port-sym (open-output-file ,filename :binary)
+    `(with-port ,port-sym (open-file ,filename :mode :write :encoding :binary)
        (with-fasl-stream ,s ,port-sym
            ,@code))))

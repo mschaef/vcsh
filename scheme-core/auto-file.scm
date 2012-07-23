@@ -14,11 +14,9 @@
 
 (define (open-auto-file filename)
   (mvbind (mode name) (parse-auto-filename filename)
-    (case mode
-      ((:input)
-       (open-input-file name))
-      ((:output)
-       (open-output-file name)))))
+    (open-file name :mode (case mode
+                            ((:input) :read)
+                            ((:output) :write)))))
 
 (define (->auto-file filename)
   (let ((auto-port (hash-ref *auto-files* filename #f)))

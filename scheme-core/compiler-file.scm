@@ -240,7 +240,7 @@
   (let ((original-package (symbol-value *package-var* ())))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
-      (with-port input-port (open-input-file filename)
+      (with-port input-port (open-file filename)
         (begin-load-unit filename output-fasl-stream)
         (compile-port-forms input-port output-fasl-stream)
         (end-load-unit filename output-fasl-stream)))

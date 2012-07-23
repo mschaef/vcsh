@@ -132,5 +132,5 @@
   (read-delimited port #\, #\newline '#\" port))
 
 (define (read-csv-file filename)
-  (with-port p (open-input-file filename)
+  (with-port p (open-file filename)
     (read-csv p)))

@@ -589,13 +589,12 @@
              odd?
              open-c-data-output
              open-debug-port
-             open-input-file
+             open-file
              open-input-string
              open-file
              open-null-port
              open-null-input-port
              open-null-output-port
-             open-output-file
              open-output-string
              open-raw-input-file
              open-raw-output-file
