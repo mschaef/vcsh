@@ -238,6 +238,29 @@ car and the column in the cdr."
      (lambda ()
        (set-current-input-port last-port)))))
 
+(define (open-text-port underlying)
+  (cond ((not (port? underlying))
+         (error "Text ports must be opened against ports: ~a" underlying))
+        ((not (binary-port? underlying))
+         (error "Text ports must be opened against binary ports: ~a" underlying))
+        ((input-port? underlying)
+         (open-text-input-port underlying))
+        (#t
+         (open-text-output-port underlying))))
+
+(define (open-file filename :keyword (mode :read) (encoding :text))
+  (let ((file-port (case mode
+                     ((:read)
+                      (open-raw-input-file filename))
+                     ((:write)
+                      (open-raw-output-file filename))
+                     (#t
+                      (error "Bad port mode, must be :read or :write: ~a" mode)))))
+    (case encoding
+      ((:text) (open-text-port file-port))
+      ((:binary) file-port)
+      (#t (error "Bad file encoding, must be :text or :binary: ~a" encoding)))))
+
 (define (call-with-output-to-string fn)
   "Calls function <fn>, capturing output to the current output port as a string. The
    current output port is reset to its original value on exit.  If <fn> alters the

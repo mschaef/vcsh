@@ -591,6 +591,7 @@
              open-debug-port
              open-input-file
              open-input-string
+             open-file
              open-null-port
              open-null-input-port
              open-null-output-port
