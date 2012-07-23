@@ -56,7 +56,7 @@
 
 (define (save-benchmark-results)
   "Saves the current set of benchmark results to disk."
-  (with-port of (open-output-file *benchmark-results-filename*)
+  (with-port of (open-file *benchmark-results-filename* :mode :write)
     (display ";;;; Saved benchmark results - DO NOT ALTER!!!\n" of)
     (display ";;;; \n" of)
     (display ";;;; \n" of)
@@ -74,7 +74,7 @@
   "Loads the current set of benchmark results from disk."
   (catch-all
    (format (current-debug-port) "; Loading benchmark results\n")
-   (with-port ip (open-input-file *benchmark-results-filename*)
+   (with-port ip (open-file *benchmark-results-filename*)
      (hash-clear! *reference-benchmark-result-sets*)
      (let loop ((max-seq -1))
        (let ((result (read ip)))

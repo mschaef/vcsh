@@ -176,7 +176,7 @@
 ;;   (account (read-csv-file "big_csv_file.csv")))
 
 (defbench s-expression-file-reader
-  (account (begin (with-port p (open-input-file "big_csv_file.sxp") (read p)) '())))
+  (account (begin (with-port p (open-file "big_csv_file.sxp") (read p)) '())))
 
 (defbench hash-set!-seq-numbers
   (let ((htable (make-hash :equal)))
@@ -337,10 +337,10 @@
 (defbench binary-integer-io
   (let ((test-filename (temporary-file-name "sct")))
     (account
-     (with-port p (open-output-file test-filename :binary)
+     (with-port p (open-file test-filename :mode :write :encoding :binary)
        (bench-repeat 1048576
                      (write-binary-fixnum 12345 4 #f p)))
-     (with-port p (open-input-file test-filename :binary)
+     (with-port p (open-file test-filename :encoding :binary)
        (bench-repeat 1048576
                      (read-binary-fixnum 4 #f p))))
     (delete-file test-filename)))
@@ -766,16 +766,6 @@
       (set-benchmark-structure-f2! (vector-ref db ii) (vector-ref db (random size)))
       (set-benchmark-structure-f3! (vector-ref db ii) (vector-ref db (random size))))
     db))
-
-;; (defbench structure/fasl-roundtrip-complex-sharing
-;;   (let ((structures (make-complex-structure-vector 2000))
-;;         (fn (temporary-file-name "scf")))
-;;     (account
-;;      (with-fasl-file of fn
-;;        (fasl-write structures of))
-;;      (with-port if (open-input-file fn :binary)
-;;        (fasl-load if)))
-;;     (delete-file fn)))
 
 (define-proto benchmark-proto
   'f1 0

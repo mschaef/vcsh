@@ -13,7 +13,7 @@
 (define (file->hash filename :optional (hash-type :equal))
   "Returns a hash of type <hash-type> populated with keys taken 
    from the first object read from the file named by <filename>."
-  (with-port p (open-input-file filename)
+  (with-port p (open-file filename)
     (keys->hash (read p) hash-type)))
 
 (define (%hash-binding-list hash)
