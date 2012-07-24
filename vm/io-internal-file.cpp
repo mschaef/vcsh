@@ -30,7 +30,7 @@ size_t c_data_port_read(void *buf, size_t size, size_t count, lref_t obj)
      if (!PORT_INPUTP(obj))
           return 0;
 
-     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->_user_data);
+     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->user_data);
 
      size_t bytes = size * count;
      size_t bytes_remaining = ps->_input_buffer_bytes - ps->_bytes_transferred;
@@ -47,10 +47,11 @@ size_t c_data_port_read(void *buf, size_t size, size_t count, lref_t obj)
 
 void c_data_port_gc_free(lref_t obj)
 {
-     assert(PORT_PINFO(obj)->_user_data);
+     assert(PORT_PINFO(obj)->user_data);
 
-     gc_free(PORT_PINFO(obj)->_user_data);
-     PORT_PINFO(obj)->_user_data = NULL;
+     gc_free(PORT_PINFO(obj)->user_data);
+
+     PORT_PINFO(obj)->user_data = NULL;
 }
 
 size_t c_data_port_length(lref_t obj)
@@ -58,7 +59,7 @@ size_t c_data_port_length(lref_t obj)
      if (!PORT_INPUTP(obj))
           return 0;
 
-     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->_user_data);
+     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->user_data);
 
      return ps->_input_buffer_bytes - ps->_bytes_transferred;
 }
@@ -115,7 +116,7 @@ lref_t lclone_c_data_port(lref_t port)
      if (!PORT_INPUTP(port))
           vmerror_unsupported(_T("only input ports may be cloned"));
 
-     c_data_port_state *old_ps = (c_data_port_state *) (PORT_PINFO(port)->_user_data);
+     c_data_port_state *old_ps = (c_data_port_state *) (PORT_PINFO(port)->user_data);
      c_data_port_state *new_ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
 
      new_ps->_bytes_transferred = old_ps->_bytes_transferred;

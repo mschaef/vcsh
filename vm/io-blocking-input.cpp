@@ -62,7 +62,7 @@ size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t por
      if (!PORT_INPUTP(port))
           return 0;
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->_user_data);
+     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      size_t bytes_to_read = size * count;
      size_t bytes_read = 0;
@@ -106,7 +106,7 @@ void blocking_input_port_close(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->_user_data);
+     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      if (ps->_close_port)
           ps->_close_port(port, ps->_userdata);
@@ -116,7 +116,7 @@ void blocking_input_port_close(lref_t port)
 
      gc_free(ps);
 
-     PORT_PINFO(port)->_user_data = NULL;
+     PORT_PINFO(port)->user_data = NULL;
 
      SET_PORT_MODE(port, PORT_CLOSED);
 }
@@ -126,7 +126,7 @@ void blocking_input_post_data(lref_t port, void *data, size_t size)
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
      assert(!blocking_input_is_data_available(port));   /*  REVISIT: we really should allow this case */
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->_user_data);
+     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      assert(ps->_more_data);
 
@@ -149,7 +149,7 @@ void blocking_input_post_eof(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->_user_data);
+     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      ps->_more_data = false;
 }
@@ -158,7 +158,7 @@ bool blocking_input_is_data_available(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->_user_data);
+     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      return (ps != NULL)
          && (ps->_buffer != NULL) && (ps->_buffer_size > 0) && (ps->_buffer_pos < ps->_buffer_size);

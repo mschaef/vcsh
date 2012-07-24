@@ -34,11 +34,11 @@
            return ch;
 
       /* Read the next character, perhaps from the unread buffer... */
-      if (!PORT_BINARYP(port) && (PORT_TEXT_INFO(port)->_unread_valid > 0))
+      if (!PORT_BINARYP(port) && (PORT_TEXT_INFO(port)->unread_valid > 0))
       {
-           PORT_TEXT_INFO(port)->_unread_valid--;
+           PORT_TEXT_INFO(port)->unread_valid--;
 
-           ch = PORT_TEXT_INFO(port)->_unread_buffer[PORT_TEXT_INFO(port)->_unread_valid];
+           ch = PORT_TEXT_INFO(port)->unread_buffer[PORT_TEXT_INFO(port)->unread_valid];
       }
       else
       {
@@ -53,16 +53,16 @@
            if (!PORT_BINARYP(port))
            {
                 /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
-                if (PORT_TEXT_INFO(port)->_crlf_translate)
+                if (PORT_TEXT_INFO(port)->crlf_translate)
                 {
                      if (ch == '\r')
                      {
                           ch = '\n';
-                          PORT_TEXT_INFO(port)->_needs_lf = TRUE;
+                          PORT_TEXT_INFO(port)->needs_lf = TRUE;
                      }
-                     else if (PORT_TEXT_INFO(port)->_needs_lf)
+                     else if (PORT_TEXT_INFO(port)->needs_lf)
                      {
-                          PORT_TEXT_INFO(port)->_needs_lf = FALSE;
+                          PORT_TEXT_INFO(port)->needs_lf = FALSE;
 
                           /*  Notice: this _returns_ from read_char, to avoid double
                            *  counting ch in the position counters. */
@@ -78,12 +78,12 @@
            /* Update the text position indicators */
            if (ch == '\n')
            {
-                PORT_TEXT_INFO(port)->_row++;
-                PORT_TEXT_INFO(port)->_previous_line_length = PORT_TEXT_INFO(port)->_column;
-                PORT_TEXT_INFO(port)->_column = 0;
+                PORT_TEXT_INFO(port)->row++;
+                PORT_TEXT_INFO(port)->previous_line_length = PORT_TEXT_INFO(port)->column;
+                PORT_TEXT_INFO(port)->column = 0;
            }
            else
-                PORT_TEXT_INFO(port)->_column++;
+                PORT_TEXT_INFO(port)->column++;
       }
 
       return ch;
@@ -102,23 +102,23 @@
       switch (ch)
       {
       case '\n':
-           PORT_TEXT_INFO(port)->_row--;
-           PORT_TEXT_INFO(port)->_column = PORT_TEXT_INFO(port)->_previous_line_length;
+           PORT_TEXT_INFO(port)->row--;
+           PORT_TEXT_INFO(port)->column = PORT_TEXT_INFO(port)->previous_line_length;
            break;
 
       case '\r':
            break;
 
       default:
-           PORT_TEXT_INFO(port)->_column--;
+           PORT_TEXT_INFO(port)->column--;
            break;
       }
 
-      if (PORT_TEXT_INFO(port)->_unread_valid >= PORT_UNGET_BUFFER_SIZE)
+      if (PORT_TEXT_INFO(port)->unread_valid >= PORT_UNGET_BUFFER_SIZE)
            vmerror_io_error(_T("unget buffer exceeded."), port);
 
-      PORT_TEXT_INFO(port)->_unread_buffer[PORT_TEXT_INFO(port)->_unread_valid] = ch;
-      PORT_TEXT_INFO(port)->_unread_valid++;
+      PORT_TEXT_INFO(port)->unread_buffer[PORT_TEXT_INFO(port)->unread_valid] = ch;
+      PORT_TEXT_INFO(port)->unread_valid++;
 
       return ch;
  }
@@ -167,17 +167,17 @@
       {
            return write_raw(buf, sizeof(_TCHAR), count, port);
       }
-      else if (!PORT_TEXT_INFO(port)->_crlf_translate)
+      else if (!PORT_TEXT_INFO(port)->crlf_translate)
       {
            for (size_t ii = 0; ii < count; ii++)
            {
                 if (buf[ii] == _T('\n'))
                 {
-                     PORT_TEXT_INFO(port)->_row++;
-                     PORT_TEXT_INFO(port)->_column = 0;
+                     PORT_TEXT_INFO(port)->row++;
+                     PORT_TEXT_INFO(port)->column = 0;
                 }
                 else
-                     PORT_TEXT_INFO(port)->_column++;
+                     PORT_TEXT_INFO(port)->column++;
            }
 
            return write_raw(buf, sizeof(_TCHAR), count, port);
@@ -199,11 +199,11 @@
                 {
                      c = buf[next_eoln_char];
 
-                     if ((c == '\n') || (c == '\r') || PORT_TEXT_INFO(port)->_needs_lf)
+                     if ((c == '\n') || (c == '\r') || PORT_TEXT_INFO(port)->needs_lf)
                           break;
                 }
 
-                if (PORT_TEXT_INFO(port)->_needs_lf)
+                if (PORT_TEXT_INFO(port)->needs_lf)
                 {
                      assert(next_eoln_char - next_char_to_write == 0);
 
@@ -212,8 +212,8 @@
 
                      write_raw(_T("\n"), sizeof(_TCHAR), 1, port);
 
-                     PORT_TEXT_INFO(port)->_needs_lf = false;
-                     PORT_TEXT_INFO(port)->_row++;
+                     PORT_TEXT_INFO(port)->needs_lf = false;
+                     PORT_TEXT_INFO(port)->row++;
                 }
                 else if (next_eoln_char - next_char_to_write == 0)
                 {
@@ -221,14 +221,14 @@
                      {
                      case _T('\n'):
                           write_raw(_T("\r\n"), sizeof(_TCHAR), 2, port);
-                          PORT_TEXT_INFO(port)->_column = 0;
-                          PORT_TEXT_INFO(port)->_row++;
+                          PORT_TEXT_INFO(port)->column = 0;
+                          PORT_TEXT_INFO(port)->row++;
                           break;
 
                      case _T('\r'):
                           write_raw(_T("\r"), sizeof(_TCHAR), 1, port);
-                          PORT_TEXT_INFO(port)->_column = 0;
-                          PORT_TEXT_INFO(port)->_needs_lf = true;
+                          PORT_TEXT_INFO(port)->column = 0;
+                          PORT_TEXT_INFO(port)->needs_lf = true;
                           break;
 
                      default:
@@ -239,7 +239,7 @@
                 }
                 else
                 {
-                     PORT_TEXT_INFO(port)->_column += (next_eoln_char - next_char_to_write);
+                     PORT_TEXT_INFO(port)->column += (next_eoln_char - next_char_to_write);
                      write_raw(&(buf[next_char_to_write]), sizeof(_TCHAR),
                                next_eoln_char - next_char_to_write, port);
                 }
@@ -299,7 +299,7 @@
       if (PORT_BINARYP(port))
            vmerror_unsupported(_T("cannot get column of binary ports"));
 
-      return fixcons(PORT_TEXT_INFO(port)->_column);
+      return fixcons(PORT_TEXT_INFO(port)->column);
  }
 
  lref_t lport_row(lref_t port)
@@ -313,7 +313,7 @@
       if (PORT_BINARYP(port))
            vmerror_unsupported(_T("cannot get row of binary ports"));
 
-      return fixcons(PORT_TEXT_INFO(port)->_row);
+      return fixcons(PORT_TEXT_INFO(port)->row);
  }
 
  lref_t lport_translate_mode(lref_t port)
@@ -324,7 +324,7 @@
       if (PORT_BINARYP(port))
            return boolcons(false);
       else
-           return boolcons(PORT_TEXT_INFO(port)->_crlf_translate);
+           return boolcons(PORT_TEXT_INFO(port)->crlf_translate);
  }
 
  lref_t lport_set_translate_mode(lref_t port, lref_t mode)
@@ -340,9 +340,9 @@
 
       lflush_port(port);
 
-      bool old_translate_mode = PORT_TEXT_INFO(port)->_crlf_translate;
+      bool old_translate_mode = PORT_TEXT_INFO(port)->crlf_translate;
 
-      PORT_TEXT_INFO(port)->_crlf_translate = TRUEP(mode);
+      PORT_TEXT_INFO(port)->crlf_translate = TRUEP(mode);
 
       return boolcons(old_translate_mode);
  }
@@ -357,10 +357,10 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type(3, port);
 
-     if (PORT_CLASS(port)->_rich_write == NULL)
+     if (PORT_CLASS(port)->rich_write == NULL)
           return boolcons(false);
 
-     if (PORT_CLASS(port)->_rich_write(obj, TRUEP(machine_readable), port))
+     if (PORT_CLASS(port)->rich_write(obj, TRUEP(machine_readable), port))
           return port;
 
      return boolcons(false);
@@ -548,7 +548,7 @@ lref_t lfresh_line(lref_t port)
           vmerror_wrong_type(1, port);
 
      if (PORT_BINARYP(port)
-         || ((PORT_TEXT_INFO(port)->_column != 0) && !PORT_TEXT_INFO(port)->_needs_lf))
+         || ((PORT_TEXT_INFO(port)->column != 0) && !PORT_TEXT_INFO(port)->needs_lf))
      {
           lnewline(port);
           return boolcons(true);

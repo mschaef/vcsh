@@ -89,11 +89,11 @@ lref_t lmake_fasl_reader(lref_t port)
 lref_t fasl_reader_gc_mark(lref_t obj)
 {
      for (size_t ii = 0; ii < FAST_LOAD_STACK_DEPTH; ii++)
-          gc_mark(FASL_READER_STREAM(obj)->_stack[ii]);
+          gc_mark(FASL_READER_STREAM(obj)->stack[ii]);
 
-     gc_mark(FASL_READER_STREAM(obj)->_accum);
+     gc_mark(FASL_READER_STREAM(obj)->accum);
 
-     return FASL_READER_STREAM(obj)->_table;
+     return FASL_READER_STREAM(obj)->table;
 }
 
 /* This code depends on using an output paramater, rather than a
@@ -522,32 +522,32 @@ static void fast_read_macro(lref_t reader, lref_t * retval)
 
 static void fasl_ensure_valid_table_index(lref_t reader, size_t index)
 {
-     if (NULLP(FASL_READER_STREAM(reader)->_table))
+     if (NULLP(FASL_READER_STREAM(reader)->table))
      {
-          FASL_READER_STREAM(reader)->_table =
+          FASL_READER_STREAM(reader)->table =
                vectorcons((index >=
                            DEFAULT_FASL_TABLE_SIZE) ? index +
                           DEFAULT_FASL_TABLE_SIZE : DEFAULT_FASL_TABLE_SIZE, NIL);
      }
      else
      {
-          assert(VECTORP(FASL_READER_STREAM(reader)->_table));
+          assert(VECTORP(FASL_READER_STREAM(reader)->table));
 
-          size_t old_len = VECTOR_DIM(FASL_READER_STREAM(reader)->_table);
+          size_t old_len = VECTOR_DIM(FASL_READER_STREAM(reader)->table);
 
           if (index >= old_len)
           {
                size_t new_len =
                    (index >= old_len * 2) ? index + DEFAULT_FASL_TABLE_SIZE : (old_len * 2);
 
-               FASL_READER_STREAM(reader)->_table =
-                    vector_resize(FASL_READER_STREAM(reader)->_table,
+               FASL_READER_STREAM(reader)->table =
+                    vector_resize(FASL_READER_STREAM(reader)->table,
                                   new_len > SIZE_MAX ? SIZE_MAX : (size_t) new_len, NIL);
           }
      }
 
-     assert(VECTORP(FASL_READER_STREAM(reader)->_table));
-     assert(index < VECTOR_DIM(FASL_READER_STREAM(reader)->_table));
+     assert(VECTORP(FASL_READER_STREAM(reader)->table));
+     assert(index < VECTOR_DIM(FASL_READER_STREAM(reader)->table));
 }
 
 static fixnum_t fast_read_table_index(lref_t reader)
@@ -600,11 +600,11 @@ static void fast_loader_stack_push(lref_t reader, lref_t val)
 {
      assert(FASL_READER_P(reader));
 
-     if (FASL_READER_STREAM(reader)->_sp == FAST_LOAD_STACK_DEPTH - 1)
+     if (FASL_READER_STREAM(reader)->sp == FAST_LOAD_STACK_DEPTH - 1)
           vmerror_fast_read(_T("Fast loader stack overflow."), reader);
 
-     FASL_READER_STREAM(reader)->_stack[FASL_READER_STREAM(reader)->_sp] = val;
-     FASL_READER_STREAM(reader)->_sp++;
+     FASL_READER_STREAM(reader)->stack[FASL_READER_STREAM(reader)->sp] = val;
+     FASL_READER_STREAM(reader)->sp++;
 }
 
 static lref_t fast_loader_stack_pop(lref_t reader)
@@ -613,13 +613,13 @@ static lref_t fast_loader_stack_pop(lref_t reader)
 
      assert(FASL_READER_P(reader));
 
-     if (FASL_READER_STREAM(reader)->_sp == 0)
+     if (FASL_READER_STREAM(reader)->sp == 0)
           vmerror_fast_read(_T("Fast loader stack underflow."), reader);
 
-     FASL_READER_STREAM(reader)->_sp--;
+     FASL_READER_STREAM(reader)->sp--;
 
-     val = FASL_READER_STREAM(reader)->_stack[FASL_READER_STREAM(reader)->_sp];
-     FASL_READER_STREAM(reader)->_stack[FASL_READER_STREAM(reader)->_sp] = NULL;
+     val = FASL_READER_STREAM(reader)->stack[FASL_READER_STREAM(reader)->sp];
+     FASL_READER_STREAM(reader)->stack[FASL_READER_STREAM(reader)->sp] = NULL;
 
      return val;
 }
@@ -663,7 +663,7 @@ static void fast_read_loader_application(lref_t reader, fasl_opcode_t opcode)
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL applying ~s (argc=~cd)\n"), argv[0], argc));
 
-     FASL_READER_STREAM(reader)->_accum = lapply(argc + 1, argv);
+     FASL_READER_STREAM(reader)->accum = lapply(argc + 1, argv);
 }
 
 static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* = false */ )
@@ -675,7 +675,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
      if (!FASL_READER_P(reader))
           vmerror_wrong_type(1, reader);
 
-     assert(NULLP(FASL_READER_STREAM(reader)->_table) || VECTORP(FASL_READER_STREAM(reader)->_table));
+     assert(NULLP(FASL_READER_STREAM(reader)->table) || VECTORP(FASL_READER_STREAM(reader)->table));
 
      /* The core of this function is wrapped in a giant while loop to remove
       * tail recursive calls. Some opcodes don't directly return anything:
@@ -833,19 +833,19 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
                break;
 
           case FASL_OP_RESET_READER_DEFS:
-               FASL_READER_STREAM(reader)->_table = NIL;
+               FASL_READER_STREAM(reader)->table = NIL;
                current_read_complete = false;
                break;
 
           case FASL_OP_READER_DEFINITION:
                index = fast_read_table_index(reader);
 
-               fasl_table_entry = &_VECTOR_ELEM(FASL_READER_STREAM(reader)->_table, index);
+               fasl_table_entry = &_VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index);
 
                fast_read(reader, fasl_table_entry, allow_loader_ops);
 
                /* REVISIT: This assert throws if the fasl table was resized during the reader definition. */
-               assert(fasl_table_entry == &_VECTOR_ELEM(FASL_READER_STREAM(reader)->_table, index));
+               assert(fasl_table_entry == &_VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index));
 
                *retval = *fasl_table_entry;
                break;
@@ -853,7 +853,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           case FASL_OP_READER_REFERENCE:
                index = fast_read_table_index(reader);
 
-               *retval = VECTOR_ELEM(FASL_READER_STREAM(reader)->_table, index);
+               *retval = VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index);
                break;
 
           case FASL_OP_EOF:
@@ -896,7 +896,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
                break;
 
           case FASL_OP_LOADER_PUSH:
-               fast_loader_stack_push(reader, FASL_READER_STREAM(reader)->_accum);
+               fast_loader_stack_push(reader, FASL_READER_STREAM(reader)->accum);
                break;
 
           case FASL_OP_LOADER_DROP:

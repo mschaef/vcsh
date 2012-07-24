@@ -52,29 +52,29 @@ INLINE unsigned int HASH_COUNT(lref_t hash)
 
 static void init_hash_entry(hash_entry_t * entry)
 {
-     entry->_key = UNBOUND_MARKER;
-     entry->_val = UNBOUND_MARKER;
+     entry->key = UNBOUND_MARKER;
+     entry->val = UNBOUND_MARKER;
 }
 
 static void delete_hash_entry(hash_entry_t * entry)
 {
-     entry->_key = UNBOUND_MARKER;
-     entry->_val = NULL;
+     entry->key = UNBOUND_MARKER;
+     entry->val = NULL;
 }
 
 static bool hash_entry_used_p(hash_entry_t * entry)
 {
-     return !UNBOUND_MARKER_P(entry->_key);
+     return !UNBOUND_MARKER_P(entry->key);
 }
 
 static bool hash_entry_unused_p(hash_entry_t * entry)
 {
-     return UNBOUND_MARKER_P(entry->_key);
+     return UNBOUND_MARKER_P(entry->key);
 }
 
 static bool hash_entry_deleted_p(hash_entry_t * entry)
 {
-     return UNBOUND_MARKER_P(entry->_key) && NULLP(entry->_val);
+     return UNBOUND_MARKER_P(entry->key) && NULLP(entry->val);
 }
 
 void hash_iter_begin(lref_t hash, hash_iter_t * iter)
@@ -93,9 +93,10 @@ bool hash_iter_next(lref_t hash, hash_iter_t * iter, lref_t * key, lref_t * val)
           if (hash_entry_used_p(&HASH_DATA(hash)[*iter]))
           {
                if (key)
-                    *key = HASH_DATA(hash)[*iter]._key;
+                    *key = HASH_DATA(hash)[*iter].key;
+
                if (val)
-                    *val = HASH_DATA(hash)[*iter]._val;
+                    *val = HASH_DATA(hash)[*iter].val;
 
                *iter = *iter + 1;
 
@@ -183,8 +184,8 @@ fixnum_t sxhash(lref_t obj)
      case TC_HASH:
           for (ii = 0; ii < HASH_SIZE(obj); ii++)
           {
-               hash = HASH_COMBINE(hash, sxhash(HASH_DATA(obj)[ii]._key));
-               hash = HASH_COMBINE(hash, sxhash(HASH_DATA(obj)[ii]._val));
+               hash = HASH_COMBINE(hash, sxhash(HASH_DATA(obj)[ii].key));
+               hash = HASH_COMBINE(hash, sxhash(HASH_DATA(obj)[ii].val));
           }
           break;
 
@@ -375,8 +376,8 @@ static bool enlarge_hash(lref_t hash)
 
                if (hash_entry_unused_p(entry))
                {
-                    entry->_key = key;
-                    entry->_val = val;
+                    entry->key = key;
+                    entry->val = val;
 
                     break;
                }
@@ -408,12 +409,12 @@ static hash_entry_t *hash_lookup_entry(lref_t hash, lref_t key)
 
           if (HASH_SHALLOW(hash))
           {
-               if (EQ(key, entry->_key))
+               if (EQ(key, entry->key))
                     return entry;
           }
           else
           {
-               if (equalp(key, entry->_key))
+               if (equalp(key, entry->key))
                     return entry;
           }
 
@@ -430,7 +431,7 @@ bool hash_ref(lref_t hash, lref_t key, lref_t *value_result)
      if (entry == NULL)
           return false;
 
-     *value_result = entry->_val;
+     *value_result = entry->val;
 
      return true;
 }
@@ -445,7 +446,7 @@ lref_t lhash_refs(lref_t hash, lref_t key)
      if (entry == NULL)
           return boolcons(false);
 
-     return lcons(entry->_key, entry->_val);
+     return lcons(entry->key, entry->val);
 }
 
 
@@ -472,7 +473,7 @@ lref_t lhash_ref(size_t argc, lref_t argv[])
      if (entry == NULL)
           return defaultValue;
      else
-          return entry->_val;
+          return entry->val;
 }
 
 lref_t lhash_hasp(lref_t hash, lref_t key)
@@ -494,7 +495,7 @@ lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
 
      if (entry != NULL)
      {
-          entry->_val = value;
+          entry->val = value;
      }
      else
      {
@@ -505,8 +506,8 @@ lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
 
                if (hash_entry_unused_p(entry))
                {
-                    entry->_key = key;
-                    entry->_val = value;
+                    entry->key = key;
+                    entry->val = value;
 
                     SET_HASH_COUNT(hash, HASH_COUNT(hash) + 1);
 
@@ -585,7 +586,7 @@ lref_t lihash_binding_vector(lref_t hash)
           else if (hash_entry_unused_p(entry))
                SET_VECTOR_ELEM(btable, ii, NIL);
           else
-               SET_VECTOR_ELEM(btable, ii, lcons(entry->_key, entry->_val));
+               SET_VECTOR_ELEM(btable, ii, lcons(entry->key, entry->val));
      }
 
      return btable;

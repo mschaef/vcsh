@@ -30,12 +30,12 @@ BEGIN_NAMESPACE(scan)
  */
 INLINE void SET_PORT_FILE(lref_t port, FILE * file)
 {
-     PORT_PINFO(port)->_user_data = file;
+     PORT_PINFO(port)->user_data = file;
 }
 
 INLINE FILE *PORT_FILE(lref_t port)
 {
-     return (FILE *) (PORT_PINFO(port)->_user_data);
+     return (FILE *) (PORT_PINFO(port)->user_data);
 }
 
 lref_t fileportcons(port_class_t * cls, port_mode_t mode, lref_t filename)
@@ -50,13 +50,12 @@ void file_port_open(lref_t obj)
 {
      FILE *f = NULL;
 
-
-     assert(STRINGP(PORT_PINFO(obj)->_port_name));
+     assert(STRINGP(PORT_PINFO(obj)->port_name));
 
      if (PORT_OUTPUTP(obj))
-          f = fopen(get_c_string(PORT_PINFO(obj)->_port_name), "wb");
+          f = fopen(get_c_string(PORT_PINFO(obj)->port_name), "wb");
      else if (PORT_INPUTP(obj))
-          f = fopen(get_c_string(PORT_PINFO(obj)->_port_name), "rb");
+          f = fopen(get_c_string(PORT_PINFO(obj)->port_name), "rb");
      else
           panic("File port open for closed port");
 
@@ -68,7 +67,7 @@ void file_port_open(lref_t obj)
      else
      {
           SET_PORT_MODE(obj, PORT_CLOSED);
-          vmerror_io_error(_T("cannot open file"), PORT_PINFO(obj)->_port_name);
+          vmerror_io_error(_T("cannot open file"), PORT_PINFO(obj)->port_name);
      }
 }
 
@@ -197,7 +196,7 @@ void stdout_port_open(lref_t obj)
      SET_PORT_FILE(obj, stdout);
 
      if (!PORT_BINARYP(obj))
-          PORT_TEXT_INFO(obj)->_crlf_translate = false;
+          PORT_TEXT_INFO(obj)->crlf_translate = false;
 }
 
 port_class_t stdout_port_class = {
@@ -218,7 +217,7 @@ void stderr_port_open(lref_t obj)
      SET_PORT_FILE(obj, stderr);
 
      if (!PORT_BINARYP(obj))
-          PORT_TEXT_INFO(obj)->_crlf_translate = false;
+          PORT_TEXT_INFO(obj)->crlf_translate = false;
 }
 
 port_class_t stderr_port_class = {

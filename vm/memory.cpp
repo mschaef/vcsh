@@ -315,8 +315,8 @@ void gc_mark(lref_t initial_obj)
           case TC_HASH:
                for (size_t jj = 0; jj < HASH_SIZE(obj); ++jj)
                {
-                    gc_mark(HASH_DATA(obj)[jj]._key);
-                    gc_mark(HASH_DATA(obj)[jj]._val);
+                    gc_mark(HASH_DATA(obj)[jj].key);
+                    gc_mark(HASH_DATA(obj)[jj].val);
                }
 
                obj = NIL;

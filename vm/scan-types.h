@@ -140,8 +140,8 @@ typedef lref_t(*f_argc_t) (size_t, lref_t[]);
 
 struct hash_entry_t
 {
-     lref_t _key;                 /*  == UNBOUND_MARKER for empty. */
-     lref_t _val;
+     lref_t key; /*  == UNBOUND_MARKER for empty. */
+     lref_t val;
 };
 
 /*** The core boxed data type ***/
@@ -199,9 +199,9 @@ struct lobject_t
           } macro;
           struct
           {
-               size_t _dim;
-               size_t _ofs;
-               _TCHAR *_data;
+               size_t dim;
+               size_t ofs;
+               _TCHAR *data;
           } string;
           struct
           {
@@ -211,14 +211,14 @@ struct lobject_t
           } vector;
           struct
           {
-               lref_t _proto;
-               lref_t _slots;
+               lref_t proto;
+               lref_t slots;
           } instance;
           struct
           {
-               port_class_t *_class;
-               port_info_t *_pinf;
-               port_text_info_t *_text_info;
+               port_class_t *klass;
+               port_info_t *pinf;
+               port_text_info_t *text_info;
           } port;
           struct
           {
@@ -228,7 +228,7 @@ struct lobject_t
           } misc;
           struct
           {
-               lref_t _values;
+               lref_t values;
           } values_tuple;
           struct
           {
@@ -239,8 +239,8 @@ struct lobject_t
           } fast_op;
           struct
           {
-               size_t _mask;
-               hash_entry_t *_data;
+               size_t mask;
+               hash_entry_t *data;
 
                struct
                {
@@ -983,37 +983,37 @@ INLINE void SET_MACRO_TRANSFORMER(lref_t x, lref_t transformer)
 INLINE size_t STRING_DIM(lref_t x)
 {
      checked_assert(STRINGP(x));
-     return ((*x).storage_as.string._dim);
+     return ((*x).storage_as.string.dim);
 }
 
 INLINE void SET_STRING_DIM(lref_t x, size_t dim)
 {
      checked_assert(STRINGP(x));
-     ((*x).storage_as.string._dim) = dim;
+     ((*x).storage_as.string.dim) = dim;
 }
 
 INLINE size_t STRING_OFS(lref_t x)
 {
      checked_assert(STRINGP(x));
-     return ((*x).storage_as.string._ofs);
+     return ((*x).storage_as.string.ofs);
 }
 
 INLINE void SET_STRING_OFS(lref_t x, size_t ofs)
 {
      checked_assert(STRINGP(x));
-     ((*x).storage_as.string._ofs) = ofs;
+     ((*x).storage_as.string.ofs) = ofs;
 }
 
 INLINE _TCHAR *STRING_DATA(lref_t x)
 {
      checked_assert(STRINGP(x));
-     return ((*x).storage_as.string._data);
+     return ((*x).storage_as.string.data);
 }
 
 INLINE _TCHAR *SET_STRING_DATA(lref_t x, _TCHAR * data)
 {
      checked_assert(STRINGP(x));
-     return ((*x).storage_as.string._data) = data;
+     return ((*x).storage_as.string.data) = data;
 }
 
 
@@ -1021,13 +1021,13 @@ INLINE _TCHAR *SET_STRING_DATA(lref_t x, _TCHAR * data)
 INLINE size_t HASH_MASK(lref_t obj)
 {
      checked_assert(HASHP(obj));
-     return ((obj)->storage_as.hash._mask);
+     return ((obj)->storage_as.hash.mask);
 }
 
 INLINE void SET_HASH_MASK(lref_t obj, size_t mask)
 {
      checked_assert(HASHP(obj));
-     ((obj)->storage_as.hash._mask) = mask;
+     ((obj)->storage_as.hash.mask) = mask;
 }
 
 INLINE size_t HASH_SIZE(lref_t obj)
@@ -1038,38 +1038,38 @@ INLINE size_t HASH_SIZE(lref_t obj)
 INLINE hash_entry_t *HASH_DATA(lref_t obj)
 {
      checked_assert(HASHP(obj));
-     return ((obj)->storage_as.hash._data);
+     return ((obj)->storage_as.hash.data);
 }
 
 INLINE hash_entry_t *SET_HASH_DATA(lref_t obj, hash_entry_t * data)
 {
      checked_assert(HASHP(obj));
-     return ((obj)->storage_as.hash._data) = data;
+     return ((obj)->storage_as.hash.data) = data;
 }
 
 /*** instance ***/
 INLINE lref_t INSTANCE_PROTO(lref_t obj)
 {
      checked_assert(INSTANCEP(obj));
-     return ((obj)->storage_as.instance._proto);
+     return ((obj)->storage_as.instance.proto);
 }
 
 INLINE void SET_INSTANCE_PROTO(lref_t obj, lref_t proto)
 {
      checked_assert(INSTANCEP(obj));
-     ((obj)->storage_as.instance._proto) = proto;
+     ((obj)->storage_as.instance.proto) = proto;
 }
 
 INLINE lref_t INSTANCE_SLOTS(lref_t obj)
 {
      checked_assert(INSTANCEP(obj));
-     return ((obj)->storage_as.instance._slots);
+     return ((obj)->storage_as.instance.slots);
 }
 
 INLINE void SET_INSTANCE_SLOTS(lref_t obj, lref_t slots)
 {
      checked_assert(INSTANCEP(obj));
-     ((obj)->storage_as.instance._slots) = slots;
+     ((obj)->storage_as.instance.slots) = slots;
 }
 
 /*** fasl-stream ***/
@@ -1114,98 +1114,98 @@ enum port_mode_t
 
 struct port_text_info_t
 {
-     int _unread_buffer[PORT_UNGET_BUFFER_SIZE];
-     size_t _unread_valid;
+     int unread_buffer[PORT_UNGET_BUFFER_SIZE];
+     size_t unread_valid;
 
-     bool _crlf_translate;
-     bool _needs_lf;
+     bool crlf_translate;
+     bool needs_lf;
 
-     fixnum_t _column;
-     fixnum_t _row;
+     fixnum_t column;
+     fixnum_t row;
 
-     fixnum_t _previous_line_length;
+     fixnum_t previous_line_length;
 };
 
 struct fasl_stream_t
 {
-     lref_t _table;
-     lref_t _stack[FAST_LOAD_STACK_DEPTH];
-     size_t _sp;
-     lref_t _accum;
+     lref_t table;
+     lref_t stack[FAST_LOAD_STACK_DEPTH];
+     size_t sp;
+     lref_t accum;
 };
 
 struct port_info_t
 {
-     lref_t _port_name;
+     lref_t port_name;
 
-     void *_user_data;
-     lref_t _user_object;
+     void *user_data;
+     lref_t user_object;
 
-     port_mode_t _mode;
+     port_mode_t mode;
 
-     size_t _bytes_read;
+     size_t bytes_read;
 };
 
 struct port_class_t
 {
-     const _TCHAR *_name;
+     const _TCHAR *name;
 
-     void (*_open) (lref_t);
-     size_t(*_read) (void *, size_t, size_t, lref_t);
-     size_t(*_write) (const void *, size_t, size_t, lref_t);
-     bool(*_rich_write) (lref_t, bool, lref_t);
-     void (*_flush) (lref_t);
-     void (*_close) (lref_t);
-     void (*_gc_free) (lref_t);
-     size_t(*_length) (lref_t);
+     void   (* open)       (lref_t);
+     size_t (* read)       (void *, size_t, size_t, lref_t);
+     size_t (* write)      (const void *, size_t, size_t, lref_t);
+     bool   (* rich_write) (lref_t, bool, lref_t);
+     void   (* flush)      (lref_t);
+     void   (* close)      (lref_t);
+     void   (* gc_free)    (lref_t);
+     size_t (* length)     (lref_t);
 };
 
 INLINE port_info_t *PORT_PINFO(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port._pinf));
+     return (((*x).storage_as.port.pinf));
 }
 
 INLINE port_info_t *SET_PORT_PINFO(lref_t x, port_info_t * pinf)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port._pinf)) = pinf;
+     return (((*x).storage_as.port.pinf)) = pinf;
 }
 
 INLINE port_class_t *PORT_CLASS(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port._class));
+     return (((*x).storage_as.port.klass));
 }
 
 INLINE port_class_t *SET_PORT_CLASS(lref_t x, port_class_t * klass)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port._class)) = klass;
+     return (((*x).storage_as.port.klass)) = klass;
 }
 
 INLINE port_text_info_t *PORT_TEXT_INFO(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port._text_info));
+     return (((*x).storage_as.port.text_info));
 }
 
 INLINE void SET_PORT_TEXT_INFO(lref_t x, port_text_info_t * text_info)
 {
      checked_assert(PORTP(x));
-     (((*x).storage_as.port._text_info)) = text_info;
+     (((*x).storage_as.port.text_info)) = text_info;
 }
 
 INLINE port_mode_t PORT_MODE(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (PORT_PINFO(x)->_mode);
+     return PORT_PINFO(x)->mode;
 }
 
 INLINE void SET_PORT_MODE(lref_t x, port_mode_t mode)
 {
      checked_assert(PORTP(x));
-     PORT_PINFO(x)->_mode = mode;
+     PORT_PINFO(x)->mode = mode;
 }
 
 INLINE bool PORT_BINARYP(lref_t x)
@@ -1231,32 +1231,32 @@ INLINE bool PORT_OUTPUTP(lref_t port)
 INLINE size_t PORT_BYTES_READ(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (PORT_PINFO(x)->_bytes_read);
+     return (PORT_PINFO(x)->bytes_read);
 }
 
 INLINE lref_t PORT_USER_OBJECT(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (PORT_PINFO(x)->_user_object);
+     return (PORT_PINFO(x)->user_object);
 }
 
 INLINE void SET_PORT_USER_OBJECT(lref_t x, lref_t user_object)
 {
      checked_assert(PORTP(x));
-     PORT_PINFO(x)->_user_object = user_object;
+     PORT_PINFO(x)->user_object = user_object;
 }
 
 /*** values-tuple ***/
 INLINE lref_t VALUES_TUPLE_VALUES(lref_t vt)
 {
      checked_assert(VALUES_TUPLE_P(vt));
-     return ((*vt).storage_as.values_tuple._values);
+     return ((*vt).storage_as.values_tuple.values);
 }
 
 INLINE void SET_VALUES_TUPLE_VALUES(lref_t vt, lref_t vals)
 {
      checked_assert(VALUES_TUPLE_P(vt));
-     ((*vt).storage_as.values_tuple._values) = vals;
+     ((*vt).storage_as.values_tuple.values) = vals;
 }
 
 

@@ -41,7 +41,7 @@
 
  lref_t port_gc_mark(lref_t obj)
  {
-      gc_mark(PORT_PINFO(obj)->_port_name);
+      gc_mark(PORT_PINFO(obj)->port_name);
 
       return PORT_USER_OBJECT(obj);
  }
@@ -51,14 +51,14 @@
       assert(PORTP(port));
       assert(PORT_CLASS(port));
 
-      if (PORT_CLASS(port)->_close)
-           PORT_CLASS(port)->_close(port);
+      if (PORT_CLASS(port)->close)
+           PORT_CLASS(port)->close(port);
 
       if (PORT_TEXT_INFO(port))
            gc_free(PORT_TEXT_INFO(port));
 
-      if (PORT_CLASS(port)->_gc_free)
-           PORT_CLASS(port)->_gc_free(port);
+      if (PORT_CLASS(port)->gc_free)
+           PORT_CLASS(port)->gc_free(port);
 
        gc_free(PORT_PINFO(port));
  }
@@ -68,17 +68,17 @@ static port_text_info_t *allocate_text_info()
      port_text_info_t *tinfo =
           (port_text_info_t *)gc_malloc(sizeof(port_text_info_t));
 
-     memset(tinfo->_unread_buffer, 0, sizeof(tinfo->_unread_buffer));
-     tinfo->_unread_valid = 0;
+     memset(tinfo->unread_buffer, 0, sizeof(tinfo->unread_buffer));
+     tinfo->unread_valid = 0;
 
      sys_info_t sinf;
      sys_get_info(&sinf);
 
-     tinfo->_crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
-     tinfo->_needs_lf = FALSE;
-     tinfo->_column = 0;
-     tinfo->_row = 1;
-     tinfo->_previous_line_length = 0;
+     tinfo->crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
+     tinfo->needs_lf = FALSE;
+     tinfo->column = 0;
+     tinfo->row = 1;
+     tinfo->previous_line_length = 0;
 
      return tinfo;
 }
@@ -98,15 +98,15 @@ static port_text_info_t *allocate_text_info()
       SET_PORT_PINFO(s, (port_info_t *) gc_malloc(sizeof(port_info_t)));
       SET_PORT_CLASS(s, cls);
 
-      PORT_PINFO(s)->_port_name = port_name;
-      PORT_PINFO(s)->_user_data = user_data;
-      PORT_PINFO(s)->_user_object = user_object;
-      PORT_PINFO(s)->_mode = mode;
+      PORT_PINFO(s)->port_name = port_name;
+      PORT_PINFO(s)->user_data = user_data;
+      PORT_PINFO(s)->user_object = user_object;
+      PORT_PINFO(s)->mode = mode;
 
       SET_PORT_TEXT_INFO(s, binary ? NULL : allocate_text_info());
 
-      if (PORT_CLASS(s)->_open)
-           PORT_CLASS(s)->_open(s);
+      if (PORT_CLASS(s)->open)
+           PORT_CLASS(s)->open(s);
 
       return s;
  }
@@ -115,8 +115,8 @@ static port_text_info_t *allocate_text_info()
  {
       assert(PORTP(port));
 
-      if (PORT_CLASS(port)->_length)
-           return PORT_CLASS(port)->_length(port);
+      if (PORT_CLASS(port)->length)
+           return PORT_CLASS(port)->length(port);
 
       return 0;
  }
@@ -127,9 +127,9 @@ static port_text_info_t *allocate_text_info()
            port = CURRENT_OUTPUT_PORT();
 
       assert(!NULLP(port));
-      assert(PORT_CLASS(port)->_write);
+      assert(PORT_CLASS(port)->write);
 
-      return PORT_CLASS(port)->_write(buf, size, count, port);
+      return PORT_CLASS(port)->write(buf, size, count, port);
  }
 
  size_t read_raw(void *buf, size_t size, size_t target_count, lref_t port)
@@ -138,12 +138,12 @@ static port_text_info_t *allocate_text_info()
            port = CURRENT_INPUT_PORT();
 
       assert(!NULLP(port));
-      assert(PORT_CLASS(port)->_read);
+      assert(PORT_CLASS(port)->read);
 
       size_t actual_count =
-           PORT_CLASS(port)->_read(buf, size, target_count, port);
+           PORT_CLASS(port)->read(buf, size, target_count, port);
 
-      PORT_PINFO(port)->_bytes_read += (actual_count * size);
+      PORT_PINFO(port)->bytes_read += (actual_count * size);
 
       return actual_count;
  }
@@ -274,7 +274,7 @@ lref_t lport_mode(lref_t obj)
       if (!PORTP(port))
            vmerror_wrong_type(1, port);
 
-      return PORT_PINFO(port)->_port_name;
+      return PORT_PINFO(port)->port_name;
  }
 
  lref_t lclose_port(lref_t port)
@@ -285,10 +285,10 @@ lref_t lport_mode(lref_t obj)
       if (PORT_OUTPUTP(port))
            lflush_port(port);
 
-      if (PORT_CLASS(port)->_close)
-           PORT_CLASS(port)->_close(port);
+      if (PORT_CLASS(port)->close)
+           PORT_CLASS(port)->close(port);
 
-      PORT_PINFO(port)->_mode = PORT_CLOSED;
+      PORT_PINFO(port)->mode = PORT_CLOSED;
 
       return port;
  }
@@ -298,14 +298,15 @@ lref_t lport_mode(lref_t obj)
       if (!PORTP(port))
            vmerror_wrong_type(1, port);
 
-      if ((!PORT_BINARYP(port))
-          && (PORT_TEXT_INFO(port)->_crlf_translate) && (PORT_TEXT_INFO(port)->_needs_lf))
+      if (!PORT_BINARYP(port)
+          && PORT_TEXT_INFO(port)->crlf_translate
+          && PORT_TEXT_INFO(port)->needs_lf)
       {
            write_char(_T('\n'), port);
       }
 
-      if (PORT_CLASS(port)->_flush)
-           PORT_CLASS(port)->_flush(port);
+      if (PORT_CLASS(port)->flush)
+           PORT_CLASS(port)->flush(port);
 
       return port;
  }
