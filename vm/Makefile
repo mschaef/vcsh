@@ -74,7 +74,7 @@ fasl-dump${EXE_EXT}: $(FASL_DUMP_OBJS)
 
 scan-vm${LIB_EXT}: $(VM_OBJS)
 	${AR_RCS} ${AROUTFL}scan-vm${LIB_EXT} $(VM_OBJS)
-ifdef ${RANLIB}
+ifdef RANLIB
 	${RANLIB} scan-vm${LIB_EXT}
 endif
 
@@ -108,7 +108,7 @@ clean-local:
 %.gcov: %.cpp %.gcda %.gcno scansh0${EXE_EXT}
 	gcov $<
 
-%${OBJ_EXT}: %.cpp Makefile $(SCAN_HEADERS)
+%${OBJ_EXT}: %.cpp $(SCAN_HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
 
 ifneq ($(wildcard .depend),)
