@@ -62,10 +62,10 @@
        gc_free(PORT_PINFO(port));
  }
 
-static port_text_translation_info_t *allocate_text_info()
+static port_text_info_t *allocate_text_info()
 {
-     port_text_translation_info_t *tinfo =
-          (port_text_translation_info_t *)gc_malloc(sizeof(port_text_translation_info_t));
+     port_text_info_t *tinfo =
+          (port_text_info_t *)gc_malloc(sizeof(port_text_info_t));
 
      memset(tinfo->_unread_buffer, 0, sizeof(tinfo->_unread_buffer));
      tinfo->_unread_valid = 0;

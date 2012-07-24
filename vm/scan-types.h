@@ -1110,7 +1110,7 @@ enum port_mode_t
      PORT_BINARY = 0x08
 };
 
-struct port_text_translation_info_t
+struct port_text_info_t
 {
      int _unread_buffer[PORT_UNGET_BUFFER_SIZE];
      size_t _unread_valid;
@@ -1140,8 +1140,7 @@ struct port_info_t
      lref_t _user_object;
 
      port_mode_t _mode;
-
-     port_text_translation_info_t *_text_info;
+     port_text_info_t *_text_info;
 
      size_t _bytes_read;
 };
@@ -1189,17 +1188,16 @@ INLINE port_class_t *SET_PORT_CLASS(lref_t x, port_class_t * klass)
      return (((*x).storage_as.port._class)) = klass;
 }
 
-INLINE port_text_translation_info_t *PORT_TEXT_INFO(lref_t x)
+INLINE port_text_info_t *PORT_TEXT_INFO(lref_t x)
 {
      checked_assert(PORTP(x));
      return (PORT_PINFO(x)->_text_info);
 }
 
-INLINE port_text_translation_info_t *SET_PORT_TEXT_INFO(lref_t x,
-                                                        port_text_translation_info_t * text_info)
+INLINE void SET_PORT_TEXT_INFO(lref_t x, port_text_info_t * text_info)
 {
      checked_assert(PORTP(x));
-     return (PORT_PINFO(x)->_text_info) = text_info;
+     PORT_PINFO(x)->_text_info = text_info;
 }
 
 INLINE port_mode_t PORT_MODE(lref_t x)
@@ -1211,7 +1209,7 @@ INLINE port_mode_t PORT_MODE(lref_t x)
 INLINE void SET_PORT_MODE(lref_t x, port_mode_t mode)
 {
      checked_assert(PORTP(x));
-     (PORT_PINFO(x)->_mode) = mode;
+     PORT_PINFO(x)->_mode = mode;
 }
 
 INLINE bool PORT_BINARYP(lref_t x)
@@ -1249,7 +1247,7 @@ INLINE lref_t PORT_USER_OBJECT(lref_t x)
 INLINE void SET_PORT_USER_OBJECT(lref_t x, lref_t user_object)
 {
      checked_assert(PORTP(x));
-     (PORT_PINFO(x)->_user_object) = user_object;
+     PORT_PINFO(x)->_user_object = user_object;
 }
 
 /*** values-tuple ***/
