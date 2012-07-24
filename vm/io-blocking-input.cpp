@@ -23,42 +23,37 @@
 #include "scan-private.h"
 
 BEGIN_NAMESPACE(scan)
+
 size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t port);
 void blocking_input_port_close(lref_t port);
-bool blocking_input_read_readyp(lref_t port);
 
 port_class_t blocking_input_port_class = {
      _T("BLOCKING-INPUT"),
 
-     NULL,
-
-     blocking_input_read_readyp,
-     blocking_input_port_read,
-     NULL,
-     NULL,
-
-     NULL,
-     blocking_input_port_close,
-     NULL,
-
-     NULL,
+     NULL,                         // open
+     blocking_input_port_read,     // read
+     NULL,                         // write
+     NULL,                         // rich_write
+     NULL,                         // flush
+     blocking_input_port_close,    // close
+     NULL,                         // gc_free
+     NULL,                         // length
 };
+
+
 
 struct blocking_input_port_state
 {
      blocking_input_read_data_fn_t _read_data;
      blocking_input_close_port_fn_t _close_port;
+
      size_t _buffer_size;
      size_t _buffer_pos;
      uint8_t *_buffer;
+
      void *_userdata;
      bool _more_data;
 };
-
-bool blocking_input_read_readyp(lref_t port)
-{
-     return blocking_input_is_data_available(port);
-}
 
 size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t port)
 {
@@ -168,6 +163,7 @@ bool blocking_input_is_data_available(lref_t port)
      return (ps != NULL)
          && (ps->_buffer != NULL) && (ps->_buffer_size > 0) && (ps->_buffer_pos < ps->_buffer_size);
 }
+
 
 lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
                          blocking_input_read_data_fn_t read_fn,

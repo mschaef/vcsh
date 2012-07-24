@@ -1151,17 +1151,12 @@ struct port_class_t
      const _TCHAR *_name;
 
      void (*_open) (lref_t);
-
-     bool(*_read_readyp) (lref_t);
      size_t(*_read) (void *, size_t, size_t, lref_t);
-
      size_t(*_write) (const void *, size_t, size_t, lref_t);
      bool(*_rich_write) (lref_t, bool, lref_t);
-
      void (*_flush) (lref_t);
      void (*_close) (lref_t);
      void (*_gc_free) (lref_t);
-
      size_t(*_length) (lref_t);
 };
 

@@ -211,7 +211,6 @@
              char-lower-case?
              char-numeric?
              char-octal?
-             char-ready?
              char-upcase
              char-upper-case?
              char-whitespace?

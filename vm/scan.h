@@ -217,7 +217,6 @@ lref_t lcdr(lref_t x);
 lref_t lcdrs(lref_t x);
 lref_t lceiling(lref_t x);
 lref_t lchar2integer(lref_t s);
-lref_t lchar_readyp(lref_t port);
 lref_t lcharacter2string(lref_t obj);
 lref_t lcharp(lref_t x);
 lref_t lclone_c_data_port(lref_t port);

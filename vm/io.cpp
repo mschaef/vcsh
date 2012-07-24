@@ -574,18 +574,14 @@ size_t null_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 port_class_t null_port_class = {
      _T("NULL"),
 
-     NULL,
-
-     NULL,
-     null_port_read,
-     null_port_write,
-     NULL,
-
-     NULL,
-     NULL,
-     NULL,
-
-     NULL,
+     NULL,            // open
+     null_port_read,  // read
+     null_port_write, // write
+     NULL,            // rich_write
+     NULL,            // flush
+     NULL,            // close
+     NULL,            // gc_free
+     NULL,            // length
 };
 
 

@@ -115,7 +115,6 @@
 (%define cdr* #.(host-scheme::%subr-by-name "cdr*"))
 (%define ceiling #.(host-scheme::%subr-by-name "ceiling"))
 (%define char->integer #.(host-scheme::%subr-by-name "char->integer"))
-(%define char-ready? #.(host-scheme::%subr-by-name "char-ready?"))
 (%define char? #.(host-scheme::%subr-by-name "char?"))
 (%define character->string #.(host-scheme::%subr-by-name "character->string"))
 (%define clone-c-data-port #.(host-scheme::%subr-by-name "clone-c-data-port"))

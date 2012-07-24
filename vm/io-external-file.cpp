@@ -115,18 +115,14 @@ void file_port_close(lref_t obj)
 port_class_t file_port_class = {
      _T("STANDARD-FILE"),
 
-     file_port_open,
-
-     NULL,
-     file_port_read,
-     file_port_write,
-     NULL,
-     file_port_flush,
-
-     file_port_close,
-     NULL,
-
-     NULL,
+     file_port_open,  // open
+     file_port_read,  // read
+     file_port_write, // write
+     NULL,            // rich_write
+     file_port_flush, // flush
+     file_port_close, // close
+     NULL,            // gc_free
+     NULL,            // length
 };
 
 bool get_c_port_mode(lref_t mode)
@@ -186,18 +182,14 @@ void stdin_port_open(lref_t obj)
 port_class_t stdin_port_class = {
      _T("STANDARD-INPUT"),
 
-     stdin_port_open,
-
-     NULL,
-     file_port_read,
-     NULL,
-     NULL,
-
-     NULL,
-     stdio_port_close,
-     NULL,
-
-     NULL,
+     stdin_port_open,  // open
+     file_port_read,   // read
+     NULL,             // write
+     NULL,             // rich_write
+     NULL,             // flush
+     stdio_port_close, // close
+     NULL,             // gc_free
+     NULL,             // length
 };
 
 void stdout_port_open(lref_t obj)
@@ -211,18 +203,14 @@ void stdout_port_open(lref_t obj)
 port_class_t stdout_port_class = {
      _T("STANDARD-OUTPUT"),
 
-     stdout_port_open,
-
-     NULL,
-     NULL,
-     file_port_write,
-     NULL,
-     file_port_flush,
-
-     stdio_port_close,
-     NULL,
-
-     NULL,
+     stdout_port_open,   // open
+     NULL,               // read
+     file_port_write,    // write
+     NULL,               // rich_write
+     file_port_flush,    // flush
+     stdio_port_close,   // close
+     NULL,               // gc_free
+     NULL,               // length
 };
 
 void stderr_port_open(lref_t obj)
@@ -236,18 +224,14 @@ void stderr_port_open(lref_t obj)
 port_class_t stderr_port_class = {
      _T("STANDARD-ERROR"),
 
-     stderr_port_open,
-
-     NULL,
-     NULL,
-     file_port_write,
-     NULL,
-     file_port_flush,
-
-     stdio_port_close,
-     NULL,
-
-     NULL,
+     stderr_port_open,  // open
+     NULL,              // read
+     file_port_write,   // write
+     NULL,              // rich_write
+     file_port_flush,   // flusn
+     stdio_port_close,  // close
+     NULL,              // gc_free
+     NULL,              // length
 };
 
 

@@ -351,7 +351,6 @@ static void register_main_subrs()
     register_subr(_T("cdr*"),                             SUBR_1,     (void*)lcdrs                               );
     register_subr(_T("ceiling"),                          SUBR_1,     (void*)lceiling                            );
     register_subr(_T("char->integer"),                    SUBR_1,     (void*)lchar2integer                       );
-    register_subr(_T("char-ready?"),                      SUBR_1,     (void*)lchar_readyp                        );
     register_subr(_T("char?"),                            SUBR_1,     (void*)lcharp                              );
     register_subr(_T("character->string"),                SUBR_1,     (void*)lcharacter2string                   );
     register_subr(_T("clone-c-data-port"),                SUBR_1,     (void*)lclone_c_data_port                  );

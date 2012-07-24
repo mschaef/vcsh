@@ -74,18 +74,14 @@ size_t string_port_length(lref_t port)
 port_class_t string_port_class = {
      _T("STRING"),
 
-     NULL,
-
-     NULL,
-     string_port_read,
-     string_port_write,
-     NULL,
-
-     NULL,
-     NULL,
-     NULL,
-
-     string_port_length,
+     NULL,                // open
+     string_port_read,    // read
+     string_port_write,   // write
+     NULL,                // rich_write
+     NULL,                // flush
+     NULL,                // close
+     NULL,                // gc_free
+     string_port_length,  // length
 };
 
 

@@ -746,18 +746,14 @@ size_t debug_port_write(const void *buf, size_t size, size_t count, lref_t obj)
 port_class_t debug_port_class = {
      _T("STANDARD-DEBUG"),
 
-     NULL,
-
-     NULL,
-     NULL,
-     debug_port_write,
-     NULL,
-
-     NULL,
-     NULL,
-     NULL,
-
-     NULL,
+     NULL,                 // open
+     NULL,                 // read
+     debug_port_write,     // write
+     NULL,                 // rich_write
+     NULL,                 // flush
+     NULL,                 // close
+     NULL,                 // gc_free
+     NULL,                 // length
 };
 
 

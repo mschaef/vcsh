@@ -66,18 +66,14 @@ size_t c_data_port_length(lref_t obj)
 port_class_t c_data_port_class = {
      _T("C-DATA"),
 
-     NULL,
-
-     NULL,
-     c_data_port_read,
-     NULL,
-     NULL,
-
-     NULL,
-     NULL,
-     NULL,
-
-     c_data_port_length,
+     NULL,                // open
+     c_data_port_read,    // read
+     NULL,                // write
+     NULL,                // rich_write
+     NULL,                // flush
+     NULL,                // close
+     NULL,                // gc_free
+     c_data_port_length,  // length
 };
 
 

@@ -463,29 +463,6 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
 }
 
 
-lref_t lchar_readyp(lref_t port)
-{
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
-          vmerror_wrong_type(1, port);
-
-     if (PORT_CLASS(port)->_read_readyp)
-          return boolcons(PORT_CLASS(port)->_read_readyp(port));
-     else
-     {
-          /*  If there's not explicit char-ready? handling provided by the port,
-           *  we use this hokey logic that defaults to true unless the port
-           *  is at EOF. Because our EOF detection depends on peek_char, we
-           *  can't even go that far with binary ports. Fixing this will require
-           *  bypassing the C RTL I/O logic, which will have to wait. */
-
-          if (PORT_BINARYP(port))
-               vmerror_unsupported(_T("char-ready? not supported on binary ports"));
-
-          return boolcons(peek_char(port) != EOF);
-     }
-}
 
 
 lref_t lflush_whitespace(lref_t port, lref_t slc)
@@ -614,19 +591,14 @@ void text_port_close(lref_t obj)
 port_class_t text_port_class = {
      _T("TEXT"),
 
-     NULL,
-
-     NULL,
-     text_port_read,
-
-     text_port_write,
-     NULL,
-
-     text_port_flush,
-     text_port_close,
-     NULL,
-
-     NULL
+     NULL,             // open
+     text_port_read,   // read
+     text_port_write,  // write
+     NULL,             // rich_write
+     text_port_flush,  // flush
+     text_port_close,  // close
+     NULL,             // gc_free
+     NULL              // length
 };
 
 lref_t lopen_text_input_port(lref_t underlying)
