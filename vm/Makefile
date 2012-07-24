@@ -47,6 +47,7 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        io-external-file${OBJ_EXT} \
        io-internal-file${OBJ_EXT} \
        io-string${OBJ_EXT} \
+       io-text${OBJ_EXT} \
        list${OBJ_EXT} \
        macro${OBJ_EXT} \
        main${OBJ_EXT} \

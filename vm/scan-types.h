@@ -55,6 +55,7 @@ typedef double flonum_t;
 
 struct port_class_t;
 struct port_info_t;
+struct port_text_info_t;
 struct lobject_t;
 typedef lobject_t *lref_t;
 struct fasl_stream_t;
@@ -217,6 +218,7 @@ struct lobject_t
           {
                port_class_t *_class;
                port_info_t *_pinf;
+               port_text_info_t *_text_info;
           } port;
           struct
           {
@@ -1140,7 +1142,6 @@ struct port_info_t
      lref_t _user_object;
 
      port_mode_t _mode;
-     port_text_info_t *_text_info;
 
      size_t _bytes_read;
 };
@@ -1191,13 +1192,13 @@ INLINE port_class_t *SET_PORT_CLASS(lref_t x, port_class_t * klass)
 INLINE port_text_info_t *PORT_TEXT_INFO(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (PORT_PINFO(x)->_text_info);
+     return (((*x).storage_as.port._text_info));
 }
 
 INLINE void SET_PORT_TEXT_INFO(lref_t x, port_text_info_t * text_info)
 {
      checked_assert(PORTP(x));
-     PORT_PINFO(x)->_text_info = text_info;
+     (((*x).storage_as.port._text_info)) = text_info;
 }
 
 INLINE port_mode_t PORT_MODE(lref_t x)
