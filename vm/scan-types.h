@@ -1150,14 +1150,14 @@ struct port_class_t
 {
      const _TCHAR *name;
 
-     void   (* open)       (lref_t port);
-     size_t (* read)       (void *buf, size_t size, size_t count, lref_t port);
-     size_t (* write)      (const void *buf, size_t size, size_t count, lref_t port);
-     bool   (* rich_write) (lref_t obj, bool machine_readable, lref_t port);
-     void   (* flush)      (lref_t port);
-     void   (* close)      (lref_t port);
-     void   (* gc_free)    (lref_t port);
-     size_t (* length)     (lref_t port);
+     void   (* open)        (lref_t port);
+     size_t (* read_bytes)  (void *buf, size_t size, size_t count, lref_t port);
+     size_t (* write_bytes) (const void *buf, size_t size, size_t count, lref_t port);
+     bool   (* rich_write)  (lref_t obj, bool machine_readable, lref_t port);
+     void   (* flush)       (lref_t port);
+     void   (* close)       (lref_t port);
+     void   (* gc_free)     (lref_t port);
+     size_t (* length)      (lref_t port);
 };
 
 INLINE port_info_t *PORT_PINFO(lref_t x)

@@ -68,8 +68,8 @@ port_class_t c_data_port_class = {
      _T("C-DATA"),
 
      NULL,                // open
-     c_data_port_read,    // read
-     NULL,                // write
+     c_data_port_read,    // read_bytes
+     NULL,                // write_bytes
      NULL,                // rich_write
      NULL,                // flush
      NULL,                // close

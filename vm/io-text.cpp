@@ -592,8 +592,8 @@ port_class_t text_port_class = {
      _T("TEXT"),
 
      NULL,             // open
-     text_port_read,   // read
-     text_port_write,  // write
+     text_port_read,   // read_bytes
+     text_port_write,  // write_bytes
      NULL,             // rich_write
      text_port_flush,  // flush
      text_port_close,  // close

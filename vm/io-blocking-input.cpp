@@ -31,8 +31,8 @@ port_class_t blocking_input_port_class = {
      _T("BLOCKING-INPUT"),
 
      NULL,                         // open
-     blocking_input_port_read,     // read
-     NULL,                         // write
+     blocking_input_port_read,     // read_bytes
+     NULL,                         // write_bytes
      NULL,                         // rich_write
      NULL,                         // flush
      blocking_input_port_close,    // close

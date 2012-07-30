@@ -127,9 +127,9 @@ static port_text_info_t *allocate_text_info()
            port = CURRENT_OUTPUT_PORT();
 
       assert(!NULLP(port));
-      assert(PORT_CLASS(port)->write);
+      assert(PORT_CLASS(port)->write_bytes);
 
-      return PORT_CLASS(port)->write(buf, size, count, port);
+      return PORT_CLASS(port)->write_bytes(buf, size, count, port);
  }
 
  size_t read_raw(void *buf, size_t size, size_t target_count, lref_t port)
@@ -138,10 +138,10 @@ static port_text_info_t *allocate_text_info()
            port = CURRENT_INPUT_PORT();
 
       assert(!NULLP(port));
-      assert(PORT_CLASS(port)->read);
+      assert(PORT_CLASS(port)->read_bytes);
 
       size_t actual_count =
-           PORT_CLASS(port)->read(buf, size, target_count, port);
+           PORT_CLASS(port)->read_bytes(buf, size, target_count, port);
 
       PORT_PINFO(port)->bytes_read += (actual_count * size);
 
@@ -576,8 +576,8 @@ port_class_t null_port_class = {
      _T("NULL"),
 
      NULL,            // open
-     null_port_read,  // read
-     null_port_write, // write
+     null_port_read,  // read_bytes
+     null_port_write, // write_bytes
      NULL,            // rich_write
      NULL,            // flush
      NULL,            // close

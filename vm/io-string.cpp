@@ -75,8 +75,8 @@ port_class_t string_port_class = {
      _T("STRING"),
 
      NULL,                // open
-     string_port_read,    // read
-     string_port_write,   // write
+     string_port_read,    // read_bytes
+     string_port_write,   // write_bytes
      NULL,                // rich_write
      NULL,                // flush
      NULL,                // close

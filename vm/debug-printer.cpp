@@ -747,8 +747,8 @@ port_class_t debug_port_class = {
      _T("STANDARD-DEBUG"),
 
      NULL,                 // open
-     NULL,                 // read
-     debug_port_write,     // write
+     NULL,                 // read_bytes
+     debug_port_write,     // write_bytes
      NULL,                 // rich_write
      NULL,                 // flush
      NULL,                 // close

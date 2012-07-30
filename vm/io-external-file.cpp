@@ -115,8 +115,8 @@ port_class_t file_port_class = {
      _T("STANDARD-FILE"),
 
      file_port_open,  // open
-     file_port_read,  // read
-     file_port_write, // write
+     file_port_read,  // read_bytes
+     file_port_write, // write_bytes
      NULL,            // rich_write
      file_port_flush, // flush
      file_port_close, // close
@@ -182,8 +182,8 @@ port_class_t stdin_port_class = {
      _T("STANDARD-INPUT"),
 
      stdin_port_open,  // open
-     file_port_read,   // read
-     NULL,             // write
+     file_port_read,   // read_bytes
+     NULL,             // write_bytes
      NULL,             // rich_write
      NULL,             // flush
      stdio_port_close, // close
@@ -203,8 +203,8 @@ port_class_t stdout_port_class = {
      _T("STANDARD-OUTPUT"),
 
      stdout_port_open,   // open
-     NULL,               // read
-     file_port_write,    // write
+     NULL,               // read_bytes
+     file_port_write,    // write_bytes
      NULL,               // rich_write
      file_port_flush,    // flush
      stdio_port_close,   // close
@@ -224,8 +224,8 @@ port_class_t stderr_port_class = {
      _T("STANDARD-ERROR"),
 
      stderr_port_open,  // open
-     NULL,              // read
-     file_port_write,   // write
+     NULL,              // read_bytes
+     file_port_write,   // write_bytes
      NULL,              // rich_write
      file_port_flush,   // flusn
      stdio_port_close,  // close
