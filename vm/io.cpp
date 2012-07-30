@@ -304,7 +304,7 @@ lref_t lport_mode(lref_t obj)
       {
            write_char(_T('\n'), port);
       }
-
+      
       if (PORT_CLASS(port)->flush)
            PORT_CLASS(port)->flush(port);
 
