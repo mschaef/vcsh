@@ -24,7 +24,7 @@
 
 BEGIN_NAMESPACE(scan)
 
-size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size, size_t count);
+size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size);
 void blocking_input_port_close(lref_t port);
 
 port_class_t blocking_input_port_class = {
@@ -55,7 +55,7 @@ struct blocking_input_port_state
      bool _more_data;
 };
 
-size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
+size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
@@ -64,7 +64,7 @@ size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size, size_
 
      blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
-     size_t bytes_to_read = size * count;
+     size_t bytes_to_read = size;
      size_t bytes_read = 0;
 
      while (bytes_to_read)

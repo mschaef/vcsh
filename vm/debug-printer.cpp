@@ -707,7 +707,7 @@ void dscwritef_impl(const _TCHAR * format_str, ...)
  * The standard debug port.
  */
 
-size_t debug_port_write(lref_t port, const void *buf, size_t size, size_t count)
+size_t debug_port_write(lref_t port, const void *buf, size_t size)
 {
      UNREFERENCED(port);
      assert(PORTP(port));
@@ -719,7 +719,7 @@ size_t debug_port_write(lref_t port, const void *buf, size_t size, size_t count)
      size_t buf_loc = 0;
      size_t block_loc = 0;
 
-     size_t len = size * count;
+     size_t len = size;
 
      /* Filter nulls out of the input string, and ensure that the
       * buffer we pass to OutputDebugString has as terminating

@@ -230,7 +230,7 @@ static void fast_read_string(lref_t reader, lref_t * retval)
      memset(buf, 0, (size_t) (expected_length + 1));
 
      fixnum_t actual_length =
-          read_bytes(FASL_READER_PORT(reader), buf, sizeof(_TCHAR), (size_t) expected_length);
+          read_bytes(FASL_READER_PORT(reader), buf, (size_t)(expected_length * sizeof(_TCHAR)));
 
      if (actual_length != expected_length)
           vmerror_fast_read("EOF during string data", reader);
@@ -502,7 +502,7 @@ static void fast_read_to_newline(lref_t reader)
      _TCHAR ch = _T('\0');
 
      while ((ch != _T('\n')) && (ch != _T('\r')))
-          if (read_bytes(FASL_READER_PORT(reader), &ch, sizeof(_TCHAR), 1) == 0)
+          if (read_bytes(FASL_READER_PORT(reader), &ch, sizeof(_TCHAR)) == 0)
                break;
 }
 

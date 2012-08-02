@@ -72,22 +72,22 @@ void file_port_open(lref_t obj)
 }
 
 
-size_t file_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
+size_t file_port_read_bytes(lref_t port, void *buf, size_t size)
 {
      FILE *f = PORT_FILE(port);
 
      assert(f);
 
-     return fread(buf, size, count, f);
+     return fread(buf, 1, size, f);
 }
 
-size_t file_port_write_bytes(lref_t port, const void *buf, size_t size, size_t count)
+size_t file_port_write_bytes(lref_t port, const void *buf, size_t size)
 {
      FILE *f = PORT_FILE(port);
 
      assert(f);
 
-     return (int) fwrite(buf, size, count, f);
+     return fwrite(buf, 1, size, f);
 }
 
 void file_port_flush(lref_t port)

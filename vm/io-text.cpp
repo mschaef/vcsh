@@ -44,7 +44,7 @@
       {
            _TCHAR tch;
 
-           if (read_bytes(port, &tch, sizeof(_TCHAR), 1) == 0)
+           if (read_bytes(port, &tch, sizeof(_TCHAR)) == 0)
                 ch = EOF;
            else
                 ch = tch;
@@ -165,7 +165,7 @@
 
       if (PORT_BINARYP(port))
       {
-           return write_bytes(port, buf, sizeof(_TCHAR), count);
+           return write_bytes(port, buf, count * sizeof(_TCHAR));
       }
       else if (!PORT_TEXT_INFO(port)->crlf_translate)
       {
@@ -180,7 +180,7 @@
                      PORT_TEXT_INFO(port)->column++;
            }
 
-           return write_bytes(port, buf, sizeof(_TCHAR), count);
+           return write_bytes(port, buf, count * sizeof(_TCHAR));
       }
       else
       {
@@ -210,7 +210,7 @@
                      if (buf[next_eoln_char] == _T('\n'))
                           next_eoln_char++;
 
-                     write_bytes(port, _T("\n"), sizeof(_TCHAR), 1);
+                     write_bytes(port, _T("\n"), sizeof(_TCHAR));
 
                      PORT_TEXT_INFO(port)->needs_lf = false;
                      PORT_TEXT_INFO(port)->row++;
@@ -220,13 +220,13 @@
                      switch (c)
                      {
                      case _T('\n'):
-                          write_bytes(port, _T("\r\n"), sizeof(_TCHAR), 2);
+                          write_bytes(port, _T("\r\n"), 2 * sizeof(_TCHAR));
                           PORT_TEXT_INFO(port)->column = 0;
                           PORT_TEXT_INFO(port)->row++;
                           break;
 
                      case _T('\r'):
-                          write_bytes(port, _T("\r"), sizeof(_TCHAR), 1);
+                          write_bytes(port, _T("\r"), sizeof(_TCHAR));
                           PORT_TEXT_INFO(port)->column = 0;
                           PORT_TEXT_INFO(port)->needs_lf = true;
                           break;
@@ -240,8 +240,10 @@
                 else
                 {
                      PORT_TEXT_INFO(port)->column += (next_eoln_char - next_char_to_write);
-                     write_bytes(port, &(buf[next_char_to_write]), sizeof(_TCHAR),
-                                      next_eoln_char - next_char_to_write);
+
+                     size_t chars_to_write = next_eoln_char - next_char_to_write;
+
+                     write_bytes(port, &(buf[next_char_to_write]), chars_to_write * sizeof(_TCHAR));
                 }
 
                 next_char_to_write = next_eoln_char;
@@ -560,22 +562,22 @@ lref_t lfresh_line(lref_t port)
 
 /*** Text port object ***/
 
-size_t text_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
+size_t text_port_read_bytes(lref_t port, void *buf, size_t size)
 {
      lref_t underlying = PORT_USER_OBJECT(port);
 
      assert(PORTP(underlying));
 
-     return read_bytes(underlying, buf, size, count);
+     return read_bytes(underlying, buf, size);
 }
 
-size_t text_port_write_bytes(lref_t port, const void *buf, size_t size, size_t count)
+size_t text_port_write_bytes(lref_t port, const void *buf, size_t size)
 {
      lref_t underlying = PORT_USER_OBJECT(port);
 
      assert(PORTP(underlying));
 
-     return write_bytes(underlying, buf, size, count);
+     return write_bytes(underlying, buf, size);
 }
 
 void text_port_flush(lref_t obj)

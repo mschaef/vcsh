@@ -28,39 +28,35 @@ INLINE lref_t PORT_STRING(lref_t port)
 {
      return PORT_USER_OBJECT(port);
 }
-size_t string_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
+size_t string_port_read_bytes(lref_t port, void *buf, size_t size)
 {
      size_t bytes_read;
 
      /*  REVISIT: This is a pretty bad string_port_read_bytes */
 
-     assert(size == sizeof(_TCHAR));
+     _TCHAR *tbuf = (_TCHAR *)buf;
 
-     _TCHAR *tbuf = (_TCHAR *) buf;
-
-     for (bytes_read = 0; bytes_read < count; bytes_read++)
+     for (bytes_read = 0; bytes_read < size; bytes_read++)
      {
           int ch = str_next_character(PORT_STRING(port));
 
           if (ch == EOF)
                break;
 
-          tbuf[bytes_read] = (_TCHAR) ch;
+          tbuf[bytes_read] = (_TCHAR)ch;
      }
 
      return bytes_read;
 }
 
-size_t string_port_write_bytes(lref_t port, const void *buf, size_t size, size_t count)
+size_t string_port_write_bytes(lref_t port, const void *buf, size_t size)
 {
-     assert(size == sizeof(_TCHAR));
-
      if (NULLP(PORT_STRING(port)))
-          SET_PORT_STRING(port, strcons(count, (_TCHAR *) buf)); /*  REVISIT: fails if buf has embedded nulls */
+          SET_PORT_STRING(port, strcons(size, (_TCHAR *)buf)); /*  REVISIT: fails if buf has embedded nulls */
      else
-          str_append_str(PORT_STRING(port), (_TCHAR *) buf, count);
+          str_append_str(PORT_STRING(port), (_TCHAR *) buf, size);
 
-     return count;
+     return size;
 }
 
 size_t string_port_length(lref_t port)

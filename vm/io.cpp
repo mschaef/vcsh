@@ -121,7 +121,7 @@ static port_text_info_t *allocate_text_info()
       return 0;
  }
 
- size_t write_bytes(lref_t port, const void *buf, size_t size, size_t count)
+ size_t write_bytes(lref_t port, const void *buf, size_t size)
  {
       if (NULLP(port))
            port = CURRENT_OUTPUT_PORT();
@@ -129,10 +129,10 @@ static port_text_info_t *allocate_text_info()
       assert(!NULLP(port));
       assert(PORT_CLASS(port)->write_bytes);
 
-      return PORT_CLASS(port)->write_bytes(port, buf, size, count);
+      return PORT_CLASS(port)->write_bytes(port, buf, size);
  }
 
- size_t read_bytes(lref_t port, void *buf, size_t size, size_t target_count)
+ size_t read_bytes(lref_t port, void *buf, size_t size)
  {
       if (NULLP(port))
            port = CURRENT_INPUT_PORT();
@@ -141,9 +141,9 @@ static port_text_info_t *allocate_text_info()
       assert(PORT_CLASS(port)->read_bytes);
 
       size_t actual_count =
-           PORT_CLASS(port)->read_bytes(port, buf, size, target_count);
+           PORT_CLASS(port)->read_bytes(port, buf, size);
 
-      PORT_PINFO(port)->bytes_read += (actual_count * size);
+      PORT_PINFO(port)->bytes_read += actual_count;
 
       return actual_count;
  }
@@ -173,7 +173,7 @@ static port_text_info_t *allocate_text_info()
       assert(PORT_BINARYP(port));
 
       uint8_t bytes[sizeof(fixnum_t)];
-      size_t fixnums_read = read_bytes(port, bytes, (size_t) length, 1);
+      size_t fixnums_read = read_bytes(port, bytes, (size_t)length);
 
       if (!fixnums_read)
            return false;
@@ -207,7 +207,7 @@ static port_text_info_t *allocate_text_info()
       assert(PORT_BINARYP(port));
 
       uint8_t bytes[sizeof(flonum_t)];
-      size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t), 1);
+      size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t));
 
       if (!flonums_read)
            return false;
@@ -344,7 +344,7 @@ lref_t lread_binary_string(lref_t l, lref_t port)
           if (to_read > STACK_STRBUF_LEN)
                to_read = STACK_STRBUF_LEN;
 
-          size_t actual_read = read_bytes(port, buf, sizeof(_TCHAR), (size_t) remaining_length);
+          size_t actual_read = read_bytes(port, buf, (size_t)(remaining_length * sizeof(_TCHAR)));
 
           if (actual_read <= 0)
                break;
@@ -433,7 +433,7 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
      size_t length = STRING_DIM(string);
      _TCHAR *strdata = STRING_DATA(string);
 
-     size_t chars_written = write_bytes(port, strdata, sizeof(_TCHAR), length);
+     size_t chars_written = write_bytes(port, strdata, length * sizeof(_TCHAR));
 
      if (chars_written < length)
           vmerror_io_error(_T("error writing to port."), port);
@@ -510,7 +510,7 @@ lref_t lwrite_binary_fixnum(lref_t v, lref_t l, lref_t sp, lref_t port)
 #endif
      }
 
-     size_t fixnums_written = write_bytes(port, bytes, (size_t) length, 1);
+     size_t fixnums_written = write_bytes(port, bytes, (size_t)length);
 
      if (fixnums_written < 1)
           vmerror_io_error(_T("error writing to port."), port);
@@ -539,7 +539,7 @@ lref_t lbinary_write_flonum(lref_t v, lref_t port)
 
      *(flonum_t *) bytes = val;
 
-     size_t flonums_written = write_bytes(port, bytes, sizeof(flonum_t), 1);
+     size_t flonums_written = write_bytes(port, bytes, sizeof(flonum_t));
 
      if (flonums_written < 1)
           vmerror_io_error(_T("error writing to port."), port);
@@ -553,23 +553,22 @@ lref_t lbinary_write_flonum(lref_t v, lref_t port)
  * Output port - Accepts all writes.
  */
 
-size_t null_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
+size_t null_port_read_bytes(lref_t port, void *buf, size_t size)
 {
+     UNREFERENCED(port);
      UNREFERENCED(buf);
      UNREFERENCED(size);
-     UNREFERENCED(count);
-     UNREFERENCED(port);
 
      return 0;
 }
 
-size_t null_port_write_bytes(lref_t port, const void *buf, size_t size, size_t count)
+size_t null_port_write_bytes(lref_t port, const void *buf, size_t size)
 {
+     UNREFERENCED(port);
      UNREFERENCED(buf);
      UNREFERENCED(size);
-     UNREFERENCED(port);
 
-     return count;
+     return size;
 }
 
 port_class_t null_port_class = {

@@ -25,24 +25,23 @@ struct c_data_port_state
 };
 
 
-size_t c_data_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
+size_t c_data_port_read_bytes(lref_t port, void *buf, size_t size)
 {
      if (!PORT_INPUTP(port))
           return 0;
 
      c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(port)->user_data);
 
-     size_t bytes = size * count;
      size_t bytes_remaining = ps->_input_buffer_bytes - ps->_bytes_transferred;
 
-     if (bytes > bytes_remaining)
-          bytes = (bytes_remaining / size) * size;
+     if (size > bytes_remaining)
+          size = bytes_remaining;
 
-     memcpy(buf, &(ps->_input_buffer[ps->_bytes_transferred]), bytes);
+     memcpy(buf, &(ps->_input_buffer[ps->_bytes_transferred]), size);
 
-     ps->_bytes_transferred += bytes;
+     ps->_bytes_transferred += size;
 
-     return bytes / size;
+     return size;
 }
 
 void c_data_port_gc_free(lref_t obj)
