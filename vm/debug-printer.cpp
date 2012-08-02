@@ -107,7 +107,7 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
 
      /* To write strings more efficiently, this code scans for the longest
       * block of characters that don't need special encoding, and then
-      * passes those blocks on to write_raw. */
+      * passes those blocks on to write_bytes. */
      while (next_char_to_write < STRING_DIM(obj))
      {
           unsigned int c;
@@ -707,10 +707,10 @@ void dscwritef_impl(const _TCHAR * format_str, ...)
  * The standard debug port.
  */
 
-size_t debug_port_write(const void *buf, size_t size, size_t count, lref_t obj)
+size_t debug_port_write(lref_t port, const void *buf, size_t size, size_t count)
 {
-     UNREFERENCED(obj);
-     assert(PORTP(obj));
+     UNREFERENCED(port);
+     assert(PORTP(port));
 
      _TCHAR *cbuf = (_TCHAR *) buf;
 

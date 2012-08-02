@@ -126,14 +126,15 @@ lref_t liinstancecons(lref_t proto);
 lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,
               void *user_data);
 
-size_t read_raw(void *buf, size_t size, size_t count, lref_t port);
-size_t write_raw(const void *buf, size_t size, size_t count, lref_t port);
+size_t read_bytes(lref_t port, void *buf, size_t size, size_t count);
+size_t write_bytes(lref_t port, const void *buf, size_t size, size_t count);
+size_t write_text(const _TCHAR * buf, size_t count, lref_t port);
 
 int read_char(lref_t port);
 int unread_char(int ch, lref_t port);
 int peek_char(lref_t port);
 void write_char(int ch, lref_t port);
-size_t write_text(const _TCHAR * buf, size_t count, lref_t port);
+
 
 bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t & result);
 bool read_binary_flonum(lref_t port, flonum_t & result);

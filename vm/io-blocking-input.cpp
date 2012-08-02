@@ -24,20 +24,20 @@
 
 BEGIN_NAMESPACE(scan)
 
-size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t port);
+size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size, size_t count);
 void blocking_input_port_close(lref_t port);
 
 port_class_t blocking_input_port_class = {
      _T("BLOCKING-INPUT"),
 
-     NULL,                         // open
-     blocking_input_port_read,     // read_bytes
-     NULL,                         // write_bytes
-     NULL,                         // rich_write
-     NULL,                         // flush
-     blocking_input_port_close,    // close
-     NULL,                         // gc_free
-     NULL,                         // length
+     NULL,                           // open
+     blocking_input_port_read_bytes, // read_bytes
+     NULL,                           // write_bytes
+     NULL,                           // rich_write
+     NULL,                           // flush
+     blocking_input_port_close,      // close
+     NULL,                           // gc_free
+     NULL,                           // length
 };
 
 
@@ -55,7 +55,7 @@ struct blocking_input_port_state
      bool _more_data;
 };
 
-size_t blocking_input_port_read(void *buf, size_t size, size_t count, lref_t port)
+size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
@@ -166,8 +166,8 @@ bool blocking_input_is_data_available(lref_t port)
 
 
 lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
-                         blocking_input_read_data_fn_t read_fn,
-                         blocking_input_close_port_fn_t close_fn, void *userdata)
+                           blocking_input_read_data_fn_t read_fn,
+                           blocking_input_close_port_fn_t close_fn, void *userdata)
 {
      blocking_input_port_state *ps =
          (blocking_input_port_state *) gc_malloc(sizeof(blocking_input_port_state));

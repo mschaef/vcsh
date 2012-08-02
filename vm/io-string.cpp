@@ -28,11 +28,11 @@ INLINE lref_t PORT_STRING(lref_t port)
 {
      return PORT_USER_OBJECT(port);
 }
-size_t string_port_read(void *buf, size_t size, size_t count, lref_t obj)
+size_t string_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
 {
      size_t bytes_read;
 
-     /*  REVISIT: This is a pretty bad string_port_read */
+     /*  REVISIT: This is a pretty bad string_port_read_bytes */
 
      assert(size == sizeof(_TCHAR));
 
@@ -40,7 +40,7 @@ size_t string_port_read(void *buf, size_t size, size_t count, lref_t obj)
 
      for (bytes_read = 0; bytes_read < count; bytes_read++)
      {
-          int ch = str_next_character(PORT_STRING(obj));
+          int ch = str_next_character(PORT_STRING(port));
 
           if (ch == EOF)
                break;
@@ -51,14 +51,14 @@ size_t string_port_read(void *buf, size_t size, size_t count, lref_t obj)
      return bytes_read;
 }
 
-size_t string_port_write(const void *buf, size_t size, size_t count, lref_t obj)
+size_t string_port_write_bytes(lref_t port, const void *buf, size_t size, size_t count)
 {
      assert(size == sizeof(_TCHAR));
 
-     if (NULLP(PORT_STRING(obj)))
-          SET_PORT_STRING(obj, strcons(count, (_TCHAR *) buf)); /*  REVISIT: fails if buf has embedded nulls */
+     if (NULLP(PORT_STRING(port)))
+          SET_PORT_STRING(port, strcons(count, (_TCHAR *) buf)); /*  REVISIT: fails if buf has embedded nulls */
      else
-          str_append_str(PORT_STRING(obj), (_TCHAR *) buf, count);
+          str_append_str(PORT_STRING(port), (_TCHAR *) buf, count);
 
      return count;
 }
@@ -74,14 +74,14 @@ size_t string_port_length(lref_t port)
 port_class_t string_port_class = {
      _T("STRING"),
 
-     NULL,                // open
-     string_port_read,    // read_bytes
-     string_port_write,   // write_bytes
-     NULL,                // rich_write
-     NULL,                // flush
-     NULL,                // close
-     NULL,                // gc_free
-     string_port_length,  // length
+     NULL,                    // open
+     string_port_read_bytes,  // read_bytes
+     string_port_write_bytes, // write_bytes
+     NULL,                    // rich_write
+     NULL,                    // flush
+     NULL,                    // close
+     NULL,                    // gc_free
+     string_port_length,      // length
 };
 
 

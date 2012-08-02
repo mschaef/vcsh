@@ -72,56 +72,57 @@ void file_port_open(lref_t obj)
 }
 
 
-size_t file_port_read(void *buf, size_t size, size_t count, lref_t obj)
+size_t file_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
 {
-     FILE *f = PORT_FILE(obj);
+     FILE *f = PORT_FILE(port);
 
      assert(f);
 
      return fread(buf, size, count, f);
 }
 
-size_t file_port_write(const void *buf, size_t size, size_t count, lref_t obj)
+size_t file_port_write_bytes(lref_t port, const void *buf, size_t size, size_t count)
 {
-     FILE *f = PORT_FILE(obj);
+     FILE *f = PORT_FILE(port);
 
      assert(f);
 
      return (int) fwrite(buf, size, count, f);
 }
 
-void file_port_flush(lref_t obj)
+void file_port_flush(lref_t port)
 {
-     FILE *f = PORT_FILE(obj);
+     FILE *f = PORT_FILE(port);
 
      assert(f);
 
      fflush(f);
 }
 
-void file_port_close(lref_t obj)
+void file_port_close(lref_t port)
 {
-     FILE *f = PORT_FILE(obj);
+     FILE *f = PORT_FILE(port);;
 
      if (f == NULL)
           return;
 
      fclose(f);
-     SET_PORT_FILE(obj, NULL);
+
+     SET_PORT_FILE(port, NULL);
 }
 
 
 port_class_t file_port_class = {
      _T("STANDARD-FILE"),
 
-     file_port_open,  // open
-     file_port_read,  // read_bytes
-     file_port_write, // write_bytes
-     NULL,            // rich_write
-     file_port_flush, // flush
-     file_port_close, // close
-     NULL,            // gc_free
-     NULL,            // length
+     file_port_open,        // open
+     file_port_read_bytes,  // read_bytes
+     file_port_write_bytes, // write_bytes
+     NULL,                  // rich_write
+     file_port_flush,       // flush
+     file_port_close,       // close
+     NULL,                  // gc_free
+     NULL,                  // length
 };
 
 bool get_c_port_mode(lref_t mode)
@@ -181,14 +182,14 @@ void stdin_port_open(lref_t obj)
 port_class_t stdin_port_class = {
      _T("STANDARD-INPUT"),
 
-     stdin_port_open,  // open
-     file_port_read,   // read_bytes
-     NULL,             // write_bytes
-     NULL,             // rich_write
-     NULL,             // flush
-     stdio_port_close, // close
-     NULL,             // gc_free
-     NULL,             // length
+     stdin_port_open,        // open
+     file_port_read_bytes,   // read_bytes
+     NULL,                   // write_bytes
+     NULL,                   // rich_write
+     NULL,                   // flush
+     stdio_port_close,       // close
+     NULL,                   // gc_free
+     NULL,                   // length
 };
 
 void stdout_port_open(lref_t obj)
@@ -202,14 +203,14 @@ void stdout_port_open(lref_t obj)
 port_class_t stdout_port_class = {
      _T("STANDARD-OUTPUT"),
 
-     stdout_port_open,   // open
-     NULL,               // read_bytes
-     file_port_write,    // write_bytes
-     NULL,               // rich_write
-     file_port_flush,    // flush
-     stdio_port_close,   // close
-     NULL,               // gc_free
-     NULL,               // length
+     stdout_port_open,      // open
+     NULL,                  // read_bytes
+     file_port_write_bytes, // write_bytes
+     NULL,                  // rich_write
+     file_port_flush,       // flush
+     stdio_port_close,      // close
+     NULL,                  // gc_free
+     NULL,                  // length
 };
 
 void stderr_port_open(lref_t obj)
@@ -223,14 +224,14 @@ void stderr_port_open(lref_t obj)
 port_class_t stderr_port_class = {
      _T("STANDARD-ERROR"),
 
-     stderr_port_open,  // open
-     NULL,              // read_bytes
-     file_port_write,   // write_bytes
-     NULL,              // rich_write
-     file_port_flush,   // flusn
-     stdio_port_close,  // close
-     NULL,              // gc_free
-     NULL,              // length
+     stderr_port_open,      // open
+     NULL,                  // read_bytes
+     file_port_write_bytes, // write_bytes
+     NULL,                  // rich_write
+     file_port_flush,       // flusn
+     stdio_port_close,      // close
+     NULL,                  // gc_free
+     NULL,                  // length
 };
 
 

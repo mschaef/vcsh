@@ -44,7 +44,7 @@
       {
            _TCHAR tch;
 
-           if (read_raw(&tch, sizeof(_TCHAR), 1, port) == 0)
+           if (read_bytes(port, &tch, sizeof(_TCHAR), 1) == 0)
                 ch = EOF;
            else
                 ch = tch;
@@ -165,7 +165,7 @@
 
       if (PORT_BINARYP(port))
       {
-           return write_raw(buf, sizeof(_TCHAR), count, port);
+           return write_bytes(port, buf, sizeof(_TCHAR), count);
       }
       else if (!PORT_TEXT_INFO(port)->crlf_translate)
       {
@@ -180,12 +180,12 @@
                      PORT_TEXT_INFO(port)->column++;
            }
 
-           return write_raw(buf, sizeof(_TCHAR), count, port);
+           return write_bytes(port, buf, sizeof(_TCHAR), count);
       }
       else
       {
            /* This code divides the text to be written into blocks seperated
-            * by line seperators. write_raw is called for each block to
+            * by line seperators. write_bytes is called for each block to
             * actually do the write, and line seperators are correctly
             * translated to CR+LF pairs. */
 
@@ -210,7 +210,7 @@
                      if (buf[next_eoln_char] == _T('\n'))
                           next_eoln_char++;
 
-                     write_raw(_T("\n"), sizeof(_TCHAR), 1, port);
+                     write_bytes(port, _T("\n"), sizeof(_TCHAR), 1);
 
                      PORT_TEXT_INFO(port)->needs_lf = false;
                      PORT_TEXT_INFO(port)->row++;
@@ -220,13 +220,13 @@
                      switch (c)
                      {
                      case _T('\n'):
-                          write_raw(_T("\r\n"), sizeof(_TCHAR), 2, port);
+                          write_bytes(port, _T("\r\n"), sizeof(_TCHAR), 2);
                           PORT_TEXT_INFO(port)->column = 0;
                           PORT_TEXT_INFO(port)->row++;
                           break;
 
                      case _T('\r'):
-                          write_raw(_T("\r"), sizeof(_TCHAR), 1, port);
+                          write_bytes(port, _T("\r"), sizeof(_TCHAR), 1);
                           PORT_TEXT_INFO(port)->column = 0;
                           PORT_TEXT_INFO(port)->needs_lf = true;
                           break;
@@ -240,8 +240,8 @@
                 else
                 {
                      PORT_TEXT_INFO(port)->column += (next_eoln_char - next_char_to_write);
-                     write_raw(&(buf[next_char_to_write]), sizeof(_TCHAR),
-                               next_eoln_char - next_char_to_write, port);
+                     write_bytes(port, &(buf[next_char_to_write]), sizeof(_TCHAR),
+                                      next_eoln_char - next_char_to_write);
                 }
 
                 next_char_to_write = next_eoln_char;
@@ -360,7 +360,7 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
      if (PORT_CLASS(port)->rich_write == NULL)
           return boolcons(false);
 
-     if (PORT_CLASS(port)->rich_write(obj, TRUEP(machine_readable), port))
+     if (PORT_CLASS(port)->rich_write(port, obj, TRUEP(machine_readable)))
           return port;
 
      return boolcons(false);
@@ -560,18 +560,22 @@ lref_t lfresh_line(lref_t port)
 
 /*** Text port object ***/
 
-size_t text_port_read(void *buf, size_t size, size_t count, lref_t obj)
+size_t text_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
 {
-     assert(PORTP(PORT_USER_OBJECT(obj)));
+     lref_t underlying = PORT_USER_OBJECT(port);
 
-     return read_raw(buf, size, count, PORT_USER_OBJECT(obj));
+     assert(PORTP(underlying));
+
+     return read_bytes(underlying, buf, size, count);
 }
 
-size_t text_port_write(const void *buf, size_t size, size_t count, lref_t obj)
+size_t text_port_write_bytes(lref_t port, const void *buf, size_t size, size_t count)
 {
-     assert(PORTP(PORT_USER_OBJECT(obj)));
+     lref_t underlying = PORT_USER_OBJECT(port);
 
-     return write_raw(buf, size, count, PORT_USER_OBJECT(obj));
+     assert(PORTP(underlying));
+
+     return write_bytes(underlying, buf, size, count);
 }
 
 void text_port_flush(lref_t obj)
@@ -591,14 +595,14 @@ void text_port_close(lref_t obj)
 port_class_t text_port_class = {
      _T("TEXT"),
 
-     NULL,             // open
-     text_port_read,   // read_bytes
-     text_port_write,  // write_bytes
-     NULL,             // rich_write
-     text_port_flush,  // flush
-     text_port_close,  // close
-     NULL,             // gc_free
-     NULL              // length
+     NULL,                  // open
+     text_port_read_bytes,  // read_bytes
+     text_port_write_bytes, // write_bytes
+     NULL,                  // rich_write
+     text_port_flush,       // flush
+     text_port_close,       // close
+     NULL,                  // gc_free
+     NULL                   // length
 };
 
 lref_t lopen_text_input_port(lref_t underlying)

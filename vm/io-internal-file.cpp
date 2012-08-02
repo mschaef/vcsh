@@ -25,12 +25,12 @@ struct c_data_port_state
 };
 
 
-size_t c_data_port_read(void *buf, size_t size, size_t count, lref_t obj)
+size_t c_data_port_read_bytes(lref_t port, void *buf, size_t size, size_t count)
 {
-     if (!PORT_INPUTP(obj))
+     if (!PORT_INPUTP(port))
           return 0;
 
-     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->user_data);
+     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(port)->user_data);
 
      size_t bytes = size * count;
      size_t bytes_remaining = ps->_input_buffer_bytes - ps->_bytes_transferred;
@@ -67,14 +67,14 @@ size_t c_data_port_length(lref_t obj)
 port_class_t c_data_port_class = {
      _T("C-DATA"),
 
-     NULL,                // open
-     c_data_port_read,    // read_bytes
-     NULL,                // write_bytes
-     NULL,                // rich_write
-     NULL,                // flush
-     NULL,                // close
-     NULL,                // gc_free
-     c_data_port_length,  // length
+     NULL,                      // open
+     c_data_port_read_bytes,    // read_bytes
+     NULL,                      // write_bytes
+     NULL,                      // rich_write
+     NULL,                      // flush
+     NULL,                      // close
+     NULL,                      // gc_free
+     c_data_port_length,        // length
 };
 
 
