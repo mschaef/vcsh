@@ -81,6 +81,8 @@ port_class_t string_port_class = {
 };
 
 
+port_text_info_t *allocate_text_info();
+
 lref_t lopen_input_string(lref_t string)
 {
      if (!STRINGP(string))
@@ -89,12 +91,20 @@ lref_t lopen_input_string(lref_t string)
      /*  REVISIT: open-input-string can avoid duplicating incoming strings */
      /*  REVISIT: open-input-string take string input port argument */
 
-     return portcons(&string_port_class, NIL, PORT_INPUT, strcons(string), NULL);
+     lref_t port = portcons(&string_port_class, NIL, PORT_INPUT, strcons(string), NULL);
+
+     SET_PORT_TEXT_INFO(port, allocate_text_info());
+
+     return port;
 }
 
 lref_t lopen_output_string()      /*  REVISIT: default string/length in oos? */
 {
-     return portcons(&string_port_class, NIL, PORT_OUTPUT, NIL, NULL);
+     lref_t port = portcons(&string_port_class, NIL, PORT_OUTPUT, NIL, NULL);
+
+     SET_PORT_TEXT_INFO(port, allocate_text_info());
+
+     return port;
 }
 
 lref_t lget_output_string(lref_t port)

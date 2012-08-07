@@ -1,6 +1,4 @@
-
-/*
- * io-internal-file.cpp --
+/* io-internal-file.cpp --
  *
  * An input port used to access 'internal files'... internal files are
  * files that are built into the executable as part of the build process.
@@ -19,11 +17,11 @@
 BEGIN_NAMESPACE(scan)
 struct c_data_port_state
 {
-     size_t _bytes_transferred;
-     unsigned char *_input_buffer;
-     size_t _input_buffer_bytes;
-};
+     unsigned char *buf;
+     size_t buf_size;
 
+     size_t buf_pos;
+};
 
 size_t c_data_port_read_bytes(lref_t port, void *buf, size_t size)
 {
@@ -32,14 +30,14 @@ size_t c_data_port_read_bytes(lref_t port, void *buf, size_t size)
 
      c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(port)->user_data);
 
-     size_t bytes_remaining = ps->_input_buffer_bytes - ps->_bytes_transferred;
+     size_t buf_remain = ps->buf_size - ps->buf_pos;
 
-     if (size > bytes_remaining)
-          size = bytes_remaining;
+     if (size > buf_remain)
+          size = buf_remain;
 
-     memcpy(buf, &(ps->_input_buffer[ps->_bytes_transferred]), size);
+     memcpy(buf, &(ps->buf[ps->buf_pos]), size);
 
-     ps->_bytes_transferred += size;
+     ps->buf_pos += size;
 
      return size;
 }
@@ -60,20 +58,20 @@ size_t c_data_port_length(lref_t obj)
 
      c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->user_data);
 
-     return ps->_input_buffer_bytes - ps->_bytes_transferred;
+     return ps->buf_size - ps->buf_pos;
 }
 
 port_class_t c_data_port_class = {
      _T("C-DATA"),
 
-     NULL,                      // open
-     c_data_port_read_bytes,    // read_bytes
-     NULL,                      // write_bytes
-     NULL,                      // rich_write
-     NULL,                      // flush
-     NULL,                      // close
-     NULL,                      // gc_free
-     c_data_port_length,        // length
+     NULL,                   // open
+     c_data_port_read_bytes, // read_bytes
+     NULL,                   // write_bytes
+     NULL,                   // rich_write
+     NULL,                   // flush
+     NULL,                   // close
+     NULL,                   // gc_free
+     c_data_port_length,     // length
 };
 
 
@@ -86,9 +84,9 @@ lref_t open_c_data_input(internal_file_t *data)
 {
      c_data_port_state *ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
 
-     ps->_bytes_transferred  = 0;
-     ps->_input_buffer       = data->_bytes;
-     ps->_input_buffer_bytes = data->_length;
+     ps->buf      = data->_bytes;
+     ps->buf_size = data->_length;
+     ps->buf_pos  = 0;
 
      return portcons(&c_data_port_class,
                      NIL,
@@ -118,9 +116,9 @@ lref_t lclone_c_data_port(lref_t port)
      c_data_port_state *old_ps = (c_data_port_state *) (PORT_PINFO(port)->user_data);
      c_data_port_state *new_ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
 
-     new_ps->_bytes_transferred = old_ps->_bytes_transferred;
-     new_ps->_input_buffer = old_ps->_input_buffer;
-     new_ps->_input_buffer_bytes = old_ps->_input_buffer_bytes;
+     new_ps->buf      = old_ps->buf;
+     new_ps->buf_size = old_ps->buf_size;
+     new_ps->buf_pos  = old_ps->buf_pos;
 
      return portcons(&c_data_port_class, NIL, PORT_MODE(port), NIL, new_ps);
 }

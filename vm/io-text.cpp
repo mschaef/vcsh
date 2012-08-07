@@ -607,6 +607,26 @@ port_class_t text_port_class = {
      NULL                   // length
 };
 
+port_text_info_t *allocate_text_info()
+{
+     port_text_info_t *tinfo =
+          (port_text_info_t *)gc_malloc(sizeof(port_text_info_t));
+
+     memset(tinfo->unread_buffer, 0, sizeof(tinfo->unread_buffer));
+     tinfo->unread_valid = 0;
+
+     sys_info_t sinf;
+     sys_get_info(&sinf);
+
+     tinfo->crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
+     tinfo->needs_lf = FALSE;
+     tinfo->column = 0;
+     tinfo->row = 1;
+     tinfo->previous_line_length = 0;
+
+     return tinfo;
+}
+
 lref_t lopen_text_input_port(lref_t underlying)
 {
      if (!PORTP(underlying))
@@ -615,11 +635,15 @@ lref_t lopen_text_input_port(lref_t underlying)
      if (!PORT_BINARYP(underlying))
           vmerror_unsupported(_T("cannot open text input on text port"));
 
-     return portcons(&text_port_class,
-                     lport_name(underlying),
-                     PORT_INPUT,
-                     underlying,
-                     NULL);
+     lref_t port = portcons(&text_port_class,
+                            lport_name(underlying),
+                            PORT_INPUT,
+                            underlying,
+                            NULL);
+
+     SET_PORT_TEXT_INFO(port, allocate_text_info());
+
+     return port;
 }
 
 lref_t lopen_text_output_port(lref_t underlying)
@@ -630,11 +654,15 @@ lref_t lopen_text_output_port(lref_t underlying)
      if (!PORT_BINARYP(underlying))
           vmerror_unsupported(_T("cannot open text output on text port"));
 
-     return portcons(&text_port_class,
-                     lport_name(underlying),
-                     PORT_OUTPUT,
-                     underlying,
-                     NULL);
+     lref_t port = portcons(&text_port_class,
+                            lport_name(underlying),
+                            PORT_OUTPUT,
+                            underlying,
+                            NULL);
+
+     SET_PORT_TEXT_INFO(port, allocate_text_info());
+
+     return port;
 }
 
 END_NAMESPACE

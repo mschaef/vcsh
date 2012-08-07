@@ -63,25 +63,6 @@
        gc_free(PORT_PINFO(port));
  }
 
-static port_text_info_t *allocate_text_info()
-{
-     port_text_info_t *tinfo =
-          (port_text_info_t *)gc_malloc(sizeof(port_text_info_t));
-
-     memset(tinfo->unread_buffer, 0, sizeof(tinfo->unread_buffer));
-     tinfo->unread_valid = 0;
-
-     sys_info_t sinf;
-     sys_get_info(&sinf);
-
-     tinfo->crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
-     tinfo->needs_lf = FALSE;
-     tinfo->column = 0;
-     tinfo->row = 1;
-     tinfo->previous_line_length = 0;
-
-     return tinfo;
-}
 
  lref_t initialize_port(lref_t s,
                         port_class_t * cls,
@@ -90,8 +71,6 @@ static port_text_info_t *allocate_text_info()
                         lref_t user_object,
                         void *user_data)
  {
-      bool binary = (mode & PORT_BINARY) == PORT_BINARY;
-
       assert(cls != NULL);
       assert(!NULLP(s));
 
@@ -103,7 +82,7 @@ static port_text_info_t *allocate_text_info()
       PORT_PINFO(s)->user_object = user_object;
       PORT_PINFO(s)->mode = mode;
 
-      SET_PORT_TEXT_INFO(s, binary ? NULL : allocate_text_info());
+      SET_PORT_TEXT_INFO(s, NULL);;
 
       if (PORT_CLASS(s)->open)
            PORT_CLASS(s)->open(s);
@@ -304,7 +283,7 @@ lref_t lport_mode(lref_t obj)
       {
            write_char(_T('\n'), port);
       }
-      
+
       if (PORT_CLASS(port)->flush)
            PORT_CLASS(port)->flush(port);
 
