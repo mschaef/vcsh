@@ -258,9 +258,8 @@
       int c = '\0';
 
       bool commentp = false;
-      bool reading_whitespace = true;
 
-      while (reading_whitespace)
+      for(;;)
       {
            /*  We can never be in a comment if we're not skipping them... */
            assert(skip_lisp_comments ? true : !commentp);
@@ -269,7 +268,8 @@
 
            if (c == EOF)
                 break;
-           else if (commentp)
+
+           if (commentp)
            {
                 if (c == _T('\n'))
                      commentp = FALSE;
@@ -464,9 +464,6 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
      return port;
 }
 
-
-
-
 lref_t lflush_whitespace(lref_t port, lref_t slc)
 {
      int ch = EOF;
@@ -480,23 +477,15 @@ lref_t lflush_whitespace(lref_t port, lref_t slc)
      bool skip_lisp_comments = true;
 
      if (!NULLP(slc))
-     {
-          if (!BOOLP(slc))
-               vmerror_wrong_type(2, slc);
-
-          skip_lisp_comments = BOOLV(slc);
-     }
-
-
-     assert(!NULLP(port));
+          skip_lisp_comments = TRUEP(slc);
 
      if (PORT_INPUTP(port))
           ch = flush_whitespace(port, skip_lisp_comments);
 
      if (ch == EOF)
           return lmake_eof();
-     else
-          return charcons((_TCHAR) ch);
+
+     return charcons((_TCHAR) ch);
 }
 
 
@@ -506,10 +495,9 @@ lref_t lread_line(lref_t port)
 
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
-          vmerror_wrong_type(1, port);
 
-     assert(PORTP(port));
+     if (!PORTP(port))
+          vmerror_wrong_type(1, port);
 
      lref_t op = lopen_output_string();
 
