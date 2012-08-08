@@ -278,7 +278,7 @@ lref_t lport_mode(lref_t obj)
            vmerror_wrong_type(1, port);
 
       if (!PORT_BINARYP(port)
-          && PORT_TEXT_INFO(port)->crlf_translate
+          && PORT_TEXT_INFO(port)->translate
           && PORT_TEXT_INFO(port)->needs_lf)
       {
            write_char(_T('\n'), port);

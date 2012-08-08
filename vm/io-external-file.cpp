@@ -197,7 +197,7 @@ void stdout_port_open(lref_t obj)
      SET_PORT_FILE(obj, stdout);
 
      if (!PORT_BINARYP(obj))
-          PORT_TEXT_INFO(obj)->crlf_translate = false;
+          PORT_TEXT_INFO(obj)->translate = false;
 }
 
 port_class_t stdout_port_class = {
@@ -218,7 +218,7 @@ void stderr_port_open(lref_t obj)
      SET_PORT_FILE(obj, stderr);
 
      if (!PORT_BINARYP(obj))
-          PORT_TEXT_INFO(obj)->crlf_translate = false;
+          PORT_TEXT_INFO(obj)->translate = false;
 }
 
 port_class_t stderr_port_class = {

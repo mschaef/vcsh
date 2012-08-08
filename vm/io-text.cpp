@@ -33,61 +33,61 @@ static int read_one_char(lref_t port)
 
 int read_char(lref_t port)
 {
-     int ch = EOF;
-
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
 
      assert(!NULLP(port));
 
      if (!PORT_INPUTP(port))
-          return ch;
+          return EOF;
 
      if (PORT_BINARYP(port))
-          ch = read_one_char(port);
+          return read_one_char(port);
+
+     /* Text port case below. */
+
+     int ch = EOF;
+
+     /* Read the next character, perhaps from the unread buffer... */
+     if (PORT_TEXT_INFO(port)->pbuf_pos > 0)
+     {
+          PORT_TEXT_INFO(port)->pbuf_pos--;
+
+          ch = PORT_TEXT_INFO(port)->pbuf[PORT_TEXT_INFO(port)->pbuf_pos];
+     }
      else
      {
-          /* Read the next character, perhaps from the unread buffer... */
-          if (PORT_TEXT_INFO(port)->unread_valid > 0)
-          {
-               PORT_TEXT_INFO(port)->unread_valid--;
+          ch = read_one_char(port);
 
-               ch = PORT_TEXT_INFO(port)->unread_buffer[PORT_TEXT_INFO(port)->unread_valid];
-          }
-          else
+          /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
+          if (PORT_TEXT_INFO(port)->translate)
           {
-               ch = read_one_char(port);
-
-               /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
-               if (PORT_TEXT_INFO(port)->crlf_translate)
+               if (ch == '\r')
                {
-                    if (ch == '\r')
-                    {
-                         ch = '\n';
-                         PORT_TEXT_INFO(port)->needs_lf = TRUE;
-                    }
-                    else if (PORT_TEXT_INFO(port)->needs_lf)
-                    {
-                         PORT_TEXT_INFO(port)->needs_lf = FALSE;
+                    ch = '\n';
+                    PORT_TEXT_INFO(port)->needs_lf = TRUE;
+               }
+               else if (PORT_TEXT_INFO(port)->needs_lf)
+               {
+                    PORT_TEXT_INFO(port)->needs_lf = FALSE;
 
-                         /*  Notice: this _returns_ from read_char, to avoid double
-                          *  counting ch in the position counters. */
-                         if (ch == '\n')
-                              return read_char(port);
-                    }
+                    /*  Notice: this _returns_ from read_char, to avoid double
+                     *  counting ch in the position counters. */
+                    if (ch == '\n')
+                         return read_char(port);
                }
           }
-
-          /* Update the text position indicators */
-          if (ch == '\n')
-          {
-               PORT_TEXT_INFO(port)->row++;
-               PORT_TEXT_INFO(port)->previous_line_length = PORT_TEXT_INFO(port)->column;
-               PORT_TEXT_INFO(port)->column = 0;
-          }
-          else
-               PORT_TEXT_INFO(port)->column++;
      }
+
+     /* Update the text position indicators */
+     if (ch == '\n')
+     {
+          PORT_TEXT_INFO(port)->pline_mcol = PORT_TEXT_INFO(port)->col;
+          PORT_TEXT_INFO(port)->col = 0;
+          PORT_TEXT_INFO(port)->row++;
+     }
+     else
+          PORT_TEXT_INFO(port)->col++;
 
      return ch;
 }
@@ -105,23 +105,23 @@ int read_char(lref_t port)
       switch (ch)
       {
       case '\n':
+           PORT_TEXT_INFO(port)->col = PORT_TEXT_INFO(port)->pline_mcol;
            PORT_TEXT_INFO(port)->row--;
-           PORT_TEXT_INFO(port)->column = PORT_TEXT_INFO(port)->previous_line_length;
            break;
 
       case '\r':
            break;
 
       default:
-           PORT_TEXT_INFO(port)->column--;
+           PORT_TEXT_INFO(port)->col--;
            break;
       }
 
-      if (PORT_TEXT_INFO(port)->unread_valid >= PORT_UNGET_BUFFER_SIZE)
+      if (PORT_TEXT_INFO(port)->pbuf_pos >= PORT_UNGET_BUFFER_SIZE)
            vmerror_io_error(_T("unget buffer exceeded."), port);
 
-      PORT_TEXT_INFO(port)->unread_buffer[PORT_TEXT_INFO(port)->unread_valid] = ch;
-      PORT_TEXT_INFO(port)->unread_valid++;
+      PORT_TEXT_INFO(port)->pbuf[PORT_TEXT_INFO(port)->pbuf_pos] = ch;
+      PORT_TEXT_INFO(port)->pbuf_pos++;
 
       return ch;
  }
@@ -210,18 +210,18 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
                switch (c)
                {
                case _T('\n'):
-                    if (PORT_TEXT_INFO(port)->crlf_translate)
+                    if (PORT_TEXT_INFO(port)->translate)
                          write_bytes(port, _T("\r\n"), 2 * sizeof(_TCHAR));
                     else
                          write_bytes(port, _T("\n"), sizeof(_TCHAR));
-                    PORT_TEXT_INFO(port)->column = 0;
+                    PORT_TEXT_INFO(port)->col = 0;
                     PORT_TEXT_INFO(port)->row++;
                     break;
 
                case _T('\r'):
                     write_bytes(port, _T("\r"), sizeof(_TCHAR));
-                    PORT_TEXT_INFO(port)->column = 0;
-                    PORT_TEXT_INFO(port)->needs_lf = PORT_TEXT_INFO(port)->crlf_translate;
+                    PORT_TEXT_INFO(port)->col = 0;
+                    PORT_TEXT_INFO(port)->needs_lf = PORT_TEXT_INFO(port)->translate;
                     break;
 
                default:
@@ -232,7 +232,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
           }
           else
           {
-               PORT_TEXT_INFO(port)->column += seg_len;
+               PORT_TEXT_INFO(port)->col += seg_len;
 
                write_bytes(port, &(buf[pos]), seg_len * sizeof(_TCHAR));
           }
@@ -291,7 +291,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
       if (PORT_BINARYP(port))
            vmerror_unsupported(_T("cannot get column of binary ports"));
 
-      return fixcons(PORT_TEXT_INFO(port)->column);
+      return fixcons(PORT_TEXT_INFO(port)->col);
  }
 
  lref_t lport_row(lref_t port)
@@ -315,8 +315,8 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
 
       if (PORT_BINARYP(port))
            return boolcons(false);
-      else
-           return boolcons(PORT_TEXT_INFO(port)->crlf_translate);
+
+      return boolcons(PORT_TEXT_INFO(port)->translate);
  }
 
  lref_t lport_set_translate_mode(lref_t port, lref_t mode)
@@ -332,9 +332,9 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
 
       lflush_port(port);
 
-      bool old_translate_mode = PORT_TEXT_INFO(port)->crlf_translate;
+      bool old_translate_mode = PORT_TEXT_INFO(port)->translate;
 
-      PORT_TEXT_INFO(port)->crlf_translate = TRUEP(mode);
+      PORT_TEXT_INFO(port)->translate = TRUEP(mode);
 
       return boolcons(old_translate_mode);
  }
@@ -528,7 +528,7 @@ lref_t lfresh_line(lref_t port)
           vmerror_wrong_type(1, port);
 
      if (PORT_BINARYP(port)
-         || ((PORT_TEXT_INFO(port)->column != 0) && !PORT_TEXT_INFO(port)->needs_lf))
+         || ((PORT_TEXT_INFO(port)->col != 0) && !PORT_TEXT_INFO(port)->needs_lf))
      {
           lnewline(port);
           return boolcons(true);
@@ -590,17 +590,17 @@ port_text_info_t *allocate_text_info()
      port_text_info_t *tinfo =
           (port_text_info_t *)gc_malloc(sizeof(port_text_info_t));
 
-     memset(tinfo->unread_buffer, 0, sizeof(tinfo->unread_buffer));
-     tinfo->unread_valid = 0;
+     memset(tinfo->pbuf, 0, sizeof(tinfo->pbuf));
+     tinfo->pbuf_pos = 0;
 
      sys_info_t sinf;
      sys_get_info(&sinf);
 
-     tinfo->crlf_translate = (sinf._eoln == SYS_EOLN_CRLF);
+     tinfo->translate = (sinf._eoln == SYS_EOLN_CRLF);
      tinfo->needs_lf = FALSE;
-     tinfo->column = 0;
+     tinfo->col = 0;
      tinfo->row = 1;
-     tinfo->previous_line_length = 0;
+     tinfo->pline_mcol = 0;
 
      return tinfo;
 }

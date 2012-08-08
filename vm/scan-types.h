@@ -1114,16 +1114,15 @@ enum port_mode_t
 
 struct port_text_info_t
 {
-     int unread_buffer[PORT_UNGET_BUFFER_SIZE];
-     size_t unread_valid;
+     int pbuf[PORT_UNGET_BUFFER_SIZE];
+     size_t pbuf_pos;
 
-     bool crlf_translate;
+     bool translate;
      bool needs_lf;
 
-     fixnum_t column;
+     fixnum_t col;
      fixnum_t row;
-
-     fixnum_t previous_line_length;
+     fixnum_t pline_mcol;
 };
 
 struct fasl_stream_t
