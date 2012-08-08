@@ -169,22 +169,6 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
      if (PORT_BINARYP(port))
           return write_bytes(port, buf, count * sizeof(_TCHAR));
 
-     if (!PORT_TEXT_INFO(port)->crlf_translate)
-     {
-          for (size_t ii = 0; ii < count; ii++)
-          {
-               if (buf[ii] == _T('\n'))
-               {
-                    PORT_TEXT_INFO(port)->row++;
-                    PORT_TEXT_INFO(port)->column = 0;
-               }
-               else
-                    PORT_TEXT_INFO(port)->column++;
-          }
-
-          return write_bytes(port, buf, count * sizeof(_TCHAR));
-     }
-
      /* This code divides the text to be written into blocks seperated
       * by line seperators. write_bytes is called for each block to
       * actually do the write, and line seperators are correctly
@@ -226,7 +210,10 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
                switch (c)
                {
                case _T('\n'):
-                    write_bytes(port, _T("\r\n"), 2 * sizeof(_TCHAR));
+                    if (PORT_TEXT_INFO(port)->crlf_translate)
+                         write_bytes(port, _T("\r\n"), 2 * sizeof(_TCHAR));
+                    else
+                         write_bytes(port, _T("\n"), sizeof(_TCHAR));
                     PORT_TEXT_INFO(port)->column = 0;
                     PORT_TEXT_INFO(port)->row++;
                     break;
@@ -234,7 +221,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
                case _T('\r'):
                     write_bytes(port, _T("\r"), sizeof(_TCHAR));
                     PORT_TEXT_INFO(port)->column = 0;
-                    PORT_TEXT_INFO(port)->needs_lf = true;
+                    PORT_TEXT_INFO(port)->needs_lf = PORT_TEXT_INFO(port)->crlf_translate;
                     break;
 
                default:
