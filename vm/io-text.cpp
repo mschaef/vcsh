@@ -193,30 +193,35 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
      for (size_t pos = 0; pos < count;)
      {
           unsigned int c = _T('\0');
-          size_t eoln_pos;
 
-          /* Scan for the next eoln character, it ends the block... */
-          for (eoln_pos = pos; (eoln_pos < count); eoln_pos++)
-          {
-               c = buf[eoln_pos];
-
-               if ((c == '\n') || (c == '\r') || PORT_TEXT_INFO(port)->needs_lf)
-                    break;
-          }
-
+          /* Emit a needed LF, if necessary. */
           if (PORT_TEXT_INFO(port)->needs_lf)
           {
-               assert(eoln_pos - pos == 0);
-
-               if (buf[eoln_pos] == _T('\n'))
-                    eoln_pos++;
+               if (buf[pos] == _T('\n'))
+                    pos++;
 
                write_bytes(port, _T("\n"), sizeof(_TCHAR));
 
                PORT_TEXT_INFO(port)->needs_lf = false;
                PORT_TEXT_INFO(port)->row++;
+
+               continue;
           }
-          else if (eoln_pos - pos == 0)
+
+          /* Scan for the next eoln character, it ends the block... */
+          size_t eoln_pos;
+
+          for (eoln_pos = pos; (eoln_pos < count); eoln_pos++)
+          {
+               c = buf[eoln_pos];
+
+               if ((c == '\n') || (c == '\r'))
+                    break;
+          }
+
+          size_t seg_len = eoln_pos - pos;
+
+          if (seg_len  == 0)
           {
                switch (c)
                {
@@ -240,8 +245,6 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
           }
           else
           {
-               size_t seg_len = eoln_pos - pos;
-
                PORT_TEXT_INFO(port)->column += seg_len;
 
                write_bytes(port, &(buf[pos]), seg_len * sizeof(_TCHAR));
