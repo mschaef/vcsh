@@ -1,93 +1,96 @@
 
- /*
-  * io-text.cpp --
-  *
-  * The I/O subsystem. This tries to be as R5RS compliant as possible.
-  *
-  * (C) Copyright 2001-2011 East Coast Toolworks Inc.
-  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
-  *
-  * See the file "license.terms" for information on usage and redistribution
-  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-  */
+/*
+ * io-text.cpp --
+ *
+ * The I/O subsystem. This tries to be as R5RS compliant as possible.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ */
 
- #include <ctype.h>
- #include <memory.h>
- #include <stdio.h>
+#include <ctype.h>
+#include <memory.h>
+#include <stdio.h>
 
- #include "scan-private.h"
+#include "scan-private.h"
 
- BEGIN_NAMESPACE(scan)
+BEGIN_NAMESPACE(scan)
 
- /*** C I/O functions ***/
+/*** C I/O functions ***/
 
- int read_char(lref_t port)
- {
-      int ch = EOF;
+static int read_one_char(lref_t port)
+{
+     _TCHAR tch;
 
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
+     if (read_bytes(port, &tch, sizeof(_TCHAR)) == 0)
+          return EOF;
 
-      assert(!NULLP(port));
-
-      if (!PORT_INPUTP(port))
-           return ch;
-
-      /* Read the next character, perhaps from the unread buffer... */
-      if (!PORT_BINARYP(port) && (PORT_TEXT_INFO(port)->unread_valid > 0))
-      {
-           PORT_TEXT_INFO(port)->unread_valid--;
-
-           ch = PORT_TEXT_INFO(port)->unread_buffer[PORT_TEXT_INFO(port)->unread_valid];
-      }
-      else
-      {
-           _TCHAR tch;
-
-           if (read_bytes(port, &tch, sizeof(_TCHAR)) == 0)
-                ch = EOF;
-           else
-                ch = tch;
-
-           /* ... Text ports get special processing. */
-           if (!PORT_BINARYP(port))
-           {
-                /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
-                if (PORT_TEXT_INFO(port)->crlf_translate)
-                {
-                     if (ch == '\r')
-                     {
-                          ch = '\n';
-                          PORT_TEXT_INFO(port)->needs_lf = TRUE;
-                     }
-                     else if (PORT_TEXT_INFO(port)->needs_lf)
-                     {
-                          PORT_TEXT_INFO(port)->needs_lf = FALSE;
-
-                          /*  Notice: this _returns_ from read_char, to avoid double
-                           *  counting ch in the position counters. */
-                          if (ch == '\n')
-                               return read_char(port);
-                     }
-                }
-           }
-      }
-
-      if (!PORT_BINARYP(port))
-      {
-           /* Update the text position indicators */
-           if (ch == '\n')
-           {
-                PORT_TEXT_INFO(port)->row++;
-                PORT_TEXT_INFO(port)->previous_line_length = PORT_TEXT_INFO(port)->column;
-                PORT_TEXT_INFO(port)->column = 0;
-           }
-           else
-                PORT_TEXT_INFO(port)->column++;
-      }
-
-      return ch;
+     return (int)tch;
  }
+
+int read_char(lref_t port)
+{
+     int ch = EOF;
+
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+
+     assert(!NULLP(port));
+
+     if (!PORT_INPUTP(port))
+          return ch;
+
+     if (PORT_BINARYP(port))
+          ch = read_one_char(port);
+     else
+     {
+          /* Read the next character, perhaps from the unread buffer... */
+          if (PORT_TEXT_INFO(port)->unread_valid > 0)
+          {
+               PORT_TEXT_INFO(port)->unread_valid--;
+
+               ch = PORT_TEXT_INFO(port)->unread_buffer[PORT_TEXT_INFO(port)->unread_valid];
+          }
+          else
+          {
+               ch = read_one_char(port);
+
+               /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
+               if (PORT_TEXT_INFO(port)->crlf_translate)
+               {
+                    if (ch == '\r')
+                    {
+                         ch = '\n';
+                         PORT_TEXT_INFO(port)->needs_lf = TRUE;
+                    }
+                    else if (PORT_TEXT_INFO(port)->needs_lf)
+                    {
+                         PORT_TEXT_INFO(port)->needs_lf = FALSE;
+
+                         /*  Notice: this _returns_ from read_char, to avoid double
+                          *  counting ch in the position counters. */
+                         if (ch == '\n')
+                              return read_char(port);
+                    }
+               }
+          }
+
+          /* Update the text position indicators */
+          if (ch == '\n')
+          {
+               PORT_TEXT_INFO(port)->row++;
+               PORT_TEXT_INFO(port)->previous_line_length = PORT_TEXT_INFO(port)->column;
+               PORT_TEXT_INFO(port)->column = 0;
+          }
+          else
+               PORT_TEXT_INFO(port)->column++;
+     }
+
+     return ch;
+}
 
  int unread_char(int ch, lref_t port)
  {
