@@ -132,10 +132,6 @@ typedef lref_t(*f_1_t) (lref_t);
 typedef lref_t(*f_2_t) (lref_t, lref_t);
 typedef lref_t(*f_3_t) (lref_t, lref_t, lref_t);
 typedef lref_t(*f_4_t) (lref_t, lref_t, lref_t, lref_t);
-typedef lref_t(*f_5_t) (lref_t, lref_t, lref_t, lref_t, lref_t);
-typedef lref_t(*f_6_t) (lref_t, lref_t, lref_t, lref_t, lref_t, lref_t);
-typedef lref_t(*f_m_t) (lref_t *, lref_t *);
-typedef lref_t(*f_f_t) (lref_t, lref_t);
 typedef lref_t(*f_argc_t) (size_t, lref_t[]);
 
 struct hash_entry_t
@@ -222,12 +218,6 @@ struct lobject_t
           } port;
           struct
           {
-               void *p1;
-               void *p2;
-               void *p3;
-          } misc;
-          struct
-          {
                lref_t values;
           } values_tuple;
           struct
@@ -259,10 +249,6 @@ struct lobject_t
                     f_2_t f_2;
                     f_3_t f_3;
                     f_4_t f_4;
-                    f_5_t f_5;
-                    f_6_t f_6;
-                    f_m_t f_m;
-                    f_f_t f_f;
                     f_argc_t f_argc;
 
                     void *ptr;
@@ -493,7 +479,6 @@ INLINE bool FALSEP(lref_t x)
 
 
 /*** boolean ***/
-
 INLINE lref_t boolcons(bool val)
 {
      return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
@@ -911,16 +896,6 @@ INLINE f_3_t SUBR_F3(lref_t x)
 INLINE f_4_t SUBR_F4(lref_t x)
 {
      return ((*x).storage_as.subr.code.f_4);
-}
-
-INLINE f_5_t SUBR_F5(lref_t x)
-{
-     return ((*x).storage_as.subr.code.f_5);
-}
-
-INLINE f_6_t SUBR_F6(lref_t x)
-{
-     return ((*x).storage_as.subr.code.f_6);
 }
 
 INLINE f_argc_t SUBR_FARGC(lref_t x)

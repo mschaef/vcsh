@@ -697,7 +697,7 @@ void dscwritef_impl(const _TCHAR * format_str, ...)
      va_list arglist;
 
      va_start(arglist, format_str);
-     
+
      scvwritef(format_str, VM_DEBUG_PORT(), arglist);
      lflush_port(VM_DEBUG_PORT());
 }
