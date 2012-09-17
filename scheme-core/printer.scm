@@ -391,7 +391,7 @@
        (print (%instance-proto obj) port #t shared-structure-map)
        (write-strings port ")")
        (when (instance-understands? obj 'print-unreadably)
-         [obj print-unreadably port]))))
+         (send obj 'print-unreadably port)))))
 
 ;;;; formatter
 

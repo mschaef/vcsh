@@ -22,9 +22,9 @@
       (sqrt (+ (* @x @x) 
                (* @y @y))))
     
-    (test-case (inexact-= [point-2 r] 5.0))
-    (test-case (inexact-= [point-3 r] 5.0))
-    (test-case (inexact-= [point-4 r] 5.0))
+    (test-case (inexact-= (send point-2 'r) 5.0))
+    (test-case (inexact-= (send point-3 'r) 5.0))
+    (test-case (inexact-= (send point-4 'r) 5.0))
     
     (test-case (eq? @(point-2 class-name) 'point-2))
     (test-case (eq? @(point-3 class-name) 'point-2))
@@ -33,9 +33,9 @@
     (slot-set! point-2 'x 6.0)
     (slot-set! point-2 'y 8.0)
 
-    (test-case (inexact-= [point-2 r] 10.0))
-    (test-case (inexact-= [point-3 r] 10.0))
-    (test-case (inexact-= [point-4 r] 10.0))
+    (test-case (inexact-= (send point-2 'r) 10.0))
+    (test-case (inexact-= (send point-3 'r) 10.0))
+    (test-case (inexact-= (send point-4 'r) 10.0))
 
     (test-case (eq? @(point-2 class-name) 'point-2))
     (test-case (eq? @(point-3 class-name) 'point-2))

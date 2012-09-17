@@ -123,7 +123,6 @@
   :reader-bad-dotted-list "Bad dotted list"
   :reader-bad-escape "Bad escape"
   :reader-bad-inexact-number-syntax "Bad inexact number syntad"
-  :reader-bad-message-send "Bad message send"
   :reader-bad-number-syntax-syntax "Bad number syntax"
   :reader-bad-readsharp-syntax "Bad readsharp syntax"
   :reader-bad-slot-reference "Bad slot reference"
@@ -439,13 +438,6 @@
         `',l
         l)))
 
-(define (read-message-send port)
-  (let ((location (port-location port))
-        (form (read-sequence port #\[ #\])))
-    (unless (and (>= (length form) 2) (symbol? (second form)))
-      (read-error :reader-bad-message-send port location))
-    `(send ,(first form) ',(second form) ,@(cddr form))))
-
 (define (accept-symbol-segment port)
   "Reads the next symbol segment from <port>, returning #f if there is no
    such segment."
@@ -610,7 +602,7 @@
   (set-char-syntax! *read-syntax* #\( 'read-literal-list)
   (set-char-syntax! *read-syntax* #\) 'read-unexpected-close)
 
-  (set-char-syntax! *read-syntax* #\[ 'read-message-send)
+  (set-char-syntax! *read-syntax* #\[ 'read-unexpected-open)
   (set-char-syntax! *read-syntax* #\] 'read-unexpected-close)
 
   (set-char-syntax! *read-syntax* #\{ 'read-unexpected-open)
