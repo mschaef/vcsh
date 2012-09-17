@@ -438,6 +438,12 @@
         `',l
         l)))
 
+(define (read-literal-vector port)
+  (list->vector (read-sequence port #\[ #\])))
+
+(define (read-literal-hash port)
+  (list->hash (cons :equal (read-sequence port #\{ #\}))))
+
 (define (accept-symbol-segment port)
   "Reads the next symbol segment from <port>, returning #f if there is no
    such segment."
@@ -602,10 +608,10 @@
   (set-char-syntax! *read-syntax* #\( 'read-literal-list)
   (set-char-syntax! *read-syntax* #\) 'read-unexpected-close)
 
-  (set-char-syntax! *read-syntax* #\[ 'read-unexpected-open)
+  (set-char-syntax! *read-syntax* #\[ 'read-literal-vector)
   (set-char-syntax! *read-syntax* #\] 'read-unexpected-close)
 
-  (set-char-syntax! *read-syntax* #\{ 'read-unexpected-open)
+  (set-char-syntax! *read-syntax* #\{ 'read-literal-hash)
   (set-char-syntax! *read-syntax* #\} 'read-unexpected-close)
 
   (set-char-syntax! *read-syntax* #\" 'read-string)
