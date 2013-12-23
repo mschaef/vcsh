@@ -102,7 +102,7 @@ struct sys_dirent_t
 };
 
 
-extern "C" int debug_printf(const _TCHAR *, ...);
+int debug_printf(const _TCHAR *, ...);
 
 void sys_output_debug_string(const _TCHAR * str);
 void sys_debug_break();
@@ -166,7 +166,7 @@ void *sys_set_stack_limit(size_t new_size_limit);
 void sys_sleep(uintptr_t duration_ms);
 
 /*** String Utilities ***/
-extern "C" const _TCHAR *strchrnul(const _TCHAR * s, int c);
+const _TCHAR *strchrnul(const _TCHAR * s, int c);
 
 extern char **environ;
 

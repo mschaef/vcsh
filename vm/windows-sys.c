@@ -371,7 +371,7 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
  * standard debugging output.
  */
 
-  extern "C" int debug_printf(const _TCHAR *format, ...)
+  int debug_printf(const _TCHAR *format, ...)
   {
     int i;
     va_list args;

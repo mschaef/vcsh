@@ -30,7 +30,7 @@ struct write_state
      size_t _bytes_transferred;
 };
 
-void write_bytes_as_c_source(const void *buf, size_t bytes, write_state * ws)
+void write_bytes_as_c_source(const void *buf, size_t bytes, struct write_state * ws)
 {
      for (size_t ii = 0; ii < bytes; ii++)
      {
@@ -68,7 +68,7 @@ size_t file_length(FILE * in)
 
 void write_file_as_c_source(FILE * in, _TCHAR * blockname, _TCHAR * varname)
 {
-     write_state s;
+     struct write_state s;
 
      s._bytes_transferred = 0;
 

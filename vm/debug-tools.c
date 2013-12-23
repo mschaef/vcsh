@@ -312,7 +312,7 @@ static void show_debug_flags()
           dscwritef(DF_ALWAYS, ("* ~cs\n", debug_flag_env_names[ii].df_env_name));
 }
 
-extern "C" const _TCHAR *strchrnul(const _TCHAR * string, int c)
+const _TCHAR *strchrnul(const _TCHAR * string, int c)
 {
      for (; *string; string++)
           if (*string == c)

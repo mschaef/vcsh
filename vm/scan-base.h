@@ -28,6 +28,7 @@
 #include <stddef.h>
 #include <limits.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 #if defined(_MSC_VER) && defined(SCAN_WINDOWS)
 #    include "chemeris-stdint.h"
@@ -96,12 +97,12 @@ enum {
 #   define PRINTF_PREFIX_SIZE_T "I"
 #endif
 
-extern "C" INLINE int64_t make_int64_t(int64_t high, int64_t low)
+INLINE int64_t make_int64_t(int64_t high, int64_t low)
 {
      return ((int64_t) high << 32) + (int64_t) low;
 }
 
-extern "C" INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
+INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
 {
      return ((uint64_t) high << 32) + (uint64_t) low;
 }

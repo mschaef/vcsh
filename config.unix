@@ -41,7 +41,7 @@ LDNAMEXEFL=
 
 OPTFL=-O3
 DEBUGFL=-g
-CCFLAGS=-Wall -I. -funsigned-char -g
+CCFLAGS=-Wall -I. -funsigned-char -g -std=c1x
 LDFLAGS=
 AROUTFL=
 AROUTFL_RS=
