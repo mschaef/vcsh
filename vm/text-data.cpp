@@ -18,6 +18,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #include "scan-private.h"
 

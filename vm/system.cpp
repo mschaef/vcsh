@@ -15,8 +15,11 @@
 #include <string.h>
 
 #include <sys/stat.h>
+#include <stdlib.h>
 
+#ifdef OSX
 #include <CommonCrypto/CommonDigest.h>
+#endif
 
 #include "scan-private.h"
 
@@ -421,6 +424,7 @@ lref_t lsystem_info()
      return obj;
 }
 
+#ifdef OSX
 static void sha1_find_digest(FILE *infile, uint8_t *digest)
 {
      CC_SHA1_CTX ctx;
@@ -482,5 +486,7 @@ lref_t lfile_sha1_digest(lref_t fn)
 
      return sha1_encode_digest(sha1_digest);
 }
+#endif
+
 
 END_NAMESPACE

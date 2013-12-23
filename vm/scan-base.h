@@ -14,27 +14,25 @@
 #ifndef __SCAN_BASE_H
 #define __SCAN_BASE_H
 
+#if !defined(SCAN_UNIX) && !defined(SCAN_WINDOWS)
+#  error Either SCAN_WINDOWS or SCAN_UNIX must be defined to pick a platform.
+#endif
+
 //#define WITH_FOPLOG_SUPPORT
 
 #define SCAN_64BIT_FIXNUMS            /* Support for MSC style 64-bit integers */
+
+#define  __STDC_LIMIT_MACROS
+#define __STDC_CONSTANT_MACROS
 
 #include <stddef.h>
 #include <limits.h>
 #include <ctype.h>
 
-#if defined(SCAN_UNIX)
-#  include <stdint.h>
-#elif defined(SCAN_WINDOWS)
-#  if defined(_MSC_VER)
-#    define __STDC_LIMIT_MACROS
-#    define __STDC_CONSTANT_MACROS
+#if defined(_MSC_VER) && defined(SCAN_WINDOWS)
 #    include "chemeris-stdint.h"
-#  endif
-#  if defined(__GNUC__)
-#    include <stdint.h>
-#  endif
 #else
-#  error Either SCAN_WINDOWS or SCAN_UNIX must be defined to pick a platform.
+#    include <stdint.h>
 #endif
 
 #if (defined(__GNUC__) && defined(__LP64__)) || (defined(_MSC_VER) && defined(_M_X64))

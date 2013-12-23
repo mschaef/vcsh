@@ -14,6 +14,8 @@
 
 #include "scan-private.h"
 
+#include <stdlib.h>
+
 BEGIN_NAMESPACE(scan)
 
 /* ldump_heap_state

@@ -1,4 +1,3 @@
-
 /*
  * fasl-dump.cpp --
  *
@@ -14,6 +13,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <memory.h>
 
 #include "scan-private.h"
