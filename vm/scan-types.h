@@ -18,8 +18,6 @@
 #include "scan-constants.h"
 #include "scan-sys.h"
 
-BEGIN_NAMESPACE(scan)
-
 /*** Fixnum and Flonum ***/
 
 #ifdef SCAN_64BIT_FIXNUMS
@@ -1282,7 +1280,5 @@ INLINE void SET_FAST_OP_NEXT(lref_t fo, lref_t next)
      checked_assert(FAST_OP_P(fo));
      ((*fo).storage_as.fast_op.next) = next;
 }
-
-END_NAMESPACE;
 
 #endif

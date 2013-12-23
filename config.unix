@@ -23,7 +23,7 @@ LIB_EXT=.a
 
 #### Names for components of the toolchain and standard arguments
 
-CC=g++
+CC=gcc
 AR_RS=ar rs
 AR_RCS=ar rcs
 RANLIB=ranlib

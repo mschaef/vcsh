@@ -41,15 +41,6 @@
 #   define SCAN_WORDSIZE 32
 #endif
 
-/* Macros for denoting C++ namespaces
- *
- * Add macros for beginning and ending C++ namespaces. These are used to keep
- * namespace blocks from confusing indent. If the namespace declarations are
- * there, indent doesn't recognize function declarations as function
- * declarations.
- */
-#define BEGIN_NAMESPACE(name) namespace name {
-#define END_NAMESPACE }
 
 /*** A macro that allow a variable to be denoted as unreferenced. ***/
 
@@ -214,8 +205,6 @@ typedef char _TCHAR;
 
 /**** Configuration Constants ****/
 
-BEGIN_NAMESPACE(scan)
-
 #define SCAN_VERSION _T("SCAN 0.70.0") // TODO: This is really the VM version, not the scan version.
 
 enum
@@ -293,7 +282,5 @@ enum
      FOPLOG_SIZE  = 1024 * 1024,
 #endif
 };
-
-END_NAMESPACE
 
 #endif

@@ -24,8 +24,6 @@
 #include "scan-types.h"
 #include "scan-sys.h"
 
-BEGIN_NAMESPACE(scan)
-
 /**** Startup/Shutdown ****/
 
 void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags);
@@ -488,7 +486,5 @@ lref_t lifoplog_reset();
 lref_t lifoplog_enable(lref_t enablep);
 lref_t lifoplog_snapshot();
 #endif
-
-END_NAMESPACE;
 
 #endif

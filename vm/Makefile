@@ -1,4 +1,3 @@
-
 # Makefile --
 #
 # The sub-Makefile for the VM and some support tools for the
@@ -29,7 +28,7 @@ scansh0${EXE_EXT}: scan-vm${LIB_EXT} scansh0${OBJ_EXT}
 
 SH0_OBJS=scansh0${OBJ_EXT}
 
-SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.cpp)
+SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.c)
 
 VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        constants${OBJ_EXT} \
@@ -60,13 +59,13 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        text-data${OBJ_EXT} \
        vector${OBJ_EXT}
 
-VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.cpp)
+VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.c)
 
 VM_GCOV:= $(VM_OBJS:${OBJ_EXT}=.gcov)
 
 FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} constants${OBJ_EXT}
 
-FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:${OBJ_EXT}=.cpp)
+FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:${OBJ_EXT}=.c)
 
 coverage: $(VM_GCOV)
 
@@ -82,20 +81,20 @@ endif
 
 TO_C_SOURCE_OBJS=to-c-source${OBJ_EXT}
 
-TO_C_SOURCE_SRCS:=$(TO_C_SOURCE_OBJS:${OBJ_EXT}=.cpp)
+TO_C_SOURCE_SRCS:=$(TO_C_SOURCE_OBJS:${OBJ_EXT}=.c)
 
 to-c-source${EXE_EXT}: $(TO_C_SOURCE_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}to-c-source${EXE_EXT} $(TO_C_SOURCE_OBJS)
 
 SHOW_RETVAL_OBJS=show-retval${OBJ_EXT}
 
-SHOW_RETVAL_SRCS:=$(SHOW_RETVAL_OBJS:${OBJ_EXT}=.cpp)
+SHOW_RETVAL_SRCS:=$(SHOW_RETVAL_OBJS:${OBJ_EXT}=.c)
 
 show-retval${EXE_EXT}: $(SHOW_RETVAL_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}show-retval${EXE_EXT} $(SHOW_RETVAL_OBJS)
 
 scan-constants.scm: scan-constants.i
-	cpp -DCONST_SCHEME -P $< $@
+	c -DCONST_SCHEME -P $< $@
 
 depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
@@ -106,10 +105,10 @@ indented:
 clean-local:
 	rm -f scan-constants.scm
 
-%.gcov: %.cpp %.gcda %.gcno scansh0${EXE_EXT}
+%.gcov: %.c %.gcda %.gcno scansh0${EXE_EXT}
 	gcov $<
 
-%${OBJ_EXT}: %.cpp $(SCAN_HEADERS) Makefile
+%${OBJ_EXT}: %.c $(SCAN_HEADERS) Makefile
 	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
 
 ifneq ($(wildcard .depend),)

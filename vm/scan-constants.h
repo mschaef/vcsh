@@ -14,12 +14,8 @@
 #ifndef __SCAN_CONSTANTS_H
 #define __SCAN_CONSTANTS_H
 
-BEGIN_NAMESPACE(scan)
-
 #define CONST_C_HEADER
 #include "scan-constants.i"
 #undef CONST_C_HEADER
-
-END_NAMESPACE;
 
 #endif // __SCAN_CONSTANTS_H

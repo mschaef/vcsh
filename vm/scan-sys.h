@@ -41,8 +41,6 @@
 #  define SYS_NAME_MAX MAX_PATH
 #endif
 
-BEGIN_NAMESPACE(scan)
-
 void sys_abnormally_terminate_vm(int rc);
 
 #ifdef CHECKED
@@ -169,8 +167,6 @@ void sys_sleep(uintptr_t duration_ms);
 
 /*** String Utilities ***/
 extern "C" const _TCHAR *strchrnul(const _TCHAR * s, int c);
-
-END_NAMESPACE;
 
 extern char **environ;
 

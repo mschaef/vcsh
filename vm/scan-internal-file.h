@@ -16,8 +16,6 @@
 #ifndef __SCAN_INTERNAL_FILE_H
 #define __SCAN_INTERNAL_FILE_H
 
-BEGIN_NAMESPACE(scan)
-
 /* Microsoft C and gcc appear to have differing opinions on how to
  * initialize a structure with an indefinate sized array at the end. */
 
@@ -50,7 +48,5 @@ struct internal_file_t
 #ifdef SCAN_WINDOWS
 #  pragma warning (pop)
 #endif
-
-END_NAMESPACE
 
 #endif
