@@ -24,8 +24,6 @@
 /*  64-bit sizes. I never want to have to use fasl-dump on a >4GB file, but it is not strictly */
 /*  correct to truncate. */
 
-BEGIN_NAMESPACE(scan)
-
 bool g_show_file_offsets = true;
 bool g_show_defn_offsets = true;
 bool g_show_reader_defn_indicies = true;
@@ -38,7 +36,7 @@ enum
      STRBUF_SIZE = 256,
 };
 
-fasl_opcode_t g_reader_definition_ops[MAX_READER_DEFINITIONS];
+enum fasl_opcode_t g_reader_definition_ops[MAX_READER_DEFINITIONS];
 fixnum_t g_reader_definition_fixnums[MAX_READER_DEFINITIONS];
 
 FILE *g_file = NULL;
@@ -697,7 +695,6 @@ int dump_file(char *filename)
   return 0;
 }
 
-END_NAMESPACE
 
 int main(int argc, char *argv[])
 {

@@ -14,7 +14,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 lref_t macrocons(lref_t t)          /*  REVISIT: Macros should be moved entirely to Lisp... */
 {
      lref_t z = new_cell(TC_MACRO);
@@ -27,7 +26,7 @@ lref_t macrocons(lref_t t)          /*  REVISIT: Macros should be moved entirely
 lref_t limacrocons(lref_t t)
 {
      if (!CLOSUREP(t))
-          vmerror_wrong_type(1, t);
+          vmerror_wrong_type_n(1, t);
 
      return macrocons(t);
 }
@@ -35,7 +34,7 @@ lref_t limacrocons(lref_t t)
 lref_t lmacro_transformer(lref_t mac)
 {
      if (!MACROP(mac))
-          vmerror_wrong_type(1, mac);
+          vmerror_wrong_type_n(1, mac);
 
      return MACRO_TRANSFORMER(mac);
 }
@@ -45,4 +44,3 @@ lref_t lmacrop(lref_t obj)
      return MACROP(obj) ? obj : boolcons(false);
 }
 
-END_NAMESPACE

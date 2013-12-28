@@ -23,7 +23,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 lref_t lsystem(size_t argc, lref_t argv[])
 {
      size_t len = 0;
@@ -79,10 +78,10 @@ lref_t lenvironment()
 lref_t lset_environment_variable(lref_t varname, lref_t value)
 {
      if (!STRINGP(varname) && !SYMBOLP(varname))
-          vmerror_wrong_type(1, varname);
+          vmerror_wrong_type_n(1, varname);
 
      if (!STRINGP(value))
-          vmerror_wrong_type(2, value);
+          vmerror_wrong_type_n(2, value);
 
      sys_retcode_t rc = sys_setenv(get_c_string(varname), get_c_string(value));
 
@@ -97,7 +96,7 @@ lref_t lset_environment_variable(lref_t varname, lref_t value)
 lref_t ltemporary_file_name(lref_t p)       /*  REVISIT: This is a generally bad way to create temp files */
 {
      if (!(STRINGP(p) || NULLP(p)))
-          vmerror_wrong_type(1, p);
+          vmerror_wrong_type_n(1, p);
 
      _TCHAR *prefix = NULLP(p) ? (_TCHAR *) "vcsh-temp" : get_c_string(p);
 
@@ -116,7 +115,7 @@ lref_t ltemporary_file_name(lref_t p)       /*  REVISIT: This is a generally bad
 lref_t ldelete_file(lref_t filename)
 {
      if (!STRINGP(filename))
-          vmerror_wrong_type(1, filename);
+          vmerror_wrong_type_n(1, filename);
 
      sys_retcode_t rc = sys_delete_file(get_c_string(filename));
 
@@ -201,10 +200,10 @@ lref_t file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 lref_t lifile_details(lref_t path, lref_t existance_onlyp)
 {
      if (!STRINGP(path))
-          vmerror_wrong_type(1, path);
+          vmerror_wrong_type_n(1, path);
 
      if (!(NULLP(existance_onlyp) || BOOLP(existance_onlyp)))
-          vmerror_wrong_type(2, existance_onlyp);
+          vmerror_wrong_type_n(2, existance_onlyp);
 
      sys_stat_t file_info;
 
@@ -226,7 +225,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
      bool include_files = true;
 
      if (!STRINGP(dn))
-          vmerror_wrong_type(1, dn);
+          vmerror_wrong_type_n(1, dn);
 
      if (SYMBOLP(m))
      {
@@ -244,7 +243,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
                vmerror_arg_out_of_range(m, _T(":directories, :files, or :all"));
      }
      else if (!NULLP(m))
-          vmerror_wrong_type(2, m);
+          vmerror_wrong_type_n(2, m);
 
      const _TCHAR *dirname = get_c_string(dn);
 
@@ -310,7 +309,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
 lref_t lsleep(lref_t ms)
 {
      if (!NUMBERP(ms))
-          vmerror_wrong_type(1, ms);
+          vmerror_wrong_type_n(1, ms);
 
      double msec = get_c_double(ms);
 
@@ -469,7 +468,7 @@ static lref_t sha1_encode_digest(uint8_t *digest)
 lref_t lfile_sha1_digest(lref_t fn)
 {
      if (!STRINGP(fn))
-          vmerror_wrong_type(1, fn);
+          vmerror_wrong_type_n(1, fn);
 
      _TCHAR *filename = get_c_string(fn);
 
@@ -489,4 +488,3 @@ lref_t lfile_sha1_digest(lref_t fn)
 #endif
 
 
-END_NAMESPACE

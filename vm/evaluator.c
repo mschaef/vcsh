@@ -16,9 +16,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
-
 #ifdef CHECKED
 #  define EVAL_INLINE 
 #else
@@ -55,7 +52,7 @@ lref_t lset_stack_limit(lref_t amount)
 lref_t lset_interrupt_mask(lref_t new_mask)
 {
      if (!BOOLP(new_mask))
-          vmerror_wrong_type(1, new_mask);
+          vmerror_wrong_type_n(1, new_mask);
 
      bool previous_mask = interp.intr_masked;
 
@@ -93,7 +90,7 @@ EVAL_INLINE void _process_interrupts()
 static size_t get_trap_id(lref_t trap_id)
 {
      if (!FIXNUMP(trap_id))
-          vmerror_wrong_type(1, trap_id);
+          vmerror_wrong_type_n(1, trap_id);
 
      size_t id = (size_t)FIXNM(trap_id);
 
@@ -106,7 +103,7 @@ static size_t get_trap_id(lref_t trap_id)
 lref_t liset_trap_handler(lref_t trap_id, lref_t new_handler)
 {
      if (!PROCEDUREP(new_handler))
-          vmerror_wrong_type(2, new_handler);
+          vmerror_wrong_type_n(2, new_handler);
 
      size_t tid = get_trap_id(trap_id);
 
@@ -371,7 +368,7 @@ EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t * e
           return CDR(c_code);   /*  tail call */
      }
 
-     vmerror_wrong_type(function);
+     vmerror_wrong_type_n(function);
 
      return NIL;
 }
@@ -808,7 +805,7 @@ lref_t lapply(size_t argc, lref_t argv[])
      lref_t fn = (argc > 0) ? argv[0] : NIL;
 
      if (!PROCEDUREP(fn))
-          vmerror_wrong_type(1, fn);
+          vmerror_wrong_type_n(1, fn);
 
      for (size_t ii = 1; ii < argc - 1; ii++)
      {
@@ -891,4 +888,3 @@ lref_t lifoplog_snapshot()
 }
 #endif
 
-END_NAMESPACE

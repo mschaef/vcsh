@@ -26,12 +26,12 @@
 
 /**** Startup/Shutdown ****/
 
-void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags);
-void init(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags);
+void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags);
+void init(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags);
 
 lref_t run();
 
-void signal_interrupt(vminterrupt_t intr);
+void signal_interrupt(enum vminterrupt_t intr);
 
 void shutdown();
 
@@ -45,11 +45,11 @@ panic_handler_t set_panic_handler(panic_handler_t new_handler);
 
 void _panic(const _TCHAR * str, const _TCHAR * filename, long lineno);
 
-#define panic(str) scan::_panic(str, __FILE__, __LINE__)
+#define panic(str) _panic(str, __FILE__, __LINE__)
 
 /**** Custom Extensions ****/
 
-void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation);
+void register_subr(const _TCHAR * name, enum subr_arity_t arity, void *implementation);
 
 /*** The evaluator ***/
 
@@ -57,7 +57,7 @@ lref_t apply1(lref_t fn, size_t argc, lref_t argv[]);
 
 /**** Vector Constuctor ****/
 
-lref_t vectorcons(fixnum_t n, lref_t initial = NIL);
+lref_t vectorcons(fixnum_t n, lref_t initial /* = NIL */);
 
 /**** Lists ****/
 
@@ -69,8 +69,9 @@ lref_t lista(size_t n, lref_t args[]);
 
 #define fixabs labs
 
-lref_t fixcons(uint32_t high, uint32_t low);
+lref_t fixcons2(uint32_t high, uint32_t low);
 lref_t fixcons(fixnum_t x);
+
 lref_t flocons(double x);
 lref_t cmplxcons(flonum_t re, flonum_t im);
 
@@ -88,7 +89,7 @@ lref_t charcons(_TCHAR ch);
 lref_t symcons(lref_t pname, lref_t home);
 
 lref_t simple_intern(lref_t name, lref_t package);
-lref_t simple_intern(const _TCHAR * name, lref_t package);
+lref_t simple_intern_str(const _TCHAR * name, lref_t package);
 
 lref_t intern(lref_t name, lref_t package);
 lref_t keyword_intern(const _TCHAR * name);
@@ -96,11 +97,11 @@ lref_t keyword_intern(const _TCHAR * name);
 /**** Strings ****/
 
 lref_t strcons();
-lref_t strcons(_TCHAR ch);
-lref_t strcons(const _TCHAR * buffer);
-lref_t strcons(const _TCHAR * buffer, _TCHAR trailing);
-lref_t strcons(lref_t str);
-lref_t strcons(size_t length, const _TCHAR * buffer);
+lref_t strconsch(_TCHAR ch);
+lref_t strconsbuf(const _TCHAR * buffer);
+lref_t strconsbuf1(const _TCHAR * buffer, _TCHAR trailing);
+lref_t strconsdup(lref_t str);
+lref_t strconsbufn(size_t length, const _TCHAR * buffer);
 lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer);
 
 _TCHAR *get_c_string(lref_t x);
@@ -109,7 +110,7 @@ _TCHAR *try_get_c_string(lref_t x);
 
 /**** Hash Tables ****/
 
-lref_t hashcons(bool shallow, size_t size = HASH_DEFAULT_INITIAL_SIZE);
+lref_t hashcons(bool shallow, size_t size /* = HASH_DEFAULT_INITIAL_SIZE */);
 
 bool hash_ref(lref_t table, lref_t key, lref_t *result);
 
@@ -121,8 +122,11 @@ lref_t liinstancecons(lref_t proto);
 
 /**** Port I/O ****/
 
-lref_t portcons(port_class_t * cls, lref_t port_name, port_mode_t mode, lref_t user_object,
-              void *user_data);
+lref_t portcons(struct port_class_t * cls,
+                lref_t port_name,
+                enum port_mode_t mode,
+                lref_t user_object,
+                void *user_data);
 
 size_t read_bytes(lref_t port, void *buf, size_t size);
 size_t write_bytes(lref_t port, const void *buf, size_t size);
@@ -135,14 +139,14 @@ int peek_char(lref_t port);
 void write_char(int ch, lref_t port);
 
 
-bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t & result);
-bool read_binary_flonum(lref_t port, flonum_t & result);
+bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result);
+bool read_binary_flonum(lref_t port, flonum_t *result);
 
 /**** Internal Files and Blocking Input Ports ****/
 
-void register_internal_file(internal_file_t *data);
+void register_internal_file(struct internal_file_t *data);
 
-lref_t open_c_data_input(internal_file_t *data);
+lref_t open_c_data_input(struct internal_file_t *data);
 
 typedef bool(*blocking_input_read_data_fn_t) (lref_t port, void *userdata);
 typedef void (*blocking_input_close_port_fn_t) (lref_t port, void *userdata);
@@ -161,10 +165,10 @@ void scwritef(const _TCHAR * format_str, lref_t port, ...);
 
 void dscwritef_impl(const _TCHAR * format_str, ...);
 
-bool is_debug_flag_set(debug_flag_t flag);
+bool is_debug_flag_set(enum debug_flag_t flag);
 
-#define pdscwritef(flag, args) \
-     do { if (is_debug_flag_set(flag)) ::scan::dscwritef_impl args; } while(0);
+#define dscwritef(flag, args) \
+     do { if (is_debug_flag_set(flag)) dscwritef_impl args; } while(0);
 
 lref_t debug_print_object(lref_t exp, lref_t port, bool machine_readable);
 
@@ -179,18 +183,18 @@ enum vmt_options_t {
      VMT_HANDLER_MUST_ESCAPE = 0x2
 };
 
-lref_t vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...);
+lref_t vmtrap(enum trap_type_t trap, enum vmt_options_t options, size_t argc, ...);
 
 void vmerror_wrong_type(lref_t new_errobj);
-void vmerror_wrong_type(int which_argument, lref_t new_errobj);
+void vmerror_wrong_type_n(int which_argument, lref_t new_errobj);
 void vmerror_unbound(lref_t v);
 void vmerror_index_out_of_bounds(lref_t index, lref_t obj);
-void vmerror_arg_out_of_range(lref_t arg, const _TCHAR *range_desc = NULL);
+void vmerror_arg_out_of_range(lref_t arg, const _TCHAR *range_desc /* = NULL */);
 void vmerror_unsupported(const _TCHAR *desc);
 void vmerror_unimplemented(const _TCHAR *desc);
 void vmerror_divide_by_zero();
 void vmerror_io_error(const _TCHAR *desc, lref_t info);
-void vmerror_fast_read(const _TCHAR * message, lref_t port, lref_t details = NIL);
+void vmerror_fast_read(const _TCHAR * message, lref_t port, lref_t details /* = NIL */);
 void vmerror_stack_overflow(uint8_t * obj);
 
 /***** Prototypes for C Primitives *****/
@@ -394,7 +398,7 @@ lref_t lrealtime_time_zone_offset();
 lref_t lremainder(lref_t x, lref_t y);
 lref_t lrepresentation_of(lref_t obj);
 lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port);
-lref_t lround(lref_t x);
+lref_t lroundnum(lref_t x);
 lref_t lruntime(void);
 lref_t lset_closure_code(lref_t exp, lref_t code);
 lref_t lset_closure_env(lref_t exp, lref_t env);

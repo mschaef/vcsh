@@ -18,6 +18,7 @@
 
 #ifdef SCAN_UNIX                /*  REVISIT: Can these ifdef's be removed? */
 #  include <sys/time.h>
+#  include <linux/limits.h>
 #endif
 
 #ifdef SCAN_WINDOWS
@@ -84,8 +85,8 @@ const uint64_t SYS_BLKSIZE_UNKNOWN = 0;
 
 struct sys_stat_t
 {
-     sys_filetype_t _filetype;  /* type of the file */
-     sys_file_attrs_t _attrs;   /* FAT-style file attributes. */
+     enum sys_filetype_t _filetype;  /* type of the file */
+     enum sys_file_attrs_t _attrs;   /* FAT-style file attributes. */
      uint64_t _mode;            /* unix-style permissions bits */
 
      uint64_t _size;            /* total size, in bytes */
@@ -97,7 +98,7 @@ struct sys_stat_t
 struct sys_dirent_t
 {
      uint64_t _ino;             /* inode number */
-     sys_filetype_t _type;      /* type of file */
+     enum sys_filetype_t _type;      /* type of file */
      char _name[SYS_NAME_MAX];  /* filename */
 };
 
@@ -121,23 +122,23 @@ double sys_runtime(void);
 double sys_time_resolution();
 double sys_timezone_offset();
 
-sys_retcode_t sys_init();
+enum sys_retcode_t sys_init();
 
 _TCHAR **sys_get_env_vars();
-sys_retcode_t sys_setenv(_TCHAR * varname, _TCHAR * value);
+enum sys_retcode_t sys_setenv(_TCHAR * varname, _TCHAR * value);
 
-sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len);
+enum sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len);
 
-sys_retcode_t sys_delete_file(_TCHAR * filename);
-sys_retcode_t sys_temporary_filename(_TCHAR * prefix, _TCHAR * buf, size_t buflen);
+enum sys_retcode_t sys_delete_file(_TCHAR * filename);
+enum sys_retcode_t sys_temporary_filename(_TCHAR * prefix, _TCHAR * buf, size_t buflen);
 
-sys_retcode_t sys_stat(const char *path, sys_stat_t * buf);
+enum sys_retcode_t sys_stat(const char *path, struct sys_stat_t * buf);
 
 struct sys_dir_t;
 
-sys_retcode_t sys_opendir(const char *path, sys_dir_t ** dir);
-sys_retcode_t sys_readdir(sys_dir_t * dir, sys_dirent_t * ent, bool * done_p);
-sys_retcode_t sys_closedir(sys_dir_t * dir);
+enum sys_retcode_t sys_opendir(const char *path, struct sys_dir_t ** dir);
+enum sys_retcode_t sys_readdir(struct sys_dir_t * dir, struct sys_dirent_t * ent, bool * done_p);
+enum sys_retcode_t sys_closedir(struct sys_dir_t * dir);
 
 enum sys_eoln_convention_t
 {
@@ -148,12 +149,12 @@ enum sys_eoln_convention_t
 
 struct sys_info_t
 {
-     sys_eoln_convention_t _eoln;
+     enum sys_eoln_convention_t _eoln;
      bool _fs_names_case_sensitive;
      const _TCHAR *_platform_name;
 };
 
-void sys_get_info(sys_info_t * info);
+void sys_get_info(struct sys_info_t * info);
 
 extern uint8_t *stack_limit_obj;
 

@@ -13,7 +13,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 lref_t vectorcons(fixnum_t n, lref_t initial)
 {
      lref_t vec = new_cell(TC_VECTOR);
@@ -50,7 +49,7 @@ bool vector_equal(lref_t veca, lref_t vecb)
 lref_t lmake_vector(lref_t dim, lref_t initial)
 {
      if (!NUMBERP(dim))
-          vmerror_wrong_type(1, dim);
+          vmerror_wrong_type_n(1, dim);
 
      fixnum_t d = get_c_fixnum(dim);
 
@@ -85,7 +84,7 @@ lref_t lvector(size_t argc, lref_t argv[])
 lref_t lvector_ref(lref_t vec, lref_t i, lref_t default_value)
 {
      if (!VECTORP(vec))
-          vmerror_wrong_type(1, vec);
+          vmerror_wrong_type_n(1, vec);
      
      size_t index = 0;
 
@@ -94,7 +93,7 @@ lref_t lvector_ref(lref_t vec, lref_t i, lref_t default_value)
      else if (CHARP(i))
           index = (fixnum_t) (CHARV(i));
      else
-          vmerror_wrong_type(2, i);
+          vmerror_wrong_type_n(2, i);
 
      if ((index >= 0) && (index < VECTOR_DIM(vec)))
           return VECTOR_ELEM(vec, index);
@@ -109,7 +108,7 @@ lref_t lvector_ref(lref_t vec, lref_t i, lref_t default_value)
 lref_t lvector_set(lref_t vec, lref_t i, lref_t v)
 {
      if (!VECTORP(vec))
-          vmerror_wrong_type(1, vec);
+          vmerror_wrong_type_n(1, vec);
 
      size_t index = 0;
 
@@ -118,7 +117,7 @@ lref_t lvector_set(lref_t vec, lref_t i, lref_t v)
      else if (CHARP(i))
           index = (fixnum_t) (CHARV(i));
      else
-          vmerror_wrong_type(2, i);
+          vmerror_wrong_type_n(2, i);
 
      if ((index >= 0) && (index < VECTOR_DIM(vec)))
      {
@@ -137,7 +136,7 @@ lref_t lvector2list(lref_t vec)
      lref_t tail = NIL;
 
      if (!VECTORP(vec))
-          vmerror_wrong_type(1, vec);
+          vmerror_wrong_type_n(1, vec);
 
      fixnum_t length = object_length(vec);
 
@@ -176,7 +175,7 @@ lref_t llist2vector(lref_t xs)
      }
 
      if (!NULLP(l))
-          vmerror_wrong_type(1, xs);
+          vmerror_wrong_type_n(1, xs);
 
      return result;
 }
@@ -184,7 +183,7 @@ lref_t llist2vector(lref_t xs)
 lref_t lvector_fill(lref_t vec, lref_t v)
 {
      if (!VECTORP(vec))
-          vmerror_wrong_type(1, vec);
+          vmerror_wrong_type_n(1, vec);
 
      for (size_t ii = 0; ii < VECTOR_DIM(vec); ii++)
           SET_VECTOR_ELEM(vec, ii, v);
@@ -196,7 +195,7 @@ lref_t lvector_fill(lref_t vec, lref_t v)
 lref_t lvector_copy(lref_t vec)
 {
      if (!VECTORP(vec))
-          vmerror_wrong_type(1, vec);
+          vmerror_wrong_type_n(1, vec);
 
      lref_t result = vectorcons(VECTOR_DIM(vec));
 
@@ -225,9 +224,9 @@ lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element)
 lref_t lvector_resize(lref_t vec, lref_t ns, lref_t new_element)
 {
      if (!VECTORP(vec))
-          vmerror_wrong_type(1, vec);
+          vmerror_wrong_type_n(1, vec);
      if (!FIXNUMP(ns))
-          vmerror_wrong_type(2, ns);
+          vmerror_wrong_type_n(2, ns);
 
      fixnum_t new_size = get_c_fixnum(ns);
 
@@ -237,4 +236,3 @@ lref_t lvector_resize(lref_t vec, lref_t ns, lref_t new_element)
      return vector_resize(vec, (size_t)new_size, new_element);
 }
 
-END_NAMESPACE

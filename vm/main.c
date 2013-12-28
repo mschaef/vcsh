@@ -19,7 +19,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 interpreter_t interp;           /* Interpreter globals */
 
 const _TCHAR *build_id_string()
@@ -460,7 +459,7 @@ static void register_main_subrs()
     register_subr(_T("realtime-time-zone-offset"),        SUBR_0,     (void*)lrealtime_time_zone_offset          );
     register_subr(_T("remainder"),                        SUBR_2,     (void*)lremainder                          );
     register_subr(_T("rich-write"),                       SUBR_3,     (void*)lrich_write                         );
-    register_subr(_T("round"),                            SUBR_1,     (void*)lround                              );
+    register_subr(_T("round"),                            SUBR_1,     (void*)lroundnum                           );
     register_subr(_T("runtime"),                          SUBR_0,     (void*)lruntime                            );
     register_subr(_T("set-car!"),                         SUBR_2,     (void*)lsetcar                             );
     register_subr(_T("set-cdr!"),                         SUBR_2,     (void*)lsetcdr                             );
@@ -468,7 +467,7 @@ static void register_main_subrs()
     register_subr(_T("set-port-translate-mode!"),         SUBR_2,     (void*)lport_set_translate_mode            );
     register_subr(_T("set-random-seed!"),                 SUBR_1,     (void*)lset_random_seed                    );
     register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
-    register_subr(_T("%set-symbol-vcell!"),               SUBR_2,     (void*)lset_symbol_vcell                    );
+    register_subr(_T("%set-symbol-vcell!"),               SUBR_2,     (void*)lset_symbol_vcell                   );
     register_subr(_T("sin"),                              SUBR_1,     (void*)lsin                                );
     register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
     register_subr(_T("sqrt"),                             SUBR_1,     (void*)lsqrt                               );
@@ -650,4 +649,3 @@ void shutdown()
 }
 
 
-END_NAMESPACE

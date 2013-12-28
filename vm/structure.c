@@ -13,13 +13,11 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
 /*  REVISIT: %structure-become */
 lref_t lcopy_structure(lref_t st)   /* REVISIT: how much of this can be shared with lstructurecons? */
 {
      if (!STRUCTUREP(st))
-          vmerror_wrong_type(1, st);
+          vmerror_wrong_type_n(1, st);
 
      lref_t new_st = new_cell(TC_STRUCTURE);
 
@@ -38,7 +36,7 @@ lref_t lcopy_structure(lref_t st)   /* REVISIT: how much of this can be shared w
 static void validate_structure_layout(size_t slots, lref_t layout)
 {
      if (!CONSP(layout))
-          vmerror_wrong_type(2, layout);
+          vmerror_wrong_type_n(2, layout);
 
      size_t len = (size_t) get_c_long(llength(layout));
 
@@ -66,7 +64,7 @@ static void validate_structure_layout(size_t slots, lref_t layout)
 lref_t lstructurecons(lref_t slots, lref_t layout)
 {
      if (!VECTORP(slots))
-          vmerror_wrong_type(1, slots);
+          vmerror_wrong_type_n(1, slots);
 
      size_t len = VECTOR_DIM(slots);
 
@@ -98,7 +96,7 @@ lref_t lstructurep(lref_t st, lref_t expected_layout)
 lref_t lstructure_layout(lref_t st)
 {
      if (!STRUCTUREP(st))
-          vmerror_wrong_type(1, st);
+          vmerror_wrong_type_n(1, st);
 
      return STRUCTURE_LAYOUT(st);
 }
@@ -106,7 +104,7 @@ lref_t lstructure_layout(lref_t st)
 lref_t lstructure_length(lref_t st)
 {
      if (!STRUCTUREP(st))
-           vmerror_wrong_type(1, st);
+           vmerror_wrong_type_n(1, st);
 
      return fixcons(STRUCTURE_DIM(st));
 }
@@ -114,10 +112,10 @@ lref_t lstructure_length(lref_t st)
 lref_t lstructure_ref(lref_t st, lref_t index)
 {
      if (!STRUCTUREP(st))
-          vmerror_wrong_type(1, st);
+          vmerror_wrong_type_n(1, st);
 
      if (!FIXNUMP(index))
-          vmerror_wrong_type(2, index);
+          vmerror_wrong_type_n(2, index);
 
      fixnum_t idx = get_c_fixnum(index);
 
@@ -132,10 +130,10 @@ lref_t lstructure_ref(lref_t st, lref_t index)
 lref_t lstructure_set(lref_t st, lref_t index, lref_t value)
 {
      if (!STRUCTUREP(st))
-          vmerror_wrong_type(1, st);
+          vmerror_wrong_type_n(1, st);
 
      if (!FIXNUMP(index))
-          vmerror_wrong_type(2, index);
+          vmerror_wrong_type_n(2, index);
 
      fixnum_t idx = get_c_fixnum(index);
 
@@ -169,4 +167,3 @@ bool structure_equal(lref_t sta, lref_t stb)
      return true;
 }
 
-END_NAMESPACE

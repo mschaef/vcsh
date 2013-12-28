@@ -15,8 +15,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
 INLINE void SET_PORT_STRING(lref_t port, lref_t string)
 {
      assert(STRINGP(string));
@@ -86,7 +84,7 @@ port_text_info_t *allocate_text_info();
 lref_t lopen_input_string(lref_t string)
 {
      if (!STRINGP(string))
-          vmerror_wrong_type(1, string);
+          vmerror_wrong_type_n(1, string);
 
      /*  REVISIT: open-input-string can avoid duplicating incoming strings */
      /*  REVISIT: open-input-string take string input port argument */
@@ -110,7 +108,7 @@ lref_t lopen_output_string()      /*  REVISIT: default string/length in oos? */
 lref_t lget_output_string(lref_t port)
 {
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      lflush_port(port);
 
@@ -120,4 +118,3 @@ lref_t lget_output_string(lref_t port)
           return PORT_STRING(port);
 }
 
-END_NAMESPACE

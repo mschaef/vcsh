@@ -15,8 +15,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
 /* C File Port ************************************************
  *
  * All the groovy stuff to specialize a port into a port capable
@@ -131,7 +129,7 @@ bool get_c_port_mode(lref_t mode)
           return false;
 
      if (!SYMBOLP(mode))
-          vmerror_wrong_type(2, mode);
+          vmerror_wrong_type_n(2, mode);
 
      if (keyword_intern(_T("binary")) == mode)
           return true;
@@ -146,7 +144,7 @@ bool get_c_port_mode(lref_t mode)
 lref_t lopen_raw_input_file(lref_t filename)
 {
      if (!STRINGP(filename))
-          vmerror_wrong_type(1, filename);
+          vmerror_wrong_type_n(1, filename);
 
      return fileportcons(&file_port_class,
                          (port_mode_t)(PORT_INPUT | PORT_BINARY),
@@ -156,7 +154,7 @@ lref_t lopen_raw_input_file(lref_t filename)
 lref_t lopen_raw_output_file(lref_t filename) // TODO: Append Mode
 {
      if (!STRINGP(filename))
-          vmerror_wrong_type(1, filename);
+          vmerror_wrong_type_n(1, filename);
 
      return fileportcons(&file_port_class,
                          (port_mode_t)(PORT_OUTPUT | PORT_BINARY),
@@ -259,4 +257,3 @@ void init_stdio_ports()
 }
 
 
-END_NAMESPACE

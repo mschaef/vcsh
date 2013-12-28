@@ -22,8 +22,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
 size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size);
 void blocking_input_port_close(lref_t port);
 
@@ -188,4 +186,3 @@ lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
 
 }
 
-END_NAMESPACE

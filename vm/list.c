@@ -13,7 +13,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 lref_t lcons(lref_t x, lref_t y)
 {
      lref_t z = new_cell(TC_CONS);
@@ -39,7 +38,7 @@ lref_t lcar(lref_t x)
           return NIL;
 
      if (!CONSP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      return CAR(x);
 };
@@ -50,7 +49,7 @@ lref_t lcdr(lref_t x)
           return NIL;
 
      if (!CONSP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      return CDR(x);
 };
@@ -66,7 +65,7 @@ lref_t lcdrs(lref_t x)
 lref_t lsetcar(lref_t cell, lref_t value)
 {
      if (!CONSP(cell))
-          vmerror_wrong_type(1, cell);
+          vmerror_wrong_type_n(1, cell);
 
      SET_CAR(cell, value);
      return value;
@@ -75,7 +74,7 @@ lref_t lsetcar(lref_t cell, lref_t value)
 lref_t lsetcdr(lref_t cell, lref_t value)
 {
      if (!CONSP(cell))
-          vmerror_wrong_type(1, cell);
+          vmerror_wrong_type_n(1, cell);
 
      SET_CDR(cell, value);
      return value;
@@ -162,4 +161,3 @@ lref_t lista(size_t n, lref_t args[])
      return result;
 }
 
-END_NAMESPACE

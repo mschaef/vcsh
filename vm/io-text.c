@@ -17,7 +17,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
 /*** C I/O functions ***/
 
@@ -286,7 +285,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
            port = CURRENT_INPUT_PORT();
 
       if (!PORTP(port))
-           vmerror_wrong_type(1, port);
+           vmerror_wrong_type_n(1, port);
 
       if (PORT_BINARYP(port))
            vmerror_unsupported(_T("cannot get column of binary ports"));
@@ -300,7 +299,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
            port = CURRENT_INPUT_PORT();
 
       if (!PORTP(port))
-           vmerror_wrong_type(1, port);
+           vmerror_wrong_type_n(1, port);
 
       if (PORT_BINARYP(port))
            vmerror_unsupported(_T("cannot get row of binary ports"));
@@ -311,7 +310,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
  lref_t lport_translate_mode(lref_t port)
  {
       if (!PORTP(port))
-           vmerror_wrong_type(1, port);
+           vmerror_wrong_type_n(1, port);
 
       if (PORT_BINARYP(port))
            return boolcons(false);
@@ -322,10 +321,10 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
  lref_t lport_set_translate_mode(lref_t port, lref_t mode)
  {
       if (!PORTP(port))
-           vmerror_wrong_type(1, port);
+           vmerror_wrong_type_n(1, port);
 
       if (!BOOLP(mode))
-           vmerror_wrong_type(2, mode);
+           vmerror_wrong_type_n(2, mode);
 
       if (PORT_BINARYP(port))
            vmerror_unsupported(_T("cannot set translation mode of binary ports"));
@@ -347,7 +346,7 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
           port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
-          vmerror_wrong_type(3, port);
+          vmerror_wrong_type_n(3, port);
 
      if (PORT_CLASS(port)->rich_write == NULL)
           return boolcons(false);
@@ -363,7 +362,7 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
       if (NULLP(port))
            port = CURRENT_INPUT_PORT();
       else if (!PORTP(port))
-           vmerror_wrong_type(1, port);
+           vmerror_wrong_type_n(1, port);
 
       assert(PORTP(port));
 
@@ -380,10 +379,10 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
       if (NULLP(port))
            port = CURRENT_INPUT_PORT();
       else if (!PORTP(port))
-           vmerror_wrong_type(1, port);
+           vmerror_wrong_type_n(1, port);
 
       if (!CHARP(ch))
-           vmerror_wrong_type(2, ch);
+           vmerror_wrong_type_n(2, ch);
 
       assert(PORTP(port));
 
@@ -401,7 +400,7 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
           port = CURRENT_INPUT_PORT();
 
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      ch = peek_char(port);
 
@@ -414,13 +413,13 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
 lref_t lwrite_char(lref_t ch, lref_t port)
 {
      if (!CHARP(ch))
-          vmerror_wrong_type(1, ch);
+          vmerror_wrong_type_n(1, ch);
 
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
-          vmerror_wrong_type(2, port);
+          vmerror_wrong_type_n(2, port);
 
      write_char(CHARV(ch), port);
 
@@ -433,7 +432,7 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
      lref_t port = (argc < 1) ? NIL : argv[0];
 
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      for (size_t ii = 1; ii < argc; ii++)
      {
@@ -448,7 +447,7 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
                write_text(&ch, 1, port);
           }
           else
-               vmerror_wrong_type(ii, str);
+               vmerror_wrong_type_n(ii, str);
      }
 
      return port;
@@ -462,7 +461,7 @@ lref_t lflush_whitespace(lref_t port, lref_t slc)
           port = CURRENT_INPUT_PORT();
 
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      bool skip_lisp_comments = true;
 
@@ -487,7 +486,7 @@ lref_t lread_line(lref_t port)
           port = CURRENT_INPUT_PORT();
 
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      lref_t op = lopen_output_string();
 
@@ -512,7 +511,7 @@ lref_t lnewline(lref_t port)
           port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      write_char(_T('\n'), port);
 
@@ -525,7 +524,7 @@ lref_t lfresh_line(lref_t port)
           port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      if (PORT_BINARYP(port)
          || ((PORT_TEXT_INFO(port)->col != 0) && !PORT_TEXT_INFO(port)->needs_lf))
@@ -608,7 +607,7 @@ port_text_info_t *allocate_text_info()
 lref_t lopen_text_input_port(lref_t underlying)
 {
      if (!PORTP(underlying))
-          vmerror_wrong_type(1, underlying);
+          vmerror_wrong_type_n(1, underlying);
 
      if (!PORT_BINARYP(underlying))
           vmerror_unsupported(_T("cannot open text input on text port"));
@@ -627,7 +626,7 @@ lref_t lopen_text_input_port(lref_t underlying)
 lref_t lopen_text_output_port(lref_t underlying)
 {
      if (!PORTP(underlying))
-          vmerror_wrong_type(1, underlying);
+          vmerror_wrong_type_n(1, underlying);
 
      if (!PORT_BINARYP(underlying))
           vmerror_unsupported(_T("cannot open text output on text port"));
@@ -643,4 +642,3 @@ lref_t lopen_text_output_port(lref_t underlying)
      return port;
 }
 
-END_NAMESPACE

@@ -16,8 +16,6 @@
 
 #include <stdlib.h>
 
-BEGIN_NAMESPACE(scan)
-
 /* ldump_heap_state
  *
  * Traverse the heap segments, writing the FASL code of each cell to
@@ -94,7 +92,7 @@ void scan_postmortem_dump()
 lref_t lheap_cell_count_by_typecode()
 {
      lref_t obj, org, end;
-     typecode_t type;
+     enum typecode_t type;
      lref_t result = NIL;
 
      size_t internal_type_counts[LAST_INTERNAL_TYPEC + 1];
@@ -140,7 +138,7 @@ lref_t lmemref(lref_t addr)
 lref_t lstress_lisp_heap(lref_t c)
 {
      if (!FIXNUMP(c))
-          vmerror_wrong_type(1, c);
+          vmerror_wrong_type_n(1, c);
 
      fixnum_t count = FIXNM(c);
 
@@ -154,10 +152,10 @@ lref_t lstress_lisp_heap(lref_t c)
 lref_t lstress_c_heap(lref_t c, lref_t s)
 {
      if (!FIXNUMP(c))
-          vmerror_wrong_type(1, c);
+          vmerror_wrong_type_n(1, c);
 
      if (!FIXNUMP(s))
-          vmerror_wrong_type(2, s);
+          vmerror_wrong_type_n(2, s);
 
      fixnum_t count = FIXNM(c);
      fixnum_t size = FIXNM(s);
@@ -181,11 +179,11 @@ lref_t lobaddr(lref_t object)       /* object->address */
 lref_t lset_debug_flags(lref_t v)
 {
      if (!FIXNUMP(v))
-          vmerror_wrong_type(1, v);
+          vmerror_wrong_type_n(1, v);
 
      fixnum_t old_flags = interp.debug_flags;
 
-     interp.debug_flags = (debug_flag_t) FIXNM(v);
+     interp.debug_flags = (enum debug_flag_t) FIXNM(v);
 
 
      return fixcons(old_flags);
@@ -218,7 +216,8 @@ bool test_blocking_input_read(lref_t port, void *userdata)
 {
      uint8_t buf[BLOCKIN_MAX_BLOCK_SIZE];
 
-     test_blocking_input_info_t *info = (test_blocking_input_info_t *) userdata;
+     struct test_blocking_input_info_t *info
+          = (struct test_blocking_input_info_t *) userdata;
 
      fixnum_t bytes_to_provide = MIN2(info->_block_size, info->_length);
 
@@ -247,10 +246,10 @@ void test_blocking_input_close(lref_t port, void *userdata)
 lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary)
 {
      if (!FIXNUMP(block_size))
-          vmerror_wrong_type(1, block_size);
+          vmerror_wrong_type_n(1, block_size);
 
      if (!FIXNUMP(length))
-          vmerror_wrong_type(1, length);
+          vmerror_wrong_type_n(1, length);
 
      if (FIXNM(block_size) > BLOCKIN_MAX_BLOCK_SIZE)
           vmerror_arg_out_of_range(block_size);
@@ -261,8 +260,8 @@ lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary)
      if (NULLP(binary))
           binary = boolcons(false);
 
-     test_blocking_input_info_t *info =
-         (test_blocking_input_info_t *) gc_malloc(sizeof(test_blocking_input_info_t));
+     struct test_blocking_input_info_t *info =
+         (struct test_blocking_input_info_t *) gc_malloc(sizeof(struct test_blocking_input_info_t));
 
      info->_block_size = FIXNM(block_size);
      info->_length = FIXNM(length);
@@ -276,7 +275,7 @@ lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary)
 static struct
 {
      const char *df_env_name;
-     debug_flag_t df;
+     enum debug_flag_t df;
 } debug_flag_env_names[] = {
      { "show-load-forms", DF_SHOW_LOAD_FORMS},
      { "show-global-defines", DF_SHOW_GLOBAL_DEFINES},
@@ -386,7 +385,7 @@ bool is_debug_flag_set(debug_flag_t flag)
 lref_t ltime_apply0(lref_t fn)
 {
      if (!PROCEDUREP(fn))
-          vmerror_wrong_type(1, fn);
+          vmerror_wrong_type_n(1, fn);
 
      size_t cells = interp.gc_total_cells_allocated;
      size_t c_blocks = interp.gc_malloc_blocks;
@@ -407,4 +406,3 @@ lref_t ltime_apply0(lref_t fn)
      return lvector(6, argv);
 }
 
-END_NAMESPACE

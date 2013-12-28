@@ -55,7 +55,7 @@ struct port_class_t;
 struct port_info_t;
 struct port_text_info_t;
 struct lobject_t;
-typedef lobject_t *lref_t;
+typedef struct lobject_t *lref_t;
 struct fasl_stream_t;
 
 /*** Constants for the two level tagging scheme ***/
@@ -88,24 +88,24 @@ enum
      MIN_LREF_FIXNUM = INT32_MIN >> LREF1_TAG_SHIFT,
 };
 
-INLINE lref_t LREF1_CONS(lref_tag_t tag, intptr_t val)
+INLINE lref_t LREF1_CONS(enum lref_tag_t tag, intptr_t val)
 {
      return (lref_t) ((val << LREF1_TAG_SHIFT) | tag);
 }
 
-INLINE lref_t LREF2_CONS(lref_tag_t tag, intptr_t val)
+INLINE lref_t LREF2_CONS(enum lref_tag_t tag, intptr_t val)
 {
      return (lref_t) ((val << LREF2_TAG_SHIFT) | tag);
 }
 
-INLINE lref_tag_t LREF1_TAG(lref_t ref)
+INLINE enum lref_tag_t LREF1_TAG(lref_t ref)
 {
-     return (lref_tag_t) ((intptr_t) ref & LREF1_TAG_MASK);
+     return (enum lref_tag_t) ((intptr_t) ref & LREF1_TAG_MASK);
 }
 
-INLINE lref_tag_t LREF2_TAG(lref_t ref)
+INLINE enum lref_tag_t LREF2_TAG(lref_t ref)
 {
-     return (lref_tag_t) ((intptr_t) ref & LREF2_TAG_MASK);
+     return (enum lref_tag_t) ((intptr_t) ref & LREF2_TAG_MASK);
 }
 
 INLINE intptr_t LREF1_VAL(lref_t ref)
@@ -145,7 +145,7 @@ struct lobject_t
 {
      struct
      {
-          typecode_t type:8;
+          enum typecode_t type:8;
           unsigned int opcode:8;
           unsigned int gc_mark:1;
 #if SCAN_WORDSIZE == 64
@@ -210,9 +210,9 @@ struct lobject_t
           } instance;
           struct
           {
-               port_class_t *klass;
-               port_info_t *pinf;
-               port_text_info_t *text_info;
+               struct port_class_t *klass;
+               struct port_info_t *pinf;
+               struct port_text_info_t *text_info;
           } port;
           struct
           {
@@ -228,7 +228,7 @@ struct lobject_t
           struct
           {
                size_t mask;
-               hash_entry_t *data;
+               struct hash_entry_t *data;
 
                struct
                {
@@ -239,7 +239,7 @@ struct lobject_t
           struct
           {
                lref_t name;
-               subr_arity_t type;
+               enum subr_arity_t type;
                union
                {
                     f_0_t f_0;
@@ -255,7 +255,7 @@ struct lobject_t
           struct
           {
                lref_t port;
-               fasl_stream_t *stream;
+               struct fasl_stream_t *stream;
           } fasl_reader;
 
      } storage_as;
@@ -264,7 +264,7 @@ struct lobject_t
 
 /*** NIL and primitive equality checks ***/
 
-const lref_t NIL = ((lobject_t *) 0);
+const lref_t NIL = ((struct lobject_t *) 0);
 
 INLINE bool EQ(lref_t x, lref_t y)
 {
@@ -290,7 +290,7 @@ INLINE int GC_MARK(lref_t object)
      return object->header.gc_mark;
 }
 
-INLINE typecode_t TYPE(lref_t object)
+INLINE enum typecode_t TYPE(lref_t object)
 {
      if (NULLP(object))
           return TC_NIL;
@@ -311,14 +311,14 @@ INLINE typecode_t TYPE(lref_t object)
      }
 }
 
-INLINE void SET_TYPE(lref_t object, typecode_t new_type)
+INLINE void SET_TYPE(lref_t object, enum typecode_t new_type)
 {
      checked_assert(!LREF_IMMEDIATE_P(object));
 
      object->header.type = new_type;
 }
 
-INLINE bool TYPEP(lref_t object, typecode_t typeCode)
+INLINE bool TYPEP(lref_t object, enum typecode_t typeCode)
 {
      return TYPE(object) == typeCode;
 }
@@ -492,10 +492,10 @@ INLINE bool BOOLV(lref_t x)
 
 /*** cons/free-cell ***/
 
-INLINE lref_t & _CAR(lref_t x)
+INLINE lref_t *_CAR(lref_t x)
 {
      checked_assert(CONSP(x));
-     return ((*x).storage_as.cons.car);
+     return &((*x).storage_as.cons.car);
 }
 
 INLINE lref_t CAR(lref_t x)
@@ -510,10 +510,10 @@ INLINE void SET_CAR(lref_t x, lref_t nv)
      ((*x).storage_as.cons.car) = nv;
 }
 
-INLINE lref_t & _CDR(lref_t x)
+INLINE lref_t *_CDR(lref_t x)
 {
      checked_assert(CONSP(x));
-     return ((*x).storage_as.cons.cdr);
+     return &((*x).storage_as.cons.cdr);
 }
 
 INLINE lref_t CDR(lref_t x)
@@ -559,11 +559,11 @@ INLINE lref_t SET_NEXT_FREE_CELL(lref_t x, lref_t next)
 
 /*** fix/flonum ***/
 
-INLINE fixnum_t & _FIXNM(lref_t x)
+INLINE fixnum_t *_FIXNM(lref_t x)
 {
      checked_assert(FIXNUMP(x));
 
-     return ((*x).storage_as.fixnum.data);
+     return &((*x).storage_as.fixnum.data);
 }
 
 INLINE fixnum_t FIXNM(lref_t x)
@@ -651,10 +651,10 @@ INLINE lref_t VECTOR_ELEM(lref_t vec, fixnum_t index)
      return ((vec)->storage_as.vector.data[(index)]);
 }
 
-INLINE lref_t & _VECTOR_ELEM(lref_t vec, fixnum_t index)
+INLINE lref_t *_VECTOR_ELEM(lref_t vec, fixnum_t index)
 {
      checked_assert(VECTORP(vec));
-     return ((vec)->storage_as.vector.data[(index)]);
+     return &((vec)->storage_as.vector.data[(index)]);
 }
 
 INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
@@ -836,13 +836,13 @@ INLINE void SET_PACKAGE_USE_LIST(lref_t x, lref_t use_list)
 }
 
 /*** subr ***/
-INLINE subr_arity_t SUBR_TYPE(lref_t x)
+INLINE enum subr_arity_t SUBR_TYPE(lref_t x)
 {
      checked_assert(SUBRP(x));
      return (((*x).storage_as.subr.type));
 }
 
-INLINE void SET_SUBR_TYPE(lref_t x, subr_arity_t type)
+INLINE void SET_SUBR_TYPE(lref_t x, enum subr_arity_t type)
 {
      checked_assert(SUBRP(x));
      (((*x).storage_as.subr.type)) = type;
@@ -1008,13 +1008,13 @@ INLINE size_t HASH_SIZE(lref_t obj)
      return HASH_MASK(obj) + 1;
 }
 
-INLINE hash_entry_t *HASH_DATA(lref_t obj)
+INLINE struct hash_entry_t *HASH_DATA(lref_t obj)
 {
      checked_assert(HASHP(obj));
      return ((obj)->storage_as.hash.data);
 }
 
-INLINE hash_entry_t *SET_HASH_DATA(lref_t obj, hash_entry_t * data)
+INLINE struct hash_entry_t *SET_HASH_DATA(lref_t obj, struct hash_entry_t * data)
 {
      checked_assert(HASHP(obj));
      return ((obj)->storage_as.hash.data) = data;
@@ -1059,13 +1059,13 @@ INLINE void SET_FASL_READER_PORT(lref_t obj, lref_t port)
      ((obj)->storage_as.fasl_reader.port) = port;
 }
 
-INLINE fasl_stream_t *FASL_READER_STREAM(lref_t obj)
+INLINE struct fasl_stream_t *FASL_READER_STREAM(lref_t obj)
 {
      checked_assert(FASL_READER_P(obj));
      return ((obj)->storage_as.fasl_reader.stream);
 }
 
-INLINE void SET_FASL_READER_STREAM(lref_t obj, fasl_stream_t *stream)
+INLINE void SET_FASL_READER_STREAM(lref_t obj, struct fasl_stream_t *stream)
 {
      checked_assert(FASL_READER_P(obj));
      ((obj)->storage_as.fasl_reader.stream) = stream;
@@ -1113,7 +1113,7 @@ struct port_info_t
      void *user_data;
      lref_t user_object;
 
-     port_mode_t mode;
+     enum port_mode_t mode;
 
      size_t bytes_read;
 };
@@ -1132,49 +1132,49 @@ struct port_class_t
      size_t (* length)      (lref_t port);
 };
 
-INLINE port_info_t *PORT_PINFO(lref_t x)
+INLINE struct port_info_t *PORT_PINFO(lref_t x)
 {
      checked_assert(PORTP(x));
      return (((*x).storage_as.port.pinf));
 }
 
-INLINE port_info_t *SET_PORT_PINFO(lref_t x, port_info_t * pinf)
+INLINE struct port_info_t *SET_PORT_PINFO(lref_t x, struct port_info_t * pinf)
 {
      checked_assert(PORTP(x));
      return (((*x).storage_as.port.pinf)) = pinf;
 }
 
-INLINE port_class_t *PORT_CLASS(lref_t x)
+INLINE struct port_class_t *PORT_CLASS(lref_t x)
 {
      checked_assert(PORTP(x));
      return (((*x).storage_as.port.klass));
 }
 
-INLINE port_class_t *SET_PORT_CLASS(lref_t x, port_class_t * klass)
+INLINE struct port_class_t *SET_PORT_CLASS(lref_t x, struct port_class_t * klass)
 {
      checked_assert(PORTP(x));
      return (((*x).storage_as.port.klass)) = klass;
 }
 
-INLINE port_text_info_t *PORT_TEXT_INFO(lref_t x)
+INLINE struct port_text_info_t *PORT_TEXT_INFO(lref_t x)
 {
      checked_assert(PORTP(x));
      return (((*x).storage_as.port.text_info));
 }
 
-INLINE void SET_PORT_TEXT_INFO(lref_t x, port_text_info_t * text_info)
+INLINE void SET_PORT_TEXT_INFO(lref_t x, struct port_text_info_t * text_info)
 {
      checked_assert(PORTP(x));
      (((*x).storage_as.port.text_info)) = text_info;
 }
 
-INLINE port_mode_t PORT_MODE(lref_t x)
+INLINE enum port_mode_t PORT_MODE(lref_t x)
 {
      checked_assert(PORTP(x));
      return PORT_PINFO(x)->mode;
 }
 
-INLINE void SET_PORT_MODE(lref_t x, port_mode_t mode)
+INLINE void SET_PORT_MODE(lref_t x, enum port_mode_t mode)
 {
      checked_assert(PORTP(x));
      PORT_PINFO(x)->mode = mode;

@@ -14,8 +14,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
 /*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
 INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
 {
@@ -206,7 +204,7 @@ lref_t lsxhash(lref_t obj, lref_t hash)       /*  if hash is bound, lsxhash matc
      if (!NULLP(hash))
      {
           if (!HASHP(hash))
-               vmerror_wrong_type(2, hash);
+               vmerror_wrong_type_n(2, hash);
 
           shallow = HASH_SHALLOW(hash);
      }
@@ -439,7 +437,7 @@ bool hash_ref(lref_t hash, lref_t key, lref_t *value_result)
 lref_t lhash_refs(lref_t hash, lref_t key)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      hash_entry_t *entry = hash_lookup_entry(hash, key);
 
@@ -466,7 +464,7 @@ lref_t lhash_ref(size_t argc, lref_t argv[])
           defaultValue = argv[2];
 
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      hash_entry_t *entry = hash_lookup_entry(hash, key);
 
@@ -479,7 +477,7 @@ lref_t lhash_ref(size_t argc, lref_t argv[])
 lref_t lhash_hasp(lref_t hash, lref_t key)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      if (hash_lookup_entry(hash, key) == NULL)
           return boolcons(false);
@@ -528,7 +526,7 @@ lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
 lref_t lhash_set(lref_t hash, lref_t key, lref_t value)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      return hash_set(hash, key, value, true);
 }
@@ -536,7 +534,7 @@ lref_t lhash_set(lref_t hash, lref_t key, lref_t value)
 lref_t lhash_remove(lref_t hash, lref_t key)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      hash_entry_t *entry = hash_lookup_entry(hash, key);
 
@@ -552,7 +550,7 @@ lref_t lhash_remove(lref_t hash, lref_t key)
 lref_t lhash_clear(lref_t hash)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      SET_HASH_COUNT(hash, 0);
      clear_hash_data(HASH_DATA(hash), HASH_SIZE(hash));
@@ -571,7 +569,7 @@ lref_t lhash_clear(lref_t hash)
 lref_t lihash_binding_vector(lref_t hash)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      size_t hash_size = HASH_SIZE(hash);
 
@@ -596,7 +594,7 @@ lref_t lihash_binding_vector(lref_t hash)
 static bool init_slots(lref_t obj, lref_t initargs)
 {
      if (!HASHP(obj))
-          vmerror_wrong_type(1, obj);
+          vmerror_wrong_type_n(1, obj);
 
      /* initargs takes the form of a property list:
       *
@@ -621,7 +619,7 @@ static bool init_slots(lref_t obj, lref_t initargs)
 lref_t llist2hash(lref_t obj)
 {
      if (!(CONSP(obj) || NULLP(obj)))
-          vmerror_wrong_type(1, obj);
+          vmerror_wrong_type_n(1, obj);
 
      lref_t key_type = lcar(obj);
      lref_t bindings = lcdr(obj);
@@ -638,7 +636,7 @@ lref_t llist2hash(lref_t obj)
 lref_t lhash2alist(lref_t hash)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      lref_t a_list = NIL;
 
@@ -655,7 +653,7 @@ lref_t lhash2alist(lref_t hash)
 lref_t lhash2list(lref_t hash)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(1, hash);
+          vmerror_wrong_type_n(1, hash);
 
      lref_t new_list = NIL;
 
@@ -683,7 +681,7 @@ lref_t lhash_type(lref_t hash)
 lref_t lhash_copy(lref_t hash)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type(hash);
+          vmerror_wrong_type_n(hash);
 
      lref_t target_hash = hashcons(HASH_SHALLOW(hash));
 
@@ -704,4 +702,3 @@ size_t hash_length(lref_t hash)
      return HASH_COUNT(hash);
 }
 
-END_NAMESPACE

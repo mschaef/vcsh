@@ -13,10 +13,7 @@
 
 #include "scan-sys.h"
 
-BEGIN_NAMESPACE(scan)
-
 #define CONST_C_IMPL
 #include "scan-constants.i"
 #undef CONST_C_IMPL
 
-END_NAMESPACE

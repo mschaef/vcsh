@@ -14,12 +14,11 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
 lref_t lsymbol_vcell(lref_t sym)
 {
      if (!SYMBOLP(sym))
-          vmerror_wrong_type(1, sym);
+          vmerror_wrong_type_n(1, sym);
 
      return SYMBOL_VCELL(sym);
 }
@@ -27,7 +26,7 @@ lref_t lsymbol_vcell(lref_t sym)
 lref_t lset_symbol_vcell(lref_t sym, lref_t val)
 {
      if (!SYMBOLP(sym))
-          vmerror_wrong_type(1, sym);
+          vmerror_wrong_type_n(1, sym);
 
      SET_SYMBOL_VCELL(sym, val);
 
@@ -60,4 +59,3 @@ lref_t lidefine_global(lref_t var, lref_t val)
 }
 
 
-END_NAMESPACE

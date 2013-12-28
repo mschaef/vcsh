@@ -25,8 +25,6 @@
 #include "scan-private.h"
 #include "mt19937.h"
 
-BEGIN_NAMESPACE(scan)
-
 /**************************************************************
  * Numeric data type implementations
  */
@@ -85,7 +83,7 @@ double get_c_double(lref_t x)
 fixnum_t get_c_fixnum(lref_t x)   /*  REVISIT: how should this handle inan, ineginf, & iposinf */
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(x);
+          vmerror_wrong_type_n(x);
 
      if (FIXNUMP(x))
           return FIXNM(x);
@@ -96,7 +94,7 @@ fixnum_t get_c_fixnum(lref_t x)   /*  REVISIT: how should this handle inan, ineg
 flonum_t get_c_flonum(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(x);
+          vmerror_wrong_type_n(x);
 
      if (FLONUMP(x))
           return (FLONM(x));
@@ -107,7 +105,7 @@ flonum_t get_c_flonum(lref_t x)
 flonum_t get_c_flonum_im(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(x);
+          vmerror_wrong_type_n(x);
 
      if (FIXNUMP(x))
           return 0.0;
@@ -210,7 +208,7 @@ lref_t linfinitep(lref_t x)
 lref_t lexact2inexact(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      return FIXNUMP(x) ? flocons((flonum_t) FIXNM(x)) : x;
 }
@@ -218,7 +216,7 @@ lref_t lexact2inexact(lref_t x)
 lref_t linexact2exact(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (FIXNUMP(x))
           return x;
@@ -282,7 +280,7 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
     switch (type)                                                                   \
     {                                                                               \
     case INVALID:                                                                   \
-      vmerror_wrong_type(lista(argc, argv));                                        \
+      vmerror_wrong_type_n(lista(argc, argv));                                        \
       break;                                                                        \
                                                                                     \
     case CHARACTER:                                                                 \
@@ -336,13 +334,13 @@ MAKE_NUMBER_COMPARISON_FN(lnum_lt, <, "<");
 lref_t ladd(lref_t x, lref_t y)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (NULLP(y))
           return x;
 
      if (!NUMBERP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      if (COMPLEXP(x) || COMPLEXP(y))
           return cmplxcons(get_c_flonum(x) + get_c_flonum(y),
@@ -363,13 +361,13 @@ lref_t ladd(lref_t x, lref_t y)
 lref_t lmultiply(lref_t x, lref_t y)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (NULLP(y))
           return x;
 
      if (!NUMBERP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      if (COMPLEXP(x) || COMPLEXP(y))
      {
@@ -416,7 +414,7 @@ lref_t lmultiply(lref_t x, lref_t y)
 lref_t lsubtract(lref_t x, lref_t y)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (NULLP(y))
      {
@@ -434,7 +432,7 @@ lref_t lsubtract(lref_t x, lref_t y)
      }
 
      if (!NUMBERP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      if (COMPLEXP(x) || COMPLEXP(y))
           return cmplxcons(get_c_flonum(x) - get_c_flonum(y),
@@ -456,7 +454,7 @@ lref_t lsubtract(lref_t x, lref_t y)
 lref_t ldivide(lref_t x, lref_t y)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (NULLP(y))
      {
@@ -474,7 +472,7 @@ lref_t ldivide(lref_t x, lref_t y)
      }
 
      if (!NUMBERP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      if (COMPLEXP(x) || COMPLEXP(y))
      {
@@ -501,10 +499,10 @@ static flonum_t truncate(flonum_t x)
 lref_t lquotient(lref_t x, lref_t y)
 {
      if (!REALP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!REALP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      if (FIXNUMP(x) && FIXNUMP(y))
      {
@@ -531,10 +529,10 @@ lref_t lquotient(lref_t x, lref_t y)
 lref_t lremainder(lref_t x, lref_t y)
 {
      if (!REALP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!REALP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      if (FIXNUMP(x) && FIXNUMP(y))
      {
@@ -559,10 +557,10 @@ lref_t lremainder(lref_t x, lref_t y)
 lref_t lmodulo(lref_t x, lref_t y)
 {
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!FIXNUMP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      fixnum_t yf = FIXNM(y);
      fixnum_t xf = FIXNM(x);
@@ -587,7 +585,7 @@ lref_t lmodulo(lref_t x, lref_t y)
 lref_t lfloor(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (FIXNUMP(x))
           return x;
@@ -598,7 +596,7 @@ lref_t lfloor(lref_t x)
 lref_t lceiling(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (FIXNUMP(x))
           return x;
@@ -614,10 +612,10 @@ double round(double n)
           return ((ceil(n) - n) >= 0.5) ? (ceil(n) - 1.0) : ceil(n);
 }
 
-lref_t lround(lref_t x)
+lref_t lroundnum(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (FIXNUMP(x))
           return x;
@@ -628,7 +626,7 @@ lref_t lround(lref_t x)
 lref_t ltruncate(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (FIXNUMP(x))
           return x;
@@ -641,7 +639,7 @@ lref_t ltruncate(lref_t x)
 lref_t lto_ieee754_bits(lref_t x)
 {
      if (!REALP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      double value = get_c_double(x);
 
@@ -659,7 +657,7 @@ lref_t lto_ieee754_bits(lref_t x)
 lref_t lieee754_bits_to(lref_t x)
 {
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      unsigned_fixnum_t bits = FIXNM(x);
 
@@ -682,10 +680,10 @@ lref_t lbitwise_and(lref_t x, lref_t y)
           return x;
 
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!FIXNUMP(y))
-          vmerror_wrong_type(2, x);
+          vmerror_wrong_type_n(2, x);
 
      return fixcons(FIXNM(x) & FIXNM(y));
 
@@ -697,10 +695,10 @@ lref_t lbitwise_or(lref_t x, lref_t y)
           return x;
 
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!FIXNUMP(y))
-          vmerror_wrong_type(2, x);
+          vmerror_wrong_type_n(2, x);
 
      return fixcons(FIXNM(x) | FIXNM(y));
 }
@@ -711,10 +709,10 @@ lref_t lbitwise_xor(lref_t x, lref_t y)
           return x;
 
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!FIXNUMP(y))
-          vmerror_wrong_type(2, x);
+          vmerror_wrong_type_n(2, x);
 
      return fixcons(FIXNM(x) ^ FIXNM(y));
 }
@@ -722,7 +720,7 @@ lref_t lbitwise_xor(lref_t x, lref_t y)
 lref_t lbitwise_not(lref_t x)
 {
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      return fixcons(~FIXNM(x));
 }
@@ -730,10 +728,10 @@ lref_t lbitwise_not(lref_t x)
 lref_t lbitwise_shl(lref_t x, lref_t n)
 {
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!FIXNUMP(n))
-          vmerror_wrong_type(2, n);
+          vmerror_wrong_type_n(2, n);
 
      fixnum_t bits = FIXNM(n);
 
@@ -757,10 +755,10 @@ lref_t lbitwise_shr(lref_t x, lref_t n)
      fixnum_t sx;
 
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!FIXNUMP(n))
-          vmerror_wrong_type(2, n);
+          vmerror_wrong_type_n(2, n);
 
      fixnum_t bits = FIXNM(n);
 
@@ -779,10 +777,10 @@ lref_t lbitwise_shr(lref_t x, lref_t n)
 lref_t lbitwise_ashr(lref_t x, lref_t n)
 {
      if (!FIXNUMP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      if (!FIXNUMP(n))
-          vmerror_wrong_type(2, n);
+          vmerror_wrong_type_n(2, n);
 
      fixnum_t bits = FIXNM(n);
 
@@ -900,9 +898,9 @@ lref_t lexpt(lref_t x, lref_t y)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      if (!NUMBERP(x))
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
      if (!NUMBERP(y))
-          vmerror_wrong_type(2, y);
+          vmerror_wrong_type_n(2, y);
 
      return (flocons(pow(get_c_double(x), get_c_double(y))));
 }
@@ -912,10 +910,10 @@ lref_t lexpt(lref_t x, lref_t y)
 lref_t lmake_rectangular(lref_t re, lref_t im)
 {
      if (!(REALP(re) || FIXNUMP(re)))
-          vmerror_wrong_type(1, re);
+          vmerror_wrong_type_n(1, re);
 
      if (!(REALP(im) || FIXNUMP(im)))
-          vmerror_wrong_type(2, im);
+          vmerror_wrong_type_n(2, im);
 
      return cmplxcons(get_c_double(re), get_c_double(im));
 }
@@ -923,10 +921,10 @@ lref_t lmake_rectangular(lref_t re, lref_t im)
 lref_t lmake_polar(lref_t r, lref_t theta)
 {
      if (!(REALP(r) || FIXNUMP(r)))
-          vmerror_wrong_type(1, r);
+          vmerror_wrong_type_n(1, r);
 
      if (!(REALP(theta) || FIXNUMP(theta)))
-          vmerror_wrong_type(2, theta);
+          vmerror_wrong_type_n(2, theta);
 
      flonum_t fr = get_c_double(r);
      flonum_t thetar = get_c_double(theta);
@@ -940,7 +938,7 @@ lref_t lreal_part(lref_t cmplx)
           return cmplx;
 
      if (!COMPLEXP(cmplx))
-          vmerror_wrong_type(1, cmplx);
+          vmerror_wrong_type_n(1, cmplx);
 
      return flocons(FLONM(cmplx));
 }
@@ -948,7 +946,7 @@ lref_t lreal_part(lref_t cmplx)
 lref_t limag_part(size_t argc, lref_t argv[])
 {
      if (argc < 1)
-          vmerror_wrong_type(NIL);
+          vmerror_wrong_type_n(NIL);
 
      lref_t cmplx = argv[0];
 
@@ -956,7 +954,7 @@ lref_t limag_part(size_t argc, lref_t argv[])
           return (argc > 1) ? argv[1] : fixcons(0);
 
      if (!FLONUMP(cmplx))
-          vmerror_wrong_type(cmplx);
+          vmerror_wrong_type_n(cmplx);
 
      if (NULLP(FLOIM(cmplx)))
           return (argc > 1) ? argv[1] :flocons(0.0);
@@ -968,7 +966,7 @@ lref_t limag_part(size_t argc, lref_t argv[])
 lref_t langle(lref_t cmplx)
 {
      if (!NUMBERP(cmplx))
-          vmerror_wrong_type(1, cmplx);
+          vmerror_wrong_type_n(1, cmplx);
 
      return flocons(atan2(get_c_flonum_im(cmplx), get_c_flonum(cmplx)));
 }
@@ -980,7 +978,7 @@ lref_t lmagnitude(lref_t cmplx)
      else if (REALP(cmplx))
           return (FLONM(cmplx) < 0) ? flocons(-FLONM(cmplx)) : cmplx;
      else if (!COMPLEXP(cmplx))
-          vmerror_wrong_type(1, cmplx);
+          vmerror_wrong_type_n(1, cmplx);
 
      flonum_t xr = get_c_flonum(cmplx);
      flonum_t xi = get_c_flonum_im(cmplx);
@@ -1005,7 +1003,7 @@ lref_t lrandom(lref_t n)            /*  TESTTHIS */
           return fixcons(mt19937_int64() % range);
      }
      else if (!FLONUMP(n))
-          vmerror_wrong_type(1, n);
+          vmerror_wrong_type_n(1, n);
 
      flonum_t re_range = get_c_flonum(n);
      flonum_t im_range = get_c_flonum_im(n);
@@ -1029,11 +1027,10 @@ lref_t lset_random_seed(lref_t s)
      else if (FIXNUMP(s))
           seed = FIXNM(s);
      else
-          vmerror_wrong_type(1, s);
+          vmerror_wrong_type_n(1, s);
 
      init_mt19937((unsigned long) seed);
 
      return fixcons(seed);
 }
 
-END_NAMESPACE

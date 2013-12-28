@@ -15,7 +15,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
 static bool valid_proto_p(lref_t proto)
 {
@@ -38,7 +37,7 @@ static lref_t next_instance(lref_t proto)
           return NIL;
 
      if (!INSTANCEP(proto))
-          vmerror_wrong_type(proto);
+          vmerror_wrong_type_n(proto);
 
      return INSTANCE_PROTO(proto);
 }
@@ -46,7 +45,7 @@ static lref_t next_instance(lref_t proto)
 lref_t liinstancecons(lref_t proto)
 {
      if (!valid_proto_p(proto))
-          vmerror_wrong_type(1, proto);
+          vmerror_wrong_type_n(1, proto);
 
      lref_t new_instance = new_cell(TC_INSTANCE);
 
@@ -81,7 +80,7 @@ lref_t linstancep(lref_t inst)
 lref_t liinstance_proto(lref_t inst)
 {
      if (!INSTANCEP(inst))
-          vmerror_wrong_type(1, inst);
+          vmerror_wrong_type_n(1, inst);
 
      return INSTANCE_PROTO(inst);
 }
@@ -89,7 +88,7 @@ lref_t liinstance_proto(lref_t inst)
 lref_t liinstance_slots(lref_t inst)
 {
      if (!INSTANCEP(inst))
-          vmerror_wrong_type(1, inst);
+          vmerror_wrong_type_n(1, inst);
 
      return INSTANCE_SLOTS(inst);
 }
@@ -97,10 +96,10 @@ lref_t liinstance_slots(lref_t inst)
 lref_t liset_instance_proto(lref_t inst, lref_t new_proto)
 {
      if (!INSTANCEP(inst))
-          vmerror_wrong_type(1, inst);
+          vmerror_wrong_type_n(1, inst);
 
      if (!valid_proto_p(new_proto))
-          vmerror_wrong_type(2, new_proto);
+          vmerror_wrong_type_n(2, new_proto);
 
      SET_INSTANCE_PROTO(inst, new_proto);
 
@@ -110,7 +109,7 @@ lref_t liset_instance_proto(lref_t inst, lref_t new_proto)
 lref_t lifind_slot_instance(lref_t inst, lref_t key)
 {
      if (!INSTANCEP(inst))
-          vmerror_wrong_type(1, inst);
+          vmerror_wrong_type_n(1, inst);
 
      lref_t val = NIL;
 
@@ -128,7 +127,7 @@ lref_t lifind_slot_instance(lref_t inst, lref_t key)
 lref_t lislot_ref(lref_t inst, lref_t key)
 {
      if (!INSTANCEP(inst))
-          vmerror_wrong_type(1, inst);
+          vmerror_wrong_type_n(1, inst);
 
      lref_t val = NIL;
 
@@ -141,11 +140,10 @@ lref_t lislot_ref(lref_t inst, lref_t key)
 lref_t lislot_set(lref_t inst, lref_t key, lref_t value)
 {
      if (!INSTANCEP(inst))
-          vmerror_wrong_type(1, inst);
+          vmerror_wrong_type_n(1, inst);
 
      lhash_set(INSTANCE_SLOTS(inst), key, value);
 
      return inst;
 }
 
-END_NAMESPACE

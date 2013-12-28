@@ -23,20 +23,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <time.h>
 
 #include "scan-sys.h"
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
-static sys_retcode_t rc_to_sys_retcode_t(int rc);
-static sys_retcode_t sys_init_time();
+static enum sys_retcode_t rc_to_sys_retcode_t(int rc);
+static enum sys_retcode_t sys_init_time();
 
 static uint8_t *sys_stack_start;
 
 uint8_t *stack_limit_obj;
 
-sys_retcode_t sys_init()
+enum sys_retcode_t sys_init()
 {
      int stack_location;
 
@@ -59,7 +58,7 @@ _TCHAR **sys_get_env_vars()
      return environ;
 }
 
-sys_retcode_t sys_setenv(_TCHAR * varname, _TCHAR * value)
+enum sys_retcode_t sys_setenv(_TCHAR * varname, _TCHAR * value)
 {
      if (setenv(varname, value, 1)) /* 1 == always overwrite */
           return rc_to_sys_retcode_t(errno);
@@ -72,9 +71,9 @@ struct sys_dir_t
      DIR *_dir;
 };
 
-sys_retcode_t sys_opendir(const char *path, sys_dir_t ** dir)
+enum sys_retcode_t sys_opendir(const char *path, struct sys_dir_t ** dir)
 {
-     *dir = (sys_dir_t *) gc_malloc(sizeof(sys_dir_t));
+     *dir = (struct sys_dir_t *) gc_malloc(sizeof(struct sys_dir_t));
 
      if (*dir == NULL)
           return SYS_E_OUT_OF_MEMORY;
@@ -93,7 +92,9 @@ sys_retcode_t sys_opendir(const char *path, sys_dir_t ** dir)
 }
 
 
-sys_retcode_t sys_readdir(sys_dir_t * dir, sys_dirent_t * ent, bool * done)
+enum sys_retcode_t sys_readdir(struct sys_dir_t * dir,
+                               struct sys_dirent_t * ent,
+                               bool * done)
 {
      struct dirent *sent;
 
@@ -152,7 +153,7 @@ sys_retcode_t sys_readdir(sys_dir_t * dir, sys_dirent_t * ent, bool * done)
      return SYS_OK;
 }
 
-sys_retcode_t sys_closedir(sys_dir_t * dir)
+enum sys_retcode_t sys_closedir(struct sys_dir_t * dir)
 {
      DIR *d = dir->_dir;
 
@@ -173,7 +174,7 @@ const char *filename_beginning(const char *path)
      return beg;
 }
 
-sys_retcode_t sys_stat(const char *path, sys_stat_t * buf)
+enum sys_retcode_t sys_stat(const char *path, struct sys_stat_t * buf)
 {
      struct stat sbuf;
 
@@ -198,7 +199,7 @@ sys_retcode_t sys_stat(const char *path, sys_stat_t * buf)
      buf->_attrs = SYS_FATTR_NONE;
 
      if (*filename_beginning(path) == '.')
-          buf->_attrs = (sys_file_attrs_t) (buf->_attrs | SYS_FATTR_HIDDEN);
+          buf->_attrs = (enum sys_file_attrs_t) (buf->_attrs | SYS_FATTR_HIDDEN);
 
      buf->_mode = sbuf.st_mode & ~S_IFMT;
 
@@ -210,7 +211,9 @@ sys_retcode_t sys_stat(const char *path, sys_stat_t * buf)
      return SYS_OK;
 }
 
-sys_retcode_t sys_temporary_filename(_TCHAR * prefix, _TCHAR * buf, size_t buflen)
+enum sys_retcode_t sys_temporary_filename(_TCHAR * prefix,
+                                          _TCHAR * buf,
+                                          size_t buflen)
 {
      char *name = tempnam(NULL, prefix);
 
@@ -233,7 +236,7 @@ sys_retcode_t sys_temporary_filename(_TCHAR * prefix, _TCHAR * buf, size_t bufle
      }
 }
 
-sys_retcode_t sys_delete_file(_TCHAR * filename)
+enum sys_retcode_t sys_delete_file(_TCHAR * filename)
 {
      if (unlink(filename))
           return rc_to_sys_retcode_t(errno);
@@ -250,9 +253,10 @@ static double runtime_offset = 0.0;   /* timebase offset to interp start */
 
 static double sys_timebase_time(void);
 
-static sys_retcode_t sys_init_time()
+static enum sys_retcode_t sys_init_time()
 {
-     tzset(); /* REVISIT: provide a way to automatically call this if TZ changes. */
+     /* REVISIT: provide a way to automatically call this if TZ changes. */
+     tzset();
 
      /*  Record the current time so that we can get a measure of uptime */
      runtime_offset = sys_timebase_time();
@@ -298,7 +302,7 @@ double sys_timezone_offset() /* REVISIT: Verify that this has correct time/date 
  * System Information
  */
 
-sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len)
+enum sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len)
 {
      if (gethostname(buf, len))
           return rc_to_sys_retcode_t(errno);
@@ -306,7 +310,7 @@ sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len)
      return SYS_OK;
 }
 
-void sys_get_info(sys_info_t * info)
+void sys_get_info(struct sys_info_t * info)
 {
      info->_eoln = SYS_EOLN_LF;
      info->_fs_names_case_sensitive = true;
@@ -317,7 +321,7 @@ void sys_get_info(sys_info_t * info)
  * Error Code Mapping
  */
 
-static sys_retcode_t rc_to_sys_retcode_t(int rc)
+static enum sys_retcode_t rc_to_sys_retcode_t(int rc)
 {
      switch (rc)
      {
@@ -439,4 +443,3 @@ void sys_sleep(uintptr_t duration_ms)
 
 
 
-END_NAMESPACE

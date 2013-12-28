@@ -18,7 +18,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
 lref_t liimmediate_p(lref_t obj)
 {
@@ -62,7 +61,7 @@ lref_t leql(lref_t x, lref_t y)
 
 bool equalp(lref_t a, lref_t b)
 {
-     typecode_t atype;
+     enum typecode_t atype;
 
      STACK_CHECK(&a);
 
@@ -143,7 +142,7 @@ lref_t litypecode(lref_t obj)
 lref_t lsubr_type_code(lref_t subr)
 {
      if (!SUBRP(subr))
-          vmerror_wrong_type(1, subr);
+          vmerror_wrong_type_n(1, subr);
 
      return fixcons(SUBR_TYPE(subr));
 }
@@ -151,12 +150,12 @@ lref_t lsubr_type_code(lref_t subr)
 lref_t lsubr_name(lref_t subr)
 {
      if (!SUBRP(subr))
-          vmerror_wrong_type(1, subr);
+          vmerror_wrong_type_n(1, subr);
 
      return SUBR_NAME(subr);
 }
 
-lref_t subrcons(subr_arity_t type, lref_t name, void *implementation)
+lref_t subrcons(enum subr_arity_t type, lref_t name, void *implementation)
 {
      lref_t z = new_cell(TC_SUBR);
 
@@ -172,7 +171,7 @@ lref_t subrcons(subr_arity_t type, lref_t name, void *implementation)
  * with the current package
  */
 
-void register_subr(const _TCHAR * name, subr_arity_t arity, void *implementation)
+void register_subr(const _TCHAR * name, enum subr_arity_t arity, void *implementation)
 {
      assert(HASHP(interp.subr_table));
      assert(name != NULL);
@@ -211,7 +210,7 @@ lref_t lclosurecons(lref_t env, lref_t code, lref_t property_list)
      lref_t z = new_cell(TC_CLOSURE);
 
      if (!(CONSP(code) || NULLP(code)))
-          vmerror_wrong_type(2, code);
+          vmerror_wrong_type_n(2, code);
 
      SET_CLOSURE_ENV(z, env);
      SET_CLOSURE_CODE(z, code);
@@ -264,7 +263,7 @@ lref_t lset_property_list(lref_t exp, lref_t property_list)
           SET_SYMBOL_PROPS(exp, property_list);
      else
      {
-          vmerror_wrong_type(1, exp);
+          vmerror_wrong_type_n(1, exp);
           return NIL;           /*  unreached. */
      }
 
@@ -313,7 +312,7 @@ lref_t lprocedurep(lref_t exp)
 static size_t get_control_field_id(lref_t control_field_id)
 {
      if (!FIXNUMP(control_field_id))
-          vmerror_wrong_type(1, control_field_id);
+          vmerror_wrong_type_n(1, control_field_id);
 
      size_t id = (size_t)FIXNM(control_field_id);
 
@@ -371,9 +370,9 @@ lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t next)
 lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2, lref_t next)
 {
      if (!FIXNUMP(opcode))
-          vmerror_wrong_type(1, opcode);
+          vmerror_wrong_type_n(1, opcode);
      if (!FAST_OP_P(next) && !NULLP(next))
-          vmerror_wrong_type(2, next);
+          vmerror_wrong_type_n(2, next);
 
      return fast_op(FIXNM(opcode), arg1, arg2, next);
 }
@@ -381,7 +380,7 @@ lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2, lref_t next)
 lref_t lfast_op_opcode(lref_t fastop)
 {
      if (!FAST_OP_P(fastop))
-          vmerror_wrong_type(1, fastop);
+          vmerror_wrong_type_n(1, fastop);
 
      return fixcons(FAST_OP_OPCODE(fastop));
 }
@@ -389,7 +388,7 @@ lref_t lfast_op_opcode(lref_t fastop)
 lref_t lfast_op_args(lref_t fast_op)
 {
      if (!FAST_OP_P(fast_op))
-          vmerror_wrong_type(1, fast_op);
+          vmerror_wrong_type_n(1, fast_op);
 
      return listn(2, FAST_OP_ARG1(fast_op), FAST_OP_ARG2(fast_op));
 }
@@ -397,7 +396,7 @@ lref_t lfast_op_args(lref_t fast_op)
 lref_t lfast_op_next(lref_t fast_op)
 {
      if (!FAST_OP_P(fast_op))
-          vmerror_wrong_type(1, fast_op);
+          vmerror_wrong_type_n(1, fast_op);
 
      return FAST_OP_NEXT(fast_op);
 }
@@ -423,4 +422,3 @@ bool fast_op_equal(lref_t a, lref_t b)
 }
 
 
-END_NAMESPACE

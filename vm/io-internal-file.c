@@ -14,7 +14,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 struct c_data_port_state
 {
      unsigned char *buf;
@@ -105,7 +104,7 @@ void register_internal_file(internal_file_t *data)
 lref_t lclone_c_data_port(lref_t port)
 {
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      if (PORT_CLASS(port) != &c_data_port_class)
           vmerror_unsupported(_T("only c-data ports may be cloned"));
@@ -124,4 +123,3 @@ lref_t lclone_c_data_port(lref_t port)
 }
 
 
-END_NAMESPACE

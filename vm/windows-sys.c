@@ -31,7 +31,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
   struct _sys_thread_context_t
   {
@@ -507,4 +506,3 @@ void sys_abnormally_terminate_vm(int rc)
   }
 
 
-END_NAMESPACE

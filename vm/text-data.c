@@ -22,8 +22,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
-
 /**************************************************************
  * Character
  */
@@ -35,7 +33,7 @@ lref_t charcons(_TCHAR ch)
 lref_t lchar2integer(lref_t s)
 {
      if (!CHARP(s))
-          vmerror_wrong_type(1, s);
+          vmerror_wrong_type_n(1, s);
 
      return fixcons(CHARV(s));
 }
@@ -51,7 +49,7 @@ lref_t lcharp(lref_t x)
 lref_t linteger2char(lref_t s)
 {
      if (!NUMBERP(s))
-          vmerror_wrong_type(1, s);
+          vmerror_wrong_type_n(1, s);
 
      fixnum_t c = get_c_fixnum(s);
 
@@ -219,10 +217,10 @@ lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer)
 lref_t lstring_ref(lref_t a, lref_t i)
 {
      if (!STRINGP(a))
-          vmerror_wrong_type(1, a);
+          vmerror_wrong_type_n(1, a);
 
      if (!FIXNUMP(i))
-          vmerror_wrong_type(2, i);
+          vmerror_wrong_type_n(2, i);
 
      fixnum_t k = get_c_fixnum(i);
 
@@ -235,10 +233,10 @@ lref_t lstring_ref(lref_t a, lref_t i)
 lref_t lstring_set(lref_t a, lref_t i, lref_t v)
 {
      if (!STRINGP(a))
-          vmerror_wrong_type(1, a);
+          vmerror_wrong_type_n(1, a);
 
      if (!FIXNUMP(i))
-          vmerror_wrong_type(2, i);
+          vmerror_wrong_type_n(2, i);
 
      fixnum_t k = get_c_fixnum(i);
 
@@ -250,7 +248,7 @@ lref_t lstring_set(lref_t a, lref_t i, lref_t v)
      else if (CHARP(v))
           STRING_DATA(a)[k] = CHARV(v);
      else
-          vmerror_wrong_type(3, v);
+          vmerror_wrong_type_n(3, v);
 
      return (a);
 }
@@ -281,7 +279,7 @@ lref_t lstring_append(size_t argc, lref_t argv[])
                     size += 1;
           }
           else
-               vmerror_wrong_type(ii, argv[ii]);
+               vmerror_wrong_type_n(ii, argv[ii]);
      }
 
      lref_t s = strcons((size_t) size, NULL);
@@ -325,7 +323,7 @@ lref_t lsubstring(lref_t str, lref_t start, lref_t end)
      size_t s, e;
 
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      s = get_c_long(start);
      e = NULLP(end) ? STRING_DIM(str) : get_c_long(end);
@@ -351,7 +349,7 @@ size_t get_string_offset(lref_t maybe_ofs)
           return 0;
 
      if (!NUMBERP(maybe_ofs))
-          vmerror_wrong_type(maybe_ofs);
+          vmerror_wrong_type_n(maybe_ofs);
 
      long ofs = get_c_long(maybe_ofs);
 
@@ -364,9 +362,9 @@ size_t get_string_offset(lref_t maybe_ofs)
 lref_t lstring_search(lref_t tok, lref_t str, lref_t maybe_initial_ofs) /*  REVISIT: to Knuth-Morris-Pratt */
 {
      if (!STRINGP(tok) && !CHARP(tok))
-          vmerror_wrong_type(1, tok);
+          vmerror_wrong_type_n(1, tok);
      if (!STRINGP(str))
-          vmerror_wrong_type(2, str);
+          vmerror_wrong_type_n(2, str);
 
      if (CHARP(tok))
           tok = strcons(CHARV(tok));
@@ -397,9 +395,9 @@ lref_t lstring_search_from_right(lref_t tok, lref_t str, lref_t maybe_from)
 {
 
      if (!STRINGP(tok) && !CHARP(tok))
-          vmerror_wrong_type(1, tok);
+          vmerror_wrong_type_n(1, tok);
      if (!STRINGP(str))
-          vmerror_wrong_type(2, str);
+          vmerror_wrong_type_n(2, str);
 
      if (CHARP(tok))
           tok = strcons(CHARV(tok));
@@ -441,14 +439,14 @@ lref_t lstring_search_from_right(lref_t tok, lref_t str, lref_t maybe_from)
 lref_t lstring_trim(lref_t str, lref_t tc)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      const _TCHAR *trim_chars = _T(" \t\r\n");
 
      if (!NULLP(tc))
      {
           if (!STRINGP(tc))
-               vmerror_wrong_type(2, str);
+               vmerror_wrong_type_n(2, str);
 
           trim_chars = get_c_string(tc);
      }
@@ -469,14 +467,14 @@ lref_t lstring_trim(lref_t str, lref_t tc)
 lref_t lstring_trim_left(lref_t str, lref_t tc)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      const _TCHAR *trim_chars = _T(" \t\r\n");
 
      if (!NULLP(tc))
      {
           if (!STRINGP(tc))
-               vmerror_wrong_type(2, str);
+               vmerror_wrong_type_n(2, str);
 
           trim_chars = get_c_string(tc);
      }
@@ -492,14 +490,14 @@ lref_t lstring_trim_left(lref_t str, lref_t tc)
 lref_t lstring_trim_right(lref_t str, lref_t tc)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      const _TCHAR *trim_chars = _T(" \t\r\n");
 
      if (!NULLP(tc))
      {
           if (!STRINGP(tc))
-               vmerror_wrong_type(2, str);
+               vmerror_wrong_type_n(2, str);
 
           trim_chars = get_c_string(tc);
      }
@@ -519,7 +517,7 @@ lref_t lstring_trim_right(lref_t str, lref_t tc)
 lref_t lstring_upcased(lref_t str)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      for (size_t loc = 0; loc < STRING_DIM(str); loc++)
           if (_istlower(STRING_DATA(str)[loc]))
@@ -531,7 +529,7 @@ lref_t lstring_upcased(lref_t str)
 lref_t lstring_upcase(lref_t str)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      return lstring_upcased(strcons(str));
 }
@@ -539,7 +537,7 @@ lref_t lstring_upcase(lref_t str)
 lref_t lstring_downcased(lref_t str)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      for (size_t loc = 0; loc < STRING_DIM(str); loc++)
           if (_istupper(STRING_DATA(str)[loc]))
@@ -551,7 +549,7 @@ lref_t lstring_downcased(lref_t str)
 lref_t lstring_downcase(lref_t str)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      return lstring_downcased(strcons(str));
 }
@@ -569,7 +567,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
           if (FIXNUMP(r))
                radix = get_c_fixnum(r);
           else
-               vmerror_wrong_type(2, r);
+               vmerror_wrong_type_n(2, r);
      }
 
      if (!NULLP(s))
@@ -577,7 +575,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
           if (BOOLP(s))
                signedp = BOOLV(s);
           else
-               vmerror_wrong_type(3, s);
+               vmerror_wrong_type_n(3, s);
      }
 
      int digits = DEBUG_FLONUM_PRINT_PRECISION;
@@ -585,7 +583,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
      if (!NULLP(p))
      {
           if (!FIXNUMP(p))
-               vmerror_wrong_type(4, p);
+               vmerror_wrong_type_n(4, p);
 
           digits = (int) get_c_fixnum(p);
 
@@ -675,7 +673,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
           }
      }
      else
-          vmerror_wrong_type(1, x);
+          vmerror_wrong_type_n(1, x);
 
      return NIL;
 }
@@ -716,12 +714,12 @@ lref_t lstring2number(lref_t s, lref_t r)
      flonum_t flo_result = 0;
 
      if (!STRINGP(s))
-          vmerror_wrong_type(1, s);
+          vmerror_wrong_type_n(1, s);
 
      if (!NULLP(r))
      {
           if (!FIXNUMP(r))
-               vmerror_wrong_type(2, r);
+               vmerror_wrong_type_n(2, r);
 
           radix_specified = true;
 
@@ -759,9 +757,9 @@ lref_t lisp_strcmp(lref_t s1, lref_t s2)
      size_t loc;
 
      if (!STRINGP(s1))
-          vmerror_wrong_type(1, s1);
+          vmerror_wrong_type_n(1, s1);
      if (!STRINGP(s2))
-          vmerror_wrong_type(2, s2);
+          vmerror_wrong_type_n(2, s2);
 
      for (loc = 0; (loc < STRING_DIM(s1)) && (loc < STRING_DIM(s2)); loc++)
      {
@@ -798,10 +796,10 @@ lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_o
      /*  REVISIT: string-first-char should take args in same order as string-search */
 
      if (!STRINGP(string))
-          vmerror_wrong_type(1, string);
+          vmerror_wrong_type_n(1, string);
 
      if (!VECTORP(char_set))
-          vmerror_wrong_type(2, char_set);
+          vmerror_wrong_type_n(2, char_set);
 
      if (VECTOR_DIM(char_set) != _TCHAR_MAX)
           vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
@@ -823,10 +821,10 @@ lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_init
      /*  REVISIT: string-first-string should take args in same order as string-search */
 
      if (!STRINGP(string))
-          vmerror_wrong_type(1, string);
+          vmerror_wrong_type_n(1, string);
 
      if (!VECTORP(char_set))
-          vmerror_wrong_type(2, char_set);
+          vmerror_wrong_type_n(2, char_set);
 
      if (VECTOR_DIM(char_set) != _TCHAR_MAX)
           vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
@@ -852,7 +850,7 @@ lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_init
 lref_t lstring_copy(lref_t string)
 {
      if (!STRINGP(string))
-          vmerror_wrong_type(1, string);
+          vmerror_wrong_type_n(1, string);
 
      return strcons(string);
 }
@@ -860,7 +858,7 @@ lref_t lstring_copy(lref_t string)
 lref_t lcharacter2string(lref_t obj)
 {
      if (!CHARP(obj))
-          vmerror_wrong_type(1, obj);
+          vmerror_wrong_type_n(1, obj);
 
      _TCHAR buf = CHARV(obj);
 
@@ -924,7 +922,7 @@ _TCHAR *get_c_string(lref_t x)
      if (str)
           return str;
 
-     vmerror_wrong_type(x);
+     vmerror_wrong_type_n(x);
 
      return NULL;
 }
@@ -1117,13 +1115,13 @@ lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s)
      float_seperator sep = NO_SEPERATOR;
 
      if (!NUMBERP(n))
-          vmerror_wrong_type(1, n);
+          vmerror_wrong_type_n(1, n);
      if (!FIXNUMP(sf))
-          vmerror_wrong_type(2, sf);
+          vmerror_wrong_type_n(2, sf);
      if (!BOOLP(sci))
-          vmerror_wrong_type(3, sci);
+          vmerror_wrong_type_n(3, sci);
      if (!SYMBOLP(s))
-          vmerror_wrong_type(4, s);
+          vmerror_wrong_type_n(4, s);
 
      if (FIXNM(sf) < 0)
           vmerror_arg_out_of_range(sf, _T(">=0"));
@@ -1143,4 +1141,3 @@ lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s)
      return strcons(buf);
 }
 
-END_NAMESPACE

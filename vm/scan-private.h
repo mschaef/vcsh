@@ -30,7 +30,7 @@ struct interpreter_thread_info_block_t
 {
      lref_t freelist;
      void *stack_base;
-     gc_root_t gc_roots[MAX_GC_ROOTS];
+     struct gc_root_t gc_roots[MAX_GC_ROOTS];
 
      lref_t handler_frames;
 
@@ -54,12 +54,12 @@ struct interpreter_t
      /*  A statically allocated lobject_t used to hold a debugger output port.
       *  This is intended to be available before the GC heap is operational,
       *  so it has to be located here, and not on the heap. */
-     lobject_t debugger_output;
+     struct lobject_t debugger_output;
 
      /* Debugger flags. */
-     debug_flag_t debug_flags;
+     enum debug_flag_t debug_flags;
 
-     vminterrupt_t intr_pending;
+     enum vminterrupt_t intr_pending;
      bool intr_masked;
 
      lref_t trap_handlers[TRAP_LAST + 1];
@@ -102,12 +102,12 @@ struct interpreter_t
      flonum_t gc_start_time;
 
      /* Per-thread info. */
-     interpreter_thread_info_block_t thread;
+     struct interpreter_thread_info_block_t thread;
 };
 
-extern interpreter_t interp;  /*  Interpeter global state variable. */
+extern struct interpreter_t interp;  /*  Interpeter global state variable. */
 
-INLINE interpreter_thread_info_block_t *CURRENT_TIB()
+INLINE struct interpreter_thread_info_block_t *CURRENT_TIB()
 {
      return &interp.thread;
 }
@@ -138,11 +138,11 @@ INLINE lref_t CURRENT_DEBUG_PORT()
 
 void init_debugger_output();
 
-debug_flag_t debug_flags_from_string(debug_flag_t initial,
-                                     const _TCHAR * source_name,
-                                     const _TCHAR * str);
+enum debug_flag_t debug_flags_from_string(enum debug_flag_t initial,
+                                          const _TCHAR * source_name,
+                                          const _TCHAR * str);
 
-debug_flag_t debug_flags_from_environment(debug_flag_t initial);
+enum debug_flag_t debug_flags_from_environment(enum debug_flag_t initial);
 
 lref_t topmost_primitive();
 
@@ -153,7 +153,7 @@ INLINE lref_t VM_DEBUG_PORT()
      return (&interp.debugger_output);
 }
 
-INLINE bool DEBUG_FLAG(debug_flag_t flag)
+INLINE bool DEBUG_FLAG(enum debug_flag_t flag)
 {
      if (!DEBUGGING_BUILD)
           return false;
@@ -161,8 +161,8 @@ INLINE bool DEBUG_FLAG(debug_flag_t flag)
      return ((fixnum_t) flag == (interp.debug_flags & (fixnum_t) flag));
 }
 
-#define dscwritef(flag, args) \
-     do { if (DEBUG_FLAG(flag)) ::scan::dscwritef_impl args; } while(0);
+#define pdscwritef(flag, args) \
+     do { if (DEBUG_FLAG(flag)) dscwritef_impl args; } while(0);
 
 /***** Memory Management *****/
 
@@ -178,9 +178,9 @@ lref_t gc_claim_freelist();
 void *gc_malloc(size_t size);
 void gc_free(void *mem);
 
-INLINE lref_t new_cell(typecode_t type)
+INLINE lref_t new_cell(enum typecode_t type)
 {
-     interpreter_thread_info_block_t *thread = CURRENT_TIB();
+     struct interpreter_thread_info_block_t *thread = CURRENT_TIB();
 
      if (NULLP(thread->freelist))
           thread->freelist = gc_claim_freelist();
@@ -213,12 +213,14 @@ lref_t find_subr_by_name(lref_t subr_name);
 
 /**** Port I/O ****/
 
-extern port_class_t stderr_port_class;
+extern struct port_class_t stderr_port_class;
 
 lref_t initialize_port(lref_t s,
-                       port_class_t * cls,
-                       lref_t port_name, port_mode_t mode,
-                       lref_t user_object, void *user_data);
+                       struct port_class_t * cls,
+                       lref_t port_name,
+                       enum port_mode_t mode,
+                       lref_t user_object,
+                       void *user_data);
 
 /**** Length and Equal ****/
 

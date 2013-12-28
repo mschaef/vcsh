@@ -23,13 +23,13 @@
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) enum table_name {
 #  define VM_CONSTANT(name, value) name = value,
 #  define VM_ANON_CONSTANT(name, value) VM_CONSTANT(name, value)
-#  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) }; const _TCHAR *name_fn_name(const table_name val); 
+#  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) }; const _TCHAR *name_fn_name(const enum table_name val); 
 #endif
 
 /* Defined when included as a source file to emit const->string mapping
  * functions. */
 #ifdef CONST_C_IMPL
-#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) const _TCHAR *name_fn_name(const table_name val) { switch(val) {
+#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) const _TCHAR *name_fn_name(const enum table_name val) { switch(val) {
 #  define VM_CONSTANT(name, value)  case name: return _T(#name);
 #  define VM_ANON_CONSTANT(name, value)
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) default: return NULL; } }

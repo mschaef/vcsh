@@ -20,7 +20,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
 #define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
 
@@ -409,7 +408,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_FAST_OP:
-          fast_op_name = fast_op_opcode_name((fast_op_opcode_t)FAST_OP_OPCODE(obj));
+          fast_op_name = fast_op_opcode_name((enum fast_op_opcode_t)FAST_OP_OPCODE(obj));
 
           if (fast_op_name)
                scwritef("#<FOP@~c&:~cs ~s ~s => ~s>", port, (lref_t) obj,
@@ -445,7 +444,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 lref_t lidebug_printer(lref_t obj, lref_t port, lref_t machine_readable_p)
 {
      if (!PORTP(port))
-          vmerror_wrong_type(2, port);
+          vmerror_wrong_type_n(2, port);
 
      return debug_print_object(obj, port, TRUEP(machine_readable_p));
 }
@@ -743,7 +742,7 @@ size_t debug_port_write(lref_t port, const void *buf, size_t size)
      return len;
 }
 
-port_class_t debug_port_class = {
+struct port_class_t debug_port_class = {
      _T("STANDARD-DEBUG"),
 
      NULL,                 // open
@@ -781,4 +780,3 @@ void init_debugger_output()
                      NULL);
 }
 
-END_NAMESPACE

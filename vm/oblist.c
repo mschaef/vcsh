@@ -15,7 +15,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
 /* This is an oblist implementation that provides a subset of
  * Common Lisp-style package semantics.
@@ -72,7 +71,7 @@ lref_t packagecons(lref_t name)
 lref_t lipackagecons(lref_t name)
 {
      if (!STRINGP(name))
-          vmerror_wrong_type(1, name);
+          vmerror_wrong_type_n(1, name);
 
      return packagecons(name);
 }
@@ -88,7 +87,7 @@ lref_t lpackagep(lref_t x)
 lref_t lpackage_name(lref_t p)      /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
-          vmerror_wrong_type(1, p);
+          vmerror_wrong_type_n(1, p);
 
      return PACKAGE_NAME(p);
 }
@@ -96,10 +95,10 @@ lref_t lpackage_name(lref_t p)      /*  ONLY SCHEME */
 lref_t lset_package_name(lref_t p, lref_t new_name)   /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
-          vmerror_wrong_type(1, p);
+          vmerror_wrong_type_n(1, p);
 
      if (!STRINGP(new_name))
-          vmerror_wrong_type(2, new_name);
+          vmerror_wrong_type_n(2, new_name);
 
      SET_PACKAGE_NAME(p, new_name);
 
@@ -109,7 +108,7 @@ lref_t lset_package_name(lref_t p, lref_t new_name)   /*  ONLY SCHEME */
 lref_t lpackage_bindings(lref_t p)  /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
-          vmerror_wrong_type(1, p);
+          vmerror_wrong_type_n(1, p);
 
      return PACKAGE_BINDINGS(p);
 }
@@ -117,7 +116,7 @@ lref_t lpackage_bindings(lref_t p)  /*  ONLY SCHEME */
 lref_t lpackage_use_list(lref_t p)  /*  ONLY SCHEME */
 {
      if (!PACKAGEP(p))
-          vmerror_wrong_type(1, p);
+          vmerror_wrong_type_n(1, p);
 
      return PACKAGE_USE_LIST(p);
 }
@@ -125,7 +124,7 @@ lref_t lpackage_use_list(lref_t p)  /*  ONLY SCHEME */
 lref_t lset_package_use_list(lref_t p, lref_t use_list)
 {
      if (!PACKAGEP(p))
-          vmerror_wrong_type(1, p);
+          vmerror_wrong_type_n(1, p);
 
      if (!list_of_packages_p(use_list))
           vmerror_arg_out_of_range(use_list, _T("bad use list"));
@@ -167,9 +166,9 @@ static lref_t find_direct_symbol_record(lref_t sym_spec, lref_t package)
 lref_t ladd_symbol_to_package(lref_t symbol, lref_t package)
 {
      if (!SYMBOLP(symbol))
-          vmerror_wrong_type(1, symbol);
+          vmerror_wrong_type_n(1, symbol);
      if (!PACKAGEP(package))
-          vmerror_wrong_type(2, package);
+          vmerror_wrong_type_n(2, package);
 
      /* keyword symbols are created with the external flag set to #t. */
      bool is_keyword = (package == interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
@@ -252,7 +251,7 @@ lref_t keyword_intern(const _TCHAR * name)
 lref_t lsymbol_package(lref_t sym)  /*   REVISIT: fix split between _home and _package */
 {
      if (!SYMBOLP(sym))
-          vmerror_wrong_type(1, sym);
+          vmerror_wrong_type_n(1, sym);
 
      if (NULLP(SYMBOL_HOME(sym)))
           return boolcons(false);
@@ -263,9 +262,9 @@ lref_t lsymbol_package(lref_t sym)  /*   REVISIT: fix split between _home and _p
 lref_t lset_symbol_package(lref_t sym, lref_t package)
 {
      if (!SYMBOLP(sym))
-          vmerror_wrong_type(1, sym);
+          vmerror_wrong_type_n(1, sym);
      if (!(PACKAGEP(package) || NULLP(package)))
-          vmerror_wrong_type(2, package);
+          vmerror_wrong_type_n(2, package);
 
      SET_SYMBOL_HOME(sym, package);
 
@@ -275,7 +274,7 @@ lref_t lset_symbol_package(lref_t sym, lref_t package)
 lref_t lisymbol_index(lref_t symbol)
 {
      if (!SYMBOLP(symbol))
-          vmerror_wrong_type(1, symbol);
+          vmerror_wrong_type_n(1, symbol);
 
      return fixcons(-1);
 }
@@ -284,7 +283,7 @@ lref_t lisymbol_index(lref_t symbol)
 lref_t lsymbol_name(lref_t sym)
 {
      if (!SYMBOLP(sym))
-          vmerror_wrong_type(1, sym);
+          vmerror_wrong_type_n(1, sym);
 
      return SYMBOL_PNAME(sym);
 }
@@ -292,7 +291,7 @@ lref_t lsymbol_name(lref_t sym)
 lref_t lstring2uninterned_symbol(lref_t str)
 {
      if (!STRINGP(str))
-          vmerror_wrong_type(1, str);
+          vmerror_wrong_type_n(1, str);
 
      if (STRING_DIM(str) <= 0)
           vmerror_arg_out_of_range(str, _T("length > 0"));
@@ -314,4 +313,3 @@ void create_initial_packages()
                                       interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
 }
 
-END_NAMESPACE

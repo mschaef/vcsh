@@ -14,7 +14,6 @@
 
 #include "scan-private.h"
 
-BEGIN_NAMESPACE(scan)
 
 /*** Interpreter Panic ***/
 
@@ -64,12 +63,12 @@ void vmerror_stack_overflow(uint8_t * obj)
       * REVISIT: Should the user be allowed to continue after an overflow? */
 }
 
-void vmerror_wrong_type(lref_t new_errobj)
+void vmerror_wrong_type_n(lref_t new_errobj)
 {
-     vmerror_wrong_type(-1, new_errobj);
+     vmerror_wrong_type_n(-1, new_errobj);
 }
 
-void vmerror_wrong_type(int which_argument, lref_t new_errobj)
+void vmerror_wrong_type_n(int which_argument, lref_t new_errobj)
 {
      vmtrap(TRAP_WRONG_TYPE, (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
             3, topmost_primitive(), fixcons(which_argument), new_errobj);
@@ -144,4 +143,3 @@ lref_t lpanic(lref_t msg)           /*  If everything goes to hell, call this...
      return NIL;
 }
 
-END_NAMESPACE

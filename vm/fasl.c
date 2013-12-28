@@ -57,7 +57,6 @@
  * so it's worth more formal investigation.
  */
 
-BEGIN_NAMESPACE(scan)
 
 static lref_t faslreadercons(lref_t port)
 {
@@ -78,7 +77,7 @@ static lref_t faslreadercons(lref_t port)
 lref_t lmake_fasl_reader(lref_t port)
 {
      if (!PORTP(port))
-          vmerror_wrong_type(1, port);
+          vmerror_wrong_type_n(1, port);
 
      if (!PORT_BINARYP(port))
           vmerror_unsupported(_T("fasl streams not supported on text ports"));
@@ -673,7 +672,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
      *retval = NIL;
 
      if (!FASL_READER_P(reader))
-          vmerror_wrong_type(1, reader);
+          vmerror_wrong_type_n(1, reader);
 
      assert(NULLP(FASL_READER_STREAM(reader)->table) || VECTORP(FASL_READER_STREAM(reader)->table));
 
@@ -914,7 +913,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 lref_t lfast_read(lref_t reader)
 {
      if (!FASL_READER_P(reader))
-          vmerror_wrong_type(1, reader);
+          vmerror_wrong_type_n(1, reader);
 
      lref_t retval;
 
@@ -926,7 +925,7 @@ lref_t lfast_read(lref_t reader)
 lref_t liifasl_load(lref_t reader)
 {
      if (!FASL_READER_P(reader))
-          vmerror_wrong_type(1, reader);
+          vmerror_wrong_type_n(1, reader);
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS, (_T("; DEBUG: FASL from : ~a\n"), reader));
 
@@ -940,4 +939,3 @@ lref_t liifasl_load(lref_t reader)
      return NIL;
 }
 
-END_NAMESPACE

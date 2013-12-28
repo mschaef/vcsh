@@ -16,7 +16,6 @@
 
 #include <stdlib.h>
 
-BEGIN_NAMESPACE(scan)
 
 /**** The C Heap
  *
@@ -721,4 +720,3 @@ lref_t liarm_gc_trip_wires(lref_t f)
      return boolcons(new_state);
 }
 
-END_NAMESPACE
