@@ -239,7 +239,8 @@ lref_t simple_intern(lref_t print_name, lref_t package)
 
 lref_t keyword_intern(const _TCHAR * name)
 {
-     return simple_intern(strcons(name), interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
+     return simple_intern(strconsbuf(name),
+                          interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
 }
 
 /*** Symbol primitives ***/
@@ -299,9 +300,9 @@ lref_t lstring2uninterned_symbol(lref_t str)
 
 void create_initial_packages()
 {
-     interp.control_fields[VMCTRL_PACKAGE_SYSTEM] = packagecons(strcons("system"));
-     interp.control_fields[VMCTRL_PACKAGE_SCHEME] = packagecons(strcons("scheme"));
-     interp.control_fields[VMCTRL_PACKAGE_KEYWORD] = packagecons(strcons("keyword"));
+     interp.control_fields[VMCTRL_PACKAGE_SYSTEM] = packagecons(strconsbuf("system"));
+     interp.control_fields[VMCTRL_PACKAGE_SCHEME] = packagecons(strconsbuf("scheme"));
+     interp.control_fields[VMCTRL_PACKAGE_KEYWORD] = packagecons(strconsbuf("keyword"));
 
      interp.fasl_package_list = listn(3,
                                       interp.control_fields[VMCTRL_PACKAGE_SCHEME],

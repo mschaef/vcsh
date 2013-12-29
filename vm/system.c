@@ -52,7 +52,7 @@ lref_t lenvironment()
           while (*loc && (*loc != '='))
                loc++;
 
-          var_name = strcons(loc - current_var, current_var);
+          var_name = strconsbufn(loc - current_var, current_var);
 
           if (*loc)
           {
@@ -63,7 +63,7 @@ lref_t lenvironment()
                while (*loc)
                     loc++;
 
-               var_value = strcons(loc - current_value, current_value);
+               var_value = strconsbufn(loc - current_value, current_value);
           }
 
 
@@ -105,7 +105,7 @@ lref_t ltemporary_file_name(lref_t p)       /*  REVISIT: This is a generally bad
      enum sys_retcode_t rc = sys_temporary_filename(prefix, buf, STACK_STRBUF_LEN);
 
      if (rc == SYS_OK)
-          return strcons(buf);
+          return strconsbuf(buf);
 
      vmerror_io_error(_T("Could not allocate temporary file name"), p);
 
@@ -192,7 +192,7 @@ lref_t file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 
      lhash_set(obj, keyword_intern(_T("size")), fixcons(info->_size));
 
-     lhash_set(obj, keyword_intern(_T("filename")), strcons(filename));
+     lhash_set(obj, keyword_intern(_T("filename")), strconsbuf(filename));
 
      return obj;
 }
@@ -277,7 +277,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
                if (!include_dirs)
                     continue;
 
-               filenames = lcons(strcons(entry._name, _T('/')), filenames);
+               filenames = lcons(strconsbuf1(entry._name, _T('/')), filenames);
 
           }
           else
@@ -285,7 +285,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
                if (!include_files)
                     continue;
 
-               filenames = lcons(strcons(entry._name), filenames);
+               filenames = lcons(strconsbuf(entry._name), filenames);
           }
      }
 
@@ -372,7 +372,7 @@ lref_t lsystem_info()
      lref_t name = boolcons(false);
 
      if (sys_gethostname(system_name, STACK_STRBUF_LEN) == SYS_OK)
-          name = strcons(system_name);
+          name = strconsbuf(system_name);
 
      lhash_set(obj, keyword_intern(_T("system-name")), name);
 
@@ -387,7 +387,7 @@ lref_t lsystem_info()
 
      lhash_set(obj, keyword_intern(_T("build-type")), build_keyword);
 
-     lhash_set(obj, keyword_intern(_T("vm-build-id")), strcons(build_id_string()));
+     lhash_set(obj, keyword_intern(_T("vm-build-id")), strconsbuf(build_id_string()));
 
      lhash_set(obj, keyword_intern(_T("platform-name")), keyword_intern(info._platform_name));
 
@@ -462,7 +462,7 @@ static lref_t sha1_encode_digest(uint8_t *digest)
           encoded_digest[ii * 2 + 1] = hexchar((digest[ii] >> 0) & 0xF);
      }
 
-     return strcons(CC_SHA1_DIGEST_LENGTH * 2, encoded_digest);
+     return strconsbufn(CC_SHA1_DIGEST_LENGTH * 2, encoded_digest);
 }
 
 lref_t lfile_sha1_digest(lref_t fn)

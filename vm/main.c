@@ -202,7 +202,7 @@ static void accept_command_line_arguments(int argc, _TCHAR * argv[])
           if (is_vm_argument(argv[ii]))
                continue;
 
-          lref_t new_cell = lcons(strcons(argv[ii]), NIL);
+          lref_t new_cell = lcons(strconsbuf(argv[ii]), NIL);
 
           if (NULLP(arg_list_bud))
           {
@@ -546,7 +546,7 @@ static void load_init_load_files()
 {
      for (size_t ii = 0; ii < interp.init_load_file_count; ii++)
      {
-          lref_t fname = strcons(interp.init_load_file_name[ii]);
+          lref_t fname = strconsbuf(interp.init_load_file_name[ii]);
 
           dscwritef(DF_ALWAYS, ("; Init Loading ~a...\n", fname));
 

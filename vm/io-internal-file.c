@@ -99,7 +99,7 @@ lref_t open_c_data_input(struct internal_file_t *data)
 
 void register_internal_file(struct internal_file_t *data)
 {
-     lref_t file_record = lcons(strcons(data->_name), open_c_data_input(data));
+     lref_t file_record = lcons(strconsbuf(data->_name), open_c_data_input(data));
 
      interp.internal_files = lcons(file_record, interp.internal_files);
 }

@@ -179,7 +179,7 @@ void register_subr(const _TCHAR * name, enum subr_arity_t arity, void *implement
      if (implementation == NULL)
           dscwritef(DF_ALWAYS, (";;;; NULL SUBR IMPLEMENTATION: \"~cs\"!\n", name));
 
-     lref_t subr_name = strcons(name);
+     lref_t subr_name = strconsbuf(name);
 
      lref_t subr = subrcons(arity, subr_name, implementation);
 

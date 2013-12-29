@@ -186,7 +186,7 @@ lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
      ps->_more_data = true;
 
      return portcons(&blocking_input_port_class,
-                     strcons(port_name),
+                     strconsbuf(port_name),
                      binary ? (enum port_mode_t) (PORT_INPUT | PORT_BINARY) : PORT_INPUT,
                      NIL,
                      ps);

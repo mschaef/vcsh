@@ -571,7 +571,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                     str_arg_value = va_arg(arglist, _TCHAR *);
 
                     if (return_next_value)
-                         return_value = strcons(str_arg_value);
+                         return_value = strconsbuf(str_arg_value);
 
                     if (str_arg_value)
                          write_text(str_arg_value, _tcslen(str_arg_value), port);
@@ -625,7 +625,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                     _sntprintf(buf, STACK_STRBUF_LEN, _T("%p"), (void *) va_arg(arglist, void *));
 
                     if (return_next_value)
-                         return_value = strcons(buf);
+                         return_value = strconsbuf(buf);
 
                     write_text(buf, _tcslen(buf), port);
                     break;

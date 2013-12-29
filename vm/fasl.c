@@ -235,7 +235,7 @@ static void fast_read_string(lref_t reader, lref_t * retval)
      if (actual_length != expected_length)
           vmerror_fast_read("EOF during string data", reader, NIL);
 
-     *retval = strcons((size_t) actual_length, buf);
+     *retval = strconsbufn((size_t) actual_length, buf);
 }
 
 

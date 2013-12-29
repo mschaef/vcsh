@@ -94,7 +94,7 @@ void vmerror_arg_out_of_range(lref_t arg, const _TCHAR *range_desc /* = NULL */)
      lref_t range = NIL;
 
      if (range_desc)
-          range = strcons(range_desc);
+          range = strconsbuf(range_desc);
 
      vmtrap(TRAP_ARG_OUT_OF_RANGE,
             (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
@@ -105,14 +105,14 @@ void vmerror_unsupported(const _TCHAR *desc)
 {
      vmtrap(TRAP_UNSUPPORTED,
             (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            2,  topmost_primitive(),  strcons(desc));
+            2,  topmost_primitive(),  strconsbuf(desc));
 }
 
 void vmerror_unimplemented(const _TCHAR *desc)
 {
      vmtrap(TRAP_UNIMPLEMENTED,
             (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            2, topmost_primitive(), strcons(desc));
+            2, topmost_primitive(), strconsbuf(desc));
 }
 
 void vmerror_divide_by_zero()
@@ -126,7 +126,7 @@ void vmerror_io_error(const _TCHAR *desc, lref_t info)
 {
      vmtrap(TRAP_IO_ERROR,
             (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            3, topmost_primitive(), strcons(desc), info);
+            3, topmost_primitive(), strconsbuf(desc), info);
 }
 
 void vmerror_fast_read(const _TCHAR * message, lref_t reader, lref_t details /* = NIL */)
@@ -138,7 +138,7 @@ void vmerror_fast_read(const _TCHAR * message, lref_t reader, lref_t details /* 
 
      vmtrap(TRAP_FAST_READ_ERROR,
             (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-            5, topmost_primitive(), strcons(message), reader, fixcons(location), details);
+            5, topmost_primitive(), strconsbuf(message), reader, fixcons(location), details);
 }
 
 

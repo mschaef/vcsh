@@ -145,14 +145,14 @@ lref_t strcons()
 
 lref_t strconsch(_TCHAR ch)
 {
-     return strcons(1, &ch);
+     return strconsbufn(1, &ch);
 }
 
 lref_t strconsbuf(const _TCHAR * buffer)
 {
      assert(buffer);
 
-     return strcons(_tcslen(buffer), buffer);
+     return strconsbufn(_tcslen(buffer), buffer);
 }
 
 
@@ -162,7 +162,7 @@ lref_t strconsbuf1(const _TCHAR * buffer, _TCHAR trailing)
 
      size_t len = _tcslen(buffer);
 
-     lref_t retval = strcons(len + 1, buffer);
+     lref_t retval = strconsbufn(len + 1, buffer);
 
      STRING_DATA(retval)[len] = trailing;
 
@@ -173,7 +173,7 @@ lref_t strconsdup(lref_t str)
 {
      assert(STRINGP(str));
 
-     return strcons(STRING_DIM(str), STRING_DATA(str));
+     return strconsbufn(STRING_DIM(str), STRING_DATA(str));
 }
 
 lref_t strconsbufn(size_t length, const _TCHAR * buffer)
@@ -282,7 +282,7 @@ lref_t lstring_append(size_t argc, lref_t argv[])
                vmerror_wrong_type_n(ii, argv[ii]);
      }
 
-     lref_t s = strcons((size_t) size, NULL);
+     lref_t s = strconsbufn((size_t) size, NULL);
 
      _TCHAR *data = STRING_DATA(s);
      size_t pos = 0;
@@ -338,7 +338,7 @@ lref_t lsubstring(lref_t str, lref_t start, lref_t end)
      if (s > e)
           vmerror_arg_out_of_range(start, _T("start<=end"));
 
-     return strcons(e - s, &(STRING_DATA(str)[s]));
+     return strconsbufn(e - s, &(STRING_DATA(str)[s]));
 }
 
 /* string-search **********************************************/
@@ -367,7 +367,7 @@ lref_t lstring_search(lref_t tok, lref_t str, lref_t maybe_initial_ofs) /*  REVI
           vmerror_wrong_type_n(2, str);
 
      if (CHARP(tok))
-          tok = strcons(CHARV(tok));
+          tok = strconsch(CHARV(tok));
 
      _TCHAR *tok_data = STRING_DATA(tok);
      _TCHAR *str_data = STRING_DATA(str);
@@ -400,7 +400,7 @@ lref_t lstring_search_from_right(lref_t tok, lref_t str, lref_t maybe_from)
           vmerror_wrong_type_n(2, str);
 
      if (CHARP(tok))
-          tok = strcons(CHARV(tok));
+          tok = strconsch(CHARV(tok));
 
      _TCHAR *tok_data = STRING_DATA(tok);
      _TCHAR *str_data = STRING_DATA(str);
@@ -461,7 +461,7 @@ lref_t lstring_trim(lref_t str, lref_t tc)
      while ((end > start) && strchr(trim_chars, STRING_DATA(str)[end - 1]))
           end--;
 
-     return strcons(end - start, &(STRING_DATA(str)[start]));
+     return strconsbufn(end - start, &(STRING_DATA(str)[start]));
 }
 
 lref_t lstring_trim_left(lref_t str, lref_t tc)
@@ -484,7 +484,7 @@ lref_t lstring_trim_left(lref_t str, lref_t tc)
      while ((start < STRING_DIM(str)) && strchr(trim_chars, STRING_DATA(str)[start]))
           start++;
 
-     return strcons(STRING_DIM(str) - start, &(STRING_DATA(str)[start]));
+     return strconsbufn(STRING_DIM(str) - start, &(STRING_DATA(str)[start]));
 }
 
 lref_t lstring_trim_right(lref_t str, lref_t tc)
@@ -507,7 +507,7 @@ lref_t lstring_trim_right(lref_t str, lref_t tc)
      while ((end > 0) && strchr(trim_chars, STRING_DATA(str)[end - 1]))
           end--;
 
-     return strcons(end, STRING_DATA(str));
+     return strconsbufn(end, STRING_DATA(str));
 }
 
 
@@ -531,7 +531,7 @@ lref_t lstring_upcase(lref_t str)
      if (!STRINGP(str))
           vmerror_wrong_type_n(1, str);
 
-     return lstring_upcased(strcons(str));
+     return lstring_upcased(strconsdup(str));
 }
 
 lref_t lstring_downcased(lref_t str)
@@ -551,7 +551,7 @@ lref_t lstring_downcase(lref_t str)
      if (!STRINGP(str))
           vmerror_wrong_type_n(1, str);
 
-     return lstring_downcased(strcons(str));
+     return lstring_downcased(strconsdup(str));
 }
 
 
@@ -849,7 +849,7 @@ lref_t lstring_copy(lref_t string)
      if (!STRINGP(string))
           vmerror_wrong_type_n(1, string);
 
-     return strcons(string);
+     return strconsdup(string);
 }
 
 lref_t lcharacter2string(lref_t obj)
@@ -859,7 +859,7 @@ lref_t lcharacter2string(lref_t obj)
 
      _TCHAR buf = CHARV(obj);
 
-     return strcons(1, &buf);
+     return strconsch(buf);
 }
 
 
@@ -1135,6 +1135,6 @@ lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s)
      float_format(buf, STACK_STRBUF_LEN, get_c_double(n), (int) get_c_fixnum(sf), true, BOOLV(sci),
                   sep);
 
-     return strcons(buf);
+     return strconsbuf(buf);
 }
 

@@ -50,7 +50,7 @@ size_t string_port_read_bytes(lref_t port, void *buf, size_t size)
 size_t string_port_write_bytes(lref_t port, const void *buf, size_t size)
 {
      if (NULLP(PORT_STRING(port)))
-          SET_PORT_STRING(port, strcons(size, (_TCHAR *)buf)); /*  REVISIT: fails if buf has embedded nulls */
+          SET_PORT_STRING(port, strconsbufn(size, (_TCHAR *)buf)); /*  REVISIT: fails if buf has embedded nulls */
      else
           str_append_str(PORT_STRING(port), (_TCHAR *) buf, size);
 
@@ -89,7 +89,7 @@ lref_t lopen_input_string(lref_t string)
      /*  REVISIT: open-input-string can avoid duplicating incoming strings */
      /*  REVISIT: open-input-string take string input port argument */
 
-     lref_t port = portcons(&string_port_class, NIL, PORT_INPUT, strcons(string), NULL);
+     lref_t port = portcons(&string_port_class, NIL, PORT_INPUT, strconsbuf(string), NULL);
 
      SET_PORT_TEXT_INFO(port, allocate_text_info());
 
@@ -113,8 +113,8 @@ lref_t lget_output_string(lref_t port)
      lflush_port(port);
 
      if (NULLP(PORT_STRING(port)))
-          return strcons("");
-     else
-          return PORT_STRING(port);
+          return strconsbuf(_T(""));
+
+     return PORT_STRING(port);
 }
 
