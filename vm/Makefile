@@ -24,7 +24,7 @@ include ../config.${PLATFORM}
 SCC0=scc0/scc0
 
 scansh0${EXE_EXT}: scan-vm${LIB_EXT} scansh0${OBJ_EXT}
-	${CC} ${LDFLAGS} ${NAMOBJFL}scansh0${EXE_EXT} scansh0${OBJ_EXT} scan-vm${LIB_EXT}
+	${CC} ${NAMOBJFL}scansh0${EXE_EXT} scansh0${OBJ_EXT} scan-vm${LIB_EXT} ${LDFLAGS} 
 
 SH0_OBJS=scansh0${OBJ_EXT}
 
@@ -84,14 +84,14 @@ TO_C_SOURCE_OBJS=to-c-source${OBJ_EXT}
 TO_C_SOURCE_SRCS:=$(TO_C_SOURCE_OBJS:${OBJ_EXT}=.c)
 
 to-c-source${EXE_EXT}: $(TO_C_SOURCE_OBJS)
-	${CC} ${LDFLAGS} ${NAMOBJFL}to-c-source${EXE_EXT} $(TO_C_SOURCE_OBJS)
+	${CC} ${NAMOBJFL}to-c-source${EXE_EXT} $(TO_C_SOURCE_OBJS) ${LDFLAGS} 
 
 SHOW_RETVAL_OBJS=show-retval${OBJ_EXT}
 
 SHOW_RETVAL_SRCS:=$(SHOW_RETVAL_OBJS:${OBJ_EXT}=.c)
 
 show-retval${EXE_EXT}: $(SHOW_RETVAL_OBJS)
-	${CC} ${LDFLAGS} ${NAMOBJFL}show-retval${EXE_EXT} $(SHOW_RETVAL_OBJS)
+	${CC}  ${NAMOBJFL}show-retval${EXE_EXT} $(SHOW_RETVAL_OBJS) ${LDFLAGS}
 
 scan-constants.scm: scan-constants.i
 	cpp -DCONST_SCHEME -P $< $@

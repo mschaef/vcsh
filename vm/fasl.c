@@ -172,7 +172,7 @@ static void fast_read_character(lref_t reader, lref_t * retval)
 {
      fixnum_t data = 0;
 
-     if (fdread_binary_fixnum(1, false, FASL_READER_PORT(reader), &data))
+     if (read_binary_fixnum(1, false, FASL_READER_PORT(reader), &data))
      {
           assert((data >= _TCHAR_MIN) && (data <= _TCHAR_MAX));
 
@@ -187,7 +187,7 @@ static void fast_read_integer(lref_t reader, size_t length, lref_t * retval)
 {
      fixnum_t data = 0;
 
-     if (fdread_binary_fixnum(length, true, FASL_READER_PORT(reader), &data))
+     if (read_binary_fixnum(length, true, FASL_READER_PORT(reader), &data))
           *retval = fixcons(data);
      else
           *retval = lmake_eof();

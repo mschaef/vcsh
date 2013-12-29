@@ -44,12 +44,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
   lref_t retval = run();
 
-  long return_status = 0;
+  int rc = 0;
 
   if (NUMBERP(retval))
-    return_status = get_c_long(retval);
-
-  int rc = (int)(FIXNUMP(retval) ? get_c_fixnum(retval) : 0);
+    rc = get_c_long(retval);
 
   shutdown();
 

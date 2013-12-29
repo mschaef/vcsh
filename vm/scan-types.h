@@ -264,7 +264,7 @@ struct lobject_t
 
 /*** NIL and primitive equality checks ***/
 
-const lref_t NIL = ((struct lobject_t *) 0);
+#define NIL ((lref_t)0)
 
 INLINE bool EQ(lref_t x, lref_t y)
 {
