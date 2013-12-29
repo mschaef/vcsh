@@ -105,7 +105,8 @@ void gc_protect(const _TCHAR * name, lref_t * location, size_t n)
 {
      size_t root_index = gc_find_free_root();
 
-     gc_root_t *root = (gc_root_t *) & (CURRENT_TIB()->gc_roots[root_index]);
+     struct gc_root_t *root =
+          (struct gc_root_t *) & (CURRENT_TIB()->gc_roots[root_index]);
 
      root->name = name;
      root->location = location;
@@ -209,14 +210,14 @@ static bool gc_enlarge_heap()
      gc_begin_timer();
 
      lref_t seg_base =
-          (lref_t) gc_malloc(sizeof(lobject_t) * interp.gc_heap_segment_size);
+          (lref_t) gc_malloc(sizeof(struct lobject_t) * interp.gc_heap_segment_size);
 
      size_t seg_idx = interp.gc_current_heap_segments;
 
      interp.gc_current_heap_segments++;
 
      interp.gc_malloc_bytes_threshold +=
-          (sizeof(lobject_t) * interp.gc_heap_segment_size);
+          (sizeof(struct lobject_t) * interp.gc_heap_segment_size);
 
      interp.gc_heap_segments[seg_idx] = seg_base;
 
@@ -248,7 +249,7 @@ static bool gc_possible_heap_pointer_p(lref_t p)
                continue;
 
           /*  Pointers are aligned at lobject_t boundaries */
-          if (((((uint8_t *) p) - ((uint8_t *) h)) % sizeof(lobject_t)) != 0)
+          if (((((uint8_t *) p) - ((uint8_t *) h)) % sizeof(struct lobject_t)) != 0)
                continue;
 
           /*  Pointers have types */

@@ -19,7 +19,7 @@
 
 #include "scan-private.h"
 
-interpreter_t interp;           /* Interpreter globals */
+struct interpreter_t interp;           /* Interpreter globals */
 
 const _TCHAR *build_id_string()
 {
@@ -107,7 +107,8 @@ static void process_vm_arg_debug_flags(_TCHAR * arg_name, _TCHAR * arg_value)
 static void process_vm_arg_heap_segment_size(_TCHAR * arg_name, _TCHAR * arg_value)
 {
      interp.gc_heap_segment_size =
-         process_vm_int_argument_value(arg_name, arg_value) / sizeof(lobject_t);
+         process_vm_int_argument_value(arg_name, arg_value)
+          / sizeof(struct lobject_t);
 }
 
 static void process_vm_arg_max_heap_segments(_TCHAR * arg_name, _TCHAR * arg_value)
@@ -537,7 +538,7 @@ static void global_environment_asserts()
      assert(&stack_start < stack_start);
 
      /* An LObject is the size of four pointers (lref_t's) */
-     assert(sizeof(lobject_t) == 4 * sizeof(lref_t));
+     assert(sizeof(struct lobject_t) == 4 * sizeof(lref_t));
 }
 
 
@@ -558,7 +559,7 @@ static void load_init_load_files()
 }
 
 /*  REVISIT Init needs a way to receive standard output ports, for non-console uses of scan */
-void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
+void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags)
 {
      global_environment_asserts();
 
@@ -594,7 +595,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      interp.gc_malloc_bytes_at_last_gc = 0;
      interp.gc_malloc_blocks_at_last_gc = 0;
-     interp.gc_malloc_bytes_threshold = (sizeof(lobject_t) * interp.gc_heap_segment_size);
+     interp.gc_malloc_bytes_threshold = (sizeof(struct lobject_t) * interp.gc_heap_segment_size);
 
      interp.gc_total_run_time = 0.0;
      interp.gc_start_time = 0.0;
@@ -622,7 +623,7 @@ void init0(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
 
      gc_protect(_T("handler-frames"), &(CURRENT_TIB()->handler_frames), 1);
 
-     gc_protect(_T("frame-stack"), (lobject_t **)&(CURRENT_TIB()->frame_stack[0]), sizeof(CURRENT_TIB()->frame_stack) / sizeof(lref_t));
+     gc_protect(_T("frame-stack"), (struct lobject_t **)&(CURRENT_TIB()->frame_stack[0]), sizeof(CURRENT_TIB()->frame_stack) / sizeof(lref_t));
 
      accept_command_line_arguments(argc, argv);
 

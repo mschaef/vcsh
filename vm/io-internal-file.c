@@ -92,7 +92,7 @@ lref_t open_c_data_input(struct internal_file_t *data)
 
      return portcons(&c_data_port_class,
                      NIL,
-                     (port_mode_t) (PORT_INPUT | PORT_BINARY),
+                     (enum port_mode_t) (PORT_INPUT | PORT_BINARY),
                      NIL,
                      ps);
 }
@@ -116,7 +116,7 @@ lref_t lclone_c_data_port(lref_t port)
           vmerror_unsupported(_T("only input ports may be cloned"));
 
      struct c_data_port_state *old_ps = (struct c_data_port_state *) (PORT_PINFO(port)->user_data);
-     struct c_data_port_state *new_ps = (struct c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
+     struct c_data_port_state *new_ps = (struct c_data_port_state *) gc_malloc(sizeof(struct c_data_port_state));
 
      new_ps->buf      = old_ps->buf;
      new_ps->buf_size = old_ps->buf_size;

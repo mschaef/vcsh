@@ -83,7 +83,7 @@ lref_t lset_environment_variable(lref_t varname, lref_t value)
      if (!STRINGP(value))
           vmerror_wrong_type_n(2, value);
 
-     sys_retcode_t rc = sys_setenv(get_c_string(varname), get_c_string(value));
+     enum sys_retcode_t rc = sys_setenv(get_c_string(varname), get_c_string(value));
 
      if (rc == SYS_OK)
           return boolcons(true);
@@ -102,7 +102,7 @@ lref_t ltemporary_file_name(lref_t p)       /*  REVISIT: This is a generally bad
 
      _TCHAR buf[STACK_STRBUF_LEN];
 
-     sys_retcode_t rc = sys_temporary_filename(prefix, buf, STACK_STRBUF_LEN);
+     enum sys_retcode_t rc = sys_temporary_filename(prefix, buf, STACK_STRBUF_LEN);
 
      if (rc == SYS_OK)
           return strcons(buf);
@@ -117,7 +117,7 @@ lref_t ldelete_file(lref_t filename)
      if (!STRINGP(filename))
           vmerror_wrong_type_n(1, filename);
 
-     sys_retcode_t rc = sys_delete_file(get_c_string(filename));
+     enum sys_retcode_t rc = sys_delete_file(get_c_string(filename));
 
      if (rc == SYS_OK)
           return boolcons(true);
@@ -205,7 +205,7 @@ lref_t lifile_details(lref_t path, lref_t existance_onlyp)
      if (!(NULLP(existance_onlyp) || BOOLP(existance_onlyp)))
           vmerror_wrong_type_n(2, existance_onlyp);
 
-     sys_stat_t file_info;
+     struct sys_stat_t file_info;
 
      /*  If stat fails, we assume the file does not exist and return false. */
      if (sys_stat(get_c_string(path), &file_info))
@@ -250,8 +250,8 @@ lref_t lidirectory(lref_t dn, lref_t m)
      if (_tcslen(dirname) == 0)
           dirname = _T("./");
 
-     sys_dir_t *d;
-     sys_retcode_t rc;
+     struct sys_dir_t *d;
+     enum sys_retcode_t rc;
 
      if ((rc = sys_opendir(dirname, &d)) != SYS_OK)
      {
@@ -265,7 +265,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
 
      for (;;)
      {
-          sys_dirent_t entry;
+          struct sys_dirent_t entry;
 
           rc = sys_readdir(d, &entry, &done);   /* rc preserved 'til end of loop */
 
@@ -289,7 +289,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
           }
      }
 
-     sys_retcode_t cdrc = sys_closedir(d);
+     enum sys_retcode_t cdrc = sys_closedir(d);
 
      if (rc != SYS_OK)          /* rc from sys_readdir, to report errors from scan. */
      {
@@ -340,7 +340,7 @@ lref_t lrealtime_time_zone_offset()
 
 lref_t lsystem_info()
 {
-     sys_info_t info;
+     struct sys_info_t info;
 
      sys_get_info(&info);
 
@@ -403,14 +403,14 @@ lref_t lsystem_info()
      lhash_set(obj, keyword_intern(_T("maximum-name-length")), fixcons(SYS_NAME_MAX));
      lhash_set(obj, keyword_intern(_T("maximum-path-length")), fixcons(SYS_PATH_MAX));
 
-     lhash_set(obj, keyword_intern(_T("size-of-lobject")), fixcons(sizeof(lobject_t)));
+     lhash_set(obj, keyword_intern(_T("size-of-lobject")), fixcons(sizeof(struct lobject_t)));
      lhash_set(obj, keyword_intern(_T("size-of-fixnum")), fixcons(sizeof(fixnum_t)));
      lhash_set(obj, keyword_intern(_T("size-of-flonum")), fixcons(sizeof(flonum_t)));
      lhash_set(obj, keyword_intern(_T("size-of-lref")), fixcons(sizeof(lref_t)));
 
 
      lhash_set(obj, keyword_intern(_T("heap-segment-size")),
-               fixcons(interp.gc_heap_segment_size * sizeof(lobject_t)));
+               fixcons(interp.gc_heap_segment_size * sizeof(struct lobject_t)));
      lhash_set(obj, keyword_intern(_T("current-heap-segments")),
                fixcons(interp.gc_current_heap_segments));
      lhash_set(obj, keyword_intern(_T("maximum-heap-segments")),
@@ -418,7 +418,7 @@ lref_t lsystem_info()
      lhash_set(obj, keyword_intern(_T("argument-buffer-len")), fixcons(ARG_BUF_LEN));
      lhash_set(obj, keyword_intern(_T("most-postive-character")), charcons(_TCHAR_MAX));
 
-     lhash_set(obj, keyword_intern(_T("interpreter-state-size")), fixcons(sizeof(interpreter_t)));
+     lhash_set(obj, keyword_intern(_T("interpreter-state-size")), fixcons(sizeof(struct interpreter_t)));
 
      return obj;
 }

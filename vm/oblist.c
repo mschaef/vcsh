@@ -48,7 +48,7 @@ static bool list_of_packages_p(lref_t pkgs)
 
 /*** package constructor and accessors ***/
 
-lref_t packagecons(lref_t name, lref_t bindings, lref_t use_list)
+lref_t packagecons0(lref_t name, lref_t bindings, lref_t use_list)
 {
      assert(STRINGP(name));
 
@@ -65,7 +65,7 @@ lref_t packagecons(lref_t name)
 {
      assert(STRINGP(name));
 
-     return packagecons(name, hashcons(false), NIL);
+     return packagecons0(name, hashcons(false), NIL);
 }
 
 lref_t lipackagecons(lref_t name)
@@ -236,10 +236,6 @@ lref_t simple_intern(lref_t print_name, lref_t package)
      return sym;
 }
 
-lref_t simple_intern(const _TCHAR * name, lref_t package)
-{
-     return simple_intern(strcons(name), package);
-}
 
 lref_t keyword_intern(const _TCHAR * name)
 {

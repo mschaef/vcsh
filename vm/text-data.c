@@ -143,12 +143,12 @@ lref_t strcons()
      return strcons(0, (const _TCHAR *) NULL);
 }
 
-lref_t strcons(_TCHAR ch)
+lref_t strconsch(_TCHAR ch)
 {
      return strcons(1, &ch);
 }
 
-lref_t strcons(const _TCHAR * buffer)
+lref_t strconsbuf(const _TCHAR * buffer)
 {
      assert(buffer);
 
@@ -156,7 +156,7 @@ lref_t strcons(const _TCHAR * buffer)
 }
 
 
-lref_t strcons(const _TCHAR * buffer, _TCHAR trailing)
+lref_t strconsbuf1(const _TCHAR * buffer, _TCHAR trailing)
 {
      assert(buffer);
 
@@ -169,14 +169,14 @@ lref_t strcons(const _TCHAR * buffer, _TCHAR trailing)
      return retval;
 }
 
-lref_t strcons(lref_t str)
+lref_t strconsdup(lref_t str)
 {
      assert(STRINGP(str));
 
      return strcons(STRING_DIM(str), STRING_DATA(str));
 }
 
-lref_t strcons(size_t length, const _TCHAR * buffer)
+lref_t strconsbufn(size_t length, const _TCHAR * buffer)
 {
      lref_t new_string = new_cell(TC_STRING);
 
@@ -349,7 +349,7 @@ size_t get_string_offset(lref_t maybe_ofs)
           return 0;
 
      if (!NUMBERP(maybe_ofs))
-          vmerror_wrong_type_n(maybe_ofs);
+          vmerror_wrong_type(maybe_ofs);
 
      long ofs = get_c_long(maybe_ofs);
 
@@ -621,7 +621,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
                _sntprintf(buffer, STACK_STRBUF_LEN, _T("%.*f"), digits, FLONM(x));
           }
 
-          return strcons(buffer);
+          return strconsbuf(buffer);
      }
      else if (FIXNUMP(x))
      {
@@ -632,7 +632,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
                           signedp ? _T("%" PRINTF_PREFIX_FIXNUM "i") : _T("%" PRINTF_PREFIX_FIXNUM "u"),
                           FIXNM(x));
 
-               return strcons(buffer);
+               return strconsbuf(buffer);
                break;
 
           case 16:
@@ -647,7 +647,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
                }
                else
                     _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "x"), FIXNM(x));
-               return strcons(buffer);
+               return strconsbuf(buffer);
                break;
 
           case 8:
@@ -662,7 +662,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
                }
                else
                     _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "o"), FIXNM(x));
-               return strcons(buffer);
+               return strconsbuf(buffer);
                break;
 
           default:
@@ -678,7 +678,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
      return NIL;
 }
 
-bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result)
+bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t *result)
 {
      bool overflow = false;
 
@@ -688,14 +688,14 @@ bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t & result)
 
 
 #ifdef SCAN_64BIT_FIXNUMS
-     result = strtoll(string, &endobj, radix);
+     *result = strtoll(string, &endobj, radix);
 
-     if (((result == INT64_MIN) || (result == INT64_MAX)) && (errno == ERANGE))     /*  REVISIT: errno causes problems with the _link_ */
+     if (((*result == INT64_MIN) || (*result == INT64_MAX)) && (errno == ERANGE))     /*  REVISIT: errno causes problems with the _link_ */
           overflow = true;
 #else
-     result = strtol(string, &endobj, radix);
+     *result = strtol(string, &endobj, radix);
 
-     if (((result == LONG_MIN) || (result == LONG_MAX)) && (errno == ERANGE))   /*  REVISIT: errno causes problems with the _link_ */
+     if (((*result == LONG_MIN) || (*result == LONG_MAX)) && (errno == ERANGE))   /*  REVISIT: errno causes problems with the _link_ */
           overflow = true;
 #endif
 
@@ -709,7 +709,6 @@ lref_t lstring2number(lref_t s, lref_t r)
 {
      _TCHAR *string, *endobj;
      long radix = 10;
-     bool radix_specified = false;
      fixnum_t fix_result = 0;
      flonum_t flo_result = 0;
 
@@ -720,8 +719,6 @@ lref_t lstring2number(lref_t s, lref_t r)
      {
           if (!FIXNUMP(r))
                vmerror_wrong_type_n(2, r);
-
-          radix_specified = true;
 
           radix = (long) get_c_fixnum(r);
      }
@@ -735,7 +732,7 @@ lref_t lstring2number(lref_t s, lref_t r)
       * of the string it accepts. In other words, the string must
       * only contain a valid number to be parsed. No spaces or
       * anything else is tolerated in the parse. */
-     if (parse_string_as_fixnum(string, radix, fix_result))
+     if (parse_string_as_fixnum(string, radix, &fix_result))
           return fixcons(fix_result);
 
      /* If the fixnum parse failed, we need to have a radix of
@@ -922,7 +919,7 @@ _TCHAR *get_c_string(lref_t x)
      if (str)
           return str;
 
-     vmerror_wrong_type_n(x);
+     vmerror_wrong_type(x);
 
      return NULL;
 }

@@ -24,7 +24,7 @@ void sigint_handler(int i)
 {
   UNREFERENCED(i);
 
-  scan::signal_interrupt(scan::VMINTR_BREAK);
+  signal_interrupt(VMINTR_BREAK);
 
   signal(SIGINT, sigint_handler);
 };
@@ -33,14 +33,14 @@ void sigint_handler(int i)
 int _tmain(int argc, _TCHAR* argv[])
 {
   sys_init();
-  init0(argc, argv, scan::DF_NONE);
+  init0(argc, argv, DF_NONE);
 
   signal(SIGINT, sigint_handler);
 
-  fprintf(stderr, ";;; scansh0 - %s\n", scan::build_id_string());
+  fprintf(stderr, ";;; scansh0 - %s\n", build_id_string());
 
-  interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_OUTPUT_PORT];
-  interp.control_fields[scan::VMCTRL_CURRENT_DEBUG_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT];
+  interp.control_fields[VMCTRL_CURRENT_ERROR_PORT] = interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT];
+  interp.control_fields[VMCTRL_CURRENT_DEBUG_PORT] = interp.control_fields[VMCTRL_CURRENT_ERROR_PORT];
 
   lref_t retval = run();
 

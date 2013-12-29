@@ -243,7 +243,7 @@ void init_stdio_ports()
      lref_t stdout_port =
           lopen_text_output_port(fileportcons(&stdout_port_class,
                                               (enum port_mode_t)(PORT_OUTPUT | PORT_BINARY),
-p                                              strcons(_T("<stdout>"))));
+                                              strcons(_T("<stdout>"))));
 
      lref_t stderr_port =
           lopen_text_output_port(fileportcons(&stderr_port_class,

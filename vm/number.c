@@ -32,7 +32,7 @@
 /**************************************************************
  * Number constructors
  */
-lref_t fixcons(uint32_t high, uint32_t low)
+lref_t fixcons2(uint32_t high, uint32_t low)
 {
      return fixcons(((fixnum_t) high << 32) + (fixnum_t) low);
 }
@@ -43,7 +43,7 @@ lref_t fixcons(fixnum_t x)
           return LREF1_CONS(LREF1_FIXNUM, (intptr_t) x);
 
      lref_t retval = new_cell(TC_FIXNUM);
-     _FIXNM(retval) = x;
+     *_FIXNM(retval) = x;
 
      return retval;
 }
@@ -83,7 +83,7 @@ double get_c_double(lref_t x)
 fixnum_t get_c_fixnum(lref_t x)   /*  REVISIT: how should this handle inan, ineginf, & iposinf */
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type_n(x);
+          vmerror_wrong_type(x);
 
      if (FIXNUMP(x))
           return FIXNM(x);
@@ -94,7 +94,7 @@ fixnum_t get_c_fixnum(lref_t x)   /*  REVISIT: how should this handle inan, ineg
 flonum_t get_c_flonum(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type_n(x);
+          vmerror_wrong_type(x);
 
      if (FLONUMP(x))
           return (FLONM(x));
@@ -105,7 +105,7 @@ flonum_t get_c_flonum(lref_t x)
 flonum_t get_c_flonum_im(lref_t x)
 {
      if (!NUMBERP(x))
-          vmerror_wrong_type_n(x);
+          vmerror_wrong_type(x);
 
      if (FIXNUMP(x))
           return 0.0;
@@ -237,7 +237,7 @@ enum NumericArgumentType
      INEXACT
 };
 
-NumericArgumentType validate_numeric_arguments(size_t argc, lref_t argv[])
+enum NumericArgumentType validate_numeric_arguments(size_t argc, lref_t argv[])
 {
      bool exact = TRUE;
      bool character = TRUE;
@@ -265,7 +265,7 @@ NumericArgumentType validate_numeric_arguments(size_t argc, lref_t argv[])
 }
 
 #define MAKE_NUMBER_COMPARISON_FN(fn_name, op, op_string)                           \
-lref_t fn_name(size_t argc, lref_t argv[])                                              \
+lref_t fn_name(size_t argc, lref_t argv[])                                          \
 {                                                                                   \
     if (argc == 0)                                                                  \
       return boolcons(true);                                                        \
@@ -275,12 +275,12 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
     fixnum_t fix_prev;                                                              \
     _TCHAR char_prev;                                                               \
                                                                                     \
-    NumericArgumentType type = validate_numeric_arguments(argc, argv);              \
+    enum NumericArgumentType type = validate_numeric_arguments(argc, argv);         \
                                                                                     \
     switch (type)                                                                   \
     {                                                                               \
     case INVALID:                                                                   \
-      vmerror_wrong_type_n(lista(argc, argv));                                        \
+      vmerror_wrong_type(lista(argc, argv));                                        \
       break;                                                                        \
                                                                                     \
     case CHARACTER:                                                                 \
@@ -946,7 +946,7 @@ lref_t lreal_part(lref_t cmplx)
 lref_t limag_part(size_t argc, lref_t argv[])
 {
      if (argc < 1)
-          vmerror_wrong_type_n(NIL);
+          vmerror_wrong_type(NIL);
 
      lref_t cmplx = argv[0];
 
@@ -954,7 +954,7 @@ lref_t limag_part(size_t argc, lref_t argv[])
           return (argc > 1) ? argv[1] : fixcons(0);
 
      if (!FLONUMP(cmplx))
-          vmerror_wrong_type_n(cmplx);
+          vmerror_wrong_type(cmplx);
 
      if (NULLP(FLOIM(cmplx)))
           return (argc > 1) ? argv[1] :flocons(0.0);

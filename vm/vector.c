@@ -71,7 +71,7 @@ lref_t lvector(size_t argc, lref_t argv[])
 {
      assert(argc >= 0);
 
-     lref_t result = vectorcons(argc);
+     lref_t result = vectorcons(argc, NIL);
 
      for (size_t ii = 0; ii < argc; ii++)
           SET_VECTOR_ELEM(result, ii, argv[ii]);
@@ -163,7 +163,7 @@ lref_t llist2vector(lref_t xs)
 {
      fixnum_t length = object_length(xs);
 
-     lref_t result = vectorcons(length);
+     lref_t result = vectorcons(length, NIL);
 
      lref_t l = xs;
 
@@ -197,7 +197,7 @@ lref_t lvector_copy(lref_t vec)
      if (!VECTORP(vec))
           vmerror_wrong_type_n(1, vec);
 
-     lref_t result = vectorcons(VECTOR_DIM(vec));
+     lref_t result = vectorcons(VECTOR_DIM(vec), NIL);
 
      for (size_t ii = 0; ii < VECTOR_DIM(vec); ii++)
           SET_VECTOR_ELEM(result, ii, VECTOR_ELEM(vec, ii));
@@ -209,7 +209,7 @@ lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element)
 {
      assert(VECTORP(vec));
 
-     lref_t result = vectorcons(new_size);
+     lref_t result = vectorcons(new_size, NIL);
 
      for (size_t ii = 0; ii < new_size; ii++)
      {

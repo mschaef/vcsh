@@ -65,7 +65,7 @@ size_t string_port_length(lref_t port)
           return STRING_DIM(PORT_STRING(port));
 }
 
-port_class_t string_port_class = {
+struct port_class_t string_port_class = {
      _T("STRING"),
 
      NULL,                    // open
@@ -79,7 +79,7 @@ port_class_t string_port_class = {
 };
 
 
-port_text_info_t *allocate_text_info();
+struct port_text_info_t *allocate_text_info();
 
 lref_t lopen_input_string(lref_t string)
 {

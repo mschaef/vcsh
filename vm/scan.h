@@ -89,7 +89,6 @@ lref_t charcons(_TCHAR ch);
 lref_t symcons(lref_t pname, lref_t home);
 
 lref_t simple_intern(lref_t name, lref_t package);
-lref_t simple_intern_str(const _TCHAR * name, lref_t package);
 
 lref_t intern(lref_t name, lref_t package);
 lref_t keyword_intern(const _TCHAR * name);

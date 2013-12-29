@@ -242,7 +242,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
      return count;
 }
 
- static int flush_whitespace(lref_t port, bool skip_lisp_comments = true)
+ static int flush_whitespace(lref_t port, bool skip_lisp_comments)
  {
       int c = '\0';
 
@@ -571,7 +571,7 @@ void text_port_close(lref_t obj)
      lclose_port(PORT_USER_OBJECT(obj));
 }
 
-port_class_t text_port_class = {
+struct port_class_t text_port_class = {
      _T("TEXT"),
 
      NULL,                  // open
@@ -584,15 +584,15 @@ port_class_t text_port_class = {
      NULL                   // length
 };
 
-port_text_info_t *allocate_text_info()
+struct port_text_info_t *allocate_text_info()
 {
-     port_text_info_t *tinfo =
-          (port_text_info_t *)gc_malloc(sizeof(port_text_info_t));
+     struct port_text_info_t *tinfo =
+          (struct port_text_info_t *)gc_malloc(sizeof(struct port_text_info_t));
 
      memset(tinfo->pbuf, 0, sizeof(tinfo->pbuf));
      tinfo->pbuf_pos = 0;
 
-     sys_info_t sinf;
+     struct sys_info_t sinf;
      sys_get_info(&sinf);
 
      tinfo->translate = (sinf._eoln == SYS_EOLN_CRLF);

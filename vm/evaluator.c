@@ -425,7 +425,7 @@ void unwind_stack_for_throw()
                CURRENT_TIB()->frame = (lref_t *)fstack_frame_val(frame, FOFS_ESCAPE_FRAME);
                CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
 
-               longjmp((__jmp_buf_tag *)fstack_frame_val(frame, FOFS_ESCAPE_JMPBUF_PTR), 1);
+               longjmp((struct __jmp_buf_tag *)fstack_frame_val(frame, FOFS_ESCAPE_JMPBUF_PTR), 1);
           }
      }
 }
