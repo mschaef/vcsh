@@ -64,10 +64,10 @@ static lref_t faslreadercons(lref_t port)
 
      SET_FASL_READER_PORT(z, port);
 
-     fasl_stream_t *stream =
-          (fasl_stream_t *)gc_malloc(sizeof(fasl_stream_t));
+     struct fasl_stream_t *stream =
+          (struct fasl_stream_t *)gc_malloc(sizeof(struct fasl_stream_t));
 
-     memset(stream, 0, sizeof(fasl_stream_t));
+     memset(stream, 0, sizeof(struct fasl_stream_t));
 
      SET_FASL_READER_STREAM(z, stream);
 
@@ -115,14 +115,15 @@ lref_t fasl_reader_gc_mark(lref_t obj)
  *  stuff happens. (I think this can be resolveb by storig conses in the
  *  fasl_table and using references to their CAR's to store table entries...
  *  currently, the CONS will stay put even if the enderlying table is resized. */
-static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops = false);
+static void fast_read(lref_t reader, lref_t * retval,
+                      bool allow_loader_ops /* = false */);
 
-static fasl_opcode_t fast_read_opcode(lref_t reader)
+static enum fasl_opcode_t fast_read_opcode(lref_t reader)
 {
      fixnum_t opcode = FASL_OP_EOF;
 
-     if (read_binary_fixnum(1, false, FASL_READER_PORT(reader), opcode))
-          return (fasl_opcode_t) opcode;
+     if (read_binary_fixnum(1, false, FASL_READER_PORT(reader), &opcode))
+          return (enum fasl_opcode_t) opcode;
      else
           return FASL_OP_EOF;
 }
@@ -134,7 +135,7 @@ static void fast_read_list(lref_t reader, bool read_listd, lref_t * list)
      lref_t next_list_cell = NIL;
 
      lref_t list_length;
-     fast_read(reader, &list_length);
+     fast_read(reader, &list_length, false);
 
      if (!FIXNUMP(list_length))
           vmerror_fast_read("expected fixnum for list length", reader, list_length);
@@ -152,18 +153,18 @@ static void fast_read_list(lref_t reader, bool read_listd, lref_t * list)
 
           list_bud = next_list_cell;
 
-          fast_read(reader, &_CAR(next_list_cell));
+          fast_read(reader, _CAR(next_list_cell), false);
 
           if (EOFP(CAR(next_list_cell)))
-               vmerror_fast_read("incomplete list definition", reader);
+               vmerror_fast_read("incomplete list definition", reader, NIL);
      }
 
      if (read_listd)
      {
-          fast_read(reader, &_CDR(list_bud));
+          fast_read(reader, _CDR(list_bud), false);
 
           if (EOFP(CDR(list_bud)))
-               vmerror_fast_read("incomplete list defintion, missing cdr", reader);
+               vmerror_fast_read("incomplete list defintion, missing cdr", reader, NIL);
      }
 }
 
@@ -171,7 +172,7 @@ static void fast_read_character(lref_t reader, lref_t * retval)
 {
      fixnum_t data = 0;
 
-     if (read_binary_fixnum(1, false, FASL_READER_PORT(reader), data))
+     if (fdread_binary_fixnum(1, false, FASL_READER_PORT(reader), &data))
      {
           assert((data >= _TCHAR_MIN) && (data <= _TCHAR_MAX));
 
@@ -186,7 +187,7 @@ static void fast_read_integer(lref_t reader, size_t length, lref_t * retval)
 {
      fixnum_t data = 0;
 
-     if (read_binary_fixnum(length, true, FASL_READER_PORT(reader), data))
+     if (fdread_binary_fixnum(length, true, FASL_READER_PORT(reader), &data))
           *retval = fixcons(data);
      else
           *retval = lmake_eof();
@@ -197,14 +198,14 @@ static void fast_read_float(lref_t reader, bool complex, lref_t * retval)
      flonum_t real_part = 0.0;
      flonum_t imag_part = 0.0;
 
-     if (read_binary_flonum(FASL_READER_PORT(reader), real_part))
+     if (read_binary_flonum(FASL_READER_PORT(reader), &real_part))
      {
           if (complex)
           {
-               if (read_binary_flonum(FASL_READER_PORT(reader), imag_part))
+               if (read_binary_flonum(FASL_READER_PORT(reader), &imag_part))
                     *retval = cmplxcons(real_part, imag_part);
                else
-                    vmerror_fast_read("incomplete complex number", reader);
+                    vmerror_fast_read("incomplete complex number", reader, NIL);
           }
           else
                *retval = flocons(real_part);
@@ -217,10 +218,10 @@ static void fast_read_float(lref_t reader, bool complex, lref_t * retval)
 static void fast_read_string(lref_t reader, lref_t * retval)
 {
      lref_t l;
-     fast_read(reader, &l);
+     fast_read(reader, &l, false);
 
      if (!FIXNUMP(l))
-          vmerror_fast_read("strings must have a fixnum length", reader);
+          vmerror_fast_read("strings must have a fixnum length", reader, NIL);
 
      fixnum_t expected_length = FIXNM(l);
 
@@ -232,7 +233,7 @@ static void fast_read_string(lref_t reader, lref_t * retval)
           read_bytes(FASL_READER_PORT(reader), buf, (size_t)(expected_length * sizeof(_TCHAR)));
 
      if (actual_length != expected_length)
-          vmerror_fast_read("EOF during string data", reader);
+          vmerror_fast_read("EOF during string data", reader, NIL);
 
      *retval = strcons((size_t) actual_length, buf);
 }
@@ -266,7 +267,7 @@ static lref_t find_package(lref_t name)
 static void fast_read_package(lref_t reader, lref_t * package)
 {
      lref_t name;
-     fast_read(reader, &name);
+     fast_read(reader, &name, false);
 
      if (!STRINGP(name))
           vmerror_fast_read("packages must have string names", reader, name);
@@ -280,13 +281,13 @@ static void fast_read_package(lref_t reader, lref_t * package)
 static void fast_read_symbol(lref_t reader, lref_t * retval)
 {
      lref_t print_name;
-     fast_read(reader, &print_name);
+     fast_read(reader, &print_name, false);
 
      if (!STRINGP(print_name))
           vmerror_fast_read("symbols must have string print names", reader, print_name);
 
      lref_t home;
-     fast_read(reader, &home);
+     fast_read(reader, &home, false);
 
      if (!(PACKAGEP(home) || NULLP(home) || FALSEP(home)))
           vmerror_fast_read("a symbol must either have a package or NIL/#f for home", reader, home);
@@ -303,7 +304,7 @@ static void fast_read_symbol(lref_t reader, lref_t * retval)
 static void fast_read_subr(lref_t reader, lref_t * retval)
 {
      lref_t subr_name;
-     fast_read(reader, &subr_name);
+     fast_read(reader, &subr_name, false);
 
      if (!STRINGP(subr_name))
           vmerror_fast_read("subrs must have string names", reader, subr_name);
@@ -320,7 +321,7 @@ static void fast_read_subr(lref_t reader, lref_t * retval)
 static void fast_read_vector(lref_t reader, lref_t * vec)
 {
      lref_t vec_length;
-     fast_read(reader, &vec_length);
+     fast_read(reader, &vec_length, false);
 
      if (!FIXNUMP(vec_length))
           vmerror_fast_read("Expected fixnum for vector length", reader, vec_length);
@@ -330,7 +331,7 @@ static void fast_read_vector(lref_t reader, lref_t * vec)
      for (fixnum_t ii = 0; ii < FIXNM(vec_length); ii++)
      {
           lref_t object;
-          fast_read(reader, &object);
+          fast_read(reader, &object, false);
 
           if (EOFP(object))
                vmerror_fast_read("incomplete vector definition", reader, *vec);
@@ -342,7 +343,7 @@ static void fast_read_vector(lref_t reader, lref_t * vec)
 static void fast_read_structure_layout(lref_t reader, lref_t * st_layout)
 {
      lref_t new_st_layout;
-     fast_read(reader, &new_st_layout);
+     fast_read(reader, &new_st_layout, false);
 
      *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, new_st_layout);
 }
@@ -352,7 +353,7 @@ static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, l
      assert((fast_op_arity >= 0) && (fast_op_arity <= 2));
 
      lref_t opcode_obj;
-     fast_read(reader, &opcode_obj);
+     fast_read(reader, &opcode_obj, false);
 
      if (!FIXNUMP(opcode_obj))
           vmerror_fast_read("Expected fixnum for opcode.", reader, opcode_obj);
@@ -362,13 +363,13 @@ static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, l
      lref_t next = NIL;
 
      if (fast_op_arity > 0)
-          fast_read(reader, &op_arg1);
+          fast_read(reader, &op_arg1, false);
 
      if (fast_op_arity > 1)
-          fast_read(reader, &op_arg2);
+          fast_read(reader, &op_arg2, false);
 
      if (has_next)
-          fast_read(reader, &next);
+          fast_read(reader, &next, false);
 
      *fop = fast_op((int) FIXNM(opcode_obj), op_arg1, op_arg2, next);
 }
@@ -376,13 +377,13 @@ static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, l
 static void fast_read_structure(lref_t reader, lref_t * st)
 {
      lref_t st_meta;
-     fast_read(reader, &st_meta); // REVISIT: This has to come from the structure layour resolution vmtrap. Find a way to enforce this.
+     fast_read(reader, &st_meta, false); // REVISIT: This has to come from the structure layour resolution vmtrap. Find a way to enforce this.
 
      if (!CONSP(st_meta))
           vmerror_fast_read("Expected list for structure metadata", reader, st_meta);
 
      lref_t st_length;
-     fast_read(reader, &st_length);
+     fast_read(reader, &st_length, false);
 
      if (!FIXNUMP(st_length))
           vmerror_fast_read("Expected fixnum for structure length", reader, st_length);
@@ -392,7 +393,7 @@ static void fast_read_structure(lref_t reader, lref_t * st)
      for (fixnum_t ii = 0; ii < FIXNM(st_length); ii++)
      {
           lref_t object;
-          fast_read(reader, &object);
+          fast_read(reader, &object, false);
 
           if (EOFP(object))
                vmerror_fast_read("incomplete structure definition", reader, *st);
@@ -405,8 +406,7 @@ static void fast_read_structure(lref_t reader, lref_t * st)
 static void fast_read_instance(lref_t reader, lref_t * instance)
 {
      lref_t proto = NIL;
-     fast_read(reader, &proto);
-
+     fast_read(reader, &proto, false);
 
      if (!(INSTANCEP(proto) || FALSEP(proto) || SYMBOLP(proto)))
           vmerror_fast_read("Bad prototype instance, must be #f, a symbol, or an instance",
@@ -415,7 +415,7 @@ static void fast_read_instance(lref_t reader, lref_t * instance)
      *instance = liinstancecons(proto);
 
      lref_t elements;
-     fast_read(reader, &elements);
+     fast_read(reader, &elements, false);
 
      lref_t loc = NIL;
      for (loc = elements; CONSP(loc); loc = CDR(loc))
@@ -438,15 +438,15 @@ static void fast_read_instance(lref_t reader, lref_t * instance)
 static void fast_read_hash(lref_t reader, lref_t * hash)
 {
      lref_t shallow;
+     fast_read(reader, &shallow, false);
 
-     fast_read(reader, &shallow);
      if (!BOOLP(shallow))
           vmerror_fast_read("expected boolean for hash table shallow", reader, shallow);
 
      *hash = hashcons(BOOLV(shallow));
 
      lref_t elements;
-     fast_read(reader, &elements);
+     fast_read(reader, &elements, false);
 
      lref_t loc = NIL;
 
@@ -467,28 +467,28 @@ static void fast_read_hash(lref_t reader, lref_t * hash)
 static void fast_read_closure(lref_t reader, lref_t * retval)
 {
      lref_t env;
-     fast_read(reader, &env);
+     fast_read(reader, &env, false);
 
      if (EOFP(env))
-          vmerror_fast_read("incomplete closure, missing environment", reader);
+          vmerror_fast_read("incomplete closure, missing environment", reader, NIL);
 
      if (!(NULLP(env) || CONSP(env)))
           vmerror_fast_read("malformed closure, bad environment", reader, env);
 
      lref_t code;
-     fast_read(reader, &code);
+     fast_read(reader, &code, false);
 
      if (EOFP(code))
-          vmerror_fast_read("Incomplete closure, missing code", reader);
+          vmerror_fast_read("Incomplete closure, missing code", reader, false);
 
      if (!(NULLP(code) || CONSP(code)))
           vmerror_fast_read("malformed closure, bad code", reader, code);
 
      lref_t props;
-     fast_read(reader, &props);
+     fast_read(reader, &props, false);
 
      if (EOFP(props))
-          vmerror_fast_read("incomplete closure, missing property list", reader);
+          vmerror_fast_read("incomplete closure, missing property list", reader, NIL);
 
      if (!(NULLP(props) || CONSP(props)))
           vmerror_fast_read("malformed closure, bad property list", reader, props);
@@ -508,10 +508,10 @@ static void fast_read_to_newline(lref_t reader)
 static void fast_read_macro(lref_t reader, lref_t * retval)
 {
      lref_t macro_transformer;
-     fast_read(reader, &macro_transformer);
+     fast_read(reader, &macro_transformer, false);
 
      if (!CLOSUREP(macro_transformer))
-          vmerror_fast_read("malformed macro, bad transformer", macro_transformer);
+          vmerror_fast_read("malformed macro, bad transformer", macro_transformer, false);
 
      *retval = macrocons(macro_transformer);
 }
@@ -552,7 +552,7 @@ static void fasl_ensure_valid_table_index(lref_t reader, size_t index)
 static fixnum_t fast_read_table_index(lref_t reader)
 {
      lref_t index;
-     fast_read(reader, &index);
+     fast_read(reader, &index, false);
 
      if (!FIXNUMP(index))
           vmerror_fast_read("Expected fixnum for FASL table index", reader, index);
@@ -565,17 +565,17 @@ static fixnum_t fast_read_table_index(lref_t reader)
      return FIXNM(index);
 }
 
-static void fast_read_loader_definition(lref_t reader, fasl_opcode_t opcode)
+static void fast_read_loader_definition(lref_t reader, enum fasl_opcode_t opcode)
 {
      lref_t symbol_to_define;
 
-     fast_read(reader, &symbol_to_define);
+     fast_read(reader, &symbol_to_define, false);
 
      if (!SYMBOLP(symbol_to_define))
           vmerror_fast_read("Expected symbol for definition", reader, symbol_to_define);
 
      lref_t definition;
-     fast_read(reader, &definition);
+     fast_read(reader, &definition, false);
 
      dscwritef(DF_SHOW_FAST_LOAD_FORMS,
                (_T("; DEBUG: FASL defining ~s = ~s\n"), symbol_to_define, definition));
@@ -600,7 +600,7 @@ static void fast_loader_stack_push(lref_t reader, lref_t val)
      assert(FASL_READER_P(reader));
 
      if (FASL_READER_STREAM(reader)->sp == FAST_LOAD_STACK_DEPTH - 1)
-          vmerror_fast_read(_T("Fast loader stack overflow."), reader);
+          vmerror_fast_read(_T("Fast loader stack overflow."), reader, NIL);
 
      FASL_READER_STREAM(reader)->stack[FASL_READER_STREAM(reader)->sp] = val;
      FASL_READER_STREAM(reader)->sp++;
@@ -613,7 +613,7 @@ static lref_t fast_loader_stack_pop(lref_t reader)
      assert(FASL_READER_P(reader));
 
      if (FASL_READER_STREAM(reader)->sp == 0)
-          vmerror_fast_read(_T("Fast loader stack underflow."), reader);
+          vmerror_fast_read(_T("Fast loader stack underflow."), reader, NIL);
 
      FASL_READER_STREAM(reader)->sp--;
 
@@ -623,23 +623,22 @@ static lref_t fast_loader_stack_pop(lref_t reader)
      return val;
 }
 
-static void fast_read_loader_application(lref_t reader, fasl_opcode_t opcode)
+static void fast_read_loader_application(lref_t reader, enum fasl_opcode_t opcode)
 {
      assert(FASL_READER_P(reader));
 
      size_t argc = 0;
      lref_t argv[FAST_LOAD_STACK_DEPTH];
 
-     fast_read(reader, &argv[0]);
+     fast_read(reader, &argv[0], false);
 
      if (!(SUBRP(argv[0]) || CLOSUREP(argv[0])))
-          vmerror_fast_read(_T("Invalid function to apply"), reader);
+          vmerror_fast_read(_T("Invalid function to apply"), reader, NIL);
 
      if (opcode == FASL_OP_LOADER_APPLYN)
      {
           lref_t ac;
-
-          fast_read(reader, &ac);
+          fast_read(reader, &ac, false);
 
           if (!FIXNUMP(ac))
                vmerror_fast_read("Expected fixnum for loader application argc", reader, ac);
@@ -688,7 +687,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
           size_t opcode_location = PORT_BYTES_READ(reader);
 
-          fasl_opcode_t opcode = fast_read_opcode(reader);
+          enum fasl_opcode_t opcode = fast_read_opcode(reader);
           fixnum_t index = 0;
           lref_t name;
 
@@ -839,12 +838,12 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           case FASL_OP_READER_DEFINITION:
                index = fast_read_table_index(reader);
 
-               fasl_table_entry = &_VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index);
+               fasl_table_entry = _VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index);
 
                fast_read(reader, fasl_table_entry, allow_loader_ops);
 
                /* REVISIT: This assert throws if the fasl table was resized during the reader definition. */
-               assert(fasl_table_entry == &_VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index));
+               assert(fasl_table_entry == _VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index));
 
                *retval = *fasl_table_entry;
                break;
@@ -862,7 +861,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           case FASL_OP_LOADER_DEFINEQ:
           case FASL_OP_LOADER_DEFINEA0:
                if (!allow_loader_ops)
-                    vmerror_fast_read(_T("loader definitions not allowed outside loader"), reader);
+                    vmerror_fast_read(_T("loader definitions not allowed outside loader"), reader, NIL);
 
                fast_read_loader_definition(reader, opcode);
                current_read_complete = false;
@@ -871,14 +870,14 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           case FASL_OP_LOADER_APPLY0:
           case FASL_OP_LOADER_APPLYN:
                if (!allow_loader_ops)
-                    vmerror_fast_read(_T("loader function applications not allowed outside loader"), reader);
+                    vmerror_fast_read(_T("loader function applications not allowed outside loader"), reader, NIL);
 
                fast_read_loader_application(reader, opcode);
                break;
 
           case FASL_OP_BEGIN_LOAD_UNIT:
                if (!allow_loader_ops)
-                    vmerror_fast_read(_T("load units are not allowed outside loader"), reader);
+                    vmerror_fast_read(_T("load units are not allowed outside loader"), reader, NIL);
 
                fast_read(reader, &name, allow_loader_ops);
 
@@ -887,7 +886,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
           case FASL_OP_END_LOAD_UNIT:
                if (!allow_loader_ops)
-                    vmerror_fast_read(_T("load units are not allowed outside loader"), reader);
+                    vmerror_fast_read(_T("load units are not allowed outside loader"), reader, NIL);
 
                fast_read(reader, &name, allow_loader_ops);
 
@@ -916,8 +915,7 @@ lref_t lfast_read(lref_t reader)
           vmerror_wrong_type_n(1, reader);
 
      lref_t retval;
-
-     fast_read(reader, &retval);
+     fast_read(reader, &retval, false);
 
      return retval;
 }

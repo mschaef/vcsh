@@ -252,7 +252,7 @@ lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary)
           vmerror_wrong_type_n(1, length);
 
      if (FIXNM(block_size) > BLOCKIN_MAX_BLOCK_SIZE)
-          vmerror_arg_out_of_range(block_size);
+          vmerror_arg_out_of_range(block_size, NULL);
 
      if (FIXNM(length) < 0)
           vmerror_arg_out_of_range(length, _T(">0"));
@@ -320,10 +320,11 @@ const _TCHAR *strchrnul(const _TCHAR * string, int c)
      return string;
 }
 
-debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source_name,
-                                     const _TCHAR * str)
+enum debug_flag_t debug_flags_from_string(enum debug_flag_t initial,
+                                          const _TCHAR * source_name,
+                                          const _TCHAR * str)
 {
-     debug_flag_t rc = initial;
+     enum debug_flag_t rc = initial;
 
      while (str)
      {
@@ -348,9 +349,9 @@ debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source
                     found = true;
 
                     if (remove)
-                         rc = (debug_flag_t) (rc & ~debug_flag_env_names[ii].df);
+                         rc = (enum debug_flag_t) (rc & ~debug_flag_env_names[ii].df);
                     else
-                         rc = (debug_flag_t) (rc | debug_flag_env_names[ii].df);
+                         rc = (enum debug_flag_t) (rc | debug_flag_env_names[ii].df);
 
                     break;
                }
@@ -358,8 +359,7 @@ debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source
 
           if (!found)
           {
-               dscwritef(DF_ALWAYS, ("Unknown debug flag while parsing ~cs, starting here: ~cs\n", source_name,
-                                     str));
+               dscwritef(DF_ALWAYS, ("Unknown debug flag while parsing ~cs, starting here: ~cs\n", source_name, str));
                show_debug_flags();
                panic("Aborting Run");
           }
@@ -370,14 +370,14 @@ debug_flag_t debug_flags_from_string(debug_flag_t initial, const _TCHAR * source
      return rc;
 }
 
-debug_flag_t debug_flags_from_environment(debug_flag_t initial)
+enum debug_flag_t debug_flags_from_environment(enum debug_flag_t initial)
 {
      return debug_flags_from_string(initial,
                                     _T("VCSH_DEBUG_FLAGS"),
                                     getenv("VCSH_DEBUG_FLAGS"));
 }
 
-bool is_debug_flag_set(debug_flag_t flag)
+bool is_debug_flag_set(enum debug_flag_t flag)
 {
      return DEBUG_FLAG(flag);
 }

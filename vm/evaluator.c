@@ -61,14 +61,14 @@ lref_t lset_interrupt_mask(lref_t new_mask)
      return boolcons(previous_mask);
 }
 
-void signal_interrupt(vminterrupt_t intr)
+void signal_interrupt(enum vminterrupt_t intr)
 {
-     interp.intr_pending = (vminterrupt_t)(interp.intr_pending | intr);
+     interp.intr_pending = (enum vminterrupt_t)(interp.intr_pending | intr);
 }
 
-static void handle_interrupt(vminterrupt_t intr, trap_type_t handler)
+static void handle_interrupt(enum vminterrupt_t intr, enum trap_type_t handler)
 {
-     interp.intr_pending = (vminterrupt_t)(interp.intr_pending & ~intr);
+     interp.intr_pending = (enum vminterrupt_t)(interp.intr_pending & ~intr);
 
      vmtrap(handler, VMT_MANDATORY_TRAP, 0);
 }
@@ -109,8 +109,9 @@ lref_t liset_trap_handler(lref_t trap_id, lref_t new_handler)
 
      interp.trap_handlers[tid] = new_handler;
 
-     dscwritef(DF_SHOW_TRAPS, (_T("; DEBUG: set-trap-handler : ~cS := ~s\n"),
-                               trap_type_name((trap_type_t)tid), new_handler));
+     dscwritef(DF_SHOW_TRAPS,
+               (_T("; DEBUG: set-trap-handler : ~cS := ~s\n"),
+                trap_type_name((enum trap_type_t)tid), new_handler));
 
      return new_handler;
 }
@@ -120,7 +121,7 @@ lref_t litrap_handler(lref_t trap_id)
      return interp.trap_handlers[get_trap_id(trap_id)];
 }
 
-static void vmtrap_panic(trap_type_t trap, const _TCHAR *msg)
+static void vmtrap_panic(enum trap_type_t trap, const _TCHAR *msg)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
@@ -130,7 +131,7 @@ static void vmtrap_panic(trap_type_t trap, const _TCHAR *msg)
      panic(buf);
 }
 
-lref_t vmtrap(trap_type_t trap, vmt_options_t options, size_t argc, ...)
+lref_t vmtrap(enum trap_type_t trap, enum vmt_options_t options, size_t argc, ...)
 {
      assert((trap > 0) && (trap <= TRAP_LAST));
      assert(argc < ARG_BUF_LEN);
@@ -251,7 +252,7 @@ EVAL_INLINE void fstack_push(lref_t val)
      *(CURRENT_TIB()->fsp) = val;
 }
 
-EVAL_INLINE void fstack_enter_frame(frame_type_t ft)
+EVAL_INLINE void fstack_enter_frame(enum frame_type_t ft)
 {
      fstack_push((lref_t)(CURRENT_TIB()->frame));
 
@@ -267,7 +268,7 @@ EVAL_INLINE void fstack_leave_frame()
      CURRENT_TIB()->frame = *(lref_t **)(CURRENT_TIB()->frame);
 }
 
-EVAL_INLINE lref_t fstack_frame_val(lref_t *frame, frame_ofs_t fofs)
+EVAL_INLINE lref_t fstack_frame_val(lref_t *frame, enum frame_ofs_t fofs)
 {
      return frame[fofs];
 }
@@ -277,9 +278,9 @@ EVAL_INLINE lref_t *fstack_prev_frame(lref_t *frame)
      return (lref_t *)fstack_frame_val(frame, FOFS_LINK);
 }
 
-EVAL_INLINE frame_type_t fstack_frame_type(lref_t *frame)
+EVAL_INLINE enum frame_type_t fstack_frame_type(lref_t *frame)
 {
-     return (frame_type_t)((intptr_t)fstack_frame_val(frame, FOFS_FTYPE));
+     return (enum frame_type_t)((intptr_t)fstack_frame_val(frame, FOFS_FTYPE));
 }
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
@@ -347,9 +348,11 @@ EVAL_INLINE lref_t subr_apply(lref_t function,
      return NIL;
 }
 
-EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t * env, lref_t * retval)
+EVAL_INLINE lref_t apply(lref_t function,
+                         size_t argc, lref_t argv[],
+                         lref_t * env, lref_t * retval)
 {
-     typecode_t type = TYPE(function);
+     enum typecode_t type = TYPE(function);
 
      /*  REVISIT: NIL signals "no tail recursion", what happens when the
       * actual form is NIL? */
@@ -368,7 +371,7 @@ EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t * e
           return CDR(c_code);   /*  tail call */
      }
 
-     vmerror_wrong_type_n(function);
+     vmerror_wrong_type(function);
 
      return NIL;
 }
@@ -627,7 +630,7 @@ loop:
           /* If we don't find a matching catch for the throw, we have a
            * problem and need to invoke a trap. */
           vmtrap(TRAP_UNCAUGHT_THROW,
-                 (vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+                 (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
                  2, tag, retval);
 
           fop = FAST_OP_NEXT(fop);

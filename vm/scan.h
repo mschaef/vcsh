@@ -110,7 +110,7 @@ _TCHAR *try_get_c_string(lref_t x);
 
 /**** Hash Tables ****/
 
-lref_t hashcons(bool shallow, size_t size /* = HASH_DEFAULT_INITIAL_SIZE */);
+lref_t hashcons(bool shallow);
 
 bool hash_ref(lref_t table, lref_t key, lref_t *result);
 

@@ -62,7 +62,7 @@ void indent()
 
 size_t last_definition_offset = 0;
 
-void show_opcode(size_t offset, fasl_opcode_t opcode, const _TCHAR *desc)
+void show_opcode(size_t offset, enum fasl_opcode_t opcode, const _TCHAR *desc)
 {
   const _TCHAR *opcode_name = fasl_opcode_name(opcode);
 
@@ -74,10 +74,10 @@ void show_opcode(size_t offset, fasl_opcode_t opcode, const _TCHAR *desc)
       newline();
     }
 
-  if (scan::g_show_file_offsets)
+  if (g_show_file_offsets)
        printf(" 0x%08" PRINTF_PREFIX_SIZE_T "x", offset);
 
-  if (scan::g_show_defn_offsets)
+  if (g_show_defn_offsets)
        printf(" (D+0x%08" PRINTF_PREFIX_SIZE_T "x) ", offset - last_definition_offset);
 
   indent();
@@ -93,7 +93,7 @@ void show_opcode(size_t offset, fasl_opcode_t opcode, const _TCHAR *desc)
   printf(":");
 }
 
-size_t read_binary(void *buf, size_t size, size_t count, size_t *ofs = NULL)
+size_t fdread_binary(void *buf, size_t size, size_t count, size_t *ofs)
 {
   size_t blocks_read;
 
@@ -107,7 +107,8 @@ size_t read_binary(void *buf, size_t size, size_t count, size_t *ofs = NULL)
   return blocks_read;
 }
 
-bool read_binary_fixnum(fixnum_t length, bool signedp, fixnum_t &result, size_t *ofs = NULL)
+bool fdread_binary_fixnum(fixnum_t length, bool signedp,
+                          fixnum_t *result, size_t *ofs)
 {
 #ifdef SCAN_64BIT_FIXNUMS
   assert ((length == 1) || (length == 2) || (length == 4) || (length == 8));
@@ -116,33 +117,33 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, fixnum_t &result, size_t 
 #endif
 
   uint8_t bytes[sizeof(fixnum_t)];
-  size_t fixnums_read = read_binary(bytes, (size_t)length, 1, ofs);
+  size_t fixnums_read = fdread_binary(bytes, (size_t)length, 1, ofs);
 
   if (!fixnums_read)
     return false;
 
   switch(length)
     {
-    case 1: result = (signedp ? (fixnum_t)(*(int8_t *)bytes) : (fixnum_t)(*(uint8_t  *)bytes)); break;
-    case 2: result = (signedp ? (fixnum_t)(*(int16_t *)bytes) : (fixnum_t)(*(uint16_t *)bytes)); break;
-    case 4: result = (signedp ? (fixnum_t)(*(int32_t *)bytes) : (fixnum_t)(*(uint32_t *)bytes)); break;
+    case 1: *result = (signedp ? (fixnum_t)(*(int8_t *)bytes) : (fixnum_t)(*(uint8_t  *)bytes)); break;
+    case 2: *result = (signedp ? (fixnum_t)(*(int16_t *)bytes) : (fixnum_t)(*(uint16_t *)bytes)); break;
+    case 4: *result = (signedp ? (fixnum_t)(*(int32_t *)bytes) : (fixnum_t)(*(uint32_t *)bytes)); break;
 #ifdef SCAN_64BIT_FIXNUMS
-    case 8: result = (signedp ? (fixnum_t)(*(int64_t *)bytes) : (fixnum_t)(*(uint64_t *)bytes)); break;
+    case 8: *result = (signedp ? (fixnum_t)(*(int64_t *)bytes) : (fixnum_t)(*(uint64_t *)bytes)); break;
 #endif
     }
 
   return true;
 }
 
-bool read_binary_flonum(flonum_t &result)
+bool fdread_binary_flonum(flonum_t *result)
 {
   uint8_t bytes[sizeof(flonum_t)];
-  size_t flonums_read = read_binary(bytes, sizeof(flonum_t), 1);
+  size_t flonums_read = fdread_binary(bytes, sizeof(flonum_t), 1, NULL);
 
   if (!flonums_read)
     return false;
 
-  result = *(flonum_t *)bytes;
+  *result = *(flonum_t *)bytes;
 
   return true;
 }
@@ -165,7 +166,8 @@ bool read_binary_flonum(flonum_t &result)
  *    to update the return value prior to reading any component objects.
  */
 
-static fasl_opcode_t dump_next_object(const _TCHAR *desc = NULL, fixnum_t *fixnum_value = NULL);
+static enum fasl_opcode_t dump_next_object(const _TCHAR *desc,
+                                           fixnum_t *fixnum_value);
 
 static void dump_error(const _TCHAR *message)
 {
@@ -177,14 +179,14 @@ static void dump_error(const _TCHAR *message)
   exit(1);
 }
 
-static fasl_opcode_t fast_read_opcode(size_t *ofs = NULL)
+static enum fasl_opcode_t fast_read_opcode(size_t *ofs)
 {
   fixnum_t opcode = FASL_OP_EOF;
 
-  if (read_binary_fixnum(1, false, opcode, ofs))
-    return (fasl_opcode_t)opcode;
-  else
-    return FASL_OP_EOF;
+  if (fdread_binary_fixnum(1, false, &opcode, ofs))
+       return (enum fasl_opcode_t)opcode;
+
+  return FASL_OP_EOF;
 }
 
 static void dump_list(bool read_listd)
@@ -192,7 +194,7 @@ static void dump_list(bool read_listd)
   fixnum_t length;
   _TCHAR buf[STRBUF_SIZE];
 
-  fasl_opcode_t op = dump_next_object(_T("length"), &length);
+  enum fasl_opcode_t op = dump_next_object(_T("length"), &length);
 
   if (!FIXNUM_OP_P(op))
     dump_error("lists must have a fixnum length");
@@ -200,14 +202,14 @@ static void dump_list(bool read_listd)
   for(fixnum_t ii = 0; ii < length; ii++) {
       _sntprintf(buf, STRBUF_SIZE, _T("item[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
 
-    op = dump_next_object(buf);
+      op = dump_next_object(buf, NULL);
 
     if (op == FASL_OP_EOF)
       dump_error("incomplete list definition");
   }
 
   if (read_listd) {
-    op = dump_next_object(_T("item[cdr]"));
+       op = dump_next_object(_T("item[cdr]"), NULL);
 
     if (op == FASL_OP_EOF)
       dump_error("incomplete list definition, missing cdr");
@@ -218,7 +220,7 @@ static void dump_character()
 {
   fixnum_t data = 0;
 
-  if (read_binary_fixnum(1, false, data))
+  if (fdread_binary_fixnum(1, false, &data, NULL))
     {
       putchar((int)data);
     }
@@ -227,11 +229,11 @@ static void dump_character()
 }
 
 
-static void dump_fixnum(size_t length, fixnum_t *fixnum_value = NULL)
+static void dump_fixnum(size_t length, fixnum_t *fixnum_value)
 {
   fixnum_t buf;
 
-  if (!read_binary_fixnum(length, true, buf))
+  if (!fdread_binary_fixnum(length, true, &buf, NULL))
     dump_error("expected fixnum not found");
 
   if (fixnum_value != NULL)
@@ -248,20 +250,20 @@ static void dump_flonum(bool complexp)
   flonum_t real_part = 0.0;
   flonum_t imag_part = 0.0;
 
-  if (read_binary_flonum(real_part))
-    {
-      if (complexp)
-	{
-	  if (read_binary_flonum(imag_part))
-	    printf("%f+%fi", real_part, imag_part);
-	  else
-	    dump_error("EOF during complex number");
-	}
-      else
-	printf("%f", real_part);
-    }
+  if (fdread_binary_flonum(&real_part))
+  {
+       if (complexp)
+       {
+            if (fdread_binary_flonum(&imag_part))
+                 printf("%f+%fi", real_part, imag_part);
+            else
+                 dump_error("EOF during complex number");
+       }
+       else
+            printf("%f", real_part);
+  }
   else
-    dump_error("EOF during flonum");
+       dump_error("EOF during flonum");
 }
 
 
@@ -269,7 +271,7 @@ static void dump_string()
 {
   fixnum_t length;
 
-  fasl_opcode_t op = dump_next_object(_T("length"), &length);
+  enum fasl_opcode_t op = dump_next_object(_T("length"), &length);
 
   if (!FIXNUM_OP_P(op))
     dump_error("strings must have a fixnum length");
@@ -280,8 +282,8 @@ static void dump_string()
 
   for(fixnum_t ii = 0; ii < length; ii++) {
 
-    if (read_binary(&ch, sizeof(_TCHAR), 1) == 0)
-      dump_error("EOF during string data");
+       if (read_binary(&ch, sizeof(_TCHAR), 1, NULL) == 0)
+            dump_error("EOF during string data");
 
     putchar(ch);
   }
@@ -291,20 +293,20 @@ static void dump_string()
 
 static void dump_package()
 {
-  fasl_opcode_t op = dump_next_object(_T("package-name"));
+     enum fasl_opcode_t op = dump_next_object(_T("package-name"), NULL);
 
-  if (op != FASL_OP_STRING)
-    dump_error("packages must have string names");
+     if (op != FASL_OP_STRING)
+       dump_error("packages must have string names");
 }
 
 static void dump_symbol()
 {
-  fasl_opcode_t op = dump_next_object(_T("pname"));
+     enum fasl_opcode_t op = dump_next_object(_T("pname"), NULL);
 
   if (op != FASL_OP_STRING)
     dump_error("symbols must have string print names");
 
-  op = dump_next_object(_T("package"));
+  op = dump_next_object(_T("package"), NULL);
 
   if ((op != FASL_OP_PACKAGE) && (op != FASL_OP_NIL) && (op != FASL_OP_FALSE))
     dump_error("a symbol must either have a package or NIL for home");
@@ -312,7 +314,7 @@ static void dump_symbol()
 
 static void dump_subr()
 {
-  fasl_opcode_t op = dump_next_object(_T("name"));
+     enum fasl_opcode_t op = dump_next_object(_T("name"), NULL);
 
   if (op != FASL_OP_STRING)
     dump_error("subrs must have string print names");
@@ -323,7 +325,7 @@ static void dump_vector()
   fixnum_t length;
   _TCHAR buf[STRBUF_SIZE];
 
-  fasl_opcode_t op = dump_next_object(_T("length"), &length);
+  enum fasl_opcode_t op = dump_next_object(_T("length"), &length);
 
   if (!FIXNUM_OP_P(op))
     dump_error("Expected fixnum for vector length");
@@ -332,7 +334,7 @@ static void dump_vector()
     {
       _sntprintf(buf, STRBUF_SIZE, _T("item[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
 
-      op = dump_next_object(buf);
+      op = dump_next_object(buf, NULL);
 
       if (op == FASL_OP_EOF)
            dump_error("incomplete vector definition");
@@ -341,12 +343,12 @@ static void dump_vector()
 
 static void dump_instance()
 {
-  fasl_opcode_t op = dump_next_object(_T("proto"));
+     enum fasl_opcode_t op = dump_next_object(_T("proto"), NULL);
 
   if ((op != FASL_OP_FALSE) && (op != FASL_OP_INSTANCE) && (op != FASL_OP_SYMBOL))
     dump_error("malformed proto in instance map");
 
-  op = dump_next_object(_T("slots"));
+  op = dump_next_object(_T("slots"), NULL);
 
   if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST))
     dump_error("Expected list for slot values");
@@ -354,12 +356,12 @@ static void dump_instance()
 
 static void dump_hash()
 {
-  fasl_opcode_t op = dump_next_object(_T("shallow?"));
+     enum fasl_opcode_t op = dump_next_object(_T("shallow?"), NULL);
 
   if ((op != FASL_OP_TRUE) && (op != FASL_OP_FALSE))
     dump_error("expected boolean for hash table shallow");
 
-  op = dump_next_object(_T("key/values"));
+  op = dump_next_object(_T("key/values"), NULL);
 
   if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST) && (op != FASL_OP_LISTD))
     dump_error("malformed key/value list for hash table");
@@ -367,17 +369,17 @@ static void dump_hash()
 
 static void dump_closure()
 {
-  fasl_opcode_t op = dump_next_object(_T("env"));
+     enum fasl_opcode_t op = dump_next_object(_T("env"), NULL);
 
   if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST) && (op != FASL_OP_LISTD))
     dump_error("malformed closure, bad environment");
 
-  op = dump_next_object(_T("code"));
+  op = dump_next_object(_T("code"), NULL);
 
   if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST) && (op != FASL_OP_LISTD))
     dump_error("malformed closure, bad code");
 
-  op = dump_next_object(_T("plist"));
+  op = dump_next_object(_T("plist"), NULL);
 
   if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST) && (op != FASL_OP_LISTD))
     dump_error("malformed closure, bad property list");
@@ -397,7 +399,7 @@ void dump_to_newline()
 
 void dump_macro()
 {
-  fasl_opcode_t op = dump_next_object(_T("transformer"));
+     enum fasl_opcode_t op = dump_next_object(_T("transformer"), NULL);
 
   if (op != FASL_OP_CLOSURE)
     dump_error("malformed macro, bad transformer");
@@ -405,7 +407,7 @@ void dump_macro()
 
 static void dump_structure_layout()
 {
-  fasl_opcode_t op = dump_next_object(_T("layout-data"));
+     enum fasl_opcode_t op = dump_next_object(_T("layout-data"), NULL);
 
   if (op != FASL_OP_LIST)
     dump_error("Expected list for structure layout");
@@ -415,7 +417,7 @@ static void dump_fast_op(int arity, bool has_next)
 {
   size_t offset;
 
-  fasl_opcode_t opcode = fast_read_opcode(&offset);
+  enum fasl_opcode_t opcode = fast_read_opcode(&offset);
 
   show_opcode(offset, opcode, _T("opcode"));
 
@@ -424,10 +426,10 @@ static void dump_fast_op(int arity, bool has_next)
 
   fixnum_t fop_opcode;
 
-  if (!read_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, true, fop_opcode))
+  if (!read_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, true, &fop_opcode, NULL))
        dump_error("Expected FOP opcode not found");
 
-  const _TCHAR *opcode_name = fast_op_opcode_name((scan::fast_op_opcode_t)fop_opcode);
+  const _TCHAR *opcode_name = fast_op_opcode_name((enum fast_op_opcode_t)fop_opcode);
 
   if (opcode_name)
        _tprintf(_T("%s"), opcode_name);
@@ -440,7 +442,7 @@ static void dump_fast_op(int arity, bool has_next)
     {
       _sntprintf(buf, STRBUF_SIZE, _T("operand[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
 
-      dump_next_object(buf);
+      dump_next_object(buf, NULL);
     }
 }
 
@@ -449,7 +451,7 @@ static void dump_structure()
   fixnum_t length;
   _TCHAR buf[STRBUF_SIZE];
 
-  fasl_opcode_t op = dump_next_object(_T("layout"));
+  enum fasl_opcode_t op = dump_next_object(_T("layout"), NULL);
 
   if (op != FASL_OP_STRUCTURE_LAYOUT)
     dump_error("Expected structure layout");
@@ -463,7 +465,7 @@ static void dump_structure()
     {
       _sntprintf(buf, STRBUF_SIZE, _T("slot[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
 
-      op = dump_next_object(buf);
+      op = dump_next_object(buf, NULL);
 
       if (op == FASL_OP_EOF)
            dump_error("incomplete structure definition");
@@ -478,7 +480,7 @@ fixnum_t dump_table_index()
 
   g_show_fixnums = g_show_reader_defn_indicies;
 
-  fasl_opcode_t op = dump_next_object(_T("index"), &index);
+  enum fasl_opcode_t op = dump_next_object(_T("index"), &index);
 
   g_show_fixnums = old_g_show_fixnums;
 
@@ -490,17 +492,17 @@ fixnum_t dump_table_index()
 
 void dump_loader_definition()
 {
-  fasl_opcode_t op = dump_next_object(_T("symbol"));
+     enum fasl_opcode_t op = dump_next_object(_T("symbol"), NULL);
 
   if (op != FASL_OP_SYMBOL)
     dump_error("Expected symbol for definition");
 
-  dump_next_object(_T("definition"));
+  dump_next_object(_T("definition"), NULL);
 }
 
-void  dump_loader_apply(fasl_opcode_t op)
+void  dump_loader_apply(enum fasl_opcode_t op)
 {
-  fasl_opcode_t fnOp = dump_next_object(_T("fn"));
+     enum fasl_opcode_t fnOp = dump_next_object(_T("fn"), NULL);
 
   if ((fnOp != FASL_OP_CLOSURE) && (fnOp != FASL_OP_SUBR))
     dump_error("Expected function for apply");
@@ -508,31 +510,31 @@ void  dump_loader_apply(fasl_opcode_t op)
   if (op == FASL_OP_LOADER_APPLYN)
   {
        fixnum_t argc;
-       fasl_opcode_t argcOp = dump_next_object(_T("argc"), &argc);
+       enum fasl_opcode_t argcOp = dump_next_object(_T("argc"), &argc);
 
        if (!FIXNUM_OP_P(argcOp))
             dump_error("Expected fixnum for FASL applyn argc");
   }
 }
 
-void dump_load_unit_boundary(fasl_opcode_t op)
+void dump_load_unit_boundary(enum fasl_opcode_t op)
 {
   newline();
 
   if (op == FASL_OP_BEGIN_LOAD_UNIT)
     printf(" ---------------- BEGIN LOAD UNIT ----------------");
 
-  dump_next_object(_T("module-name"));
+  dump_next_object(_T("module-name"), NULL);
 
   if (op == FASL_OP_END_LOAD_UNIT)
     printf("\n ----------------- END LOAD UNIT -----------------");
 }
 
 
-static fasl_opcode_t dump_next_object(const _TCHAR *desc /* = NULL*/,
-                                   fixnum_t *fixnum_value /* = NULL*/)
+static enum fasl_opcode_t dump_next_object(const _TCHAR *desc,
+                                           fixnum_t *fixnum_value)
 {
-  fasl_opcode_t opcode = FASL_OP_NIL;
+     enum fasl_opcode_t opcode = FASL_OP_NIL;
   size_t offset;
   fixnum_t index;
   fixnum_t reader_defn_fixnum;
@@ -681,7 +683,7 @@ int dump_file(char *filename)
   for(;;) {
     _sntprintf(buf, STRBUF_SIZE, _T("top[%" PRINTF_PREFIX_FIXNUM "i]"), object_number);
 
-    if (dump_next_object(buf) == FASL_OP_EOF)
+    if (dump_next_object(buf, NULL) == FASL_OP_EOF)
       break;
 
     object_number++;
@@ -698,8 +700,8 @@ int dump_file(char *filename)
 
 int main(int argc, char *argv[])
 {
-     memset(scan::g_reader_definition_ops, 0, sizeof(scan::g_reader_definition_ops));
-     memset(scan::g_reader_definition_fixnums, 0, sizeof(scan::g_reader_definition_fixnums));
+     memset(g_reader_definition_ops, 0, sizeof(g_reader_definition_ops));
+     memset(g_reader_definition_fixnums, 0, sizeof(g_reader_definition_fixnums));
 
   if (argc < 2) {
     fprintf(stderr, "Usage: %s [--no-file-offsets] [--no-defn-offsets] [--no-reader-defn-indicies] <filename>*\n", argv[0]);
@@ -710,12 +712,12 @@ int main(int argc, char *argv[])
   for(int arg = 1; arg < argc; arg++)
   {
        if (strcmp(argv[arg], "--no-file-offsets") == 0)
-            scan::g_show_file_offsets = false;
+            g_show_file_offsets = false;
        else if (strcmp(argv[arg], "--no-defn-offsets") == 0)
-            scan::g_show_defn_offsets = false;
+            g_show_defn_offsets = false;
        else if (strcmp(argv[arg], "--no-reader-defn-indicies") == 0)
-            scan::g_show_reader_defn_indicies = false;
-       else if (scan::dump_file(argv[arg]))
+            g_show_reader_defn_indicies = false;
+       else if (dump_file(argv[arg]))
             break;
   }
 

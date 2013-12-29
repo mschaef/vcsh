@@ -265,7 +265,7 @@ BEGIN_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
     VM_CONSTANT(DF_ALL                  , 0xFFFFFFFF)
 END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
 
-#define DF_ALWAYS ::scan::DF_NONE
+#define DF_ALWAYS DF_NONE
 
 
 

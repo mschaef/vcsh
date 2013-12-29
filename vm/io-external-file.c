@@ -36,7 +36,7 @@ INLINE FILE *PORT_FILE(lref_t port)
      return (FILE *) (PORT_PINFO(port)->user_data);
 }
 
-lref_t fileportcons(port_class_t * cls, port_mode_t mode, lref_t filename)
+lref_t fileportcons(struct port_class_t * cls, enum port_mode_t mode, lref_t filename)
 {
      assert(STRINGP(filename) || NULLP(filename));
 
@@ -110,7 +110,7 @@ void file_port_close(lref_t port)
 }
 
 
-port_class_t file_port_class = {
+struct port_class_t file_port_class = {
      _T("STANDARD-FILE"),
 
      file_port_open,        // open
@@ -147,7 +147,7 @@ lref_t lopen_raw_input_file(lref_t filename)
           vmerror_wrong_type_n(1, filename);
 
      return fileportcons(&file_port_class,
-                         (port_mode_t)(PORT_INPUT | PORT_BINARY),
+                         (enum port_mode_t)(PORT_INPUT | PORT_BINARY),
                          filename);
 }
 
@@ -157,7 +157,7 @@ lref_t lopen_raw_output_file(lref_t filename) // TODO: Append Mode
           vmerror_wrong_type_n(1, filename);
 
      return fileportcons(&file_port_class,
-                         (port_mode_t)(PORT_OUTPUT | PORT_BINARY),
+                         (enum port_mode_t)(PORT_OUTPUT | PORT_BINARY),
                          filename);
 }
 
@@ -177,7 +177,7 @@ void stdin_port_open(lref_t obj)
      SET_PORT_FILE(obj, stdin);
 }
 
-port_class_t stdin_port_class = {
+struct port_class_t stdin_port_class = {
      _T("STANDARD-INPUT"),
 
      stdin_port_open,        // open
@@ -198,7 +198,7 @@ void stdout_port_open(lref_t obj)
           PORT_TEXT_INFO(obj)->translate = false;
 }
 
-port_class_t stdout_port_class = {
+struct port_class_t stdout_port_class = {
      _T("STANDARD-OUTPUT"),
 
      stdout_port_open,      // open
@@ -219,7 +219,7 @@ void stderr_port_open(lref_t obj)
           PORT_TEXT_INFO(obj)->translate = false;
 }
 
-port_class_t stderr_port_class = {
+struct port_class_t stderr_port_class = {
      _T("STANDARD-ERROR"),
 
      stderr_port_open,      // open
@@ -237,17 +237,17 @@ void init_stdio_ports()
 {
      lref_t stdin_port =
           lopen_text_input_port(fileportcons(&stdin_port_class,
-                                             (port_mode_t)(PORT_INPUT | PORT_BINARY),
+                                             (enum port_mode_t)(PORT_INPUT | PORT_BINARY),
                                              strcons(_T("<stdin>"))));
 
      lref_t stdout_port =
           lopen_text_output_port(fileportcons(&stdout_port_class,
-                                              (port_mode_t)(PORT_OUTPUT | PORT_BINARY),
-                                              strcons(_T("<stdout>"))));
+                                              (enum port_mode_t)(PORT_OUTPUT | PORT_BINARY),
+p                                              strcons(_T("<stdout>"))));
 
      lref_t stderr_port =
           lopen_text_output_port(fileportcons(&stderr_port_class,
-                                              (port_mode_t)(PORT_OUTPUT | PORT_BINARY),
+                                              (enum port_mode_t)(PORT_OUTPUT | PORT_BINARY),
                                               strcons(_T("<stderr>"))));
 
      interp.control_fields[VMCTRL_CURRENT_INPUT_PORT] = stdin_port;

@@ -25,7 +25,7 @@
 size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size);
 void blocking_input_port_close(lref_t port);
 
-port_class_t blocking_input_port_class = {
+struct port_class_t blocking_input_port_class = {
      _T("BLOCKING-INPUT"),
 
      NULL,                           // open
@@ -60,7 +60,8 @@ size_t blocking_input_port_read_bytes(lref_t port, void *buf, size_t size)
      if (!PORT_INPUTP(port))
           return 0;
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
+     struct blocking_input_port_state *ps =
+          (struct blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      size_t bytes_to_read = size;
      size_t bytes_read = 0;
@@ -104,7 +105,8 @@ void blocking_input_port_close(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
+     struct blocking_input_port_state *ps =
+          (struct blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      if (ps->_close_port)
           ps->_close_port(port, ps->_userdata);
@@ -124,7 +126,8 @@ void blocking_input_post_data(lref_t port, void *data, size_t size)
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
      assert(!blocking_input_is_data_available(port));   /*  REVISIT: we really should allow this case */
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
+     struct blocking_input_port_state *ps =
+          (struct blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      assert(ps->_more_data);
 
@@ -147,7 +150,8 @@ void blocking_input_post_eof(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
+     struct blocking_input_port_state *ps =
+          (struct blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      ps->_more_data = false;
 }
@@ -156,10 +160,13 @@ bool blocking_input_is_data_available(lref_t port)
 {
      assert(PORTP(port) && (PORT_CLASS(port) == &blocking_input_port_class));
 
-     blocking_input_port_state *ps = (blocking_input_port_state *) (PORT_PINFO(port)->user_data);
+     struct blocking_input_port_state *ps =
+          (struct blocking_input_port_state *) (PORT_PINFO(port)->user_data);
 
      return (ps != NULL)
-         && (ps->_buffer != NULL) && (ps->_buffer_size > 0) && (ps->_buffer_pos < ps->_buffer_size);
+          && (ps->_buffer != NULL)
+          && (ps->_buffer_size > 0)
+          && (ps->_buffer_pos < ps->_buffer_size);
 }
 
 
@@ -167,8 +174,8 @@ lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
                            blocking_input_read_data_fn_t read_fn,
                            blocking_input_close_port_fn_t close_fn, void *userdata)
 {
-     blocking_input_port_state *ps =
-         (blocking_input_port_state *) gc_malloc(sizeof(blocking_input_port_state));
+     struct blocking_input_port_state *ps =
+          (struct blocking_input_port_state *) gc_malloc(sizeof(struct blocking_input_port_state));
 
      ps->_read_data = read_fn;
      ps->_close_port = close_fn;
@@ -180,7 +187,7 @@ lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
 
      return portcons(&blocking_input_port_class,
                      strcons(port_name),
-                     binary ? (port_mode_t) (PORT_INPUT | PORT_BINARY) : PORT_INPUT,
+                     binary ? (enum port_mode_t) (PORT_INPUT | PORT_BINARY) : PORT_INPUT,
                      NIL,
                      ps);
 

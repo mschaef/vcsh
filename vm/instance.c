@@ -37,7 +37,7 @@ static lref_t next_instance(lref_t proto)
           return NIL;
 
      if (!INSTANCEP(proto))
-          vmerror_wrong_type_n(proto);
+          vmerror_wrong_type_n(1, proto);
 
      return INSTANCE_PROTO(proto);
 }

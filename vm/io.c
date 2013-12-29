@@ -64,16 +64,16 @@
 
 
  lref_t initialize_port(lref_t s,
-                        port_class_t * cls,
+                        struct port_class_t * cls,
                         lref_t port_name,
-                        port_mode_t mode,
+                        enum port_mode_t mode,
                         lref_t user_object,
                         void *user_data)
  {
       assert(cls != NULL);
       assert(!NULLP(s));
 
-      SET_PORT_PINFO(s, (port_info_t *) gc_malloc(sizeof(port_info_t)));
+      SET_PORT_PINFO(s, (struct port_info_t *) gc_malloc(sizeof(struct port_info_t)));
       SET_PORT_CLASS(s, cls);
 
       PORT_PINFO(s)->port_name = port_name;
@@ -126,9 +126,9 @@
       return actual_count;
  }
 
- lref_t portcons(port_class_t * cls,
+ lref_t portcons(struct port_class_t * cls,
                  lref_t port_name,
-                 port_mode_t mode,
+                 enum port_mode_t mode,
                  lref_t user_object,
                  void *user_data)
  {
@@ -139,7 +139,7 @@
 
  /***** C I/O functions *****/
 
- bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t & result)
+ bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result)
  {
  #ifdef SCAN_64BIT_FIXNUMS
       assert((length == 1) || (length == 2) || (length == 4) || (length == 8));
@@ -160,17 +160,17 @@
       switch (length)
       {
       case 1:
-           result = (signedp ? (fixnum_t) (*(int8_t *) bytes) : (fixnum_t) (*(uint8_t *) bytes));
+           *result = (signedp ? (fixnum_t) (*(int8_t *) bytes) : (fixnum_t) (*(uint8_t *) bytes));
            break;
       case 2:
-           result = (signedp ? (fixnum_t) (*(int16_t *) bytes) : (fixnum_t) (*(uint16_t *) bytes));
+           *result = (signedp ? (fixnum_t) (*(int16_t *) bytes) : (fixnum_t) (*(uint16_t *) bytes));
            break;
       case 4:
-           result = (signedp ? (fixnum_t) (*(int32_t *) bytes) : (fixnum_t) (*(uint32_t *) bytes));
+           *result = (signedp ? (fixnum_t) (*(int32_t *) bytes) : (fixnum_t) (*(uint32_t *) bytes));
            break;
  #ifdef SCAN_64BIT_FIXNUMS
       case 8:
-           result = (signedp ? (fixnum_t) (*(int64_t *) bytes) : (fixnum_t) (*(uint64_t *) bytes));
+           *result = (signedp ? (fixnum_t) (*(int64_t *) bytes) : (fixnum_t) (*(uint64_t *) bytes));
            break;
  #endif
       }
@@ -179,7 +179,7 @@
  }
 
 
- bool read_binary_flonum(lref_t port, flonum_t & result)
+ bool read_binary_flonum(lref_t port, flonum_t *result)
  {
       assert(PORTP(port));
       assert(PORT_BINARYP(port));
@@ -190,7 +190,7 @@
       if (!flonums_read)
            return false;
 
-      result = *(flonum_t *) bytes;
+      *result = *(flonum_t *) bytes;
 
       return true;
  }
@@ -368,7 +368,7 @@ lref_t lread_binary_fixnum(lref_t l, lref_t sp, lref_t port)
 
      fixnum_t result = 0;
 
-     if (read_binary_fixnum(length, signedp, port, result))
+     if (read_binary_fixnum(length, signedp, port, &result))
           return fixcons(result);
      else
           return lmake_eof();
@@ -386,7 +386,7 @@ lref_t lread_binary_flonum(lref_t port)
 
      flonum_t result = 0;
 
-     if (read_binary_flonum(port, result))
+     if (read_binary_flonum(port, &result))
           return flocons(result);
      else
           return lmake_eof();
@@ -549,7 +549,7 @@ size_t null_port_write_bytes(lref_t port, const void *buf, size_t size)
      return size;
 }
 
-port_class_t null_port_class = {
+struct port_class_t null_port_class = {
      _T("NULL"),
 
      NULL,                  // open
@@ -567,7 +567,7 @@ lref_t lopen_null_input_port()
 {
      return portcons(&null_port_class,
                      NIL,
-                     (port_mode_t) (PORT_INPUT | PORT_BINARY),
+                     (enum port_mode_t) (PORT_INPUT | PORT_BINARY),
                      NIL,
                      NULL);
 }
@@ -576,7 +576,7 @@ lref_t lopen_null_output_port()
 {
      return portcons(&null_port_class,
                      NIL,
-                     (port_mode_t) (PORT_OUTPUT | PORT_BINARY),
+                     (enum port_mode_t) (PORT_OUTPUT | PORT_BINARY),
                      NIL,
                      NULL);
 }

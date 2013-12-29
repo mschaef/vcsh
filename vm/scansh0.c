@@ -32,26 +32,26 @@ void sigint_handler(int i)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-  scan::sys_init();
-  scan::init0(argc, argv, scan::DF_NONE);
+  sys_init();
+  init0(argc, argv, scan::DF_NONE);
 
   signal(SIGINT, sigint_handler);
 
   fprintf(stderr, ";;; scansh0 - %s\n", scan::build_id_string());
 
-  scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_OUTPUT_PORT];
-  scan::interp.control_fields[scan::VMCTRL_CURRENT_DEBUG_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT];
+  interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_OUTPUT_PORT];
+  interp.control_fields[scan::VMCTRL_CURRENT_DEBUG_PORT] = scan::interp.control_fields[scan::VMCTRL_CURRENT_ERROR_PORT];
 
-  scan::lref_t retval = scan::run();
+  lref_t retval = run();
 
   long return_status = 0;
 
-  if (scan::NUMBERP(retval))
-    return_status = scan::get_c_long(retval);
+  if (NUMBERP(retval))
+    return_status = get_c_long(retval);
 
   int rc = (int)(FIXNUMP(retval) ? get_c_fixnum(retval) : 0);
 
-  scan::shutdown();
+  shutdown();
 
   fprintf(stderr, "\n;;; scansh0 return code = %d\n", rc);
 

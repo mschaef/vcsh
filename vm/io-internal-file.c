@@ -27,7 +27,8 @@ size_t c_data_port_read_bytes(lref_t port, void *buf, size_t size)
      if (!PORT_INPUTP(port))
           return 0;
 
-     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(port)->user_data);
+     struct c_data_port_state *ps =
+          (struct c_data_port_state *) (PORT_PINFO(port)->user_data);
 
      size_t buf_remain = ps->buf_size - ps->buf_pos;
 
@@ -55,12 +56,13 @@ size_t c_data_port_length(lref_t obj)
      if (!PORT_INPUTP(obj))
           return 0;
 
-     c_data_port_state *ps = (c_data_port_state *) (PORT_PINFO(obj)->user_data);
+     struct c_data_port_state *ps =
+          (struct c_data_port_state *) (PORT_PINFO(obj)->user_data);
 
      return ps->buf_size - ps->buf_pos;
 }
 
-port_class_t c_data_port_class = {
+struct port_class_t c_data_port_class = {
      _T("C-DATA"),
 
      NULL,                   // open
@@ -79,9 +81,10 @@ lref_t liinternal_files()
      return interp.internal_files;
 }
 
-lref_t open_c_data_input(internal_file_t *data)
+lref_t open_c_data_input(struct internal_file_t *data)
 {
-     c_data_port_state *ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
+     struct c_data_port_state *ps =
+          (struct c_data_port_state *) gc_malloc(sizeof(struct c_data_port_state));
 
      ps->buf      = data->_bytes;
      ps->buf_size = data->_length;
@@ -94,7 +97,7 @@ lref_t open_c_data_input(internal_file_t *data)
                      ps);
 }
 
-void register_internal_file(internal_file_t *data)
+void register_internal_file(struct internal_file_t *data)
 {
      lref_t file_record = lcons(strcons(data->_name), open_c_data_input(data));
 
@@ -112,8 +115,8 @@ lref_t lclone_c_data_port(lref_t port)
      if (!PORT_INPUTP(port))
           vmerror_unsupported(_T("only input ports may be cloned"));
 
-     c_data_port_state *old_ps = (c_data_port_state *) (PORT_PINFO(port)->user_data);
-     c_data_port_state *new_ps = (c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
+     struct c_data_port_state *old_ps = (struct c_data_port_state *) (PORT_PINFO(port)->user_data);
+     struct c_data_port_state *new_ps = (struct c_data_port_state *) gc_malloc(sizeof(c_data_port_state));
 
      new_ps->buf      = old_ps->buf;
      new_ps->buf_size = old_ps->buf_size;

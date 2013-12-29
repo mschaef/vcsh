@@ -48,29 +48,29 @@ INLINE unsigned int HASH_COUNT(lref_t hash)
      return hash->storage_as.hash.info.count;
 }
 
-static void init_hash_entry(hash_entry_t * entry)
+static void init_hash_entry(struct hash_entry_t * entry)
 {
      entry->key = UNBOUND_MARKER;
      entry->val = UNBOUND_MARKER;
 }
 
-static void delete_hash_entry(hash_entry_t * entry)
+static void delete_hash_entry(struct hash_entry_t * entry)
 {
      entry->key = UNBOUND_MARKER;
      entry->val = NULL;
 }
 
-static bool hash_entry_used_p(hash_entry_t * entry)
+static bool hash_entry_used_p(struct hash_entry_t * entry)
 {
      return !UNBOUND_MARKER_P(entry->key);
 }
 
-static bool hash_entry_unused_p(hash_entry_t * entry)
+static bool hash_entry_unused_p(struct hash_entry_t * entry)
 {
      return UNBOUND_MARKER_P(entry->key);
 }
 
-static bool hash_entry_deleted_p(hash_entry_t * entry)
+static bool hash_entry_deleted_p(struct hash_entry_t * entry)
 {
      return UNBOUND_MARKER_P(entry->key) && NULLP(entry->val);
 }
@@ -242,26 +242,27 @@ static size_t round_up_to_power_of_two(size_t val)
      return rounded;
 }
 
-static void clear_hash_data(hash_entry_t * entries, size_t size)
+static void clear_hash_data(struct hash_entry_t * entries, size_t size)
 {
      for (size_t ii = 0; ii < size; ii++)
           init_hash_entry(&entries[ii]);
 }
 
-static hash_entry_t *allocate_hash_data(size_t size)
+static struct hash_entry_t *allocate_hash_data(size_t size)
 {
-     hash_entry_t *data = (hash_entry_t *) gc_malloc(size * sizeof(hash_entry_t));
+     struct hash_entry_t *data =
+          (struct hash_entry_t *) gc_malloc(size * sizeof(struct hash_entry_t));
 
      clear_hash_data(data, size);
 
      return data;
 }
 
-lref_t hashcons(bool shallow, size_t size)
+lref_t hashcons(bool shallow)
 {
      lref_t hash = new_cell(TC_HASH);
 
-     size = round_up_to_power_of_two(size);
+     size_t size = round_up_to_power_of_two(HASH_DEFAULT_INITIAL_SIZE);
 
      SET_HASH_MASK(hash, size - 1);
      SET_HASH_DATA(hash, allocate_hash_data(size));
@@ -359,7 +360,7 @@ static bool enlarge_hash(lref_t hash)
      if (new_size < current_size)
           return false;
 
-     hash_entry_t *new_data = allocate_hash_data(new_size);
+     struct hash_entry_t *new_data = allocate_hash_data(new_size);
 
      lref_t key, val;
 
@@ -370,7 +371,7 @@ static bool enlarge_hash(lref_t hash)
           for (fixnum_t index = href_index(HASH_SHALLOW(hash), new_size - 1, key);;
                index = href_next_index(new_size - 1, index))
           {
-               hash_entry_t *entry = &(new_data)[index];
+               struct hash_entry_t *entry = &(new_data)[index];
 
                if (hash_entry_unused_p(entry))
                {
@@ -390,14 +391,14 @@ static bool enlarge_hash(lref_t hash)
      return true;
 }
 
-static hash_entry_t *hash_lookup_entry(lref_t hash, lref_t key)
+static struct hash_entry_t *hash_lookup_entry(lref_t hash, lref_t key)
 {
      assert(HASHP(hash));
 
      for (fixnum_t index = href_index(HASH_SHALLOW(hash), HASH_MASK(hash), key);;
           index = href_next_index(HASH_MASK(hash), index))
      {
-          hash_entry_t *entry = &HASH_DATA(hash)[index];
+          struct hash_entry_t *entry = &HASH_DATA(hash)[index];
 
           if (hash_entry_deleted_p(entry))
                continue;
@@ -424,7 +425,7 @@ static hash_entry_t *hash_lookup_entry(lref_t hash, lref_t key)
 
 bool hash_ref(lref_t hash, lref_t key, lref_t *value_result)
 {
-     hash_entry_t *entry = hash_lookup_entry(hash, key);
+     struct hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry == NULL)
           return false;
@@ -439,7 +440,7 @@ lref_t lhash_refs(lref_t hash, lref_t key)
      if (!HASHP(hash))
           vmerror_wrong_type_n(1, hash);
 
-     hash_entry_t *entry = hash_lookup_entry(hash, key);
+     struct hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry == NULL)
           return boolcons(false);
@@ -466,7 +467,7 @@ lref_t lhash_ref(size_t argc, lref_t argv[])
      if (!HASHP(hash))
           vmerror_wrong_type_n(1, hash);
 
-     hash_entry_t *entry = hash_lookup_entry(hash, key);
+     struct hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry == NULL)
           return defaultValue;
@@ -489,7 +490,8 @@ lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
 {
      assert(HASHP(hash));
 
-     hash_entry_t *entry = hash_lookup_entry(hash, key);        /*  REVISIT: double lookup/hash */
+    /*  REVISIT: double lookup/hash */
+     struct hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry != NULL)
      {
@@ -500,7 +502,7 @@ lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
           for (fixnum_t index = href_index(HASH_SHALLOW(hash), HASH_MASK(hash), key);;
                index = href_next_index(HASH_MASK(hash), index))
           {
-               hash_entry_t *entry = &HASH_DATA(hash)[index];
+               struct hash_entry_t *entry = &HASH_DATA(hash)[index];
 
                if (hash_entry_unused_p(entry))
                {
@@ -536,7 +538,7 @@ lref_t lhash_remove(lref_t hash, lref_t key)
      if (!HASHP(hash))
           vmerror_wrong_type_n(1, hash);
 
-     hash_entry_t *entry = hash_lookup_entry(hash, key);
+     struct hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry != NULL)
      {
@@ -573,11 +575,11 @@ lref_t lihash_binding_vector(lref_t hash)
 
      size_t hash_size = HASH_SIZE(hash);
 
-     lref_t btable = vectorcons(hash_size);
+     lref_t btable = vectorcons(hash_size, NIL);
 
      for (size_t ii = 0; ii < hash_size; ii++)
      {
-          hash_entry_t *entry = &HASH_DATA(hash)[ii];
+          struct hash_entry_t *entry = &HASH_DATA(hash)[ii];
 
           if (hash_entry_deleted_p(entry))
                SET_VECTOR_ELEM(btable, ii, boolcons(false));
@@ -681,7 +683,7 @@ lref_t lhash_type(lref_t hash)
 lref_t lhash_copy(lref_t hash)
 {
      if (!HASHP(hash))
-          vmerror_wrong_type_n(hash);
+          vmerror_wrong_type_n(1, hash);
 
      lref_t target_hash = hashcons(HASH_SHALLOW(hash));
 
