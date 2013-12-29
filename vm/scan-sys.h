@@ -81,7 +81,7 @@ enum sys_file_attrs_t
      SYS_FATTR_HIDDEN = 0x20
 };
 
-const uint64_t SYS_BLKSIZE_UNKNOWN = 0;
+// const uint64_t SYS_BLKSIZE_UNKNOWN = 0;
 
 struct sys_stat_t
 {

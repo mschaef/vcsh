@@ -94,7 +94,7 @@ show-retval${EXE_EXT}: $(SHOW_RETVAL_OBJS)
 	${CC} ${LDFLAGS} ${NAMOBJFL}show-retval${EXE_EXT} $(SHOW_RETVAL_OBJS)
 
 scan-constants.scm: scan-constants.i
-	c -DCONST_SCHEME -P $< $@
+	cpp -DCONST_SCHEME -P $< $@
 
 depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend

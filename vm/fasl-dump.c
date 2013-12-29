@@ -282,7 +282,7 @@ static void dump_string()
 
   for(fixnum_t ii = 0; ii < length; ii++) {
 
-       if (read_binary(&ch, sizeof(_TCHAR), 1, NULL) == 0)
+       if (fdread_binary(&ch, sizeof(_TCHAR), 1, NULL) == 0)
             dump_error("EOF during string data");
 
     putchar(ch);
@@ -390,7 +390,7 @@ void dump_to_newline()
   _TCHAR ch = _T('\0');
 
   while ((ch != _T('\n')) && (ch != _T('\r'))) {
-    if (read_binary(&ch, sizeof(_TCHAR), 1) == 0)
+       if (fdread_binary(&ch, sizeof(_TCHAR), 1, NULL) == 0)
       break;
 
     putchar(ch);
@@ -426,7 +426,7 @@ static void dump_fast_op(int arity, bool has_next)
 
   fixnum_t fop_opcode;
 
-  if (!read_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, true, &fop_opcode, NULL))
+  if (!fdread_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, true, &fop_opcode, NULL))
        dump_error("Expected FOP opcode not found");
 
   const _TCHAR *opcode_name = fast_op_opcode_name((enum fast_op_opcode_t)fop_opcode);
