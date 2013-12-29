@@ -140,7 +140,7 @@ lref_t strrecons(lref_t obj, size_t new_length)
 
 lref_t strcons()
 {
-     return strcons(0, (const _TCHAR *) NULL);
+     return strconsbufn(0, (const _TCHAR *) NULL);
 }
 
 lref_t strconsch(_TCHAR ch)
