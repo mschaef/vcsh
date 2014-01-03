@@ -47,7 +47,7 @@ int _tmain(int argc, _TCHAR * argv[])
           return_status = get_c_long(retval);
 
      if (DEBUGGING_BUILD)
-          pdscwritef(DF_ALWAYS, (_T(";;;; end run, rc=~cd\n"), return_status));
+          dscwritef(DF_ALWAYS, (_T(";;;; end run, rc=~cd\n"), return_status));
 
      shutdown();
 

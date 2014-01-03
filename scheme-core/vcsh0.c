@@ -14,4 +14,4 @@
 
 #define NO_VCSH_STANDARD_LIBRARY
 
-#include "vcsh.cpp"
+#include "vcsh.c"

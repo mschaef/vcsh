@@ -43,7 +43,7 @@ struct internal_file_t
      internal_file_data_t _bytes;
 };
 
-#define DECL_INTERNAL_FILE struct scan::internal_file_t
+#define DECL_INTERNAL_FILE struct internal_file_t
 
 #ifdef SCAN_WINDOWS
 #  pragma warning (pop)
