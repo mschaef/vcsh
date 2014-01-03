@@ -294,18 +294,18 @@
    (lambda () )))
 
 (defbench output-symbol
-  (let ((p (open-null-port)))
+  (let ((p (open-null-output-port)))
     (account
      (display *hash-test-syms* p))))
 
 (defbench output-fixnum
-  (let ((p (open-null-port))
+  (let ((p (open-null-output-port))
         (fixnums (list-from-by 0 1 1000)))
     (account
      (display fixnums p))))
 
 (defbench output-flonum
-  (let ((p (open-null-port))
+  (let ((p (open-null-output-port))
         (fixnums (list-from-by 0.0 1.0 1000)))
     (account
      (display fixnums p))))
@@ -329,7 +329,7 @@
    (nested-lists 10)))
 
 (defbench output-nested-lists
-  (let ((p (open-null-port))
+  (let ((p (open-null-output-port))
         (l (nested-lists 11)))
     (account
      (display l p))))
@@ -736,7 +736,7 @@
                  (read-from-string "#S(benchmark-structure :f1 1 :f2 2 :f3 3)"))))
 
 (defbench structure/write
-  (let ((op (open-null-port)))
+  (let ((op (open-null-output-port)))
     (account
      (bench-repeat 100000
                    (write #S(benchmark-structure :f1 1 :f2 2 :f3 3) op)))))
@@ -806,20 +806,20 @@
 
 
 (defbench formatted-io/simple
-  (let ((np (open-null-port)))
+  (let ((np (open-null-output-port)))
     (account
      (bench-repeat 10000
                    (format np "Hello World")))))
 
 
 (defbench formatted-io/printer
-  (let ((np (open-null-port)))
+  (let ((np (open-null-output-port)))
     (account
      (bench-repeat 10000
                    (format np "~a~s~a" 'foo "bar" "baz")))))
 
 (defbench printer/basic
-  (let ((np (open-null-port)))
+  (let ((np (open-null-output-port)))
     (account
      (bench-repeat 10000
                    (write '('foo "bar" :keyword 1 1.0 1.0-2.0i

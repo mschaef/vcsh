@@ -30,5 +30,5 @@
 
 (defbench mandelbrot-cplx
   (account
-   (mandelbrot -2+1i 1-1i 50 (open-null-port))))
+   (mandelbrot -2+1i 1-1i 50 (open-null-output-port))))
   
