@@ -535,7 +535,7 @@ static void global_environment_asserts()
 
      /* The stack grows downwards, so the stack_start variable should be lower
       * in memory than the start of the stack */
-     assert(&stack_start < stack_start);
+     assert((void *)(&stack_start) < stack_start);
 
      /* An LObject is the size of four pointers (lref_t's) */
      assert(sizeof(struct lobject_t) == 4 * sizeof(lref_t));

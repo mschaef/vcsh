@@ -17,9 +17,9 @@
 #include "scan-private.h"
 
 #ifdef CHECKED
-#  define EVAL_INLINE 
+#  define EVAL_INLINE static
 #else
-#  define EVAL_INLINE INLINE
+#  define EVAL_INLINE static INLINE
 #endif
 
 /***** stack limit checking *****/
