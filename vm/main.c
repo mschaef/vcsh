@@ -84,7 +84,7 @@ static size_t process_vm_int_argument_value(_TCHAR * arg_name, _TCHAR * arg_valu
           endobj++;
           rc *= (1024 * 1024 * 1024);
           break;
-     }
+     } 
 
      if (*endobj != _T('\0'))
      {

@@ -76,7 +76,9 @@ size_t file_port_read_bytes(lref_t port, void *buf, size_t size)
 
      assert(f);
 
-     return fread(buf, 1, size, f);
+     size_t bytes_read = fread(buf, 1, size, f);
+
+     return bytes_read;
 }
 
 size_t file_port_write_bytes(lref_t port, const void *buf, size_t size)

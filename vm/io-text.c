@@ -88,6 +88,8 @@ int read_char(lref_t port)
      else
           PORT_TEXT_INFO(port)->col++;
 
+
+
      return ch;
 }
 

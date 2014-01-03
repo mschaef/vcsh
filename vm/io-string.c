@@ -89,7 +89,8 @@ lref_t lopen_input_string(lref_t string)
      /*  REVISIT: open-input-string can avoid duplicating incoming strings */
      /*  REVISIT: open-input-string take string input port argument */
 
-     lref_t port = portcons(&string_port_class, NIL, PORT_INPUT, strconsbuf(string), NULL);
+     lref_t port =
+          portcons(&string_port_class, NIL, PORT_INPUT, strconsdup(string), NULL);
 
      SET_PORT_TEXT_INFO(port, allocate_text_info());
 
