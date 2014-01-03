@@ -14,10 +14,8 @@
 
 #include "../vm/scan.h"
 
-extern scan::internal_file_t ifile_compiler_run_scf;
-extern scan::internal_file_t ifile_scheme_scf;
-
-BEGIN_NAMESPACE(scan)
+extern internal_file_t ifile_compiler_run_scf;
+extern internal_file_t ifile_scheme_scf;
 
 void scanlib_register_internal_files();
 
@@ -38,5 +36,3 @@ void init(int argc, _TCHAR * argv[], debug_flag_t initial_debug_flags)
      init0(argc, argv, initial_debug_flags);
      init1();
 }
-
-END_NAMESPACE

@@ -19,7 +19,7 @@ void sigint_handler(int i)
 {
      UNREFERENCED(i);
 
-     scan::signal_interrupt(scan::VMINTR_BREAK);
+     signal_interrupt(VMINTR_BREAK);
 
      signal(SIGINT, sigint_handler);
 };
@@ -30,8 +30,8 @@ void sigint_handler(int i)
 
 int _tmain(int argc, _TCHAR * argv[])
 {
-     scan::sys_init();
-     scan::init(argc, argv, scan::DF_NONE);
+     sys_init();
+     init(argc, argv, DF_NONE);
 
 #if !defined(NO_VCSH_STANDARD_LIBRARY)
      auto_register_internal_files();
@@ -39,17 +39,17 @@ int _tmain(int argc, _TCHAR * argv[])
 
      signal(SIGINT, sigint_handler);
 
-     scan::lref_t retval = scan::run();
+     lref_t retval = run();
 
      long return_status = 0;
 
-     if (scan::NUMBERP(retval))
-          return_status = scan::get_c_long(retval);
+     if (NUMBERP(retval))
+          return_status = get_c_long(retval);
 
      if (DEBUGGING_BUILD)
           pdscwritef(DF_ALWAYS, (_T(";;;; end run, rc=~cd\n"), return_status));
 
-     scan::shutdown();
+     shutdown();
 
      exit((int) return_status);
 }
