@@ -338,7 +338,4 @@
   (test-case (equal? "98.421,3000000000" (inexact->display-string 98421.300000000002910 10 #f :euro)))
   (test-case (equal? "9.842130000000e4" (inexact->display-string 98421.300000000002910 12 #t :none)))
   (test-case (equal? "9.842130000000e4" (inexact->display-string 98421.300000000002910 12 #t :us)))
-  (test-case (equal? "9,842130000000e4" (inexact->display-string 98421.300000000002910 12 #t :euro)))
-  (test-case (equal? "98421.30000000000?" (inexact->display-string 98421.300000000002910 12 #f :none)))
-  (test-case (equal? "98,421.30000000000?" (inexact->display-string 98421.300000000002910 12 #f :us)))
-  (test-case (equal? "98.421,30000000000?" (inexact->display-string 98421.300000000002910 12 #f :euro))))
+  (test-case (equal? "9,842130000000e4" (inexact->display-string 98421.300000000002910 12 #t :euro))))
