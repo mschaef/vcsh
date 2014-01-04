@@ -69,7 +69,6 @@ lref_t lista(size_t n, lref_t args[]);
 
 #define fixabs labs
 
-lref_t fixcons2(uint32_t high, uint32_t low);
 lref_t fixcons(fixnum_t x);
 
 lref_t flocons(double x);

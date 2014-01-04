@@ -20,7 +20,7 @@
 
 /*** Fixnum and Flonum ***/
 
-#ifdef SCAN_64BIT_FIXNUMS
+#ifdef SCAN_64BIT
 typedef int64_t fixnum_t;
 typedef uint64_t unsigned_fixnum_t;
 

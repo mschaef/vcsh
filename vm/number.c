@@ -25,17 +25,8 @@
 #include "scan-private.h"
 #include "mt19937.h"
 
-/**************************************************************
- * Numeric data type implementations
- */
 
-/**************************************************************
- * Number constructors
- */
-lref_t fixcons2(uint32_t high, uint32_t low)
-{
-     return fixcons(((fixnum_t) high << 32) + (fixnum_t) low);
-}
+/*** Number constructors ***/
 
 lref_t fixcons(fixnum_t x)
 {
