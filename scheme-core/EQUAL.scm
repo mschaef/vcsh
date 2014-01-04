@@ -74,18 +74,6 @@
                                       (loop (+ i 1)))
                                      (#t
                                       #f))))))
-                     ((instance)
-                      (and (check-next (%instance-proto x) (%instance-proto y))
-                           (null? (set-diff/eq (direct-instance-slots x)
-                                               (direct-instance-slots y)))
-                           (null? (set-diff/eq (direct-instance-slots y)
-                                               (direct-instance-slots x)))
-                           (let loop ((slots (direct-instance-slots y)))
-                             (if (null? slots)
-                                 #t
-                                 (and (check-next (slot-ref x (car slots))
-                                                  (slot-ref y (car slots)))
-                                      (loop (cdr slots)))))))
                      ((hash)
                       ;; There are four critera for hash tables to be EQUAL:
                       (and (hash? y)                         ; 1. They're both hash tables

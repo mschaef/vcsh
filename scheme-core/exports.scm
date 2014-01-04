@@ -94,7 +94,6 @@
              alist-copy
              alist-delete
              all-classes
-             all-instance-slots
              all-iterate-sequence-types
              all-package-symbols
              all-package-variables
@@ -235,14 +234,12 @@
              classes=?
              clear-repl-history!
              clone-c-data-port
-             clone-instance
              close-input-port
              close-output-port
              close-port
              closure
              closure-bindings
              closure?
-             columns->instance
              compile-form
              complex
              complex?
@@ -262,7 +259,6 @@
              current-modified-julian-day
              current-output-port
              current-time
-             data->instance
              date->julian-day
              date->modified-julian-day
              date->string
@@ -298,7 +294,6 @@
              delq
              describe
              dformat
-             direct-instance-slots
              directory
              disassemble
              display
@@ -377,7 +372,6 @@
              first
              fixnum
              flatten
-             flatten-instance
              flonum
              floor
              flush-port
@@ -450,11 +444,6 @@
              insert-ordered
              inspect
              inspect-analyze-object
-             instance
-             instance-proto
-             instance-understands?
-             instance-with-slot?
-             instance?
              integer->char
              integer?
              intern!

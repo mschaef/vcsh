@@ -60,10 +60,6 @@
                    ((structure)
                     (dolist (slot-name (structure-slots o))
                       (push! (structure-slot-by-name o slot-name) to-visit)))
-                   ((instance)
-                    ;; Don't check the slots themselves, since we
-                    ;; do not print them by default.
-                    (push! (%instance-proto o) to-visit))
                    ((hash)
                     (dolist (k/v (hash->a-list o))
                       (push! (car k/v) to-visit)
@@ -384,14 +380,6 @@
     (print-hash-elements obj port machine-readable? shared-structure-map)
     (write-strings port ")")))
 
-(define-method (print-object (obj instance) port machine-readable? shared-structure-map)
-  (with-new-print-level port
-    (print-unreadable-object obj port
-       (write-strings port "(")
-       (print (%instance-proto obj) port #t shared-structure-map)
-       (write-strings port ")")
-       (when (instance-understands? obj 'print-unreadably)
-         (send obj 'print-unreadably port)))))
 
 ;;;; formatter
 

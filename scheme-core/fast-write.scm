@@ -55,11 +55,6 @@
                   (hash-set! visited-layouts (%structure-layout o) #f)
                   (dotimes (ii (%structure-length o))
                     (visit (%structure-ref o ii))))
-                 ((instance)
-                  (visit (%instance-proto o))
-                  (dolist (slot-name (direct-instance-slots o))
-                    (visit slot-name)
-                    (visit (slot-ref o slot-name))))
                  ((hash)
                   (dolist (k/v (hash->a-list o))
                     (visit (car k/v))
@@ -205,11 +200,6 @@
        (check-sharing-and-write (length object))
        (dovec (x object)
          (check-sharing-and-write x)))
-
-      ((instance)
-       (fast-write-opcode system::FASL_OP_INSTANCE port)
-       (check-sharing-and-write (%instance-proto object))
-       (check-sharing-and-write (hash->a-list (%instance-slots object))))
 
       ((hash)
        (fast-write-opcode system::FASL_OP_HASH port)

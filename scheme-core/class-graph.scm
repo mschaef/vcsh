@@ -31,7 +31,6 @@
     ((#.system::TC_PORT)           'port) 
     ((#.system::TC_END_OF_FILE)    'end-of-file) 
     ((#.system::TC_VALUES_TUPLE)   'values-typle) 
-    ((#.system::TC_INSTANCE)       'instance) 
     ((#.system::TC_UNBOUND_MARKER) 'unbound-marker) 
     ((#.system::TC_GC_TRIP_WIRE)   'trip-wire) 
     ((#.system::TC_FAST_OP)        'fast-op)
@@ -148,9 +147,7 @@
   "Returns the type of <obj> as a symbol. For instances, the name of the type
    is the name of the prototype symbol closest up the prototype list. For
    structures, returns the structure type name."
-  (cond ((instance? obj)
-         'instance)
-        ((structure? obj)
+  (cond ((structure? obj)
          (structure-type obj))
         (#t
          (%representation-of obj))))

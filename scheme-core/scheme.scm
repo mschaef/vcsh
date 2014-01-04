@@ -63,7 +63,6 @@
 (include "text-dictionary.scm")
 (include "package.scm")
 (include "hooks.scm")
-(include "instance.scm")
 (include "class-graph.scm")
 (include "structure.scm")
 (include "iterate.scm")

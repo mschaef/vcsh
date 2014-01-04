@@ -137,20 +137,6 @@
                                                   :value (vector-ref obj ii))
                                elements)))))))
 
-(define-method (object->inspect-ctx (obj instance))
-  (define (proto)
-    (if (instance? obj)
-        (instance-proto obj)
-        :none))
-  (make-inspect-ctx
-   :obj obj
-   :items (cons* (make-inspect-item :desc "proto" :value (proto))
-                 (map #L(make-inspect-item :desc "slot"
-                                           :key _
-                                           :value  (slot-ref obj _))
-                      (direct-instance-slots obj)))))
-
-
 (define-method (object->inspect-ctx (obj hash))
   (make-inspect-ctx
    :obj obj
