@@ -46,7 +46,7 @@ typedef uint32_t unsigned_fixnum_t;
 typedef double flonum_t;
 
 #define FLONUM_MAX DBL_MAX
-#define FLONUM_MIN -DBL_MAX
+#define FLONUM_MIN (-DBL_MAX)
 #define FLONUM_EPSILON DBL_EPSILON
 
 /*** Forward declarations ***/
