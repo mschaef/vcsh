@@ -206,21 +206,6 @@ static void debug_print_hash(lref_t obj, lref_t port, bool machine_readable)
      write_char(')', port);
 }
 
-static void debug_print_instance(lref_t obj, lref_t port, bool machine_readable)
-{
-     assert(INSTANCEP(obj));
-
-     WRITE_TEXT_CONSTANT(_T("#<instance("), port);
-
-     debug_print_object(INSTANCE_PROTO(obj), port, machine_readable);
-
-     WRITE_TEXT_CONSTANT(_T(")"), port);
-
-     debug_print_object(INSTANCE_SLOTS(obj), port, machine_readable);
-
-     write_char('>', port);
-}
-
 static const _TCHAR *charnames[] = {
      _T("nul"), _T("soh"), _T("stx"), _T("etx"),
      _T("eot"), _T("eng"), _T("ack"), _T("bel"),
@@ -361,9 +346,6 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
      case TC_HASH:
           debug_print_hash(obj, port, machine_readable);
-          break;
-     case TC_INSTANCE:
-          debug_print_instance(obj, port, machine_readable);
           break;
 
      case TC_PACKAGE:

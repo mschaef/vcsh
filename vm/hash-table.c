@@ -174,11 +174,6 @@ fixnum_t sxhash(lref_t obj)
                hash = HASH_COMBINE(hash, sxhash(STRUCTURE_ELEM(obj, ii)));
           break;
 
-     case TC_INSTANCE:
-          hash = HASH_COMBINE(hash, sxhash(INSTANCE_PROTO(obj)));
-          hash = HASH_COMBINE(hash, sxhash(INSTANCE_SLOTS(obj)));
-          break;
-
      case TC_HASH:
           for (ii = 0; ii < HASH_SIZE(obj); ii++)
           {
@@ -706,23 +701,12 @@ size_t hash_length(lref_t hash)
 
 lref_t lislot_ref(lref_t inst, lref_t key)
 {
-     if (!INSTANCEP(inst))
-          vmerror_wrong_type_n(1, inst);
-
-     lref_t val = NIL;
-
-     if (!hash_ref(INSTANCE_SLOTS(inst), key, &val))
-          vmerror_unbound(key);
-
-     return val;
+     /** unneeded **/
+     return NIL;
 }
 
 lref_t lislot_set(lref_t inst, lref_t key, lref_t value)
 {
-     if (!INSTANCEP(inst))
-          vmerror_wrong_type_n(1, inst);
-
-     lhash_set(INSTANCE_SLOTS(inst), key, value);
-
-     return inst;
+     /** unneeded **/
+     return NIL;
 }

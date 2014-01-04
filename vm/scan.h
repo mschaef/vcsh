@@ -116,8 +116,6 @@ typedef size_t hash_iter_t;
 void hash_iter_begin(lref_t hash, hash_iter_t * iter);
 bool hash_iter_next(lref_t hash, hash_iter_t * iter, lref_t * key, lref_t * val);
 
-lref_t liinstancecons(lref_t proto);
-
 /**** Port I/O ****/
 
 lref_t portcons(struct port_class_t * cls,
@@ -286,14 +284,10 @@ lref_t lidefine_global(lref_t var, lref_t val);
 lref_t lidirectory(lref_t dirname, lref_t mode);
 lref_t lieee754_bits_to(lref_t x);
 lref_t lifile_details(lref_t path, lref_t existance_onlyp);
-lref_t lifind_slot_instance(lref_t inst, lref_t key);
 lref_t ligc_trip_wire();
 lref_t lihash_binding_vector(lref_t hash);
 lref_t liifasl_load(lref_t port);
 lref_t liimmediate_p(lref_t obj);
-lref_t liinstance_map(lref_t inst);
-lref_t liinstance_proto(lref_t instance);
-lref_t liinstance_slots(lref_t instance);
 lref_t liinternal_files();
 lref_t liload(lref_t fname);
 lref_t limacrocons(lref_t t);
@@ -303,13 +297,11 @@ lref_t linexact2exact(lref_t x);
 lref_t linexactp(lref_t x);
 lref_t linfinitep(lref_t x);
 lref_t linput_portp(lref_t obj);
-lref_t linstancep(lref_t obj);
 lref_t linteger2char(lref_t s);     /*  REVISIT: rename to exact->char */
 lref_t lintegerp(lref_t x);
 lref_t lipackagecons(lref_t name);
 lref_t lirequest_heap_size(lref_t c);
 lref_t liset_control_field(lref_t control_field_id, lref_t new_value);
-lref_t liset_instance_proto(lref_t instance, lref_t new_proto);
 lref_t liset_trap_handler(lref_t trap_id, lref_t new_handler);
 lref_t lislot_ref(lref_t obj, lref_t key);
 lref_t lislot_set(lref_t obj, lref_t key, lref_t value);

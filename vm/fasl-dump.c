@@ -341,19 +341,6 @@ static void dump_vector()
     }
 }
 
-static void dump_instance()
-{
-     enum fasl_opcode_t op = dump_next_object(_T("proto"), NULL);
-
-  if ((op != FASL_OP_FALSE) && (op != FASL_OP_INSTANCE) && (op != FASL_OP_SYMBOL))
-    dump_error("malformed proto in instance map");
-
-  op = dump_next_object(_T("slots"), NULL);
-
-  if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST))
-    dump_error("Expected list for slot values");
-}
-
 static void dump_hash()
 {
      enum fasl_opcode_t op = dump_next_object(_T("shallow?"), NULL);
@@ -576,7 +563,6 @@ static enum fasl_opcode_t dump_next_object(const _TCHAR *desc,
     case FASL_OP_PACKAGE:		dump_package();		break;
     case FASL_OP_VECTOR:		dump_vector();		break;
 
-    case FASL_OP_INSTANCE:		dump_instance();	break;
     case FASL_OP_HASH:			dump_hash();	        break;
 
     case FASL_OP_CLOSURE:		dump_closure();		break;

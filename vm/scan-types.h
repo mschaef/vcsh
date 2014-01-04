@@ -205,11 +205,6 @@ struct lobject_t
           } vector;
           struct
           {
-               lref_t proto;
-               lref_t slots;
-          } instance;
-          struct
-          {
                struct port_class_t *klass;
                struct port_info_t *pinf;
                struct port_text_info_t *text_info;
@@ -436,11 +431,6 @@ INLINE bool VALUES_TUPLE_P(lref_t x)
 INLINE bool EOFP(lref_t x)
 {
      return TYPEP(x, TC_END_OF_FILE);
-}
-
-INLINE bool INSTANCEP(lref_t x)
-{
-     return TYPEP(x, TC_INSTANCE);
 }
 
 INLINE bool UNBOUND_MARKER_P(lref_t x)
@@ -1018,31 +1008,6 @@ INLINE struct hash_entry_t *SET_HASH_DATA(lref_t obj, struct hash_entry_t * data
 {
      checked_assert(HASHP(obj));
      return ((obj)->storage_as.hash.data) = data;
-}
-
-/*** instance ***/
-INLINE lref_t INSTANCE_PROTO(lref_t obj)
-{
-     checked_assert(INSTANCEP(obj));
-     return ((obj)->storage_as.instance.proto);
-}
-
-INLINE void SET_INSTANCE_PROTO(lref_t obj, lref_t proto)
-{
-     checked_assert(INSTANCEP(obj));
-     ((obj)->storage_as.instance.proto) = proto;
-}
-
-INLINE lref_t INSTANCE_SLOTS(lref_t obj)
-{
-     checked_assert(INSTANCEP(obj));
-     return ((obj)->storage_as.instance.slots);
-}
-
-INLINE void SET_INSTANCE_SLOTS(lref_t obj, lref_t slots)
-{
-     checked_assert(INSTANCEP(obj));
-     ((obj)->storage_as.instance.slots) = slots;
 }
 
 /*** fasl-stream ***/

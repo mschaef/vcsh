@@ -346,11 +346,6 @@ void gc_mark(lref_t initial_obj)
                obj = VALUES_TUPLE_VALUES(obj);
                break;
 
-          case TC_INSTANCE:
-               gc_mark(INSTANCE_PROTO(obj));
-               obj = INSTANCE_SLOTS(obj);
-               break;
-
           case TC_FAST_OP:
                gc_mark(FAST_OP_ARG1(obj));
                gc_mark(FAST_OP_ARG2(obj));
