@@ -337,9 +337,7 @@
     (get-output-string o)))
 
 (defmacro (type-of-tests form type)
-  `(begin
-     (test-case (eq? (type-of ,form)               ,type))
-     (test-case (is-a?        ,form                ,type))))
+  `(test-case (eq? (type-of ,form) ,type)))
 
 (define (shallow-list=? xs ys :optional (test eq?))
   (let loop ((xs xs) (ys ys))

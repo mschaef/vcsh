@@ -124,26 +124,4 @@ lref_t lifind_slot_instance(lref_t inst, lref_t key)
      return boolcons(false);
 }
 
-lref_t lislot_ref(lref_t inst, lref_t key)
-{
-     if (!INSTANCEP(inst))
-          vmerror_wrong_type_n(1, inst);
-
-     lref_t val = NIL;
-
-     if (!hash_ref(INSTANCE_SLOTS(inst), key, &val))
-          vmerror_unbound(key);
-
-     return val;
-}
-
-lref_t lislot_set(lref_t inst, lref_t key, lref_t value)
-{
-     if (!INSTANCEP(inst))
-          vmerror_wrong_type_n(1, inst);
-
-     lhash_set(INSTANCE_SLOTS(inst), key, value);
-
-     return inst;
-}
 
