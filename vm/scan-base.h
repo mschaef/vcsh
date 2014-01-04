@@ -20,9 +20,9 @@
 
 //#define WITH_FOPLOG_SUPPORT
 
-#define SCAN_64BIT_FIXNUMS            /* Support for MSC style 64-bit integers */
+#define SCAN_64BIT            /* Support for MSC style 64-bit integers */
 
-#define  __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
 
 #include <stddef.h>

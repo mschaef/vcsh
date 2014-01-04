@@ -687,7 +687,7 @@ bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t *result)
      assert((radix >= 2) && (radix <= 36));
 
 
-#ifdef SCAN_64BIT_FIXNUMS
+#ifdef SCAN_64BIT
      *result = strtoll(string, &endobj, radix);
 
      if (((*result == INT64_MIN) || (*result == INT64_MAX)) && (errno == ERANGE))     /*  REVISIT: errno causes problems with the _link_ */

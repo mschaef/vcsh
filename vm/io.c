@@ -141,7 +141,7 @@
 
  bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result)
  {
- #ifdef SCAN_64BIT_FIXNUMS
+ #ifdef SCAN_64BIT
       assert((length == 1) || (length == 2) || (length == 4) || (length == 8));
  #else
       assert((length == 1) || (length == 2) || (length == 4));
@@ -168,7 +168,7 @@
       case 4:
            *result = (signedp ? (fixnum_t) (*(int32_t *) bytes) : (fixnum_t) (*(uint32_t *) bytes));
            break;
- #ifdef SCAN_64BIT_FIXNUMS
+ #ifdef SCAN_64BIT
       case 8:
            *result = (signedp ? (fixnum_t) (*(int64_t *) bytes) : (fixnum_t) (*(uint64_t *) bytes));
            break;
@@ -358,7 +358,7 @@ lref_t lread_binary_fixnum(lref_t l, lref_t sp, lref_t port)
      fixnum_t length = get_c_fixnum(l);
      bool signedp = BOOLV(sp);
 
-#ifdef SCAN_64BIT_FIXNUMS
+#ifdef SCAN_64BIT
      if ((length != 1) && (length != 2) && (length != 4) && (length != 8))
           vmerror_arg_out_of_range(l, _T("1, 2, 4, or 8"));
 #else
@@ -443,7 +443,7 @@ lref_t lwrite_binary_fixnum(lref_t v, lref_t l, lref_t sp, lref_t port)
      fixnum_t length = get_c_fixnum(l);
      bool signedp = BOOLV(sp);
 
-#ifdef SCAN_64BIT_FIXNUMS
+#ifdef SCAN_64BIT
      if ((length != 1) && (length != 2) && (length != 4) && (length != 8))
           vmerror_arg_out_of_range(l, _T("1, 2, 4, or 8"));
 #else
@@ -478,7 +478,7 @@ lref_t lwrite_binary_fixnum(lref_t v, lref_t l, lref_t sp, lref_t port)
                *(uint32_t *) bytes = (uint32_t) val;
           break;
 
-#ifdef SCAN_64BIT_FIXNUMS
+#ifdef SCAN_64BIT
      case 8:
           if (signedp)
                *(int64_t *) bytes = (int64_t) val;
