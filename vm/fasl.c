@@ -403,38 +403,6 @@ static void fast_read_structure(lref_t reader, lref_t * st)
 }
 
 
-static void fast_read_instance(lref_t reader, lref_t * instance)
-{
-     lref_t proto = NIL;
-     fast_read(reader, &proto, false);
-
-     if (!(INSTANCEP(proto) || FALSEP(proto) || SYMBOLP(proto)))
-          vmerror_fast_read("Bad prototype instance, must be #f, a symbol, or an instance",
-                            reader, proto);
-
-     *instance = liinstancecons(proto);
-
-     lref_t elements;
-     fast_read(reader, &elements, false);
-
-     lref_t loc = NIL;
-     for (loc = elements; CONSP(loc); loc = CDR(loc))
-     {
-          lref_t kv = CAR(loc);
-
-          if (!CONSP(kv))
-               vmerror_fast_read("malformed slot-name/value in instance", reader, kv);
-
-          if (!SYMBOLP(CAR(kv)))
-               vmerror_fast_read("Bad instance slot name.", reader, CAR(kv));
-
-          lhash_set(INSTANCE_SLOTS(*instance), CAR(kv), CDR(kv));
-     }
-
-     if (!NULLP(loc))
-          vmerror_fast_read("malformed slot list for instance", reader, elements);
-}
-
 static void fast_read_hash(lref_t reader, lref_t * hash)
 {
      lref_t shallow;
@@ -760,10 +728,6 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
           case FASL_OP_VECTOR:
                fast_read_vector(reader, retval);
-               break;
-
-          case FASL_OP_INSTANCE:
-               fast_read_instance(reader, retval);
                break;
 
           case FASL_OP_HASH:

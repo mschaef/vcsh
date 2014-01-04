@@ -113,8 +113,6 @@ bool equalp(lref_t a, lref_t b)
           return string_equal(a, b);
      case TC_HASH:
           return hash_equal(a, b);
-     case TC_INSTANCE:
-          return instance_equal(a, b);
      case TC_FAST_OP:
           return fast_op_equal(a, b);
      default:

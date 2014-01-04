@@ -264,14 +264,10 @@ static void register_main_subrs()
     register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
     register_subr(_T("%fast-op-next"),                    SUBR_1,     (void*)lfast_op_next                       );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
-    register_subr(_T("%find-slot-instance"),              SUBR_2,     (void*)lifind_slot_instance                );
     register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
-    register_subr(_T("%instancecons"),                    SUBR_1,     (void*)liinstancecons                      );
-    register_subr(_T("%instance-proto"),                  SUBR_1,     (void*)liinstance_proto                    );
-    register_subr(_T("%instance-slots"),                  SUBR_1,     (void*)liinstance_slots                    );
     register_subr(_T("%internal-files"),                  SUBR_0,     (void*)liinternal_files                    );
     register_subr(_T("%list->values"),                    SUBR_1,     (void*)lvalues                             );
     register_subr(_T("%macro-transformer"),               SUBR_1,     (void*)lmacro_transformer                  );
@@ -290,7 +286,6 @@ static void register_main_subrs()
     register_subr(_T("%set-control-field"),               SUBR_2,     (void*)liset_control_field                 );
     register_subr(_T("%set-debug-flags"),                 SUBR_1,     (void*)lset_debug_flags                    );
     register_subr(_T("%set-fasl-package-list!"),          SUBR_1,     (void*)lset_fasl_package_list              );
-    register_subr(_T("%set-instance-proto!"),             SUBR_2,     (void*)liset_instance_proto                );
     register_subr(_T("%set-interrupt-mask!"),             SUBR_1,     (void*)lset_interrupt_mask                 );
     register_subr(_T("%set-package-name"),                SUBR_2,     (void*)lset_package_name                   );
     register_subr(_T("%set-package-use-list!"),           SUBR_2,     (void*)lset_package_use_list               );
@@ -402,7 +397,6 @@ static void register_main_subrs()
     register_subr(_T("inexact?"),                         SUBR_1,     (void*)linexactp                           );
     register_subr(_T("infinite?"),                        SUBR_1,     (void*)linfinitep                          );
     register_subr(_T("input-port?"),                      SUBR_1,     (void*)linput_portp                        );
-    register_subr(_T("instance?"),                        SUBR_1,     (void*)linstancep                          );
     register_subr(_T("integer->char"),                    SUBR_1,     (void*)linteger2char                       );
     register_subr(_T("integer?"),                         SUBR_1,     (void*)lintegerp                           );
     register_subr(_T("keyword?"),                         SUBR_1,     (void*)lkeywordp                           );
