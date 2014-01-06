@@ -37,7 +37,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
   signal(SIGINT, sigint_handler);
 
-  fprintf(stderr, ";;; scansh0 - %s\n", build_id_string());
+  fprintf(stderr, ";;; scansh0 - %s\n", scan_vm_build_id_string());
 
   interp.control_fields[VMCTRL_CURRENT_ERROR_PORT] = interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT];
   interp.control_fields[VMCTRL_CURRENT_DEBUG_PORT] = interp.control_fields[VMCTRL_CURRENT_ERROR_PORT];

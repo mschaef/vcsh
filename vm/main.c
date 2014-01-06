@@ -21,9 +21,9 @@
 
 struct interpreter_t interp;           /* Interpreter globals */
 
-const _TCHAR *build_id_string()
+const _TCHAR *scan_vm_build_id_string()
 {
-     return (__DATE__ "-" SCAN_VERSION
+     return (__DATE__ "-" SCAN_VM_VERSION
 #if defined(WITH_FOPLOG_SUPPORT)
              "-FOPLOG"
 #endif

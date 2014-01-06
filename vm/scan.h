@@ -35,7 +35,7 @@ void signal_interrupt(enum vminterrupt_t intr);
 
 void shutdown();
 
-const _TCHAR *build_id_string();
+const _TCHAR *scan_vm_build_id_string();
 
 /**** Fatal Errors ****/
 
