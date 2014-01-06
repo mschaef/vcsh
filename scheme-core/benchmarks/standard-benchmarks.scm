@@ -767,42 +767,6 @@
       (set-benchmark-structure-f3! (vector-ref db ii) (vector-ref db (random size))))
     db))
 
-(define-proto benchmark-proto
-  'f1 0
-  'f2 0
-  'f3 0)
-
-(defbench proto/make-0-args
-  (account
-   (bench-repeat 100000
-                 (make-instance benchmark-proto))))
-
-(defbench proto/make-1-args
-  (account
-   (bench-repeat 100000
-                 (make-instance benchmark-proto 'f1 1))))
-
-(defbench proto/make-3-args
-  (account
-   (bench-repeat 100000
-                 (make-instance benchmark-proto 'f1 1 'f2 2 'f3 3))))
-
-(defbench proto/ref
-  (let ((protos (map #L(make-instance benchmark-proto) (iseq 1 100000))))
-    (account
-     (dolist (proto protos)
-       (slot-ref proto 'f1)
-       (slot-ref proto 'f2)
-       (slot-ref proto 'f3)))))
-
-
-(defbench proto/set!
-  (let ((protos (map #L(make-instance benchmark-proto) (iseq 1 100000))))
-    (account
-     (dolist (proto protos)
-       (slot-set! proto 'f1 :foo)
-       (slot-set! proto 'f2 :bar)
-       (slot-set! proto 'f3 :baz)))))
 
 
 (defbench formatted-io/simple

@@ -223,16 +223,18 @@
         (format #t "-- No Reference Data -- (~a ms.)\n" actual))))
 
 (define (display-benchmark-results results :optional (reference (reference-result-set)))
-  (dynamic-let ((*info* #f))
-    (format #t "\n\nBenchmark results (shorter bar is better, compared to ~a):" (benchmark-result-system (car reference)))
-    (format #t "\nBenchmark time mode = ~a\n" *benchmark-time-mode*)
-    (dolist (result (qsort results
-			   (lambda (s1 s2) (string< (symbol-name s1) (symbol-name s2)))
-			   benchmark-result-test-name))
-      (display-benchmark-result (benchmark-result-test-name result)
-                                (benchmark-result-cpu-time result)
-                                (benchmark-result-cpu-time (find-test-result (benchmark-result-test-name result)
-                                                                             reference))))))
+  (if (null? reference)
+      (format #t "\n\nNo Reference results for system: ~a " (benchmark-system-info))
+      (dynamic-let ((*info* #f))
+        (format #t "\n\nBenchmark results (shorter bar is better, compared to ~a):" (benchmark-result-system (car reference)))
+        (format #t "\nBenchmark time mode = ~a\n" *benchmark-time-mode*)
+        (dolist (result (qsort results
+                               (lambda (s1 s2) (string< (symbol-name s1) (symbol-name s2)))
+                               benchmark-result-test-name))
+          (display-benchmark-result (benchmark-result-test-name result)
+                                    (benchmark-result-cpu-time result)
+                                    (benchmark-result-cpu-time (find-test-result (benchmark-result-test-name result)
+                                                                                 reference)))))))
 
 ;;;; The benchmark runner
 
