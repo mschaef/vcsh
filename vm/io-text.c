@@ -602,6 +602,8 @@ struct port_text_info_t *allocate_text_info()
      tinfo->row = 1;
      tinfo->pline_mcol = 0;
 
+     tinfo->str_ofs = -1;
+
      return tinfo;
 }
 

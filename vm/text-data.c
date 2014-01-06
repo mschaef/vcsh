@@ -109,8 +109,6 @@ lref_t strrecons(lref_t obj, size_t new_length)
      size_t space_needed;
      size_t space_already_allocated = 0;
 
-     assert(STRING_OFS(obj) == 0);
-
      space_needed = string_storage_size(new_length + 1);
 
      if (STRING_DATA(obj) != NULL)
@@ -181,7 +179,6 @@ lref_t strconsbufn(size_t length, const _TCHAR * buffer)
      lref_t new_string = new_cell(TC_STRING);
 
      SET_STRING_DATA(new_string, NULL);
-     SET_STRING_OFS(new_string, 0);
      SET_STRING_DIM(new_string, 0);
 
      strrecons(new_string, length);
@@ -205,7 +202,6 @@ lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer)
      assert(buffer[length] == _T('\0'));        /*  String buffers must be null terminated. */
 
      SET_STRING_DATA(new_string, buffer);
-     SET_STRING_OFS(new_string, 0);
      SET_STRING_DIM(new_string, length);
 
      return new_string;
@@ -856,22 +852,7 @@ lref_t lcharacter2string(lref_t obj)
 }
 
 
-int str_next_character(lref_t obj)
-{
-     assert(STRINGP(obj));
-
-     size_t ofs = STRING_OFS(obj);
-     int ch = STRING_DATA(obj)[ofs];
-
-     if (ofs >= STRING_DIM(obj))
-          return EOF;
-
-     SET_STRING_OFS(obj, STRING_OFS(obj) + 1);
-
-     return ch;
-}
-
-void string_appendd(lref_t str, _TCHAR * buf, size_t len)
+void string_appendd(lref_t str, _TCHAR *buf, size_t len)
 {
      assert(STRINGP(str));
 

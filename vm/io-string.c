@@ -33,14 +33,18 @@ size_t string_port_read_bytes(lref_t port, void *buf, size_t size)
 
      _TCHAR *tbuf = (_TCHAR *)buf;
 
+     lref_t port_str = PORT_STRING(port);
+     size_t str_len = STRING_DIM(port_str);
+     struct port_text_info_t *pti = PORT_TEXT_INFO(port);
+
      for (bytes_read = 0; bytes_read < size; bytes_read++)
      {
-          int ch = str_next_character(PORT_STRING(port));
-
-          if (ch == EOF)
+          if (pti->str_ofs >= str_len)
                break;
 
-          tbuf[bytes_read] = (_TCHAR)ch;
+          tbuf[bytes_read] = STRING_DATA(port_str)[pti->str_ofs];
+
+          pti->str_ofs++;
      }
 
      return bytes_read;
@@ -78,8 +82,6 @@ struct port_class_t string_port_class = {
 };
 
 
-struct port_text_info_t *allocate_text_info();
-
 lref_t lopen_input_string(lref_t string)
 {
      if (!STRINGP(string))
@@ -88,7 +90,11 @@ lref_t lopen_input_string(lref_t string)
      lref_t port =
           portcons(&string_port_class, NIL, PORT_INPUT, strconsdup(string), NULL);
 
-     SET_PORT_TEXT_INFO(port, allocate_text_info());
+     struct port_text_info_t *pti = allocate_text_info();
+
+     pti->str_ofs = 0;
+
+     SET_PORT_TEXT_INFO(port, pti);
 
      return port;
 }

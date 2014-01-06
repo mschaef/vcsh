@@ -193,7 +193,6 @@ struct lobject_t
           struct
           {
                size_t dim;
-               size_t ofs;
                _TCHAR *data;
           } string;
           struct
@@ -950,18 +949,6 @@ INLINE void SET_STRING_DIM(lref_t x, size_t dim)
      ((*x).storage_as.string.dim) = dim;
 }
 
-INLINE size_t STRING_OFS(lref_t x)
-{
-     checked_assert(STRINGP(x));
-     return ((*x).storage_as.string.ofs);
-}
-
-INLINE void SET_STRING_OFS(lref_t x, size_t ofs)
-{
-     checked_assert(STRINGP(x));
-     ((*x).storage_as.string.ofs) = ofs;
-}
-
 INLINE _TCHAR *STRING_DATA(lref_t x)
 {
      checked_assert(STRINGP(x));
@@ -1056,6 +1043,8 @@ struct port_text_info_t
      fixnum_t col;
      fixnum_t row;
      fixnum_t pline_mcol;
+
+     size_t str_ofs;
 };
 
 struct fasl_stream_t

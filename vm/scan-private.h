@@ -222,6 +222,8 @@ lref_t initialize_port(lref_t s,
                        lref_t user_object,
                        void *user_data);
 
+struct port_text_info_t *allocate_text_info();
+
 /**** Length and Equal ****/
 
 size_t object_length(lref_t obj);
@@ -246,7 +248,6 @@ lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element);
 
 /**** String I/O Support ****/
 
-int str_next_character(lref_t obj);
 void string_appendd(lref_t str, _TCHAR *buf, size_t len);
 
 /**** Macro constructor ****/
