@@ -588,8 +588,7 @@ struct port_class_t text_port_class = {
 
 struct port_text_info_t *allocate_text_info()
 {
-     struct port_text_info_t *tinfo =
-          (struct port_text_info_t *)gc_malloc(sizeof(struct port_text_info_t));
+     struct port_text_info_t *tinfo = gc_malloc(sizeof(*tinfo));
 
      memset(tinfo->pbuf, 0, sizeof(tinfo->pbuf));
      tinfo->pbuf_pos = 0;

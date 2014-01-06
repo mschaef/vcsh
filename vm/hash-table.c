@@ -245,8 +245,7 @@ static void clear_hash_data(struct hash_entry_t * entries, size_t size)
 
 static struct hash_entry_t *allocate_hash_data(size_t size)
 {
-     struct hash_entry_t *data =
-          (struct hash_entry_t *) gc_malloc(size * sizeof(struct hash_entry_t));
+     struct hash_entry_t *data = gc_malloc(size * sizeof(*data));
 
      clear_hash_data(data, size);
 

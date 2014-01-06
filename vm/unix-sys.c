@@ -73,7 +73,7 @@ struct sys_dir_t
 
 enum sys_retcode_t sys_opendir(const char *path, struct sys_dir_t ** dir)
 {
-     *dir = (struct sys_dir_t *) gc_malloc(sizeof(struct sys_dir_t));
+     *dir = gc_malloc(sizeof(**dir));
 
      if (*dir == NULL)
           return SYS_E_OUT_OF_MEMORY;

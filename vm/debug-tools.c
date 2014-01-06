@@ -260,8 +260,7 @@ lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary)
      if (NULLP(binary))
           binary = boolcons(false);
 
-     struct test_blocking_input_info_t *info =
-         (struct test_blocking_input_info_t *) gc_malloc(sizeof(struct test_blocking_input_info_t));
+     struct test_blocking_input_info_t *info = gc_malloc(sizeof(*info));
 
      info->_block_size = FIXNM(block_size);
      info->_length = FIXNM(length);

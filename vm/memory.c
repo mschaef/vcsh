@@ -209,15 +209,13 @@ static bool gc_enlarge_heap()
 
      gc_begin_timer();
 
-     lref_t seg_base =
-          (lref_t) gc_malloc(sizeof(struct lobject_t) * interp.gc_heap_segment_size);
+     lref_t seg_base = gc_malloc(sizeof(struct lobject_t) * interp.gc_heap_segment_size);
 
      size_t seg_idx = interp.gc_current_heap_segments;
 
      interp.gc_current_heap_segments++;
 
-     interp.gc_malloc_bytes_threshold +=
-          (sizeof(struct lobject_t) * interp.gc_heap_segment_size);
+     interp.gc_malloc_bytes_threshold += (sizeof(struct lobject_t) * interp.gc_heap_segment_size);
 
      interp.gc_heap_segments[seg_idx] = seg_base;
 

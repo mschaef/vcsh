@@ -83,7 +83,7 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
         _tcsncat(path_buf, "*.*", SYS_PATH_MAX - path_len);
       }
 
-    *dir = (sys_dir_t *)gc_malloc(sizeof(sys_dir_t));
+    *dir = (sys_dir_t *)gc_malloc(sizeof(**dir));
 
     if (*dir == NULL)
       return SYS_E_OUT_OF_MEMORY;

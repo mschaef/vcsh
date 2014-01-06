@@ -174,8 +174,7 @@ lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
                            blocking_input_read_data_fn_t read_fn,
                            blocking_input_close_port_fn_t close_fn, void *userdata)
 {
-     struct blocking_input_port_state *ps =
-          (struct blocking_input_port_state *) gc_malloc(sizeof(struct blocking_input_port_state));
+     struct blocking_input_port_state *ps = gc_malloc(sizeof(*ps));
 
      ps->_read_data = read_fn;
      ps->_close_port = close_fn;

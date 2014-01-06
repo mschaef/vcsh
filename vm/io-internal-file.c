@@ -83,8 +83,7 @@ lref_t liinternal_files()
 
 lref_t open_c_data_input(struct internal_file_t *data)
 {
-     struct c_data_port_state *ps =
-          (struct c_data_port_state *) gc_malloc(sizeof(struct c_data_port_state));
+     struct c_data_port_state *ps = gc_malloc(sizeof(*ps));
 
      ps->buf      = data->_bytes;
      ps->buf_size = data->_length;
@@ -116,7 +115,7 @@ lref_t lclone_c_data_port(lref_t port)
           vmerror_unsupported(_T("only input ports may be cloned"));
 
      struct c_data_port_state *old_ps = (struct c_data_port_state *) (PORT_PINFO(port)->user_data);
-     struct c_data_port_state *new_ps = (struct c_data_port_state *) gc_malloc(sizeof(struct c_data_port_state));
+     struct c_data_port_state *new_ps = gc_malloc(sizeof(*new_ps));
 
      new_ps->buf      = old_ps->buf;
      new_ps->buf_size = old_ps->buf_size;

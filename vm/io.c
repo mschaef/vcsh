@@ -28,10 +28,13 @@
       return LREF2_CONS(LREF2_EOF, 0);
  }
 
- lref_t leof_objectp(lref_t obj)
- {
-      return EOFP(obj) ? obj : boolcons(false);
- }
+lref_t leof_objectp(lref_t obj)
+{
+     if (EOFP(obj))
+          return obj;
+
+     return boolcons(false);
+}
 
  /*** Port object ***/
 
@@ -70,7 +73,7 @@
       assert(cls != NULL);
       assert(!NULLP(s));
 
-      SET_PORT_PINFO(s, (struct port_info_t *) gc_malloc(sizeof(struct port_info_t)));
+      SET_PORT_PINFO(s, gc_malloc(sizeof(struct port_info_t)));
       SET_PORT_CLASS(s, cls);
 
       PORT_PINFO(s)->port_name = port_name;
