@@ -245,7 +245,7 @@ lref_t keyword_intern(const _TCHAR * name)
 
 /*** Symbol primitives ***/
 
-lref_t lsymbol_package(lref_t sym)  /*   REVISIT: fix split between _home and _package */
+lref_t lsymbol_package(lref_t sym)
 {
      if (!SYMBOLP(sym))
           vmerror_wrong_type_n(1, sym);

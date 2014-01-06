@@ -434,7 +434,6 @@ lref_t lidebug_printer(lref_t obj, lref_t port, lref_t machine_readable_p)
 
 /* A C function to do Lisp-style Formatted I/O ******************
  *
- * REVISIT: scvwritef's ~a and ~s should be changed to ~da and ~ds, signifying that they invoke the debug printer
  * ~s - write the lisp object
  * ~a - display the lisp object
  * REVISIT: remove scvwritef ~u in favor of some kind of print_unreadable_object call

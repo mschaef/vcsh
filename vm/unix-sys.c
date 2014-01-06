@@ -255,7 +255,6 @@ static double sys_timebase_time(void);
 
 static enum sys_retcode_t sys_init_time()
 {
-     /* REVISIT: provide a way to automatically call this if TZ changes. */
      tzset();
 
      /*  Record the current time so that we can get a measure of uptime */
@@ -288,7 +287,7 @@ double sys_time_resolution()
      return 1000000.0;
 }
 
-double sys_timezone_offset() /* REVISIT: Verify that this has correct time/date in DST. */
+double sys_timezone_offset()
 {
      time_t current_time = time(NULL);
      struct tm ltbuf;
@@ -405,8 +404,6 @@ void sys_abnormally_terminate_vm(int rc)
 
 void sys_debug_break()
 {
-     /*  REVISIT: Is this the gdb way to simulate a breakpoint? */
-
      __asm__ __volatile__("int3");
 }
 

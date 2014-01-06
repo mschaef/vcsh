@@ -93,7 +93,7 @@ lref_t lset_environment_variable(lref_t varname, lref_t value)
      return NIL;
 }
 
-lref_t ltemporary_file_name(lref_t p)       /*  REVISIT: This is a generally bad way to create temp files */
+lref_t ltemporary_file_name(lref_t p)
 {
      if (!(STRINGP(p) || NULLP(p)))
           vmerror_wrong_type_n(1, p);
@@ -125,8 +125,6 @@ lref_t ldelete_file(lref_t filename)
      vmerror_io_error(_T("Error deleting file"), filename);
 
      return NIL;
-
-     /*  REVISIT: delete_file should detect directories and call RemoveDirectory */
 }
 
 lref_t file_details_object(_TCHAR * filename, struct sys_stat_t * info)
@@ -216,8 +214,6 @@ lref_t lifile_details(lref_t path, lref_t existance_onlyp)
 
      return file_details_object(get_c_string(path), &file_info);
 }
-
-/*  REVISIT: directory should be able to take lists of filename specifiers in addition to single specifiers. */
 
 lref_t lidirectory(lref_t dn, lref_t m)
 {
@@ -444,7 +440,7 @@ static void sha1_find_digest(FILE *infile, uint8_t *digest)
      CC_SHA1_Final(digest, &ctx);
 }
 
-static _TCHAR hexchar(int i) // REVISIT: standard way to do this?
+static _TCHAR hexchar(int i)
 {
      if ((i >= 0) && (i <= 9))
           return _T('0') + i;

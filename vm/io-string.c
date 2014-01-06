@@ -31,8 +31,6 @@ size_t string_port_read_bytes(lref_t port, void *buf, size_t size)
 {
      size_t bytes_read;
 
-     /*  REVISIT: This is a pretty bad string_port_read_bytes */
-
      _TCHAR *tbuf = (_TCHAR *)buf;
 
      for (bytes_read = 0; bytes_read < size; bytes_read++)
@@ -50,10 +48,9 @@ size_t string_port_read_bytes(lref_t port, void *buf, size_t size)
 
 size_t string_port_write_bytes(lref_t port, const void *buf, size_t size)
 {
-     if (NULLP(PORT_STRING(port))) {
-          /*  REVISIT: fails if buf has embedded nulls */
+     if (NULLP(PORT_STRING(port)))
           SET_PORT_STRING(port, strconsbufn(size, (_TCHAR *)buf)); 
-     } else
+     else
           str_append_str(PORT_STRING(port), (_TCHAR *) buf, size);
 
      return size;
@@ -88,9 +85,6 @@ lref_t lopen_input_string(lref_t string)
      if (!STRINGP(string))
           vmerror_wrong_type_n(1, string);
 
-     /*  REVISIT: open-input-string can avoid duplicating incoming strings */
-     /*  REVISIT: open-input-string take string input port argument */
-
      lref_t port =
           portcons(&string_port_class, NIL, PORT_INPUT, strconsdup(string), NULL);
 
@@ -99,7 +93,7 @@ lref_t lopen_input_string(lref_t string)
      return port;
 }
 
-lref_t lopen_output_string()      /*  REVISIT: default string/length in oos? */
+lref_t lopen_output_string()
 {
      lref_t port = portcons(&string_port_class, NIL, PORT_OUTPUT, NIL, NULL);
 

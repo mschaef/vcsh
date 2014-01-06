@@ -81,7 +81,7 @@ lref_t lsetcdr(lref_t cell, lref_t value)
 }
 
 
-static size_t list_length(lref_t xs)      /*  REVISIT: extend to tolerate circularity? */
+static size_t list_length(lref_t xs)
 {
      size_t len = 0;
 

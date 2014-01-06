@@ -17,9 +17,6 @@
 
  #include "scan-private.h"
 
-
- /*  REVISIT: It'd be nice to have an 'tee' port to write output to multiple destination ports. */
-
  /*  REVISIT: Do we need to restrict bootup NULL I/O */
 
  /*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */

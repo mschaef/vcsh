@@ -14,7 +14,6 @@
 
 #include "scan-private.h"
 
-/*  REVISIT: add explicit 'no value' hash value to allow keys to be members without values. (a way to use hashes as sets) */
 INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
 {
      return (_h1 * 17 + 1) ^ _h2;
@@ -186,8 +185,9 @@ fixnum_t sxhash(lref_t obj)
           hash = 0;
      }
 
+     /*  REVISIT: still needed? */
      if (hash < 0)
-          hash = -hash;         /*  REVISIT: still needed? */
+          hash = -hash;
 
      return hash;
 }
@@ -411,8 +411,6 @@ static struct hash_entry_t *hash_lookup_entry(lref_t hash, lref_t key)
                if (equalp(key, entry->key))
                     return entry;
           }
-
-          /*  REVISIT: termination criteria, if unused entries. (which shouldn't happen) */
      }
 
      return NULL;
@@ -485,7 +483,6 @@ lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
 {
      assert(HASHP(hash));
 
-    /*  REVISIT: double lookup/hash */
      struct hash_entry_t *entry = hash_lookup_entry(hash, key);
 
      if (entry != NULL)

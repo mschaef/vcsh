@@ -153,7 +153,7 @@ lref_t lopen_raw_input_file(lref_t filename)
                          filename);
 }
 
-lref_t lopen_raw_output_file(lref_t filename) // TODO: Append Mode
+lref_t lopen_raw_output_file(lref_t filename)
 {
      if (!STRINGP(filename))
           vmerror_wrong_type_n(1, filename);

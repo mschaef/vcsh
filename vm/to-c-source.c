@@ -74,9 +74,7 @@ void write_file_as_c_source(FILE * in, _TCHAR * blockname, _TCHAR * varname)
 
      printf("DECL_INTERNAL_FILE %s =\n", varname);
      printf("{\n");
-     // TODO: The (_TCHAR *) cast eliminates a gcc warning about a deprecated
-     // conversion of string constant into a _TCHAR *. Investigate if there's
-     // a better way to do this.
+
      printf("     ((_TCHAR *)_T(\"%s\")), %" PRINTF_PREFIX_SIZE_T "d,\n",
              blockname, file_length(in));
 

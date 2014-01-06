@@ -283,7 +283,6 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_SYMBOL:
-                /*  REVISIT: better accessor? */
                gc_mark((*obj).storage_as.symbol.props);
                obj = SYMBOL_VCELL(obj);
                break;

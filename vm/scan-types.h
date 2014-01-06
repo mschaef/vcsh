@@ -83,7 +83,6 @@ enum lref_tag_t
 
 enum
 {
-     /*  REVISIT: change to 'IPTR_MAX/MIN' */
      MAX_LREF_FIXNUM = INT32_MAX >> LREF1_TAG_SHIFT,
      MIN_LREF_FIXNUM = INT32_MIN >> LREF1_TAG_SHIFT,
 };
@@ -653,11 +652,7 @@ INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
      ((vec)->storage_as.vector.data[(index)]) = new_value;
 }
 
-/*** structure ***
- *
- * REVISIT:  how much of the structure representation can be shared
- * with vectors?
- */
+/*** structure ***/
 
 INLINE size_t STRUCTURE_DIM(lref_t obj)
 {

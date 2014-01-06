@@ -109,10 +109,10 @@ lref_t fasl_reader_gc_mark(lref_t obj)
  *    to update the return value prior to reading any component objects.
  */
 
-/*  REVISIT: The use of reference paramaters breaks when the reference
+/*  REVISIT: The use of reference parameters breaks when the reference
  *  points into the _fasl_table and the FASL table is resized while the
  *  reference is still pending. This needs to be fixed, otherwise funky
- *  stuff happens. (I think this can be resolveb by storig conses in the
+ *  stuff happens. (I think this can be resolved by storing conses in the
  *  fasl_table and using references to their CAR's to store table entries...
  *  currently, the CONS will stay put even if the enderlying table is resized. */
 static void fast_read(lref_t reader, lref_t * retval,
@@ -377,7 +377,7 @@ static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, l
 static void fast_read_structure(lref_t reader, lref_t * st)
 {
      lref_t st_meta;
-     fast_read(reader, &st_meta, false); // REVISIT: This has to come from the structure layour resolution vmtrap. Find a way to enforce this.
+     fast_read(reader, &st_meta, false);
 
      if (!CONSP(st_meta))
           vmerror_fast_read("Expected list for structure metadata", reader, st_meta);
@@ -806,7 +806,8 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
                fast_read(reader, fasl_table_entry, allow_loader_ops);
 
-               /* REVISIT: This assert throws if the fasl table was resized during the reader definition. */
+               /* This should throw if the FASL table was resized
+                * during the call to read. */
                assert(fasl_table_entry == _VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index));
 
                *retval = *fasl_table_entry;

@@ -297,7 +297,7 @@ lref_t linexact2exact(lref_t x);
 lref_t linexactp(lref_t x);
 lref_t linfinitep(lref_t x);
 lref_t linput_portp(lref_t obj);
-lref_t linteger2char(lref_t s);     /*  REVISIT: rename to exact->char */
+lref_t linteger2char(lref_t s);
 lref_t lintegerp(lref_t x);
 lref_t lipackagecons(lref_t name);
 lref_t lirequest_heap_size(lref_t c);

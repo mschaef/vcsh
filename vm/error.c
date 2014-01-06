@@ -56,11 +56,6 @@ void vmerror_stack_overflow(uint8_t * obj)
      UNREFERENCED(obj);
 
      panic("Stack Overflow!");
-
-     /* TODO: Stack overflow should throw out to a catch block and then
-      * invoke a overflow handler.
-      *
-      * REVISIT: Should the user be allowed to continue after an overflow? */
 }
 
 void vmerror_wrong_type(lref_t new_errobj)

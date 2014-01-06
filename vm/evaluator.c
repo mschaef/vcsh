@@ -354,7 +354,7 @@ EVAL_INLINE lref_t apply(lref_t function,
 {
      enum typecode_t type = TYPE(function);
 
-     /*  REVISIT: NIL signals "no tail recursion", what happens when the
+     /* REVISIT: NIL signals "no tail recursion", what happens when the
       * actual form is NIL? */
 
      if (type == TC_SUBR)
@@ -799,7 +799,6 @@ lref_t apply1(lref_t fn, size_t argc, lref_t argv[])
           return execute_fast_op(next_form, env);
 }
 
-/*  REVISIT: lapply should be tail recursive */
 lref_t lapply(size_t argc, lref_t argv[])
 {
      size_t fn_argc = 0;

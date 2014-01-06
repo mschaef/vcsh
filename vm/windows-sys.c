@@ -214,9 +214,6 @@ sys_retcode_t rc_to_sys_retcode_t(DWORD rc); /*  forward decl */
     if (fd.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
       buf->_attrs = (sys_file_attrs_t)(buf->_attrs & SYS_FATTR_HIDDEN);
 
-    /*  REVISIT: add alternate filename */
-
-    /*  REVISIT: Better way to get mode info? */
     buf->_mode    = (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) ? 0555 : 0777;
 
     buf->_size    = make_int64_t(fd.nFileSizeHigh, fd.nFileSizeLow);
@@ -385,7 +382,7 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
     return i;
   }
 
-void sys_debug_break(); /*  REVISIT: where does this prototype really go? */
+void sys_debug_break();
 
 void sys_abnormally_terminate_vm(int rc)
 {
@@ -463,7 +460,6 @@ void sys_abnormally_terminate_vm(int rc)
 
   sys_retcode_t sys_init()
   {
-       /*  REVISIT: Can this be done more efficiently with inline assembly? */
     int stack_location;
 
     sys_stack_start = (uint8_t *)&stack_location;

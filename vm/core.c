@@ -187,9 +187,10 @@ void register_subr(const _TCHAR * name, enum subr_arity_t arity, void *implement
 lref_t find_subr_by_name(lref_t subr_name)
 {
      assert(STRINGP(subr_name));
-     assert(HASHP(interp.subr_table)); /*  REVISIT: Lisp-visible: rebind *subr-table* and invoke the fasl loader */
+     assert(HASHP(interp.subr_table));
 
      lref_t argv[2];
+
      argv[0] = interp.subr_table;
      argv[1] = subr_name;
 

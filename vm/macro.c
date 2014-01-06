@@ -14,7 +14,9 @@
 
 #include "scan-private.h"
 
-lref_t macrocons(lref_t t)          /*  REVISIT: Macros should be moved entirely to Lisp... */
+/*  REVISIT: Macros should be moved entirely to Lisp... */
+
+lref_t macrocons(lref_t t)          
 {
      lref_t z = new_cell(TC_MACRO);
 

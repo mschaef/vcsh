@@ -16,7 +16,7 @@
 
 #include <assert.h>
 
-#ifdef SCAN_UNIX                /*  REVISIT: Can these ifdef's be removed? */
+#ifdef SCAN_UNIX
 #  include <sys/time.h>
 #  include <linux/limits.h>
 #endif
@@ -32,7 +32,7 @@
 
 #include "scan-constants.h"
 
-#ifdef SCAN_UNIX                /*  REVISIT: Can these ifdef's be removed? */
+#ifdef SCAN_UNIX
 #  define SYS_PATH_MAX PATH_MAX
 #  define SYS_NAME_MAX NAME_MAX
 #endif

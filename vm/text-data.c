@@ -331,7 +331,6 @@ lref_t lsubstring(lref_t str, lref_t start, lref_t end)
      if ((s < 0) || (s > STRING_DIM(str)))
           vmerror_index_out_of_bounds(start, str);
 
-     /*  REVISIT: it would be more permissive for substring to coerce e <= STRING_DIM. Is this desirable? */
      if ((e < 0) || (e > STRING_DIM(str)))
           vmerror_index_out_of_bounds(end, str);
 
@@ -359,7 +358,7 @@ size_t get_string_offset(lref_t maybe_ofs)
      return (size_t) ofs;
 }
 
-lref_t lstring_search(lref_t tok, lref_t str, lref_t maybe_initial_ofs) /*  REVISIT: to Knuth-Morris-Pratt */
+lref_t lstring_search(lref_t tok, lref_t str, lref_t maybe_initial_ofs)
 {
      if (!STRINGP(tok) && !CHARP(tok))
           vmerror_wrong_type_n(1, tok);
@@ -666,8 +665,6 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
                break;
 
           default:
-               /* REVISIT: Implement alternate radixes in number->string */
-               /* REVISIT: Implement precision/width in number->string */
                vmerror_unimplemented(_T("unimplemented radix (2, 8, 10, and 16 are allowed)"));
                break;
           }
@@ -690,12 +687,12 @@ bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t *result)
 #ifdef SCAN_64BIT
      *result = strtoll(string, &endobj, radix);
 
-     if (((*result == INT64_MIN) || (*result == INT64_MAX)) && (errno == ERANGE))     /*  REVISIT: errno causes problems with the _link_ */
+     if (((*result == INT64_MIN) || (*result == INT64_MAX)) && (errno == ERANGE))
           overflow = true;
 #else
      *result = strtol(string, &endobj, radix);
 
-     if (((*result == LONG_MIN) || (*result == LONG_MAX)) && (errno == ERANGE))   /*  REVISIT: errno causes problems with the _link_ */
+     if (((*result == LONG_MIN) || (*result == LONG_MAX)) && (errno == ERANGE))
           overflow = true;
 #endif
 
@@ -790,8 +787,6 @@ lref_t lstring_length(lref_t string)
 
 lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_ofs)
 {
-     /*  REVISIT: string-first-char should take args in same order as string-search */
-
      if (!STRINGP(string))
           vmerror_wrong_type_n(1, string);
 
@@ -815,8 +810,6 @@ lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_o
 
 lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_initial_ofs)
 {
-     /*  REVISIT: string-first-string should take args in same order as string-search */
-
      if (!STRINGP(string))
           vmerror_wrong_type_n(1, string);
 
@@ -839,7 +832,7 @@ lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_init
      }
 
      if (substring_length == 0)
-          return boolcons(false); // REVISIT: If substring_length is zero, the first substring is the empty string and not #f.
+          return boolcons(false);
      else
           return fixcons(loc);
 }
@@ -995,8 +988,6 @@ size_t float_format(_TCHAR * buf, size_t buf_len,
      int decimal;               /* count of numerals to the decimal */
      _TCHAR *result_loc = buf;  /* location in result buffer */
      bool first = true;         /* True on the first numeric character */
-
-     /*  REVISIT: result_loc should be range checked against buf_len */
 
      /* Most of the interesting numerical work is done by _ecvt. _ecvt
       * gives us most of the information we need to print the number. */

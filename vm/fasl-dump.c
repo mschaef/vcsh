@@ -18,12 +18,6 @@
 
 #include "scan-private.h"
 
-/*  REVISIT: It would be nice if this emitted something directly loadable via the scheme reader */
-
-/*  REVISIT: There are a few places where size_t's are printed with %08zx, which truncates on */
-/*  64-bit sizes. I never want to have to use fasl-dump on a >4GB file, but it is not strictly */
-/*  correct to truncate. */
-
 bool g_show_file_offsets = true;
 bool g_show_defn_offsets = true;
 bool g_show_reader_defn_indicies = true;
@@ -32,7 +26,7 @@ bool g_show_fixnums = true;
 
 enum
 {
-     MAX_READER_DEFINITIONS = 200000, /*  REVISIT: MAX_READER_DEFINITIONS should be dynamic */
+     MAX_READER_DEFINITIONS = 200000,
      STRBUF_SIZE = 256,
 };
 

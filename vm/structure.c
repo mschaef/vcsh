@@ -13,8 +13,7 @@
 
 #include "scan-private.h"
 
-/*  REVISIT: %structure-become */
-lref_t lcopy_structure(lref_t st)   /* REVISIT: how much of this can be shared with lstructurecons? */
+lref_t lcopy_structure(lref_t st)
 {
      if (!STRUCTUREP(st))
           vmerror_wrong_type_n(1, st);

@@ -179,8 +179,6 @@ static void process_vm_arguments(int argc, _TCHAR * argv[])
           _TCHAR arg_name_buf[STACK_STRBUF_LEN];
           memset(arg_name_buf, 0, STACK_STRBUF_LEN);
 
-          /*  REVISIT: This should accept both '=' and ':' as arg value delims
-           *  (':' is more appropriate for specifying filenames) */
           _TCHAR *arg_value_loc = (_TCHAR *) strchrnul(arg_text, '=');
 
           _tcsncpy(arg_name_buf, arg_text, MIN2(arg_value_loc - arg_text, STACK_STRBUF_LEN - 1));
@@ -552,7 +550,6 @@ static void load_init_load_files()
      }
 }
 
-/*  REVISIT Init needs a way to receive standard output ports, for non-console uses of scan */
 void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags)
 {
      global_environment_asserts();

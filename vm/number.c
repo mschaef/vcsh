@@ -71,7 +71,7 @@ double get_c_double(lref_t x)
      return (double) get_c_flonum(x);
 }
 
-fixnum_t get_c_fixnum(lref_t x)   /*  REVISIT: how should this handle inan, ineginf, & iposinf */
+fixnum_t get_c_fixnum(lref_t x)
 {
      if (!NUMBERP(x))
           vmerror_wrong_type(x);
@@ -808,8 +808,6 @@ lref_t llog(lref_t x)
      return cmplxcons(log(sqrt(xr * xr + xi * xi)), atan2(xi, xr));
 }
 
-
-/*  TODO Complex trancendental */
 
 lref_t lsin(lref_t x)
 {
