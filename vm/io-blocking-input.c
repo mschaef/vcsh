@@ -31,6 +31,8 @@ struct port_class_t blocking_input_port_class = {
      NULL,                           // open
      blocking_input_port_read_bytes, // read_bytes
      NULL,                           // write_bytes
+     NULL,                           // read_chars
+     NULL,                           // write_chars
      NULL,                           // rich_write
      NULL,                           // flush
      blocking_input_port_close,      // close

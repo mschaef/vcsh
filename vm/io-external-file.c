@@ -118,6 +118,8 @@ struct port_class_t file_port_class = {
      file_port_open,        // open
      file_port_read_bytes,  // read_bytes
      file_port_write_bytes, // write_bytes
+     NULL,                  // read_chars
+     NULL,                  // write_chars
      NULL,                  // rich_write
      file_port_flush,       // flush
      file_port_close,       // close
@@ -185,6 +187,8 @@ struct port_class_t stdin_port_class = {
      stdin_port_open,        // open
      file_port_read_bytes,   // read_bytes
      NULL,                   // write_bytes
+     NULL,                   // read_chars
+     NULL,                   // write_chars
      NULL,                   // rich_write
      NULL,                   // flush
      stdio_port_close,       // close
@@ -206,6 +210,8 @@ struct port_class_t stdout_port_class = {
      stdout_port_open,      // open
      NULL,                  // read_bytes
      file_port_write_bytes, // write_bytes
+     NULL,                  // read_chars
+     NULL,                  // write_chars
      NULL,                  // rich_write
      file_port_flush,       // flush
      stdio_port_close,      // close
@@ -227,6 +233,8 @@ struct port_class_t stderr_port_class = {
      stderr_port_open,      // open
      NULL,                  // read_bytes
      file_port_write_bytes, // write_bytes
+     NULL,                  // read_chars
+     NULL,                  // write_chars
      NULL,                  // rich_write
      file_port_flush,       // flusn
      stdio_port_close,      // close

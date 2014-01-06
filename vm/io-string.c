@@ -74,6 +74,8 @@ struct port_class_t string_port_class = {
      NULL,                    // open
      string_port_read_bytes,  // read_bytes
      string_port_write_bytes, // write_bytes
+     NULL,                    // read_chars
+     NULL,                    // write_chars
      NULL,                    // rich_write
      NULL,                    // flush
      NULL,                    // close

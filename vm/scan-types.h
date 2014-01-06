@@ -1072,8 +1072,13 @@ struct port_class_t
      const _TCHAR *name;
 
      void   (* open)        (lref_t port);
+
      size_t (* read_bytes)  (lref_t port, void *buf, size_t size);
      size_t (* write_bytes) (lref_t port, const void *buf, size_t size);
+
+     size_t (* read_chars)  (lref_t port, _TCHAR *buf, size_t size);
+     size_t (* write_chars) (lref_t port, const _TCHAR *buf, size_t size);
+
      bool   (* rich_write)  (lref_t port, lref_t obj, bool machine_readable);
      void   (* flush)       (lref_t port);
      void   (* close)       (lref_t port);

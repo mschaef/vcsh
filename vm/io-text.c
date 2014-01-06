@@ -578,6 +578,8 @@ struct port_class_t text_port_class = {
      NULL,                  // open
      text_port_read_bytes,  // read_bytes
      text_port_write_bytes, // write_bytes
+     NULL,                  // read_chars
+     NULL,                  // write_chars
      NULL,                  // rich_write
      text_port_flush,       // flush
      text_port_close,       // close
