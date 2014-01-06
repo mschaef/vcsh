@@ -858,13 +858,10 @@ lref_t lcharacter2string(lref_t obj)
 
 int str_next_character(lref_t obj)
 {
-     size_t ofs;
-     int ch;
-
      assert(STRINGP(obj));
 
-     ofs = STRING_OFS(obj);
-     ch = STRING_DATA(obj)[ofs];
+     size_t ofs = STRING_OFS(obj);
+     int ch = STRING_DATA(obj)[ofs];
 
      if (ofs >= STRING_DIM(obj))
           return EOF;
@@ -874,16 +871,16 @@ int str_next_character(lref_t obj)
      return ch;
 }
 
-void str_append_str(lref_t obj, _TCHAR * str, size_t len)
+void string_appendd(lref_t str, _TCHAR * buf, size_t len)
 {
-     assert(STRINGP(obj));
+     assert(STRINGP(str));
 
-     size_t size = STRING_DIM(obj);
+     size_t size = STRING_DIM(str);
 
-     strrecons(obj, size + len);
+     strrecons(str, size + len);
 
-     memcpy(&(STRING_DATA(obj)[size]), str, len);
-     STRING_DATA(obj)[size + len + 1] = _T('\0');
+     memcpy(&(STRING_DATA(str)[size]), buf, len);
+     STRING_DATA(str)[size + len + 1] = _T('\0');
 }
 
 /**************************************************************

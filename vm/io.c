@@ -327,7 +327,7 @@ lref_t lread_binary_string(lref_t l, lref_t port)
           if (actual_read <= 0)
                break;
 
-          str_append_str(new_str, buf, actual_read);
+          string_appendd(new_str, buf, actual_read);
 
           remaining_length -= actual_read;
           total_read += actual_read;

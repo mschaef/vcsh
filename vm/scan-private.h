@@ -247,7 +247,7 @@ lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element);
 /**** String I/O Support ****/
 
 int str_next_character(lref_t obj);
-void str_append_str(lref_t obj, _TCHAR * str, size_t len);
+void string_appendd(lref_t str, _TCHAR *buf, size_t len);
 
 /**** Macro constructor ****/
 

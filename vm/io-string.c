@@ -51,7 +51,7 @@ size_t string_port_write_bytes(lref_t port, const void *buf, size_t size)
      if (NULLP(PORT_STRING(port)))
           SET_PORT_STRING(port, strconsbufn(size, (_TCHAR *)buf)); 
      else
-          str_append_str(PORT_STRING(port), (_TCHAR *) buf, size);
+          string_appendd(PORT_STRING(port), (_TCHAR *) buf, size);
 
      return size;
 }
