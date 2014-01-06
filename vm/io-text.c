@@ -168,7 +168,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
           return 0;
 
      if (PORT_BINARYP(port))
-          return write_bytes(port, buf, count * sizeof(_TCHAR));
+          return 0;
 
      /* This code divides the text to be written into blocks seperated
       * by line seperators. write_bytes is called for each block to
@@ -178,7 +178,6 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
      for (size_t pos = 0; pos < count;)
      {
           unsigned int c = _T('\0');
-
           /* Emit a needed LF, if necessary. */
           if (PORT_TEXT_INFO(port)->needs_lf)
           {
