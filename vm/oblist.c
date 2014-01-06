@@ -40,10 +40,7 @@ static bool list_of_packages_p(lref_t pkgs)
           if (!PACKAGEP(CAR(ii)))
                return false;
 
-     if (!NULLP(ii))
-          return false;
-
-     return true;
+     return NULLP(ii);
 }
 
 /*** package constructor and accessors ***/
@@ -80,8 +77,8 @@ lref_t lpackagep(lref_t x)
 {
      if (PACKAGEP(x))
           return x;
-     else
-          return boolcons(false);
+
+     return boolcons(false);
 }
 
 lref_t lpackage_name(lref_t p)      /*  ONLY SCHEME */
@@ -188,30 +185,33 @@ lref_t symcons(lref_t pname, lref_t home)
      assert(STRINGP(pname));
      assert(NULLP(home) || PACKAGEP(home));
 
-     lref_t z = new_cell(TC_SYMBOL);
+     lref_t sym = new_cell(TC_SYMBOL);
 
-     SET_SYMBOL_PNAME(z, pname);
-     SET_SYMBOL_VCELL(z, UNBOUND_MARKER);
-     SET_SYMBOL_HOME(z, home);
+     SET_SYMBOL_PNAME(sym, pname);
+     SET_SYMBOL_VCELL(sym, UNBOUND_MARKER);
+     SET_SYMBOL_HOME(sym, home);
 
-     return z;
+     return sym;
 }
 
 lref_t lsymbolp(lref_t x)
 {
      if (SYMBOLP(x))
           return x;
-     else
-          return boolcons(false);
+
+     return boolcons(false);
 }
 
 
-lref_t lkeywordp(lref_t x)
+lref_t lkeywordp(lref_t sym)
 {
-     if (SYMBOLP(x) && (SYMBOL_HOME(x) == interp.control_fields[VMCTRL_PACKAGE_KEYWORD]))
-          return x;
-     else
+     if (!SYMBOLP(sym))
           return boolcons(false);
+
+     if (SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD])
+          return boolcons(false);
+
+     return sym;
 }
 
 /* A simpler variant of intern that does not honor use lists
@@ -260,6 +260,7 @@ lref_t lset_symbol_package(lref_t sym, lref_t package)
 {
      if (!SYMBOLP(sym))
           vmerror_wrong_type_n(1, sym);
+
      if (!(PACKAGEP(package) || NULLP(package)))
           vmerror_wrong_type_n(2, package);
 
