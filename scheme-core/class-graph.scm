@@ -11,6 +11,8 @@
 ;;;; WARRANTIES.
 
 (define (typecode->name tc)
+  "Given a numeric typecode <tc>, return the symbolic name for the
+type. If there is no valid typecode of that name, returns #f."
   (case tc
     ((#.system::TC_FREE_CELL)      'free-cell)  
     ((#.system::TC_NIL)            'nil)  
@@ -35,7 +37,7 @@
     ((#.system::TC_GC_TRIP_WIRE)   'trip-wire) 
     ((#.system::TC_FAST_OP)        'fast-op)
     ((#.system::TC_FASL_READER)    'fasl-reader)
-    (#t (error "Bad typecode: ~s." tc))))
+    (#t #f)))
 
 (define (%representation-of obj)
   (let ((tc (%typecode obj)))

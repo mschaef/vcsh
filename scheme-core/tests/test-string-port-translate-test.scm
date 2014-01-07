@@ -5,6 +5,7 @@
      ,@code
      (get-output-string ,port-var)))
 
+
 (define-test string-port-translate-test
   (test-case (equal? (output-string p 
                                     (display "hello" p))

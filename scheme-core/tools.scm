@@ -626,7 +626,8 @@
 (define (annotate-type-stats ts)
   (let ((rv ()))
     (dotimes (ii (length ts))
-      (push! (cons (typecode->name ii) (vector-ref ts ii)) rv))
+      (awhen (typecode->name ii)
+        (push! (cons it (vector-ref ts ii)) rv)))
     rv))
 
 (define (show-type-stats)
