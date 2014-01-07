@@ -17,6 +17,14 @@
 
 #include "scan-private.h"
 
+INLINE lref_t PORT_UNDERLYING(lref_t text_port)
+{
+     lref_t underlying = PORT_USER_OBJECT(text_port);
+
+     assert(PORTP(underlying));
+
+     return underlying;
+}
 
 /*** C I/O functions ***/
 
@@ -243,41 +251,6 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
      return count;
 }
 
- static int flush_whitespace(lref_t port, bool skip_lisp_comments)
- {
-      int c = '\0';
-
-      bool commentp = false;
-
-      for(;;)
-      {
-           /*  We can never be in a comment if we're not skipping them... */
-           assert(skip_lisp_comments ? true : !commentp);
-
-           c = read_char(port);
-
-           if (c == EOF)
-                break;
-
-           if (commentp)
-           {
-                if (c == _T('\n'))
-                     commentp = FALSE;
-           }
-           else if ((c == _T(';')) && skip_lisp_comments)
-           {
-                commentp = TRUE;
-           }
-           else if (!_istspace(c) && (c != _T('\0')))
-                break;
-      }
-
-      if (c != EOF)
-           unread_char(port, c);
-
-      return c;
- }
-
 /*** Lisp I/O function ***/
 
  lref_t lport_column(lref_t port)
@@ -340,23 +313,7 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
  }
 
 
-
-lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
-{
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-
-     if (!PORTP(port))
-          vmerror_wrong_type_n(3, port);
-
-     if (PORT_CLASS(port)->rich_write == NULL)
-          return boolcons(false);
-
-     if (PORT_CLASS(port)->rich_write(port, obj, TRUEP(machine_readable)))
-          return port;
-
-     return boolcons(false);
-}
+/*** Text Input ***/
 
  lref_t lread_char(lref_t port)
  {
@@ -410,6 +367,63 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
      else
           return charcons((_TCHAR) ch);
 }
+
+ static int flush_whitespace(lref_t port, bool skip_lisp_comments)
+ {
+      int c = '\0';
+
+      bool commentp = false;
+
+      for(;;)
+      {
+           /*  We can never be in a comment if we're not skipping them... */
+           assert(skip_lisp_comments ? true : !commentp);
+
+           c = read_char(port);
+
+           if (c == EOF)
+                break;
+
+           if (commentp)
+           {
+                if (c == _T('\n'))
+                     commentp = FALSE;
+           }
+           else if ((c == _T(';')) && skip_lisp_comments)
+           {
+                commentp = TRUE;
+           }
+           else if (!_istspace(c) && (c != _T('\0')))
+                break;
+      }
+
+      if (c != EOF)
+           unread_char(port, c);
+
+      return c;
+ }
+
+
+/*** Rich Output ***/
+
+lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_OUTPUT_PORT();
+
+     if (!PORTP(port))
+          vmerror_wrong_type_n(3, port);
+
+     if (PORT_CLASS(port)->rich_write == NULL)
+          return boolcons(false);
+
+     if (PORT_CLASS(port)->rich_write(port, obj, TRUEP(machine_readable)))
+          return port;
+
+     return boolcons(false);
+}
+
+/*** Text Output ***/
 
 lref_t lwrite_char(lref_t ch, lref_t port)
 {
@@ -542,34 +556,22 @@ lref_t lfresh_line(lref_t port)
 
 size_t text_port_read_bytes(lref_t port, void *buf, size_t size)
 {
-     lref_t underlying = PORT_USER_OBJECT(port);
-
-     assert(PORTP(underlying));
-
-     return read_bytes(underlying, buf, size);
+     return read_bytes(PORT_UNDERLYING(port), buf, size);
 }
 
 size_t text_port_write_bytes(lref_t port, const void *buf, size_t size)
 {
-     lref_t underlying = PORT_USER_OBJECT(port);
-
-     assert(PORTP(underlying));
-
-     return write_bytes(underlying, buf, size);
+     return write_bytes(PORT_UNDERLYING(port), buf, size);
 }
 
 void text_port_flush(lref_t obj)
 {
-     assert(PORTP(PORT_USER_OBJECT(obj)));
-
-     lflush_port(PORT_USER_OBJECT(obj));
+     lflush_port(PORT_UNDERLYING(obj));
 }
 
 void text_port_close(lref_t obj)
 {
-     assert(PORTP(PORT_USER_OBJECT(obj)));
-
-     lclose_port(PORT_USER_OBJECT(obj));
+     lclose_port(PORT_UNDERLYING(obj));
 }
 
 struct port_class_t text_port_class = {
