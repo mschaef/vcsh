@@ -21,7 +21,7 @@
 #include "scan-private.h"
 
 
-#define WRITE_TEXT_CONSTANT(buf, port) write_text(buf, (sizeof(buf) / sizeof(_TCHAR)) - 1, port)
+#define WRITE_TEXT_CONSTANT(buf, port) write_text(port, buf, (sizeof(buf) / sizeof(_TCHAR)) - 1)
 
 
 static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable)
@@ -74,16 +74,16 @@ static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable
           }
      }
 
-     write_text(buf, _tcslen(buf), port);
+     write_text(port, buf, _tcslen(buf));
 
      if (COMPLEXP(object))
      {
           if (CMPLXIM(object) >= 0.0)
-               write_text(_T("+"), 1, port);
+               write_text(port, _T("+"), 1);
 
           debug_print_flonum(FLOIM(object), port, machine_readable);
 
-          write_text(_T("i"), 1, port);
+          write_text(port, _T("i"), 1);
      }
 }
 
@@ -94,7 +94,7 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
 
      if (!machine_readable)
      {
-          write_text(STRING_DATA(obj), STRING_DIM(obj), port);
+          write_text(port, STRING_DATA(obj), STRING_DIM(obj));
           return;
      }
 
@@ -125,8 +125,9 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
 
           /* ...which then gets written out. */
           if (next_special_char - next_char_to_write > 0)
-               write_text(&(STRING_DATA(obj)[next_char_to_write]),
-                          next_special_char - next_char_to_write, port);
+               write_text(port,
+                          &(STRING_DATA(obj)[next_char_to_write]),
+                          next_special_char - next_char_to_write);
 
           if (next_special_char >= STRING_DIM(obj))
                break;
@@ -141,7 +142,7 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
                cbuff[0] = _T('\\');
                cbuff[1] = (_TCHAR) c;
 
-               write_text(cbuff, 2, port);
+               write_text(port, cbuff, 2);
                break;
 
           case '\n':
@@ -185,10 +186,10 @@ static void debug_print_hash_elements(lref_t obj, lref_t port, bool machine_read
      {
           count++;
 
-          write_char(_T(' '), port);
+          write_char(port, _T(' '));
 
           debug_print_object(key, port, machine_readable);
-          write_char(_T(' '), port);
+          write_char(port, _T(' '));
           debug_print_object(val, port, machine_readable);
      }
 }
@@ -203,7 +204,7 @@ static void debug_print_hash(lref_t obj, lref_t port, bool machine_readable)
 
      debug_print_hash_elements(obj, port, machine_readable);
 
-     write_char(')', port);
+     write_char(port, ')');
 }
 
 static const _TCHAR *charnames[] = {
@@ -251,12 +252,12 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_CONS:
-          write_char(_T('('), port);
+          write_char(port, _T('('));
           debug_print_object(lcar(obj), port, machine_readable);
 
           for (tmp = lcdr(obj); CONSP(tmp); tmp = lcdr(tmp))
           {
-               write_char(_T(' '), port);
+               write_char(port, _T(' '));
                debug_print_object(lcar(tmp), port, machine_readable);
           }
 
@@ -266,12 +267,12 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
                debug_print_object(tmp, port, machine_readable);
           }
 
-          write_char(_T(')'), port);
+          write_char(port, _T(')'));
           break;
 
      case TC_FIXNUM:
           _sntprintf(buf, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "i"), FIXNM(obj));
-          write_text(buf, _tcslen(buf), port);
+          write_text(port, buf, _tcslen(buf));
           break;
 
      case TC_FLONUM:
@@ -318,10 +319,10 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
                debug_print_object(VECTOR_ELEM(obj, ii), port, true);
 
                if (ii + 1 < VECTOR_DIM(obj))
-                    write_char(_T(' '), port);
+                    write_char(port, _T(' '));
           }
 
-          write_char(_T(')'), port);
+          write_char(port, _T(')'));
           break;
 
      case TC_STRUCTURE:
@@ -487,7 +488,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
 
           if (ch != '~')
           {
-               write_char(ch, port);
+               write_char(port, ch);
 
                continue;
           }
@@ -537,7 +538,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                break;
 
           case '~':
-               write_char('~', port);
+               write_char(port, '~');
                break;
 
           case 'c':            /*  C object prefix */
@@ -555,7 +556,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                          return_value = strconsbuf(str_arg_value);
 
                     if (str_arg_value)
-                         write_text(str_arg_value, _tcslen(str_arg_value), port);
+                         write_text(port, str_arg_value, _tcslen(str_arg_value));
                     else
                          WRITE_TEXT_CONSTANT(_T("<null>"), port);
                     break;
@@ -577,7 +578,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
 
                     _sntprintf(buf, STACK_STRBUF_LEN, _T("%d"), (int) long_arg_value);
 
-                    write_text(buf, _tcslen(buf), port);
+                    write_text(port, buf, _tcslen(buf));
                     break;
 
                case 'x':
@@ -588,7 +589,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
 
                     _sntprintf(buf, STACK_STRBUF_LEN, _T("%08lx"), long_arg_value);
 
-                    write_text(buf, _tcslen(buf), port);
+                    write_text(port, buf, _tcslen(buf));
                     break;
 
                case 'f':
@@ -599,7 +600,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
 
                     _sntprintf(buf, STACK_STRBUF_LEN, _T("%f"), flonum_arg_value);
 
-                    write_text(buf, _tcslen(buf), port);
+                    write_text(port, buf, _tcslen(buf));
                     break;
 
                case '&':
@@ -608,7 +609,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                     if (return_next_value)
                          return_value = strconsbuf(buf);
 
-                    write_text(buf, _tcslen(buf), port);
+                    write_text(port, buf, _tcslen(buf));
                     break;
 
                case 'c':
@@ -619,7 +620,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
 
                     char_arg_value = (_TCHAR) ulong_arg_value;
 
-                    write_text(&char_arg_value, 1, port);
+                    write_text(port, &char_arg_value, 1);
                     break;
 
                case 'C':
@@ -629,7 +630,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                          return_value = fixcons(ulong_arg_value);
 
                     _sntprintf(buf, STACK_STRBUF_LEN, _T("%03o"), (uint32_t) ulong_arg_value);
-                    write_text(buf, _tcslen(buf), port);
+                    write_text(port, buf, _tcslen(buf));
                     break;
 
                case 'B':
@@ -639,7 +640,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                          return_value = fixcons(ulong_arg_value);
 
                     _sntprintf(buf, STACK_STRBUF_LEN, _T("0x%02x"), (uint32_t) ulong_arg_value);
-                    write_text(buf, _tcslen(buf), port);
+                    write_text(port, buf, _tcslen(buf));
                     break;
 
                default:

@@ -280,7 +280,7 @@ lref_t lport_mode(lref_t obj)
           && PORT_TEXT_INFO(port)->translate
           && PORT_TEXT_INFO(port)->needs_lf)
       {
-           write_char(_T('\n'), port);
+           write_char(port, _T('\n'));
       }
 
       if (PORT_CLASS(port)->flush)

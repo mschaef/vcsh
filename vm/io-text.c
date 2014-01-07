@@ -93,7 +93,7 @@ int read_char(lref_t port)
      return ch;
 }
 
- int unread_char(int ch, lref_t port)
+int unread_char(lref_t port, int ch)
  {
       if (NULLP(port))
            port = CURRENT_INPUT_PORT();
@@ -137,27 +137,27 @@ int read_char(lref_t port)
       assert(!NULLP(port));
 
       ch = read_char(port);
-      unread_char(ch, port);
+      unread_char(port, ch);
 
       return ch;
  }
 
- void write_char(int ch, lref_t port)
- {
-      _TCHAR tch = (_TCHAR) ch;
+void write_char(lref_t port, int ch)
+{
+     if (NULLP(port))
+          port = CURRENT_OUTPUT_PORT();
 
-      if (NULLP(port))
-           port = CURRENT_OUTPUT_PORT();
+     assert(!NULLP(port));
 
-      assert(!NULLP(port));
+     _TCHAR tch = (_TCHAR) ch;
 
-      write_text(&tch, 1, port);
+     write_text(port, &tch, 1);
 
-      if (!PORT_BINARYP(port) && (tch == _T('\n')))
-           lflush_port(port);
- }
+     if (!PORT_BINARYP(port) && (tch == _T('\n')))
+          lflush_port(port);
+}
 
-size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
+size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
 {
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
@@ -273,7 +273,7 @@ size_t write_text(const _TCHAR * buf, size_t count, lref_t port)
       }
 
       if (c != EOF)
-           unread_char(c, port);
+           unread_char(port, c);
 
       return c;
  }
@@ -382,12 +382,12 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
       else if (!PORTP(port))
            vmerror_wrong_type_n(1, port);
 
+      assert(PORTP(port));
+
       if (!CHARP(ch))
            vmerror_wrong_type_n(2, ch);
 
-      assert(PORTP(port));
-
-      unread_char(CHARV(ch), port);
+      unread_char(port, CHARV(ch));
 
       return port;
  }
@@ -422,7 +422,7 @@ lref_t lwrite_char(lref_t ch, lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type_n(2, port);
 
-     write_char(CHARV(ch), port);
+     write_char(port, CHARV(ch));
 
      return port;
 }
@@ -440,12 +440,12 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
           lref_t str = argv[ii];
 
           if (STRINGP(str))
-               write_text(STRING_DATA(str), STRING_DIM(str), port);
+               write_text(port, STRING_DATA(str), STRING_DIM(str));
           else if (CHARP(str))
           {
                _TCHAR ch = CHARV(str);
 
-               write_text(&ch, 1, port);
+               write_text(port, &ch, 1);
           }
           else
                vmerror_wrong_type_n(ii, str);
@@ -497,7 +497,7 @@ lref_t lread_line(lref_t port)
      {
           read_anything = true;
 
-          write_char(ch, op);
+          write_char(op, ch);
      }
 
      if (!read_anything && (ch == EOF))
@@ -514,7 +514,7 @@ lref_t lnewline(lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-     write_char(_T('\n'), port);
+     write_char(port, _T('\n'));
 
      return port;
 }
