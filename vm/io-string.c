@@ -50,12 +50,12 @@ size_t string_port_read_bytes(lref_t port, void *buf, size_t size)
      return bytes_read;
 }
 
-size_t string_port_write_bytes(lref_t port, const void *buf, size_t size)
+size_t string_port_write_chars(lref_t port, const _TCHAR *buf, size_t size)
 {
      if (NULLP(PORT_STRING(port)))
-          SET_PORT_STRING(port, strconsbufn(size, (_TCHAR *)buf)); 
+          SET_PORT_STRING(port, strconsbufn(size, buf)); 
      else
-          string_appendd(PORT_STRING(port), (_TCHAR *) buf, size);
+          string_appendd(PORT_STRING(port), buf, size);
 
      return size;
 }
@@ -73,9 +73,9 @@ struct port_class_t string_port_class = {
 
      NULL,                    // open
      string_port_read_bytes,  // read_bytes
-     string_port_write_bytes, // write_bytes
+     NULL,                    // write_bytes
      NULL,                    // read_chars
-     NULL,                    // write_chars
+     string_port_write_chars, // write_chars
      NULL,                    // rich_write
      NULL,                    // flush
      NULL,                    // close

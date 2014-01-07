@@ -248,7 +248,7 @@ lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element);
 
 /**** String I/O Support ****/
 
-void string_appendd(lref_t str, _TCHAR *buf, size_t len);
+void string_appendd(lref_t str, const _TCHAR *buf, size_t len);
 
 /**** Macro constructor ****/
 

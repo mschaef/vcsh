@@ -852,7 +852,7 @@ lref_t lcharacter2string(lref_t obj)
 }
 
 
-void string_appendd(lref_t str, _TCHAR *buf, size_t len)
+void string_appendd(lref_t str, const _TCHAR *buf, size_t len)
 {
      assert(STRINGP(str));
 

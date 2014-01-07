@@ -96,8 +96,6 @@ int read_char(lref_t port)
      else
           PORT_TEXT_INFO(port)->col++;
 
-
-
      return ch;
 }
 
@@ -178,77 +176,7 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
      if (PORT_BINARYP(port))
           return 0;
 
-     /* This code divides the text to be written into blocks seperated
-      * by line seperators. write_bytes is called for each block to
-      * actually do the write, and line seperators are correctly
-      * translated to CR+LF pairs. */
-
-     for (size_t pos = 0; pos < count;)
-     {
-          unsigned int c = _T('\0');
-          /* Emit a needed LF, if necessary. */
-          if (PORT_TEXT_INFO(port)->needs_lf)
-          {
-               if (buf[pos] == _T('\n'))
-                    pos++;
-
-               write_bytes(port, _T("\n"), sizeof(_TCHAR));
-
-               PORT_TEXT_INFO(port)->needs_lf = false;
-               PORT_TEXT_INFO(port)->row++;
-
-               continue;
-          }
-
-          /* Scan for the next eoln character, it ends the block... */
-          size_t eoln_pos;
-
-          for (eoln_pos = pos; (eoln_pos < count); eoln_pos++)
-          {
-               c = buf[eoln_pos];
-
-               if ((c == '\n') || (c == '\r'))
-                    break;
-          }
-
-          size_t seg_len = eoln_pos - pos;
-
-          if (seg_len  == 0)
-          {
-               switch (c)
-               {
-               case _T('\n'):
-                    if (PORT_TEXT_INFO(port)->translate)
-                         write_bytes(port, _T("\r\n"), 2 * sizeof(_TCHAR));
-                    else
-                         write_bytes(port, _T("\n"), sizeof(_TCHAR));
-                    PORT_TEXT_INFO(port)->col = 0;
-                    PORT_TEXT_INFO(port)->row++;
-                    break;
-
-               case _T('\r'):
-                    write_bytes(port, _T("\r"), sizeof(_TCHAR));
-                    PORT_TEXT_INFO(port)->col = 0;
-                    PORT_TEXT_INFO(port)->needs_lf = PORT_TEXT_INFO(port)->translate;
-                    break;
-
-               default:
-                    panic("Invalid case in write_text");
-               }
-
-               eoln_pos++;
-          }
-          else
-          {
-               PORT_TEXT_INFO(port)->col += seg_len;
-
-               write_bytes(port, &(buf[pos]), seg_len * sizeof(_TCHAR));
-          }
-
-          pos = eoln_pos;
-     }
-
-     return count;
+     return PORT_CLASS(port)->write_chars(port, buf, count);
 }
 
 /*** Lisp I/O function ***/
@@ -564,6 +492,80 @@ size_t text_port_write_bytes(lref_t port, const void *buf, size_t size)
      return write_bytes(PORT_UNDERLYING(port), buf, size);
 }
 
+size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
+{
+     /* This code divides the text to be written into blocks seperated
+      * by line seperators. write_bytes is called for each block to
+      * actually do the write, and line seperators are correctly
+      * translated to CR+LF pairs. */
+     for (size_t pos = 0; pos < count;)
+     {
+          unsigned int c = _T('\0');
+          /* Emit a needed LF, if necessary. */
+          if (PORT_TEXT_INFO(port)->needs_lf)
+          {
+               if (buf[pos] == _T('\n'))
+                    pos++;
+
+               write_bytes(PORT_UNDERLYING(port), _T("\n"), sizeof(_TCHAR));
+
+               PORT_TEXT_INFO(port)->needs_lf = false;
+               PORT_TEXT_INFO(port)->row++;
+
+               continue;
+          }
+
+          /* Scan for the next eoln character, it ends the block... */
+          size_t eoln_pos;
+
+          for (eoln_pos = pos; (eoln_pos < count); eoln_pos++)
+          {
+               c = buf[eoln_pos];
+
+               if ((c == '\n') || (c == '\r'))
+                    break;
+          }
+
+          size_t seg_len = eoln_pos - pos;
+
+          if (seg_len  == 0)
+          {
+               switch (c)
+               {
+               case _T('\n'):
+                    if (PORT_TEXT_INFO(port)->translate)
+                         write_bytes(PORT_UNDERLYING(port), _T("\r\n"), 2 * sizeof(_TCHAR));
+                    else
+                         write_bytes(PORT_UNDERLYING(port), _T("\n"), sizeof(_TCHAR));
+                    PORT_TEXT_INFO(port)->col = 0;
+                    PORT_TEXT_INFO(port)->row++;
+                    break;
+
+               case _T('\r'):
+                    write_bytes(PORT_UNDERLYING(port), _T("\r"), sizeof(_TCHAR));
+                    PORT_TEXT_INFO(port)->col = 0;
+                    PORT_TEXT_INFO(port)->needs_lf = PORT_TEXT_INFO(port)->translate;
+                    break;
+
+               default:
+                    panic("Invalid case in write_text");
+               }
+
+               eoln_pos++;
+          }
+          else
+          {
+               PORT_TEXT_INFO(port)->col += seg_len;
+
+               write_bytes(PORT_UNDERLYING(port), &(buf[pos]), seg_len * sizeof(_TCHAR));
+          }
+
+          pos = eoln_pos;
+     }
+
+     return count;
+}
+
 void text_port_flush(lref_t obj)
 {
      lflush_port(PORT_UNDERLYING(obj));
@@ -581,7 +583,7 @@ struct port_class_t text_port_class = {
      text_port_read_bytes,  // read_bytes
      text_port_write_bytes, // write_bytes
      NULL,                  // read_chars
-     NULL,                  // write_chars
+     text_port_write_chars, // write_chars
      NULL,                  // rich_write
      text_port_flush,       // flush
      text_port_close,       // close
