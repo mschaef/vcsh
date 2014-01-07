@@ -20,9 +20,7 @@
 
 #include "scan-private.h"
 
-
-#define WRITE_TEXT_CONSTANT(buf, port) write_text(port, buf, (sizeof(buf) / sizeof(_TCHAR)) - 1)
-
+#define WRITE_TEXT_CONSTANT(port, buf) write_text(port, buf, (sizeof(buf) / sizeof(_TCHAR)) - 1)
 
 static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable)
 {
@@ -98,7 +96,7 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
           return;
      }
 
-     WRITE_TEXT_CONSTANT(_T("\""), port);
+     WRITE_TEXT_CONSTANT(port, _T("\""));
 
      size_t next_char_to_write = 0;
 
@@ -146,16 +144,16 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
                break;
 
           case '\n':
-               WRITE_TEXT_CONSTANT(_T("\\n"), port);
+               WRITE_TEXT_CONSTANT(port, _T("\\n"));
                break;
           case '\r':
-               WRITE_TEXT_CONSTANT(_T("\\r"), port);
+               WRITE_TEXT_CONSTANT(port, _T("\\r"));
                break;
           case '\t':
-               WRITE_TEXT_CONSTANT(_T("\\t"), port);
+               WRITE_TEXT_CONSTANT(port, _T("\\t"));
                break;
           case '\0':
-               WRITE_TEXT_CONSTANT(_T("\\000"), port);
+               WRITE_TEXT_CONSTANT(port, _T("\\000"));
                break;
           default:
                /* This assert will only fail when the special character scanner
@@ -168,7 +166,7 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
           next_char_to_write = next_special_char + 1;
      }
 
-     WRITE_TEXT_CONSTANT(_T("\""), port);
+     WRITE_TEXT_CONSTANT(port, _T("\""));
 }
 
 
@@ -198,7 +196,7 @@ static void debug_print_hash(lref_t obj, lref_t port, bool machine_readable)
 {
      assert(HASHP(obj));
 
-     WRITE_TEXT_CONSTANT(_T("#h("), port);
+     WRITE_TEXT_CONSTANT(port, _T("#h("));
 
      debug_print_object(lhash_type(obj), port, machine_readable);
 
@@ -237,18 +235,14 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
      switch (TYPE(obj))
      {
      case TC_NIL:
-          WRITE_TEXT_CONSTANT(_T("()"), port);
+          WRITE_TEXT_CONSTANT(port, _T("()"));
           break;
 
      case TC_BOOLEAN:
           if (BOOLV(obj))
-          {
-               WRITE_TEXT_CONSTANT(_T("#t"), port);
-          }
+               WRITE_TEXT_CONSTANT(port, _T("#t"));
           else
-          {
-               WRITE_TEXT_CONSTANT(_T("#f"), port);
-          }
+               WRITE_TEXT_CONSTANT(port, _T("#f"));
           break;
 
      case TC_CONS:
@@ -263,7 +257,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 
           if (!NULLP(tmp))
           {
-               WRITE_TEXT_CONSTANT(_T(" . "), port);
+               WRITE_TEXT_CONSTANT(port, _T(" . "));
                debug_print_object(tmp, port, machine_readable);
           }
 
@@ -312,7 +306,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_VECTOR:
-          WRITE_TEXT_CONSTANT(_T("#("), port);
+          WRITE_TEXT_CONSTANT(port, _T("#("));
 
           for (ii = 0; ii < VECTOR_DIM(obj); ii++)
           {
@@ -326,20 +320,20 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_STRUCTURE:
-          WRITE_TEXT_CONSTANT(_T("#S("), port);
+          WRITE_TEXT_CONSTANT(port, _T("#S("));
 
           debug_print_object(CAR(STRUCTURE_LAYOUT(obj)), port, true);
 
           for (ii = 0, slots = CAR(CDR(STRUCTURE_LAYOUT(obj)));
                ii < STRUCTURE_DIM(obj); ii++, slots = CDR(slots))
           {
-               WRITE_TEXT_CONSTANT(_T(" "), port);
+               WRITE_TEXT_CONSTANT(port, _T(" "));
                debug_print_object(CAR(CAR(slots)), port, true);
-               WRITE_TEXT_CONSTANT(_T(" "), port);
+               WRITE_TEXT_CONSTANT(port, _T(" "));
                debug_print_object(STRUCTURE_ELEM(obj, ii), port, true);
           }
 
-          WRITE_TEXT_CONSTANT(_T(")"), port);
+          WRITE_TEXT_CONSTANT(port, _T(")"));
           break;
 
      case TC_STRING:
@@ -558,7 +552,7 @@ lref_t scvwritef(const _TCHAR * format_str, lref_t port, va_list arglist)
                     if (str_arg_value)
                          write_text(port, str_arg_value, _tcslen(str_arg_value));
                     else
-                         WRITE_TEXT_CONSTANT(_T("<null>"), port);
+                         WRITE_TEXT_CONSTANT(port, _T("<null>"));
                     break;
 
                case 'S':
