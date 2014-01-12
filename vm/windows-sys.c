@@ -353,12 +353,22 @@ static double runtime_offset = 0.0;  /*  timebase offset to interp start */
   }
 
 
-  void sys_get_info(sys_info_t *info)
-  {
-    info->_eoln                    = SYS_EOLN_CRLF;
-    info->_fs_names_case_sensitive = false;
-    info->_platform_name           = _T("win32");
-  }
+
+sys_eoln_convention_t sys_get_eoln_convention()
+{
+     return SYS_EOLN_CRLF;
+}
+
+bool sys_get_fs_names_case_sensitive()
+{
+     return false;
+}
+
+const _TCHAR *sys_get_platform_name()
+{
+     return _T("win32");
+}
+
 
 /**************************************************************
  * int debug_printf(_TCHAR *, ...)

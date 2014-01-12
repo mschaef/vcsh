@@ -598,10 +598,7 @@ struct port_text_info_t *allocate_text_info()
      memset(tinfo->pbuf, 0, sizeof(tinfo->pbuf));
      tinfo->pbuf_pos = 0;
 
-     struct sys_info_t sinf;
-     sys_get_info(&sinf);
-
-     tinfo->translate = (sinf._eoln == SYS_EOLN_CRLF);
+     tinfo->translate = (sys_get_eoln_convention() == SYS_EOLN_CRLF);
      tinfo->needs_lf = FALSE;
      tinfo->col = 0;
      tinfo->row = 1;

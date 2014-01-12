@@ -309,12 +309,21 @@ enum sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len)
      return SYS_OK;
 }
 
-void sys_get_info(struct sys_info_t * info)
+enum sys_eoln_convention_t sys_get_eoln_convention()
 {
-     info->_eoln = SYS_EOLN_LF;
-     info->_fs_names_case_sensitive = true;
-     info->_platform_name = _T("linux");
+     return SYS_EOLN_LF;
 }
+
+bool sys_get_fs_names_case_sensitive()
+{
+     return true;
+}
+
+const _TCHAR *sys_get_platform_name()
+{
+     return _T("linux");
+}
+
 
 /****************************************************************
  * Error Code Mapping

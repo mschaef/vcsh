@@ -147,14 +147,11 @@ enum sys_eoln_convention_t
      SYS_EOLN_LF = 2            /* unix */
 };
 
-struct sys_info_t
-{
-     enum sys_eoln_convention_t _eoln;
-     bool _fs_names_case_sensitive;
-     const _TCHAR *_platform_name;
-};
+enum sys_eoln_convention_t sys_get_eoln_convention();
 
-void sys_get_info(struct sys_info_t * info);
+bool sys_get_fs_names_case_sensitive();
+
+const _TCHAR *sys_get_platform_name();
 
 extern uint8_t *stack_limit_obj;
 

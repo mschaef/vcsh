@@ -336,15 +336,11 @@ lref_t lrealtime_time_zone_offset()
 
 lref_t lsystem_info()
 {
-     struct sys_info_t info;
-
-     sys_get_info(&info);
-
      lref_t obj = hashcons(true);
 
      lref_t eoln = boolcons(false);
 
-     switch (info._eoln)
+     switch (sys_get_eoln_convention())
      {
      case SYS_EOLN_CRLF:
           eoln = keyword_intern(_T("crlf"));
@@ -360,7 +356,7 @@ lref_t lsystem_info()
      lhash_set(obj, keyword_intern(_T("eoln-convention")), eoln);
 
      lhash_set(obj, keyword_intern(_T("fs-case-sensitive?")),
-               boolcons(info._fs_names_case_sensitive));
+               boolcons(sys_get_fs_names_case_sensitive()));
 
 
      _TCHAR system_name[STACK_STRBUF_LEN];
@@ -385,7 +381,8 @@ lref_t lsystem_info()
 
      lhash_set(obj, keyword_intern(_T("vm-build-id")), strconsbuf(scan_vm_build_id_string()));
 
-     lhash_set(obj, keyword_intern(_T("platform-name")), keyword_intern(info._platform_name));
+     lhash_set(obj, keyword_intern(_T("platform-name")),
+               keyword_intern(sys_get_platform_name()));
 
      lhash_set(obj, keyword_intern(_T("most-positive-flonum")), flocons(FLONUM_MAX));
      lhash_set(obj, keyword_intern(_T("most-negative-flonum")), flocons(FLONUM_MIN));
