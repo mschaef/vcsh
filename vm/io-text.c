@@ -482,6 +482,30 @@ lref_t lfresh_line(lref_t port)
 
 /*** Text port object ***/
 
+
+struct port_text_info_t *allocate_text_info()
+{
+     struct port_text_info_t *tinfo = gc_malloc(sizeof(*tinfo));
+
+     memset(tinfo->pbuf, 0, sizeof(tinfo->pbuf));
+     tinfo->pbuf_pos = 0;
+
+     tinfo->translate = (sys_get_eoln_convention() == SYS_EOLN_CRLF);
+     tinfo->needs_lf = FALSE;
+     tinfo->col = 0;
+     tinfo->row = 1;
+     tinfo->pline_mcol = 0;
+
+     tinfo->str_ofs = -1;
+
+     return tinfo;
+}
+
+void text_port_open(lref_t port)
+{
+     SET_PORT_TEXT_INFO(port, allocate_text_info());
+}
+
 size_t text_port_read_bytes(lref_t port, void *buf, size_t size)
 {
      return read_bytes(PORT_UNDERLYING(port), buf, size);
@@ -579,7 +603,7 @@ void text_port_close(lref_t obj)
 struct port_class_t text_port_class = {
      _T("TEXT"),
 
-     NULL,                  // open
+     text_port_open,        // open
      text_port_read_bytes,  // read_bytes
      text_port_write_bytes, // write_bytes
      NULL,                  // read_chars
@@ -591,24 +615,6 @@ struct port_class_t text_port_class = {
      NULL                   // length
 };
 
-struct port_text_info_t *allocate_text_info()
-{
-     struct port_text_info_t *tinfo = gc_malloc(sizeof(*tinfo));
-
-     memset(tinfo->pbuf, 0, sizeof(tinfo->pbuf));
-     tinfo->pbuf_pos = 0;
-
-     tinfo->translate = (sys_get_eoln_convention() == SYS_EOLN_CRLF);
-     tinfo->needs_lf = FALSE;
-     tinfo->col = 0;
-     tinfo->row = 1;
-     tinfo->pline_mcol = 0;
-
-     tinfo->str_ofs = -1;
-
-     return tinfo;
-}
-
 lref_t lopen_text_input_port(lref_t underlying)
 {
      if (!PORTP(underlying))
@@ -617,15 +623,11 @@ lref_t lopen_text_input_port(lref_t underlying)
      if (!PORT_BINARYP(underlying))
           vmerror_unsupported(_T("cannot open text input on text port"));
 
-     lref_t port = portcons(&text_port_class,
-                            lport_name(underlying),
-                            PORT_INPUT,
-                            underlying,
-                            NULL);
-
-     SET_PORT_TEXT_INFO(port, allocate_text_info());
-
-     return port;
+     return portcons(&text_port_class,
+                     lport_name(underlying),
+                     PORT_INPUT,
+                     underlying,
+                     NULL);
 }
 
 lref_t lopen_text_output_port(lref_t underlying)
@@ -636,14 +638,10 @@ lref_t lopen_text_output_port(lref_t underlying)
      if (!PORT_BINARYP(underlying))
           vmerror_unsupported(_T("cannot open text output on text port"));
 
-     lref_t port = portcons(&text_port_class,
-                            lport_name(underlying),
-                            PORT_OUTPUT,
-                            underlying,
-                            NULL);
-
-     SET_PORT_TEXT_INFO(port, allocate_text_info());
-
-     return port;
+     return portcons(&text_port_class,
+                     lport_name(underlying),
+                     PORT_OUTPUT,
+                     underlying,
+                     NULL);
 }
 

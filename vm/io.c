@@ -63,7 +63,7 @@ lref_t leof_objectp(lref_t obj)
  }
 
 
- lref_t initialize_port(lref_t s,
+ lref_t initialize_port(lref_t port,
                         struct port_class_t * cls,
                         lref_t port_name,
                         enum port_mode_t mode,
@@ -71,22 +71,22 @@ lref_t leof_objectp(lref_t obj)
                         void *user_data)
  {
       assert(cls != NULL);
-      assert(!NULLP(s));
+      assert(!NULLP(port));
 
-      SET_PORT_PINFO(s, gc_malloc(sizeof(struct port_info_t)));
-      SET_PORT_CLASS(s, cls);
+      SET_PORT_PINFO(port, gc_malloc(sizeof(struct port_info_t)));
+      SET_PORT_CLASS(port, cls);
 
-      PORT_PINFO(s)->port_name = port_name;
-      PORT_PINFO(s)->user_data = user_data;
-      PORT_PINFO(s)->user_object = user_object;
-      PORT_PINFO(s)->mode = mode;
+      PORT_PINFO(port)->port_name = port_name;
+      PORT_PINFO(port)->user_data = user_data;
+      PORT_PINFO(port)->user_object = user_object;
+      PORT_PINFO(port)->mode = mode;
 
-      SET_PORT_TEXT_INFO(s, NULL);;
+      SET_PORT_TEXT_INFO(port, NULL);;
 
-      if (PORT_CLASS(s)->open)
-           PORT_CLASS(s)->open(s);
+      if (PORT_CLASS(port)->open)
+           PORT_CLASS(port)->open(port);
 
-      return s;
+      return port;
  }
 
  size_t port_length(lref_t port)
@@ -132,9 +132,8 @@ lref_t leof_objectp(lref_t obj)
                  lref_t user_object,
                  void *user_data)
  {
-      lref_t s = new_cell(TC_PORT);
-
-      return initialize_port(s, cls, port_name, mode, user_object, user_data);
+      return initialize_port(new_cell(TC_PORT),
+                             cls, port_name, mode, user_object, user_data);
  }
 
  /***** C I/O functions *****/
