@@ -222,9 +222,6 @@ enum
      /*  Local (stack) string buffer size */
      STACK_STRBUF_LEN = 256,
 
-     /* The number of characters that can be ungotten from a port */
-     PORT_UNGET_BUFFER_SIZE = 8,
-
      /*  Record individual safe_mallocs to debug */
      DETAILED_MEMORY_LOG = FALSE,
 

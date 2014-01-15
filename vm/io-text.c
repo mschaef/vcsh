@@ -56,11 +56,11 @@ int read_char(lref_t port)
      int ch = EOF;
 
      /* Read the next character, perhaps from the unread buffer... */
-     if (PORT_TEXT_INFO(port)->pbuf_pos > 0)
+     if (PORT_TEXT_INFO(port)->pbuf_valid)
      {
-          PORT_TEXT_INFO(port)->pbuf_pos--;
+          PORT_TEXT_INFO(port)->pbuf_valid = false;
 
-          ch = PORT_TEXT_INFO(port)->pbuf[PORT_TEXT_INFO(port)->pbuf_pos];
+          ch = PORT_TEXT_INFO(port)->pbuf;
      }
      else
      {
@@ -124,11 +124,10 @@ int unread_char(lref_t port, int ch)
            break;
       }
 
-      if (PORT_TEXT_INFO(port)->pbuf_pos >= PORT_UNGET_BUFFER_SIZE)
-           vmerror_io_error(_T("unget buffer exceeded."), port);
+      assert(!PORT_TEXT_INFO(port)->pbuf_valid);
 
-      PORT_TEXT_INFO(port)->pbuf[PORT_TEXT_INFO(port)->pbuf_pos] = ch;
-      PORT_TEXT_INFO(port)->pbuf_pos++;
+      PORT_TEXT_INFO(port)->pbuf = ch;
+      PORT_TEXT_INFO(port)->pbuf_valid = true;
 
       return ch;
  }
@@ -470,8 +469,8 @@ struct port_text_info_t *allocate_text_info()
 {
      struct port_text_info_t *tinfo = gc_malloc(sizeof(*tinfo));
 
-     memset(tinfo->pbuf, 0, sizeof(tinfo->pbuf));
-     tinfo->pbuf_pos = 0;
+     tinfo->pbuf = 0;
+     tinfo->pbuf_valid = false;
 
      tinfo->translate = (sys_get_eoln_convention() == SYS_EOLN_CRLF);
      tinfo->needs_lf = FALSE;

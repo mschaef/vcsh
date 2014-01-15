@@ -1034,8 +1034,8 @@ enum port_mode_t
 
 struct port_text_info_t
 {
-     int pbuf[PORT_UNGET_BUFFER_SIZE];
-     size_t pbuf_pos;
+     int pbuf;
+     bool pbuf_valid;
 
      bool translate;
      bool needs_lf;
