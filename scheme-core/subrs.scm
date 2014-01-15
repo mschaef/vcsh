@@ -256,7 +256,6 @@
 (%define tan #.(host-scheme::%subr-by-name "tan"))
 (%define temporary-file-name #.(host-scheme::%subr-by-name "temporary-file-name"))
 (%define truncate #.(host-scheme::%subr-by-name "truncate"))
-(%define unread-char #.(host-scheme::%subr-by-name "unread-char"))
 (%define vector #.(host-scheme::%subr-by-name "vector"))
 (%define vector->list #.(host-scheme::%subr-by-name "vector->list"))
 (%define vector-copy #.(host-scheme::%subr-by-name "vector-copy"))

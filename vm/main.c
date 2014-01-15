@@ -497,7 +497,6 @@ static void register_main_subrs()
     register_subr(_T("tan"),                              SUBR_1,     (void*)ltan                                );
     register_subr(_T("temporary-file-name"),              SUBR_1,     (void*)ltemporary_file_name                );
     register_subr(_T("truncate"),                         SUBR_1,     (void*)ltruncate                           );
-    register_subr(_T("unread-char"),                      SUBR_2,     (void*)lunread_char                        );
     register_subr(_T("vector"),                           SUBR_ARGC,  (void*)lvector                             );
     register_subr(_T("vector->list"),                     SUBR_1,     (void*)lvector2list                        );
     register_subr(_T("vector-copy"),                      SUBR_1,     (void*)lvector_copy                        );

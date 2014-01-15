@@ -135,15 +135,15 @@ int unread_char(lref_t port, int ch)
 
  int peek_char(lref_t port)
  {
-      int ch = EOF;
-
       if (NULLP(port))
            port = CURRENT_INPUT_PORT();
 
       assert(!NULLP(port));
 
-      ch = read_char(port);
-      unread_char(port, ch);
+      int ch = read_char(port);
+
+      if (ch != EOF)
+           unread_char(port, ch);
 
       return ch;
  }
@@ -258,23 +258,6 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
            return lmake_eof();
       else
            return charcons((_TCHAR) ch);
- }
-
- lref_t lunread_char(lref_t ch, lref_t port)
- {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
-      else if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
-
-      assert(PORTP(port));
-
-      if (!CHARP(ch))
-           vmerror_wrong_type_n(2, ch);
-
-      unread_char(port, CHARV(ch));
-
-      return port;
  }
 
 

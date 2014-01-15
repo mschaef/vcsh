@@ -458,7 +458,6 @@ lref_t ltime_apply0(lref_t fn);
 lref_t lto_ieee754_bits(lref_t x);
 lref_t ltruncate(lref_t x);
 lref_t lunbound_marker();
-lref_t lunread_char(lref_t ch, lref_t port);
 lref_t lvalues(lref_t values);
 lref_t lvalues2list(lref_t obj);
 lref_t lvector(size_t argc, lref_t argv[]);
