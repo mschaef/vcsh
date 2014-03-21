@@ -441,7 +441,6 @@ static void register_main_subrs()
     register_subr(_T("quotient"),                         SUBR_2,     (void*)lquotient                           );
     register_subr(_T("random"),                           SUBR_1,     (void*)lrandom                             );
     register_subr(_T("rational?"),                        SUBR_1,     (void*)lrationalp                          );
-    register_subr(_T("read-binary-fixnum"),               SUBR_3,     (void*)lread_binary_fixnum                 );
     register_subr(_T("read-binary-fixnum-u8"),            SUBR_3,     (void*)lread_binary_fixnum_u8              );
     register_subr(_T("read-binary-fixnum-s8"),            SUBR_3,     (void*)lread_binary_fixnum_s8              );
     register_subr(_T("read-binary-fixnum-u16"),           SUBR_3,     (void*)lread_binary_fixnum_u16             );
@@ -513,7 +512,6 @@ static void register_main_subrs()
     register_subr(_T("vector-resize"),                    SUBR_3,     (void*)lvector_resize                      );
     register_subr(_T("vector-set!"),                      SUBR_3,     (void*)lvector_set                         );
     register_subr(_T("vector?"),                          SUBR_1,     (void*)lvectorp                            );
-    register_subr(_T("write-binary-fixnum"),              SUBR_4,     (void*)lwrite_binary_fixnum                );
     register_subr(_T("write-binary-fixnum-u8"),           SUBR_4,     (void*)lwrite_binary_fixnum_u8             );
     register_subr(_T("write-binary-fixnum-s8"),           SUBR_4,     (void*)lwrite_binary_fixnum_u8             );
     register_subr(_T("write-binary-fixnum-u16"),          SUBR_4,     (void*)lwrite_binary_fixnum_u16            );

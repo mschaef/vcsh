@@ -657,7 +657,6 @@
              rational?
              rcompose
              read
-             read-binary-fixnum
              read-binary-fixnum-u8
              read-binary-fixnum-s8
              read-binary-fixnum-u16
@@ -924,7 +923,6 @@
              with-temporary-file
              within?
              write
-             write-binary-fixnum
              write-binary-fixnum-u8
              write-binary-fixnum-s8
              write-binary-fixnum-u16

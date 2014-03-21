@@ -398,41 +398,6 @@ lref_t lread_binary_fixnum_s64(lref_t port)
      return lread_binary_fixnum_0(8, true, port);
 }
 
-
-lref_t lread_binary_fixnum(lref_t l, lref_t sp, lref_t port)
-{
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
-          vmerror_wrong_type_n(3, port);
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
-
-     if (!NUMBERP(l))
-          vmerror_wrong_type_n(1, l);
-     if (!BOOLP(sp))
-          vmerror_wrong_type_n(2, sp);
-
-     fixnum_t length = get_c_fixnum(l);
-     bool signedp = BOOLV(sp);
-
-#ifdef SCAN_64BIT
-     if ((length != 1) && (length != 2) && (length != 4) && (length != 8))
-          vmerror_arg_out_of_range(l, _T("1, 2, 4, or 8"));
-#else
-     if ((length != 1) && (length != 2) && (length != 4))
-          vmerror_arg_out_of_range(l, _T("1, 2, or 4"));
-#endif
-
-     fixnum_t result = 0;
-
-     if (read_binary_fixnum(length, signedp, port, &result))
-          return fixcons(result);
-     else
-          return lmake_eof();
-}
-
 lref_t lread_binary_flonum(lref_t port)
 {
      if (NULLP(port))
@@ -483,7 +448,7 @@ INLINE lref_t lwrite_binary_fixnum_0(lref_t v, size_t length, bool signedp, lref
      if (NULLP(port))
           port = CURRENT_OUTPUT_PORT();
      else if (!PORTP(port))
-          vmerror_wrong_type_n(4, port);
+          vmerror_wrong_type_n(2, port);
 
      assert(PORTP(port));
 
@@ -491,7 +456,7 @@ INLINE lref_t lwrite_binary_fixnum_0(lref_t v, size_t length, bool signedp, lref
           vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (!FIXNUMP(v))
-          vmerror_wrong_type_n(2, v);
+          vmerror_wrong_type_n(1, v);
 
      fixnum_t val = FIXNM(v);
 
@@ -578,83 +543,6 @@ lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
      return lwrite_binary_fixnum_0(v, 8, true, port);
 }
 
-
-lref_t lwrite_binary_fixnum(lref_t v, lref_t l, lref_t sp, lref_t port)
-{
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-     else if (!PORTP(port))
-          vmerror_wrong_type_n(4, port);
-
-     assert(PORTP(port));
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
-
-     if (!FIXNUMP(v))
-          vmerror_wrong_type_n(1, v);
-
-     if (!NUMBERP(l))
-          vmerror_wrong_type_n(2, l);
-
-     if (!BOOLP(sp))
-          vmerror_wrong_type_n(3, sp);
-
-     fixnum_t length = get_c_fixnum(l);
-     bool signedp = BOOLV(sp);
-
-#ifdef SCAN_64BIT
-     if ((length != 1) && (length != 2) && (length != 4) && (length != 8))
-          vmerror_arg_out_of_range(l, _T("1, 2, 4, or 8"));
-#else
-     if ((length != 1) && (length != 2) && (length != 4))
-          vmerror_arg_out_of_range(l, _T("1, 2, or 4"));
-#endif
-
-     fixnum_t val = FIXNM(v);
-
-     uint8_t bytes[sizeof(fixnum_t)];
-
-     switch (length)
-     {
-     case 1:
-          if (signedp)
-               *(int8_t *) bytes = (int8_t) val;
-          else
-               *(uint8_t *) bytes = (uint8_t) val;
-          break;
-
-     case 2:
-          if (signedp)
-               *(int16_t *) bytes = (int16_t) val;
-          else
-               *(uint16_t *) bytes = (uint16_t) val;
-          break;
-
-     case 4:
-          if (signedp)
-               *(int32_t *) bytes = (int32_t) val;
-          else
-               *(uint32_t *) bytes = (uint32_t) val;
-          break;
-
-#ifdef SCAN_64BIT
-     case 8:
-          if (signedp)
-               *(int64_t *) bytes = (int64_t) val;
-          else
-               *(uint64_t *) bytes = (uint64_t) val;
-          break;
-#endif
-     }
-
-     size_t fixnums_written = write_bytes(port, bytes, (size_t)length);
-
-     if (fixnums_written < 1)
-          vmerror_io_error(_T("error writing to port."), port);
-
-     return fixcons(fixnums_written);
-}
 
 lref_t lbinary_write_flonum(lref_t v, lref_t port)
 {
