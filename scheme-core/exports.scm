@@ -658,6 +658,14 @@
              rcompose
              read
              read-binary-fixnum
+             read-binary-fixnum-u8
+             read-binary-fixnum-s8
+             read-binary-fixnum-u16
+             read-binary-fixnum-s16
+             read-binary-fixnum-u32
+             read-binary-fixnum-s32
+             read-binary-fixnum-u64
+             read-binary-fixnum-s64
              read-binary-flonum
              read-binary-string
              read-char
@@ -917,6 +925,14 @@
              within?
              write
              write-binary-fixnum
+             write-binary-fixnum-u8
+             write-binary-fixnum-s8
+             write-binary-fixnum-u16
+             write-binary-fixnum-s16
+             write-binary-fixnum-u32
+             write-binary-fixnum-s32
+             write-binary-fixnum-u64
+             write-binary-fixnum-s64
              write-binary-flonum
              write-binary-string
              write-char
