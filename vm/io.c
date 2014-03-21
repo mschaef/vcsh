@@ -138,6 +138,7 @@ lref_t leof_objectp(lref_t obj)
 
  /***** C I/O functions *****/
 
+
  bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result)
  {
  #ifdef SCAN_64BIT
@@ -339,6 +340,65 @@ lref_t lread_binary_string(lref_t l, lref_t port)
 }
 
 
+INLINE lref_t lread_binary_fixnum_0(size_t length, bool signedp, lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+     else if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
+
+     if (!PORT_BINARYP(port))
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
+
+     fixnum_t result = 0;
+
+     if (read_binary_fixnum(length, signedp, port, &result))
+          return fixcons(result);
+     else
+          return lmake_eof();
+}
+
+lref_t lread_binary_fixnum_u8(lref_t port)
+{
+     return lread_binary_fixnum_0(1, false, port);
+}
+
+lref_t lread_binary_fixnum_s8(lref_t port)
+{
+     return lread_binary_fixnum_0(1, true, port);
+}
+
+lref_t lread_binary_fixnum_u16(lref_t port)
+{
+     return lread_binary_fixnum_0(2, false, port);
+}
+
+lref_t lread_binary_fixnum_s16(lref_t port)
+{
+     return lread_binary_fixnum_0(2, true, port);
+}
+
+lref_t lread_binary_fixnum_u32(lref_t port)
+{
+     return lread_binary_fixnum_0(2, false, port);
+}
+
+lref_t lread_binary_fixnum_s32(lref_t port)
+{
+     return lread_binary_fixnum_0(4, true, port);
+}
+
+lref_t lread_binary_fixnum_u64(lref_t port)
+{
+     return lread_binary_fixnum_0(8, false, port);
+}
+
+lref_t lread_binary_fixnum_s64(lref_t port)
+{
+     return lread_binary_fixnum_0(8, true, port);
+}
+
+
 lref_t lread_binary_fixnum(lref_t l, lref_t sp, lref_t port)
 {
      if (NULLP(port))
@@ -417,6 +477,106 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
 
      return fixcons(chars_written);
 }
+INLINE lref_t lwrite_binary_fixnum_0(lref_t v, size_t length, bool signedp, lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_OUTPUT_PORT();
+     else if (!PORTP(port))
+          vmerror_wrong_type_n(4, port);
+
+     assert(PORTP(port));
+
+     if (!PORT_BINARYP(port))
+          vmerror_unsupported(_T("raw port operations not supported on text ports"));
+
+     if (!FIXNUMP(port))
+          vmerror_wrong_type_n(2, v);
+
+     fixnum_t val = FIXNM(v);
+
+     uint8_t bytes[sizeof(fixnum_t)];
+
+     switch (length)
+     {
+     case 1:
+          if (signedp)
+               *(int8_t *) bytes = (int8_t) val;
+          else
+               *(uint8_t *) bytes = (uint8_t) val;
+          break;
+
+     case 2:
+          if (signedp)
+               *(int16_t *) bytes = (int16_t) val;
+          else
+               *(uint16_t *) bytes = (uint16_t) val;
+          break;
+
+     case 4:
+          if (signedp)
+               *(int32_t *) bytes = (int32_t) val;
+          else
+               *(uint32_t *) bytes = (uint32_t) val;
+          break;
+
+#ifdef SCAN_64BIT
+     case 8:
+          if (signedp)
+               *(int64_t *) bytes = (int64_t) val;
+          else
+               *(uint64_t *) bytes = (uint64_t) val;
+          break;
+#endif
+     }
+
+     size_t fixnums_written = write_bytes(port, bytes, (size_t)length);
+
+     if (fixnums_written < 1)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return fixcons(fixnums_written);
+}
+
+lref_t lwrite_binary_fixnum_u8(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 1, false, port);
+}
+
+lref_t lwrite_binary_fixnum_s8(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 1, true, port);
+}
+
+lref_t lwrite_binary_fixnum_u16(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 2, false, port);
+}
+
+lref_t lwrite_binary_fixnum_s16(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 2, true, port);
+}
+
+lref_t lwrite_binary_fixnum_u32(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 4, false, port);
+}
+
+lref_t lwrite_binary_fixnum_s32(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 4, true, port);
+}
+
+lref_t lwrite_binary_fixnum_u64(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 8, false, port);
+}
+
+lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
+{
+     return lwrite_binary_fixnum_0(v, 8, true, port);
+}
+
 
 lref_t lwrite_binary_fixnum(lref_t v, lref_t l, lref_t sp, lref_t port)
 {
