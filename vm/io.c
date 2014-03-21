@@ -101,9 +101,6 @@ lref_t leof_objectp(lref_t obj)
 
  size_t write_bytes(lref_t port, const void *buf, size_t size)
  {
-      if (NULLP(port))
-           port = CURRENT_OUTPUT_PORT();
-
       assert(!NULLP(port));
       assert(PORT_CLASS(port)->write_bytes);
 
@@ -112,9 +109,6 @@ lref_t leof_objectp(lref_t obj)
 
  size_t read_bytes(lref_t port, void *buf, size_t size)
  {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
-
       assert(!NULLP(port));
       assert(PORT_CLASS(port)->read_bytes);
 
@@ -294,9 +288,7 @@ lref_t lread_binary_string(lref_t l, lref_t port)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
+      if (!PORTP(port))
           vmerror_wrong_type_n(2, port);
 
      assert(PORTP(port));
@@ -342,9 +334,7 @@ lref_t lread_binary_string(lref_t l, lref_t port)
 
 INLINE lref_t lread_binary_fixnum_0(size_t length, bool signedp, lref_t port)
 {
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
+     if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
 
      if (!PORT_BINARYP(port))
@@ -400,9 +390,7 @@ lref_t lread_binary_fixnum_s64(lref_t port)
 
 lref_t lread_binary_flonum(lref_t port)
 {
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-     else if (!PORTP(port))
+     if (!PORTP(port))
           vmerror_wrong_type_n(3, port);
 
      if (!PORT_BINARYP(port))
@@ -419,9 +407,7 @@ lref_t lread_binary_flonum(lref_t port)
 
 lref_t lwrite_binary_string(lref_t string, lref_t port)
 {
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-     else if (!PORTP(port))
+     if (!PORTP(port))
           vmerror_wrong_type_n(2, port);
 
      assert(PORTP(port));
@@ -445,9 +431,7 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
 
 INLINE lref_t lwrite_binary_fixnum_0(lref_t v, size_t length, bool signedp, lref_t port)
 {
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-     else if (!PORTP(port))
+     if (!PORTP(port))
           vmerror_wrong_type_n(2, port);
 
      assert(PORTP(port));
@@ -546,9 +530,7 @@ lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
 
 lref_t lbinary_write_flonum(lref_t v, lref_t port)
 {
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-     else if (!PORTP(port))
+     if (!PORTP(port))
           vmerror_wrong_type_n(4, port);
 
      assert(PORTP(port));
