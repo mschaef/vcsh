@@ -339,8 +339,8 @@ INLINE lref_t lread_binary_fixnum_0(size_t length, bool signedp, lref_t port)
 
      if (read_binary_fixnum(length, signedp, port, &result))
           return fixcons(result);
-     else
-          return lmake_eof();
+
+     return lmake_eof();
 }
 
 lref_t lread_binary_fixnum_u8(lref_t port)
@@ -386,7 +386,7 @@ lref_t lread_binary_fixnum_s64(lref_t port)
 lref_t lread_binary_flonum(lref_t port)
 {
      if (!PORTP(port))
-          vmerror_wrong_type_n(3, port);
+          vmerror_wrong_type_n(1, port);
 
      if (!PORT_BINARYP(port))
           vmerror_unsupported(_T("raw port operations not supported on text ports"));
@@ -416,12 +416,12 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
      size_t length = STRING_DIM(string);
      _TCHAR *strdata = STRING_DATA(string);
 
-     size_t chars_written = write_bytes(port, strdata, length * sizeof(_TCHAR));
+     size_t bytes_written = write_bytes(port, strdata, length * sizeof(_TCHAR));
 
-     if (chars_written < length)
+     if (bytes_written != length * sizeof(_TCHAR))
           vmerror_io_error(_T("error writing to port."), port);
 
-     return fixcons(chars_written);
+     return port;
 }
 
 INLINE lref_t lwrite_binary_fixnum_0(uint8_t bytes[], size_t length, lref_t port)
@@ -435,7 +435,7 @@ INLINE lref_t lwrite_binary_fixnum_0(uint8_t bytes[], size_t length, lref_t port
      if (write_bytes(port, bytes, length) != length)
           vmerror_io_error(_T("error writing to port."), port);
 
-     return fixcons(1);
+     return port;
 }
 
 
@@ -511,7 +511,6 @@ lref_t lwrite_binary_fixnum_s32(lref_t v, lref_t port)
      return lwrite_binary_fixnum_0(bytes, 4, port);
 }
 
-
 lref_t lwrite_binary_fixnum_u64(lref_t v, lref_t port)
 {
      if (!FIXNUMP(v))
@@ -547,18 +546,14 @@ lref_t lbinary_write_flonum(lref_t v, lref_t port)
      if (!NUMBERP(v))
           vmerror_wrong_type_n(1, v);
 
-     flonum_t val = get_c_double(v);
-
      uint8_t bytes[sizeof(flonum_t)];
 
-     *(flonum_t *) bytes = val;
+     *(flonum_t *) bytes = get_c_double(v);
 
-     size_t flonums_written = write_bytes(port, bytes, sizeof(flonum_t));
-
-     if (flonums_written < 1)
+     if (write_bytes(port, bytes, sizeof(flonum_t)) != sizeof(flonum_t))
           vmerror_io_error(_T("error writing to port."), port);
 
-     return fixcons(flonums_written);
+     return port;
 }
 
 /* Null port
