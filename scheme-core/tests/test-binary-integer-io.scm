@@ -147,8 +147,6 @@
       (test-case (eof-object? (read-binary-fixnum-s32 p)))
 
       ; Paramater test-case validation
-      (test-case (runtime-error? (read-binary-fixnum-u8 -p)))
-      (test-case (runtime-error? (read-binary-fixnum-s8 -p)))
       (test-case (runtime-error? (read-binary-fixnum-s8 "foo")))
       (test-case (runtime-error? (read-binary-fixnum-s16 :baz)))
       (test-case (runtime-error? (read-binary-fixnum-s32 '())))
