@@ -380,7 +380,7 @@ lref_t lread_binary_fixnum_s16(lref_t port)
 
 lref_t lread_binary_fixnum_u32(lref_t port)
 {
-     return lread_binary_fixnum_0(2, false, port);
+     return lread_binary_fixnum_0(4, false, port);
 }
 
 lref_t lread_binary_fixnum_s32(lref_t port)
@@ -477,6 +477,7 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
 
      return fixcons(chars_written);
 }
+
 INLINE lref_t lwrite_binary_fixnum_0(lref_t v, size_t length, bool signedp, lref_t port)
 {
      if (NULLP(port))
@@ -489,7 +490,7 @@ INLINE lref_t lwrite_binary_fixnum_0(lref_t v, size_t length, bool signedp, lref
      if (!PORT_BINARYP(port))
           vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
-     if (!FIXNUMP(port))
+     if (!FIXNUMP(v))
           vmerror_wrong_type_n(2, v);
 
      fixnum_t val = FIXNM(v);
