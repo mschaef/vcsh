@@ -144,7 +144,7 @@
 
       ((character)
        (fast-write-opcode system::FASL_OP_CHARACTER port)
-       (write-binary-fixnum (char->integer object) 1 #f port))
+       (write-binary-fixnum-u8 (char->integer object) port))
 
       ((cons)
        (mvbind (len dotted?) (length-excluding-shared object smap)
@@ -161,16 +161,16 @@
        (cond
         ((and (>= object -128) (<= object 127))
          (fast-write-opcode system::FASL_OP_FIX8 port)
-         (write-binary-fixnum object 1 #t port))
+         (write-binary-fixnum-s8 object port))
         ((and (>= object -32768) (<= object 32767))
          (fast-write-opcode system::FASL_OP_FIX16 port)
-         (write-binary-fixnum object 2 #t port))
+         (write-binary-fixnum-s16 object port))
         ((and (>= object -2147483648) (<= object 2147483647))
          (fast-write-opcode system::FASL_OP_FIX32 port)
-         (write-binary-fixnum object 4 #t port))
+         (write-binary-fixnum-s32 object port))
         (#t
          (fast-write-opcode system::FASL_OP_FIX64 port)
-         (write-binary-fixnum object 8 #t port))))
+         (write-binary-fixnum-s64 object port))))
 
       ((flonum)
        (fast-write-opcode system::FASL_OP_FLOAT port)
