@@ -493,11 +493,6 @@ size_t text_port_read_bytes(lref_t port, void *buf, size_t size)
      return read_bytes(PORT_UNDERLYING(port), buf, size);
 }
 
-size_t text_port_write_bytes(lref_t port, const void *buf, size_t size)
-{
-     return write_bytes(PORT_UNDERLYING(port), buf, size);
-}
-
 size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
 {
      /* This code divides the text to be written into blocks seperated
@@ -587,7 +582,7 @@ struct port_class_t text_port_class = {
 
      text_port_open,        // open
      text_port_read_bytes,  // read_bytes
-     text_port_write_bytes, // write_bytes
+     NULL,                  // write_bytes
      NULL,                  // read_chars
      text_port_write_chars, // write_chars
      NULL,                  // rich_write

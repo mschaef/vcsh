@@ -80,7 +80,6 @@ double get_c_double(lref_t x);
 flonum_t get_c_flonum(lref_t x);
 flonum_t get_c_flonum_im(lref_t x);
 
-
 lref_t charcons(_TCHAR ch);
 
 /**** Strings ****/
