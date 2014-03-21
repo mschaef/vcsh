@@ -16,7 +16,7 @@
 
 (defmacro (fast-write-opcode code port)
   "Writes a type code <code> to <port>."
-  `(write-binary-fixnum ,code 1 #f ,port))
+  `(write-binary-fixnum-u8 ,code ,port))
 
 (define-structure sharing-map
   (indicies :default (make-hash :eq))
