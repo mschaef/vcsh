@@ -49,7 +49,7 @@ int read_char(lref_t port)
           return EOF;
 
      if (PORT_BINARYP(port))
-          return read_one_char(port);
+          vmerror_unsupported(_T("cannot read on binary ports."));
 
      /* Text port case below. */
 
@@ -66,7 +66,9 @@ int read_char(lref_t port)
      {
           ch = read_one_char(port);
 
-          /* _crlf_translate mode forces all input newlines (CR, LF, CR+LF) into LF's. */
+          /* translation mode forces all input newlines (CR, LF,
+           * CR+LF) into LF's.
+           */
           if (PORT_TEXT_INFO(port)->translate)
           {
                if (ch == '\r')
