@@ -38,49 +38,17 @@ int read_char(lref_t port)
      if (PORT_TEXT_INFO(port)->pbuf_valid)          
      {
           /* Unread buffer */
-
           PORT_TEXT_INFO(port)->pbuf_valid = false;
 
           ch = PORT_TEXT_INFO(port)->pbuf;
      }
-     else if (PORT_CLASS(port)->read_chars != NULL)
+     else
      {
           /* Specific string read handling. */
-
           _TCHAR tch;
 
           if (PORT_CLASS(port)->read_chars(port, &tch, 1) > 0)
                ch = (tch);
-     }
-     else 
-     {
-          /* Fail over to binary read. */
-
-          _TCHAR tch;
-
-          if (read_bytes(PORT_UNDERLYING(port), &tch, sizeof(_TCHAR)) > 0)
-               ch = (int)tch;
-
-          /* translation mode forces all input newlines (CR, LF,
-           * CR+LF) into LF's.
-           */
-          if (PORT_TEXT_INFO(port)->translate)
-          {
-               if (ch == '\r')
-               {
-                    ch = '\n';
-                    PORT_TEXT_INFO(port)->needs_lf = TRUE;
-               }
-               else if (PORT_TEXT_INFO(port)->needs_lf)
-               {
-                    PORT_TEXT_INFO(port)->needs_lf = FALSE;
-
-                    /*  Notice: this _returns_ from read_char, to avoid double
-                     *  counting ch in the position counters. */
-                    if (ch == '\n')
-                         return read_char(port);
-               }
-          }
      }
 
      /* Update the text position indicators */
@@ -509,6 +477,43 @@ void text_port_open(lref_t port)
      SET_PORT_TEXT_INFO(port, allocate_text_info());
 }
 
+size_t text_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
+{
+     size_t chars_read = 0;
+
+     while(chars_read < size)
+     {
+          _TCHAR ch;
+
+          if (read_bytes(PORT_UNDERLYING(port), &ch, sizeof(_TCHAR)) == 0)
+               break;
+
+          /* translation mode forces all input newlines (CR, LF,
+           * CR+LF) into LF's.
+           */
+          if (PORT_TEXT_INFO(port)->translate)
+          {
+               if (ch == '\r')
+               {
+                    ch = '\n';
+                    PORT_TEXT_INFO(port)->needs_lf = TRUE;
+               }
+               else if (PORT_TEXT_INFO(port)->needs_lf)
+               {
+                    PORT_TEXT_INFO(port)->needs_lf = FALSE;
+
+                    /*  Avoid double counting newline. */
+                    if (ch == '\n')
+                         continue;
+               }
+          }
+
+          buf[chars_read++] = ch;
+     }
+
+     return chars_read;
+}
+
 size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
 {
      /* This code divides the text to be written into blocks seperated
@@ -599,7 +604,7 @@ struct port_class_t text_port_class = {
      text_port_open,        // open
      NULL,                  // read_bytes
      NULL,                  // write_bytes
-     NULL,                  // read_chars
+     text_port_read_chars,  // read_chars
      text_port_write_chars, // write_chars
      NULL,                  // rich_write
      text_port_flush,       // flush
