@@ -35,15 +35,27 @@ int read_char(lref_t port)
 
      int ch = EOF;
 
-     /* Read the next character, perhaps from the unread buffer... */
-     if (PORT_TEXT_INFO(port)->pbuf_valid)
+     if (PORT_TEXT_INFO(port)->pbuf_valid)          
      {
+          /* Unread buffer */
+
           PORT_TEXT_INFO(port)->pbuf_valid = false;
 
           ch = PORT_TEXT_INFO(port)->pbuf;
      }
-     else
+     else if (PORT_CLASS(port)->read_chars != NULL)
      {
+          /* Specific string read handling. */
+
+          _TCHAR tch;
+
+          if (PORT_CLASS(port)->read_chars(port, &tch, 1) > 0)
+               ch = (tch);
+     }
+     else 
+     {
+          /* Fail over to binary read. */
+
           _TCHAR tch;
 
           if (read_bytes(port, &tch, sizeof(_TCHAR)) > 0)
