@@ -40,9 +40,6 @@ static int read_one_char(lref_t port)
 
 int read_char(lref_t port)
 {
-     if (NULLP(port))
-          port = CURRENT_INPUT_PORT();
-
      assert(!NULLP(port) && PORT_INPUTP(port) && !PORT_BINARYP(port));
 
      /* Text port case below. */
@@ -97,9 +94,6 @@ int read_char(lref_t port)
 
 int unread_char(lref_t port, int ch)
  {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
-
       assert(!NULLP(port) && !PORT_BINARYP(port));
 
       switch (ch)
@@ -127,9 +121,6 @@ int unread_char(lref_t port, int ch)
 
  int peek_char(lref_t port)
  {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
-
       assert(!NULLP(port));
 
       int ch = read_char(port);
@@ -142,9 +133,6 @@ int unread_char(lref_t port, int ch)
 
 void write_char(lref_t port, int ch)
 {
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-
      assert(PORTP(port) && PORT_OUTPUTP(port) && !PORT_BINARYP(port));
 
      _TCHAR tch = (_TCHAR) ch;
@@ -157,9 +145,6 @@ void write_char(lref_t port, int ch)
 
 size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
 {
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
-
      assert(PORTP(port) && PORT_OUTPUTP(port) && !PORT_BINARYP(port));
 
      return PORT_CLASS(port)->write_chars(port, buf, count);
@@ -356,6 +341,9 @@ lref_t lwrite_char(lref_t ch, lref_t port)
 lref_t lwrite_strings(size_t argc, lref_t argv[])
 {
      lref_t port = (argc < 1) ? NIL : argv[0];
+
+     if (NULLP(port))
+          port = CURRENT_OUTPUT_PORT();
 
      if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
