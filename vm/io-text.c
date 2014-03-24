@@ -27,17 +27,6 @@ INLINE lref_t PORT_UNDERLYING(lref_t text_port)
 }
 
 /*** C I/O functions ***/
-
-static int read_one_char(lref_t port)
-{
-     _TCHAR tch;
-
-     if (read_bytes(port, &tch, sizeof(_TCHAR)) == 0)
-          return EOF;
-
-     return (int)tch;
- }
-
 int read_char(lref_t port)
 {
      assert(!NULLP(port) && PORT_INPUTP(port) && !PORT_BINARYP(port));
@@ -55,7 +44,10 @@ int read_char(lref_t port)
      }
      else
      {
-          ch = read_one_char(port);
+          _TCHAR tch;
+
+          if (read_bytes(port, &tch, sizeof(_TCHAR)) > 0)
+               ch = (int)tch;
 
           /* translation mode forces all input newlines (CR, LF,
            * CR+LF) into LF's.
@@ -394,8 +386,7 @@ lref_t lflush_whitespace(lref_t port, lref_t slc)
      if (!NULLP(slc))
           skip_lisp_comments = TRUEP(slc);
 
-     if (PORT_INPUTP(port))
-          ch = flush_whitespace(port, skip_lisp_comments);
+     ch = flush_whitespace(port, skip_lisp_comments);
 
      if (ch == EOF)
           return lmake_eof();
