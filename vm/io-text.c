@@ -58,7 +58,7 @@ int read_char(lref_t port)
 
           _TCHAR tch;
 
-          if (read_bytes(port, &tch, sizeof(_TCHAR)) > 0)
+          if (read_bytes(PORT_UNDERLYING(port), &tch, sizeof(_TCHAR)) > 0)
                ch = (int)tch;
 
           /* translation mode forces all input newlines (CR, LF,
@@ -509,11 +509,6 @@ void text_port_open(lref_t port)
      SET_PORT_TEXT_INFO(port, allocate_text_info());
 }
 
-size_t text_port_read_bytes(lref_t port, void *buf, size_t size)
-{
-     return read_bytes(PORT_UNDERLYING(port), buf, size);
-}
-
 size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
 {
      /* This code divides the text to be written into blocks seperated
@@ -602,7 +597,7 @@ struct port_class_t text_port_class = {
      _T("TEXT"),
 
      text_port_open,        // open
-     text_port_read_bytes,  // read_bytes
+     NULL,                  // read_bytes
      NULL,                  // write_bytes
      NULL,                  // read_chars
      text_port_write_chars, // write_chars
