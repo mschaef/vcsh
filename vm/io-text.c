@@ -43,13 +43,7 @@ int read_char(lref_t port)
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
 
-     assert(!NULLP(port));
-
-     if (!PORT_INPUTP(port))
-          return EOF;
-
-     if (PORT_BINARYP(port))
-          vmerror_unsupported(_T("cannot read characters on binary ports."));
+     assert(!NULLP(port) && PORT_INPUTP(port) && !PORT_BINARYP(port));
 
      /* Text port case below. */
 
