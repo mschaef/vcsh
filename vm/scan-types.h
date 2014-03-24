@@ -1034,16 +1034,20 @@ enum port_mode_t
 
 struct port_text_info_t
 {
+     /* peek-char buffer. */
      int pbuf;
      bool pbuf_valid;
 
+     /* CR+LF translation */
      bool translate;
      bool needs_lf;
 
+     /* Textual position within I/O stream. */
      fixnum_t col;
      fixnum_t row;
-     fixnum_t pline_mcol;
+     fixnum_t pline_mcol; /* Ending col of previous row. */
 
+     /* Position within input string. */
      size_t str_ofs;
 };
 
