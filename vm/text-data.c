@@ -566,12 +566,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
      }
 
      if (!NULLP(s))
-     {
-          if (BOOLP(s))
-               signedp = BOOLV(s);
-          else
-               vmerror_wrong_type_n(3, s);
-     }
+          signedp = TRUEP(s);
 
      int digits = DEBUG_FLONUM_PRINT_PRECISION;
 
@@ -1065,8 +1060,6 @@ lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s)
           vmerror_wrong_type_n(1, n);
      if (!FIXNUMP(sf))
           vmerror_wrong_type_n(2, sf);
-     if (!BOOLP(sci))
-          vmerror_wrong_type_n(3, sci);
      if (!SYMBOLP(s))
           vmerror_wrong_type_n(4, s);
 
@@ -1082,7 +1075,7 @@ lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s)
      else
           vmerror_arg_out_of_range(s, _T(":none, :us, or :euro"));
 
-     float_format(buf, STACK_STRBUF_LEN, get_c_double(n), (int) get_c_fixnum(sf), true, BOOLV(sci),
+     float_format(buf, STACK_STRBUF_LEN, get_c_double(n), (int) get_c_fixnum(sf), true, TRUEP(sci),
                   sep);
 
      return strconsbuf(buf);

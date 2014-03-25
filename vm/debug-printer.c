@@ -239,7 +239,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_BOOLEAN:
-          if (BOOLV(obj))
+          if (TRUEP(obj))
                WRITE_TEXT_CONSTANT(port, _T("#t"));
           else
                WRITE_TEXT_CONSTANT(port, _T("#f"));

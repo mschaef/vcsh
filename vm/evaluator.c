@@ -51,12 +51,9 @@ lref_t lset_stack_limit(lref_t amount)
 
 lref_t lset_interrupt_mask(lref_t new_mask)
 {
-     if (!BOOLP(new_mask))
-          vmerror_wrong_type_n(1, new_mask);
-
      bool previous_mask = interp.intr_masked;
 
-     interp.intr_masked = BOOLV(new_mask);
+     interp.intr_masked = TRUEP(new_mask);
 
      return boolcons(previous_mask);
 }

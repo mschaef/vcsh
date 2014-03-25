@@ -404,10 +404,7 @@ static void fast_read_hash(lref_t reader, lref_t * hash)
      lref_t shallow;
      fast_read(reader, &shallow, false);
 
-     if (!BOOLP(shallow))
-          vmerror_fast_read("expected boolean for hash table shallow", reader, shallow);
-
-     *hash = hashcons(BOOLV(shallow));
+     *hash = hashcons(TRUEP(shallow));
 
      lref_t elements;
      fast_read(reader, &elements, false);
