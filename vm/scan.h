@@ -130,10 +130,7 @@ void write_char(lref_t port, int ch);
 size_t write_text(lref_t port, const _TCHAR * buf, size_t count);
 
 int read_char(lref_t port);
-int unread_char(lref_t port, int ch);
 int peek_char(lref_t port);
-
-
 
 bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result);
 bool read_binary_flonum(lref_t port, flonum_t *result);

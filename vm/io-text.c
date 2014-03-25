@@ -64,10 +64,16 @@ int read_char(lref_t port)
      return ch;
 }
 
-int unread_char(lref_t port, int ch)
+int peek_char(lref_t port)
 {
-     assert(TEXT_PORTP(port));
+     assert(TEXT_PORTP(port) && PORT_INPUTP(port));
 
+     int ch = read_char(port);
+
+     if (ch == EOF)
+          return ch;
+
+     /* Update unread buffer. */
      switch (ch)
      {
      case '\n':
@@ -87,18 +93,6 @@ int unread_char(lref_t port, int ch)
 
      PORT_TEXT_INFO(port)->pbuf = ch;
      PORT_TEXT_INFO(port)->pbuf_valid = true;
-
-     return ch;
-}
-
-int peek_char(lref_t port)
-{
-     assert(!NULLP(port));
-
-     int ch = read_char(port);
-
-     if (ch != EOF)
-          unread_char(port, ch);
 
      return ch;
 }
