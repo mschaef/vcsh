@@ -27,6 +27,25 @@ INLINE lref_t PORT_STRING(lref_t port)
      return PORT_USER_OBJECT(port);
 }
 
+size_t string_port_length(lref_t port)
+{
+     if (NULLP(PORT_STRING(port)))
+          return 0;
+     else
+          return STRING_DIM(PORT_STRING(port));
+}
+
+int string_port_peek_char(lref_t port)
+{
+     lref_t port_str = PORT_STRING(port);
+     struct port_text_info_t *pti = PORT_TEXT_INFO(port);
+
+     if (pti->str_ofs >= STRING_DIM(port_str))
+          return -1;
+
+     return STRING_DATA(port_str)[pti->str_ofs];
+}
+
 size_t string_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
 {
      size_t chars_read;
@@ -58,23 +77,13 @@ size_t string_port_write_chars(lref_t port, const _TCHAR *buf, size_t size)
      return size;
 }
 
-size_t string_port_length(lref_t port)
-{
-     if (NULLP(PORT_STRING(port)))
-          return 0;
-     else
-          return STRING_DIM(PORT_STRING(port));
-}
-
-int text_port_peek_char(lref_t port);
-
 struct port_class_t string_port_class = {
      _T("STRING"),
 
      NULL,                    // open
      NULL,                    // read_bytes
      NULL,                    // write_bytes
-     text_port_peek_char,     // peek_char
+     string_port_peek_char,   // peek_char
      string_port_read_chars,  // read_chars
      string_port_write_chars, // write_chars
      NULL,                    // rich_write
