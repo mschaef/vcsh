@@ -577,7 +577,7 @@ lref_t lopen_text_input_port(lref_t underlying)
           vmerror_wrong_type_n(1, underlying);
 
      if (!BINARY_PORTP(underlying))
-          vmerror_unsupported(_T("cannot open text input on text port"));
+          vmerror_unsupported(_T("cannot open text input on binary port"));
 
      return portcons(&text_port_class,
                      lport_name(underlying),
@@ -592,7 +592,7 @@ lref_t lopen_text_output_port(lref_t underlying)
           vmerror_wrong_type_n(1, underlying);
 
      if (!BINARY_PORTP(underlying))
-          vmerror_unsupported(_T("cannot open text output on text port"));
+          vmerror_unsupported(_T("cannot open text output on binary port"));
 
      return portcons(&text_port_class,
                      lport_name(underlying),
