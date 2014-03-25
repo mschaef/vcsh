@@ -227,40 +227,33 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
           return charcons((_TCHAR) ch);
 }
 
- static int flush_whitespace(lref_t port, bool skip_lisp_comments)
- {
-      int c = '\0';
+static void flush_lisp_comment(lref_t port)
+{
+     int c = '\0';
 
-      bool commentp = false;
+     while((c != EOF) && (c != _T('\n')))
+          c = read_char(port);
+}
 
-      for(;;)
-      {
-           /*  We can never be in a comment if we're not skipping them... */
-           assert(skip_lisp_comments ? true : !commentp);
+static int flush_whitespace(lref_t port, bool skip_lisp_comments)
+{
+     int c = '\0';
 
-           c = read_char(port);
+     while(c != EOF)
+     {
+          c = peek_char(port);
+          
+          if ((c == _T(';')) && skip_lisp_comments) {
+               flush_lisp_comment(port);
+               continue;
+          }
+                 
+          if (!_istspace(c) && (c != _T('\0')))
+               return c;
 
-           if (c == EOF)
-                break;
-
-           if (commentp)
-           {
-                if (c == _T('\n'))
-                     commentp = FALSE;
-           }
-           else if ((c == _T(';')) && skip_lisp_comments)
-           {
-                commentp = TRUE;
-           }
-           else if (!_istspace(c) && (c != _T('\0')))
-                break;
-      }
-
-      if (c != EOF)
-           unread_char(port, c);
-
-      return c;
- }
+          read_char(port);
+     }
+}
 
 
 /*** Rich Output ***/
