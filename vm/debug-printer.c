@@ -380,7 +380,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           scwritef(_T("~u~s~cs ~cs ~s"), port,
                    obj,
                    lport_mode(obj),
-                   PORT_BINARYP(obj) ? "(binary)" : "",
+                   BINARY_PORTP(obj) ? "(binary)" : "",
                    PORT_CLASS(obj)->name, PORT_PINFO(obj)->port_name);
           break;
 

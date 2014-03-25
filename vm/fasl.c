@@ -75,7 +75,7 @@ static lref_t faslreadercons(lref_t port)
 
 lref_t lmake_fasl_reader(lref_t port)
 {
-     if (!PORT_BINARYP(port))
+     if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(1, port);
 
      return faslreadercons(port);

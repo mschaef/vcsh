@@ -1134,9 +1134,14 @@ INLINE void SET_PORT_MODE(lref_t x, enum port_mode_t mode)
      PORT_PINFO(x)->mode = mode;
 }
 
-INLINE bool PORT_BINARYP(lref_t x)
+INLINE bool BINARY_PORTP(lref_t x)
 {
-     return (PORT_TEXT_INFO(x) == NULL);
+     return PORTP(x) && (PORT_TEXT_INFO(x) == NULL);
+}
+
+INLINE bool TEXT_PORTP(lref_t x)
+{
+     return PORTP(x) && (PORT_TEXT_INFO(x) != NULL);
 }
 
 INLINE bool PORT_CLOSEDP(lref_t port)

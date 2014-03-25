@@ -135,8 +135,7 @@ lref_t leof_objectp(lref_t obj)
 
  bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result)
  {
-      assert(PORTP(port));
-      assert(PORT_BINARYP(port));
+      assert(BINARY_PORTP(port));
 
       uint8_t bytes[sizeof(fixnum_t)];
       size_t fixnums_read = read_bytes(port, bytes, (size_t)length);
@@ -168,10 +167,11 @@ lref_t leof_objectp(lref_t obj)
       return true;
  }
 
+ 
+
  bool read_binary_flonum(lref_t port, flonum_t *result)
  {
-      assert(PORTP(port));
-      assert(PORT_BINARYP(port));
+      assert(BINARY_PORTP(port));
 
       uint8_t bytes[sizeof(flonum_t)];
       size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t));
@@ -210,10 +210,10 @@ lref_t leof_objectp(lref_t obj)
 
  lref_t lbinary_portp(lref_t obj)
  {
-      if (PORTP(obj) && PORT_BINARYP(obj))
+      if (BINARY_PORTP(obj))
            return obj;
-      else
-           return boolcons(false);
+
+      return boolcons(false);
  }
 
 lref_t lport_mode(lref_t obj)
@@ -265,7 +265,7 @@ lref_t lport_mode(lref_t obj)
       if (!PORTP(port))
            vmerror_wrong_type_n(1, port);
 
-      if (!PORT_BINARYP(port)
+      if (TEXT_PORTP(port)
           && PORT_TEXT_INFO(port)->translate
           && PORT_TEXT_INFO(port)->needs_lf)
       {
@@ -283,13 +283,8 @@ lref_t lread_binary_string(lref_t l, lref_t port)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
-      if (!PORTP(port))
+      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
-
-     assert(PORTP(port));
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (!NUMBERP(l))
           vmerror_wrong_type_n(1, l);
@@ -329,11 +324,8 @@ lref_t lread_binary_string(lref_t l, lref_t port)
 
 INLINE lref_t lread_binary_fixnum_0(size_t length, bool signedp, lref_t port)
 {
-     if (!PORTP(port))
+     if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(1, port);
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      fixnum_t result = 0;
 
@@ -385,11 +377,8 @@ lref_t lread_binary_fixnum_s64(lref_t port)
 
 lref_t lread_binary_flonum(lref_t port)
 {
-     if (!PORTP(port))
+     if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(1, port);
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      flonum_t result = 0;
 
@@ -402,16 +391,11 @@ lref_t lread_binary_flonum(lref_t port)
 
 lref_t lwrite_binary_string(lref_t string, lref_t port)
 {
-     if (!PORTP(port))
-          vmerror_wrong_type_n(2, port);
-
-     assert(PORTP(port));
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
-
      if (!STRINGP(string))
           vmerror_wrong_type_n(1, string);
+
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
 
      size_t length = STRING_DIM(string);
      _TCHAR *strdata = STRING_DATA(string);
@@ -426,11 +410,8 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
 
 INLINE lref_t lwrite_binary_fixnum_0(uint8_t bytes[], size_t length, lref_t port)
 {
-     if (!PORTP(port))
+     if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
 
      if (write_bytes(port, bytes, length) != length)
           vmerror_io_error(_T("error writing to port."), port);
@@ -537,14 +518,11 @@ lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
 
 lref_t lbinary_write_flonum(lref_t v, lref_t port)
 {
-     if (!PORTP(port))
-          vmerror_wrong_type_n(4, port);
-
-     if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("raw port operations not supported on text ports"));
-
      if (!NUMBERP(v))
           vmerror_wrong_type_n(1, v);
+
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
 
      uint8_t bytes[sizeof(flonum_t)];
 
