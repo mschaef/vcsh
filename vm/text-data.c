@@ -615,60 +615,41 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
 
                _sntprintf(buffer, STACK_STRBUF_LEN, _T("%.*f"), digits, FLONM(x));
           }
-
-          return strconsbuf(buffer);
      }
      else if (FIXNUMP(x))
      {
           switch (radix)
           {
           case 10:
-               _sntprintf(buffer, STACK_STRBUF_LEN,
-                          signedp ? _T("%" PRINTF_PREFIX_FIXNUM "i") : _T("%" PRINTF_PREFIX_FIXNUM "u"),
-                          FIXNM(x));
-
-               return strconsbuf(buffer);
+               if (signedp)
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "i"), FIXNM(x));
+               else
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "u"), FIXNM(x));
                break;
 
           case 16:
-               if (signedp)
-               {
-                    if (FIXNM(x) < 0)
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "x"),
-                                    -FIXNM(x));
-                    else
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "x"),
-                                    FIXNM(x));
-               }
-               else
+               if (!signedp || (FIXNM(x) > 0))
                     _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "x"), FIXNM(x));
-               return strconsbuf(buffer);
+               else
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "x"), -FIXNM(x));
                break;
 
           case 8:
-               if (signedp)
-               {
-                    if (FIXNM(x) < 0)
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "o"),
-                                    -FIXNM(x));
-                    else
-                         _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "o"),
-                                    FIXNM(x));
-               }
-               else
+               if (!signedp || (FIXNM(x) > 0))
                     _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "o"), FIXNM(x));
-               return strconsbuf(buffer);
+               else
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "o"), -FIXNM(x));
                break;
 
           default:
-               vmerror_unimplemented(_T("unimplemented radix (2, 8, 10, and 16 are allowed)"));
+               vmerror_unimplemented(_T("unimplemented radix (8, 10, and 16 are allowed)"));
                break;
           }
      }
      else
           vmerror_wrong_type_n(1, x);
 
-     return NIL;
+     return strconsbuf(buffer);
 }
 
 bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t *result)
