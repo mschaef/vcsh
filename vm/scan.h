@@ -141,17 +141,6 @@ void register_internal_file(struct internal_file_t *data);
 
 lref_t open_c_data_input(struct internal_file_t *data);
 
-typedef bool(*blocking_input_read_data_fn_t) (lref_t port, void *userdata);
-typedef void (*blocking_input_close_port_fn_t) (lref_t port, void *userdata);
-
-void blocking_input_post_data(lref_t port, void *data, size_t size);
-void blocking_input_post_eof(lref_t port);
-bool blocking_input_is_data_available(lref_t port);
-
-lref_t blocking_input_cons(const _TCHAR * port_name, bool binary,
-                           blocking_input_read_data_fn_t read_fn,
-                           blocking_input_close_port_fn_t close_fn, void *userdata);
-
 /**** Formatted and Debug I/O ****/
 
 void scwritef(const _TCHAR * format_str, lref_t port, ...);
@@ -274,14 +263,12 @@ lref_t lhash_set(lref_t table, lref_t key, lref_t value);
 lref_t lhash_type(lref_t hash);
 lref_t lhashp(lref_t obj);
 lref_t lheap_cell_count_by_typecode();
-lref_t liarm_gc_trip_wires(lref_t f);
 lref_t licontrol_field(lref_t control_field_id);
 lref_t lidebug_printer(lref_t obj, lref_t port, lref_t machine_readable_p);
 lref_t lidefine_global(lref_t var, lref_t val);
 lref_t lidirectory(lref_t dirname, lref_t mode);
 lref_t lieee754_bits_to(lref_t x);
 lref_t lifile_details(lref_t path, lref_t existance_onlyp);
-lref_t ligc_trip_wire();
 lref_t lihash_binding_vector(lref_t hash);
 lref_t liifasl_load(lref_t port);
 lref_t liimmediate_p(lref_t obj);
@@ -455,7 +442,6 @@ lref_t lsystem(size_t argc, lref_t argv[]);
 lref_t lsystem_info();
 lref_t ltan(lref_t x);
 lref_t ltemporary_file_name(lref_t prefix);
-lref_t ltest_blocking_input(lref_t block_size, lref_t length, lref_t binary);
 lref_t ltime_apply0(lref_t fn);
 lref_t lto_ieee754_bits(lref_t x);
 lref_t ltruncate(lref_t x);

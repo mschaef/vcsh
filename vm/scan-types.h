@@ -436,11 +436,6 @@ INLINE bool UNBOUND_MARKER_P(lref_t x)
      return EQ(x, UNBOUND_MARKER);
 }
 
-INLINE bool GC_TRIP_WIRE_P(lref_t x)
-{
-     return TYPEP(x, TC_GC_TRIP_WIRE);
-}
-
 INLINE bool FAST_OP_P(lref_t x)
 {
      return TYPEP(x, TC_FAST_OP);

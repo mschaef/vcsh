@@ -1,4 +1,3 @@
-
 /*
  * io.cpp --
  *
@@ -16,10 +15,6 @@
 #include <stdio.h>
 
 #include "scan-private.h"
-
-/*  REVISIT: Do we need to restrict bootup NULL I/O */
-
-/*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
 
 /*** End-of-file object ***/
 

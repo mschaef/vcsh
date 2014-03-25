@@ -41,7 +41,6 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        global-env${OBJ_EXT} \
        hash-table${OBJ_EXT} \
        io${OBJ_EXT} \
-       io-blocking-input${OBJ_EXT} \
        io-external-file${OBJ_EXT} \
        io-internal-file${OBJ_EXT} \
        io-string${OBJ_EXT} \

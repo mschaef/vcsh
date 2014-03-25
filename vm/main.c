@@ -245,7 +245,6 @@ static void init_base_scheme_objects(void)
 static void register_main_subrs()
 {
 /* *INDENT-OFF* */
-    register_subr(_T("%arm-gc-trip-wires"),               SUBR_1,     (void*)liarm_gc_trip_wires                 );
     register_subr(_T("%closure"),                         SUBR_3,     (void*)lclosurecons                        );
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
@@ -262,7 +261,6 @@ static void register_main_subrs()
     register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
     register_subr(_T("%fast-op-next"),                    SUBR_1,     (void*)lfast_op_next                       );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
-    register_subr(_T("%gc-trip-wire"),                    SUBR_0,     (void*)ligc_trip_wire                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
@@ -307,7 +305,6 @@ static void register_main_subrs()
     register_subr(_T("%symbol-index"),                    SUBR_1,     (void*)lisymbol_index                      );
     register_subr(_T("%symbol-globally-bound?"),          SUBR_1,     (void*)lisymbol_globally_boundp            );
     register_subr(_T("%sysob"),                           SUBR_1,     (void*)lsysob                              );
-    register_subr(_T("%test-blocking-input"),             SUBR_3,     (void*)ltest_blocking_input                );
     register_subr(_T("%time-apply0"),                     SUBR_1,     (void*)ltime_apply0                        );
 
     register_subr(_T("%trap-handler"),                    SUBR_1,     (void*)litrap_handler                      );
@@ -589,7 +586,6 @@ void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags)
      gc_protect(_T("fasl-package-list"), &interp.fasl_package_list, 1);
 
      /*  Statistics Counters */
-     interp.gc_trip_wires_armed = false;
      interp.gc_heap_segment_size = DEFAULT_HEAP_SEGMENT_SIZE;
      interp.gc_max_heap_segments = DEFAULT_MAX_HEAP_SEGMENTS;
      interp.gc_current_heap_segments = 0;

@@ -415,11 +415,6 @@ static void gc_clear_cell(lref_t obj)
           port_gc_free(obj);
           break;
 
-     case TC_GC_TRIP_WIRE:
-          if (interp.gc_trip_wires_armed)
-               panic("GC trip wire freed!");
-          break;
-
      default:
           /*  By default, objects are either immediate or otherwise self
            * contained, and do not need special-case handling in
@@ -691,25 +686,3 @@ lref_t lgc_info()
 
      return lvector(9, argv);
 }
-
-/* GC Trip wire support.
- *
- * GC trip wires pretty much do what they sound like, they blow up when the
- * garbage collector touches (attempts to free) them. They are used in tests
- * to verify that the GC is picking up all object references.
- */
-
-lref_t ligc_trip_wire()
-{
-     return new_cell(TC_GC_TRIP_WIRE);
-}
-
-lref_t liarm_gc_trip_wires(lref_t f)
-{
-     bool new_state = TRUEP(f);
-
-     interp.gc_trip_wires_armed = new_state;
-
-     return boolcons(new_state);
-}
-

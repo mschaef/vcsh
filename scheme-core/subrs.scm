@@ -73,7 +73,6 @@
 (%define %symbol-globally-bound? #.(host-scheme::%subr-by-name "%symbol-globally-bound?"))
 (%define %sysob #.(host-scheme::%subr-by-name "%sysob"))
 (%define %system-info #.(host-scheme::%subr-by-name "system-info"))
-(%define %test-blocking-input #.(host-scheme::%subr-by-name "%test-blocking-input"))
 (%define %time-apply0 #.(host-scheme::%subr-by-name "%time-apply0"))
 (%define %trap-handler #.(host-scheme::%subr-by-name "%trap-handler"))
 (%define %typecode #.(host-scheme::%subr-by-name "%typecode"))
