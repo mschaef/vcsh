@@ -59,7 +59,6 @@ void file_port_open(lref_t obj)
 
      if (f)
      {
-
           SET_PORT_FILE(obj, f);
      }
      else

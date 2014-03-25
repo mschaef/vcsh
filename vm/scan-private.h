@@ -162,6 +162,32 @@ INLINE bool DEBUG_FLAG(enum debug_flag_t flag)
 #define pdscwritef(flag, args) \
      do { if (DEBUG_FLAG(flag)) dscwritef_impl args; } while(0);
 
+/***** I/O Encode and Decode *****/
+
+void io_encode_fixnum_s64(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_fixnum_s64(uint8_t *buf);
+
+void io_encode_unsigned_fixnum_s64(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_unsigned_fixnum_s64(uint8_t *buf);
+
+void io_encode_fixnum_s32(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_fixnum_s32(uint8_t *buf);
+
+void io_encode_unsigned_fixnum_s32(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_unsigned_fixnum_s32(uint8_t *buf);
+
+void io_encode_fixnum_s16(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_fixnum_s16(uint8_t *buf);
+
+void io_encode_unsigned_fixnum_s16(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_unsigned_fixnum_s16(uint8_t *buf);
+
+void io_encode_fixnum_s8(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_fixnum_s8(uint8_t *buf);
+
+void io_encode_unsigned_fixnum_s8(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_unsigned_fixnum_s8(uint8_t *buf);
+
 /***** Memory Management *****/
 
 void gc_initialize_heap();
