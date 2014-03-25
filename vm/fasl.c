@@ -75,11 +75,8 @@ static lref_t faslreadercons(lref_t port)
 
 lref_t lmake_fasl_reader(lref_t port)
 {
-     if (!PORTP(port))
-          vmerror_wrong_type_n(1, port);
-
      if (!PORT_BINARYP(port))
-          vmerror_unsupported(_T("fasl streams not supported on text ports"));
+          vmerror_wrong_type_n(1, port);
 
      return faslreadercons(port);
 }
