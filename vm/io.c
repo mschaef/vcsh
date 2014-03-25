@@ -20,7 +20,7 @@
 
 lref_t lmake_eof()
 {
-     return LREF2_CONS(LREF2_EOF, 0);
+     return MAKE_LREF2(LREF2_EOF, 0);
 }
 
 lref_t leof_objectp(lref_t obj)

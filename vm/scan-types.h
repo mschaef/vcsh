@@ -87,12 +87,12 @@ enum
      MIN_LREF_FIXNUM = INT32_MIN >> LREF1_TAG_SHIFT,
 };
 
-INLINE lref_t LREF1_CONS(enum lref_tag_t tag, intptr_t val)
+INLINE lref_t MAKE_LREF1(enum lref_tag_t tag, intptr_t val)
 {
      return (lref_t) ((val << LREF1_TAG_SHIFT) | tag);
 }
 
-INLINE lref_t LREF2_CONS(enum lref_tag_t tag, intptr_t val)
+INLINE lref_t MAKE_LREF2(enum lref_tag_t tag, intptr_t val)
 {
      return (lref_t) ((val << LREF2_TAG_SHIFT) | tag);
 }
@@ -448,7 +448,7 @@ INLINE bool FASL_READER_P(lref_t x)
 
 INLINE bool TRUEP(lref_t x)
 {
-     return (x) != LREF2_CONS(LREF2_BOOL, 0);
+     return (x) != MAKE_LREF2(LREF2_BOOL, 0);
 }
 
 INLINE bool FALSEP(lref_t x)
@@ -462,7 +462,7 @@ INLINE bool FALSEP(lref_t x)
 /*** boolean ***/
 INLINE lref_t boolcons(bool val)
 {
-     return LREF2_CONS(LREF2_BOOL, val ? 1 : 0);
+     return MAKE_LREF2(LREF2_BOOL, val ? 1 : 0);
 }
 
 

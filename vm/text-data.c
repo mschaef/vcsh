@@ -27,7 +27,7 @@
  */
 lref_t charcons(_TCHAR ch)
 {
-     return LREF2_CONS(LREF2_CHARACTER, ch);
+     return MAKE_LREF2(LREF2_CHARACTER, ch);
 }
 
 lref_t lchar2integer(lref_t s)
