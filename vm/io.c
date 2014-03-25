@@ -1,32 +1,32 @@
 
- /*
-  * io.cpp --
-  *
-  * The I/O subsystem. This tries to be as R5RS compliant as possible.
-  *
-  * (C) Copyright 2001-2011 East Coast Toolworks Inc.
-  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
-  *
-  * See the file "license.terms" for information on usage and redistribution
-  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-  */
+/*
+ * io.cpp --
+ *
+ * The I/O subsystem. This tries to be as R5RS compliant as possible.
+ *
+ * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
+ *
+ * See the file "license.terms" for information on usage and redistribution
+ * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+ */
 
- #include <ctype.h>
- #include <memory.h>
- #include <stdio.h>
+#include <ctype.h>
+#include <memory.h>
+#include <stdio.h>
 
- #include "scan-private.h"
+#include "scan-private.h"
 
- /*  REVISIT: Do we need to restrict bootup NULL I/O */
+/*  REVISIT: Do we need to restrict bootup NULL I/O */
 
- /*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
+/*  REVISIT: lots of logic supports default ports if port==NULL. Move to scheme? */
 
- /*** End-of-file object ***/
+/*** End-of-file object ***/
 
- lref_t lmake_eof()
- {
-      return LREF2_CONS(LREF2_EOF, 0);
- }
+lref_t lmake_eof()
+{
+     return LREF2_CONS(LREF2_EOF, 0);
+}
 
 lref_t leof_objectp(lref_t obj)
 {
@@ -36,185 +36,185 @@ lref_t leof_objectp(lref_t obj)
      return boolcons(false);
 }
 
- /*** Port object ***/
+/*** Port object ***/
 
- lref_t port_gc_mark(lref_t obj)
- {
-      gc_mark(PORT_PINFO(obj)->port_name);
+lref_t port_gc_mark(lref_t obj)
+{
+     gc_mark(PORT_PINFO(obj)->port_name);
 
-      return PORT_USER_OBJECT(obj);
- }
+     return PORT_USER_OBJECT(obj);
+}
 
- void port_gc_free(lref_t port)
- {
-      assert(PORTP(port));
-      assert(PORT_CLASS(port));
+void port_gc_free(lref_t port)
+{
+     assert(PORTP(port));
+     assert(PORT_CLASS(port));
 
-      if (PORT_CLASS(port)->close)
-           PORT_CLASS(port)->close(port);
+     if (PORT_CLASS(port)->close)
+          PORT_CLASS(port)->close(port);
 
-      if (PORT_TEXT_INFO(port))
-           gc_free(PORT_TEXT_INFO(port));
+     if (PORT_TEXT_INFO(port))
+          gc_free(PORT_TEXT_INFO(port));
 
-      if (PORT_CLASS(port)->gc_free)
-           PORT_CLASS(port)->gc_free(port);
+     if (PORT_CLASS(port)->gc_free)
+          PORT_CLASS(port)->gc_free(port);
 
-       gc_free(PORT_PINFO(port));
- }
-
-
- lref_t initialize_port(lref_t port,
-                        struct port_class_t * cls,
-                        lref_t port_name,
-                        enum port_mode_t mode,
-                        lref_t user_object,
-                        void *user_data)
- {
-      assert(cls != NULL);
-      assert(!NULLP(port));
-
-      SET_PORT_PINFO(port, gc_malloc(sizeof(struct port_info_t)));
-      SET_PORT_CLASS(port, cls);
-
-      PORT_PINFO(port)->port_name = port_name;
-      PORT_PINFO(port)->user_data = user_data;
-      PORT_PINFO(port)->user_object = user_object;
-      PORT_PINFO(port)->mode = mode;
-
-      SET_PORT_TEXT_INFO(port, NULL);;
-
-      if (PORT_CLASS(port)->open)
-           PORT_CLASS(port)->open(port);
-
-      return port;
- }
-
- size_t port_length(lref_t port)
- {
-      assert(PORTP(port));
-
-      if (PORT_CLASS(port)->length)
-           return PORT_CLASS(port)->length(port);
-
-      return 0;
- }
-
- size_t write_bytes(lref_t port, const void *buf, size_t size)
- {
-      assert(!NULLP(port));
-      assert(PORT_CLASS(port)->write_bytes);
-
-      return PORT_CLASS(port)->write_bytes(port, buf, size);
- }
-
- size_t read_bytes(lref_t port, void *buf, size_t size)
- {
-      assert(!NULLP(port));
-      assert(PORT_CLASS(port)->read_bytes);
-
-      size_t actual_count =
-           PORT_CLASS(port)->read_bytes(port, buf, size);
-
-      PORT_PINFO(port)->bytes_read += actual_count;
-
-      return actual_count;
- }
-
- lref_t portcons(struct port_class_t * cls,
-                 lref_t port_name,
-                 enum port_mode_t mode,
-                 lref_t user_object,
-                 void *user_data)
- {
-      return initialize_port(new_cell(TC_PORT),
-                             cls, port_name, mode, user_object, user_data);
- }
-
- /***** C I/O functions *****/
+     gc_free(PORT_PINFO(port));
+}
 
 
- bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result)
- {
-      assert(BINARY_PORTP(port));
+lref_t initialize_port(lref_t port,
+                       struct port_class_t * cls,
+                       lref_t port_name,
+                       enum port_mode_t mode,
+                       lref_t user_object,
+                       void *user_data)
+{
+     assert(cls != NULL);
+     assert(!NULLP(port));
 
-      uint8_t bytes[sizeof(fixnum_t)];
-      size_t fixnums_read = read_bytes(port, bytes, (size_t)length);
+     SET_PORT_PINFO(port, gc_malloc(sizeof(struct port_info_t)));
+     SET_PORT_CLASS(port, cls);
 
-      if (!fixnums_read)
-           return false;
+     PORT_PINFO(port)->port_name = port_name;
+     PORT_PINFO(port)->user_data = user_data;
+     PORT_PINFO(port)->user_object = user_object;
+     PORT_PINFO(port)->mode = mode;
+
+     SET_PORT_TEXT_INFO(port, NULL);;
+
+     if (PORT_CLASS(port)->open)
+          PORT_CLASS(port)->open(port);
+
+     return port;
+}
+
+size_t port_length(lref_t port)
+{
+     assert(PORTP(port));
+
+     if (PORT_CLASS(port)->length)
+          return PORT_CLASS(port)->length(port);
+
+     return 0;
+}
+
+size_t write_bytes(lref_t port, const void *buf, size_t size)
+{
+     assert(!NULLP(port));
+     assert(PORT_CLASS(port)->write_bytes);
+
+     return PORT_CLASS(port)->write_bytes(port, buf, size);
+}
+
+size_t read_bytes(lref_t port, void *buf, size_t size)
+{
+     assert(!NULLP(port));
+     assert(PORT_CLASS(port)->read_bytes);
+
+     size_t actual_count =
+          PORT_CLASS(port)->read_bytes(port, buf, size);
+
+     PORT_PINFO(port)->bytes_read += actual_count;
+
+     return actual_count;
+}
+
+lref_t portcons(struct port_class_t * cls,
+                lref_t port_name,
+                enum port_mode_t mode,
+                lref_t user_object,
+                void *user_data)
+{
+     return initialize_port(new_cell(TC_PORT),
+                            cls, port_name, mode, user_object, user_data);
+}
+
+/***** C I/O functions *****/
 
 
-      switch (length)
-      {
-      case 1:
-           *result = (signedp ? (fixnum_t) (*(int8_t *) bytes) : (fixnum_t) (*(uint8_t *) bytes));
-           break;
-      case 2:
-           *result = (signedp ? (fixnum_t) (*(int16_t *) bytes) : (fixnum_t) (*(uint16_t *) bytes));
-           break;
-      case 4:
-           *result = (signedp ? (fixnum_t) (*(int32_t *) bytes) : (fixnum_t) (*(uint32_t *) bytes));
-           break;
- #ifdef SCAN_64BIT
-      case 8:
-           *result = (signedp ? (fixnum_t) (*(int64_t *) bytes) : (fixnum_t) (*(uint64_t *) bytes));
-           break;
- #endif
-      default:
-           assert(!"Invalid length in read_binary_fixnum"); 
+bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result)
+{
+     assert(BINARY_PORTP(port));
+
+     uint8_t bytes[sizeof(fixnum_t)];
+     size_t fixnums_read = read_bytes(port, bytes, (size_t)length);
+
+     if (!fixnums_read)
+          return false;
+
+
+     switch (length)
+     {
+     case 1:
+          *result = (signedp ? (fixnum_t) (*(int8_t *) bytes) : (fixnum_t) (*(uint8_t *) bytes));
+          break;
+     case 2:
+          *result = (signedp ? (fixnum_t) (*(int16_t *) bytes) : (fixnum_t) (*(uint16_t *) bytes));
+          break;
+     case 4:
+          *result = (signedp ? (fixnum_t) (*(int32_t *) bytes) : (fixnum_t) (*(uint32_t *) bytes));
+          break;
+#ifdef SCAN_64BIT
+     case 8:
+          *result = (signedp ? (fixnum_t) (*(int64_t *) bytes) : (fixnum_t) (*(uint64_t *) bytes));
+          break;
+#endif
+     default:
+          assert(!"Invalid length in read_binary_fixnum"); 
      }
 
-      return true;
- }
+     return true;
+}
 
  
 
- bool read_binary_flonum(lref_t port, flonum_t *result)
- {
-      assert(BINARY_PORTP(port));
+bool read_binary_flonum(lref_t port, flonum_t *result)
+{
+     assert(BINARY_PORTP(port));
 
-      uint8_t bytes[sizeof(flonum_t)];
-      size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t));
+     uint8_t bytes[sizeof(flonum_t)];
+     size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t));
 
-      if (!flonums_read)
-           return false;
+     if (!flonums_read)
+          return false;
 
-      *result = *(flonum_t *) bytes;
+     *result = *(flonum_t *) bytes;
 
-      return true;
- }
+     return true;
+}
 
 
- /***** Lisp-visible port functions *****/
+/***** Lisp-visible port functions *****/
 
- lref_t lportp(lref_t obj)
- {
-      return boolcons(PORTP(obj));
- }
+lref_t lportp(lref_t obj)
+{
+     return boolcons(PORTP(obj));
+}
 
- lref_t linput_portp(lref_t obj)
- {
-      if (PORTP(obj) && PORT_INPUTP(obj))
-           return obj;
+lref_t linput_portp(lref_t obj)
+{
+     if (PORTP(obj) && PORT_INPUTP(obj))
+          return obj;
 
-      return boolcons(false);
- }
+     return boolcons(false);
+}
 
- lref_t loutput_portp(lref_t obj)
- {
-      if (PORTP(obj) && PORT_OUTPUTP(obj))
-           return obj;
+lref_t loutput_portp(lref_t obj)
+{
+     if (PORTP(obj) && PORT_OUTPUTP(obj))
+          return obj;
 
-      return boolcons(false);
- }
+     return boolcons(false);
+}
 
- lref_t lbinary_portp(lref_t obj)
- {
-      if (BINARY_PORTP(obj))
-           return obj;
+lref_t lbinary_portp(lref_t obj)
+{
+     if (BINARY_PORTP(obj))
+          return obj;
 
-      return boolcons(false);
- }
+     return boolcons(false);
+}
 
 lref_t lport_mode(lref_t obj)
 {
@@ -233,57 +233,57 @@ lref_t lport_mode(lref_t obj)
      return NIL;
 }
 
- lref_t lport_name(lref_t port)
- {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
+lref_t lport_name(lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
 
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      return PORT_PINFO(port)->port_name;
- }
+     return PORT_PINFO(port)->port_name;
+}
 
- lref_t lclose_port(lref_t port)
- {
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+lref_t lclose_port(lref_t port)
+{
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      if (PORT_OUTPUTP(port))
-           lflush_port(port);
+     if (PORT_OUTPUTP(port))
+          lflush_port(port);
 
-      if (PORT_CLASS(port)->close)
-           PORT_CLASS(port)->close(port);
+     if (PORT_CLASS(port)->close)
+          PORT_CLASS(port)->close(port);
 
-      PORT_PINFO(port)->mode = PORT_CLOSED;
+     PORT_PINFO(port)->mode = PORT_CLOSED;
 
-      return port;
- }
+     return port;
+}
 
- lref_t lflush_port(lref_t port)
- {
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+lref_t lflush_port(lref_t port)
+{
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      if (TEXT_PORTP(port)
-          && PORT_TEXT_INFO(port)->translate
-          && PORT_TEXT_INFO(port)->needs_lf)
-      {
-           write_char(port, _T('\n'));
-      }
+     if (TEXT_PORTP(port)
+         && PORT_TEXT_INFO(port)->translate
+         && PORT_TEXT_INFO(port)->needs_lf)
+     {
+          write_char(port, _T('\n'));
+     }
 
-      if (PORT_CLASS(port)->flush)
-           PORT_CLASS(port)->flush(port);
+     if (PORT_CLASS(port)->flush)
+          PORT_CLASS(port)->flush(port);
 
-      return port;
- }
+     return port;
+}
 
 
 lref_t lread_binary_string(lref_t l, lref_t port)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
-      if (!BINARY_PORTP(port))
+     if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
 
      if (!NUMBERP(l))

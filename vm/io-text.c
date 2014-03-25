@@ -411,7 +411,9 @@ int text_port_peek_char(lref_t port)
      if (ch == EOF)
           return ch;
 
-     /* Update unread buffer. */
+     assert(!PORT_TEXT_INFO(port)->pbuf_valid);
+
+     /* Update position. */
      switch (ch)
      {
      case '\n':
@@ -427,8 +429,7 @@ int text_port_peek_char(lref_t port)
           break;
      }
 
-     assert(!PORT_TEXT_INFO(port)->pbuf_valid);
-
+     /* Update unread buffer. */
      PORT_TEXT_INFO(port)->pbuf = ch;
      PORT_TEXT_INFO(port)->pbuf_valid = true;
 
