@@ -724,6 +724,7 @@ struct port_class_t debug_port_class = {
      NULL,                 // open
      NULL,                 // read_bytes
      debug_port_write,     // write_bytes
+     NULL,                 // peek_char
      NULL,                 // read_chars
      NULL,                 // write_chars
      NULL,                 // rich_write

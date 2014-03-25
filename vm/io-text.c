@@ -562,6 +562,7 @@ struct port_class_t text_port_class = {
      text_port_open,        // open
      NULL,                  // read_bytes
      NULL,                  // write_bytes
+     NULL,                  // peek_char
      text_port_read_chars,  // read_chars
      text_port_write_chars, // write_chars
      NULL,                  // rich_write

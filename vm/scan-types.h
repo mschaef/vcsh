@@ -1075,7 +1075,8 @@ struct port_class_t
 
      size_t (* read_bytes)  (lref_t port, void *buf, size_t size);
      size_t (* write_bytes) (lref_t port, const void *buf, size_t size);
-
+     
+     _TCHAR (* peek_char)   (lref_t port);
      size_t (* read_chars)  (lref_t port, _TCHAR *buf, size_t size);
      size_t (* write_chars) (lref_t port, const _TCHAR *buf, size_t size);
 

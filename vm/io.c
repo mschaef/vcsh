@@ -564,6 +564,7 @@ struct port_class_t null_port_class = {
      NULL,                  // open
      null_port_read_bytes,  // read_bytes
      null_port_write_bytes, // write_bytes
+     NULL,                  // peek_char
      NULL,                  // read_chars
      NULL,                  // write_chars
      NULL,                  // rich_write
