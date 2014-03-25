@@ -1025,13 +1025,7 @@ enum port_mode_t
      PORT_INPUT = 0x01,
      PORT_OUTPUT = 0x02,
 
-/*
-     PORT_INPUT_OUTPUT = PORT_INPUT | PORT_OUTPUT,
-*/
-     PORT_DIRECTION = PORT_INPUT | PORT_OUTPUT ,
-
-
-     PORT_BINARY = 0x08
+     PORT_DIRECTION = PORT_INPUT | PORT_OUTPUT
 };
 
 struct port_text_info_t

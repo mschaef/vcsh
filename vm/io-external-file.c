@@ -150,9 +150,7 @@ lref_t lopen_raw_input_file(lref_t filename)
      if (!STRINGP(filename))
           vmerror_wrong_type_n(1, filename);
 
-     return fileportcons(&file_port_class,
-                         (enum port_mode_t)(PORT_INPUT | PORT_BINARY),
-                         filename);
+     return fileportcons(&file_port_class, PORT_INPUT, filename);
 }
 
 lref_t lopen_raw_output_file(lref_t filename)
@@ -160,9 +158,7 @@ lref_t lopen_raw_output_file(lref_t filename)
      if (!STRINGP(filename))
           vmerror_wrong_type_n(1, filename);
 
-     return fileportcons(&file_port_class,
-                         (enum port_mode_t)(PORT_OUTPUT | PORT_BINARY),
-                         filename);
+     return fileportcons(&file_port_class, PORT_OUTPUT, filename);
 }
 
 /* Standard I/O ***********************************************
@@ -246,19 +242,13 @@ struct port_class_t stderr_port_class = {
 void init_stdio_ports()
 {
      lref_t stdin_port =
-          lopen_text_input_port(fileportcons(&stdin_port_class,
-                                             (enum port_mode_t)(PORT_INPUT | PORT_BINARY),
-                                             strconsbuf(_T("<stdin>"))));
+          lopen_text_input_port(fileportcons(&stdin_port_class, PORT_INPUT, strconsbuf(_T("<stdin>"))));
 
      lref_t stdout_port =
-          lopen_text_output_port(fileportcons(&stdout_port_class,
-                                              (enum port_mode_t)(PORT_OUTPUT | PORT_BINARY),
-                                              strconsbuf(_T("<stdout>"))));
+          lopen_text_output_port(fileportcons(&stdout_port_class, PORT_OUTPUT, strconsbuf(_T("<stdout>"))));
 
      lref_t stderr_port =
-          lopen_text_output_port(fileportcons(&stderr_port_class,
-                                              (enum port_mode_t)(PORT_OUTPUT | PORT_BINARY),
-                                              strconsbuf(_T("<stderr>"))));
+          lopen_text_output_port(fileportcons(&stderr_port_class, PORT_OUTPUT, strconsbuf(_T("<stderr>"))));
 
      interp.control_fields[VMCTRL_CURRENT_INPUT_PORT] = stdin_port;
      interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT] = stdout_port;

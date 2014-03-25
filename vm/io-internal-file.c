@@ -91,11 +91,7 @@ lref_t open_c_data_input(struct internal_file_t *data)
      ps->buf_size = data->_length;
      ps->buf_pos  = 0;
 
-     return portcons(&c_data_port_class,
-                     NIL,
-                     (enum port_mode_t) (PORT_INPUT | PORT_BINARY),
-                     NIL,
-                     ps);
+     return portcons(&c_data_port_class, NIL, PORT_INPUT, NIL, ps);
 }
 
 void register_internal_file(struct internal_file_t *data)
