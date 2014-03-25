@@ -126,7 +126,7 @@ lref_t portcons(struct port_class_t * cls,
 size_t read_bytes(lref_t port, void *buf, size_t size);
 size_t write_bytes(lref_t port, const void *buf, size_t size);
 
-void write_char(lref_t port, int ch);
+void write_char(lref_t port, _TCHAR ch);
 size_t write_text(lref_t port, const _TCHAR * buf, size_t count);
 
 int read_char(lref_t port);

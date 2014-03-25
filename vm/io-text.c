@@ -97,15 +97,13 @@ int peek_char(lref_t port)
      return ch;
 }
 
-void write_char(lref_t port, int ch)
+void write_char(lref_t port, _TCHAR ch)
 {
      assert(TEXT_PORTP(port) && PORT_OUTPUTP(port));
 
-     _TCHAR tch = (_TCHAR) ch;
+     write_text(port, &ch, 1);
 
-     write_text(port, &tch, 1);
-
-     if (tch == _T('\n'))
+     if (ch == _T('\n'))
           lflush_port(port);
 }
 
