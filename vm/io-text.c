@@ -65,43 +65,43 @@ int read_char(lref_t port)
 }
 
 int unread_char(lref_t port, int ch)
- {
-      assert(!NULLP(port) && !PORT_BINARYP(port));
+{
+     assert(!NULLP(port) && !PORT_BINARYP(port));
 
-      switch (ch)
-      {
-      case '\n':
-           PORT_TEXT_INFO(port)->col = PORT_TEXT_INFO(port)->pline_mcol;
-           PORT_TEXT_INFO(port)->row--;
-           break;
+     switch (ch)
+     {
+     case '\n':
+          PORT_TEXT_INFO(port)->col = PORT_TEXT_INFO(port)->pline_mcol;
+          PORT_TEXT_INFO(port)->row--;
+          break;
 
-      case '\r':
-           break;
+     case '\r':
+          break;
 
-      default:
-           PORT_TEXT_INFO(port)->col--;
-           break;
-      }
+     default:
+          PORT_TEXT_INFO(port)->col--;
+          break;
+     }
 
-      assert(!PORT_TEXT_INFO(port)->pbuf_valid);
+     assert(!PORT_TEXT_INFO(port)->pbuf_valid);
 
-      PORT_TEXT_INFO(port)->pbuf = ch;
-      PORT_TEXT_INFO(port)->pbuf_valid = true;
+     PORT_TEXT_INFO(port)->pbuf = ch;
+     PORT_TEXT_INFO(port)->pbuf_valid = true;
 
-      return ch;
- }
+     return ch;
+}
 
- int peek_char(lref_t port)
- {
-      assert(!NULLP(port));
+int peek_char(lref_t port)
+{
+     assert(!NULLP(port));
 
-      int ch = read_char(port);
+     int ch = read_char(port);
 
-      if (ch != EOF)
-           unread_char(port, ch);
+     if (ch != EOF)
+          unread_char(port, ch);
 
-      return ch;
- }
+     return ch;
+}
 
 void write_char(lref_t port, int ch)
 {
@@ -124,91 +124,91 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
 
 /*** Lisp I/O function ***/
 
- lref_t lport_column(lref_t port)
- {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
+lref_t lport_column(lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
 
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot get column of binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot get column of binary ports"));
 
-      return fixcons(PORT_TEXT_INFO(port)->col);
- }
+     return fixcons(PORT_TEXT_INFO(port)->col);
+}
 
- lref_t lport_row(lref_t port)
- {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
+lref_t lport_row(lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
 
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot get row of binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot get row of binary ports"));
 
-      return fixcons(PORT_TEXT_INFO(port)->row);
- }
+     return fixcons(PORT_TEXT_INFO(port)->row);
+}
 
- lref_t lport_translate_mode(lref_t port)
- {
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+lref_t lport_translate_mode(lref_t port)
+{
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           return boolcons(false);
+     if (PORT_BINARYP(port))
+          return boolcons(false);
 
-      return boolcons(PORT_TEXT_INFO(port)->translate);
- }
+     return boolcons(PORT_TEXT_INFO(port)->translate);
+}
 
- lref_t lport_set_translate_mode(lref_t port, lref_t mode)
- {
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+lref_t lport_set_translate_mode(lref_t port, lref_t mode)
+{
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      if (!BOOLP(mode))
-           vmerror_wrong_type_n(2, mode);
+     if (!BOOLP(mode))
+          vmerror_wrong_type_n(2, mode);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot set translation mode of binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot set translation mode of binary ports"));
 
-      lflush_port(port);
+     lflush_port(port);
 
-      bool old_translate_mode = PORT_TEXT_INFO(port)->translate;
+     bool old_translate_mode = PORT_TEXT_INFO(port)->translate;
 
-      PORT_TEXT_INFO(port)->translate = TRUEP(mode);
+     PORT_TEXT_INFO(port)->translate = TRUEP(mode);
 
-      return boolcons(old_translate_mode);
- }
+     return boolcons(old_translate_mode);
+}
 
 
 /*** Text Input ***/
 
- lref_t lread_char(lref_t port)
- {
-      if (NULLP(port))
-           port = CURRENT_INPUT_PORT();
+lref_t lread_char(lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
       
-      if (!PORTP(port))
-           vmerror_wrong_type_n(1, port);
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot read-char from binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot read-char from binary ports"));
 
-      int ch = read_char(port);
+     int ch = read_char(port);
 
-      if (ch == EOF)
-           return lmake_eof();
-      else
-           return charcons((_TCHAR) ch);
- }
+     if (ch == EOF)
+          return lmake_eof();
+     else
+          return charcons((_TCHAR) ch);
+}
 
 
- lref_t lpeek_char(lref_t port)
- {
-      int ch;
+lref_t lpeek_char(lref_t port)
+{
+     int ch;
 
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
@@ -216,8 +216,8 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count)
      if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot peek-char from binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot peek-char from binary ports"));
 
      ch = peek_char(port);
 
@@ -266,8 +266,8 @@ lref_t lrich_write(lref_t obj, lref_t machine_readable, lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type_n(3, port);
 
-      if (PORT_INPUTP(port))
-           vmerror_unsupported(_T("cannot rich-write to input ports"));
+     if (PORT_INPUTP(port))
+          vmerror_unsupported(_T("cannot rich-write to input ports"));
 
      if (PORT_CLASS(port)->rich_write == NULL)
           return boolcons(false);
@@ -288,11 +288,11 @@ lref_t lwrite_char(lref_t ch, lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type_n(2, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot write-char to binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot write-char to binary ports"));
 
-      if (PORT_INPUTP(port))
-           vmerror_unsupported(_T("cannot write-char to input ports"));
+     if (PORT_INPUTP(port))
+          vmerror_unsupported(_T("cannot write-char to input ports"));
 
      if (!CHARP(ch))
           vmerror_wrong_type_n(1, ch);
@@ -313,11 +313,11 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
      if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot write-strings to binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot write-strings to binary ports"));
 
-      if (PORT_INPUTP(port))
-           vmerror_unsupported(_T("cannot write-strings to input ports"));
+     if (PORT_INPUTP(port))
+          vmerror_unsupported(_T("cannot write-strings to input ports"));
 
      for (size_t ii = 1; ii < argc; ii++)
      {
@@ -348,11 +348,11 @@ lref_t lflush_whitespace(lref_t port, lref_t slc)
      if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot flush-whitespace binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot flush-whitespace binary ports"));
 
-      if (PORT_OUTPUTP(port))
-           vmerror_unsupported(_T("cannot flush-whitespace output ports"));
+     if (PORT_OUTPUTP(port))
+          vmerror_unsupported(_T("cannot flush-whitespace output ports"));
 
      bool skip_lisp_comments = true;
 
@@ -378,11 +378,11 @@ lref_t lread_line(lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-      if (PORT_BINARYP(port))
-           vmerror_unsupported(_T("cannot read-line from binary ports"));
+     if (PORT_BINARYP(port))
+          vmerror_unsupported(_T("cannot read-line from binary ports"));
 
-      if (PORT_OUTPUTP(port))
-           vmerror_unsupported(_T("cannot read-line from output ports"));
+     if (PORT_OUTPUTP(port))
+          vmerror_unsupported(_T("cannot read-line from output ports"));
 
      lref_t op = lopen_output_string();
 
