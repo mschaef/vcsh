@@ -67,34 +67,11 @@ int read_char(lref_t port)
 int peek_char(lref_t port)
 {
      assert(TEXT_PORTP(port) && PORT_INPUTP(port));
+     
+     if (PORT_CLASS(port)->peek_char == NULL)
+          vmerror_unsupported(_T("Peek not supported on this port."));
 
-     int ch = read_char(port);
-
-     if (ch == EOF)
-          return ch;
-
-     /* Update unread buffer. */
-     switch (ch)
-     {
-     case '\n':
-          PORT_TEXT_INFO(port)->col = PORT_TEXT_INFO(port)->pline_mcol;
-          PORT_TEXT_INFO(port)->row--;
-          break;
-
-     case '\r':
-          break;
-
-     default:
-          PORT_TEXT_INFO(port)->col--;
-          break;
-     }
-
-     assert(!PORT_TEXT_INFO(port)->pbuf_valid);
-
-     PORT_TEXT_INFO(port)->pbuf = ch;
-     PORT_TEXT_INFO(port)->pbuf_valid = true;
-
-     return ch;
+     return PORT_CLASS(port)->peek_char(port);
 }
 
 void write_char(lref_t port, _TCHAR ch)
@@ -427,6 +404,37 @@ void text_port_open(lref_t port)
      SET_PORT_TEXT_INFO(port, allocate_text_info());
 }
 
+int text_port_peek_char(lref_t port)
+{
+     int ch = read_char(port);
+
+     if (ch == EOF)
+          return ch;
+
+     /* Update unread buffer. */
+     switch (ch)
+     {
+     case '\n':
+          PORT_TEXT_INFO(port)->col = PORT_TEXT_INFO(port)->pline_mcol;
+          PORT_TEXT_INFO(port)->row--;
+          break;
+
+     case '\r':
+          break;
+
+     default:
+          PORT_TEXT_INFO(port)->col--;
+          break;
+     }
+
+     assert(!PORT_TEXT_INFO(port)->pbuf_valid);
+
+     PORT_TEXT_INFO(port)->pbuf = ch;
+     PORT_TEXT_INFO(port)->pbuf_valid = true;
+
+     return ch;
+}
+
 size_t text_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
 {
      size_t chars_read = 0;
@@ -554,7 +562,7 @@ struct port_class_t text_port_class = {
      text_port_open,        // open
      NULL,                  // read_bytes
      NULL,                  // write_bytes
-     NULL,                  // peek_char
+     text_port_peek_char,   // peek_char
      text_port_read_chars,  // read_chars
      text_port_write_chars, // write_chars
      NULL,                  // rich_write

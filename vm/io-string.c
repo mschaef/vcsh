@@ -66,13 +66,15 @@ size_t string_port_length(lref_t port)
           return STRING_DIM(PORT_STRING(port));
 }
 
+int text_port_peek_char(lref_t port);
+
 struct port_class_t string_port_class = {
      _T("STRING"),
 
      NULL,                    // open
      NULL,                    // read_bytes
      NULL,                    // write_bytes
-     NULL,                    // peek_char
+     text_port_peek_char,     // peek_char
      string_port_read_chars,  // read_chars
      string_port_write_chars, // write_chars
      NULL,                    // rich_write
