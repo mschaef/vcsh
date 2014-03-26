@@ -612,9 +612,6 @@ void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags)
      if (interp.debug_flags != DF_NONE)
           dscwritef(DF_ALWAYS, ("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags));
 
-     if (DEBUG_FLAG(DF_TEST_VM) && (execute_vm_tests() > 0))
-          panic("VM tests failed, cannot proceed.");
-
     /*** Create the gc heap and populate it with the standard objects */
      gc_initialize_heap();
 

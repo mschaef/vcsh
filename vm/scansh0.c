@@ -39,15 +39,23 @@ int _tmain(int argc, _TCHAR* argv[])
 
   fprintf(stderr, ";;; scansh0 - %s\n", scan_vm_build_id_string());
 
-  interp.control_fields[VMCTRL_CURRENT_ERROR_PORT] = interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT];
-  interp.control_fields[VMCTRL_CURRENT_DEBUG_PORT] = interp.control_fields[VMCTRL_CURRENT_ERROR_PORT];
-
-  lref_t retval = run();
-
   int rc = 0;
 
-  if (NUMBERP(retval))
-    rc = get_c_long(retval);
+  if (DEBUG_FLAG(DF_TEST_VM)) {
+
+       if (execute_vm_tests() > 0)
+            rc = 1;
+
+  } else {
+
+       interp.control_fields[VMCTRL_CURRENT_ERROR_PORT] = interp.control_fields[VMCTRL_CURRENT_OUTPUT_PORT];
+       interp.control_fields[VMCTRL_CURRENT_DEBUG_PORT] = interp.control_fields[VMCTRL_CURRENT_ERROR_PORT];
+
+       lref_t retval = run();
+
+       if (NUMBERP(retval))
+            rc = get_c_long(retval);
+  }
 
   shutdown();
 
