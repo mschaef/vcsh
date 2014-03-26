@@ -219,6 +219,10 @@ INLINE lref_t new_cell(enum typecode_t type)
      return retval;
 }
 
+/**** VM Unit Tests ****/
+
+size_t execute_vm_tests();
+
 /**** Startup and Shutdown Routines for subsystems ****/
 
 void create_initial_packages();

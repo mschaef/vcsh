@@ -217,7 +217,7 @@ static struct
      { "fasl-show-opcodes", DF_FASL_SHOW_OPCODES},
      { "show-fast-load-forms", DF_SHOW_FAST_LOAD_FORMS},
      { "show-fast-load-units", DF_SHOW_FAST_LOAD_UNITS},
-     { "temp", DF_TEMP},
+     { "test-vm", DF_TEST_VM},
 #if defined(WITH_FOPLOG_SUPPORT)
      { "startup-foplog", DF_STARTUP_FOPLOG},
 #endif

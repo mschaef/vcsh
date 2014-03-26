@@ -1,5 +1,5 @@
 /*
- * io-encdec.cpp --
+ * io-encdec.c --
  *
  * Binary I/O encoding.
  *
@@ -8,7 +8,6 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
-
 
 #include <ctype.h>
 #include <memory.h>

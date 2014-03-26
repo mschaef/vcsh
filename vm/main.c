@@ -612,6 +612,9 @@ void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags)
      if (interp.debug_flags != DF_NONE)
           dscwritef(DF_ALWAYS, ("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags));
 
+     if (DEBUG_FLAG(DF_TEST_VM) && (execute_vm_tests() > 0))
+          panic("VM tests failed, cannot proceed.");
+
     /*** Create the gc heap and populate it with the standard objects */
      gc_initialize_heap();
 
@@ -636,26 +639,9 @@ flonum_t time_since_launch()
      return sys_runtime() - interp.launch_realtime;
 }
 
-static void dotest()
-{
-     fixnum_t ii;
-     fixnum_t ii2;
-     uint8_t buf[8];
-
-     for(ii = -4; ii < 5; ii++) {
-          io_encode_fixnum_s16(buf, ii);
-          ii2 = io_decode_fixnum_s16(buf);
-
-          
-          fprintf(stderr, _T("%" PRINTF_PREFIX_FIXNUM "i == %" PRINTF_PREFIX_FIXNUM "i\n"), ii, ii2);
-     }
-}
 
 lref_t run()
 {
-     dotest();
-     panic("end run.");
-
      if (DEBUG_FLAG(DF_NO_STARTUP))
           return NIL;
 
