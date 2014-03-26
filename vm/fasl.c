@@ -228,10 +228,13 @@ static void fast_read_string(lref_t reader, lref_t * retval)
      fixnum_t actual_length =
           read_bytes(FASL_READER_PORT(reader), buf, (size_t)(expected_length * sizeof(_TCHAR)));
 
-     if (actual_length != expected_length)
+     if (actual_length != expected_length) {
+          gc_free(buf);
           vmerror_fast_read("EOF during string data", reader, NIL);
+     }
 
      *retval = strconsbufn((size_t) actual_length, buf);
+     gc_free(buf);
 }
 
 
