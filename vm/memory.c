@@ -403,6 +403,10 @@ static void gc_clear_cell(lref_t obj)
           gc_free(STRING_DATA(obj));
           break;
 
+     case TC_STRUCTURE:
+          gc_free(STRUCTURE_DATA(obj));;
+          break;
+
      case TC_VECTOR:
           gc_free(VECTOR_DATA(obj));
           break;

@@ -660,6 +660,12 @@ INLINE void SET_STRUCTURE_DIM(lref_t obj, size_t len)
      ((obj)->storage_as.vector.dim) = len;
 }
 
+INLINE lref_t *STRUCTURE_DATA(lref_t obj)
+{
+     checked_assert(STRUCTUREP(obj));
+     return ((obj)->storage_as.vector.data);
+}
+
 INLINE void SET_STRUCTURE_DATA(lref_t obj, lref_t * data)
 {
      checked_assert(STRUCTUREP(obj));
