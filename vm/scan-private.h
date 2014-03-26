@@ -153,9 +153,6 @@ INLINE lref_t VM_DEBUG_PORT()
 
 INLINE bool DEBUG_FLAG(enum debug_flag_t flag)
 {
-     if (!DEBUGGING_BUILD)
-          return false;
-
      return ((fixnum_t) flag == (interp.debug_flags & (fixnum_t) flag));
 }
 

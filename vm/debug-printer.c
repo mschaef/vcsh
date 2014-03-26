@@ -682,19 +682,17 @@ void dscwritef_impl(const _TCHAR * format_str, ...)
  * The standard debug port.
  */
 
-size_t debug_port_write(lref_t port, const void *buf, size_t size)
+size_t debug_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
 {
      UNREFERENCED(port);
      assert(PORTP(port));
-
-     _TCHAR *cbuf = (_TCHAR *) buf;
 
      _TCHAR block[DEBUG_PORT_BLOCK_SIZE + 1];
 
      size_t buf_loc = 0;
      size_t block_loc = 0;
 
-     size_t len = size;
+     size_t len = count;
 
      /* Filter nulls out of the input string, and ensure that the
       * buffer we pass to OutputDebugString has as terminating
@@ -704,15 +702,18 @@ size_t debug_port_write(lref_t port, const void *buf, size_t size)
           for (block_loc = 0;
                (block_loc < DEBUG_PORT_BLOCK_SIZE) && (len > 0); block_loc++, buf_loc++, len--)
           {
-               if (cbuf[buf_loc] == '\0')
+               if (buf[buf_loc] == '\0')
                     block[block_loc] = '~';
                else
-                    block[block_loc] = cbuf[buf_loc];
+                    block[block_loc] = buf[buf_loc];
           }
 
           block[block_loc] = '\0';
 
-          sys_output_debug_string(block);
+          if (DEBUG_FLAG(DF_DEBUGGER_TO_ODS))
+               sys_output_debug_string(block);
+          else
+               fputs(block, stderr);
      }
 
      return len;
@@ -721,17 +722,17 @@ size_t debug_port_write(lref_t port, const void *buf, size_t size)
 struct port_class_t debug_port_class = {
      _T("STANDARD-DEBUG"),
 
-     NULL,                 // open
-     NULL,                 // read_bytes
-     debug_port_write,     // write_bytes
-     NULL,                 // peek_char
-     NULL,                 // read_chars
-     NULL,                 // write_chars
-     NULL,                 // rich_write
-     NULL,                 // flush
-     NULL,                 // close
-     NULL,                 // gc_free
-     NULL,                 // length
+     NULL,                   // open
+     NULL,                   // read_bytes
+     NULL,                   // write_bytes
+     NULL,                   // peek_char
+     NULL,                   // read_chars
+     debug_port_write_chars, // write_chars
+     NULL,                   // rich_write
+     NULL,                   // flush
+     NULL,                   // close
+     NULL,                   // gc_free
+     NULL,                   // length
 };
 
 
@@ -752,10 +753,12 @@ void init_debugger_output()
      SET_TYPE(&interp.debugger_output, TC_PORT);
 
      initialize_port(&interp.debugger_output,
-                     DEBUG_FLAG(DF_DEBUGGER_TO_ODS) ? &debug_port_class : &stderr_port_class,
+                     &debug_port_class,
                      NIL,
                      PORT_OUTPUT,
                      NIL,
                      NULL);
+
+     SET_PORT_TEXT_INFO(&interp.debugger_output, allocate_text_info());
 }
 
