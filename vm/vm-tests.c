@@ -31,26 +31,24 @@ static void invoke_test(void (* test_fn)(), _TCHAR *test_fn_name)
      test_name = NULL;
 }
 
-static void test_assert(bool condition, _TCHAR *condition_name)
+static bool test_assert(bool condition, _TCHAR *condition_name)
 {
      if (condition)
-          return;
+          return false;
 
      fprintf(stderr, "Failure in %s: %s\n", test_name, condition_name);
 
      test_fail_count++;
+
+     return true;
 }
 
 #define INVOKE_TEST(test_fn_name) invoke_test(test_fn_name, _T(#test_fn_name))
 
-#define TEST_ASSERT(condition) test_assert(condition, _T(#condition));
+#define TEST_ASSERT(condition) test_assert(condition, _T(#condition))
+
 
 static void test_encdec_i8()
-{
-     TEST_ASSERT(false);
-}
-
-static void dotest()
 {
      fixnum_t ii;
      fixnum_t ii2;
@@ -60,8 +58,8 @@ static void dotest()
           io_encode_fixnum_s16(buf, ii);
           ii2 = io_decode_fixnum_s16(buf);
 
-          
-          fprintf(stderr, _T("%" PRINTF_PREFIX_FIXNUM "i == %" PRINTF_PREFIX_FIXNUM "i\n"), ii, ii2);
+          if (TEST_ASSERT(ii == ii2))
+               fprintf(stderr, _T("%" PRINTF_PREFIX_FIXNUM "i == %" PRINTF_PREFIX_FIXNUM "i\n"), ii, ii2);
      }
 }
 
