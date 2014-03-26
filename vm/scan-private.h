@@ -164,8 +164,8 @@ INLINE bool DEBUG_FLAG(enum debug_flag_t flag)
 void io_encode_fixnum_s64(uint8_t *buf, fixnum_t num);
 fixnum_t io_decode_fixnum_s64(uint8_t *buf);
 
-void io_encode_fixnum_u64(uint8_t *buf, fixnum_t num);
-fixnum_t io_decode_fixnum_u64(uint8_t *buf);
+void io_encode_fixnum_u64(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_fixnum_u64(uint8_t *buf);
 
 void io_encode_fixnum_s32(uint8_t *buf, fixnum_t num);
 fixnum_t io_decode_fixnum_s32(uint8_t *buf);
