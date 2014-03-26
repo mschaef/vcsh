@@ -636,8 +636,26 @@ flonum_t time_since_launch()
      return sys_runtime() - interp.launch_realtime;
 }
 
+static void dotest()
+{
+     fixnum_t ii;
+     fixnum_t ii2;
+     uint8_t buf[8];
+
+     for(ii = -4; ii < 5; ii++) {
+          io_encode_fixnum_s16(buf, ii);
+          ii2 = io_decode_fixnum_s16(buf);
+
+          
+          fprintf(stderr, _T("%" PRINTF_PREFIX_FIXNUM "i == %" PRINTF_PREFIX_FIXNUM "i\n"), ii, ii2);
+     }
+}
+
 lref_t run()
 {
+     dotest();
+     panic("end run.");
+
      if (DEBUG_FLAG(DF_NO_STARTUP))
           return NIL;
 
