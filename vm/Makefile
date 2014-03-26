@@ -23,13 +23,6 @@ include ../config.${PLATFORM}
 
 SCC0=scc0/scc0
 
-scansh0${EXE_EXT}: scan-vm${LIB_EXT} scansh0${OBJ_EXT}
-	${CC} ${NAMOBJFL}scansh0${EXE_EXT} scansh0${OBJ_EXT} scan-vm${LIB_EXT} ${LDFLAGS} 
-
-SH0_OBJS=scansh0${OBJ_EXT}
-
-SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.c)
-
 VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        constants${OBJ_EXT} \
        core${OBJ_EXT} \
@@ -56,8 +49,7 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        structure${OBJ_EXT} \
        system${OBJ_EXT} \
        text-data${OBJ_EXT} \
-       vector${OBJ_EXT} \
-       vm-tests${OBJ_EXT}
+       vector${OBJ_EXT}
 
 VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.c)
 
@@ -78,6 +70,13 @@ ifdef RANLIB
 	${RANLIB} scan-vm${LIB_EXT}
 endif
 
+SH0_OBJS=scansh0${OBJ_EXT} \
+         vm-tests${OBJ_EXT}
+
+SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.c)
+
+scansh0${EXE_EXT}: scan-vm${LIB_EXT} ${SH0_OBJS}
+	${CC} ${NAMOBJFL}scansh0${EXE_EXT} ${SH0_OBJS} scan-vm${LIB_EXT} ${LDFLAGS} 
 
 TO_C_SOURCE_OBJS=to-c-source${OBJ_EXT}
 
