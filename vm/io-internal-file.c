@@ -74,7 +74,7 @@ struct port_class_t c_data_port_class = {
      NULL,                   // rich_write
      NULL,                   // flush
      NULL,                   // close
-     NULL,                   // gc_free
+     c_data_port_gc_free,    // gc_free
      c_data_port_length,     // length
 };
 
