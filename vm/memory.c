@@ -419,6 +419,10 @@ static void gc_clear_cell(lref_t obj)
           port_gc_free(obj);
           break;
 
+     case TC_FASL_READER:
+          gc_free(FASL_READER_STREAM(obj));
+          break;
+
      default:
           /*  By default, objects are either immediate or otherwise self
            * contained, and do not need special-case handling in
