@@ -10,7 +10,7 @@
 # redistribution of this file, and for a DISCLAIMER OF ALL
 # WARRANTIES.
 
-.PHONY: all indented coverage
+.PHONY: all indented coverage tested
 
 TARGETS=to-c-source${EXE_EXT} show-retval${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} \
         fasl-dump${EXE_EXT} scan-constants.scm TAGS
@@ -20,6 +20,9 @@ SCAN_HEADERS=scan-base.h scan-constants.h scan-internal-file.h scan-private.h \
 
 include ../build-settings
 include ../config.${PLATFORM}
+
+tested: all ./scansh0${EXE_EXT}
+	./scansh0${EXE_EXT} -Xdebug-flags=test-vm
 
 SCC0=scc0/scc0
 

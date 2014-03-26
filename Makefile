@@ -13,12 +13,17 @@
 include build-settings
 include config.${PLATFORM}
 
-.PHONY: tested vcsh vm clean indented
+.PHONY: tested vcsh-tested vm-tested vcsh vm clean indented
 
 all: vcsh
 
-tested: vcsh
+tested: vcsh-tested
+
+vcsh-tested: vm-tested vcsh
 	$(MAKE) -r -C scheme-core tested
+
+vm-tested: vm
+	$(MAKE) -r -C vm tested
 
 vcsh: vm
 	$(MAKE) -r -C scheme-core
