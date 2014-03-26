@@ -17,37 +17,37 @@
 
 /***** Unsigned 8 bit *****/
 
-void io_encode_fixnum_u8(uint8_t *buf, unsigned_fixnum_t num)
+void io_encode_uint8(uint8_t *buf, unsigned_fixnum_t num)
 {
      buf[0] = (uint8_t)num;
 }
 
-unsigned_fixnum_t io_decode_fixnum_u8(uint8_t *buf)
+unsigned_fixnum_t io_decode_uint8(uint8_t *buf)
 {
      return (uint8_t)buf[0];
 }
 
 /***** Signed 8 bit *****/
 
-void io_encode_fixnum_s8(uint8_t *buf, fixnum_t num)
+void io_encode_int8(uint8_t *buf, fixnum_t num)
 {
      buf[0] = (uint8_t)num;
 }
 
-fixnum_t io_decode_fixnum_s8(uint8_t *buf)
+fixnum_t io_decode_int8(uint8_t *buf)
 {
      return (int8_t)buf[0];
 }
 
 /***** Unsigned 16 bit *****/
 
-void io_encode_fixnum_u16(uint8_t *buf, unsigned_fixnum_t num)
+void io_encode_uint16(uint8_t *buf, unsigned_fixnum_t num)
 {
      buf[0] = (uint8_t)(num >>  8);
      buf[1] = (uint8_t)num;
 }
 
-unsigned_fixnum_t io_decode_fixnum_u16(uint8_t *buf)
+unsigned_fixnum_t io_decode_uint16(uint8_t *buf)
 {
      return (((uint16_t)buf[0] <<  8) +
              ((uint16_t)buf[1]));
@@ -55,13 +55,13 @@ unsigned_fixnum_t io_decode_fixnum_u16(uint8_t *buf)
 
 /***** Signed 16 bit *****/
 
-void io_encode_fixnum_s16(uint8_t *buf, fixnum_t num)
+void io_encode_int16(uint8_t *buf, fixnum_t num)
 {
      buf[0] = (uint8_t)(num >>  8);
      buf[1] = (uint8_t)num;
 }
 
-fixnum_t io_decode_fixnum_s16(uint8_t *buf)
+fixnum_t io_decode_int16(uint8_t *buf)
 {
      return ((int16_t)(buf[0] << 8) +
              (int16_t)buf[1]);
@@ -69,7 +69,7 @@ fixnum_t io_decode_fixnum_s16(uint8_t *buf)
 
 /***** Unsigned 32 bit *****/
 
-void io_encode_fixnum_u32(uint8_t *buf, unsigned_fixnum_t num)
+void io_encode_uint32(uint8_t *buf, unsigned_fixnum_t num)
 {
      buf[0] = (uint8_t)(num >> 24);
      buf[1] = (uint8_t)(num >> 16);
@@ -77,7 +77,7 @@ void io_encode_fixnum_u32(uint8_t *buf, unsigned_fixnum_t num)
      buf[3] = (uint8_t)num;
 }
 
-unsigned_fixnum_t io_decode_fixnum_u32(uint8_t *buf)
+unsigned_fixnum_t io_decode_uint32(uint8_t *buf)
 {
      return (((uint32_t)buf[0] << 24) +
              ((uint32_t)buf[1] << 16) +
@@ -87,7 +87,7 @@ unsigned_fixnum_t io_decode_fixnum_u32(uint8_t *buf)
 
 /***** Signed 32 bit *****/
 
-void io_encode_fixnum_s32(uint8_t *buf, fixnum_t num)
+void io_encode_int32(uint8_t *buf, fixnum_t num)
 {
      buf[0] = (uint8_t)(num >> 24);
      buf[1] = (uint8_t)(num >> 16);
@@ -95,7 +95,7 @@ void io_encode_fixnum_s32(uint8_t *buf, fixnum_t num)
      buf[3] = (uint8_t)num;
 }
 
-fixnum_t io_decode_fixnum_s32(uint8_t *buf)
+fixnum_t io_decode_int32(uint8_t *buf)
 {
      return (((int32_t)(buf[0] << 24)) +
              ((int32_t)(buf[1] << 16)) +
@@ -105,7 +105,7 @@ fixnum_t io_decode_fixnum_s32(uint8_t *buf)
 
 /***** Unsigned 64 bit *****/
 
-void io_encode_fixnum_u64(uint8_t *buf, unsigned_fixnum_t num)
+void io_encode_uint64(uint8_t *buf, unsigned_fixnum_t num)
 {
      buf[0] = (uint8_t)(num >> 56);
      buf[1] = (uint8_t)(num >> 48);
@@ -117,7 +117,7 @@ void io_encode_fixnum_u64(uint8_t *buf, unsigned_fixnum_t num)
      buf[7] = (uint8_t)num;
 }
 
-unsigned_fixnum_t io_decode_fixnum_u64(uint8_t *buf)
+unsigned_fixnum_t io_decode_uint64(uint8_t *buf)
 {
      return (((unsigned_fixnum_t)buf[0] << 56) +
              ((unsigned_fixnum_t)buf[1] << 48) +
@@ -131,7 +131,7 @@ unsigned_fixnum_t io_decode_fixnum_u64(uint8_t *buf)
 
 /***** Signed 64 bit *****/
 
-void io_encode_fixnum_s64(uint8_t *buf, fixnum_t num)
+void io_encode_int64(uint8_t *buf, fixnum_t num)
 {
      buf[0] = (uint8_t)(num >> 56);
      buf[1] = (uint8_t)(num >> 48);
@@ -143,7 +143,7 @@ void io_encode_fixnum_s64(uint8_t *buf, fixnum_t num)
      buf[7] = (uint8_t)num;
 }
 
-fixnum_t io_decode_fixnum_s64(uint8_t *buf)
+fixnum_t io_decode_int64(uint8_t *buf)
 {
      return (((fixnum_t)buf[0] << 56) +
              ((fixnum_t)buf[1] << 48) +

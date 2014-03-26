@@ -161,29 +161,29 @@ INLINE bool DEBUG_FLAG(enum debug_flag_t flag)
 
 /***** I/O Encode and Decode *****/
 
-void io_encode_fixnum_u8(uint8_t *buf, unsigned_fixnum_t num);
-unsigned_fixnum_t io_decode_fixnum_u8(uint8_t *buf);
+void io_encode_uint8(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_uint8(uint8_t *buf);
 
-void io_encode_fixnum_s8(uint8_t *buf, fixnum_t num);
-fixnum_t io_decode_fixnum_s8(uint8_t *buf);
+void io_encode_int8(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_int8(uint8_t *buf);
 
-void io_encode_fixnum_u16(uint8_t *buf, unsigned_fixnum_t num);
-unsigned_fixnum_t io_decode_fixnum_u16(uint8_t *buf);
+void io_encode_uint16(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_uint16(uint8_t *buf);
 
-void io_encode_fixnum_s16(uint8_t *buf, fixnum_t num);
-fixnum_t io_decode_fixnum_s16(uint8_t *buf);
+void io_encode_int16(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_int16(uint8_t *buf);
 
-void io_encode_fixnum_u32(uint8_t *buf, unsigned_fixnum_t num);
-unsigned_fixnum_t io_decode_fixnum_u32(uint8_t *buf);
+void io_encode_uint32(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_uint32(uint8_t *buf);
 
-void io_encode_fixnum_s32(uint8_t *buf, fixnum_t num);
-fixnum_t io_decode_fixnum_s32(uint8_t *buf);
+void io_encode_int32(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_int32(uint8_t *buf);
 
-void io_encode_fixnum_u64(uint8_t *buf, unsigned_fixnum_t num);
-unsigned_fixnum_t io_decode_fixnum_u64(uint8_t *buf);
+void io_encode_uint64(uint8_t *buf, unsigned_fixnum_t num);
+unsigned_fixnum_t io_decode_uint64(uint8_t *buf);
 
-void io_encode_fixnum_s64(uint8_t *buf, fixnum_t num);
-fixnum_t io_decode_fixnum_s64(uint8_t *buf);
+void io_encode_int64(uint8_t *buf, fixnum_t num);
+fixnum_t io_decode_int64(uint8_t *buf);
 
 /***** Memory Management *****/
 
