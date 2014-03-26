@@ -70,7 +70,8 @@ size_t execute_vm_tests()
      INVOKE_TEST(test_encdec_i8);
 
      if (test_fail_count > 0)
-          fprintf(stderr, "%d TESTS FAILED.\n", (int)test_fail_count);
+          fprintf(stderr, "%d TEST%s FAILED.\n",
+                  (int)test_fail_count, ((test_fail_count == 1) ? "" : "S"));
      else
           fprintf(stderr, "All tests passed.\n");
 
