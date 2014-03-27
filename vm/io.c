@@ -569,7 +569,6 @@ struct port_class_t null_port_class = {
      NULL,                  // length
 };
 
-
 lref_t lopen_null_input_port()
 {
      return portcons(&null_port_class, NIL, PORT_INPUT, NIL, NULL);
@@ -580,3 +579,7 @@ lref_t lopen_null_output_port()
      return portcons(&null_port_class, NIL, PORT_OUTPUT, NIL, NULL);
 }
 
+lref_t lopen_null_port()
+{
+     return portcons(&null_port_class, NIL, PORT_INPUT | PORT_OUTPUT, NIL, NULL);
+}

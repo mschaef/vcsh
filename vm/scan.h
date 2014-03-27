@@ -332,6 +332,7 @@ lref_t lopen_debug_port();
 lref_t lopen_input_string(lref_t string);
 lref_t lopen_null_input_port();
 lref_t lopen_null_output_port();
+lref_t lopen_null_port();
 lref_t lopen_output_string();
 lref_t lopen_raw_input_file(lref_t filename);
 lref_t lopen_raw_output_file(lref_t filename);
