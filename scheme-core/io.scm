@@ -21,22 +21,6 @@
        (cdr it)
        #f))
 
-(define (port-closed? port)
-  "Determines if <port> is closed. Returns the port if it is closed,
-and #f otherwise. If <port> is not a port, throws an error."
-  (check port? port)
-  (if (eq? (port-mode port) :closed)
-      port
-      #f))
-
-(define (port-open? port)
-  "Determines if <port> is open. Returns the port if it is open, and
-#f otherwise. If <port> is not a port, throws an error."
-  (check port? port)
-  (if (not (eq? (port-mode port) :closed))
-      port
-      #f))
-
 (define (port-at-end? port)
   "Returns a boolean signaling if the input port <port> is at its end."
   (eof-object? (peek-char port)))

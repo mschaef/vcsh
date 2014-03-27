@@ -211,6 +211,22 @@ lref_t lbinary_portp(lref_t obj)
      return boolcons(false);
 }
 
+lref_t lport_closedp(lref_t obj)
+{
+     if (!PORTP(obj))
+          vmerror_wrong_type_n(1, obj);
+
+     return boolcons(PORT_CLOSEDP(obj));
+}
+
+lref_t lport_openp(lref_t obj)
+{
+     if (!PORTP(obj))
+          vmerror_wrong_type_n(1, obj);
+
+     return boolcons(!PORT_CLOSEDP(obj));
+}
+
 lref_t lport_mode(lref_t obj)
 {
      if (!PORTP(obj))
