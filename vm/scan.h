@@ -350,7 +350,6 @@ lref_t lportp(lref_t port);
 lref_t lport_closedp(lref_t obj);
 lref_t lport_column(lref_t port);
 lref_t lport_row(lref_t port);
-lref_t lport_mode(lref_t obj);
 lref_t lport_name(lref_t port);
 lref_t lport_openp(lref_t obj);
 lref_t lport_set_translate_mode(lref_t port, lref_t mode);

@@ -377,11 +377,13 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_PORT:
-          scwritef(_T("~u~s~cs ~cs ~s"), port,
+          scwritef(_T("~u~cs~cs~cs ~cs ~s"), port,
                    obj,
-                   lport_mode(obj),
-                   BINARY_PORTP(obj) ? "(binary)" : "",
-                   PORT_CLASS(obj)->name, PORT_PINFO(obj)->port_name);
+                   PORT_INPUTP(obj) ? " (input)" : "",
+                   PORT_OUTPUTP(obj) ? " (output)" : "",
+                   BINARY_PORTP(obj) ? " (binary)" : "",
+                   PORT_CLASS(obj)->name,
+                   PORT_PINFO(obj)->port_name);
           break;
 
      case TC_FAST_OP:

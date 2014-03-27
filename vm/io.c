@@ -227,22 +227,6 @@ lref_t lport_openp(lref_t obj)
      return boolcons(!PORT_CLOSEDP(obj));
 }
 
-lref_t lport_mode(lref_t obj)
-{
-     if (!PORTP(obj))
-          vmerror_wrong_type_n(1, obj);
-
-     if (PORT_CLOSEDP(obj))
-          return keyword_intern(_T("closed"));
-     else if (PORT_INPUTP(obj))
-          return keyword_intern(_T("input"));
-     else if (PORT_OUTPUTP(obj))
-          return keyword_intern(_T("output"));
-
-     panic(_T("corrupt port"));
-
-     return NIL;
-}
 
 lref_t lport_name(lref_t port)
 {

@@ -432,7 +432,6 @@ static void register_main_subrs()
     register_subr(_T("port-closed?"),                     SUBR_1,     (void*)lport_closedp                       );
     register_subr(_T("port-column"),                      SUBR_1,     (void*)lport_column                        );
     register_subr(_T("port-row"),                         SUBR_1,     (void*)lport_row                           );
-    register_subr(_T("port-mode"),                        SUBR_1,     (void*)lport_mode                          );
     register_subr(_T("port-name"),                        SUBR_1,     (void*)lport_name                          );
     register_subr(_T("port-open?"),                       SUBR_1,     (void*)lport_openp                         );
     register_subr(_T("port-translate-mode"),              SUBR_1,     (void*)lport_translate_mode                );
