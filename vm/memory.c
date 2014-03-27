@@ -29,7 +29,10 @@
  */
 void *gc_malloc(size_t size)
 {
-     void *block = malloc(size ? size : 1);
+     if (size == 0)
+          size = 1;
+
+     void *block = malloc(size);
 
      if (block == NULL)
      {
@@ -42,8 +45,10 @@ void *gc_malloc(size_t size)
      }
 
      if (DEBUGGING_BUILD && DETAILED_MEMORY_LOG)
-          debug_printf("\"a\", %d, , %d, %d\n",
-                       interp.gc_malloc_blocks, block, size);
+          debug_printf("\"a\", %d, , %d, %d\n", interp.gc_malloc_blocks, block, size);
+
+     interp.gc_malloc_blocks += 1;
+     interp.gc_malloc_bytes += size;
 
      return block;
 }
@@ -197,8 +202,7 @@ static void gc_init_heap_segment(lref_t seg_base)
 
 static bool gc_enlarge_heap()
 {
-     dscwritef(DF_SHOW_GC_DETAILS,
-               (";;; attempting to enlarge heap\n"));
+     dscwritef(DF_SHOW_GC_DETAILS, (";;; attempting to enlarge heap\n"));
 
      if (interp.gc_current_heap_segments > interp.gc_max_heap_segments)
      {
@@ -523,23 +527,17 @@ static void gc_begin_stats(void)
      if (!DEBUG_FLAG(DF_SHOW_GC))
           return;
 
-     size_t bytes_alloced =
-          interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc;
-     size_t blocks_alloced =
-          interp.gc_malloc_blocks - interp.gc_malloc_blocks_at_last_gc;
-
-     if ((bytes_alloced > 0) || (blocks_alloced > 0))
-          dscwritef(DF_ALWAYS,
-                    (_T("; ~cd/~cd C bytes/blocks allocated since last GC.\n"),
-                     bytes_alloced, blocks_alloced));
+     if ((interp.gc_malloc_bytes > 0) || (interp.gc_malloc_blocks > 0))
+          dscwritef(DF_ALWAYS, (_T("; ~cd/~cd C bytes/blocks allocated since last GC.\n"),
+                     interp.gc_malloc_bytes, interp.gc_malloc_blocks));
 
      dscwritef(DF_ALWAYS, (_T("; GC @ T+~cf:"), time_since_launch()));
 }
 
 static double gc_end_stats(void)
 {
-     interp.gc_malloc_bytes_at_last_gc = interp.gc_malloc_bytes;
-     interp.gc_malloc_blocks_at_last_gc = interp.gc_malloc_blocks;
+     interp.gc_malloc_bytes = 0;
+     interp.gc_malloc_blocks = 0;
 
      return gc_end_timer();
 }
@@ -579,18 +577,12 @@ static fixnum_t gc_collect_garbage(void)
 }
 /*** Global freelist enqueue and dequeue */
 
-static bool gc_malloc_past_threshold()
-{
-     return ((interp.gc_malloc_bytes - interp.gc_malloc_bytes_at_last_gc)
-             > interp.gc_malloc_bytes_threshold);
-}
-
 lref_t gc_claim_freelist()
 {
      lref_t new_freelist = NIL;
 
      if (NULLP(interp.gc_global_freelist)
-         || gc_malloc_past_threshold()
+         || (interp.gc_malloc_bytes > interp.gc_malloc_bytes_threshold)
          || ALWAYS_GC)
           gc_collect_garbage();
 
@@ -680,7 +672,7 @@ lref_t lgc()
 
 lref_t lgc_info()
 {
-     lref_t argv[9];
+     lref_t argv[7];
 
      argv[0] = fixcons(gc_count_active_heap_segments());
      argv[1] = fixcons(interp.gc_heap_segment_size);
@@ -688,9 +680,7 @@ lref_t lgc_info()
      argv[3] = fixcons(gc_heap_freelist_length());
      argv[4] = fixcons(interp.gc_total_cells_allocated);
      argv[5] = fixcons(interp.gc_malloc_bytes);
-     argv[6] = fixcons(interp.gc_malloc_bytes_at_last_gc);
-     argv[7] = fixcons(interp.gc_malloc_blocks);
-     argv[8] = fixcons(interp.gc_malloc_blocks_at_last_gc);
+     argv[6] = fixcons(interp.gc_malloc_blocks);
 
-     return lvector(9, argv);
+     return lvector(7, argv);
 }

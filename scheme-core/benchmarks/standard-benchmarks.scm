@@ -339,10 +339,10 @@
     (account
      (with-port p (open-file test-filename :mode :write :encoding :binary)
        (bench-repeat 1048576
-                     (write-binary-fixnum 12345 4 #f p)))
+                     (write-binary-fixnum-u32 12345  p)))
      (with-port p (open-file test-filename :encoding :binary)
        (bench-repeat 1048576
-                     (read-binary-fixnum 4 #f p))))
+                     (read-binary-fixnum-u32 p))))
     (delete-file test-filename)))
 
 (defbench signal-processing

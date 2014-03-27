@@ -92,8 +92,6 @@ struct interpreter_t
 
      size_t gc_malloc_bytes;
      size_t gc_malloc_blocks;
-     size_t gc_malloc_bytes_at_last_gc;
-     size_t gc_malloc_blocks_at_last_gc;
      size_t gc_malloc_bytes_threshold;
 
      flonum_t gc_total_run_time;
