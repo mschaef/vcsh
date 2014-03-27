@@ -195,7 +195,6 @@
 (%define port? #.(host-scheme::%subr-by-name "port?"))
 (%define port-column #.(host-scheme::%subr-by-name "port-column"))
 (%define port-row #.(host-scheme::%subr-by-name "port-row"))
-(%define port-mode #.(host-scheme::%subr-by-name "port-mode"))
 (%define port-name #.(host-scheme::%subr-by-name "port-name"))
 (%define port-translate-mode #.(host-scheme::%subr-by-name "port-translate-mode"))
 (%define primitive? #.(host-scheme::%subr-by-name "primitive?"))

@@ -21,6 +21,20 @@
        (cdr it)
        #f))
 
+(define (port-mode port)
+  "Determine the mode of <port>. The mode will be one of the
+keywords, :input, :output, :input/output, or :closed. If <port> is not
+a port, an error will be signaled."
+  (check port? port)
+  (cond ((and (input-port? port) (output-port? port))
+         :input/output)
+        ((input-port? port)
+         :input)
+        ((output-port? port)
+         :output)
+        (#t
+         :closed)))
+
 (define (port-at-end? port)
   "Returns a boolean signaling if the input port <port> is at its end."
   (eof-object? (peek-char port)))
