@@ -422,7 +422,7 @@ lref_t lwrite_binary_fixnum_u8(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(uint8_t *) bytes = (uint8_t) FIXNM(v);
+     io_encode_uint8(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 1, port);
 }
@@ -434,7 +434,7 @@ lref_t lwrite_binary_fixnum_s8(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(int8_t *) bytes = (int8_t) FIXNM(v);
+     io_encode_int8(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 1, port);
 }
