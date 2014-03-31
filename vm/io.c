@@ -340,42 +340,42 @@ INLINE lref_t lread_binary_fixnum_0(size_t length, bool signedp, lref_t port)
      return lmake_eof();
 }
 
-lref_t lread_binary_fixnum_u8(lref_t port)
+lref_t lread_binary_fixnum_uint8(lref_t port)
 {
      return lread_binary_fixnum_0(1, false, port);
 }
 
-lref_t lread_binary_fixnum_s8(lref_t port)
+lref_t lread_binary_fixnum_int8(lref_t port)
 {
      return lread_binary_fixnum_0(1, true, port);
 }
 
-lref_t lread_binary_fixnum_u16(lref_t port)
+lref_t lread_binary_fixnum_uint16(lref_t port)
 {
      return lread_binary_fixnum_0(2, false, port);
 }
 
-lref_t lread_binary_fixnum_s16(lref_t port)
+lref_t lread_binary_fixnum_int16(lref_t port)
 {
      return lread_binary_fixnum_0(2, true, port);
 }
 
-lref_t lread_binary_fixnum_u32(lref_t port)
+lref_t lread_binary_fixnum_uint32(lref_t port)
 {
      return lread_binary_fixnum_0(4, false, port);
 }
 
-lref_t lread_binary_fixnum_s32(lref_t port)
+lref_t lread_binary_fixnum_int32(lref_t port)
 {
      return lread_binary_fixnum_0(4, true, port);
 }
 
-lref_t lread_binary_fixnum_u64(lref_t port)
+lref_t lread_binary_fixnum_uint64(lref_t port)
 {
      return lread_binary_fixnum_0(8, false, port);
 }
 
-lref_t lread_binary_fixnum_s64(lref_t port)
+lref_t lread_binary_fixnum_int64(lref_t port)
 {
      return lread_binary_fixnum_0(8, true, port);
 }
@@ -413,7 +413,7 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_u8(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_uint8(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
@@ -431,7 +431,7 @@ lref_t lwrite_binary_fixnum_u8(lref_t v, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_s8(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_int8(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
@@ -449,7 +449,7 @@ lref_t lwrite_binary_fixnum_s8(lref_t v, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_u16(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_uint16(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
@@ -467,7 +467,7 @@ lref_t lwrite_binary_fixnum_u16(lref_t v, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_s16(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_int16(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
@@ -485,7 +485,7 @@ lref_t lwrite_binary_fixnum_s16(lref_t v, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_u32(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_uint32(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
@@ -503,7 +503,7 @@ lref_t lwrite_binary_fixnum_u32(lref_t v, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_s32(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_int32(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
@@ -521,7 +521,7 @@ lref_t lwrite_binary_fixnum_s32(lref_t v, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_u64(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_uint64(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
@@ -539,7 +539,7 @@ lref_t lwrite_binary_fixnum_u64(lref_t v, lref_t port)
      return port;
 }
 
-lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
+lref_t lwrite_binary_fixnum_int64(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
