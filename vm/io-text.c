@@ -199,10 +199,12 @@ static int flush_whitespace(lref_t port, bool skip_lisp_comments)
           }
                  
           if (!_istspace(c) && (c != _T('\0')))
-               return c;
+               break;
 
           read_char(port);
      }
+
+     return c;
 }
 
 
