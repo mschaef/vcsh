@@ -147,22 +147,22 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *re
           break;
      case 2:
           if (signedp)
-               *result = (fixnum_t) (*(int16_t *) bytes);
+               *result = io_decode_int16(bytes);
           else
-               *result = (fixnum_t) (*(uint16_t *) bytes);
+               *result = io_decode_uint16(bytes);
           break;
      case 4:
           if (signedp)
-               *result = (fixnum_t) (*(int32_t *) bytes);
+               *result = io_decode_int32(bytes);
           else
-               *result = (fixnum_t) (*(uint32_t *) bytes);
+               *result = io_decode_uint32(bytes);
           break;
 #ifdef SCAN_64BIT
      case 8:
           if (signedp)
-               *result = (fixnum_t) (*(int64_t *) bytes);
+               *result = io_decode_int64(bytes);
           else
-               *result = (fixnum_t) (*(uint64_t *) bytes);
+               *result = io_decode_uint64(bytes);
           break;
 #endif
      default:
@@ -456,7 +456,7 @@ lref_t lwrite_binary_fixnum_u16(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(uint16_t *) bytes = (uint16_t) FIXNM(v);
+     io_encode_uint16(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 2, port);
 }
@@ -468,7 +468,7 @@ lref_t lwrite_binary_fixnum_s16(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(int16_t *) bytes = (int16_t) FIXNM(v);
+     io_encode_int16(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 2, port);
 }
@@ -480,7 +480,7 @@ lref_t lwrite_binary_fixnum_u32(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(uint32_t *) bytes = (uint32_t) FIXNM(v);
+     io_encode_uint32(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 4, port);
 }
@@ -492,7 +492,7 @@ lref_t lwrite_binary_fixnum_s32(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(int32_t *) bytes = (int32_t) FIXNM(v);
+     io_encode_int32(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 4, port);
 }
@@ -504,7 +504,7 @@ lref_t lwrite_binary_fixnum_u64(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(uint64_t *) bytes = (uint64_t) FIXNM(v);
+     io_encode_uint64(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 8, port);
 }
@@ -516,7 +516,7 @@ lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(fixnum_t)];
 
-     *(int64_t *) bytes = (int64_t) FIXNM(v);
+     io_encode_int64(bytes, FIXNM(v));
 
      return lwrite_binary_fixnum_0(bytes, 8, port);
 }

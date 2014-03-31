@@ -562,6 +562,7 @@ static void load_init_load_files()
 
 void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags)
 {
+
      global_environment_asserts();
 
      previous_panic_handler = set_panic_handler(scan_panic_handler);
