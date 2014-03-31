@@ -413,20 +413,11 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
      return port;
 }
 
-INLINE lref_t lwrite_binary_fixnum_0(uint8_t bytes[], size_t length, lref_t port)
+lref_t lwrite_binary_fixnum_u8(lref_t v, lref_t port)
 {
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
 
-     if (write_bytes(port, bytes, length) != length)
-          vmerror_io_error(_T("error writing to port."), port);
-
-     return port;
-}
-
-
-lref_t lwrite_binary_fixnum_u8(lref_t v, lref_t port)
-{
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -434,11 +425,17 @@ lref_t lwrite_binary_fixnum_u8(lref_t v, lref_t port)
 
      io_encode_uint8(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 1, port);
+     if(write_bytes(port, bytes, 1) !=  1)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lwrite_binary_fixnum_s8(lref_t v, lref_t port)
 {
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
+
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -446,11 +443,17 @@ lref_t lwrite_binary_fixnum_s8(lref_t v, lref_t port)
 
      io_encode_int8(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 1, port);
+     if(write_bytes(port, bytes, 1) !=  1)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lwrite_binary_fixnum_u16(lref_t v, lref_t port)
 {
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
+
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -458,11 +461,17 @@ lref_t lwrite_binary_fixnum_u16(lref_t v, lref_t port)
 
      io_encode_uint16(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 2, port);
+     if(write_bytes(port, bytes, 2) !=  2)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lwrite_binary_fixnum_s16(lref_t v, lref_t port)
 {
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
+
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -470,11 +479,17 @@ lref_t lwrite_binary_fixnum_s16(lref_t v, lref_t port)
 
      io_encode_int16(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 2, port);
+     if(write_bytes(port, bytes, 2) !=  2)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lwrite_binary_fixnum_u32(lref_t v, lref_t port)
 {
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
+
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -482,11 +497,17 @@ lref_t lwrite_binary_fixnum_u32(lref_t v, lref_t port)
 
      io_encode_uint32(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 4, port);
+     if(write_bytes(port, bytes, 4) !=  4)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lwrite_binary_fixnum_s32(lref_t v, lref_t port)
 {
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
+
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -494,11 +515,17 @@ lref_t lwrite_binary_fixnum_s32(lref_t v, lref_t port)
 
      io_encode_int32(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 4, port);
+     if(write_bytes(port, bytes, 4) !=  4)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lwrite_binary_fixnum_u64(lref_t v, lref_t port)
 {
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
+
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -506,11 +533,17 @@ lref_t lwrite_binary_fixnum_u64(lref_t v, lref_t port)
 
      io_encode_uint64(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 8, port);
+     if(write_bytes(port, bytes, 8) !=  8)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
 {
+     if (!BINARY_PORTP(port))
+          vmerror_wrong_type_n(2, port);
+
      if (!FIXNUMP(v))
           vmerror_wrong_type_n(1, v);
 
@@ -518,7 +551,10 @@ lref_t lwrite_binary_fixnum_s64(lref_t v, lref_t port)
 
      io_encode_int64(bytes, FIXNM(v));
 
-     return lwrite_binary_fixnum_0(bytes, 8, port);
+     if(write_bytes(port, bytes, 8) !=  8)
+          vmerror_io_error(_T("error writing to port."), port);
+
+     return port;
 }
 
 lref_t lbinary_write_flonum(lref_t v, lref_t port)
