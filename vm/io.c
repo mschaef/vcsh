@@ -133,26 +133,36 @@ bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *re
      assert(BINARY_PORTP(port));
 
      uint8_t bytes[sizeof(fixnum_t)];
-     size_t fixnums_read = read_bytes(port, bytes, (size_t)length);
 
-     if (!fixnums_read)
+     if (read_bytes(port, bytes, (size_t)length) <= 0)
           return false;
-
 
      switch (length)
      {
      case 1:
-          *result = (signedp ? (fixnum_t) (*(int8_t *) bytes) : (fixnum_t) (*(uint8_t *) bytes));
+          if (signedp)
+               *result = io_decode_int8(bytes);
+          else
+               *result = io_decode_uint8(bytes);
           break;
      case 2:
-          *result = (signedp ? (fixnum_t) (*(int16_t *) bytes) : (fixnum_t) (*(uint16_t *) bytes));
+          if (signedp)
+               *result = (fixnum_t) (*(int16_t *) bytes);
+          else
+               *result = (fixnum_t) (*(uint16_t *) bytes);
           break;
      case 4:
-          *result = (signedp ? (fixnum_t) (*(int32_t *) bytes) : (fixnum_t) (*(uint32_t *) bytes));
+          if (signedp)
+               *result = (fixnum_t) (*(int32_t *) bytes);
+          else
+               *result = (fixnum_t) (*(uint32_t *) bytes);
           break;
 #ifdef SCAN_64BIT
      case 8:
-          *result = (signedp ? (fixnum_t) (*(int64_t *) bytes) : (fixnum_t) (*(uint64_t *) bytes));
+          if (signedp)
+               *result = (fixnum_t) (*(int64_t *) bytes);
+          else
+               *result = (fixnum_t) (*(uint64_t *) bytes);
           break;
 #endif
      default:
