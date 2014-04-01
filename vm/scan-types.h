@@ -145,10 +145,6 @@ struct lobject_t
           } cons;
           struct
           {
-               fixnum_t data;
-          } fixnum;
-          struct
-          {
                flonum_t data;
                lref_t im_part;
           } flonum;
@@ -526,21 +522,10 @@ INLINE lref_t SET_NEXT_FREE_CELL(lref_t x, lref_t next)
 
 /*** fix/flonum ***/
 
-INLINE fixnum_t *_FIXNM(lref_t x)
-{
-     checked_assert(FIXNUMP(x));
-
-     return &((*x).storage_as.fixnum.data);
-}
-
 INLINE fixnum_t FIXNM(lref_t x)
 {
      checked_assert(FIXNUMP(x));
-
-     if (LREF1_TAG(x) == LREF1_FIXNUM)
-          return LREF1_VAL(x);
-
-     return ((*x).storage_as.fixnum.data);
+     return LREF1_VAL(x);
 }
 
 INLINE flonum_t FLONM(lref_t x)
