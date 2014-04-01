@@ -179,7 +179,7 @@ static void fast_read_character(lref_t reader, lref_t * retval)
 }
 
 
-static void fast_read_integer(lref_t reader, size_t length, lref_t * retval)
+static void fast_read_fixnum(lref_t reader, size_t length, lref_t * retval)
 {
      fixnum_t data = 0;
 
@@ -189,7 +189,7 @@ static void fast_read_integer(lref_t reader, size_t length, lref_t * retval)
           *retval = lmake_eof();
 }
 
-static void fast_read_float(lref_t reader, bool complex, lref_t * retval)
+static void fast_read_flonum(lref_t reader, bool complex, lref_t * retval)
 {
      flonum_t real_part = 0.0;
      flonum_t imag_part = 0.0;
@@ -691,27 +691,27 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
                break;
 
           case FASL_OP_FIX8:
-               fast_read_integer(reader, 1, retval);
+               fast_read_fixnum(reader, 1, retval);
                break;
 
           case FASL_OP_FIX16:
-               fast_read_integer(reader, 2, retval);
+               fast_read_fixnum(reader, 2, retval);
                break;
 
           case FASL_OP_FIX32:
-               fast_read_integer(reader, 4, retval);
+               fast_read_fixnum(reader, 4, retval);
                break;
 
           case FASL_OP_FIX64:
-               fast_read_integer(reader, 8, retval);
+               fast_read_fixnum(reader, 8, retval);
                break;
 
           case FASL_OP_FLOAT:
-               fast_read_float(reader, false, retval);
+               fast_read_flonum(reader, false, retval);
                break;
 
           case FASL_OP_COMPLEX:
-               fast_read_float(reader, true, retval);
+               fast_read_flonum(reader, true, retval);
                break;
 
           case FASL_OP_STRING:
