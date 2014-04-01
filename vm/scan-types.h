@@ -18,30 +18,38 @@
 #include "scan-constants.h"
 #include "scan-sys.h"
 
+/*** Constants for the two level tagging scheme ***/
+
+enum lref_tag_t
+{
+     /* First tagging stage, least sig two bits. */
+     LREF1_TAG_MASK = 0x3,
+     LREF1_TAG_SHIFT = 2,
+     LREF1_REF = 0x0,
+     LREF1_FIXNUM = 0x1,
+     LREF1_SPECIAL = 0x3,       /*  signals second stage tagging */
+
+     /* Second tagging stage, least sig five bits. */
+     LREF2_TAG_MASK = 0x1F,
+     LREF2_TAG_SHIFT = 5,
+     LREF2_BOOL = LREF1_TAG_MASK | (0x1 << 2),
+     LREF2_CHARACTER = LREF1_TAG_MASK | (0x2 << 2),
+     LREF2_EOF = LREF1_TAG_MASK | (0x3 << 2),
+     LREF2_UNBOUND = LREF1_TAG_MASK | (0x4 << 2),
+};
+
 /*** Fixnum and Flonum ***/
 
-#ifdef SCAN_64BIT
-typedef int64_t fixnum_t;
-typedef uint64_t unsigned_fixnum_t;
+typedef intptr_t fixnum_t;
+typedef uintptr_t unsigned_fixnum_t;
 
-#   define FIXNUM_BITS (64)
-#   define FIXNUM_MAX           INT64_MAX
-#   define FIXNUM_MIN           INT64_MIN
-#   define FIXNUM_UNSIGNED_MAX  UINT64_MAX
-#   define FIXNUM_UNSIGNED_MIN  UINT64_MIN
-#   define PRINTF_PREFIX_FIXNUM PRINTF_PREFIX_INT64
+#define FIXNUM_BITS          64
+#define FIXNUM_MAX           (INTPTR_MAX >> LREF1_TAG_SHIFT)
+#define FIXNUM_MIN           (INTPTR_MIN >> LREF1_TAG_SHIFT)
+#define FIXNUM_UNSIGNED_MAX  (UINTPTR_MAX >> LREF1_TAG_SHIFT)
+#define FIXNUM_UNSIGNED_MIN  (UINTPTR_MIN >> LREF1_TAG_SHIFT)
+#define PRINTF_PREFIX_FIXNUM PRINTF_PREFIX_INT64
 
-#else
-typedef int32_t fixnum_t;
-typedef uint32_t unsigned_fixnum_t;
-
-#   define FIXNUM_BITS (32)
-#   define FIXNUM_MAX           INT32_MAX
-#   define FIXNUM_MIN           INT32_MIN
-#   define FIXNUM_UNSIGNED_MAX  UINT32_MAX
-#   define FIXNUM_UNSIGNED_MIN  UINT32_MIN
-#   define PRINTF_PREFIX_FIXNUM ""
-#endif
 
 typedef double flonum_t;
 
@@ -58,34 +66,7 @@ struct lobject_t;
 typedef struct lobject_t *lref_t;
 struct fasl_stream_t;
 
-/*** Constants for the two level tagging scheme ***/
-
-enum lref_tag_t
-{
-     /* First tagging stage, least sig two bits. */
-     LREF1_TAG_MASK = 0x3,
-     LREF1_TAG_SHIFT = 2,
-     LREF1_REF = 0x0,
-     LREF1_FIXNUM = 0x1,
-     LREF1_SPECIAL = 0x3,       /*  signals second stage tagging */
-
-
-     /* Second tagging stage, least sig five bits. */
-     LREF2_TAG_MASK = 0x1F,
-     LREF2_TAG_SHIFT = 5,
-     LREF2_BOOL = LREF1_TAG_MASK | (0x1 << 2),
-     LREF2_CHARACTER = LREF1_TAG_MASK | (0x2 << 2),
-     LREF2_EOF = LREF1_TAG_MASK | (0x3 << 2),
-     LREF2_UNBOUND = LREF1_TAG_MASK | (0x4 << 2),
-};
-
 #define UNBOUND_MARKER ((lref_t)LREF2_UNBOUND)
-
-enum
-{
-     MAX_LREF_FIXNUM = INT32_MAX >> LREF1_TAG_SHIFT,
-     MIN_LREF_FIXNUM = INT32_MIN >> LREF1_TAG_SHIFT,
-};
 
 INLINE lref_t MAKE_LREF1(enum lref_tag_t tag, intptr_t val)
 {

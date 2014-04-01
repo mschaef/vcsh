@@ -29,7 +29,7 @@
 
 lref_t fixcons(fixnum_t x)
 {
-     if ((x <= MAX_LREF_FIXNUM) && (x >= MIN_LREF_FIXNUM))
+     if ((x <= FIXNUM_MAX) && (x >= FIXNUM_MIN))
           return MAKE_LREF1(LREF1_FIXNUM, (intptr_t) x);
 
      lref_t retval = new_cell(TC_FIXNUM);

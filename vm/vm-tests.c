@@ -59,7 +59,7 @@ static void test_encode_decode_int(void (* encode)(uint8_t *buf, fixnum_t num),
           ii2 = decode(buf);
 
           if (TEST_ASSERT(ii == ii2))
-               fprintf(stderr, _T("%" PRINTF_PREFIX_FIXNUM "i != %" PRINTF_PREFIX_FIXNUM "i\n"), ii, ii2);
+               fprintf(stderr, _T("%" SCAN_PRIiFIXNUM " != %" SCAN_PRIiFIXNUM "\n"), ii, ii2);
      }
 }
 
@@ -75,7 +75,7 @@ static void test_encode_decode_uint(void (* encode)(uint8_t *buf, unsigned_fixnu
           ii2 = decode(buf);
 
           if (TEST_ASSERT(ii == ii2))
-               fprintf(stderr, _T("%" PRINTF_PREFIX_FIXNUM "i != %" PRINTF_PREFIX_FIXNUM "i\n"), ii, ii2);
+               fprintf(stderr, _T("%" SCAN_PRIiFIXNUM "i != %" SCAN_PRIiFIXNUM "i\n"), ii, ii2);
      }
 }
 

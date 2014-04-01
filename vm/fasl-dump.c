@@ -69,10 +69,10 @@ void show_opcode(size_t offset, enum fasl_opcode_t opcode, const _TCHAR *desc)
     }
 
   if (g_show_file_offsets)
-       printf(" 0x%08" PRINTF_PREFIX_SIZE_T "x", offset);
+       printf(" 0x%08" SCAN_PRIxSIZET "", offset);
 
   if (g_show_defn_offsets)
-       printf(" (D+0x%08" PRINTF_PREFIX_SIZE_T "x) ", offset - last_definition_offset);
+       printf(" (D+0x%08" SCAN_PRIxSIZET ") ", offset - last_definition_offset);
 
   indent();
 
@@ -193,7 +193,7 @@ static void dump_list(bool read_listd)
     dump_error("lists must have a fixnum length");
 
   for(fixnum_t ii = 0; ii < length; ii++) {
-      _sntprintf(buf, STRBUF_SIZE, _T("item[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("item[%" SCAN_PRIiFIXNUM "]"), ii);
 
       op = dump_next_object(buf, NULL);
 
@@ -233,7 +233,7 @@ static void dump_fixnum(size_t length, fixnum_t *fixnum_value)
     *fixnum_value = buf;
 
   if (g_show_fixnums)
-       _tprintf(_T("%" PRINTF_PREFIX_FIXNUM "i"), buf);
+       _tprintf(_T("%" SCAN_PRIiFIXNUM), buf);
   else
        _tprintf(_T("<suppressed>"));
 }
@@ -325,7 +325,7 @@ static void dump_vector()
 
   for(fixnum_t ii = 0; ii < length; ii++)
     {
-      _sntprintf(buf, STRBUF_SIZE, _T("item[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("item[%" SCAN_PRIiFIXNUM "]"), ii);
 
       op = dump_next_object(buf, NULL);
 
@@ -420,7 +420,7 @@ static void dump_fast_op(int arity, bool has_next)
 
   for(fixnum_t ii = 0; ii < arity; ii++)
     {
-      _sntprintf(buf, STRBUF_SIZE, _T("operand[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("operand[%" SCAN_PRIiFIXNUM "]"), ii);
 
       dump_next_object(buf, NULL);
     }
@@ -443,7 +443,7 @@ static void dump_structure()
 
   for(fixnum_t ii = 0; ii < length; ii++)
     {
-      _sntprintf(buf, STRBUF_SIZE, _T("slot[%" PRINTF_PREFIX_FIXNUM "i]"), ii);
+      _sntprintf(buf, STRBUF_SIZE, _T("slot[%" SCAN_PRIiFIXNUM "i]"), ii);
 
       op = dump_next_object(buf, NULL);
 
@@ -660,7 +660,7 @@ int dump_file(char *filename)
   fixnum_t object_number = 0;
 
   for(;;) {
-    _sntprintf(buf, STRBUF_SIZE, _T("top[%" PRINTF_PREFIX_FIXNUM "i]"), object_number);
+    _sntprintf(buf, STRBUF_SIZE, _T("top[%" SCAN_PRIiFIXNUM "]"), object_number);
 
     if (dump_next_object(buf, NULL) == FASL_OP_EOF)
       break;

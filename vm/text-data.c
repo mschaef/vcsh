@@ -616,23 +616,23 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
           {
           case 10:
                if (signedp)
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "i"), FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" SCAN_PRIiFIXNUM), FIXNM(x));
                else
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "u"), FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" SCAN_PRIuFIXNUM), FIXNM(x));
                break;
 
           case 16:
                if (!signedp || (FIXNM(x) > 0))
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "x"), FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" SCAN_PRIxFIXNUM), FIXNM(x));
                else
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "x"), -FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" SCAN_PRIxFIXNUM), -FIXNM(x));
                break;
 
           case 8:
                if (!signedp || (FIXNM(x) > 0))
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "o"), FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("%" SCAN_PRIoFIXNUM), FIXNM(x));
                else
-                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" PRINTF_PREFIX_FIXNUM "o"), -FIXNM(x));
+                    _sntprintf(buffer, STACK_STRBUF_LEN, _T("-%" SCAN_PRIoFIXNUM), -FIXNM(x));
                break;
 
           default:

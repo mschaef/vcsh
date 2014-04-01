@@ -264,7 +264,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_FIXNUM:
-          _sntprintf(buf, STACK_STRBUF_LEN, _T("%" PRINTF_PREFIX_FIXNUM "i"), FIXNM(obj));
+          _sntprintf(buf, STACK_STRBUF_LEN, _T("%" SCAN_PRIiFIXNUM), FIXNM(obj));
           write_text(port, buf, _tcslen(buf));
           break;
 
