@@ -168,14 +168,14 @@ static void fast_read_character(lref_t reader, lref_t * retval)
 {
      fixnum_t data = 0;
 
-     if (read_binary_fixnum(1, false, FASL_READER_PORT(reader), &data))
-     {
-          assert((data >= _TCHAR_MIN) && (data <= _TCHAR_MAX));
-
-          *retval = charcons((_TCHAR) data);
-     }
-     else
+     if (!read_binary_fixnum(1, false, FASL_READER_PORT(reader), &data)) {
           *retval = lmake_eof();
+          return;
+     }
+
+     assert((data >= _TCHAR_MIN) && (data <= _TCHAR_MAX));
+
+     *retval = charcons((_TCHAR) data);
 }
 
 
@@ -194,20 +194,20 @@ static void fast_read_flonum(lref_t reader, bool complex, lref_t * retval)
      flonum_t real_part = 0.0;
      flonum_t imag_part = 0.0;
 
-     if (read_binary_flonum(FASL_READER_PORT(reader), &real_part))
-     {
-          if (complex)
-          {
-               if (read_binary_flonum(FASL_READER_PORT(reader), &imag_part))
-                    *retval = cmplxcons(real_part, imag_part);
-               else
-                    vmerror_fast_read("incomplete complex number", reader, NIL);
-          }
-          else
-               *retval = flocons(real_part);
-     }
-     else
+     if (!read_binary_flonum(FASL_READER_PORT(reader), &real_part)) {
           *retval = lmake_eof();
+          return;
+     }
+
+     if (!complex) {
+          *retval = flocons(real_part);
+          return;
+     }
+
+     if (!read_binary_flonum(FASL_READER_PORT(reader), &imag_part))
+          vmerror_fast_read("incomplete complex number", reader, NIL);
+
+     *retval = cmplxcons(real_part, imag_part);          
 }
 
 
