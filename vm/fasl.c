@@ -118,10 +118,10 @@ static enum fasl_opcode_t fast_read_opcode(lref_t reader)
 {
      fixnum_t opcode = FASL_OP_EOF;
 
-     if (read_binary_fixnum(1, false, FASL_READER_PORT(reader), &opcode))
+     if (read_binary_fixnum_uint8(FASL_READER_PORT(reader), &opcode))
           return (enum fasl_opcode_t) opcode;
-     else
-          return FASL_OP_EOF;
+
+     return FASL_OP_EOF;
 }
 
 static void fast_read_list(lref_t reader, bool read_listd, lref_t * list)
@@ -168,7 +168,7 @@ static void fast_read_character(lref_t reader, lref_t * retval)
 {
      fixnum_t data = 0;
 
-     if (!read_binary_fixnum(1, false, FASL_READER_PORT(reader), &data)) {
+     if (!read_binary_fixnum_uint8(FASL_READER_PORT(reader), &data)) {
           *retval = lmake_eof();
           return;
      }
@@ -179,15 +179,46 @@ static void fast_read_character(lref_t reader, lref_t * retval)
 }
 
 
-static void fast_read_fixnum(lref_t reader, size_t length, lref_t * retval)
+static void fast_read_fixnum_int8(lref_t reader, lref_t * retval)
 {
      fixnum_t data = 0;
 
-     if (read_binary_fixnum(length, true, FASL_READER_PORT(reader), &data))
+     if (read_binary_fixnum_int8(FASL_READER_PORT(reader), &data))
           *retval = fixcons(data);
      else
           *retval = lmake_eof();
 }
+
+static void fast_read_fixnum_int16(lref_t reader, lref_t * retval)
+{
+     fixnum_t data = 0;
+
+     if (read_binary_fixnum_int16(FASL_READER_PORT(reader), &data))
+          *retval = fixcons(data);
+     else
+          *retval = lmake_eof();
+}
+
+static void fast_read_fixnum_int32(lref_t reader, lref_t * retval)
+{
+     fixnum_t data = 0;
+
+     if (read_binary_fixnum_int32(FASL_READER_PORT(reader), &data))
+          *retval = fixcons(data);
+     else
+          *retval = lmake_eof();
+}
+
+static void fast_read_fixnum_int64(lref_t reader, lref_t * retval)
+{
+     fixnum_t data = 0;
+
+     if (read_binary_fixnum_int64(FASL_READER_PORT(reader), &data))
+          *retval = fixcons(data);
+     else
+          *retval = lmake_eof();
+}
+
 
 static void fast_read_flonum(lref_t reader, bool complex, lref_t * retval)
 {
@@ -691,19 +722,19 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
                break;
 
           case FASL_OP_FIX8:
-               fast_read_fixnum(reader, 1, retval);
+               fast_read_fixnum_int8(reader, retval);
                break;
 
           case FASL_OP_FIX16:
-               fast_read_fixnum(reader, 2, retval);
+               fast_read_fixnum_int16(reader, retval);
                break;
 
           case FASL_OP_FIX32:
-               fast_read_fixnum(reader, 4, retval);
+               fast_read_fixnum_int32(reader, retval);
                break;
 
           case FASL_OP_FIX64:
-               fast_read_fixnum(reader, 8, retval);
+               fast_read_fixnum_int64(reader, retval);
                break;
 
           case FASL_OP_FLOAT:

@@ -125,71 +125,6 @@ lref_t portcons(struct port_class_t * cls,
                             cls, port_name, mode, user_object, user_data);
 }
 
-/***** C I/O functions *****/
-
-
-bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result)
-{
-     assert(BINARY_PORTP(port));
-
-     uint8_t bytes[sizeof(fixnum_t)];
-
-     if (read_bytes(port, bytes, (size_t)length) <= 0)
-          return false;
-
-     switch (length)
-     {
-     case 1:
-          if (signedp)
-               *result = io_decode_int8(bytes);
-          else
-               *result = io_decode_uint8(bytes);
-          break;
-     case 2:
-          if (signedp)
-               *result = io_decode_int16(bytes);
-          else
-               *result = io_decode_uint16(bytes);
-          break;
-     case 4:
-          if (signedp)
-               *result = io_decode_int32(bytes);
-          else
-               *result = io_decode_uint32(bytes);
-          break;
-#ifdef SCAN_64BIT
-     case 8:
-          if (signedp)
-               *result = io_decode_int64(bytes);
-          else
-               *result = io_decode_uint64(bytes);
-          break;
-#endif
-     default:
-          assert(!"Invalid length in read_binary_fixnum"); 
-     }
-
-     return true;
-}
-
- 
-
-bool read_binary_flonum(lref_t port, flonum_t *result)
-{
-     assert(BINARY_PORTP(port));
-
-     uint8_t bytes[sizeof(flonum_t)];
-     size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t));
-
-     if (!flonums_read)
-          return false;
-
-     *result = *(flonum_t *) bytes;
-
-     return true;
-}
-
-
 /***** Lisp-visible port functions *****/
 
 lref_t lportp(lref_t obj)
@@ -326,58 +261,58 @@ lref_t lread_binary_string(lref_t l, lref_t port)
      return new_str;
 }
 
+#define MAKE_LREAD_BINARY_FIXNUM(cTypeName)                              \
+                                                                         \
+     bool read_binary_fixnum_##cTypeName(lref_t port, fixnum_t *result)  \
+     {                                                                   \
+          assert(BINARY_PORTP(port));                                    \
+                                                                         \
+          uint8_t buf[sizeof(cTypeName##_t)];                            \
+                                                                         \
+          if (read_bytes(port, buf, sizeof(buf)) != sizeof(buf))         \
+               return false;                                             \
+                                                                         \
+          *result = io_decode_##cTypeName(buf);                          \
+                                                                         \
+          return true;                                                   \
+     }                                                                   \
+                                                                         \
+     lref_t lread_binary_fixnum_##cTypeName(lref_t port)                 \
+     {                                                                   \
+          if (!BINARY_PORTP(port))                                       \
+               vmerror_wrong_type_n(1, port);                            \
+                                                                         \
+          fixnum_t result = 0;                                           \
+                                                                         \
+          if (read_binary_fixnum_##cTypeName(port, &result))             \
+               return fixcons(result);                                   \
+                                                                         \
+          return lmake_eof();                                            \
+     }
 
-INLINE lref_t lread_binary_fixnum_0(size_t length, bool signedp, lref_t port)
+MAKE_LREAD_BINARY_FIXNUM(uint8)
+MAKE_LREAD_BINARY_FIXNUM(int8)
+MAKE_LREAD_BINARY_FIXNUM(uint16)
+MAKE_LREAD_BINARY_FIXNUM(int16)
+MAKE_LREAD_BINARY_FIXNUM(uint32)
+MAKE_LREAD_BINARY_FIXNUM(int32)
+MAKE_LREAD_BINARY_FIXNUM(uint64)
+MAKE_LREAD_BINARY_FIXNUM(int64)
+
+
+bool read_binary_flonum(lref_t port, flonum_t *result)
 {
-     if (!BINARY_PORTP(port))
-          vmerror_wrong_type_n(1, port);
+     assert(BINARY_PORTP(port));
 
-     fixnum_t result = 0;
+     uint8_t bytes[sizeof(flonum_t)];
+     size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t));
 
-     if (read_binary_fixnum(length, signedp, port, &result))
-          return fixcons(result);
+     if (!flonums_read)
+          return false;
 
-     return lmake_eof();
-}
+     *result = *(flonum_t *) bytes;
 
-lref_t lread_binary_fixnum_uint8(lref_t port)
-{
-     return lread_binary_fixnum_0(1, false, port);
-}
-
-lref_t lread_binary_fixnum_int8(lref_t port)
-{
-     return lread_binary_fixnum_0(1, true, port);
-}
-
-lref_t lread_binary_fixnum_uint16(lref_t port)
-{
-     return lread_binary_fixnum_0(2, false, port);
-}
-
-lref_t lread_binary_fixnum_int16(lref_t port)
-{
-     return lread_binary_fixnum_0(2, true, port);
-}
-
-lref_t lread_binary_fixnum_uint32(lref_t port)
-{
-     return lread_binary_fixnum_0(4, false, port);
-}
-
-lref_t lread_binary_fixnum_int32(lref_t port)
-{
-     return lread_binary_fixnum_0(4, true, port);
-}
-
-lref_t lread_binary_fixnum_uint64(lref_t port)
-{
-     return lread_binary_fixnum_0(8, false, port);
-}
-
-lref_t lread_binary_fixnum_int64(lref_t port)
-{
-     return lread_binary_fixnum_0(8, true, port);
+     return true;
 }
 
 lref_t lread_binary_flonum(lref_t port)

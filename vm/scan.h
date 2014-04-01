@@ -132,7 +132,15 @@ size_t write_text(lref_t port, const _TCHAR * buf, size_t count);
 int read_char(lref_t port);
 int peek_char(lref_t port);
 
-bool read_binary_fixnum(fixnum_t length, bool signedp, lref_t port, fixnum_t *result);
+bool read_binary_fixnum_uint8(lref_t port, fixnum_t *result);
+bool read_binary_fixnum_int8(lref_t port, fixnum_t *result);
+bool read_binary_fixnum_uint16(lref_t port, fixnum_t *result);
+bool read_binary_fixnum_int16(lref_t port, fixnum_t *result);
+bool read_binary_fixnum_uint32(lref_t port, fixnum_t *result);
+bool read_binary_fixnum_int32(lref_t port, fixnum_t *result);
+bool read_binary_fixnum_uint64(lref_t port, fixnum_t *result);
+bool read_binary_fixnum_int64(lref_t port, fixnum_t *result);
+
 bool read_binary_flonum(lref_t port, flonum_t *result);
 
 /**** Internal Files and Blocking Input Ports ****/
