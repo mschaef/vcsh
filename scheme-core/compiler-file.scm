@@ -303,7 +303,7 @@
       (begin
         (trace-message #t "; Runtime error during compile:\n;   ~I\n"
                        (hash-ref error-info :message)
-                       (hash-ref error-info :arg))
+                       (hash-ref error-info :args))
         (end-compile-abnormally 127))))
 
 (define (parse-compiler-filename-arguments input-filename output-filename)
