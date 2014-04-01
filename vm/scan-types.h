@@ -123,15 +123,18 @@ struct hash_entry_t
 #pragma pack(push, 4)
 struct lobject_t
 {
-     struct
+     union
      {
-          enum typecode_t type:8;
-          unsigned int opcode:8;
-          unsigned int gc_mark:1;
-#ifdef SCAN_64BIT
-          unsigned int pad:32;  /*  Explicit pad to keep the LP64 header the same size as an LP64 pointer. */
-#endif
-     } header;
+          struct
+          {
+               enum typecode_t type:8;
+               unsigned int opcode:8;
+               unsigned int gc_mark:1;
+          } header;
+
+          /* Headers must be at least one pointer in size. */
+          uintptr_t header_min_size;
+     };
 
      union
      {
