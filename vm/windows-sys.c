@@ -1,11 +1,10 @@
-
 /*
- * windows-sys.cpp --
+ * windows-sys.c --
  *
  * Windows specific system functions. This implements the API
  * defined in scan-sys.h.
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2014 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution

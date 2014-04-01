@@ -1,10 +1,9 @@
-
 /*
- * io-external-file.cpp --
+ * io-external-file.c --
  *
  * An I/O port class used to access external files.
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2014 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution

@@ -5,7 +5,7 @@
  * This is the FASL loader: it reads FASL format objects from a binary port.
  *
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-b1 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution

@@ -1,6 +1,5 @@
-
 /*
- * mt19937.cpp --
+ * mt19937.c --
  *
  * Mersenne Twister RNG, from the official site:
  *

@@ -1,13 +1,12 @@
-
 /*
- * debug-printer.cpp --
+ * debug-printer.c --
  *
  * The debug printer. This is the printer used to print Lisp objects
  * from C code, and it's supposed to work, even if the lisp interpreter
  * is in an odd state and cannot be trusted.
  *
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2014 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution

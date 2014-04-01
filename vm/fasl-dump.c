@@ -1,11 +1,11 @@
 /*
- * fasl-dump.cpp --
+ * fasl-dump.c --
  *
  * A stand alone utility for dumping the contents of a FASL file in
  * a human readable format.
  *
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2014 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution

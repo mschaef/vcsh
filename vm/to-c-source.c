@@ -1,11 +1,10 @@
-
 /*
- * to-c-source.cpp --
+ * to-c-source.c --
  *
  * A utility for dumping the contents of a file into source text that
  * can be read as a variable declaration by a c compiler.
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2014 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution

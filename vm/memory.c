@@ -1,11 +1,10 @@
-
 /*
- * memory.cpp --
+ * memory.c --
  *
  * Garbage collected heap management. The GC heap is a heap of lobject_t's
  * managed by a conservative mark and sweep  garbage collector.
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2014 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution

@@ -1,9 +1,9 @@
 /*
- * io.cpp --
+ * io.c --
  *
  * The I/O subsystem. This tries to be as R5RS compliant as possible.
  *
- * (C) Copyright 2001-2011 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2014 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
  * See the file "license.terms" for information on usage and redistribution
