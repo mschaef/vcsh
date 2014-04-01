@@ -87,7 +87,7 @@ void show_opcode(size_t offset, enum fasl_opcode_t opcode, const _TCHAR *desc)
   printf(":");
 }
 
-size_t fdread_binary(void *buf, size_t size, size_t count, size_t *ofs)
+static size_t fdread_binary(void *buf, size_t size, size_t count, size_t *ofs)
 {
   size_t blocks_read;
 
@@ -101,25 +101,46 @@ size_t fdread_binary(void *buf, size_t size, size_t count, size_t *ofs)
   return blocks_read;
 }
 
-bool fdread_binary_fixnum(fixnum_t length, bool signedp, fixnum_t *result, size_t *ofs)
+static bool fdread_binary_fixnum_uint8(uint8_t *result, size_t *ofs)
 {
   uint8_t bytes[sizeof(fixnum_t)];
-  size_t fixnums_read = fdread_binary(bytes, (size_t)length, 1, ofs);
 
-  if (!fixnums_read)
-    return false;
+  if (!fdread_binary(bytes, 1, 1, ofs))
+       return false;
 
-  switch(length)
-    {
-    case 1: *result = (signedp ? (fixnum_t)(*(int8_t *)bytes) : (fixnum_t)(*(uint8_t  *)bytes)); break;
-    case 2: *result = (signedp ? (fixnum_t)(*(int16_t *)bytes) : (fixnum_t)(*(uint16_t *)bytes)); break;
-    case 4: *result = (signedp ? (fixnum_t)(*(int32_t *)bytes) : (fixnum_t)(*(uint32_t *)bytes)); break;
+  *result = io_decode_uint8(bytes);
+
+  return true;
+}
+
+static bool fdread_binary_fixnum(fixnum_t length, fixnum_t *result, size_t *ofs)
+{
+  uint8_t bytes[sizeof(fixnum_t)];
+
+  if (!fdread_binary(bytes, (size_t)length, 1, ofs))
+       return false;
+
+  switch(length) {
+  case 1:
+       *result = io_decode_uint8(bytes);
+       break;
+
+  case 2:
+       *result = io_decode_uint16(bytes);
+       break;
+
+  case 4:
+       *result = io_decode_uint32(bytes);
+       break;
+
 #ifdef SCAN_64BIT
-    case 8: *result = (signedp ? (fixnum_t)(*(int64_t *)bytes) : (fixnum_t)(*(uint64_t *)bytes)); break;
+  case 8:
+       *result = io_decode_uint64(bytes);
+       break;
 #endif
-    default:
-         assert(!"Bad length to fdread_binary_fixnum");
-    }
+  default:
+       assert(!"Bad length to fdread_binary_fixnum");
+  }
 
   return true;
 }
@@ -127,12 +148,11 @@ bool fdread_binary_fixnum(fixnum_t length, bool signedp, fixnum_t *result, size_
 bool fdread_binary_flonum(flonum_t *result)
 {
   uint8_t bytes[sizeof(flonum_t)];
-  size_t flonums_read = fdread_binary(bytes, sizeof(flonum_t), 1, NULL);
 
-  if (!flonums_read)
+  if (!fdread_binary(bytes, sizeof(flonum_t), 1, NULL))
     return false;
 
-  *result = *(flonum_t *)bytes;
+  *result = io_decode_flonum(bytes);
 
   return true;
 }
@@ -170,9 +190,9 @@ static void dump_error(const _TCHAR *message)
 
 static enum fasl_opcode_t fast_read_opcode(size_t *ofs)
 {
-  fixnum_t opcode = FASL_OP_EOF;
+  uint8_t opcode = FASL_OP_EOF;
 
-  if (fdread_binary_fixnum(1, false, &opcode, ofs))
+  if (fdread_binary_fixnum_uint8(&opcode, ofs))
        return (enum fasl_opcode_t)opcode;
 
   return FASL_OP_EOF;
@@ -207,14 +227,12 @@ static void dump_list(bool read_listd)
 
 static void dump_character()
 {
-  fixnum_t data = 0;
+  uint8_t data = 0;
 
-  if (fdread_binary_fixnum(1, false, &data, NULL))
-    {
-      putchar((int)data);
-    }
+  if (fdread_binary_fixnum_uint8(&data, NULL))
+       putchar((int)data);
   else
-    dump_error("EOF while reading character");
+       dump_error("EOF while reading character");
 }
 
 
@@ -222,7 +240,7 @@ static void dump_fixnum(size_t length, fixnum_t *fixnum_value)
 {
   fixnum_t buf;
 
-  if (!fdread_binary_fixnum(length, true, &buf, NULL))
+  if (!fdread_binary_fixnum(length, &buf, NULL))
     dump_error("expected fixnum not found");
 
   if (fixnum_value != NULL)
@@ -402,7 +420,7 @@ static void dump_fast_op(int arity, bool has_next)
 
   fixnum_t fop_opcode;
 
-  if (!fdread_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, true, &fop_opcode, NULL))
+  if (!fdread_binary_fixnum((opcode == FASL_OP_FIX8) ? 1 : 2, &fop_opcode, NULL))
        dump_error("Expected FOP opcode not found");
 
   const _TCHAR *opcode_name = fast_op_opcode_name((enum fast_op_opcode_t)fop_opcode);
