@@ -31,11 +31,9 @@ lref_t fixcons(fixnum_t x)
 {
      if ((x <= FIXNUM_MAX) && (x >= FIXNUM_MIN))
           return MAKE_LREF1(LREF1_FIXNUM, (intptr_t) x);
-
-     lref_t retval = new_cell(TC_FIXNUM);
-     *_FIXNM(retval) = x;
-
-     return retval;
+     else
+          return vmtrap(TRAP_OVERFLOW_FIXNUM_FIXCONS, VMT_MANDATORY_TRAP,
+                        2, NIL, NIL);
 }
 
 lref_t flocons(flonum_t x)
