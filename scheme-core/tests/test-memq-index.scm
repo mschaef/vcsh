@@ -14,7 +14,7 @@
     (test-case (not (memq-index :not-a-memq-index xs))))
 
     (let ((xs '(1000000000)))
-      (test-case (not (memq-index 1000000000 xs))))
+      (test-case (= 0 (memq-index 1000000000 xs))))
 
     (let ((xs '(1 1000000000)))
-      (test-case (not (memq-index 1000000000 xs)))))
+      (test-case (= 1 (memq-index 1000000000 xs)))))

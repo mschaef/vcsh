@@ -14,7 +14,7 @@
     (test-case (not (memq :not-a-memq xs))))
 
     (let ((xs '(1000000000)))
-      (test-case (not (memq 1000000000 xs))))
+      (test-case (memq 1000000000 xs)))
 
     (let ((xs '(1 1000000)))
       (test-case (not (memq 1000000000 xs)))))
