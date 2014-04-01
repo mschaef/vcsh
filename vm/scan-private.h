@@ -183,6 +183,9 @@ unsigned_fixnum_t io_decode_uint64(uint8_t *buf);
 void io_encode_int64(uint8_t *buf, fixnum_t num);
 fixnum_t io_decode_int64(uint8_t *buf);
 
+void io_encode_flonum(uint8_t *buf, flonum_t num);
+flonum_t io_decode_flonum(uint8_t *buf);
+
 /***** Memory Management *****/
 
 void gc_initialize_heap();

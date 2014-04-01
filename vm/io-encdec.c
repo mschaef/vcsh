@@ -155,3 +155,19 @@ fixnum_t io_decode_int64(uint8_t *buf)
              ((fixnum_t)buf[7]));
 }
 
+/***** Flonum *****/
+
+void io_encode_flonum(uint8_t *buf, flonum_t num)
+{
+     memcpy(buf, &num, sizeof(flonum_t));
+}
+
+flonum_t io_decode_flonum(uint8_t *buf)
+{
+     flonum_t value;
+
+     memcpy(&value, buf, sizeof(flonum_t));
+
+     return value;
+}
+

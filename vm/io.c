@@ -305,12 +305,11 @@ bool read_binary_flonum(lref_t port, flonum_t *result)
      assert(BINARY_PORTP(port));
 
      uint8_t bytes[sizeof(flonum_t)];
-     size_t flonums_read = read_bytes(port, bytes, sizeof(flonum_t));
-
-     if (!flonums_read)
+     
+     if (read_bytes(port, bytes, sizeof(flonum_t)) != sizeof(flonum_t))
           return false;
 
-     *result = *(flonum_t *) bytes;
+     *result = io_decode_flonum(bytes);
 
      return true;
 }
@@ -324,8 +323,8 @@ lref_t lread_binary_flonum(lref_t port)
 
      if (read_binary_flonum(port, &result))
           return flocons(result);
-     else
-          return lmake_eof();
+
+     return lmake_eof();
 }
 
 
@@ -337,12 +336,11 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
      if (!BINARY_PORTP(port))
           vmerror_wrong_type_n(2, port);
 
-     size_t length = STRING_DIM(string);
-     _TCHAR *strdata = STRING_DATA(string);
+     size_t sz = (STRING_DIM(string) * sizeof(_TCHAR));
 
-     size_t bytes_written = write_bytes(port, strdata, length * sizeof(_TCHAR));
+     size_t written = write_bytes(port, STRING_DATA(string), sz);
 
-     if (bytes_written != length * sizeof(_TCHAR))
+     if (written != sz)
           vmerror_io_error(_T("error writing to port."), port);
 
      return port;
@@ -388,7 +386,7 @@ lref_t lbinary_write_flonum(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(flonum_t)];
 
-     *(flonum_t *) bytes = get_c_double(v);
+     io_encode_flonum(bytes, get_c_double(v));
 
      if (write_bytes(port, bytes, sizeof(flonum_t)) != sizeof(flonum_t))
           vmerror_io_error(_T("error writing to port."), port);
