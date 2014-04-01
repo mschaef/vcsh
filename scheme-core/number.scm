@@ -20,7 +20,8 @@
   (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_SUBTRACT trap-fixnum-overflow)
   (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_DIVIDE trap-fixnum-overflow)
   (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_MODULO trap-fixnum-overflow)
-  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_SHL trap-fixnum-overflow))
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_SHL trap-fixnum-overflow)
+  (%set-trap-handler! system::TRAP_OVERFLOW_FIXNUM_FIXCONS trap-fixnum-overflow))
 
 (define (zero? x) (= x 0))
 (define (positive? x) (> x 0))
