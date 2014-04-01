@@ -414,34 +414,34 @@ lref_t lwrite_binary_string(lref_t string, lref_t port)
 }
 
 
-#define MAKE_LWRITE_BINARY_FIXNUM(cTypeName, cTypeBytes)                \
-                                                                        \
-    lref_t lwrite_binary_fixnum_##cTypeName(lref_t v, lref_t port)      \
-    {                                                                   \
-         if (!BINARY_PORTP(port))                                       \
-              vmerror_wrong_type_n(2, port);                            \
-                                                                        \
-         if (!FIXNUMP(v))                                               \
-              vmerror_wrong_type_n(1, v);                               \
-                                                                        \
-         uint8_t bytes[sizeof(fixnum_t)];                               \
-                                                                        \
-         io_encode_##cTypeName(bytes, FIXNM(v));                        \
-                                                                        \
-         if(write_bytes(port, bytes, cTypeBytes) !=  cTypeBytes)        \
-              vmerror_io_error(_T("error writing to port."), port);     \
-                                                                        \
-         return port;                                                   \
+#define MAKE_LWRITE_BINARY_FIXNUM(cTypeName)                          \
+                                                                      \
+    lref_t lwrite_binary_fixnum_##cTypeName(lref_t v, lref_t port)    \
+    {                                                                 \
+         if (!BINARY_PORTP(port))                                     \
+              vmerror_wrong_type_n(2, port);                          \
+                                                                      \
+         if (!FIXNUMP(v))                                             \
+              vmerror_wrong_type_n(1, v);                             \
+                                                                      \
+         uint8_t buf[sizeof(cTypeName##_t)];                          \
+                                                                      \
+         io_encode_##cTypeName(buf, FIXNM(v));                        \
+                                                                      \
+         if(write_bytes(port, buf, sizeof(buf)) !=  sizeof(buf))      \
+              vmerror_io_error(_T("error writing to port."), port);   \
+                                                                      \
+         return port;                                                 \
     }
 
-MAKE_LWRITE_BINARY_FIXNUM(uint8, 1)
-MAKE_LWRITE_BINARY_FIXNUM(int8, 1)
-MAKE_LWRITE_BINARY_FIXNUM(uint16, 2)
-MAKE_LWRITE_BINARY_FIXNUM(int16, 2)
-MAKE_LWRITE_BINARY_FIXNUM(uint32, 4)
-MAKE_LWRITE_BINARY_FIXNUM(int32, 4)
-MAKE_LWRITE_BINARY_FIXNUM(uint64, 8)
-MAKE_LWRITE_BINARY_FIXNUM(int64, 8)
+MAKE_LWRITE_BINARY_FIXNUM(uint8)
+MAKE_LWRITE_BINARY_FIXNUM(int8)
+MAKE_LWRITE_BINARY_FIXNUM(uint16)
+MAKE_LWRITE_BINARY_FIXNUM(int16)
+MAKE_LWRITE_BINARY_FIXNUM(uint32)
+MAKE_LWRITE_BINARY_FIXNUM(int32)
+MAKE_LWRITE_BINARY_FIXNUM(uint64)
+MAKE_LWRITE_BINARY_FIXNUM(int64)
 
 lref_t lbinary_write_flonum(lref_t v, lref_t port)
 {
