@@ -101,8 +101,7 @@ size_t fdread_binary(void *buf, size_t size, size_t count, size_t *ofs)
   return blocks_read;
 }
 
-bool fdread_binary_fixnum(fixnum_t length, bool signedp,
-                          fixnum_t *result, size_t *ofs)
+bool fdread_binary_fixnum(fixnum_t length, bool signedp, fixnum_t *result, size_t *ofs)
 {
 #ifdef SCAN_64BIT
   assert ((length == 1) || (length == 2) || (length == 4) || (length == 8));

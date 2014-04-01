@@ -732,11 +732,10 @@ INLINE lref_t SYMBOL_PROPS(lref_t sym)
 
      if (STRINGP((*sym).storage_as.symbol.props))
           return NIL;
-     else
-     {
-          checked_assert(CONSP((*sym).storage_as.symbol.props));
-          return CDR((*sym).storage_as.symbol.props);
-     }
+
+     checked_assert(CONSP((*sym).storage_as.symbol.props));
+
+     return CDR((*sym).storage_as.symbol.props);
 }
 
 lref_t lcons(lref_t x, lref_t y);     /*  Forward decl */
@@ -753,7 +752,7 @@ INLINE void SET_SYMBOL_PROPS(lref_t sym, lref_t props)
      else
      {
           checked_assert(CONSP((*sym).storage_as.symbol.props));
-          return SET_CDR((*sym).storage_as.symbol.props, props);
+          SET_CDR((*sym).storage_as.symbol.props, props);
      }
 }
 
