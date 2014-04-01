@@ -103,12 +103,6 @@ size_t fdread_binary(void *buf, size_t size, size_t count, size_t *ofs)
 
 bool fdread_binary_fixnum(fixnum_t length, bool signedp, fixnum_t *result, size_t *ofs)
 {
-#ifdef SCAN_64BIT
-  assert ((length == 1) || (length == 2) || (length == 4) || (length == 8));
-#else
-  assert ((length == 1) || (length == 2) || (length == 4));
-#endif
-
   uint8_t bytes[sizeof(fixnum_t)];
   size_t fixnums_read = fdread_binary(bytes, (size_t)length, 1, ofs);
 
@@ -123,6 +117,8 @@ bool fdread_binary_fixnum(fixnum_t length, bool signedp, fixnum_t *result, size_
 #ifdef SCAN_64BIT
     case 8: *result = (signedp ? (fixnum_t)(*(int64_t *)bytes) : (fixnum_t)(*(uint64_t *)bytes)); break;
 #endif
+    default:
+         assert(!"Bad length to fdread_binary_fixnum");
     }
 
   return true;

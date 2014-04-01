@@ -128,7 +128,7 @@ struct lobject_t
           enum typecode_t type:8;
           unsigned int opcode:8;
           unsigned int gc_mark:1;
-#if SCAN_WORDSIZE == 64
+#ifdef SCAN_64BIT
           unsigned int pad:32;  /*  Explicit pad to keep the LP64 header the same size as an LP64 pointer. */
 #endif
      } header;

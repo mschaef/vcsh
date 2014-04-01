@@ -20,7 +20,7 @@
 
 //#define WITH_FOPLOG_SUPPORT
 
-#define SCAN_64BIT            /* Defined on 64-bit platforms. */
+
 
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
@@ -37,9 +37,7 @@
 #endif
 
 #if (defined(__GNUC__) && defined(__LP64__)) || (defined(_MSC_VER) && defined(_M_X64))
-#   define SCAN_WORDSIZE 64
-#else
-#   define SCAN_WORDSIZE 32
+#   define SCAN_64BIT
 #endif
 
 
