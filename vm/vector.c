@@ -94,7 +94,7 @@ lref_t lvector_ref(lref_t vec, lref_t i, lref_t default_value)
      else
           vmerror_wrong_type_n(2, i);
 
-     if ((index >= 0) && (index < VECTOR_DIM(vec)))
+     if (index < VECTOR_DIM(vec))
           return VECTOR_ELEM(vec, index);
 
      if (NULLP(default_value))
@@ -118,7 +118,7 @@ lref_t lvector_set(lref_t vec, lref_t i, lref_t v)
      else
           vmerror_wrong_type_n(2, i);
 
-     if ((index >= 0) && (index < VECTOR_DIM(vec)))
+     if (index < VECTOR_DIM(vec))
      {
           SET_VECTOR_ELEM(vec, index, v);
           return vec;

@@ -90,7 +90,7 @@ static size_t get_trap_id(lref_t trap_id)
 
      size_t id = (size_t)FIXNM(trap_id);
 
-     if ((id < 0) || (id > TRAP_LAST))
+     if (id > TRAP_LAST)
           vmerror_arg_out_of_range(trap_id, _T("[0,TRAP_LAST]"));
 
      return id;

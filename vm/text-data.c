@@ -323,10 +323,10 @@ lref_t lsubstring(lref_t str, lref_t start, lref_t end)
      s = get_c_long(start);
      e = NULLP(end) ? STRING_DIM(str) : get_c_long(end);
 
-     if ((s < 0) || (s > STRING_DIM(str)))
+     if (s > STRING_DIM(str))
           vmerror_index_out_of_bounds(start, str);
 
-     if ((e < 0) || (e > STRING_DIM(str)))
+     if (e > STRING_DIM(str))
           vmerror_index_out_of_bounds(end, str);
 
      if (s > e)
@@ -404,7 +404,7 @@ lref_t lstring_search_from_right(lref_t tok, lref_t str, lref_t maybe_from)
      if (!NULLP(maybe_from))
           str_loc = get_c_long(maybe_from);
 
-     while ((str_loc >= 0) && (str_loc < STRING_DIM(str)))
+     while (str_loc < STRING_DIM(str))
      {
           size_t tok_loc = STRING_DIM(tok) - 1;
 

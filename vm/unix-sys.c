@@ -110,7 +110,7 @@ enum sys_retcode_t sys_readdir(struct sys_dir_t * dir,
 
      ent->_ino = sent->d_ino;
 
-#if !defined(__CYGWIN__)
+#if !defined(__CYGWIN__) && !defined(__APPLE__)
      switch (sent->d_type)
      {
      case DT_FIFO:
@@ -348,7 +348,9 @@ static enum sys_retcode_t rc_to_sys_retcode_t(int rc)
           return SYS_E_IO_ERROR;
 
      case E2BIG:
+          /*
      case ENOTBLK:
+          */
           return SYS_E_BAD_ARGUMENT;
 
      case ENOMEM:

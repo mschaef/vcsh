@@ -18,7 +18,7 @@
 
 #ifdef SCAN_UNIX
 #  include <sys/time.h>
-#  include <linux/limits.h>
+#  include <limits.h>
 #endif
 
 #ifdef SCAN_WINDOWS
