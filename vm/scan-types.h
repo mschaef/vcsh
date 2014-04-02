@@ -43,13 +43,11 @@ enum lref_tag_t
 typedef intptr_t fixnum_t;
 typedef uintptr_t unsigned_fixnum_t;
 
-#define FIXNUM_BITS          64
+#define FIXNUM_BITS          (sizeof(fixnum_t) * 8)
 #define FIXNUM_MAX           (INTPTR_MAX >> LREF1_TAG_SHIFT)
 #define FIXNUM_MIN           (INTPTR_MIN >> LREF1_TAG_SHIFT)
 #define FIXNUM_UNSIGNED_MAX  (UINTPTR_MAX >> LREF1_TAG_SHIFT)
 #define FIXNUM_UNSIGNED_MIN  (UINTPTR_MIN >> LREF1_TAG_SHIFT)
-#define PRINTF_PREFIX_FIXNUM PRINTF_PREFIX_INT64
-
 
 typedef double flonum_t;
 
