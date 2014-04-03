@@ -225,17 +225,15 @@ car and the column in the cdr."
     (error "Text ports must be opened against binary ports: ~a" underlying))
   (case mode
     ((:read) (open-text-input-port underlying))
-    ((:write (open-text-output-port underlying)))
+    ((:write) (open-text-output-port underlying))
     (#t (error "Bad port mode, must be :read or :write: ~a" mode))))
 
 (define (open-file filename :keyword (mode :read) (encoding :text))
-  (let ((file-port (case mode
-                     ((:read)
-                      (open-raw-input-file filename))
-                     ((:write)
-                      (open-raw-output-file filename))
-                     (#t
-                      (error "Bad port mode, must be :read or :write: ~a" mode)))))
+  (let ((file-port
+         (case mode
+           ((:read)  (open-raw-input-file filename))
+           ((:write) (open-raw-output-file filename))
+           (#t       (error "Bad port mode, must be :read or :write: ~a" mode)))))
     (case encoding
       ((:text) (open-text-port file-port :mode mode))
       ((:binary) file-port)
@@ -246,14 +244,14 @@ car and the column in the cdr."
   (let ((null-port (open-null-port)))
     (case encoding
       ((:text) (open-text-input-port null-port))
-      ((:binary) file-port)
+      ((:binary) null-port)
       (#t (error "Bad file encoding, must be :text or :binary: ~a" encoding)))))
 
 (define (open-null-output-port :keyword (encoding :text))
   (let ((null-port (open-null-port)))
     (case encoding
       ((:text) (open-text-output-port null-port))
-      ((:binary) file-port)
+      ((:binary) null-port)
       (#t (error "Bad file encoding, must be :text or :binary: ~a" encoding)))))
 
 (define (call-with-output-to-string fn)
