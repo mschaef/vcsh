@@ -187,9 +187,9 @@ lref_t linfinitep(lref_t x)
      if (FLONUMP(x))
      {
           if (COMPLEXP(x))
-               return (!finite(FLONM(x)) || !finite(FLONM(FLOIM(x)))) ? x : boolcons(false);
+               return (!isfinite(FLONM(x)) || !isfinite(FLONM(FLOIM(x)))) ? x : boolcons(false);
           else
-               return !finite(FLONM(x)) ? x : boolcons(false);
+               return !isfinite(FLONM(x)) ? x : boolcons(false);
      }
 
      return boolcons(false);

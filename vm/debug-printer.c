@@ -32,7 +32,7 @@ static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable
      {
           _sntprintf(buf, STACK_STRBUF_LEN, _T("#inan"));
      }
-     else if (!finite(FLONM(object)))
+     else if (!isfinite(FLONM(object)))
      {
           if (FLONM(object) > 0)
                _sntprintf(buf, STACK_STRBUF_LEN, _T("#iposinf"));

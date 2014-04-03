@@ -892,7 +892,7 @@ size_t float_format(_TCHAR * buf, size_t buf_len,
      /* First things first, get the easy cases out of the way. */
      if (isnan(nd))
           return _sntprintf(buf, buf_len, _T("<not-a-number>"));
-     else if (!finite(nd))
+     else if (!isfinite(nd))
      {
           if (nd > 0)
                return _sntprintf(buf, buf_len, _T("<positive-infinity>"));
