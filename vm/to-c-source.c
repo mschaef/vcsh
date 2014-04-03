@@ -74,9 +74,7 @@ void write_file_as_c_source(FILE * in, _TCHAR * blockname, _TCHAR * varname)
      printf("DECL_INTERNAL_FILE %s =\n", varname);
      printf("{\n");
 
-     printf("     ((_TCHAR *)_T(\"%s\")), %" PRINTF_PREFIX_SIZE_T "d,\n",
-             blockname, file_length(in));
-
+     printf("     ((_TCHAR *)_T(\"%s\")), %" SCAN_PRIdSIZET ",\n", blockname, file_length(in));
      printf("     INTERNAL_FILE_DATA_CAST {");
 
      uint8_t buf[BLOCK_SIZE];

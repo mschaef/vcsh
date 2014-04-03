@@ -58,7 +58,9 @@ VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.c)
 
 VM_GCOV:= $(VM_OBJS:${OBJ_EXT}=.gcov)
 
-FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} constants${OBJ_EXT}
+FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} \
+               io-encdec${OBJ_EXT} \
+               constants${OBJ_EXT}
 
 FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:${OBJ_EXT}=.c)
 

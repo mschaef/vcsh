@@ -20,7 +20,7 @@
 
 //#define WITH_FOPLOG_SUPPORT
 
-#define SCAN_64BIT            /* Defined on 64-bit platforms. */h
+
 
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
@@ -33,13 +33,11 @@
 #if defined(_MSC_VER) && defined(SCAN_WINDOWS)
 #    include "chemeris-stdint.h"
 #else
-#    include <stdint.h>
+#    include <inttypes.h>
 #endif
 
 #if (defined(__GNUC__) && defined(__LP64__)) || (defined(_MSC_VER) && defined(_M_X64))
-#   define SCAN_WORDSIZE 64
-#else
-#   define SCAN_WORDSIZE 32
+#   define SCAN_64BIT
 #endif
 
 
@@ -90,11 +88,28 @@ enum {
 /*** 64-bit integer support ***/
 
 #if defined(__GNUC__)
-#   define PRINTF_PREFIX_INT64 "ll"
-#   define PRINTF_PREFIX_SIZE_T "z"
+
+#   define SCAN_PRIdFIXNUM PRIdPTR
+#   define SCAN_PRIiFIXNUM PRIiPTR
+#   define SCAN_PRIoFIXNUM PRIoPTR
+#   define SCAN_PRIuFIXNUM PRIuPTR
+#   define SCAN_PRIxFIXNUM PRIxPTR
+#   define SCAN_PRIXFIXNUM PRIXPTR
+
+#   define SCAN_PRIdSIZET "zd"
+#   define SCAN_PRIxSIZET "zx"
+
 #elif defined(_MSC_VER)
-#   define PRINTF_PREFIX_INT64 "I64"
-#   define PRINTF_PREFIX_SIZE_T "I"
+
+#   define SCAN_PRIdFIXNUM "I64d"
+#   define SCAN_PRIiFIXNUM "I64i"
+#   define SCAN_PRIoFIXNUM "I64o"
+#   define SCAN_PRIuFIXNUM "I64u"
+#   define SCAN_PRIxFIXNUM "I64x"
+#   define SCAN_PRIXFIXNUM "I64X"
+
+#   define SCAN_PRIxSIZET "Id"
+#   define SCAN_PRIxSIZET "Ix"
 #endif
 
 INLINE int64_t make_int64_t(int64_t high, int64_t low)

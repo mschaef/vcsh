@@ -18,30 +18,36 @@
 #include "scan-constants.h"
 #include "scan-sys.h"
 
+/*** Constants for the two level tagging scheme ***/
+
+enum lref_tag_t
+{
+     /* First tagging stage, least sig two bits. */
+     LREF1_TAG_MASK = 0x3,
+     LREF1_TAG_SHIFT = 2,
+     LREF1_REF = 0x0,
+     LREF1_FIXNUM = 0x1,
+     LREF1_SPECIAL = 0x3,       /*  signals second stage tagging */
+
+     /* Second tagging stage, least sig five bits. */
+     LREF2_TAG_MASK = 0x1F,
+     LREF2_TAG_SHIFT = 5,
+     LREF2_BOOL = LREF1_TAG_MASK | (0x1 << 2),
+     LREF2_CHARACTER = LREF1_TAG_MASK | (0x2 << 2),
+     LREF2_EOF = LREF1_TAG_MASK | (0x3 << 2),
+     LREF2_UNBOUND = LREF1_TAG_MASK | (0x4 << 2),
+};
+
 /*** Fixnum and Flonum ***/
 
-#ifdef SCAN_64BIT
-typedef int64_t fixnum_t;
-typedef uint64_t unsigned_fixnum_t;
+typedef intptr_t fixnum_t;
+typedef uintptr_t unsigned_fixnum_t;
 
-#   define FIXNUM_BITS (64)
-#   define FIXNUM_MAX           INT64_MAX
-#   define FIXNUM_MIN           INT64_MIN
-#   define FIXNUM_UNSIGNED_MAX  UINT64_MAX
-#   define FIXNUM_UNSIGNED_MIN  UINT64_MIN
-#   define PRINTF_PREFIX_FIXNUM PRINTF_PREFIX_INT64
-
-#else
-typedef int32_t fixnum_t;
-typedef uint32_t unsigned_fixnum_t;
-
-#   define FIXNUM_BITS (32)
-#   define FIXNUM_MAX           INT32_MAX
-#   define FIXNUM_MIN           INT32_MIN
-#   define FIXNUM_UNSIGNED_MAX  UINT32_MAX
-#   define FIXNUM_UNSIGNED_MIN  UINT32_MIN
-#   define PRINTF_PREFIX_FIXNUM ""
-#endif
+#define FIXNUM_BITS          (sizeof(fixnum_t) * 8)
+#define FIXNUM_MAX           (INTPTR_MAX >> LREF1_TAG_SHIFT)
+#define FIXNUM_MIN           (INTPTR_MIN >> LREF1_TAG_SHIFT)
+#define FIXNUM_UNSIGNED_MAX  (UINTPTR_MAX >> LREF1_TAG_SHIFT)
+#define FIXNUM_UNSIGNED_MIN  (UINTPTR_MIN >> LREF1_TAG_SHIFT)
 
 typedef double flonum_t;
 
@@ -58,34 +64,7 @@ struct lobject_t;
 typedef struct lobject_t *lref_t;
 struct fasl_stream_t;
 
-/*** Constants for the two level tagging scheme ***/
-
-enum lref_tag_t
-{
-     /* First tagging stage, least sig two bits. */
-     LREF1_TAG_MASK = 0x3,
-     LREF1_TAG_SHIFT = 2,
-     LREF1_REF = 0x0,
-     LREF1_FIXNUM = 0x1,
-     LREF1_SPECIAL = 0x3,       /*  signals second stage tagging */
-
-
-     /* Second tagging stage, least sig five bits. */
-     LREF2_TAG_MASK = 0x1F,
-     LREF2_TAG_SHIFT = 5,
-     LREF2_BOOL = LREF1_TAG_MASK | (0x1 << 2),
-     LREF2_CHARACTER = LREF1_TAG_MASK | (0x2 << 2),
-     LREF2_EOF = LREF1_TAG_MASK | (0x3 << 2),
-     LREF2_UNBOUND = LREF1_TAG_MASK | (0x4 << 2),
-};
-
 #define UNBOUND_MARKER ((lref_t)LREF2_UNBOUND)
-
-enum
-{
-     MAX_LREF_FIXNUM = INT32_MAX >> LREF1_TAG_SHIFT,
-     MIN_LREF_FIXNUM = INT32_MIN >> LREF1_TAG_SHIFT,
-};
 
 INLINE lref_t MAKE_LREF1(enum lref_tag_t tag, intptr_t val)
 {
@@ -142,15 +121,18 @@ struct hash_entry_t
 #pragma pack(push, 4)
 struct lobject_t
 {
-     struct
+     union
      {
-          enum typecode_t type:8;
-          unsigned int opcode:8;
-          unsigned int gc_mark:1;
-#if SCAN_WORDSIZE == 64
-          unsigned int pad:32;  /*  Explicit pad to keep the LP64 header the same size as an LP64 pointer. */
-#endif
-     } header;
+          struct
+          {
+               enum typecode_t type:8;
+               unsigned int opcode:8;
+               unsigned int gc_mark:1;
+          } header;
+
+          /* Headers must be at least one pointer in size. */
+          uintptr_t header_min_size;
+     };
 
      union
      {
@@ -159,10 +141,6 @@ struct lobject_t
                lref_t car;
                lref_t cdr;
           } cons;
-          struct
-          {
-               fixnum_t data;
-          } fixnum;
           struct
           {
                flonum_t data;
@@ -542,21 +520,10 @@ INLINE lref_t SET_NEXT_FREE_CELL(lref_t x, lref_t next)
 
 /*** fix/flonum ***/
 
-INLINE fixnum_t *_FIXNM(lref_t x)
-{
-     checked_assert(FIXNUMP(x));
-
-     return &((*x).storage_as.fixnum.data);
-}
-
 INLINE fixnum_t FIXNM(lref_t x)
 {
      checked_assert(FIXNUMP(x));
-
-     if (LREF1_TAG(x) == LREF1_FIXNUM)
-          return LREF1_VAL(x);
-
-     return ((*x).storage_as.fixnum.data);
+     return LREF1_VAL(x);
 }
 
 INLINE flonum_t FLONM(lref_t x)
