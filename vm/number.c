@@ -222,61 +222,49 @@ lref_t linexact2exact(lref_t x)
 
 /* Comparisons ************************************************/
 
-enum NumericArgumentType
+static enum typecode_t common_number_type(size_t argc, lref_t argv[])
 {
-     INVALID,
-     CHARACTER,
-     EXACT,
-     INEXACT
-};
-
-enum NumericArgumentType validate_numeric_arguments(size_t argc, lref_t argv[])
-{
-     bool exact = TRUE;
-     bool character = TRUE;
-     bool valid = TRUE;
-
+     enum typecode_t type = TC_NIL;
 
      for (size_t ii = 0; ii < argc; ii++)
      {
-          character = character && CHARP(argv[ii]);
-          valid = valid && (CHARP(argv[ii]) || NUMBERP(argv[ii]));
-          exact = exact && FIXNUMP(argv[ii]);
+          lref_t arg = argv[ii];
+
+          if (CHARP(arg)) {
+               if (type == TC_NIL)
+                    type = TC_CHARACTER;
+
+          } else if (FIXNUMP(arg)) {
+               if ((type == TC_NIL) || (type == TC_CHARACTER))
+                    type = TC_FIXNUM;
+
+          } else if (FLONUMP(arg)) {
+               if ((type == TC_NIL) || (type == TC_CHARACTER) || (type == TC_FIXNUM))
+                    type = TC_FLONUM;
+
+          } else 
+               vmerror_wrong_type_n(ii, arg);
      }
 
-     if (valid)
-     {
-          if (character)
-               return CHARACTER;
-          else if (exact)
-               return EXACT;
-          else
-               return INEXACT;
-     }
-
-     return INVALID;
+     return type;
 }
 
 #define MAKE_NUMBER_COMPARISON_FN(fn_name, op, op_string)                           \
 lref_t fn_name(size_t argc, lref_t argv[])                                          \
 {                                                                                   \
-    if (argc == 0)                                                                  \
-      return boolcons(true);                                                        \
-                                                                                    \
     bool current_result = true;                                                     \
     double flo_prev;                                                                \
     fixnum_t fix_prev;                                                              \
     _TCHAR char_prev;                                                               \
                                                                                     \
-    enum NumericArgumentType type = validate_numeric_arguments(argc, argv);         \
+    enum typecode_t tc = common_number_type(argc, argv);                            \
                                                                                     \
-    switch (type)                                                                   \
+    switch (tc)                                                                     \
     {                                                                               \
-    case INVALID:                                                                   \
-      vmerror_wrong_type(lista(argc, argv));                                        \
-      break;                                                                        \
+    case TC_NIL:                                                                    \
+       break;                                                                       \
                                                                                     \
-    case CHARACTER:                                                                 \
+    case TC_CHARACTER:                                                              \
       char_prev = CHARV(argv[0]);                                                   \
                                                                                     \
       for (size_t ii = 1; ii < argc; ii++)                                          \
@@ -288,7 +276,7 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
         }                                                                           \
       break;                                                                        \
                                                                                     \
-    case EXACT:                                                                     \
+    case TC_FIXNUM:                                                                 \
       fix_prev = FIXNM(argv[0]);                                                    \
                                                                                     \
       for (size_t ii = 1; ii < argc; ii++)                                          \
@@ -300,7 +288,7 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
         }                                                                           \
       break;                                                                        \
                                                                                     \
-    case INEXACT:                                                                   \
+    case TC_FLONUM:                                                                 \
       flo_prev = get_c_flonum(argv[0]);                                             \
                                                                                     \
       for (size_t ii = 1; ii < argc; ii++)                                          \
@@ -311,6 +299,9 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
             break;                                                                  \
         }                                                                           \
       break;                                                                        \
+                                                                                    \
+    default:                                                                        \
+       panic(_T("Unknown numeric type in number comparison function"));             \
     }                                                                               \
                                                                                     \
     return boolcons(current_result);                                                \

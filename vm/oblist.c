@@ -304,9 +304,9 @@ void create_initial_packages()
      interp.control_fields[VMCTRL_PACKAGE_SCHEME] = packagecons(strconsbuf("scheme"));
      interp.control_fields[VMCTRL_PACKAGE_KEYWORD] = packagecons(strconsbuf("keyword"));
 
-     interp.fasl_package_list = listn(3,
-                                      interp.control_fields[VMCTRL_PACKAGE_SCHEME],
-                                      interp.control_fields[VMCTRL_PACKAGE_SYSTEM],
-                                      interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
+     interp.fasl_package_list = lcons(interp.control_fields[VMCTRL_PACKAGE_SCHEME],
+                                      lcons(interp.control_fields[VMCTRL_PACKAGE_SYSTEM],
+                                            lcons(interp.control_fields[VMCTRL_PACKAGE_KEYWORD],
+                                                  NIL)));
 }
 

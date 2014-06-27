@@ -58,12 +58,6 @@ lref_t apply1(lref_t fn, size_t argc, lref_t argv[]);
 
 lref_t vectorcons(fixnum_t n, lref_t initial /* = NIL */);
 
-/**** Lists ****/
-
-lref_t listn(long n, ...);
-lref_t listv(long n, va_list args);
-lref_t lista(size_t n, lref_t args[]);
-
 /**** Numbers ****/
 
 #define fixabs labs

@@ -388,7 +388,7 @@ lref_t lfast_op_args(lref_t fast_op)
      if (!FAST_OP_P(fast_op))
           vmerror_wrong_type_n(1, fast_op);
 
-     return listn(2, FAST_OP_ARG1(fast_op), FAST_OP_ARG2(fast_op));
+     return lcons(FAST_OP_ARG1(fast_op), lcons(FAST_OP_ARG2(fast_op), NIL));
 }
 
 lref_t lfast_op_next(lref_t fast_op)
