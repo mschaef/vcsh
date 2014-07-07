@@ -252,7 +252,6 @@ static enum typecode_t common_number_type(size_t argc, lref_t argv[])
 #define MAKE_NUMBER_COMPARISON_FN(fn_name, op, op_string)                           \
 lref_t fn_name(size_t argc, lref_t argv[])                                          \
 {                                                                                   \
-    bool current_result = true;                                                     \
     double flo_prev;                                                                \
     fixnum_t fix_prev;                                                              \
     _TCHAR char_prev;                                                               \
@@ -269,10 +268,10 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
                                                                                     \
       for (size_t ii = 1; ii < argc; ii++)                                          \
         {                                                                           \
-          current_result = current_result && (char_prev op CHARV(argv[ii]));        \
+         if(!(char_prev op CHARV(argv[ii])))                                        \
+            return boolcons(false);                                                 \
+                                                                                    \
           char_prev = CHARV(argv[ii]);                                              \
-          if (!current_result)                                                      \
-            break;                                                                  \
         }                                                                           \
       break;                                                                        \
                                                                                     \
@@ -281,10 +280,10 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
                                                                                     \
       for (size_t ii = 1; ii < argc; ii++)                                          \
         {                                                                           \
-          current_result = current_result && (fix_prev op FIXNM(argv[ii]));         \
+         if (!(fix_prev op FIXNM(argv[ii])))                                        \
+              return boolcons(false);                                               \
+                                                                                    \
           fix_prev = FIXNM(argv[ii]);                                               \
-          if (!current_result)                                                      \
-            break;                                                                  \
         }                                                                           \
       break;                                                                        \
                                                                                     \
@@ -293,10 +292,10 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
                                                                                     \
       for (size_t ii = 1; ii < argc; ii++)                                          \
         {                                                                           \
-          current_result = current_result && (flo_prev op get_c_flonum(argv[ii]));  \
+          if (!(flo_prev op get_c_flonum(argv[ii])))                                \
+             return boolcons(false);                                                \
+                                                                                    \
           flo_prev = get_c_flonum(argv[ii]);                                        \
-          if (!current_result)                                                      \
-            break;                                                                  \
         }                                                                           \
       break;                                                                        \
                                                                                     \
@@ -304,7 +303,7 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
        panic(_T("Unknown numeric type in number comparison function"));             \
     }                                                                               \
                                                                                     \
-    return boolcons(current_result);                                                \
+    return boolcons(true);                                                          \
 }
 
 MAKE_NUMBER_COMPARISON_FN(lnum_eq, ==, "=");
