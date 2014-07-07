@@ -225,27 +225,27 @@ lref_t linexact2exact(lref_t x)
 static enum typecode_t common_number_type(size_t argc, lref_t argv[])
 {
      enum typecode_t type = TC_NIL;
-
+     
      for (size_t ii = 0; ii < argc; ii++)
      {
           lref_t arg = argv[ii];
-
+          
           if (CHARP(arg)) {
                if (type == TC_NIL)
                     type = TC_CHARACTER;
-
+               
           } else if (FIXNUMP(arg)) {
                if ((type == TC_NIL) || (type == TC_CHARACTER))
                     type = TC_FIXNUM;
-
+               
           } else if (FLONUMP(arg)) {
                if ((type == TC_NIL) || (type == TC_CHARACTER) || (type == TC_FIXNUM))
                     type = TC_FLONUM;
-
+               
           } else 
                vmerror_wrong_type_n(ii, arg);
      }
-
+     
      return type;
 }
 
@@ -256,9 +256,7 @@ lref_t fn_name(size_t argc, lref_t argv[])                                      
     fixnum_t fix_prev;                                                              \
     _TCHAR char_prev;                                                               \
                                                                                     \
-    enum typecode_t tc = common_number_type(argc, argv);                            \
-                                                                                    \
-    switch (tc)                                                                     \
+    switch (common_number_type(argc, argv))                                         \
     {                                                                               \
     case TC_NIL:                                                                    \
        break;                                                                       \

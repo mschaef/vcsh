@@ -55,7 +55,6 @@
              +
              -
              ->bag
-             ->ieee-754-bits
              ->list
              ->package
              ->packages
@@ -421,7 +420,6 @@
              hash?
              home-directory
              identity
-             ieee-754-bits->
              if
              ignore-error
              ignore-user-break
