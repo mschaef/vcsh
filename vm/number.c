@@ -615,44 +615,6 @@ lref_t ltruncate(lref_t x)
           return flocons(truncate(FLONM(x)));
 }
 
-/* IEEE-754 bit conversion *************************************/
-
-lref_t lto_ieee754_bits(lref_t x)
-{
-     if (!REALP(x))
-          vmerror_wrong_type_n(1, x);
-
-     double value = get_c_double(x);
-
-     unsigned_fixnum_t bits = 0;
-
-     for (uint8_t * loc = (uint8_t *) & value; loc < (uint8_t *) & ((&value)[1]); loc++)
-     {
-          bits <<= 8;
-          bits |= *loc;
-     }
-
-     return fixcons((fixnum_t) (bits));
-}
-
-lref_t lieee754_bits_to(lref_t x)
-{
-     if (!FIXNUMP(x))
-          vmerror_wrong_type_n(1, x);
-
-     unsigned_fixnum_t bits = FIXNM(x);
-
-     double value = 0;
-
-     for (uint8_t * loc = ((uint8_t *) & ((&value)[1])) - 1; loc >= (uint8_t *) & value; loc--)
-     {
-          *loc = (uint8_t) (bits & 0xFF);
-          bits >>= 8;
-     }
-
-     return flocons(value);
-}
-
 /* Bitwise operations *****************************************/
 
 lref_t lbitwise_and(lref_t x, lref_t y)
