@@ -1,9 +1,9 @@
 (use-package! "unit-test")
 
 (define-test multiple-read-from-string
-  (let ((s "#(1 2 3)"))
-    (test-case (equal? #(1 2 3) (read-from-string s)))
-    (test-case (equal? #(1 2 3) (read-from-string s)))))
+  (let ((s "[1 2 3]"))
+    (test-case (equal? [1 2 3] (read-from-string s)))
+    (test-case (equal? [1 2 3] (read-from-string s)))))
 
 (define-test read-line
   (let ((ip (open-input-string "")))

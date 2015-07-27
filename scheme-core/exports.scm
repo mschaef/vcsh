@@ -416,10 +416,12 @@
              hash-ref*
              hash-remove!
              hash-set!
-             hash-type
+             hash-set-multiple!
              hash?
              home-directory
              identity
+             identity-hash
+             identity-hash?
              if
              ignore-error
              ignore-user-break
@@ -463,7 +465,6 @@
              julian-day->time-monotonic
              julian-day->time-tai
              julian-day->time-utc
-             key-list->hash
              keyword?
              lambda
              lambda-list-arity
@@ -484,6 +485,7 @@
              list->filename
              list->hash
              list->hash-set
+             list->identity-hash
              list->set
              list->set/eq
              list->vector
@@ -524,6 +526,7 @@
              make-fasl-reader
              make-filename
              make-hash
+             make-identity-hash
              make-instance
              make-iterate-sequence-expansion
              make-list

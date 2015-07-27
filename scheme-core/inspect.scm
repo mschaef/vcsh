@@ -140,7 +140,9 @@
 (define-method (object->inspect-ctx (obj hash))
   (make-inspect-ctx
    :obj obj
-   :desc (format #f "~a hash table" (hash-type obj))
+   :desc (if (identity-hash? obj)
+             "identity hash table"
+             "hash table")
    :items  (fold
             (lambda (element rest)
               (cons (make-inspect-item :desc "elem"

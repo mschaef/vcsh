@@ -259,6 +259,7 @@ static void register_main_subrs()
     register_subr(_T("%fast-op-args"),                    SUBR_1,     (void*)lfast_op_args                       );
     register_subr(_T("%fast-op-opcode"),                  SUBR_1,     (void*)lfast_op_opcode                     );
     register_subr(_T("%fast-op-next"),                    SUBR_1,     (void*)lfast_op_next                       );
+    register_subr(_T("identity-hash?"),                   SUBR_1,     (void*)lidentity_hash_p                    );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
     register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
@@ -288,8 +289,6 @@ static void register_main_subrs()
     register_subr(_T("%set-trap-handler!"),               SUBR_2,     (void*)liset_trap_handler                  );
     register_subr(_T("%set-stack-limit"),                 SUBR_1,     (void*)lset_stack_limit                    );
     register_subr(_T("%heap-cell-count-by-typecode"),     SUBR_0,     (void*)lheap_cell_count_by_typecode        );
-    register_subr(_T("%slot-ref"),                        SUBR_2,     (void*)lislot_ref                          );
-    register_subr(_T("%slot-set!"),                       SUBR_3,     (void*)lislot_set                          );
     register_subr(_T("%startup-args"),                    SUBR_0,     (void*)listartup_args                      );
     register_subr(_T("%stress-c-heap"),                   SUBR_2,     (void*)lstress_c_heap                      );
     register_subr(_T("%stress-lisp-heap"),                SUBR_1,     (void*)lstress_lisp_heap                   );
@@ -374,6 +373,7 @@ static void register_main_subrs()
     register_subr(_T("get-output-string"),                SUBR_1,     (void*)lget_output_string                  );
     register_subr(_T("hash->a-list"),                     SUBR_1,     (void*)lhash2alist                         );
     register_subr(_T("hash->list"),                       SUBR_1,     (void*)lhash2list                          );
+    register_subr(_T("hash->p-list"),                     SUBR_1,     (void*)lhash2list                          );
     register_subr(_T("hash-clear!"),                      SUBR_1,     (void*)lhash_clear                         );
     register_subr(_T("hash-copy"),                        SUBR_1,     (void*)lhash_copy                          );
     register_subr(_T("hash-has?"),                        SUBR_2,     (void*)lhash_hasp                          );
@@ -381,7 +381,7 @@ static void register_main_subrs()
     register_subr(_T("hash-ref*"),                        SUBR_2,     (void*)lhash_refs                          );
     register_subr(_T("hash-remove!"),                     SUBR_2,     (void*)lhash_remove                        );
     register_subr(_T("hash-set!"),                        SUBR_3,     (void*)lhash_set                           );
-    register_subr(_T("hash-type"),                        SUBR_1,     (void*)lhash_type                          );
+    register_subr(_T("hash-set-multiple!"),               SUBR_2,     (void*)lhash_set_multiple                  );
     register_subr(_T("hash?"),                            SUBR_1,     (void*)lhashp                              );
     register_subr(_T("imag-part"),                        SUBR_ARGC,  (void*)limag_part                          );
     register_subr(_T("inexact->display-string"),          SUBR_4,     (void*)linexact2display_string             );
@@ -393,13 +393,13 @@ static void register_main_subrs()
     register_subr(_T("integer?"),                         SUBR_1,     (void*)lintegerp                           );
     register_subr(_T("keyword?"),                         SUBR_1,     (void*)lkeywordp                           );
     register_subr(_T("length"),                           SUBR_1,     (void*)llength                             );
-    register_subr(_T("list->hash"),                       SUBR_1,     (void*)llist2hash                          );
     register_subr(_T("list->vector"),                     SUBR_1,     (void*)llist2vector                        );
     register_subr(_T("log"),                              SUBR_1,     (void*)llog                                );
     register_subr(_T("macro?"),                           SUBR_1,     (void*)lmacrop                             );
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
     register_subr(_T("make-fasl-reader"),                 SUBR_1,     (void*)lmake_fasl_reader                   );
-    register_subr(_T("make-hash"),                        SUBR_1,     (void*)lmake_hash                          );
+    register_subr(_T("make-hash"),                        SUBR_0,     (void*)lmake_hash                          );
+    register_subr(_T("make-identity-hash"),               SUBR_0,     (void*)lmake_identity_hash                 );
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );
     register_subr(_T("make-vector"),                      SUBR_2,     (void*)lmake_vector                        );

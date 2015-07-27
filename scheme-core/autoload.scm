@@ -18,7 +18,7 @@
 (define *loaded-file-order* ())
 
 ;; The last update times of currently loaded files.
-(define *loaded-file-times* (make-hash :equal))
+(define *loaded-file-times* (make-hash))
 
 ;; A list of files updated by the current update operation. This is
 ;; #f if no update is currently under way.

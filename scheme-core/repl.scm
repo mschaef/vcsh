@@ -12,7 +12,7 @@
 
 ;;;; The REPL history facility
 
-(define *repl-history* #())
+(define *repl-history* [])
 
 (define *repl-recent-history-length* 5)
 (define *repl-recent-history-indices* ())
@@ -48,7 +48,7 @@
 (define (clear-repl-history! . xs)
   "Clears the REPL history, and returns each of <xs> as a return
    value."
-  (set! *repl-history* #())
+  (set! *repl-history* [])
   (apply values xs))
 
 

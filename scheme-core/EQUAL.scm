@@ -36,8 +36,8 @@
   ;; the corresponding node of the other object. This stops all infinite
   ;; traversals.
 
-  (let ((mapping/x->y (make-hash :eq))
-        (mapping/y->x (make-hash :eq))
+  (let ((mapping/x->y (make-identity-hash))
+        (mapping/y->x (make-identity-hash))
         (unmapped-node (gensym "unmapped-node"))) ; guaranteed not to be in x or y...
     (let check-next ((x x) (y y))
       (define (hash-maps-onto? x y)
@@ -75,11 +75,12 @@
                                      (#t
                                       #f))))))
                      ((hash)
-                      ;; There are four critera for hash tables to be EQUAL:
-                      (and (hash? y)                         ; 1. They're both hash tables
-                           (eq? (hash-type x) (hash-type y)) ; 2. They're of the same type
-                           (hash-maps-onto? x y)             ; 3. y has all of x's key/value pairs
-                           (hash-maps-onto? y x)))           ; 4. x has all of y's key/value pairs
+                      ;; There are four criteria for hash tables to be EQUAL:
+                      (and (hash? y)                ; 1. They're both hash tables
+                           (eq? (identity-hash? x)  ; 2. They're of the same type
+                                (identity-hash? y)) 
+                           (hash-maps-onto? x y)    ; 3. y has all of x's key/value pairs
+                           (hash-maps-onto? y x)))  ; 4. x has all of y's key/value pairs
                      ((structure)
                       (and (= (%structure-length x) (%structure-length y))
                            (eq? (%structure-layout x) (%structure-layout y))

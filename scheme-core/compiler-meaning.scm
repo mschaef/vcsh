@@ -61,7 +61,7 @@
          (warn-if-global-unbound form)
          `(:global-ref ,form))))
 
-(define *special-form-handlers* #h(:eq))
+(define *special-form-handlers* (make-identity-hash))
 
 (define (special-form-symbols)
   ;; REVISIT: Currently unioning in toplevel special forms and

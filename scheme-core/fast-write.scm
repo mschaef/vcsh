@@ -19,16 +19,16 @@
   `(write-binary-fixnum-u8 ,code ,port))
 
 (define-structure sharing-map
-  (indicies :default (make-hash :eq))
+  (indicies :default (make-identity-hash))
   (next-index :default 0)
-  (structure-layouts :default (make-hash :eq)))
+  (structure-layouts :default (make-identity-hash)))
 
 (define (find-shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
   "Returns an identity hash of all objects referenced by <object>
    more than once. This includes both circular and shared structure. The
    value associated with each hash is #f."
-  (let ((visited-objects (make-hash :eq))
-        (visited-layouts (make-hash :eq)))
+  (let ((visited-objects (make-identity-hash))
+        (visited-layouts (make-identity-hash)))
     (let visit ((o object))
       (unless (%immediate? o) ; Ignore immediates, they're shared by definition
         (cond ((hash-has? visited-objects o)
@@ -203,7 +203,7 @@
 
       ((hash)
        (fast-write-opcode system::FASL_OP_HASH port)
-       (check-sharing-and-write (eq? :eq (hash-type object)))
+       (check-sharing-and-write (identity-hash? object))
        (check-sharing-and-write (hash->a-list object)))
 
       ((subr)

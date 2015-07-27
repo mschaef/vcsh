@@ -1,5 +1,5 @@
 
-(define *auto-files* (make-hash :equal))
+(define *auto-files* (make-hash))
 
 (define (parse-auto-filename file-desc)
   (check string? file-desc)

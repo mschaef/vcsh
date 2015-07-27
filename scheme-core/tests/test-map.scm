@@ -5,7 +5,7 @@
   (test-case (list? (map identity '(1 2 3 4 5))))
   (test-case (equal? '(#f #t #f #t #f) (map even? '(1 2 3 4 5))))
   (test-case (runtime-error? (map () '(1 2 3 4 5))))
-  (test-case (runtime-error? (map even? #(1 2 3 4 5))))
+  (test-case (runtime-error? (map even? [1 2 3 4 5])))
 
   (test-case (equal? '() (map (lambda (x) (+ x 1)) '())))
   (test-case (equal? '(1) (map (lambda (x) (+ x 1)) '(0))))
@@ -109,7 +109,7 @@
   (test-case (list? (map-pair identity '(1 2 3 4 5))))
   (test-case (equal? '(#f #t #f #t #f) (map-pair (lambda (x) (even? (car x))) '(1 2 3 4 5))))
   (test-case (runtime-error? (map-pair () '(1 2 3 4 5))))
-  (test-case (runtime-error? (map-pair even? #(1 2 3 4 5))))
+  (test-case (runtime-error? (map-pair even? [1 2 3 4 5])))
 
   (test-case (equal? '() (map-pair identity '())))
   (test-case (equal? '((0)) (map-pair identity '(0))))

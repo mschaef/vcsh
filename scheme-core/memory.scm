@@ -13,7 +13,7 @@
 (define *gc-target-free-cell-factor* 0.9)
 
 (define (maybe-enlarge-heap cells-freed)
-  (dbind #(heap-segments heap-segment-cells max-heap-segments) (gc-info)
+  (dbind [heap-segments heap-segment-cells max-heap-segments] (gc-info)
     (let ((target-free-cells (* heap-segments heap-segment-cells *gc-target-free-cell-factor*)))
       (unless (>= cells-freed target-free-cells)
         (let ((heap-segments-needed (ceiling (/ (- target-free-cells cells-freed)

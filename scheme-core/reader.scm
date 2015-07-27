@@ -26,7 +26,7 @@
    "A mapping between characters and the action the reader takes upon encountering
     those characters. An action can either be a function to be invoked or a nested
     syntax-table."
-   :default (make-hash :eq)
+   :default (make-identity-hash)
 
    ;; The mapping hash can be mutated, but not rebound.
    :set #f)
@@ -140,7 +140,7 @@
   "Signals a read error."
   (abort 'read-error error-type port location args))
 
-(define *location-mapping* (make-hash :eq))
+(define *location-mapping* (make-identity-hash))
 
 (define (open-output-buffer)
   (let ((buf (open-output-string)))
@@ -318,11 +318,6 @@
   (let ((elems (read-list port)))
     (list->vector elems)))
 
-(define (read-hash port)
-  (read-char port)
-  (let ((elems (read-list port)))
-    (list->hash elems)))
-
 (define (read-with-read-time-eval port)
   (let ((obj (read port #t)))
     (eval obj)))
@@ -373,7 +368,6 @@
   (set-char-syntax! *readsharp-syntax* #\d 'read-fixnum-with-radix-10)
   (set-char-syntax! *readsharp-syntax* #\x 'read-fixnum-with-radix-16)
   (set-char-syntax! *readsharp-syntax* #\( 'read-vector)
-  (set-char-syntax! *readsharp-syntax* #\h 'read-hash)
   (set-char-syntax! *readsharp-syntax* #\n 'read-with-read-time-eval)
   (set-char-syntax! *readsharp-syntax* #\i 'read-inexact)
   (set-char-syntax! *readsharp-syntax* #\; 'read-sexpr-comment)
@@ -442,7 +436,7 @@
   (list->vector (read-sequence port #\[ #\])))
 
 (define (read-literal-hash port)
-  (list->hash (cons :equal (read-sequence port #\{ #\}))))
+  (list->hash (read-sequence port #\{ #\})))
 
 (define (accept-symbol-segment port)
   "Reads the next symbol segment from <port>, returning #f if there is no

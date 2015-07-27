@@ -133,7 +133,7 @@ type. If there is no valid typecode of that name, returns #f."
   "Returns a list of all currently defined classes in the class graph. These
    classes are returned in an order contstrained by the type graph: subclasses
    preceed superclasses"
-  (let ((classes (make-hash :eq)))
+  (let ((classes (make-identity-hash)))
     (dohash (sub super *class-graph* (qsort (hash-keys classes) class<=?))
             (hash-set! classes sub #t)
             (hash-set! classes super #t))))

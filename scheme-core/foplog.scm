@@ -38,7 +38,7 @@
   (map-pair #L(take-up-to _ length) log))
 
 (define (hist log)
-  (let ((counts (make-hash :equal)))
+  (let ((counts (make-hash)))
     (dolist (entry log)
       (hash-set! counts entry (+ 1 (hash-ref counts entry 0))))
     (qsort (hash->a-list counts) > cdr)))

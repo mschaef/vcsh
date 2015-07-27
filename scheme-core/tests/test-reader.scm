@@ -345,11 +345,11 @@
    
 
 (define-test read-vector
-  (let ((vec (read-from-string "#()")))
+  (let ((vec (read-from-string "[]")))
     (test-case (vector? vec))
     (test-case (= 0 (length vec))))
 
-  (let ((vec (read-from-string "#(1 2 3)")))
+  (let ((vec (read-from-string "[1 2 3]")))
     (test-case (vector? vec))
     (test-case (= 3 (length vec)))
     
@@ -357,18 +357,18 @@
     (test-case (= 2 (vector-ref vec 1)))
     (test-case (= 3 (vector-ref vec 2))))
 
-  (let ((vec (read-from-string "#(#(1 2 3) #(4 5 6) #(7 8 9))")))
+  (let ((vec (read-from-string "[[1 2 3] [4 5 6] [7 8 9]]")))
     (test-case (vector? vec))
     (test-case (= 3 (length vec)))
     
-    (test-case (equal? #(1 2 3) (vector-ref vec 0)))
-    (test-case (equal? #(4 5 6) (vector-ref vec 1)))
-    (test-case (equal? #(7 8 9) (vector-ref vec 2))))
+    (test-case (equal? [1 2 3] (vector-ref vec 0)))
+    (test-case (equal? [4 5 6] (vector-ref vec 1)))
+    (test-case (equal? [7 8 9] (vector-ref vec 2))))
 
-  (test-case (can-read/write-round-trip? #()))
-  (test-case (can-read/write-round-trip? #(1 2 3)))
+  (test-case (can-read/write-round-trip? []))
+  (test-case (can-read/write-round-trip? [1 2 3]))
   (test-case (can-read/write-round-trip? (make-vector 10)))
-  (test-case (can-read/write-round-trip? #(#(1 2 3) #(4 5 6) #(7 8 9)))))
+  (test-case (can-read/write-round-trip? [[1 2 3] [4 5 6] [7 8 9]])))
 
 (define-test read-sexpr-comment
   (test-case (= 1 (read-from-string "#;0 1")))
@@ -377,7 +377,7 @@
 
   (test-case (= 1 (read-from-string "#;\"2 3 4\" 1")))
 
-  (test-case (equal? #(1 2 8 9) (read-from-string "#(1 2 #;(3 \n 4) 8 9)"))))
+  (test-case (equal? [1 2 8 9] (read-from-string "[1 2 #;(3 \n 4) 8 9]"))))
 
 
 (when (find-package "stp-no-package")
@@ -498,7 +498,7 @@
   )
 
 (define-test read/location-mapping
-  (dynamic-let ((*location-mapping* (make-hash :eq)))
+  (dynamic-let ((*location-mapping* (make-identity-hash)))
     (let ((form (read-from-string "(:a :b \n :c 4)" *location-mapping*)))
     
       (test-case (equal? '(1 . 1) (cdr (hash-ref *location-mapping* :a))))
