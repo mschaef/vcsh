@@ -254,10 +254,10 @@ lref_t lwrite_char(lref_t ch, lref_t port)
 
 lref_t lwrite_strings(size_t argc, lref_t argv[])
 {
-     lref_t port = (argc < 1) ? NIL : argv[0];
+     if (argc < 1)
+          vmerror_unsupported(_T("Must specify port to write-strings"));
 
-     if (NULLP(port))
-          port = CURRENT_OUTPUT_PORT();
+     lref_t port = argv[0];
 
      if (!TEXT_PORTP(port))
           vmerror_wrong_type_n(1, port);
