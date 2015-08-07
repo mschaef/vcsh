@@ -298,7 +298,7 @@
         ((hash? object)
          (hash-ref object key default-value))
         (#t
-         (%slot-ref object key default-value))))
+         ()))) ; REVISIT: should this be error?
 
 (define (slot-set! object key value)
   "Updates the value of the slot in <object> named by <key> to <value>. <object>
@@ -309,7 +309,7 @@
         ((hash? object)
          (hash-set! object key value))
         (#t
-         (%slot-set! object key value))))
+         ()))) ; REVISIT: should this be error?
 
 (defmacro (define-structure name . slots)
   (mvbind (name meta procs) (parse-structure-definition name slots)

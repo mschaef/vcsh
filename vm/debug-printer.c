@@ -195,13 +195,13 @@ static void debug_print_hash(lref_t obj, lref_t port, bool machine_readable)
 {
      assert(HASHP(obj));
 
-     WRITE_TEXT_CONSTANT(port, _T("#h("));
+     WRITE_TEXT_CONSTANT(port, _T("{"));
 
-     debug_print_object(lhash_type(obj), port, machine_readable);
+     /* REVISIT: Print shallow flag? */
 
      debug_print_hash_elements(obj, port, machine_readable);
 
-     write_char(port, ')');
+     write_char(port, '}');
 }
 
 static const _TCHAR *charnames[] = {
@@ -298,14 +298,14 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
                scwritef(":~a", port, SYMBOL_PNAME(obj));
           else
           {
-               /*  With only a minimal c-level package implementation, we just assume
-                *  every symbol is private. */
+               /* With only a minimal c-level package implementation, we
+                * just assume every symbol is private. */
                scwritef("~a::~a", port, PACKAGE_NAME(SYMBOL_HOME(obj)), SYMBOL_PNAME(obj));
           }
           break;
 
      case TC_VECTOR:
-          WRITE_TEXT_CONSTANT(port, _T("#("));
+          WRITE_TEXT_CONSTANT(port, _T("["));
 
           for (ii = 0; ii < VECTOR_DIM(obj); ii++)
           {
@@ -315,7 +315,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
                     write_char(port, _T(' '));
           }
 
-          write_char(port, _T(')'));
+          write_char(port, _T(']'));
           break;
 
      case TC_STRUCTURE:

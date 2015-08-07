@@ -607,18 +607,16 @@
             (#t
              (cons (car lis) (loop (cdr lis))))))))
 
-(define (unique xs :keyword (:count count #f) (:equivalence equivalence :eq))
- (let ((counts (make-hash equivalence)))
-   (define (update x)
-     (hash-set! counts x (+ 1 (hash-ref counts x 0))))
-   (dolist (x xs)
-     (update x))
-   (if count
-       (hash->a-list counts)
-       (hash-keys counts))))
+(define (unique xs :keyword (:count count #f))
+  (let ((counts (make-hash)))
+    (dolist (x xs)
+      (hash-set! counts x (+ 1 (hash-ref counts x 0))))
+    (if count
+        (hash->a-list counts)
+        (hash-keys counts))))
 
 (define (radix-sort xs less? :optional (key identity))
- (let ((buckets (make-hash :eq)))
+ (let ((buckets (make-hash)))
    (dolist (x xs)
      (hash-push! buckets (key x) x))
    (append-map! cdr (qsort (hash->a-list buckets) less? car))))

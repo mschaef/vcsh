@@ -2,7 +2,7 @@
 
 (define-test test-member
   (test-case (runtime-error? (member 'x :not-a-list)))
-  (test-case (runtime-error? (member 'x #(not a list either))))
+  (test-case (runtime-error? (member 'x [not a list either])))
   (test-case (runtime-error? (member 1 '(x y z z . y))))
 
   (let ((xs '(1 :symbol (composite key) () "string")))

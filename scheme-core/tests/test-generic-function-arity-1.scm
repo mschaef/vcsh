@@ -19,7 +19,7 @@
   (test-case (eq? (tgf-1 3i) :complex))
   (test-case (eq? (tgf-1 #\3) :character))
   (test-case (eq? (tgf-1 "3") :string))
-  (test-case (eq? (tgf-1 #(3)) :default-handling))
+  (test-case (eq? (tgf-1 [3]) :default-handling))
   (test-case (eq? (tgf-1 '(3)) :default-handling))
   )
 

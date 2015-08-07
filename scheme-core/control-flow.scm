@@ -325,8 +325,6 @@
 
 ;;; Fully evaluating and/or
 
-
-
 (define (and* . args)
   "Computes the logical AND of <args>, WITHOUT short-circuit evaluation
    of <args>. All <args> are always evaluated. This function always

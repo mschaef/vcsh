@@ -6,4 +6,4 @@
   (test-case (not (boolean? 1)))
   (test-case (not (boolean? 'symbol)))
   (test-case (not (boolean? #\a)))
-  (test-case (not (boolean? #(1 2 3 4 5)))))
+  (test-case (not (boolean? [1 2 3 4 5]))))

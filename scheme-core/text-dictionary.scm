@@ -10,7 +10,7 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-(define *text-dictionary* (make-hash :eq))
+(define *text-dictionary* (make-identity-hash))
 
 (define (set-text! id string)
   "Updates the global text dictionary to associate the text <string>

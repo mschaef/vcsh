@@ -10,10 +10,17 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
+(define (make-set-hash key-type)
+  (case key-type
+    ((:eq) (make-identity-hash))
+    ((:equal) (make-hash))
+    (#t
+     (error "Invalid set key type: ~s" key-type))))
+
 (define (%set-union key-type xss)
   "Compute the union of the sets <xss>, where equivalence is determined
    using the <key-type> hash key type. The result is guaranteed to be a set."
-  (let ((objects (make-hash key-type)))
+  (let ((objects (make-set-hash key-type)))
     (dolist (xs xss)
       (dolist (x xs)
         (hash-set! objects x #t)))
@@ -38,7 +45,7 @@
 (define (%set-diff key-type xss)
   "Compute the difference of the sets <xss>, where equivalence is determined
    using the <key-type> hash key type. The result is guaranteed to be a set."
-  (let ((objects (make-hash key-type)))
+  (let ((objects (make-set-hash key-type)))
     (dolist (x (car xss)) (hash-set! objects x #t))
     (dolist (xs (cdr xss)) (dolist (x xs) (hash-set! objects x #f)))
     (hash-keys/t objects)))
@@ -52,7 +59,7 @@
   (%set-diff :eq xss))
 
 (define (list->hash-set key-type xs)
-  (let ((hash-set (make-hash key-type)))
+  (let ((hash-set (make-set-hash key-type)))
     (dolist (x xs) (hash-set! hash-set x #t))
     hash-set))
 
@@ -85,7 +92,7 @@
   "Given a list <xs>, return a bag. The resultant bag is an a-list
    binding values in <xs> to the number of times they occur in
    the original list."
- (let ((hash (make-hash)))
+ (let ((hash (make-set-hash)))
    (dolist (x xs)
      (hash-set! hash x (+ 1 (hash-ref hash x 0))))
    (hash->a-list hash)))

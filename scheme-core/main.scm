@@ -13,7 +13,7 @@
 
 ;;; Command line argument parser
 
-(define *command-argument-bindings* (make-hash :equal))
+(define *command-argument-bindings* (make-hash))
 (define *file-argument-handler* #f)
 (define *program-launch-name* #f)
 
@@ -287,7 +287,7 @@
     "Return a list of all distinct option bindings. The car of each list
      node is a list of the names bound to the procedure in the cdr of
      each list node. The lists are sorted into alphabetical order."
-    (let ((option-handler-bindings (make-hash :eq)))
+    (let ((option-handler-bindings (make-identity-hash)))
       (dohash (arg-name arg-binding *command-argument-bindings*)
               (hash-push! option-handler-bindings arg-binding arg-name))
       (qsort (map #L(cons (qsort (rest _) string<) (first _))

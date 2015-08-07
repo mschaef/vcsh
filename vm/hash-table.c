@@ -294,21 +294,14 @@ bool hash_equal(lref_t a, lref_t b)
      return true;
 }
 
-lref_t lmake_hash(lref_t key_type)
+lref_t lmake_hash()
 {
-     bool shallow = false;
+     return hashcons(false);
+}
 
-     if (NULLP(key_type))
-          key_type = keyword_intern(_T("equal"));
-
-     if (key_type == keyword_intern(_T("equal")))
-          shallow = false;
-     else if (key_type == keyword_intern(_T("eq")))
-          shallow = true;
-     else
-          vmerror_arg_out_of_range(key_type, _T(":equal or :eq"));
-
-     return hashcons(shallow);
+lref_t lmake_identity_hash()
+{
+     return hashcons(true);
 }
 
 lref_t lhashp(lref_t obj)
@@ -523,6 +516,28 @@ lref_t lhash_set(lref_t hash, lref_t key, lref_t value)
      return hash_set(hash, key, value, true);
 }
 
+lref_t lhash_set_multiple(lref_t hash, lref_t bindings)
+{
+     if (!HASHP(hash))
+          vmerror_wrong_type_n(1, hash);
+
+     lref_t pos = bindings;
+
+     while (!NULLP(pos))
+     {
+          if (!CONSP(pos) || !CONSP(CDR(pos))) {
+               dscwritef(DF_ALWAYS, ("list->hash: bindings=~s\n", bindings));
+               vmerror_arg_out_of_range(pos, _T("Invalid hash binding"));
+          }
+
+          lhash_set(hash, CAR(pos), CAR(CDR(pos)));
+
+          pos = CDR(CDR(pos));
+     }
+
+     return hash;
+}
+
 lref_t lhash_remove(lref_t hash, lref_t key)
 {
      if (!HASHP(hash))
@@ -537,7 +552,7 @@ lref_t lhash_remove(lref_t hash, lref_t key)
      }
 
      return hash;
-};
+}
 
 lref_t lhash_clear(lref_t hash)
 {
@@ -582,49 +597,6 @@ lref_t lihash_binding_vector(lref_t hash)
      return btable;
 }
 
-
-static bool init_slots(lref_t obj, lref_t initargs)
-{
-     if (!HASHP(obj))
-          vmerror_wrong_type_n(1, obj);
-
-     /* initargs takes the form of a property list:
-      *
-      * ( name1 value1 name2 value2 ...)
-      */
-     while (!NULLP(initargs))
-     {
-          if (!CONSP(initargs))
-               return true;
-
-          if (!CONSP(CDR(initargs)))
-               return true;
-
-          lhash_set(obj, CAR(initargs), CAR(CDR(initargs)));
-
-          initargs = CDR(CDR(initargs));
-     }
-
-     return false;
-}
-
-lref_t llist2hash(lref_t obj)
-{
-     if (!(CONSP(obj) || NULLP(obj)))
-          vmerror_wrong_type_n(1, obj);
-
-     lref_t key_type = lcar(obj);
-     lref_t bindings = lcdr(obj);
-
-     lref_t hash = lmake_hash(key_type);
-
-     if (init_slots(hash, bindings))
-          vmerror_arg_out_of_range(bindings, _T("Invalid hash binding"));
-
-     return hash;
-}
-
-
 lref_t lhash2alist(lref_t hash)
 {
      if (!HASHP(hash))
@@ -656,18 +628,12 @@ lref_t lhash2list(lref_t hash)
      while (hash_iter_next(hash, &ii, &key, &val))
           new_list = lcons(key, lcons(val, new_list));
 
-     return lcons(lhash_type(hash), new_list);
+     return new_list;
 }
 
-lref_t lhash_type(lref_t hash)
+lref_t lidentity_hash_p(lref_t obj)
 {
-     if (!HASHP(hash))
-          return boolcons(false);
-
-     if (HASH_SHALLOW(hash))
-          return keyword_intern(_T("eq"));
-     else
-          return keyword_intern(_T("equal"));
+     return boolcons(HASHP(obj) && HASH_SHALLOW(obj));
 }
 
 lref_t lhash_copy(lref_t hash)
@@ -694,14 +660,3 @@ size_t hash_length(lref_t hash)
      return HASH_COUNT(hash);
 }
 
-lref_t lislot_ref(lref_t inst, lref_t key)
-{
-     /** unneeded **/
-     return NIL;
-}
-
-lref_t lislot_set(lref_t inst, lref_t key, lref_t value)
-{
-     /** unneeded **/
-     return NIL;
-}

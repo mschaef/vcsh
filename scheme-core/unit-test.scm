@@ -47,7 +47,7 @@
 
 ;;;; Unit test definitions.
 
-(define *test-cases* (make-hash :eq))
+(define *test-cases* (make-identity-hash))
 (define *running-test-case* #f)
 
 

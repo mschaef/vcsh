@@ -20,7 +20,7 @@
 
 (define (find-import-details filenames)
   (map (lambda (filename)
-         (let ((details `#h(:eq source-filename ,filename)))
+         (let ((details `{source-filename ,filename}))
            (when (file-exists? filename)
              (let ((source-digest (file-sha1-digest filename)))
                ;; TODO: Add multiple hash-set!?

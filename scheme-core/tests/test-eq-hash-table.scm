@@ -2,11 +2,11 @@
 
 (define-test eq-hash-table
 
-  (let ((h1 (make-hash :eq))
-	(h2 (make-hash :equal))
-	(a '(1 2 3 4 5))
-	(b '(1 2 3 4 5))
-	(c '(1 2 3 4 5)))
+  (let ((h1 (make-identity-hash))
+        (h2 (make-hash))
+        (a '(1 2 3 4 5))
+        (b '(1 2 3 4 5))
+        (c '(1 2 3 4 5)))
     (hash-set! h1 a 1)
     (hash-set! h1 b 2)
     (hash-set! h1 c 3)

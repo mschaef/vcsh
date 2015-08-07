@@ -19,11 +19,11 @@
             (cdr it)
             #f)))
 
-(define *generic-function-method-list-cache* (make-hash :equal))
+(define *generic-function-method-list-cache* (make-hash))
 
 (define (invalidate-method-list-cache!)
   "%Invalidiates the method list cache."
-  (set! *generic-function-method-list-cache* (make-hash :equal)))
+  (set! *generic-function-method-list-cache* (make-hash)))
 
 (add-hook-function! '*class-graph-update-hook*
                     'invalidate-method-list-cache!)

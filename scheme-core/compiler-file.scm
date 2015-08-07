@@ -67,7 +67,7 @@
 
 ;;;; Toplevel form handlers
 
-(define *toplevel-form-handlers* #h(:eq))
+(define *toplevel-form-handlers* (make-identity-hash))
 
 (define (toplevel-file-form-symbols)
   (hash-keys *toplevel-form-handlers*))
@@ -327,7 +327,7 @@
                         (throw 'end-compile-now return-code))))
         (handler-bind ((runtime-error compiler-runtime-error-handler))
           (setup-initial-package!)
-          (dynamic-let ((*location-mapping* (make-hash :eq)))
+          (dynamic-let ((*location-mapping* (make-identity-hash)))
             (do-compile-files input-filenames
                               output-filename))
           (trace-message #t "; Compile completed successfully.\n"))

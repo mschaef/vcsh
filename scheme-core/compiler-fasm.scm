@@ -18,8 +18,8 @@
   arity
   formals)
 
-(define *fop-name->fop-defn* (make-hash :eq))
-(define *fop-opcode->fop-defn* (make-hash :eq))
+(define *fop-name->fop-defn* (make-identity-hash))
+(define *fop-opcode->fop-defn* (make-identity-hash))
 
 (define (valid-fop-formals? formals)
   (define (valid-formal-type? type)

@@ -108,7 +108,7 @@
     (#t #f)))
 
 (define (frame-decode frp)
-  (let ((frame (make-hash :eq)))
+  (let ((frame (make-identity-hash)))
     (hash-set! frame :frp frp)
     (let ((ftype (frame-type frp)))
       (hash-set! frame :frame-type ftype)
@@ -218,9 +218,7 @@
   (throw 'ignore-user-break))
 
 (define (error-with-stack stack-trace message . args)
-  (let ((error-info `#h(:eq :message ,message
-                            :args ,args
-                            :stack-trace ,stack-trace)))
+  (let ((error-info `{:message ,message :args ,args :stack-trace ,stack-trace}))
     (catch 'ignore-error
       (abort 'runtime-error error-info))))
 

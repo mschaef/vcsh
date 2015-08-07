@@ -39,7 +39,7 @@
     (or (%immediate? obj)
         (and (symbol? obj)
              (symbol-package obj))))
-  (let ((visited-objects (make-hash :eq))
+  (let ((visited-objects (make-identity-hash))
         (to-visit (cons object)))
     (let loop ()
       (unless (null? to-visit)
@@ -70,7 +70,7 @@
                 (#t
                  ())))
         (loop)))
-    (let ((table (make-hash :eq)))
+    (let ((table (make-identity-hash)))
       (dohash (k v visited-objects (hash-set! table *printer-index-key* 0))
           (when v
             (hash-set! table k #f))))))
@@ -88,17 +88,17 @@
       (rich-write obj machine-readable? port)
       #f))
 
-(define *character-names* #("nul"      "soh"      "stx"
-                            "etx"      "eot"      "eng"
-                            "ack"      "bel"      "bs"
-                            "tab"      "newline"  "vtab"
-                            "formfeed" "cr"       "so"
-                            "si"       "dle"      "dc1"
-                            "dc2"      "dc3"      "dc4"
-                            "nak"      "syn"      "etb"
-                            "can"      "em"       "sub"
-                            "esc"      "fs"       "gs"
-                            "rs"       "us"       "space"))
+(define *character-names* ["nul"      "soh"      "stx"
+                           "etx"      "eot"      "eng"
+                           "ack"      "bel"      "bs"
+                           "tab"      "newline"  "vtab"
+                           "formfeed" "cr"       "so"
+                           "si"       "dle"      "dc1"
+                           "dc2"      "dc3"      "dc4"
+                           "nak"      "syn"      "etb"
+                           "can"      "em"       "sub"
+                           "esc"      "fs"       "gs"
+                           "rs"       "us"       "space"])
 
 (define (%obaddr-string obj)
   (let ((str (string-append "00000000" (number->string (%obaddr obj) 16))))
@@ -236,20 +236,20 @@
 
 (define-method (print-object (obj vector) port machine-readable? shared-structure-map)
   (with-new-print-level port
-    (write-strings port "#(")
+    (write-strings port "[")
     (let loop ((ii 0) (need-space? #f))
       (cond ((at-length-check-limit? ii)
              (let ((len (- (length obj) ii)))
                (when (> len 0)
                  (unreadable (format port " #<... n=~a>" (- (length obj) ii))))
-               (format port ")")))
+               (format port "]")))
             ((< ii (length obj))
              (when need-space?
                (write-strings port " "))
              (print (vector-ref obj ii) port machine-readable? shared-structure-map)
              (loop (+ ii 1) #t))
             (#t
-             (write-strings port ")"))))))
+             (write-strings port "]"))))))
 
 (define-method (print-object (obj subr) port machine-readable? shared-structure-map)
   (print-unreadable-object obj port
@@ -364,7 +364,8 @@
   (catch 'abort-hash-element-print
     (let ((count 0))
       (dohash (k v obj)
-        (write-strings port " ")
+        (unless (= count 0)
+          (write-strings port " "))
         (when (at-length-check-limit? count)
           (unreadable (format port " #<... n=~a>" (- (length obj) count)))
           (throw 'abort-hash-element-print))
@@ -375,11 +376,13 @@
 
 (define-method (print-object (obj hash) port machine-readable? shared-structure-map)
   (with-new-print-level port
-    (write-strings port "#h(")
-    (print (hash-type obj) port #t shared-structure-map)
-    (print-hash-elements obj port machine-readable? shared-structure-map)
-    (write-strings port ")")))
-
+    (if (identity-hash? obj)
+        (print-unreadable-object obj port
+           (write-strings port " (by-identity)"))
+        (begin
+          (write-strings port "{")
+          (print-hash-elements obj port machine-readable? shared-structure-map)
+          (write-strings port "}")))))
 
 ;;;; formatter
 

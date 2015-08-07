@@ -1,21 +1,14 @@
 
 ;;;; hash.scm --
 ;;;;
-;;;; Scheme support for hash tabls.
+;;;; Scheme support for hash tables.
 ;;;;
-;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Copyright 2001-2015 East Coast Toolworks Inc.
 ;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
 ;;;;
 ;;;; See the file "license.terms" for information on usage and
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
-
-(define (key-list->hash keys hash-type default-value)
-  "Returns a hash table of type <hash-type> with a key for each element
-   in <keys>. <default-value> is bound to each key."
-  (let ((h (make-hash hash-type)))
-    (dolist (key keys h) ; REVISIT: fold would be perfect for this.
-      (hash-set! h key default-value))))
 
 (define (hash-keys hash)
   (map car (hash->a-list hash)))
@@ -48,12 +41,23 @@
        (hash-for-each (lambda (,k-var ,v-var) ,@body) ,hash-form)
        ,result-form)))
 
-(define (a-list->hash a-list :optional (hash-type :equal))
-  (let ((hash (make-hash hash-type)))
-    (dolist (k/v (minimal-alist a-list (case hash-type
-                                         ((:equal) assoc)
-                                         ((:eq) assq)
-                                         (#t (error "Invalid hash-type: ~a" hash-type)))))
+(define (a-list->hash a-list)
+  (let ((hash (make-hash)))
+    (dolist (k/v (minimal-alist a-list))
       (dbind (k . v) k/v
         (hash-set! hash k v)))
     hash))
+
+(define (list->hash kvs)
+  (hash-set-multiple! (make-hash) kvs))
+
+(define (list->identity-hash kvs)
+  (hash-set-multiple! (make-identity-hash) kvs))
+
+(define (identity-hash . kvs)
+  (list->identity-hash kvs))
+
+(define (hash . kvs)
+  (list->hash kvs))
+
+

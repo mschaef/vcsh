@@ -14,9 +14,9 @@
   (let ((a (list->vector '(1))))
     (test-case (vector? a))
     (test-case (= 1 (length a)))
-    (test-case (equal? #(1) a)))
+    (test-case (equal? [1] a)))
 
   (let ((a (list->vector '(1 2 3))))
     (test-case (vector? a))
     (test-case (= 3 (length a)))
-    (test-case (equal? #(1 2 3) a))))
+    (test-case (equal? [1 2 3] a))))

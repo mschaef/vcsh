@@ -1,7 +1,7 @@
 (use-package! "unit-test")
 
 (define-test hash-set!
-  (let ((h (make-hash :eq)))
+  (let ((h (make-identity-hash)))
     (test-case (runtime-error? (hash-set! :not-a-hash 'foo 'bar)))
 
     (test-case (eq? h (hash-set! h :foo-1 :bar-1)))
@@ -11,7 +11,7 @@
     (test-case (eq? :bar-3 (hash-ref h :foo-1 :not-found)))
     (test-case (eq? :bar-2 (hash-ref h :foo-2 :not-found))))
 
-  (let ((h (make-hash :equal)))
+  (let ((h (make-hash)))
     (test-case (eq? h (hash-set! h :foo-1 :bar-1)))
     (test-case (eq? h (hash-set! h :foo-2 :bar-2)))
     (test-case (eq? h (hash-set! h :foo-1 :bar-3)))
@@ -20,12 +20,12 @@
     (test-case (eq? :bar-2 (hash-ref h :foo-2 :not-found)))))
 
 (define-test hash-has?
-  (let ((h (make-hash :eq)))
+  (let ((h (make-identity-hash)))
     (test-case (not (hash-has? h 'foo)))
     (hash-set! h 'foo 'bar)
     (test-case (eq? h (hash-has? h 'foo))))
 
-  (let ((h (make-hash :equal)))
+  (let ((h (make-hash)))
     (test-case (not (hash-has? h 'foo)))
     (hash-set! h 'foo 'bar)
     (test-case (eq? h (hash-has? h 'foo)))))
@@ -42,8 +42,8 @@
   (test-case (runtime-error? (hash-ref  :not-a-hash-table 11)))
   (test-case (runtime-error? (hash-ref*  :not-a-hash-table 11)))
 
-  (let ((h (make-hash ))
-        (h2 (make-hash )))
+  (let ((h (make-hash))
+        (h2 (make-hash)))
 
     (test-case (can-read/write-round-trip? h))
     
@@ -109,7 +109,7 @@
     ))
 
 (define-test hash-ref-star
-  (let ((h (make-hash :equal))
+  (let ((h (make-hash))
 	(k '(h e l l o - w o r l d)))
     (hash-set! h k :test-symbol)
    
@@ -119,8 +119,8 @@
       (test-case (eq? (cdr k/v) :test-symbol)))))
 
 (define-test hash-length
-  (let ((h/eq    (make-hash :eq   ))
-        (h/equal (make-hash :equal)))
+  (let ((h/eq    (make-identity-hash))
+        (h/equal (make-hash)))
     (test-case (= 0 (length h/eq)))
     (test-case (= 0 (length h/equal)))
     
@@ -178,23 +178,19 @@
   (test-case (runtime-error? (list->hash :not-a-list)))
 
   (test-case (hash? (list->hash ())))
-  (test-case (eq? :equal (hash-type (list->hash ()))))
+  (test-case (not (identity-hash? (list->hash ()))))
 
-  (test-case (eq? :eq (hash-type (list->hash '(:eq)))))
-  (test-case (eq? :equal (hash-type (list->hash '(:equal)))))
+  (test-case (not (identity-hash? (list->hash '(c d)))))
 
-  (test-case (eq? :eq (hash-type (list->hash '(:eq a b)))))
-  (test-case (eq? :equal (hash-type (list->hash '(:equal c d)))))
-
-  (let ((h (list->hash '(:eq a b c d))))
+  (let ((h (list->hash '(a b c d))))
     (test-case (hash-has? h 'a))
     (test-case (eq? (hash-ref h 'a) 'b))
     
     (test-case (hash-has? h 'c))
     (test-case (eq? (hash-ref h 'c) 'd)))
 
-  (test-case (runtime-error? (list->hash '(:eq a b c . d))))
-  (test-case (runtime-error? (list->hash '(:eq :invalid-binding)))))
+  (test-case (runtime-error? (list->hash '(a b c . d))))
+  (test-case (runtime-error? (list->hash '(:invalid-binding)))))
 
 (define-test hash-big
   (let ((h (make-hash)))
@@ -209,31 +205,22 @@
 
       (test-case big-hash-has-all-elements?))))
 
-(define-test hash-type
+(define-test identity-hash?
+  (test-case (identity-hash? (make-identity-hash)))
+  (test-case (not (identity-hash? (make-hash))))
+  (test-case (not (identity-hash? {})))
 
-  (test-case (eq? :eq (hash-type (make-hash :eq))))
-  (test-case (eq? :equal (hash-type (make-hash :equal))))
-  (test-case (eq? :equal (hash-type (make-hash))))
-  (test-case (runtime-error? (make-hash :foo)))  
-  (test-case (runtime-error? (make-hash 'foo)))
-
-  (test-case (eq? :eq (hash-type #h(:eq a 1 b 2))))
-  (test-case (eq? :eq (hash-type #h(:eq))))
-
-  (test-case (eq? :equal (hash-type #h(:equal a 1 b 2))))
-  (test-case (eq? :equal (hash-type #h(:equal))))
-
-  (test-case (eq? #f (hash-type 0)))
-  (test-case (eq? #f (hash-type 0.0)))
-  (test-case (eq? #f (hash-type 0.0+0.0i)))
-  (test-case (eq? #f (hash-type #f)))
-  (test-case (eq? #f (hash-type 'a))))
+  (test-case (not (identity-hash? 0)))
+  (test-case (not (identity-hash? 0.0)))
+  (test-case (not (identity-hash? 0.0+0.0i)))
+  (test-case (not (identity-hash? #f)))
+  (test-case (not (identity-hash? 'a))))
 
 (define-test hash-copy
-  (let* ((a #h(:eq a 1 b 2 c 3 d 4))
-	 (b (hash-copy a))
-	 (c #h(:equal a 1 b 2 c 3 d 4))
-	 (d (hash-copy c)))
+  (let* ((a (identity-hash :a 1 :b 2 :c 3 :d 4))
+         (b (hash-copy a))
+         (c {a 1 b 2 c 3 d 4})
+         (d (hash-copy c)))
     (test-case (not (eq? a b)))
     (test-case (equal? a b))
 
@@ -241,10 +228,10 @@
     (test-case (equal? c d))))
 
 (define-test hash-equal?
-  (let ((h1 #h(:eq a b))
-        (h1a #h(:eq a b))
-        (h2 #h(:eq a b c d))
-        (h2a #h(:eq a b c d)))
+  (let ((h1 (identity-hash :a :b))
+        (h1a (identity-hash :a :b))
+        (h2 (identity-hash :a :b :c :d))
+        (h2a (identity-hash :a :b :c :d)))
 
     (test-case (equal? h1 h1))
     (test-case (equal? h1 h1a))
@@ -257,10 +244,10 @@
     (test-case (not (equal? h1 h2)))
     (test-case (not (equal? h2 h1))))
 
-  (let ((h1 #h(:equal "a" "b"))
-        (h1a #h(:equal "a" "b"))
-        (h2 #h(:equal "a" "b" "c" "d"))
-        (h2a #h(:equal "a" "b" "c" "d")))
+  (let ((h1 {"a" "b"})
+        (h1a {"a" "b"})
+        (h2 {"a" "b" "c" "d"})
+        (h2a {"a" "b" "c" "d"}))
 
     (test-case (equal? h1 h1))
     (test-case (equal? h1 h1a))
@@ -274,10 +261,10 @@
     (test-case (not (equal? h2 h1)))))
 
 (define-test hash-table-complex-key
-  (let ((h  (make-hash))
-	(h2 (make-hash))
-	(k  '(h e l l o - w o r l d))
-	(k2 #(3 1 4 1 5 9 2 6 5 2 5)))
+  (let ((h (make-hash))
+        (h2 (make-hash))
+        (k  '(h e l l o - w o r l d))
+        (k2 [3 1 4 1 5 9 2 6 5 2 5]))
 
     (hash-set! h   k  'foo)
     (hash-set! h   k2 'bar)
@@ -305,25 +292,22 @@
 
 
 (define-test hash-sxhash
-  (let ((h/eq (make-hash :eq))
-        (h/equal (make-hash :equal)))
+  (let ((h/eq (make-identity-hash))
+        (h/equal (make-hash)))
 
     (test-case (runtime-error? (sxhash 'foo :not-a-hash)))
-    (test-case (not (= (sxhash "foo" h/eq) (sxhash "foo" h/equal))))
-
-    ))
+    (test-case (not (= (sxhash "foo" h/eq) (sxhash "foo" h/equal))))))
     
 (define-test hash-subr-keys
-  (let ((h (make-hash :equal)))
+  (let ((h (make-hash)))
     (hash-set! h car 'car)
     (hash-set! h cdr 'cdr)
 
     (test-case (eq? (hash-ref h car) 'car))
-    (test-case (eq? (hash-ref h cdr) 'cdr))
-    ))
+    (test-case (eq? (hash-ref h cdr) 'cdr))))
     
 (define-test hash-flonum-keys
-  (let ((h (make-hash :equal)))
+  (let ((h (make-hash)))
     (hash-set! h #inan    #inan   )
     (hash-set! h #ineginf #ineginf)
     (hash-set! h #iposinf #iposinf)

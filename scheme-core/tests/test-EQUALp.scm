@@ -89,17 +89,17 @@
 ;;; vectors
 
 (define-test EQUAL?-simple-vector
-  (test-case (EQUAL? #(1) #(1)))
-  (test-case (EQUAL? #(1 2) #(1 2)))
-  (test-case (EQUAL? #(1 2 3) #(1 2 3)))
-  (test-case (EQUAL? #(1 2 3 4 5 6 7 8 9 10) #(1 2 3 4 5 6 7 8 9 10)))
-  (test-case (not (EQUAL? #(1) #(2))))
-  (test-case (not (EQUAL? #(1 2) #(3 2))))
-  (test-case (not (EQUAL? #(1 2) #(1 3))))
-  (test-case (not (EQUAL? #(1 2 3) #(2 2 3))))
-  (test-case (not (EQUAL? #(1 2 3) #(1 3 3))))
-  (test-case (not (EQUAL? #(1 2 3) #(1 2 4))))
-  (test-case (not (EQUAL? #(1 2 3 4 5 6 7 8 9 11) #(1 2 3 4 5 6 7 8 9 10))))
+  (test-case (EQUAL? [1] [1]))
+  (test-case (EQUAL? [1 2] [1 2]))
+  (test-case (EQUAL? [1 2 3] [1 2 3]))
+  (test-case (EQUAL? [1 2 3 4 5 6 7 8 9 10] [1 2 3 4 5 6 7 8 9 10]))
+  (test-case (not (EQUAL? [1] [2])))
+  (test-case (not (EQUAL? [1 2] [3 2])))
+  (test-case (not (EQUAL? [1 2] [1 3])))
+  (test-case (not (EQUAL? [1 2 3] [2 2 3])))
+  (test-case (not (EQUAL? [1 2 3] [1 3 3])))
+  (test-case (not (EQUAL? [1 2 3] [1 2 4])))
+  (test-case (not (EQUAL? [1 2 3 4 5 6 7 8 9 11] [1 2 3 4 5 6 7 8 9 10])))
   )
 
 (define-test EQUAL?-shared-vector
@@ -108,13 +108,13 @@
     (vector-set! l1-a 9 l1-a)
     (vector-set! l2-a 9 l2-a)
     (test-case (EQUAL? l1-a l2-a))
-    (test-case (not (EQUAL? l1-a #(#f #f #f #f #f #f #f #f #f #f)))))
+    (test-case (not (EQUAL? l1-a [#f #f #f #f #f #f #f #f #f #f]))))
   (let ((l1-a (make-vector 10 #f))
 	(l2-a (make-vector 10 #f)))
     (vector-set! l1-a 0 l1-a)
     (vector-set! l2-a 0 l2-a)
     (test-case (EQUAL? l1-a l2-a))
-    (test-case (not (EQUAL? l1-a #(#f #f #f #f #f #f #f #f #f #f)))))
+    (test-case (not (EQUAL? l1-a [#f #f #f #f #f #f #f #f #f #f]))))
   (let ((l1-a (make-vector 10 #f))
 	(l2-a (make-vector 10 #f)))
     (let loop ((i 0))
@@ -123,12 +123,12 @@
 	(vector-set! l2-a i l2-a)
 	(loop (+ i 1)))) 
     (test-case (EQUAL? l1-a l2-a))
-    (test-case (not (EQUAL? l1-a #(#f #f #f #f #f #f #f #f #f #f)))))
-  (let ((a #(1 2 3)))
+    (test-case (not (EQUAL? l1-a [#f #f #f #f #f #f #f #f #f #f]))))
+  (let ((a [1 2 3]))
     (let ((v1-a (vector a a))
 	  (v1-b (vector a a))
-	  (v2-a #(#(1 2 3) #(1 2 3)))
-	  (v2-b #(#(1 2 3) #(1 2 3))))
+	  (v2-a [[1 2 3] [1 2 3]])
+	  (v2-b [[1 2 3] [1 2 3]]))
       (test-case (EQUAL? v1-a v1-a))
       (test-case (EQUAL? v1-a v1-b))
       (test-case (EQUAL? v2-a v2-a))
@@ -137,8 +137,8 @@
       (test-case (not (EQUAL? v2-a v1-a))))
     (let ((v1-a (list a '(1 2 3) a))
 	  (v1-b (list a '(1 2 3) a))
-	  (v2-a #(#(1 2 3) #(1 2 3) #(1 2 3)))
-	  (v2-b #(#(1 2 3) #(1 2 3) #(1 2 3))))
+	  (v2-a [[1 2 3] [1 2 3] [1 2 3]])
+	  (v2-b [[1 2 3] [1 2 3] [1 2 3]]))
       (test-case (EQUAL? v1-a v1-a))
       (test-case (EQUAL? v1-a v1-b))
       (test-case (EQUAL? v2-a v2-a))
@@ -150,27 +150,26 @@
 ;;; hashes
 
 (define-test EQUAL?-simple-hash
-  (test-case (EQUAL? #h(:eq) #h(:eq)))
-  (test-case (EQUAL? #h(:equal) #h(:equal)))
-  (test-case (EQUAL? #h(:eq a 1) #h(:eq a 1)))
-  (test-case (EQUAL? #h(:equal a 1) #h(:equal a 1)))
-  (test-case (EQUAL? #h(:eq a 1 b 12) #h(:eq a 1 b 12)))
-  (test-case (EQUAL? #h(:equal a 1 b 12) #h(:equal a 1 b 12)))
-  (test-case (EQUAL? #h(:equal 2943 a 2321 b) #h(:equal 2321 b 2943 a)))
-  (test-case (EQUAL? #h(:equal (h e l l o - w o r l d) 123
-                           (f r o b o z z l e) 23
-                           #(1 2 3 4 2 2 3) 23)
-                 #h(:equal(f r o b o z z l e) 23
-                          #(1 2 3 4 2 2 3) 23
-                          (h e l l o - w o r l d) 123)))
-  )
+  (test-case (EQUAL? (identity-hash) (identity-hash)))
+  (test-case (EQUAL? {} {}))
+  (test-case (EQUAL? (identity-hash :a 1) (identity-hash :a 1)))
+  (test-case (EQUAL? {a 1} {a 1}))
+  (test-case (EQUAL? (identity-hash :a 1 :b 12) (identity-hash :a 1 :b 12)))
+  (test-case (EQUAL? {a 1 b 12} {a 1 b 12}))
+  (test-case (EQUAL? {2943 a 2321 b} {2321 b 2943 a}))
+  (test-case (EQUAL? {(h e l l o - w o r l d) 123
+                      (f r o b o z z l e) 23
+                      [1 2 3 4 2 2 3] 23}
+                     {(f r o b o z z l e) 23
+                      [1 2 3 4 2 2 3] 23
+                      (h e l l o - w o r l d) 123})))
 
 (define-test EQUAL?-shared-hash
   ; Keys with shared structure
   (let ((a '(100000 200000 300000))
-	(b '(400000 500000 600000))
-	(h1 (make-hash :equal))
-	(h2 (make-hash :equal)))
+        (b '(400000 500000 600000))
+        (h1 (make-hash))
+        (h2 (make-hash)))
     (hash-set! h1 (cons 0 a) :test-symbol-1)
     (hash-set! h2 '(0 100000 200000 300000) :test-symbol-1)
     (test-case (equal? h1 h2))
@@ -181,9 +180,9 @@
     (test-case (not (EQUAL? h1 h2))))
   ; Values with shared structure
   (let ((a '(100000 200000 300000))
-	(b '(400000 500000 600000))
-	(h1 (make-hash :equal))
-	(h2 (make-hash :equal)))
+        (b '(400000 500000 600000))
+        (h1 (make-hash))
+        (h2 (make-hash)))
     (hash-set! h1 :test-symbol-1 (cons 0 a))
     (hash-set! h2 :test-symbol-1 '(0 100000 200000 300000))
     (test-case (equal? h1 h2))
@@ -193,8 +192,8 @@
     (test-case (equal? h1 h2))
     (test-case (not (EQUAL? h1 h2))))
   ; Circular Structure
-  (let ((h1 (make-hash :eq))
-	(h2 (make-hash :eq)))
+  (let ((h1 (make-identity-hash))
+        (h2 (make-identity-hash)))
     (hash-set! h1 :foo (circular-list 1))
     (hash-set! h2 :foo (circular-list 1))
     (test-case (EQUAL? h1 h2))
