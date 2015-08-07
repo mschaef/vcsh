@@ -1,3 +1,4 @@
+
 ;;;; Saved benchmark results - DO NOT ALTER!!!
 ;;;; 
 ;;;; 
@@ -5834,4 +5835,26 @@
 #S(benchmark-result :seq 6548 :system ("iivx" :linux :debug) :test-name mandelbrot-cplx :timings (999.010 866.541) :run-time #D"2014-04-03T14:07:26-0400")
 #S(benchmark-result :seq 6549 :system ("iivx" :linux :debug) :test-name qsorting :timings (17.9446 17.9446) :run-time #D"2014-04-03T14:07:27-0400")
 #S(benchmark-result :seq 6550 :system ("iivx" :linux :debug) :test-name slow-queue :timings (239.092 239.092) :run-time #D"2014-04-03T14:07:27-0400")
+#S(benchmark-result :seq 6640 :system ("mschae-mba-osx" :linux :debug) :test-name compile-simple-form :timings (239.953 239.953) :run-time #D"2015-08-07T14:50:18-0400")
+#S(benchmark-result :seq 6641 :system ("mschae-mba-osx" :linux :debug) :test-name exec-loop-repeat :timings (31.4315 31.4315) :run-time #D"2015-08-07T14:50:19-0400")
+#S(benchmark-result :seq 6642 :system ("mschae-mba-osx" :linux :debug) :test-name fast-queue :timings (74.8088 74.8088) :run-time #D"2015-08-07T14:50:20-0400")
+#S(benchmark-result :seq 6643 :system ("mschae-mba-osx" :linux :debug) :test-name fibonacci :timings (10.6562 10.6562) :run-time #D"2015-08-07T14:50:21-0400")
+#S(benchmark-result :seq 6644 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-inline :timings (0.00077 0.00077) :run-time #D"2015-08-07T14:50:22-0400")
+#S(benchmark-result :seq 6645 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-inline-args :timings (0.00092 0.00092) :run-time #D"2015-08-07T14:50:24-0400")
+#S(benchmark-result :seq 6646 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-local :timings (0.00078 0.00078) :run-time #D"2015-08-07T14:50:28-0400")
+#S(benchmark-result :seq 6647 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-local-args :timings (0.00099 0.00099) :run-time #D"2015-08-07T14:50:29-0400")
+#S(benchmark-result :seq 6648 :system ("mschae-mba-osx" :linux :debug) :test-name mandelbrot-cplx :timings (473.898 473.898) :run-time #D"2015-08-07T14:50:29-0400")
+#S(benchmark-result :seq 6649 :system ("mschae-mba-osx" :linux :debug) :test-name qsorting :timings (10.0348 10.0348) :run-time #D"2015-08-07T14:50:30-0400")
+#S(benchmark-result :seq 6650 :system ("mschae-mba-osx" :linux :debug) :test-name slow-queue :timings (116.454 116.454) :run-time #D"2015-08-07T14:50:31-0400")
+#S(benchmark-result :seq 6662 :system ("mschae-mba-osx" :linux :debug) :test-name compile-simple-form :timings (229.477 199.258) :run-time #D"2015-08-07T14:52:12-0400")
+#S(benchmark-result :seq 6663 :system ("mschae-mba-osx" :linux :debug) :test-name exec-loop-repeat :timings (27.0279 27.0279) :run-time #D"2015-08-07T14:52:12-0400")
+#S(benchmark-result :seq 6664 :system ("mschae-mba-osx" :linux :debug) :test-name fast-queue :timings (68.5670 68.5670) :run-time #D"2015-08-07T14:52:12-0400")
+#S(benchmark-result :seq 6665 :system ("mschae-mba-osx" :linux :debug) :test-name fibonacci :timings (10.7699 10.7699) :run-time #D"2015-08-07T14:52:13-0400")
+#S(benchmark-result :seq 6666 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-inline :timings (0.00078 0.00071) :run-time #D"2015-08-07T14:52:14-0400")
+#S(benchmark-result :seq 6667 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-inline-args :timings (0.00107 0.00095) :run-time #D"2015-08-07T14:52:15-0400")
+#S(benchmark-result :seq 6668 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-local :timings (0.00092 0.00079) :run-time #D"2015-08-07T14:52:17-0400")
+#S(benchmark-result :seq 6669 :system ("mschae-mba-osx" :linux :debug) :test-name funcall-local-args :timings (0.00123 0.00110) :run-time #D"2015-08-07T14:52:18-0400")
+#S(benchmark-result :seq 6670 :system ("mschae-mba-osx" :linux :debug) :test-name mandelbrot-cplx :timings (503.738 467.813) :run-time #D"2015-08-07T14:52:19-0400")
+#S(benchmark-result :seq 6671 :system ("mschae-mba-osx" :linux :debug) :test-name qsorting :timings (11.3326 10.2626) :run-time #D"2015-08-07T14:52:20-0400")
+#S(benchmark-result :seq 6672 :system ("mschae-mba-osx" :linux :debug) :test-name slow-queue :timings (139.490 118.472) :run-time #D"2015-08-07T14:52:20-0400")
 ; end benchmark results
