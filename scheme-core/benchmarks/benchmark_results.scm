@@ -3849,4 +3849,8 @@
 #S(benchmark-result :seq 6849 :system ("mschae-mba-osx" :linux :debug) :test-name write-char-to-string :timings (52.2433 51.0566) :run-time #D"2015-08-07T18:07:01-0400")
 #S(benchmark-result :seq 6850 :system ("mschae-mba-osx" :linux :debug) :test-name write-strings-to-string :timings (13.9716 13.6450) :run-time #D"2015-08-07T18:07:16-0400")
 #S(benchmark-result :seq 6852 :system ("mschae-mba-osx" :linux :debug) :test-name EQUAL? :timings (924.574 782.118) :run-time #D"2015-08-07T23:05:19-0400")
+#S(benchmark-result :seq 6853 :system ("mschae-mba-osx" :linux :debug) :test-name hash-ref-eq :timings (0.18964 0.16294) :run-time #D"2015-08-08T16:02:38-0400")
+#S(benchmark-result :seq 6854 :system ("mschae-mba-osx" :linux :debug) :test-name hash-ref-seq-numbers/eq :timings (52.6905 50.4808) :run-time #D"2015-08-08T16:02:52-0400")
+#S(benchmark-result :seq 6855 :system ("mschae-mba-osx" :linux :debug) :test-name hash-set!-eq :timings (0.19600 0.16885) :run-time #D"2015-08-08T16:03:04-0400")
+#S(benchmark-result :seq 6856 :system ("mschae-mba-osx" :linux :debug) :test-name hash-set!-seq-numbers/eq :timings (56.2815 53.9339) :run-time #D"2015-08-08T16:03:19-0400")
 ; end benchmark results
