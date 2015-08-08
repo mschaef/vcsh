@@ -65,7 +65,7 @@ it's running on."
 
 (define *last-benchmark-result-set* '())
 
-(define *reference-benchmark-result-sets* (make-hash :equal))
+(define *reference-benchmark-result-sets* (make-hash))
 
 (define *benchmark-results-filename* "benchmark_results.scm")
 

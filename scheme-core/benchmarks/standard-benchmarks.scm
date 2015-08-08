@@ -179,13 +179,13 @@
   (account (begin (with-port p (open-file "big_csv_file.sxp") (read p)) '())))
 
 (defbench hash-set!-seq-numbers
-  (let ((htable (make-hash :equal)))
+  (let ((htable (make-hash)))
     (account
      (dotimes (ii 100000)
        (hash-set! htable ii ii)))))
 
 (defbench hash-ref-seq-numbers
-  (let ((htable (make-hash :equal)))
+  (let ((htable (make-hash)))
     (dotimes (ii 100000)
       (hash-set! htable ii ii))
     (account
@@ -193,13 +193,13 @@
        (hash-ref htable ii)))))
 
 (defbench hash-set!-seq-numbers/eq
-  (let ((htable (make-hash :eq)))
+  (let ((htable (make-identity-hash)))
     (account
      (dotimes (ii 100000)
        (hash-set! htable ii ii)))))
 
 (defbench hash-ref-seq-numbers/eq
-  (let ((htable (make-hash :eq)))
+  (let ((htable (make-identity-hash)))
     (dotimes (ii 100000)
       (hash-set! htable ii ii))
     (account
@@ -207,13 +207,13 @@
        (hash-ref htable ii)))))
 
 (defbench hash-set!-eq
-  (let ((htable (make-hash :eq)))
+  (let ((htable (make-identity-hash)))
     (account
      (for-each (lambda (sym) (hash-set! htable sym 'foo))
                *hash-test-syms*))))
 
 (defbench hash-ref-eq
-  (let ((htable (make-hash :eq)))
+  (let ((htable (make-identity-hash)))
     (for-each (lambda (sym) (hash-set! htable sym 'foo))
               *hash-test-syms*)
     (account
@@ -221,13 +221,13 @@
                *hash-test-syms*))))
 
 (defbench hash-set!-equal
-  (let ((htable (make-hash :equal)))
+  (let ((htable (make-hash)))
     (account
      (for-each (lambda (sym) (hash-set! htable sym 'foo))
                *hash-test-syms*))))
 
 (defbench hash-ref-equal
-  (let ((htable (make-hash :equal)))
+  (let ((htable (make-hash)))
     (for-each (lambda (sym) (hash-set! htable sym 'foo))
               *hash-test-syms*)
     (account
@@ -241,7 +241,7 @@
 
 (defbench funcall-inline-args
   (account
-   ((lambda( a b c d e f g )
+   ((lambda ( a b c d e f g )
       ) 1 2 3 4 5 6 7 )))
 
 (defbench funcall-local
@@ -326,11 +326,11 @@
 
 (defbench heap-fsck-lots-of-cells
   (account
-   (nested-lists 10)))
+   (nested-lists 11)))
 
 (defbench output-nested-lists
   (let ((p (open-null-output-port))
-        (l (nested-lists 11)))
+        (l (nested-lists 9)))
     (account
      (display l p))))
 
@@ -388,25 +388,14 @@
 
 (define (cross xs ys)
   (append-map (lambda (x)
-                (map (lambda (y) (list x y)) ys)) xs))
+                (map (lambda (y) (list x y))
+                     ys))
+              xs))
 
 (defbench list-cross-product
   (let ((xs (list-from-by 0 1 100)))
     (account
      (cross xs xs))))
-
-(define (make-point x y z)
-  (let ((ht (make-hash)))
-    (hash-set! ht 'x x)
-    (hash-set! ht 'y y)
-    (hash-set! ht 'z z)
-    ht))
-
-(define (point-list i)
-  (map (lambda (x) (make-point (random x)
-                               (random x)
-                               (random x)))
-       (list-from-by 1 1 i)))
 
 (define (hash-field-sum xs f)
   (let ((sum 0.0))
