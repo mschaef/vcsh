@@ -136,5 +136,5 @@
 
   (test-case (runtime-error? (match? {?a a} {?a a})))
 
-  (test-case (runtime-error? (match? (identity-hash) {})))
-  (test-case (runtime-error? (match? {} (identity-hash)))))
+  (test-case (not (match? (identity-hash) {})))
+  (test-case (not (match? {} (identity-hash)))))
