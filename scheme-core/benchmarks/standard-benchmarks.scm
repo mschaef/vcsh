@@ -876,6 +876,16 @@
                         (check procedure? key)
                         (sort-step xs)))))))
 
+(defbench EQUAL?
+  (account
+   (bench-repeat 512
+       (EQUAL? {(h e l l o - w o r l d) 123
+                (f r o b o z z l e) 23
+                [1 2 3 4 2 2 3] 23}
+               {(f r o b o z z l e) 23
+                [1 2 3 4 2 2 3] 23
+                (h e l l o - w o r l d) 123}))))
+
 (define (fast-bench)
   "Generate some quick and dirty benchmarks for the purpose of testing the
    benchmark suite. The results from these tests shouldn't be trusted

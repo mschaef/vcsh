@@ -3848,4 +3848,5 @@
 #S(benchmark-result :seq 6848 :system ("mschae-mba-osx" :linux :debug) :test-name structure/write :timings (22240.9 20158.9) :run-time #D"2015-08-07T18:06:46-0400")
 #S(benchmark-result :seq 6849 :system ("mschae-mba-osx" :linux :debug) :test-name write-char-to-string :timings (52.2433 51.0566) :run-time #D"2015-08-07T18:07:01-0400")
 #S(benchmark-result :seq 6850 :system ("mschae-mba-osx" :linux :debug) :test-name write-strings-to-string :timings (13.9716 13.6450) :run-time #D"2015-08-07T18:07:16-0400")
+#S(benchmark-result :seq 6852 :system ("mschae-mba-osx" :linux :debug) :test-name EQUAL? :timings (924.574 782.118) :run-time #D"2015-08-07T23:05:19-0400")
 ; end benchmark results
