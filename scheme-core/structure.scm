@@ -298,7 +298,7 @@
         ((hash? object)
          (hash-ref object key default-value))
         (#t
-         ()))) ; REVISIT: should this be error?
+         (error "Invalid value for slot-ref: ~s"))))
 
 (define (slot-set! object key value)
   "Updates the value of the slot in <object> named by <key> to <value>. <object>
@@ -309,7 +309,7 @@
         ((hash? object)
          (hash-set! object key value))
         (#t
-         ()))) ; REVISIT: should this be error?
+         (error "Invalid value for slot-set!: ~s"))))
 
 (defmacro (define-structure name . slots)
   (mvbind (name meta procs) (parse-structure-definition name slots)
@@ -359,7 +359,7 @@
            ,#"Updates the ${slot-name} slot of of <s> to <v>. <s> must be of structure
             type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
            (unless (%structure? s ',layout)
-             (error "Expected a  structure of type ~s, but found ~s." ',(car layout) s))
+             (error "Expected a structure of type ~s, but found ~s." ',(car layout) s))
            (%structure-set! s ,(second (assq slot-name (cadr layout))) v)))
 
       (awhen (duplicates? (map car (cadr layout)))
