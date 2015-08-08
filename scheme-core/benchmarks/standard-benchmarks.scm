@@ -878,7 +878,7 @@
 
 (defbench EQUAL?
   (account
-   (bench-repeat 512
+   (bench-repeat 2048
        (EQUAL? {(h e l l o - w o r l d) 123
                 (f r o b o z z l e) 23
                 [1 2 3 4 2 2 3] 23}
