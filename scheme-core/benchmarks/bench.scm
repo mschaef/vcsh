@@ -11,6 +11,21 @@
             "bench"
             "fast-bench"))
 
+;;;; Information on the current system
+
+(define (benchmark-system-info)
+  "Return a list describing the current build of scan and the hardware
+it's running on."
+  (define (without-domain-name sys-name) ;; REVISIT: Make part of stdlib?
+    (aif (string-search "." sys-name)
+         (substring sys-name 0 it)
+         sys-name))
+  (let ((si (system-info)))
+    (list (without-domain-name (hash-ref si :system-name))
+          (hash-ref si :platform-name)
+          (hash-ref si :build-type))))
+
+(define *benchmark-system-info* (benchmark-system-info))
 
 ;;;; The benchmark result database
 
@@ -50,7 +65,7 @@
 
 (define *last-benchmark-result-set* '())
 
-(define *reference-benchmark-result-sets* (make-hash :equal))
+(define *reference-benchmark-result-sets* (make-hash))
 
 (define *benchmark-results-filename* "benchmark_results.scm")
 
@@ -91,26 +106,16 @@
    (format (current-debug-port) "; Loading benchmark results\n")))
 
 
-(define (benchmark-system-info)
-  "Return a list describing the current build of scan and the hardware it's
-   running on."
-  (define (without-domain-name sys-name) ;; REVISIT: Make part of stdlib?
-    (aif (string-search "." sys-name)
-         (substring sys-name 0 it)
-         sys-name))
-  (let ((si (system-info)))
-    (list (without-domain-name (hash-ref si :system-name))
-          (hash-ref si :platform-name)
-          (hash-ref si :build-type))))
-
 (define (promote-benchmark-results)
   "Makes the current set of benchmark results the reference for the
    current system."
   (dolist (results *last-benchmark-result-set*)
-    (hash-push! *reference-benchmark-result-sets* (benchmark-system-info) results))
+    (hash-push! *reference-benchmark-result-sets* *benchmark-system-info* results))
   (save-benchmark-results))
 
 ;;;; Execution time estimator
+
+(define *test-benchmark-mode* #f)
 
 (define *estimate-min-test-duration* 5)
 (define *benchmark-result-bar-length* 40)
@@ -127,7 +132,7 @@
     (format #t "~a." count)
     (flush-port (current-output-port))
     (gc)
-    (let ((result (scheme::%time-apply0 (lambda () (repeat count (apply closure))))))
+    (let ((result (scheme::%time-apply0 #L0(repeat count (apply closure)))))
       (let ((cpu-time (vector-ref result 1))
             (net-time (- (vector-ref result 1) (vector-ref result 2))))
         (list cpu-time
@@ -135,19 +140,21 @@
               (* 1000 (/ net-time count))))))
   (let loop ((count 1))
     (let ((result (execution-time count closure)))
-      (if (> (car result) *estimate-min-test-duration*)
+      (if (or *test-benchmark-mode*
+              (> (car result) *estimate-min-test-duration*))
           (cdr result)
           (loop (* count 2))))))
 
 ;;;; The benchmark database
 
-(define *benchmarks* (make-hash :eq))
+(define *benchmarks* (make-hash))
 
 (define (all-benchmark-names) (hash-keys *benchmarks*))
 
-(define benchmark-time-sym (gensym))
+(define (benchmark-function benchname)
+  (hash-ref *benchmarks* benchname #L0(error "Undefined benchmark: ~a" benchname)))
 
-(define estimate-execute-time) ; forward
+(define benchmark-time-sym (gensym))
 
 (defmacro (defbench benchname . code)
   (check symbol? benchname)
@@ -156,10 +163,6 @@
                                            ,@code
                                            ,benchmark-time-sym))))
 
-(define (benchmark-function benchname)
-  (unless (hash-has? *benchmarks* benchname)
-    (error "Undefined benchmark: ~a" benchname))
-  (hash-ref *benchmarks* benchname))
 
 (defmacro (account . code)
   `(set! ,benchmark-time-sym (estimate-execution-time (lambda () ,@code))))
@@ -178,7 +181,7 @@
   (map #L(find-test-result _ results)
        (list->set (map benchmark-result-test-name results))))
 
-(define (reference-result-set :optional (system (benchmark-system-info)))
+(define (reference-result-set :optional (system *benchmark-system-info*))
   "Returns the best reference results for <system>. <system> defaults to
    the current system."
   (most-current-benchmarks-for-result-set
@@ -224,13 +227,11 @@
 
 (define (display-benchmark-results results :optional (reference (reference-result-set)))
   (if (null? reference)
-      (format #t "\n\nNo Reference results for system: ~a " (benchmark-system-info))
+      (format #t "\n\nNo Reference results for system: ~a " *benchmark-system-info*)
       (dynamic-let ((*info* #f))
         (format #t "\n\nBenchmark results (shorter bar is better, compared to ~a):" (benchmark-result-system (car reference)))
         (format #t "\nBenchmark time mode = ~a\n" *benchmark-time-mode*)
-        (dolist (result (qsort results
-                               (lambda (s1 s2) (string< (symbol-name s1) (symbol-name s2)))
-                               benchmark-result-test-name))
+        (dolist (result (qsort results string< #L(symbol-name (benchmark-result-test-name _))))
           (display-benchmark-result (benchmark-result-test-name result)
                                     (benchmark-result-cpu-time result)
                                     (benchmark-result-cpu-time (find-test-result (benchmark-result-test-name result)
@@ -238,21 +239,17 @@
 
 ;;;; The benchmark runner
 
-(define *repeat-only-once* #f)
-
 (defmacro (bench-repeat n . code)
-  `(repeat (if *repeat-only-once* 1 ,n)
+  `(repeat (if *test-benchmark-mode* 1 ,n)
      ,@code))
 
-(define (test-benchmarks)
+(define (test-benchmarks . tests)
   "Run through all benchmarks as quickly as possible to check for runtime
    errors."
-  (dynamic-let ((*estimate-min-test-duration* 0.001)
-                (*repeat-only-once* #t))
-    (bench)))
+  (dynamic-let ((*test-benchmark-mode* #t))
+    (apply bench tests)))
 
 (define (bench . tests)
-
   (let ((tests (if (null? tests) (all-benchmark-names) tests))
         (count 0))
 
@@ -262,23 +259,16 @@
       (make-benchmark-result :test-name bench-name
                              :timings ((benchmark-function bench-name))))
 
-    (define (sort-benchmark-names names)
-      (qsort names string< symbol-name))
-
-    (let* ((results (map run-named-benchmark (sort-benchmark-names tests))))
-
-      (set! *last-benchmark-result-set* results)
-
-      (display-benchmark-results results)
-      (format #t "\nEvaluate (promote-benchmark-results) to make these results the standard for ~s"
-              (benchmark-system-info))
-      (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n\n")
-      (values))))
+    (set! *last-benchmark-result-set* (map run-named-benchmark (qsort tests string< symbol-name)))
+    
+    (display-benchmark-results *last-benchmark-result-set*)
+    (format #t "\nEvaluate (promote-benchmark-results) to make these results the standard for ~s" *benchmark-system-info*)
+    (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n\n")
+    (values)))
 
 (define (compare-benchmark-results)
-  (let ((from (select-benchmark-result))
-	(reference (select-benchmark-result "reference")))
-    (display-benchmark-results from reference)))
+  (display-benchmark-results (select-benchmark-result)
+                             (select-benchmark-result "reference")))
 
 (push! '(:bench bench "Runs the benchmark suite")
        scheme::*repl-abbreviations*)
