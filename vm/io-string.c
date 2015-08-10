@@ -68,8 +68,23 @@ size_t string_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
 
 size_t string_port_write_chars(lref_t port, const _TCHAR *buf, size_t size)
 {
+     for(size_t index = 0; index < size; index++) {
+          switch(buf[index]) {
+          case _T('\n'):
+               PORT_TEXT_INFO(port)->col = 0;
+               PORT_TEXT_INFO(port)->row ++;
+               break;
+
+          case _T('\r'):
+               break;
+
+          default:
+               PORT_TEXT_INFO(port)->col++;
+          }
+     }
+
      if (NULLP(PORT_STRING(port)))
-          SET_PORT_STRING(port, strconsbufn(size, buf)); 
+          SET_PORT_STRING(port, strconsbufn(size, buf));
      else
           string_appendd(PORT_STRING(port), buf, size);
 
