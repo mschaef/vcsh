@@ -297,8 +297,7 @@
 (define (read/write-round-trip obj)
   "Returns the result of writing <object> to a string and reading it back in.
    (Theoretically, this should be the same thing for printable objects.)"
-  (let ((op (open-output-string))
-        (new-obj (gensym)))
+  (let ((op (open-output-string)))
     (set-port-translate-mode! op #f)
     (write obj op)
     (catch-all

@@ -1,5 +1,11 @@
 (use-package! "unit-test")
 
+(define (make-all-byte-string)
+  (let ((p (open-output-string)))
+    (set-port-translate-mode! p #f)
+    (dotimes (ii 256)
+      (display (integer->char ii) p))
+    (get-output-string p)))
 
 (define (make-all-byte-combo-string)
   (let ((p (open-output-string)))
@@ -15,11 +21,13 @@
     (test-case (can-read/write-round-trip? (make-string 1 (integer->char n)))))
   (dotimes (n 256)
     (test-case (can-read/write-round-trip? (make-string 3 (integer->char n)))))
-  (let ((abc-str (make-all-byte-combo-string)))
+  (let ((ab-str (make-all-byte-string))
+        (abc-str (make-all-byte-combo-string)))
     (test-case (can-read/write-round-trip? "\t\n"))
     (test-case (can-read/write-round-trip? " \n hello\n\t"))
     (test-case (can-read/write-round-trip? "\"\"\""))
     (test-case (can-read/write-round-trip? "01234567890abcdefghihjkilmnopqrstuvwxyz"))
+    (test-case (can-read/write-round-trip? ab-str))
     (test-case (can-read/write-round-trip? abc-str))
     (test-case (= (length abc-str) (* 256 256 2)))))
 

@@ -332,7 +332,7 @@
                   ((eq? ch #\tab) (write-strings port "\\t"))
                   ((eq? ch #\nul) (write-strings port "\\000"))
                   ((or (< (char->integer ch) 32)
-                       (>= (char->integer ch) 128))
+                       (>= (char->integer ch) 127))
                    (write-strings port "\\" (string-take-right
                                              (string-append "000"
                                                             (number->string (char->integer ch) 8))
