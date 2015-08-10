@@ -30,40 +30,34 @@
 (define-test input-port-port-locations
   ;; Translate-mode=#t
   ;; peek-count=0
-  (test-case (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 0 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
+  (test-case
+   (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 0 #t)
+           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
+             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
 
-  (test-case (equal? (string->input-port-char-locations "  *  *   *\r*  *  ****\r*  *\r\r\r*   \r\r*   *" #\* 0 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
 
-  (test-case (equal? (string->input-port-char-locations "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *" #\* 0 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
+  (test-case
+   (equal? (string->input-port-char-locations "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *" #\* 0 #t)
+           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
+             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
 
   ;; Translate-mode=#t
   ;; peek-count=1
-  (test-case (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 1 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
+  (test-case
+   (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 1 #t)
+           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
+             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
 
-  (test-case (equal? (string->input-port-char-locations "  *  *   *\r*  *  ****\r*  *\r\r\r*   \r\r*   *" #\* 1 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
 
-  (test-case (equal? (string->input-port-char-locations "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *" #\* 1 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
+  (test-case
+   (equal? (string->input-port-char-locations "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *" #\* 1 #t)
+           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
+             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
 
 
   ;; Translate-mode=#t
   ;; peek-count=2
   (test-case (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 2 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
-
-  (test-case (equal? (string->input-port-char-locations "  *  *   *\r*  *  ****\r*  *\r\r\r*   \r\r*   *" #\* 2 #t)
                  '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
                    (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
 
@@ -79,8 +73,9 @@
            (port-location port))
        objs))
 
-;; These tests use a string output port as a proxy for all output ports. This is currently
-;; the best facsimile of a generic output port, since null ports do not manage port-locations.
+;; These tests use a string output port as a proxy for all output
+;; ports. This is currently the best facsimile of a generic output
+;; port, since null ports do not manage port-locations.
 
 (define-test output-port-port-locations
   (let ((port (open-output-string)))
