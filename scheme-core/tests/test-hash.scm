@@ -46,8 +46,8 @@
         (h2 (make-hash)))
 
     (test-case (can-read/write-round-trip? h))
-    
-    (type-of-tests h 'hash)
+
+    (test-case (eq? (type-of h) 'hash))
     (test-case (hash? h))
     
     (test-case (not (hash-ref h 'foo)))

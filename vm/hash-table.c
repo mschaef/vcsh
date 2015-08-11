@@ -526,7 +526,6 @@ lref_t lhash_set_multiple(lref_t hash, lref_t bindings)
      while (!NULLP(pos))
      {
           if (!CONSP(pos) || !CONSP(CDR(pos))) {
-               dscwritef(DF_ALWAYS, ("list->hash: bindings=~s\n", bindings));
                vmerror_arg_out_of_range(pos, _T("Invalid hash binding"));
           }
 

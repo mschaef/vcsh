@@ -25,7 +25,6 @@
             "can-read/write-round-trip?"
             "fast-io-round-trip"
             "write-to-string"
-            "type-of-tests"
             "load-tests"
             "values-eq?"
             "values-equal?"
@@ -335,9 +334,6 @@
     (write x o)
     (get-output-string o)))
 
-(defmacro (type-of-tests form type)
-  `(test-case (eq? (type-of ,form) ,type)))
-
 (define (shallow-list=? xs ys :optional (test eq?))
   (let loop ((xs xs) (ys ys))
     (cond ((and (null? xs) (null? ys))
@@ -360,13 +356,3 @@
   (mvbind (real-ll source-ll) (procedure-lambda-list procedure)
     (if source-ll source-ll real-ll)))
 
-
-
-(define (fiort x)
-  (let ((xrt (fast-io-round-trip x)))
-    (newline)
-    (write x)
-    (newline)
-    (write xrt)
-    (newline)
-    xrt))

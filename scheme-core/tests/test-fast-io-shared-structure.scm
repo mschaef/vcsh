@@ -2,12 +2,15 @@
 
 
 (define (nested-circular-lists count depth)
-  (let ((sublists ()))
-    (repeat count
-       (push! (if (= depth 0) () (nested-circular-lists count (- depth 1)))
-              sublists))
-    (set-cdr! (last-pair sublists) sublists)
-    sublists)) 
+  (let recur ((count count) (depth depth))
+    (let ((sublists ()))
+      (repeat count
+        (push! (if (= depth 0)
+                   ()
+                   (recur count (- depth 1)))
+               sublists))
+      (set-cdr! (last-pair sublists) sublists)
+      sublists))) 
 
 (define-test fast-io-shared-structure
   (test-case (can-fast-io-round-trip? '(s1 s1)))
