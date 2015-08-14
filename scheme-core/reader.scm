@@ -92,29 +92,24 @@
 ;;;; Utility functions
 
 (define (read-expected-char char port error-type)
-  "Read the next character from <port>, and optionally issue a read error if it is
-   not <char>.  <char> can be either a character, a list of characters, or
-   a predicate function on characters. The return value is the expected
-   character. <error-type> determines whether or not an unexpected character
-   is reported as a read error, and must either be #f or the name of a valid
-   read error type. Unexpected characters are left on the port."
-  (let ((location (port-location port))
-        (correct-char? (etypecase char
+  "Read the next character from <port> optionally issue a read error
+if it is not <char>.  <char> can be either a character, a list of
+characters, or a predicate function on characters. The return value is
+the expected character. <error-type> is the name of a valid read error
+type. Unexpected characters are left on the port."
+  (let ((correct-char? (etypecase char
                          ((character) #L(eq? char _))
                          ((closure) char)
                          ((cons) #L(memq _ char)))))
-    (if (and (not (port-at-end? port))
-             (correct-char? (peek-char port)))
+    (if (correct-char? (peek-char port))
         (read-char port)
-        (if error-type
-            (read-error error-type port location)
-            #f))))
+        (read-error error-type port (port-location port)))))
 
 (define (read-optional-char char port)
-  "Read the next character from <port>, and return #f if it is
-   not <char>.  <char> can be either a character, a list of characters, or
-   a predicate function on characters. The return value is the expected
-   character or #f if not found."
+  "Read the next character from <port>, and return #f if it is not
+<char>.  <char> can be either a character, a list of characters, or a
+predicate function on characters. The return value is the expected
+character or #f if not found."
   (let ((correct-char? (etypecase char
                          ((character) #L(eq? char _))
                          ((closure) char)
