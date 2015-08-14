@@ -28,7 +28,6 @@
             "load-tests"
             "values-eq?"
             "values-equal?"
-            "test-body"
             "dtu-lambda-list"))
 
 ;; REVISIT: unit tests over ranged x (ie: this should apply from all x in [0,255]
@@ -100,12 +99,7 @@
 (define (all-tests)
   "Returns a list of all currently defined tests, sorted in alphabetical
    order by test name."
-  (qsort (hash-keys *test-cases*)
-         (lambda (x y) (> 0 (strcmp x y)))
-         symbol-name))
-
-(define (test-body test-name)
-  (test-case-runner (hash-ref *test-cases* test-name)))
+  (qsort (hash-keys *test-cases*) string> symbol-name))
 
 ;;;; Unit test execution
 
@@ -249,9 +243,7 @@
         '()
         (car optional-return-value))))
 
-
 ;;;; Test utility functions and macros
-
 
 (defmacro (non-local-escape? . code)
   "Returns a boolean indicating if <code> attempts a non-local-escape."

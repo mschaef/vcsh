@@ -110,6 +110,19 @@
             (read-error error-type port location)
             #f))))
 
+(define (read-optional-char char port)
+  "Read the next character from <port>, and return #f if it is
+   not <char>.  <char> can be either a character, a list of characters, or
+   a predicate function on characters. The return value is the expected
+   character or #f if not found."
+  (let ((correct-char? (etypecase char
+                         ((character) #L(eq? char _))
+                         ((closure) char)
+                         ((cons) #L(memq _ char)))))
+    (if (correct-char? (peek-char port))
+        (read-char port)
+        #f)))
+
 ;;;; Error strings for the reader
 
 (define-text
@@ -462,8 +475,8 @@
         #f)))
 
 (define (accept-symbol-package-qualifier port)
-  (cond ((not (read-expected-char #\: port #f)) #f)
-        ((not (read-expected-char #\: port #f)) :public-symbol)
+  (cond ((not (read-optional-char #\: port)) #f)
+        ((not (read-optional-char #\: port)) :public-symbol)
         (#t                                  :private-symbol)))
 
 ; REVISIT: *ignore-read* - There's a better name for this in cltl2, but the
@@ -505,19 +518,19 @@
 
   (define (accept-single-number)
     (let ((buf (open-output-buffer)))
-      (awhen (read-expected-char '(#\- #\+) port #f)
+      (awhen (read-optional-char '(#\- #\+) port)
         (write-strings buf it))
-      (awhile (read-expected-char char-numeric? port #f)
+      (awhile (read-optional-char char-numeric? port)
         (write-strings buf it))
-      (awhen (read-expected-char #\. port #f)
+      (awhen (read-optional-char #\. port)
         (write-strings buf it)
-        (awhile (read-expected-char char-numeric? port #f)
+        (awhile (read-optional-char char-numeric? port)
           (write-strings buf it)))
-      (awhen (read-expected-char '(#\e #\E) port #f)
+      (awhen (read-optional-char '(#\e #\E) port)
         (write-strings buf it)
-      (awhen (read-expected-char '(#\- #\+) port #f)
+      (awhen (read-optional-char '(#\- #\+) port)
         (write-strings buf it))
-        (awhile (read-expected-char char-numeric? port #f)
+        (awhile (read-optional-char char-numeric? port)
           (write-strings buf it)))
       (if (> (length buf) 0)
           (let ((num (string->number (get-output-string buf))))
@@ -527,7 +540,7 @@
           #f)))
 
   (let ((re (accept-single-number)))
-    (cond ((read-expected-char #\i port #f)
+    (cond ((read-optional-char #\i port)
            (and (port-at-end? port)
                 re
                 (make-rectangular 0 re)))
@@ -536,7 +549,7 @@
           (#t
            (let ((im (accept-single-number)))
              (if (and im
-                      (read-expected-char #\i port #f)
+                      (read-optional-char #\i port)
                       (port-at-end? port))
                  (make-rectangular re im)
                  #f))))))
