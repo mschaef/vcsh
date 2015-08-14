@@ -887,21 +887,19 @@
                 (h e l l o - w o r l d) 123}))))
 
 (define (fast-bench)
-  "Generate some quick and dirty benchmarks for the purpose of testing the
-   benchmark suite. The results from these tests shouldn't be trusted
-   for actual benchmarking purposes."
-  (dynamic-let ((*estimate-min-test-duration* 0.2))
-    (bench 'compile-simple-form
-           'exec-loop-repeat
-           'funcall-inline
-           'funcall-inline-args
-           'funcall-local
-           'funcall-local-args
-           'mandelbrot-cplx
-           'qsorting
-           'fast-queue
-           'slow-queue
-           'fibonacci)))
+  "Run the benchmark suite on a useful subset of the overall
+suite. Used for cases when a full run is too much."
+  (bench '(compile-simple-form
+           exec-loop-repeat
+           funcall-inline
+           funcall-inline-args
+           funcall-local
+           funcall-local-args
+           mandelbrot-cplx
+           qsorting
+           fast-queue
+           slow-queue
+           fibonacci)))
 
 (for-each load (directory "gabriel*.scm"))
 (load "mandelbrot.scm")
