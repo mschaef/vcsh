@@ -394,40 +394,32 @@ character or #f if not found."
   (check char? begin-char)
   (check char? end-char)
   (let ((list-location (port-location port))
-        (current-list ())
-        (last-list-cell #f))
-
-    (define (extend-list! new-cdr)
-      "Extends the current list by appending the <new-cdr> to the last cell of
-       the current list.  If the current list is dotted, throws an invalid dotted
-       list error.  The return value is the <new-cdr>."
-      (cond ((pair? last-list-cell)
-             (set-cdr! last-list-cell new-cdr))
-            ((and (not last-list-cell) (null? current-list))
-             (set! current-list new-cdr))
-            (#t
-             (read-error :reader-bad-dotted-list port list-location)))
-      (set! last-list-cell new-cdr))
-
+        (current-sequence (%make-q)))
     (read-expected-char begin-char port :reader-list-expected)
-    (let loop ()
+    (let loop ((seen-dot? #f))
       (let ((ch (flush-whitespace port)))
         (cond ((eof-object? ch)
                (read-error :reader-eos-in-list port list-location))
               ((eq? ch end-char)
                (read-char port)
-               current-list)
+               (%q-items current-sequence))
+              (seen-dot?
+               (read-error :reader-bad-dotted-list port list-location))
               (#t
                (let* ((token-location (port-location port))
                       (next-object (read port #t)))
                  (cond ((or (eq? next-object '.)
                             (eq? next-object *reader-dot-marker*))
-                        (extend-list! (read port #t)))
+                        (%q-enqueue-cell! (read port #t) current-sequence)
+                        (loop #t))
                        (#t
-                        (let ((new-cdr (extend-list! (cons next-object))))
+                        (let ((new-cdr (cons next-object)))
+                          (%q-enqueue-cell! new-cdr current-sequence)
                           (when *location-mapping*
-                             (hash-set! *location-mapping* new-cdr (cons port token-location)))))))
-               (loop)))))))
+                            (hash-set! *location-mapping* new-cdr
+                                       (cons port token-location))))
+                        (loop #f))))))))))
+
 
 (define (read-list port)
   (read-sequence port #\( #\)))
@@ -570,11 +562,9 @@ character or #f if not found."
          (tok (read-token port)))
     (if (equal? tok ".")
         *reader-dot-marker*
-        (aif (accept-c-number (open-input-string tok) port location)
-             it
-             (aif (accept-number (open-input-string tok) port location)
-                  it
-                  (accept-symbol (open-input-string tok) port location))))))
+        (or (accept-c-number (open-input-string tok) port location)
+            (accept-number (open-input-string tok) port location)
+            (accept-symbol (open-input-string tok) port location)))))
 
 (define (read-unexpected-open port)
   ;; Skip the unexpected open, in order to make progress
