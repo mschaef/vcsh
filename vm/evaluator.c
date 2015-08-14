@@ -429,6 +429,17 @@ void unwind_stack_for_throw()
 static lref_t execute_fast_op(lref_t fop, lref_t env)
 {
      lref_t retval = NIL;
+     lref_t sym;
+     lref_t binding;
+     lref_t fn;
+     lref_t args;
+     size_t argc;
+     lref_t argv[ARG_BUF_LEN];
+     lref_t after;
+     lref_t tag;
+     lref_t escape_retval;
+     lref_t *jmpbuf_ptr;
+     jmp_buf *jmpbuf;
 
      STACK_CHECK(&fop);
 
@@ -437,341 +448,277 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      fstack_push((lref_t)fop);
      fstack_push((lref_t)env);
 
-loop:
-     _process_interrupts();
-
-     checked_assert(TYPE(fop) == TC_FAST_OP);
+     while(!NULLP(fop)) {
+          _process_interrupts();
 
 #if defined(WITH_FOPLOG_SUPPORT)
-     if (CURRENT_TIB()->foplog_enable)
-     {
-          CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
-          CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
-     }
+          if (CURRENT_TIB()->foplog_enable) {
+               CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
+               CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
+          }
 #endif
 
-     switch (FAST_OP_OPCODE(fop))
-     {
-     case FOP_LITERAL:
-          retval = FAST_OP_ARG1(fop);
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_GLOBAL_REF:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-
-          checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
-
-          lref_t binding = SYMBOL_VCELL(sym);
-
-          if (UNBOUND_MARKER_P(binding))
-               vmerror_unbound(sym);
-
-          retval = binding;
-
-          fop = FAST_OP_NEXT(fop);
-     }
-     break;
-
-     case FOP_GLOBAL_SET:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-
-          checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
-
-          lref_t binding = SYMBOL_VCELL(sym);
-
-          if (UNBOUND_MARKER_P(binding))
-               vmerror_unbound(sym);
-
-          SET_SYMBOL_VCELL(sym, retval);
-
-          fop = FAST_OP_NEXT(fop);
-     }
-     break;
-
-     case FOP_LOCAL_REF:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-
-          checked_assert(SYMBOLP(sym));
-
-          lref_t binding = lenvlookup(sym, env);
-
-          checked_assert(!NULLP(binding));
-
-          retval = CAR(binding);
-
-          fop = FAST_OP_NEXT(fop);
-     }
-     break;
-
-     case FOP_LOCAL_SET:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-
-          checked_assert(SYMBOLP(sym));
-
-          lref_t binding = lenvlookup(sym, env);
-
-          checked_assert(!NULLP(binding));
-
-          SET_CAR(binding, retval);
-
-          fop = FAST_OP_NEXT(fop);
-     }
-     break;
-
-     case FOP_APPLY_GLOBAL:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-          lref_t fn = SYMBOL_VCELL(sym);
-
-          checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
-
-          if (UNBOUND_MARKER_P(fn))
-               vmerror_unbound(sym);
-
-          size_t argc = 0;
-          lref_t argv[ARG_BUF_LEN];
-          lref_t args = FAST_OP_ARG2(fop);
-
-          while (CONSP(args))
+          switch (FAST_OP_OPCODE(fop))
           {
-               if (argc >= ARG_BUF_LEN)
-               {
-                    vmerror_unsupported(_T("too many actual arguments"));
-                    break;
+          case FOP_LITERAL:
+               retval = FAST_OP_ARG1(fop);
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GLOBAL_REF:
+               sym = FAST_OP_ARG1(fop);
+               binding = SYMBOL_VCELL(sym);
+
+               if (UNBOUND_MARKER_P(binding))
+                    vmerror_unbound(sym);
+
+               retval = binding;
+
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GLOBAL_SET:
+               sym = FAST_OP_ARG1(fop);
+               binding = SYMBOL_VCELL(sym);
+
+               if (UNBOUND_MARKER_P(binding))
+                    vmerror_unbound(sym);
+
+               SET_SYMBOL_VCELL(sym, retval);
+
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_LOCAL_REF:
+               sym = FAST_OP_ARG1(fop);
+               binding = lenvlookup(sym, env);
+
+               retval = CAR(binding);
+
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_LOCAL_SET:
+               sym = FAST_OP_ARG1(fop);
+               binding = lenvlookup(sym, env);
+
+               SET_CAR(binding, retval);
+
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_APPLY_GLOBAL:
+               sym = FAST_OP_ARG1(fop);
+               fn = SYMBOL_VCELL(sym);
+
+               if (UNBOUND_MARKER_P(fn))
+                    vmerror_unbound(sym);
+
+               argc = 0;
+               args = FAST_OP_ARG2(fop);
+
+               while (CONSP(args)) {
+                    if (argc >= ARG_BUF_LEN) {
+                         vmerror_unsupported(_T("too many actual arguments"));
+                         break;
+                    }
+
+                    argv[argc] = execute_fast_op(CAR(args), env);
+
+                    args = CDR(args);
+                    argc++;
                }
 
-               argv[argc] = execute_fast_op(CAR(args), env);
+               if (!NULLP(args))
+                    vmerror_arg_out_of_range(FAST_OP_ARG2(fop),
+                                             _T("bad formal argument list"));
 
-               args = CDR(args);
-               argc++;
-          }
+               fop = apply(fn, argc, argv, &env, &retval);
+               break;
 
-          if (!NULLP(args))
-               vmerror_arg_out_of_range(FAST_OP_ARG2(fop), _T("bad formal argument list"));
+          case FOP_APPLY:
+               argc = 0;
+               fn = execute_fast_op(FAST_OP_ARG1(fop), env);
+               args = FAST_OP_ARG2(fop);
 
-          fop = apply(fn, argc, argv, &env, &retval);
-     }
-     break;
+               while (CONSP(args)) {
+                    if (argc >= ARG_BUF_LEN) {
+                         vmerror_unsupported(_T("too many actual arguments"));
+                         break;
+                    }
 
-     case FOP_APPLY:
-     {
-          size_t argc = 0;
-          lref_t argv[ARG_BUF_LEN];
+                    argv[argc] = execute_fast_op(CAR(args), env);
 
-          lref_t fn = execute_fast_op(FAST_OP_ARG1(fop), env);
-
-          lref_t args = FAST_OP_ARG2(fop);
-
-          while (CONSP(args))
-          {
-               if (argc >= ARG_BUF_LEN)
-               {
-                    vmerror_unsupported(_T("too many actual arguments"));
-                    break;
+                    args = CDR(args);
+                    argc++;
                }
 
-               argv[argc] = execute_fast_op(CAR(args), env);
+               if (!NULLP(args))
+                    vmerror_arg_out_of_range(FAST_OP_ARG2(fop),
+                                             _T("bad formal argument list"));
 
-               args = CDR(args);
-               argc++;
-          }
+               fop = apply(fn, argc, argv, &env, &retval);
+               break;
 
-          if (!NULLP(args))
-               vmerror_arg_out_of_range(FAST_OP_ARG2(fop), _T("bad formal argument list"));
+          case FOP_IF_TRUE:
+               if (TRUEP(retval))
+                    fop = FAST_OP_ARG1(fop);
+               else
+                    fop = FAST_OP_ARG2(fop);
+               break;
 
-          fop = apply(fn, argc, argv, &env, &retval);
-     }
-     break;
+          case FOP_RETVAL:
+               fop = FAST_OP_NEXT(fop);
+               break;
 
-     case FOP_IF_TRUE:
-          if (TRUEP(retval))
-               fop = FAST_OP_ARG1(fop);
-          else
+          case FOP_SEQUENCE:
+               retval = execute_fast_op(FAST_OP_ARG1(fop), env);
+
                fop = FAST_OP_ARG2(fop);
-          break;
+               break;
 
-     case FOP_RETVAL:
-          fop = FAST_OP_NEXT(fop);
-          break;
+          case FOP_THROW:
+               tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+               escape_retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
-     case FOP_SEQUENCE:
-          retval = execute_fast_op(FAST_OP_ARG1(fop), env);
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, escape_retval));
 
-          fop = FAST_OP_ARG2(fop);
-          break;
+               CURRENT_TIB()->escape_frame = find_matching_escape(CURRENT_TIB()->frame, tag);
+               CURRENT_TIB()->escape_value = escape_retval;
 
-     case FOP_THROW:
-     {
-          lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
-          lref_t retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+               unwind_stack_for_throw();
 
-          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"),
-                                     tag, retval));
+               /* If we don't find a matching catch for the throw, we have a
+                * problem and need to invoke a trap. */
+               vmtrap(TRAP_UNCAUGHT_THROW,
+                      (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+                      2, tag, escape_retval);
 
-          CURRENT_TIB()->escape_frame
-               = find_matching_escape(CURRENT_TIB()->frame, tag);
-          CURRENT_TIB()->escape_value
-               = retval;
+               fop = FAST_OP_NEXT(fop);
+               break;
 
-          unwind_stack_for_throw();
+          case FOP_CATCH:
+               tag = execute_fast_op(FAST_OP_ARG1(fop), env);
 
-          /* If we don't find a matching catch for the throw, we have a
-           * problem and need to invoke a trap. */
-          vmtrap(TRAP_UNCAUGHT_THROW,
-                 (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-                 2, tag, retval);
+               fstack_enter_frame(FRAME_ESCAPE);
+               fstack_push((lref_t)tag);
+               fstack_push((lref_t)CURRENT_TIB()->frame);
+               fstack_push(NIL);
 
-          fop = FAST_OP_NEXT(fop);
-     }
-     break;
+               jmpbuf_ptr = CURRENT_TIB()->fsp;
+               jmpbuf = (jmp_buf *)fstack_alloca(sizeof(jmp_buf));
+               *(jmpbuf_ptr) = (lref_t)jmpbuf;
 
-     case FOP_CATCH:
-     {
-          lref_t tag = execute_fast_op(FAST_OP_ARG1(fop), env);
+               if (setjmp(*jmpbuf) == 0) {
+                    retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+               } else {
+                    dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->escape_value));
 
-          fstack_enter_frame(FRAME_ESCAPE);
-          fstack_push((lref_t)tag);
-          fstack_push((lref_t)CURRENT_TIB()->frame);
-          fstack_push(NIL);
+                    retval = CURRENT_TIB()->escape_value;
+                    CURRENT_TIB()->escape_value = NIL;
+               }
 
-          lref_t *jmpbuf_ptr = CURRENT_TIB()->fsp;
+               fstack_leave_frame();
 
-          jmp_buf *jmpbuf = (jmp_buf *)fstack_alloca(sizeof(jmp_buf));
+               fop = FAST_OP_NEXT(fop);
+               break;
 
-          *(jmpbuf_ptr) = (lref_t)jmpbuf;
+          case FOP_WITH_UNWIND_FN:
+               fstack_enter_frame(FRAME_UNWIND);
+               fstack_push((lref_t)execute_fast_op(FAST_OP_ARG1(fop), env));
 
-          if (setjmp(*jmpbuf) == 0)
-          {
                retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+
+               after = fstack_frame_val(CURRENT_TIB()->frame, FOFS_UNWIND_AFTER);
+
+               fstack_leave_frame();
+
+               apply1(after, 0, NULL);
+
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_CLOSURE:
+               retval = lclosurecons(env,
+                                     lcons(lcar(FAST_OP_ARG1(fop)),
+                                           FAST_OP_ARG2(fop)),
+                                     lcdr(FAST_OP_ARG1(fop)));
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_CAR:
+               retval = lcar(retval);
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_CDR:
+               retval = lcdr(retval);
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_NOT:
+               retval = boolcons(!TRUEP(retval));
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_NULLP:
+               retval = boolcons(NULLP(retval));
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_EQP:
+               retval = boolcons(EQ(execute_fast_op(FAST_OP_ARG1(fop), env),
+                                    execute_fast_op(FAST_OP_ARG2(fop), env)));
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GET_ENV:
+               retval = env;
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GLOBAL_DEF: // three args, third was genv, but currently unused
+               retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GET_FSP:
+               retval = fixcons((fixnum_t)CURRENT_TIB()->fsp);
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GET_FRAME:
+               retval = fixcons((fixnum_t)CURRENT_TIB()->frame);
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GET_HFRAMES:
+               retval = CURRENT_TIB()->handler_frames;
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_SET_HFRAMES:
+               CURRENT_TIB()->handler_frames = execute_fast_op(FAST_OP_ARG1(fop), env);
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          case FOP_GLOBAL_PRESERVE_FRAME:
+               sym = FAST_OP_ARG1(fop);
+               binding = SYMBOL_VCELL(sym);
+
+               if (UNBOUND_MARKER_P(binding))
+                    vmerror_unbound(sym);
+
+               SET_SYMBOL_VCELL(sym, fixcons((fixnum_t)CURRENT_TIB()->frame));
+
+               retval = execute_fast_op(FAST_OP_ARG2(fop), env);
+               fop = FAST_OP_NEXT(fop);
+               break;
+
+          default:
+               panic("Unsupported fast-op");
           }
-          else
-          {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->escape_value));
-
-               retval = CURRENT_TIB()->escape_value;
-               CURRENT_TIB()->escape_value = NIL;
-          }
-
-          fstack_leave_frame();
-
-          fop = FAST_OP_NEXT(fop);
      }
-     break;
-
-     case FOP_WITH_UNWIND_FN:
-     {
-          fstack_enter_frame(FRAME_UNWIND);
-          fstack_push((lref_t)execute_fast_op(FAST_OP_ARG1(fop), env));
-
-          retval = execute_fast_op(FAST_OP_ARG2(fop), env);
-
-          lref_t after = fstack_frame_val(CURRENT_TIB()->frame, FOFS_UNWIND_AFTER);
-
-          fstack_leave_frame();
-
-          apply1(after, 0, NULL);
-
-          fop = FAST_OP_NEXT(fop);
-     }
-     break;
-
-     case FOP_CLOSURE:
-          retval = lclosurecons(env,
-                                lcons(lcar(FAST_OP_ARG1(fop)),
-                                      FAST_OP_ARG2(fop)),
-                                lcdr(FAST_OP_ARG1(fop)));
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_CAR:
-          retval = lcar(retval);
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_CDR:
-          retval = lcdr(retval);
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_NOT:
-          retval = boolcons(!TRUEP(retval));
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_NULLP:
-          retval = boolcons(NULLP(retval));
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_EQP:
-          retval = boolcons(EQ(execute_fast_op(FAST_OP_ARG1(fop), env),
-                               execute_fast_op(FAST_OP_ARG2(fop), env)));
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_GET_ENV:
-          retval = env;
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_GLOBAL_DEF: // three args, third was genv, but currently unused
-          retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_GET_FSP:
-          retval = fixcons((fixnum_t)CURRENT_TIB()->fsp);
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_GET_FRAME:
-          retval = fixcons((fixnum_t)CURRENT_TIB()->frame);
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_GET_HFRAMES:
-          retval = CURRENT_TIB()->handler_frames;
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_SET_HFRAMES:
-          CURRENT_TIB()->handler_frames = execute_fast_op(FAST_OP_ARG1(fop), env);
-          fop = FAST_OP_NEXT(fop);
-          break;
-
-     case FOP_GLOBAL_PRESERVE_FRAME:
-     {
-          lref_t sym = FAST_OP_ARG1(fop);
-
-          checked_assert(SYMBOLP(sym));
-          checked_assert(SYMBOL_HOME(sym) != interp.control_fields[VMCTRL_PACKAGE_KEYWORD]);
-
-          lref_t binding = SYMBOL_VCELL(sym);
-
-          if (UNBOUND_MARKER_P(binding))
-               vmerror_unbound(sym);
-
-          SET_SYMBOL_VCELL(sym, fixcons((fixnum_t)CURRENT_TIB()->frame));
-
-          retval = execute_fast_op(FAST_OP_ARG2(fop), env);
-          fop = FAST_OP_NEXT(fop);
-     }
-     break;
-
-     default:
-          panic("Unsupported fast-op");
-     }
-
-     if (!NULLP(fop))
-          goto loop;
 
      fstack_leave_frame();
 
