@@ -92,23 +92,31 @@
 ;;;; Utility functions
 
 (define (read-expected-char char port error-type)
-  "Read the next character from <port>, and optionally issue a read error if it is
-   not <char>.  <char> can be either a character, a list of characters, or
-   a predicate function on characters. The return value is the expected
-   character. <error-type> determines whether or not an unexpected character
-   is reported as a read error, and must either be #f or the name of a valid
-   read error type. Unexpected characters are left on the port."
-  (let ((location (port-location port))
-        (correct-char? (etypecase char
+  "Read the next character from <port> optionally issue a read error
+if it is not <char>.  <char> can be either a character, a list of
+characters, or a predicate function on characters. The return value is
+the expected character. <error-type> is the name of a valid read error
+type. Unexpected characters are left on the port."
+  (let ((correct-char? (etypecase char
                          ((character) #L(eq? char _))
                          ((closure) char)
                          ((cons) #L(memq _ char)))))
-    (if (and (not (port-at-end? port))
-             (correct-char? (peek-char port)))
+    (if (correct-char? (peek-char port))
         (read-char port)
-        (if error-type
-            (read-error error-type port location)
-            #f))))
+        (read-error error-type port (port-location port)))))
+
+(define (read-optional-char char port)
+  "Read the next character from <port>, and return #f if it is not
+<char>.  <char> can be either a character, a list of characters, or a
+predicate function on characters. The return value is the expected
+character or #f if not found."
+  (let ((correct-char? (etypecase char
+                         ((character) #L(eq? char _))
+                         ((closure) char)
+                         ((cons) #L(memq _ char)))))
+    (if (correct-char? (peek-char port))
+        (read-char port)
+        #f)))
 
 ;;;; Error strings for the reader
 
@@ -386,40 +394,32 @@
   (check char? begin-char)
   (check char? end-char)
   (let ((list-location (port-location port))
-        (current-list ())
-        (last-list-cell #f))
-
-    (define (extend-list! new-cdr)
-      "Extends the current list by appending the <new-cdr> to the last cell of
-       the current list.  If the current list is dotted, throws an invalid dotted
-       list error.  The return value is the <new-cdr>."
-      (cond ((pair? last-list-cell)
-             (set-cdr! last-list-cell new-cdr))
-            ((and (not last-list-cell) (null? current-list))
-             (set! current-list new-cdr))
-            (#t
-             (read-error :reader-bad-dotted-list port list-location)))
-      (set! last-list-cell new-cdr))
-
+        (current-sequence (%make-q)))
     (read-expected-char begin-char port :reader-list-expected)
-    (let loop ()
+    (let loop ((seen-dot? #f))
       (let ((ch (flush-whitespace port)))
         (cond ((eof-object? ch)
                (read-error :reader-eos-in-list port list-location))
               ((eq? ch end-char)
                (read-char port)
-               current-list)
+               (%q-items current-sequence))
+              (seen-dot?
+               (read-error :reader-bad-dotted-list port list-location))
               (#t
                (let* ((token-location (port-location port))
                       (next-object (read port #t)))
                  (cond ((or (eq? next-object '.)
                             (eq? next-object *reader-dot-marker*))
-                        (extend-list! (read port #t)))
+                        (%q-enqueue-cell! (read port #t) current-sequence)
+                        (loop #t))
                        (#t
-                        (let ((new-cdr (extend-list! (cons next-object))))
+                        (let ((new-cdr (cons next-object)))
+                          (%q-enqueue-cell! new-cdr current-sequence)
                           (when *location-mapping*
-                             (hash-set! *location-mapping* new-cdr (cons port token-location)))))))
-               (loop)))))))
+                            (hash-set! *location-mapping* new-cdr
+                                       (cons port token-location))))
+                        (loop #f))))))))))
+
 
 (define (read-list port)
   (read-sequence port #\( #\)))
@@ -462,8 +462,8 @@
         #f)))
 
 (define (accept-symbol-package-qualifier port)
-  (cond ((not (read-expected-char #\: port #f)) #f)
-        ((not (read-expected-char #\: port #f)) :public-symbol)
+  (cond ((not (read-optional-char #\: port)) #f)
+        ((not (read-optional-char #\: port)) :public-symbol)
         (#t                                  :private-symbol)))
 
 ; REVISIT: *ignore-read* - There's a better name for this in cltl2, but the
@@ -505,19 +505,19 @@
 
   (define (accept-single-number)
     (let ((buf (open-output-buffer)))
-      (awhen (read-expected-char '(#\- #\+) port #f)
+      (awhen (read-optional-char '(#\- #\+) port)
         (write-strings buf it))
-      (awhile (read-expected-char char-numeric? port #f)
+      (awhile (read-optional-char char-numeric? port)
         (write-strings buf it))
-      (awhen (read-expected-char #\. port #f)
+      (awhen (read-optional-char #\. port)
         (write-strings buf it)
-        (awhile (read-expected-char char-numeric? port #f)
+        (awhile (read-optional-char char-numeric? port)
           (write-strings buf it)))
-      (awhen (read-expected-char '(#\e #\E) port #f)
+      (awhen (read-optional-char '(#\e #\E) port)
         (write-strings buf it)
-      (awhen (read-expected-char '(#\- #\+) port #f)
+      (awhen (read-optional-char '(#\- #\+) port)
         (write-strings buf it))
-        (awhile (read-expected-char char-numeric? port #f)
+        (awhile (read-optional-char char-numeric? port)
           (write-strings buf it)))
       (if (> (length buf) 0)
           (let ((num (string->number (get-output-string buf))))
@@ -527,7 +527,7 @@
           #f)))
 
   (let ((re (accept-single-number)))
-    (cond ((read-expected-char #\i port #f)
+    (cond ((read-optional-char #\i port)
            (and (port-at-end? port)
                 re
                 (make-rectangular 0 re)))
@@ -536,7 +536,7 @@
           (#t
            (let ((im (accept-single-number)))
              (if (and im
-                      (read-expected-char #\i port #f)
+                      (read-optional-char #\i port)
                       (port-at-end? port))
                  (make-rectangular re im)
                  #f))))))
@@ -562,11 +562,9 @@
          (tok (read-token port)))
     (if (equal? tok ".")
         *reader-dot-marker*
-        (aif (accept-c-number (open-input-string tok) port location)
-             it
-             (aif (accept-number (open-input-string tok) port location)
-                  it
-                  (accept-symbol (open-input-string tok) port location))))))
+        (or (accept-c-number (open-input-string tok) port location)
+            (accept-number (open-input-string tok) port location)
+            (accept-symbol (open-input-string tok) port location)))))
 
 (define (read-unexpected-open port)
   ;; Skip the unexpected open, in order to make progress
