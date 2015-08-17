@@ -264,19 +264,14 @@ EVAL_INLINE void fstack_leave_frame()
      CURRENT_TIB()->frame = *(lref_t **)(CURRENT_TIB()->frame);
 }
 
-EVAL_INLINE lref_t fstack_frame_val(lref_t *frame, enum frame_ofs_t fofs)
-{
-     return frame[fofs];
-}
-
 EVAL_INLINE lref_t *fstack_prev_frame(lref_t *frame)
 {
-     return (lref_t *)fstack_frame_val(frame, FOFS_LINK);
+     return (lref_t *)frame[FOFS_LINK];
 }
 
 EVAL_INLINE enum frame_type_t fstack_frame_type(lref_t *frame)
 {
-     return (enum frame_type_t)((intptr_t)fstack_frame_val(frame, FOFS_FTYPE));
+     return (enum frame_type_t)((intptr_t)frame[FOFS_FTYPE]);
 }
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
@@ -384,7 +379,7 @@ static lref_t *find_matching_escape(lref_t *start_frame, lref_t tag)
           if (fstack_frame_type(frame) != FRAME_ESCAPE)
                continue;
 
-          lref_t ftag = fstack_frame_val(frame, FOFS_ESCAPE_TAG);
+          lref_t ftag = frame[FOFS_ESCAPE_TAG];
 
           if (NULLP(ftag) || EQ(ftag, tag))
                return frame;
@@ -401,10 +396,9 @@ void unwind_stack_for_throw()
      {
           if (fstack_frame_type(frame) == FRAME_UNWIND)
           {
-               dscwritef(DF_SHOW_THROWS,
-                         (_T("; DEBUG: throw invoking unwind : ~c&\n"), frame));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw invoking unwind : ~c&\n"), frame));
 
-               apply1(fstack_frame_val(frame, FOFS_UNWIND_AFTER), 0, NULL);
+               apply1(frame[FOFS_UNWIND_AFTER], 0, NULL);
 
                continue;
           }
@@ -418,10 +412,10 @@ void unwind_stack_for_throw()
 
                CURRENT_TIB()->escape_frame = NULL;
 
-               CURRENT_TIB()->frame = (lref_t *)fstack_frame_val(frame, FOFS_ESCAPE_FRAME);
+               CURRENT_TIB()->frame = (lref_t *)frame[FOFS_ESCAPE_FRAME];
                CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
 
-               longjmp((struct __jmp_buf_tag *)fstack_frame_val(frame, FOFS_ESCAPE_JMPBUF_PTR), 1);
+               longjmp((struct __jmp_buf_tag *)frame[FOFS_ESCAPE_JMPBUF_PTR], 1);
           }
      }
 }
@@ -629,7 +623,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
 
                retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
-               after = fstack_frame_val(CURRENT_TIB()->frame, FOFS_UNWIND_AFTER);
+               after = CURRENT_TIB()->frame[FOFS_UNWIND_AFTER];
 
                fstack_leave_frame();
 
@@ -796,7 +790,7 @@ lref_t topmost_primitive()
          frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) == FRAME_SUBR)
-               return fstack_frame_val(frame, FOFS_SUBR_SUBR);
+               return frame[FOFS_SUBR_SUBR];
      }
 
      return NIL;
