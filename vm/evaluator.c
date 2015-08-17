@@ -277,6 +277,10 @@ EVAL_INLINE enum frame_type_t fstack_frame_type(lref_t *frame)
 
 EVAL_INLINE lref_t subr_apply(lref_t function, size_t argc, lref_t argv[], lref_t * env, lref_t * retval)
 {
+     lref_t arg1;
+     lref_t args;
+     size_t ii;
+
      UNREFERENCED(env);
 
      fstack_enter_frame(FRAME_SUBR);
@@ -305,27 +309,22 @@ EVAL_INLINE lref_t subr_apply(lref_t function, size_t argc, lref_t argv[], lref_
           break;
 
       case SUBR_2N:
-      {
-           lref_t arg1 = _ARGV(0);
+           arg1 = _ARGV(0);
 
-          arg1 = SUBR_F2(function) (arg1, _ARGV(1));
+           arg1 = SUBR_F2(function) (arg1, _ARGV(1));
+           for (ii = 2; ii < argc; ii++)
+                arg1 = SUBR_F2(function) (arg1, _ARGV(ii));
 
-          for (size_t ii = 2; ii < argc; ii++)
-               arg1 = SUBR_F2(function) (arg1, _ARGV(ii));
-
-          *retval = arg1;
-     }
-     break;
+           *retval = arg1;
+           break;
 
      case SUBR_ARGC:
           *retval = (SUBR_FARGC(function) (argc, argv));
           break;
 
      case SUBR_N:
-          {
-          lref_t args = arg_list_from_buffer(argc, argv);
+          args = arg_list_from_buffer(argc, argv);
           *retval = (SUBR_F1(function) (args));
-          }
           break;
      }
 
