@@ -89,21 +89,21 @@ it's running on."
   "Loads the current set of benchmark results from disk."
   (catch-all
    (format (current-debug-port) "; Loading benchmark results\n")
-   (with-port ip (open-file *benchmark-results-filename*)
-     (hash-clear! *reference-benchmark-result-sets*)
-     (let loop ((max-seq -1))
-       (let ((result (read ip)))
-         (cond ((eof-object? result)
-                (set! *current-benchmark-sequence* max-seq)
-                max-seq)
-               ((benchmark-result? result)
-                (hash-push! *reference-benchmark-result-sets*
-                            (benchmark-result-system result)
-                            result)
-                (loop (max max-seq (benchmark-result-seq result))))
-               (#t
-                (error "Bad benchmark result: ~s" result))))))
-   (format (current-debug-port) "; Loading benchmark results\n")))
+   (time
+    (with-port ip (open-file *benchmark-results-filename*)
+      (hash-clear! *reference-benchmark-result-sets*)
+      (let loop ((max-seq -1))
+        (let ((result (read ip)))
+          (cond ((eof-object? result)
+                 (set! *current-benchmark-sequence* max-seq)
+                 max-seq)
+                ((benchmark-result? result)
+                 (hash-push! *reference-benchmark-result-sets*
+                             (benchmark-result-system result)
+                             result)
+                 (loop (max max-seq (benchmark-result-seq result))))
+                (#t
+                 (error "Bad benchmark result: ~s" result)))))))))
 
 
 (define (promote-benchmark-results)
@@ -249,10 +249,8 @@ it's running on."
   (dynamic-let ((*test-benchmark-mode* #t))
     (apply bench tests)))
 
-(define (bench . tests)
-  (let ((tests (if (null? tests) (all-benchmark-names) tests))
-        (count 0))
-
+(define (bench :optional (tests (all-benchmark-names)))
+  (let ((count 0))
     (define (run-named-benchmark bench-name)
       (incr! count)
       (format #t "\n[~a/~a] ~a: " count (length tests) bench-name)
