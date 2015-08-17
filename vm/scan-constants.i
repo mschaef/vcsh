@@ -127,32 +127,52 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_LOCAL_REF,                18 )
     VM_CONSTANT(FOP_GLOBAL_SET,               20 )
     VM_CONSTANT(FOP_LOCAL_SET,                21 )
-
     VM_CONSTANT(FOP_APPLY_GLOBAL,             24 )
     VM_CONSTANT(FOP_APPLY,                    25 )
-
     VM_CONSTANT(FOP_IF_TRUE,                  33 )
-
     VM_CONSTANT(FOP_RETVAL,                   48 )
-
     VM_CONSTANT(FOP_SEQUENCE,                 96 )
+
+
+    VM_CONSTANT(FOP_LITERAL_ALT,                  97 )
+    VM_CONSTANT(FOP_GLOBAL_REF_ALT,               98 )
+    VM_CONSTANT(FOP_LOCAL_REF_ALT,                99 )
+    VM_CONSTANT(FOP_GLOBAL_SET_ALT,               100)
+    VM_CONSTANT(FOP_LOCAL_SET_ALT,                101)
+    VM_CONSTANT(FOP_APPLY_GLOBAL_ALT,             102)
+    VM_CONSTANT(FOP_APPLY_ALT,                    103)
+    VM_CONSTANT(FOP_IF_TRUE_ALT,                  104)
+    VM_CONSTANT(FOP_RETVAL_ALT,                   105)
+    VM_CONSTANT(FOP_SEQUENCE_ALT,                 106)
+    VM_CONSTANT(FOP_CLOSURE_ALT,                  107)
+    VM_CONSTANT(FOP_EQP_ALT,                      108)
+    VM_CONSTANT(FOP_CAR_ALT,                      109)
+    VM_CONSTANT(FOP_CDR_ALT,                      110)
+    VM_CONSTANT(FOP_NOT_ALT,                      111)
+    VM_CONSTANT(FOP_NULLP_ALT,                    112)
+    VM_CONSTANT(FOP_THROW_ALT,                    113)
+    VM_CONSTANT(FOP_CATCH_ALT,                    114)
+    VM_CONSTANT(FOP_WITH_UNWIND_FN_ALT,           115)
+    VM_CONSTANT(FOP_GET_ENV_ALT,                  116)
+    VM_CONSTANT(FOP_GLOBAL_DEF_ALT,               117)
+    VM_CONSTANT(FOP_GET_FSP_ALT,                  118)
+    VM_CONSTANT(FOP_GET_FRAME_ALT,                119)
+    VM_CONSTANT(FOP_GET_HFRAMES_ALT,              120)
+    VM_CONSTANT(FOP_SET_HFRAMES_ALT,              121)
+    VM_CONSTANT(FOP_GLOBAL_PRESERVE_FRAME_ALT,    122)
+
+
     VM_CONSTANT(FOP_CLOSURE,                  128)
-
     VM_CONSTANT(FOP_EQP,                      164)
-
     VM_CONSTANT(FOP_CAR,                      165)
     VM_CONSTANT(FOP_CDR,                      166)
     VM_CONSTANT(FOP_NOT,                      167)
     VM_CONSTANT(FOP_NULLP,                    168)
-
     VM_CONSTANT(FOP_THROW,                    193)
-
     VM_CONSTANT(FOP_CATCH,                    195)
     VM_CONSTANT(FOP_WITH_UNWIND_FN,           196)
-
     VM_CONSTANT(FOP_GET_ENV,                  224)
     VM_CONSTANT(FOP_GLOBAL_DEF,               240)
-
     VM_CONSTANT(FOP_GET_FSP,                  249)
     VM_CONSTANT(FOP_GET_FRAME,                250)
     VM_CONSTANT(FOP_GET_HFRAMES,              251)

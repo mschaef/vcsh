@@ -275,11 +275,7 @@ EVAL_INLINE enum frame_type_t fstack_frame_type(lref_t *frame)
 
 #define _ARGV(index) ((index >= argc) ? NIL : argv[index])
 
-EVAL_INLINE lref_t subr_apply(lref_t function,
-                              size_t argc,
-                              lref_t argv[],
-                              lref_t * env,
-                              lref_t * retval)
+EVAL_INLINE lref_t subr_apply(lref_t function, size_t argc, lref_t argv[], lref_t * env, lref_t * retval)
 {
      UNREFERENCED(env);
 
@@ -454,11 +450,13 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
           switch (FAST_OP_OPCODE(fop))
           {
           case FOP_LITERAL:
+          case FOP_LITERAL_ALT:
                retval = FAST_OP_ARG1(fop);
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_GLOBAL_REF:
+          case FOP_GLOBAL_REF_ALT:
                sym = FAST_OP_ARG1(fop);
                binding = SYMBOL_VCELL(sym);
 
@@ -471,6 +469,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_GLOBAL_SET:
+          case FOP_GLOBAL_SET_ALT:
                sym = FAST_OP_ARG1(fop);
                binding = SYMBOL_VCELL(sym);
 
@@ -483,6 +482,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_LOCAL_REF:
+          case FOP_LOCAL_REF_ALT:
                sym = FAST_OP_ARG1(fop);
                binding = lenvlookup(sym, env);
 
@@ -492,6 +492,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_LOCAL_SET:
+          case FOP_LOCAL_SET_ALT:
                sym = FAST_OP_ARG1(fop);
                binding = lenvlookup(sym, env);
 
@@ -501,6 +502,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_APPLY_GLOBAL:
+          case FOP_APPLY_GLOBAL_ALT:
                sym = FAST_OP_ARG1(fop);
                fn = SYMBOL_VCELL(sym);
 
@@ -530,6 +532,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_APPLY:
+          case FOP_APPLY_ALT:
                argc = 0;
                fn = execute_fast_op(FAST_OP_ARG1(fop), env);
                args = FAST_OP_ARG2(fop);
@@ -554,6 +557,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_IF_TRUE:
+          case FOP_IF_TRUE_ALT:
                if (TRUEP(retval))
                     fop = FAST_OP_ARG1(fop);
                else
@@ -561,16 +565,19 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_RETVAL:
+          case FOP_RETVAL_ALT:
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_SEQUENCE:
+          case FOP_SEQUENCE_ALT:
                retval = execute_fast_op(FAST_OP_ARG1(fop), env);
 
                fop = FAST_OP_ARG2(fop);
                break;
 
           case FOP_THROW:
+          case FOP_THROW_ALT:
                tag = execute_fast_op(FAST_OP_ARG1(fop), env);
                escape_retval = execute_fast_op(FAST_OP_ARG2(fop), env);
 
@@ -591,6 +598,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_CATCH:
+          case FOP_CATCH_ALT:
                tag = execute_fast_op(FAST_OP_ARG1(fop), env);
 
                fstack_enter_frame(FRAME_ESCAPE);
@@ -617,6 +625,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_WITH_UNWIND_FN:
+          case FOP_WITH_UNWIND_FN_ALT:
                fstack_enter_frame(FRAME_UNWIND);
                fstack_push((lref_t)execute_fast_op(FAST_OP_ARG1(fop), env));
 
@@ -632,6 +641,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_CLOSURE:
+          case FOP_CLOSURE_ALT:
                retval = lclosurecons(env,
                                      lcons(lcar(FAST_OP_ARG1(fop)),
                                            FAST_OP_ARG2(fop)),
@@ -640,62 +650,74 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_CAR:
+          case FOP_CAR_ALT:
                retval = lcar(retval);
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_CDR:
+          case FOP_CDR_ALT:
                retval = lcdr(retval);
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_NOT:
+          case FOP_NOT_ALT:
                retval = boolcons(!TRUEP(retval));
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_NULLP:
+          case FOP_NULLP_ALT:
                retval = boolcons(NULLP(retval));
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_EQP:
+          case FOP_EQP_ALT:
                retval = boolcons(EQ(execute_fast_op(FAST_OP_ARG1(fop), env),
                                     execute_fast_op(FAST_OP_ARG2(fop), env)));
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_GET_ENV:
+          case FOP_GET_ENV_ALT:
                retval = env;
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_GLOBAL_DEF: // three args, third was genv, but currently unused
+          case FOP_GLOBAL_DEF_ALT:
                retval = lidefine_global(FAST_OP_ARG1(fop), FAST_OP_ARG2(fop));
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_GET_FSP:
+          case FOP_GET_FSP_ALT:
                retval = fixcons((fixnum_t)CURRENT_TIB()->fsp);
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_GET_FRAME:
+          case FOP_GET_FRAME_ALT:
                retval = fixcons((fixnum_t)CURRENT_TIB()->frame);
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_GET_HFRAMES:
+          case FOP_GET_HFRAMES_ALT:
                retval = CURRENT_TIB()->handler_frames;
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_SET_HFRAMES:
+          case FOP_SET_HFRAMES_ALT:
                CURRENT_TIB()->handler_frames = execute_fast_op(FAST_OP_ARG1(fop), env);
                fop = FAST_OP_NEXT(fop);
                break;
 
           case FOP_GLOBAL_PRESERVE_FRAME:
+          case FOP_GLOBAL_PRESERVE_FRAME_ALT:
                sym = FAST_OP_ARG1(fop);
                binding = SYMBOL_VCELL(sym);
 
