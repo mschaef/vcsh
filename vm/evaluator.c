@@ -244,8 +244,7 @@ EVAL_INLINE void *fstack_alloca(size_t size)
 
 EVAL_INLINE void fstack_push(lref_t val)
 {
-     CURRENT_TIB()->fsp = CURRENT_TIB()->fsp - 1;
-     *(CURRENT_TIB()->fsp) = val;
+     *(--CURRENT_TIB()->fsp) = val;
 }
 
 EVAL_INLINE void fstack_enter_frame(enum frame_type_t ft)
