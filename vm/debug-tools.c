@@ -313,14 +313,18 @@ lref_t ltime_apply0(lref_t fn)
      flonum_t t = sys_runtime();
      flonum_t gc_t = interp.gc_total_run_time;
      size_t cells = interp.gc_total_cells_allocated;
+     size_t fops = CURRENT_TIB()->count_fop;
+     size_t frames = CURRENT_TIB()->count_enter_frame;
 
-     lref_t argv[4];
+     lref_t argv[6];
 
      argv[0] = apply1(fn, 0, NULL);
      argv[1] = flocons(sys_runtime() - t);
      argv[2] = flocons(interp.gc_total_run_time - gc_t);
      argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
+     argv[4] = fixcons(CURRENT_TIB()->count_fop - fops);
+     argv[5] = fixcons(CURRENT_TIB()->count_enter_frame - frames);
 
-     return lvector(4, argv);
+     return lvector(6, argv);
 }
 

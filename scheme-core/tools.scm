@@ -60,10 +60,12 @@
   (let ((result (%time-apply0 fn)))
     (dynamic-let ((*print-addresses* #f)
                   (*flonum-print-precision* *time-flonum-print-precision*))
-      (dformat "~&; time = ~a ms (~a gc), ~a cons work\n"
+      (dformat "~&; time = ~a ms (~a gc), ~a cons work, ~a fops, ~a frames\n"
               (* 1000.0 (vector-ref result 1))
               (* 1000.0 (vector-ref result 2))
-              (vector-ref result 3)))
+              (vector-ref result 3)
+              (vector-ref result 4)
+              (vector-ref result 5)))
     (vector-ref result 0)))
 
 (defmacro (time . code)
