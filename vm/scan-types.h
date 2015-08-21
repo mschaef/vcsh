@@ -261,6 +261,13 @@ INLINE int GC_MARK(lref_t object)
      return object->header.gc_mark;
 }
 
+INLINE bool REFTYPEP(lref_t object, enum typecode_t type)
+{
+     return (LREF1_TAG(object) == LREF1_REF)
+          && (object != NULL)
+          && (object->header.type == type);
+}
+
 INLINE enum typecode_t TYPE(lref_t object)
 {
      if (NULLP(object))
@@ -326,7 +333,7 @@ INLINE bool SYMBOLP(lref_t x)
 
 INLINE bool FIXNUMP(lref_t x)
 {
-     return TYPEP(x, TC_FIXNUM);
+     return LREF1_TAG(x) == LREF1_FIXNUM;
 }
 
 INLINE bool FLONUMP(lref_t x)
