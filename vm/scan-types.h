@@ -311,6 +311,11 @@ INLINE bool FREE_CELL_P(lref_t x)
      return TYPEP(x, TC_FREE_CELL);
 }
 
+INLINE bool FIXNUMP(lref_t x)
+{
+     return LREF1_TAG(x) == LREF1_FIXNUM;
+}
+
 INLINE bool CHARP(lref_t x)
 {
      return TYPEP(x, TC_CHARACTER);
@@ -321,24 +326,24 @@ INLINE bool BOOLP(lref_t x)
      return TYPEP(x, TC_BOOLEAN);
 }
 
+INLINE bool EOFP(lref_t x)
+{
+     return TYPEP(x, TC_END_OF_FILE);
+}
+
 INLINE bool CONSP(lref_t x)
 {
-     return TYPEP(x, TC_CONS);
+     return REFTYPEP(x, TC_CONS);
 }
 
 INLINE bool SYMBOLP(lref_t x)
 {
-     return TYPEP(x, TC_SYMBOL);
-}
-
-INLINE bool FIXNUMP(lref_t x)
-{
-     return LREF1_TAG(x) == LREF1_FIXNUM;
+     return REFTYPEP(x, TC_SYMBOL);
 }
 
 INLINE bool FLONUMP(lref_t x)
 {
-     return TYPEP(x, TC_FLONUM);
+     return REFTYPEP(x, TC_FLONUM);
 }
 
 INLINE bool REALP(lref_t x)
@@ -351,49 +356,49 @@ INLINE bool COMPLEXP(lref_t x)
      return (FLONUMP(x) && !NULLP(FLOIM(x)));
 }
 
-INLINE bool STRINGP(lref_t x)
-{
-     return TYPEP(x, TC_STRING);
-}
-
 INLINE bool NUMBERP(lref_t x)
 {
      return (FIXNUMP(x) || FLONUMP(x));
 }
 
+INLINE bool STRINGP(lref_t x)
+{
+     return REFTYPEP(x, TC_STRING);
+}
+
 INLINE bool PACKAGEP(lref_t x)
 {
-     return TYPEP(x, TC_PACKAGE);
+     return REFTYPEP(x, TC_PACKAGE);
 }
 
 INLINE bool PORTP(lref_t x)
 {
-     return TYPEP(x, TC_PORT);
+     return REFTYPEP(x, TC_PORT);
 }
 
 INLINE bool VECTORP(lref_t x)
 {
-     return TYPEP(x, TC_VECTOR);
+     return REFTYPEP(x, TC_VECTOR);
 }
 
 INLINE bool STRUCTUREP(lref_t x)
 {
-     return TYPEP(x, TC_STRUCTURE);
+     return REFTYPEP(x, TC_STRUCTURE);
 }
 
 INLINE bool HASHP(lref_t x)
 {
-     return TYPEP(x, TC_HASH);
+     return REFTYPEP(x, TC_HASH);
 }
 
 INLINE bool CLOSUREP(lref_t x)
 {
-     return TYPEP(x, TC_CLOSURE);
+     return REFTYPEP(x, TC_CLOSURE);
 }
 
 INLINE bool SUBRP(lref_t x)
 {
-     return TYPEP(x, TC_SUBR);
+     return REFTYPEP(x, TC_SUBR);
 }
 
 INLINE bool PROCEDUREP(lref_t x)
@@ -403,32 +408,27 @@ INLINE bool PROCEDUREP(lref_t x)
 
 INLINE bool MACROP(lref_t x)
 {
-     return TYPEP(x, TC_MACRO);
+     return REFTYPEP(x, TC_MACRO);
 }
 
 INLINE bool VALUES_TUPLE_P(lref_t x)
 {
-     return TYPEP(x, TC_VALUES_TUPLE);
+     return REFTYPEP(x, TC_VALUES_TUPLE);
 }
 
-INLINE bool EOFP(lref_t x)
+INLINE bool FAST_OP_P(lref_t x)
 {
-     return TYPEP(x, TC_END_OF_FILE);
+     return REFTYPEP(x, TC_FAST_OP);
+}
+
+INLINE bool FASL_READER_P(lref_t x)
+{
+     return REFTYPEP(x, TC_FASL_READER);
 }
 
 INLINE bool UNBOUND_MARKER_P(lref_t x)
 {
      return EQ(x, UNBOUND_MARKER);
-}
-
-INLINE bool FAST_OP_P(lref_t x)
-{
-     return TYPEP(x, TC_FAST_OP);
-}
-
-INLINE bool FASL_READER_P(lref_t x)
-{
-     return TYPEP(x, TC_FASL_READER);
 }
 
 INLINE bool TRUEP(lref_t x)
