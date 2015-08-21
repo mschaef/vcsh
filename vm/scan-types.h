@@ -318,17 +318,22 @@ INLINE bool FIXNUMP(lref_t x)
 
 INLINE bool CHARP(lref_t x)
 {
-     return TYPEP(x, TC_CHARACTER);
+     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_CHARACTER);
 }
 
 INLINE bool BOOLP(lref_t x)
 {
-     return TYPEP(x, TC_BOOLEAN);
+     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_BOOL);
 }
 
 INLINE bool EOFP(lref_t x)
 {
-     return TYPEP(x, TC_END_OF_FILE);
+     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_EOF);
+}
+
+INLINE bool UNBOUND_MARKER_P(lref_t x)
+{
+     return EQ(x, UNBOUND_MARKER);
 }
 
 INLINE bool CONSP(lref_t x)
@@ -424,11 +429,6 @@ INLINE bool FAST_OP_P(lref_t x)
 INLINE bool FASL_READER_P(lref_t x)
 {
      return REFTYPEP(x, TC_FASL_READER);
-}
-
-INLINE bool UNBOUND_MARKER_P(lref_t x)
-{
-     return EQ(x, UNBOUND_MARKER);
 }
 
 INLINE bool TRUEP(lref_t x)
