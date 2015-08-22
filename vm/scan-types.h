@@ -291,14 +291,6 @@ INLINE enum typecode_t TYPE(lref_t object)
 }
 
 
-INLINE void SET_TYPE(lref_t object, enum typecode_t new_type)
-{
-     checked_assert(!LREF_IMMEDIATE_P(object));
-
-     object->header.type = new_type;
-}
-
-
 /*** Type predicates ***/
 
 /* full INLINE causes problems with gcc 3.4.4, due to prototype. */

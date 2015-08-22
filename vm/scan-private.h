@@ -210,14 +210,14 @@ INLINE lref_t new_cell(enum typecode_t type)
      if (NULLP(thread->freelist))
           thread->freelist = gc_claim_freelist();
 
-     lref_t retval = thread->freelist;
-     thread->freelist = NEXT_FREE_CELL(thread->freelist);
-
      ++interp.gc_total_cells_allocated;
 
-     SET_TYPE(retval, type);
+     lref_t cell = thread->freelist;
+     thread->freelist = NEXT_FREE_CELL(thread->freelist);
 
-     return retval;
+     cell->header.type = type;
+
+     return cell;
 }
 
 /**** VM Unit Tests ****/

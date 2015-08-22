@@ -751,7 +751,7 @@ lref_t lopen_debug_port()
 
 void init_debugger_output()
 {
-     SET_TYPE(&interp.debugger_output, TC_PORT);
+     interp.debugger_output.header.type = TC_PORT;
 
      initialize_port(&interp.debugger_output,
                      &debug_port_class,

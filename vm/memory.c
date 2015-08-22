@@ -119,7 +119,7 @@ void gc_protect(const _TCHAR * name, lref_t * location, size_t n)
 
 static void gc_init_cell(lref_t obj)
 {
-     SET_TYPE(obj, TC_FREE_CELL);
+     obj->header.type = TC_FREE_CELL;
      SET_GC_MARK(obj, 0);
 }
 
