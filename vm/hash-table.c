@@ -22,28 +22,28 @@ INLINE void SET_HASH_SHALLOW(lref_t hash, bool shallow_keys)
 {
      assert(HASHP(hash));
 
-     hash->storage_as.hash.info.shallow_keys = shallow_keys;
+     hash->as.hash.info.shallow_keys = shallow_keys;
 }
 
 INLINE bool HASH_SHALLOW(lref_t hash)
 {
      assert(HASHP(hash));
 
-     return hash->storage_as.hash.info.shallow_keys;
+     return hash->as.hash.info.shallow_keys;
 }
 
 INLINE void SET_HASH_COUNT(lref_t hash, unsigned int count)
 {
      assert(HASHP(hash));
 
-     hash->storage_as.hash.info.count = count;
+     hash->as.hash.info.count = count;
 }
 
 INLINE unsigned int HASH_COUNT(lref_t hash)
 {
      assert(HASHP(hash));
 
-     return hash->storage_as.hash.info.count;
+     return hash->as.hash.info.count;
 }
 
 static void init_hash_entry(struct hash_entry_t * entry)

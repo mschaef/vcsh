@@ -229,7 +229,7 @@ struct lobject_t
                struct fasl_stream_t *stream;
           } fasl_reader;
 
-     } storage_as;
+     } as;
 };
 #pragma pack(pop)
 
@@ -460,64 +460,64 @@ INLINE bool BOOLV(lref_t x)
 INLINE lref_t *_CAR(lref_t x)
 {
      checked_assert(CONSP(x));
-     return &((*x).storage_as.cons.car);
+     return &(x->as.cons.car);
 }
 
 INLINE lref_t CAR(lref_t x)
 {
      checked_assert(CONSP(x));
-     return ((*x).storage_as.cons.car);
+     return x->as.cons.car;
 }
 
 INLINE void SET_CAR(lref_t x, lref_t nv)
 {
      checked_assert(CONSP(x));
-     ((*x).storage_as.cons.car) = nv;
+     x->as.cons.car = nv;
 }
 
 INLINE lref_t *_CDR(lref_t x)
 {
      checked_assert(CONSP(x));
-     return &((*x).storage_as.cons.cdr);
+     return &(x->as.cons.cdr);
 }
 
 INLINE lref_t CDR(lref_t x)
 {
      checked_assert(CONSP(x));
-     return ((*x).storage_as.cons.cdr);
+     return x->as.cons.cdr;
 }
 
 INLINE void SET_CDR(lref_t x, lref_t nv)
 {
      checked_assert(CONSP(x));
-     ((*x).storage_as.cons.cdr) = nv;
+     x->as.cons.cdr = nv;
 }
 
 
 INLINE lref_t NEXT_FREE_LIST(lref_t x)
 {
-     checked_assert(TYPE(x) == TC_FREE_CELL);
-     return ((*x).storage_as.cons.car);
+     checked_assert(FREE_CELL_P(x));
+     return x->as.cons.car;
 }
 
 INLINE lref_t SET_NEXT_FREE_LIST(lref_t x, lref_t next)
 {
-     checked_assert(TYPE(x) == TC_FREE_CELL);
-     ((*x).storage_as.cons.car) = next;
+     checked_assert(FREE_CELL_P(x));
+     x->as.cons.car = next;
 
      return x;
 }
 
 INLINE lref_t NEXT_FREE_CELL(lref_t x)
 {
-     checked_assert(TYPE(x) == TC_FREE_CELL);
-     return ((*x).storage_as.cons.cdr);
+     checked_assert(FREE_CELL_P(x));     
+     return x->as.cons.cdr;
 }
 
 INLINE lref_t SET_NEXT_FREE_CELL(lref_t x, lref_t next)
 {
      checked_assert(TYPE(x) == TC_FREE_CELL);
-     ((*x).storage_as.cons.cdr) = next;
+     x->as.cons.cdr = next;
 
      return x;
 }
@@ -533,27 +533,27 @@ INLINE fixnum_t FIXNM(lref_t x)
 INLINE flonum_t FLONM(lref_t x)
 {
      checked_assert(FLONUMP(x));
-     return ((*x).storage_as.flonum.data);
+     return x->as.flonum.data;
 }
 
 INLINE void SET_FLONM(lref_t x, double val)
 {
      checked_assert(FLONUMP(x));
-     ((*x).storage_as.flonum.data) = val;
+     x->as.flonum.data = val;
 }
 
 inline /* full INLINE causes problems with gcc 3.4.4, due to prototype. */ lref_t FLOIM(lref_t x)
 {
      checked_assert(FLONUMP(x));
 
-     return ((*x).storage_as.flonum.im_part);
+     return x->as.flonum.im_part;
 }
 
 INLINE void SET_FLOIM(lref_t x, lref_t val)
 {
      checked_assert(FLONUMP(x));
 
-     ((*x).storage_as.flonum.im_part) = val;
+     x->as.flonum.im_part = val;
 }
 
 INLINE flonum_t CMPLXRE(lref_t x)
@@ -578,43 +578,43 @@ INLINE _TCHAR CHARV(lref_t x)
 INLINE size_t VECTOR_DIM(lref_t obj)
 {
      checked_assert(VECTORP(obj));
-     return ((obj)->storage_as.vector.dim);
+     return obj->as.vector.dim;
 }
 
 INLINE void SET_VECTOR_DIM(lref_t obj, size_t new_dim)
 {
      checked_assert(VECTORP(obj));
-     ((obj)->storage_as.vector.dim) = new_dim;
+     obj->as.vector.dim = new_dim;
 }
 
 INLINE lref_t *VECTOR_DATA(lref_t obj)
 {
      checked_assert(VECTORP(obj));
-     return ((obj)->storage_as.vector.data);
+     return obj->as.vector.data;
 }
 
 INLINE lref_t *SET_VECTOR_DATA(lref_t obj, lref_t * new_data)
 {
      checked_assert(VECTORP(obj));
-     return ((obj)->storage_as.vector.data) = new_data;
+     return obj->as.vector.data = new_data;
 }
 
 INLINE lref_t VECTOR_ELEM(lref_t vec, fixnum_t index)
 {
      checked_assert(VECTORP(vec));
-     return ((vec)->storage_as.vector.data[(index)]);
+     return vec->as.vector.data[index];
 }
 
 INLINE lref_t *_VECTOR_ELEM(lref_t vec, fixnum_t index)
 {
      checked_assert(VECTORP(vec));
-     return &((vec)->storage_as.vector.data[(index)]);
+     return &vec->as.vector.data[index];
 }
 
 INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
 {
      checked_assert(VECTORP(vec));
-     ((vec)->storage_as.vector.data[(index)]) = new_value;
+     vec->as.vector.data[index] = new_value;
 }
 
 /*** structure ***/
@@ -622,66 +622,66 @@ INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
 INLINE size_t STRUCTURE_DIM(lref_t obj)
 {
      checked_assert(STRUCTUREP(obj));
-     return ((obj)->storage_as.vector.dim);
+     return obj->as.vector.dim;
 }
 
 INLINE void SET_STRUCTURE_DIM(lref_t obj, size_t len)
 {
      checked_assert(STRUCTUREP(obj));
-     ((obj)->storage_as.vector.dim) = len;
+     obj->as.vector.dim = len;
 }
 
 INLINE lref_t *STRUCTURE_DATA(lref_t obj)
 {
      checked_assert(STRUCTUREP(obj));
-     return ((obj)->storage_as.vector.data);
+     return obj->as.vector.data;
 }
 
 INLINE void SET_STRUCTURE_DATA(lref_t obj, lref_t * data)
 {
      checked_assert(STRUCTUREP(obj));
-     ((obj)->storage_as.vector.data) = data;
+     obj->as.vector.data = data;
 }
 
 
 INLINE lref_t STRUCTURE_LAYOUT(lref_t obj)
 {
      checked_assert(STRUCTUREP(obj));
-     return ((obj)->storage_as.vector.layout);
+     return obj->as.vector.layout;
 }
 
 INLINE void SET_STRUCTURE_LAYOUT(lref_t obj, lref_t new_layout)
 {
      checked_assert(STRUCTUREP(obj));
-     ((obj)->storage_as.vector.layout) = new_layout;
+     obj->as.vector.layout = new_layout;
 }
 
 INLINE lref_t STRUCTURE_ELEM(lref_t obj, fixnum_t index)
 {
      checked_assert(STRUCTUREP(obj));
-     return ((obj)->storage_as.vector.data[(index)]);
+     return obj->as.vector.data[index];
 }
 
 INLINE void SET_STRUCTURE_ELEM(lref_t obj, fixnum_t index, lref_t new_value)
 {
      checked_assert(STRUCTUREP(obj));
-     ((obj)->storage_as.vector.data[(index)]) = new_value;
+     obj->as.vector.data[index] = new_value;
 }
 
 /*** symbol ***/
 INLINE lref_t SYMBOL_PNAME(lref_t sym)
 {
      checked_assert(SYMBOLP(sym));
-     checked_assert(!NULLP((*sym).storage_as.symbol.props));
+     checked_assert(!NULLP((*sym).as.symbol.props));
 
      lref_t pname = NIL;
 
-     if (STRINGP((*sym).storage_as.symbol.props))
-          pname = ((*sym).storage_as.symbol.props);
+     if (STRINGP(sym->as.symbol.props))
+          pname = sym->as.symbol.props;
      else
      {
-          checked_assert(CONSP((*sym).storage_as.symbol.props));
-          pname = CAR((*sym).storage_as.symbol.props);
+          checked_assert(CONSP((*sym).as.symbol.props));
+          pname = CAR(sym->as.symbol.props);
           checked_assert(STRINGP(pname));
      }
 
@@ -693,20 +693,20 @@ INLINE void SET_SYMBOL_PNAME(lref_t sym, lref_t pname)
      checked_assert(SYMBOLP(sym));
      checked_assert(STRINGP(pname));
 
-     ((*sym).storage_as.symbol.props) = pname;
+     sym->as.symbol.props = pname;
 }
 
 INLINE lref_t SYMBOL_PROPS(lref_t sym)
 {
      checked_assert(SYMBOLP(sym));
-     checked_assert(!NULLP((*sym).storage_as.symbol.props));
+     checked_assert(!NULLP((*sym).as.symbol.props));
 
-     if (STRINGP((*sym).storage_as.symbol.props))
+     if (STRINGP(sym->as.symbol.props))
           return NIL;
 
-     checked_assert(CONSP((*sym).storage_as.symbol.props));
+     checked_assert(CONSP((*sym).as.symbol.props));
 
-     return CDR((*sym).storage_as.symbol.props);
+     return CDR(sym->as.symbol.props);
 }
 
 lref_t lcons(lref_t x, lref_t y);     /*  Forward decl */
@@ -714,42 +714,42 @@ lref_t lcons(lref_t x, lref_t y);     /*  Forward decl */
 INLINE void SET_SYMBOL_PROPS(lref_t sym, lref_t props)
 {
      checked_assert(SYMBOLP(sym));
-     checked_assert(!NULLP((*sym).storage_as.symbol.props));
+     checked_assert(!NULLP((*sym).as.symbol.props));
 
-     if (STRINGP((*sym).storage_as.symbol.props))
+     if (STRINGP(sym->as.symbol.props))
      {
-          (*sym).storage_as.symbol.props = lcons((*sym).storage_as.symbol.props, props);
+          sym->as.symbol.props = lcons((*sym).as.symbol.props, props);
      }
      else
      {
-          checked_assert(CONSP((*sym).storage_as.symbol.props));
-          SET_CDR((*sym).storage_as.symbol.props, props);
+          checked_assert(CONSP((*sym).as.symbol.props));
+          SET_CDR(sym->as.symbol.props, props);
      }
 }
 
 INLINE lref_t SYMBOL_VCELL(lref_t sym)
 {
      checked_assert(SYMBOLP(sym));
-     return ((*sym).storage_as.symbol.vcell);
+     return sym->as.symbol.vcell;
 }
 
 
 INLINE void SET_SYMBOL_VCELL(lref_t sym, lref_t value)
 {
      checked_assert(SYMBOLP(sym));
-     ((*sym).storage_as.symbol.vcell) = value;
+     sym->as.symbol.vcell = value;
 }
 
 INLINE lref_t SYMBOL_HOME(lref_t x)
 {
      checked_assert(SYMBOLP(x));
-     return ((*x).storage_as.symbol.home);
+     return x->as.symbol.home;
 }
 
 INLINE void SET_SYMBOL_HOME(lref_t x, lref_t home)
 {
      checked_assert(SYMBOLP(x));
-     ((*x).storage_as.symbol.home) = home;
+     x->as.symbol.home = home;
 }
 
 
@@ -757,140 +757,140 @@ INLINE void SET_SYMBOL_HOME(lref_t x, lref_t home)
 INLINE lref_t PACKAGE_NAME(lref_t x)
 {
      checked_assert(PACKAGEP(x));
-     return (((*x).storage_as.package.name));
+     return (((*x).as.package.name));
 }
 
 INLINE void SET_PACKAGE_NAME(lref_t x, lref_t name)
 {
      checked_assert(PACKAGEP(x));
-     (((*x).storage_as.package.name)) = name;
+     x->as.package.name = name;
 }
 
 INLINE lref_t PACKAGE_BINDINGS(lref_t x)
 {
      checked_assert(PACKAGEP(x));
-     return (((*x).storage_as.package.symbol_bindings));
+     return x->as.package.symbol_bindings;
 }
 
 INLINE void SET_PACKAGE_BINDINGS(lref_t x, lref_t symbol_bindings)
 {
      checked_assert(PACKAGEP(x));
-     (((*x).storage_as.package.symbol_bindings)) = symbol_bindings;
+     x->as.package.symbol_bindings = symbol_bindings;
 }
 
 INLINE lref_t PACKAGE_USE_LIST(lref_t x)
 {
      checked_assert(PACKAGEP(x));
-     return (((*x).storage_as.package.use_list));
+     return x->as.package.use_list;
 }
 
 INLINE void SET_PACKAGE_USE_LIST(lref_t x, lref_t use_list)
 {
      checked_assert(PACKAGEP(x));
-     (((*x).storage_as.package.use_list)) = use_list;
+     x->as.package.use_list = use_list;
 }
 
 /*** subr ***/
 INLINE enum subr_arity_t SUBR_TYPE(lref_t x)
 {
      checked_assert(SUBRP(x));
-     return (((*x).storage_as.subr.type));
+     return x->as.subr.type;
 }
 
 INLINE void SET_SUBR_TYPE(lref_t x, enum subr_arity_t type)
 {
      checked_assert(SUBRP(x));
-     (((*x).storage_as.subr.type)) = type;
+     x->as.subr.type = type;
 }
 
 INLINE lref_t SUBR_NAME(lref_t x)
 {
      checked_assert(SUBRP(x));
-     return (((*x).storage_as.subr.name));
+     return x->as.subr.name;
 }
 
 INLINE void SET_SUBR_NAME(lref_t x, lref_t name)
 {
      checked_assert(SUBRP(x));
      checked_assert(STRINGP(name));
-     (((*x).storage_as.subr.name)) = name;
+     x->as.subr.name = name;
 }
 
 INLINE void SET_SUBR_CODE(lref_t x, void *code)
 {
-     ((*x).storage_as.subr.code.ptr) = code;
+     x->as.subr.code.ptr = code;
 }
 
 INLINE void *SUBR_CODE(lref_t x)
 {
-     return (void *)(*x).storage_as.subr.code.ptr;
+     return (void *)x->as.subr.code.ptr;
 }
 
 INLINE f_0_t SUBR_F0(lref_t x)
 {
-     return ((*x).storage_as.subr.code.f_0);
+     return x->as.subr.code.f_0;
 }
 
 INLINE f_1_t SUBR_F1(lref_t x)
 {
-     return ((*x).storage_as.subr.code.f_1);
+     return x->as.subr.code.f_1;
 }
 
 INLINE f_2_t SUBR_F2(lref_t x)
 {
-     return ((*x).storage_as.subr.code.f_2);
+     return x->as.subr.code.f_2;
 }
 
 INLINE f_3_t SUBR_F3(lref_t x)
 {
-     return ((*x).storage_as.subr.code.f_3);
+     return x->as.subr.code.f_3;
 }
 
 INLINE f_4_t SUBR_F4(lref_t x)
 {
-     return ((*x).storage_as.subr.code.f_4);
+     return x->as.subr.code.f_4;
 }
 
 INLINE f_argc_t SUBR_FARGC(lref_t x)
 {
-     return ((*x).storage_as.subr.code.f_argc);
+     return x->as.subr.code.f_argc;
 }
 
 /*** closure ***/
 INLINE lref_t CLOSURE_CODE(lref_t x)
 {
      checked_assert(CLOSUREP(x));
-     return ((*x).storage_as.closure.code);
+     return x->as.closure.code;
 }
 
 INLINE void SET_CLOSURE_CODE(lref_t x, lref_t code)
 {
      checked_assert(CLOSUREP(x));
-     ((*x).storage_as.closure.code) = code;
+     x->as.closure.code = code;
 }
 
 INLINE lref_t CLOSURE_ENV(lref_t x)
 {
      checked_assert(CLOSUREP(x));
-     return ((*x).storage_as.closure.env);
+     return x->as.closure.env;
 }
 
 INLINE void SET_CLOSURE_ENV(lref_t x, lref_t env)
 {
      checked_assert(CLOSUREP(x));
-     ((*x).storage_as.closure.env) = env;
+     x->as.closure.env = env;
 }
 
 INLINE lref_t CLOSURE_PROPERTY_LIST(lref_t x)
 {
      checked_assert(CLOSUREP(x));
-     return ((*x).storage_as.closure.property_list);
+     return x->as.closure.property_list;
 }
 
 INLINE void SET_CLOSURE_PROPERTY_LIST(lref_t x, lref_t plist)
 {
      checked_assert(CLOSUREP(x));
-     ((*x).storage_as.closure.property_list) = plist;
+     x->as.closure.property_list = plist;
 }
 
 /*** macro ***/
@@ -898,38 +898,38 @@ INLINE void SET_CLOSURE_PROPERTY_LIST(lref_t x, lref_t plist)
 INLINE lref_t MACRO_TRANSFORMER(lref_t x)
 {
      checked_assert(MACROP(x));
-     return (((*x).storage_as.macro.transformer));
+     return x->as.macro.transformer;
 }
 
 INLINE void SET_MACRO_TRANSFORMER(lref_t x, lref_t transformer)
 {
      checked_assert(MACROP(x));
-     (((*x).storage_as.macro.transformer)) = transformer;
+     x->as.macro.transformer = transformer;
 }
 
 /*** string ***/
 INLINE size_t STRING_DIM(lref_t x)
 {
      checked_assert(STRINGP(x));
-     return ((*x).storage_as.string.dim);
+     return x->as.string.dim;
 }
 
 INLINE void SET_STRING_DIM(lref_t x, size_t dim)
 {
      checked_assert(STRINGP(x));
-     ((*x).storage_as.string.dim) = dim;
+     x->as.string.dim = dim;
 }
 
 INLINE _TCHAR *STRING_DATA(lref_t x)
 {
      checked_assert(STRINGP(x));
-     return ((*x).storage_as.string.data);
+     return x->as.string.data;
 }
 
 INLINE _TCHAR *SET_STRING_DATA(lref_t x, _TCHAR * data)
 {
      checked_assert(STRINGP(x));
-     return ((*x).storage_as.string.data) = data;
+     return x->as.string.data = data;
 }
 
 
@@ -937,13 +937,13 @@ INLINE _TCHAR *SET_STRING_DATA(lref_t x, _TCHAR * data)
 INLINE size_t HASH_MASK(lref_t obj)
 {
      checked_assert(HASHP(obj));
-     return ((obj)->storage_as.hash.mask);
+     return obj->as.hash.mask;
 }
 
 INLINE void SET_HASH_MASK(lref_t obj, size_t mask)
 {
      checked_assert(HASHP(obj));
-     ((obj)->storage_as.hash.mask) = mask;
+     obj->as.hash.mask = mask;
 }
 
 INLINE size_t HASH_SIZE(lref_t obj)
@@ -954,13 +954,13 @@ INLINE size_t HASH_SIZE(lref_t obj)
 INLINE struct hash_entry_t *HASH_DATA(lref_t obj)
 {
      checked_assert(HASHP(obj));
-     return ((obj)->storage_as.hash.data);
+     return obj->as.hash.data;
 }
 
 INLINE struct hash_entry_t *SET_HASH_DATA(lref_t obj, struct hash_entry_t * data)
 {
      checked_assert(HASHP(obj));
-     return ((obj)->storage_as.hash.data) = data;
+     return obj->as.hash.data = data;
 }
 
 /*** fasl-stream ***/
@@ -968,25 +968,25 @@ INLINE struct hash_entry_t *SET_HASH_DATA(lref_t obj, struct hash_entry_t * data
 INLINE lref_t FASL_READER_PORT(lref_t obj)
 {
      checked_assert(FASL_READER_P(obj));
-     return ((obj)->storage_as.fasl_reader.port);
+     return obj->as.fasl_reader.port;
 }
 
 INLINE void SET_FASL_READER_PORT(lref_t obj, lref_t port)
 {
      checked_assert(FASL_READER_P(obj));
-     ((obj)->storage_as.fasl_reader.port) = port;
+     obj->as.fasl_reader.port = port;
 }
 
 INLINE struct fasl_stream_t *FASL_READER_STREAM(lref_t obj)
 {
      checked_assert(FASL_READER_P(obj));
-     return ((obj)->storage_as.fasl_reader.stream);
+     return obj->as.fasl_reader.stream;
 }
 
 INLINE void SET_FASL_READER_STREAM(lref_t obj, struct fasl_stream_t *stream)
 {
      checked_assert(FASL_READER_P(obj));
-     ((obj)->storage_as.fasl_reader.stream) = stream;
+     obj->as.fasl_reader.stream = stream;
 }
 
 /*** port ***/
@@ -1046,7 +1046,7 @@ struct port_class_t
 
      size_t (* read_bytes)  (lref_t port, void *buf, size_t size);
      size_t (* write_bytes) (lref_t port, const void *buf, size_t size);
-     
+
      int    (* peek_char)   (lref_t port);
      size_t (* read_chars)  (lref_t port, _TCHAR *buf, size_t size);
      size_t (* write_chars) (lref_t port, const _TCHAR *buf, size_t size);
@@ -1061,37 +1061,37 @@ struct port_class_t
 INLINE struct port_info_t *PORT_PINFO(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port.pinf));
+     return x->as.port.pinf;
 }
 
 INLINE struct port_info_t *SET_PORT_PINFO(lref_t x, struct port_info_t * pinf)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port.pinf)) = pinf;
+     return x->as.port.pinf = pinf;
 }
 
 INLINE struct port_class_t *PORT_CLASS(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port.klass));
+     return x->as.port.klass;
 }
 
 INLINE struct port_class_t *SET_PORT_CLASS(lref_t x, struct port_class_t * klass)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port.klass)) = klass;
+     return x->as.port.klass = klass;
 }
 
 INLINE struct port_text_info_t *PORT_TEXT_INFO(lref_t x)
 {
      checked_assert(PORTP(x));
-     return (((*x).storage_as.port.text_info));
+     return x->as.port.text_info;
 }
 
 INLINE void SET_PORT_TEXT_INFO(lref_t x, struct port_text_info_t * text_info)
 {
      checked_assert(PORTP(x));
-     (((*x).storage_as.port.text_info)) = text_info;
+     x->as.port.text_info = text_info;
 }
 
 INLINE enum port_mode_t PORT_MODE(lref_t x)
@@ -1153,13 +1153,13 @@ INLINE void SET_PORT_USER_OBJECT(lref_t x, lref_t user_object)
 INLINE lref_t VALUES_TUPLE_VALUES(lref_t vt)
 {
      checked_assert(VALUES_TUPLE_P(vt));
-     return ((*vt).storage_as.values_tuple.values);
+     return vt->as.values_tuple.values;
 }
 
 INLINE void SET_VALUES_TUPLE_VALUES(lref_t vt, lref_t vals)
 {
      checked_assert(VALUES_TUPLE_P(vt));
-     ((*vt).storage_as.values_tuple.values) = vals;
+     vt->as.values_tuple.values = vals;
 }
 
 
@@ -1167,49 +1167,49 @@ INLINE void SET_VALUES_TUPLE_VALUES(lref_t vt, lref_t vals)
 INLINE int FAST_OP_OPCODE(lref_t fo)
 {
      checked_assert(FAST_OP_P(fo));
-     return ((*fo).header.opcode);
+     return fo->header.opcode;
 }
 
 INLINE void SET_FAST_OP_OPCODE(lref_t fo, int opcode)
 {
      checked_assert(FAST_OP_P(fo));
-     ((*fo).header.opcode) = opcode;
+     fo->header.opcode = opcode;
 }
 
 INLINE lref_t FAST_OP_ARG1(lref_t fo)
 {
      checked_assert(FAST_OP_P(fo));
-     return ((*fo).storage_as.fast_op.arg1);
+     return fo->as.fast_op.arg1;
 }
 
 INLINE void SET_FAST_OP_ARG1(lref_t fo, lref_t arg1)
 {
      checked_assert(FAST_OP_P(fo));
-     ((*fo).storage_as.fast_op.arg1) = arg1;
+     fo->as.fast_op.arg1 = arg1;
 }
 
 INLINE lref_t FAST_OP_ARG2(lref_t fo)
 {
      checked_assert(FAST_OP_P(fo));
-     return ((*fo).storage_as.fast_op.arg2);
+     return fo->as.fast_op.arg2;
 }
 
 INLINE void SET_FAST_OP_ARG2(lref_t fo, lref_t arg2)
 {
      checked_assert(FAST_OP_P(fo));
-     ((*fo).storage_as.fast_op.arg2) = arg2;
+     fo->as.fast_op.arg2 = arg2;
 }
 
 INLINE lref_t FAST_OP_NEXT(lref_t fo)
 {
      checked_assert(FAST_OP_P(fo));
-     return ((*fo).storage_as.fast_op.next);
+     return fo->as.fast_op.next;
 }
 
 INLINE void SET_FAST_OP_NEXT(lref_t fo, lref_t next)
 {
      checked_assert(FAST_OP_P(fo));
-     ((*fo).storage_as.fast_op.next) = next;
+     fo->as.fast_op.next = next;
 }
 
 #endif

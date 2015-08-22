@@ -284,7 +284,7 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_SYMBOL:
-               gc_mark((*obj).storage_as.symbol.props);
+               gc_mark(obj->as.symbol.props);
                obj = SYMBOL_VCELL(obj);
                break;
 
