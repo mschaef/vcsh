@@ -31,7 +31,7 @@ lref_t ldump_heap_state(lref_t port)
           lref_t org = interp.gc_heap_segments[heap_no];
           lref_t end = org + interp.gc_heap_segment_size;
           fixnum_t ii;
-          
+
           for (obj = org, ii = 0; obj < end; obj++, ii++)
           {
                if (ii % 256 == 0)

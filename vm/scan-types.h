@@ -268,6 +268,7 @@ INLINE bool REFTYPEP(lref_t object, enum typecode_t type)
           && (object->header.type == type);
 }
 
+
 INLINE enum typecode_t TYPE(lref_t object)
 {
      if (NULLP(object))
@@ -276,7 +277,7 @@ INLINE enum typecode_t TYPE(lref_t object)
           return NULLP(object) ? TC_NIL : object->header.type;
      else if (LREF1_TAG(object) == LREF1_FIXNUM)
           return TC_FIXNUM;
-     else                       /*  if (LREF_TAG(object) == LREF_SPECIAL) */
+     else
      {
           if (LREF2_TAG(object) == LREF2_BOOL)
                return TC_BOOLEAN;
@@ -284,10 +285,11 @@ INLINE enum typecode_t TYPE(lref_t object)
                return TC_CHARACTER;
           else if (LREF2_TAG(object) == LREF2_UNBOUND)
                return TC_UNBOUND_MARKER;
-          else                  /*  if ((LREF_TAG(object) == LREF_SPECIAL) && (LREF_TAG2(object) == LREF_EOF)) */
+          else
                return TC_END_OF_FILE;
      }
 }
+
 
 INLINE void SET_TYPE(lref_t object, enum typecode_t new_type)
 {
@@ -296,11 +298,11 @@ INLINE void SET_TYPE(lref_t object, enum typecode_t new_type)
      object->header.type = new_type;
 }
 
+
 /*** Type predicates ***/
 
 /* full INLINE causes problems with gcc 3.4.4, due to prototype. */
 inline  lref_t FLOIM(lref_t x);
-
 
 INLINE bool FIXNUMP(lref_t x)
 {
@@ -331,6 +333,7 @@ INLINE bool FREE_CELL_P(lref_t x)
 {
      return REFTYPEP(x, TC_FREE_CELL);
 }
+
 INLINE bool CONSP(lref_t x)
 {
      return REFTYPEP(x, TC_CONS);
@@ -444,7 +447,6 @@ INLINE lref_t boolcons(bool val)
 {
      return MAKE_LREF2(LREF2_BOOL, val ? 1 : 0);
 }
-
 
 INLINE bool BOOLV(lref_t x)
 {

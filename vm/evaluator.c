@@ -339,15 +339,10 @@ EVAL_INLINE lref_t apply(lref_t function,
                          size_t argc, lref_t argv[],
                          lref_t * env, lref_t * retval)
 {
-     enum typecode_t type = TYPE(function);
-
-     /* REVISIT: NIL signals "no tail recursion", what happens when the
-      * actual form is NIL? */
-
-     if (type == TC_SUBR)
+     if (SUBRP(function))
           return subr_apply(function, argc, argv, env, retval);
 
-     if (type == TC_CLOSURE)
+     if (CLOSUREP(function))
      {
           lref_t c_code = CLOSURE_CODE(function);
 
