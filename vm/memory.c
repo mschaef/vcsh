@@ -254,7 +254,7 @@ static bool gc_possible_heap_pointer_p(lref_t p)
                continue;
 
           /*  Pointers have types */
-          if (TYPEP(p, TC_FREE_CELL))
+          if (FREE_CELL_P(p))
                continue;
 
           return true;

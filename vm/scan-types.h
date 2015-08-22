@@ -296,20 +296,11 @@ INLINE void SET_TYPE(lref_t object, enum typecode_t new_type)
      object->header.type = new_type;
 }
 
-INLINE bool TYPEP(lref_t object, enum typecode_t typeCode)
-{
-     return TYPE(object) == typeCode;
-}
-
 /*** Type predicates ***/
 
 /* full INLINE causes problems with gcc 3.4.4, due to prototype. */
 inline  lref_t FLOIM(lref_t x);
 
-INLINE bool FREE_CELL_P(lref_t x)
-{
-     return TYPEP(x, TC_FREE_CELL);
-}
 
 INLINE bool FIXNUMP(lref_t x)
 {
@@ -336,6 +327,10 @@ INLINE bool UNBOUND_MARKER_P(lref_t x)
      return EQ(x, UNBOUND_MARKER);
 }
 
+INLINE bool FREE_CELL_P(lref_t x)
+{
+     return REFTYPEP(x, TC_FREE_CELL);
+}
 INLINE bool CONSP(lref_t x)
 {
      return REFTYPEP(x, TC_CONS);
