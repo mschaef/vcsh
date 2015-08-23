@@ -296,140 +296,33 @@ INLINE enum typecode_t TYPE(lref_t object)
 /* full INLINE causes problems with gcc 3.4.4, due to prototype. */
 inline  lref_t FLOIM(lref_t x);
 
-INLINE bool FIXNUMP(lref_t x)
-{
-     return LREF1_TAG(x) == LREF1_FIXNUM;
-}
-
-INLINE bool CHARP(lref_t x)
-{
-     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_CHARACTER);
-}
-
-INLINE bool BOOLP(lref_t x)
-{
-     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_BOOL);
-}
-
-INLINE bool EOFP(lref_t x)
-{
-     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_EOF);
-}
-
-INLINE bool UNBOUND_MARKER_P(lref_t x)
-{
-     return EQ(x, UNBOUND_MARKER);
-}
-
-INLINE bool FREE_CELL_P(lref_t x)
-{
-     return REFTYPEP(x, TC_FREE_CELL);
-}
-
-INLINE bool CONSP(lref_t x)
-{
-     return REFTYPEP(x, TC_CONS);
-}
-
-INLINE bool SYMBOLP(lref_t x)
-{
-     return REFTYPEP(x, TC_SYMBOL);
-}
-
-INLINE bool FLONUMP(lref_t x)
-{
-     return REFTYPEP(x, TC_FLONUM);
-}
-
-INLINE bool REALP(lref_t x)
-{
-     return (FIXNUMP(x) || (FLONUMP(x) && NULLP(FLOIM(x))));
-}
-
-INLINE bool COMPLEXP(lref_t x)
-{
-     return (FLONUMP(x) && !NULLP(FLOIM(x)));
-}
-
-INLINE bool NUMBERP(lref_t x)
-{
-     return (FIXNUMP(x) || FLONUMP(x));
-}
-
-INLINE bool STRINGP(lref_t x)
-{
-     return REFTYPEP(x, TC_STRING);
-}
-
-INLINE bool PACKAGEP(lref_t x)
-{
-     return REFTYPEP(x, TC_PACKAGE);
-}
-
-INLINE bool PORTP(lref_t x)
-{
-     return REFTYPEP(x, TC_PORT);
-}
-
-INLINE bool VECTORP(lref_t x)
-{
-     return REFTYPEP(x, TC_VECTOR);
-}
-
-INLINE bool STRUCTUREP(lref_t x)
-{
-     return REFTYPEP(x, TC_STRUCTURE);
-}
-
-INLINE bool HASHP(lref_t x)
-{
-     return REFTYPEP(x, TC_HASH);
-}
-
-INLINE bool CLOSUREP(lref_t x)
-{
-     return REFTYPEP(x, TC_CLOSURE);
-}
-
-INLINE bool SUBRP(lref_t x)
-{
-     return REFTYPEP(x, TC_SUBR);
-}
-
-INLINE bool PROCEDUREP(lref_t x)
-{
-     return CLOSUREP(x) || SUBRP(x);
-}
-
-INLINE bool MACROP(lref_t x)
-{
-     return REFTYPEP(x, TC_MACRO);
-}
-
-INLINE bool VALUES_TUPLE_P(lref_t x)
-{
-     return REFTYPEP(x, TC_VALUES_TUPLE);
-}
-
-INLINE bool FAST_OP_P(lref_t x)
-{
-     return REFTYPEP(x, TC_FAST_OP);
-}
-
-INLINE bool FASL_READER_P(lref_t x)
-{
-     return REFTYPEP(x, TC_FASL_READER);
-}
-
-INLINE bool TRUEP(lref_t x)
-{
-     return (x) != MAKE_LREF2(LREF2_BOOL, 0);
-}
-
-INLINE bool FALSEP(lref_t x)
-{
-     return !TRUEP(x);
-}
+INLINE bool FIXNUMP(lref_t x)          { return LREF1_TAG(x) == LREF1_FIXNUM;                                         }
+INLINE bool CHARP(lref_t x)            { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_CHARACTER); }
+INLINE bool BOOLP(lref_t x)            { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_BOOL);      }
+INLINE bool EOFP(lref_t x)             { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_EOF);       }
+INLINE bool UNBOUND_MARKER_P(lref_t x) { return EQ(x, UNBOUND_MARKER);                                                }
+INLINE bool FREE_CELL_P(lref_t x)      { return REFTYPEP(x, TC_FREE_CELL);                                            }
+INLINE bool CONSP(lref_t x)            { return REFTYPEP(x, TC_CONS);                                                 }
+INLINE bool SYMBOLP(lref_t x)          { return REFTYPEP(x, TC_SYMBOL);                                               }
+INLINE bool FLONUMP(lref_t x)          { return REFTYPEP(x, TC_FLONUM);                                               }
+INLINE bool REALP(lref_t x)            { return (FIXNUMP(x) || (FLONUMP(x) && NULLP(FLOIM(x))));                      }
+INLINE bool COMPLEXP(lref_t x)         { return (FLONUMP(x) && !NULLP(FLOIM(x)));                                     }
+INLINE bool NUMBERP(lref_t x)          { return (FIXNUMP(x) || FLONUMP(x));                                           }
+INLINE bool STRINGP(lref_t x)          { return REFTYPEP(x, TC_STRING);                                               }
+INLINE bool PACKAGEP(lref_t x)         { return REFTYPEP(x, TC_PACKAGE);                                              }
+INLINE bool PORTP(lref_t x)            { return REFTYPEP(x, TC_PORT);                                                 }
+INLINE bool VECTORP(lref_t x)          { return REFTYPEP(x, TC_VECTOR);                                               }
+INLINE bool STRUCTUREP(lref_t x)       { return REFTYPEP(x, TC_STRUCTURE);                                            }
+INLINE bool HASHP(lref_t x)            { return REFTYPEP(x, TC_HASH);                                                 }
+INLINE bool CLOSUREP(lref_t x)         { return REFTYPEP(x, TC_CLOSURE);                                              }
+INLINE bool SUBRP(lref_t x)            { return REFTYPEP(x, TC_SUBR);                                                 }
+INLINE bool PROCEDUREP(lref_t x)       { return CLOSUREP(x) || SUBRP(x);                                              }
+INLINE bool MACROP(lref_t x)           { return REFTYPEP(x, TC_MACRO);                                                }
+INLINE bool VALUES_TUPLE_P(lref_t x)   { return REFTYPEP(x, TC_VALUES_TUPLE);                                         }
+INLINE bool FAST_OP_P(lref_t x)        { return REFTYPEP(x, TC_FAST_OP);                                              }
+INLINE bool FASL_READER_P(lref_t x)    { return REFTYPEP(x, TC_FASL_READER);                                          }
+INLINE bool TRUEP(lref_t x)            { return (x) != MAKE_LREF2(LREF2_BOOL, 0);                                     }
+INLINE bool FALSEP(lref_t x)           { return !TRUEP(x);                                                            }
 
 /*** Boxed data accessors ***/
 
@@ -900,6 +793,7 @@ INLINE void SET_MACRO_TRANSFORMER(lref_t x, lref_t transformer)
 }
 
 /*** string ***/
+
 INLINE size_t STRING_DIM(lref_t x)
 {
      checked_assert(STRINGP(x));
@@ -923,7 +817,6 @@ INLINE _TCHAR *SET_STRING_DATA(lref_t x, _TCHAR * data)
      checked_assert(STRINGP(x));
      return x->as.string.data = data;
 }
-
 
 /*** hash ***/
 INLINE size_t HASH_MASK(lref_t obj)
