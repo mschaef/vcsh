@@ -459,50 +459,6 @@ INLINE _TCHAR CHARV(lref_t x)
      return (_TCHAR) LREF2_VAL(x);
 }
 
-/*** vector ***/
-/*
-INLINE size_t VECTOR_DIM(lref_t obj)
-{
-     checked_assert(VECTORP(obj));
-     return obj->as.vector.dim;
-}
-
-INLINE void SET_VECTOR_DIM(lref_t obj, size_t new_dim)
-{
-     checked_assert(VECTORP(obj));
-     obj->as.vector.dim = new_dim;
-}
-
-INLINE lref_t *VECTOR_DATA(lref_t obj)
-{
-     checked_assert(VECTORP(obj));
-     return obj->as.vector.data;
-}
-
-INLINE lref_t *SET_VECTOR_DATA(lref_t obj, lref_t * new_data)
-{
-     checked_assert(VECTORP(obj));
-     return obj->as.vector.data = new_data;
-}
-
-INLINE lref_t VECTOR_ELEM(lref_t vec, fixnum_t index)
-{
-     checked_assert(VECTORP(vec));
-     return vec->as.vector.data[index];
-}
-
-INLINE lref_t *_VECTOR_ELEM(lref_t vec, fixnum_t index)
-{
-     checked_assert(VECTORP(vec));
-     return &vec->as.vector.data[index];
-}
-
-INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
-{
-     checked_assert(VECTORP(vec));
-     vec->as.vector.data[index] = new_value;
-}
-*/
 
 /*** structure ***/
 
@@ -1034,19 +990,6 @@ INLINE void SET_PORT_USER_OBJECT(lref_t x, lref_t user_object)
 {
      checked_assert(PORTP(x));
      PORT_PINFO(x)->user_object = user_object;
-}
-
-/*** values-tuple ***/
-INLINE lref_t VALUES_TUPLE_VALUES(lref_t vt)
-{
-     checked_assert(VALUES_TUPLE_P(vt));
-     return vt->as.values_tuple.values;
-}
-
-INLINE void SET_VALUES_TUPLE_VALUES(lref_t vt, lref_t vals)
-{
-     checked_assert(VALUES_TUPLE_P(vt));
-     vt->as.values_tuple.values = vals;
 }
 
 

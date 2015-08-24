@@ -361,7 +361,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_VALUES_TUPLE:
-          scwritef("~u ~s", port, (lref_t) obj, VALUES_TUPLE_VALUES(obj));
+          scwritef("~u ~s", port, (lref_t) obj, obj->as.values_tuple.values);
           break;
 
      case TC_MACRO:

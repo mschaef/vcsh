@@ -343,7 +343,7 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_VALUES_TUPLE:
-               obj = VALUES_TUPLE_VALUES(obj);
+               obj = obj->as.values_tuple.values;
                break;
 
           case TC_FAST_OP:

@@ -336,17 +336,17 @@ lref_t licontrol_field(lref_t control_field_id)
 
 lref_t lvalues(lref_t values)
 {
-     lref_t z = new_cell(TC_VALUES_TUPLE);
+     lref_t obj = new_cell(TC_VALUES_TUPLE);
 
-     SET_VALUES_TUPLE_VALUES(z, values);
+     obj->as.values_tuple.values = values;
 
-     return z;
+     return obj;
 }
 
 lref_t lvalues2list(lref_t obj)
 {
      if (VALUES_TUPLE_P(obj))
-          return VALUES_TUPLE_VALUES(obj);
+          return obj->as.values_tuple.values;
 
      return lcons(obj, NIL);
 }
