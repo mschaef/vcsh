@@ -307,11 +307,11 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
      case TC_VECTOR:
           WRITE_TEXT_CONSTANT(port, _T("["));
 
-          for (ii = 0; ii < VECTOR_DIM(obj); ii++)
+          for (ii = 0; ii < obj->as.vector.dim; ii++)
           {
-               debug_print_object(VECTOR_ELEM(obj, ii), port, true);
+               debug_print_object(obj->as.vector.data[ii], port, true);
 
-               if (ii + 1 < VECTOR_DIM(obj))
+               if (ii + 1 < obj->as.vector.dim)
                     write_char(port, _T(' '));
           }
 

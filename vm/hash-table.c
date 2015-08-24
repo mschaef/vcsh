@@ -161,8 +161,8 @@ fixnum_t sxhash(lref_t obj)
           break;
 
      case TC_VECTOR:
-          for (ii = 0; ii < VECTOR_DIM(obj); ii++)
-               hash = HASH_COMBINE(hash, sxhash(VECTOR_ELEM(obj, ii)));
+          for (ii = 0; ii < obj->as.vector.dim; ii++)
+               hash = HASH_COMBINE(hash, sxhash(obj->as.vector.data[ii]));
           break;
 
      case TC_STRUCTURE:
@@ -585,12 +585,16 @@ lref_t lihash_binding_vector(lref_t hash)
      {
           struct hash_entry_t *entry = &HASH_DATA(hash)[ii];
 
+          lref_t btelem;
+
           if (hash_entry_deleted_p(entry))
-               SET_VECTOR_ELEM(btable, ii, boolcons(false));
+               btelem = boolcons(false);
           else if (hash_entry_unused_p(entry))
-               SET_VECTOR_ELEM(btable, ii, NIL);
+               btelem = NIL;
           else
-               SET_VECTOR_ELEM(btable, ii, lcons(entry->key, entry->val));
+               btelem = lcons(entry->key, entry->val);
+
+          btable->as.vector.data[ii] = btelem;
      }
 
      return btable;

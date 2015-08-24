@@ -460,6 +460,7 @@ INLINE _TCHAR CHARV(lref_t x)
 }
 
 /*** vector ***/
+/*
 INLINE size_t VECTOR_DIM(lref_t obj)
 {
      checked_assert(VECTORP(obj));
@@ -501,6 +502,7 @@ INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
      checked_assert(VECTORP(vec));
      vec->as.vector.data[index] = new_value;
 }
+*/
 
 /*** structure ***/
 

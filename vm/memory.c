@@ -329,14 +329,14 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_VECTOR:
-               for (size_t jj = 0; jj < VECTOR_DIM(obj); ++jj)
-                    gc_mark(VECTOR_ELEM(obj, jj));
+               for (size_t jj = 0; jj < obj->as.vector.dim; jj++)
+                    gc_mark(obj->as.vector.data[jj]);
 
                obj = NIL;
                break;
 
           case TC_STRUCTURE:
-               for (size_t jj = 0; jj < STRUCTURE_DIM(obj); ++jj)
+               for (size_t jj = 0; jj < STRUCTURE_DIM(obj); jj++)
                     gc_mark(STRUCTURE_ELEM(obj, jj));
 
                obj = STRUCTURE_LAYOUT(obj);
@@ -411,7 +411,7 @@ static void gc_clear_cell(lref_t obj)
           break;
 
      case TC_VECTOR:
-          gc_free(VECTOR_DATA(obj));
+          gc_free(obj->as.vector.data);
           break;
 
      case TC_HASH:

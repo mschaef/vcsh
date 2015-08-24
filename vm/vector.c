@@ -12,15 +12,15 @@
 
 #include "scan-private.h"
 
-lref_t vectorcons(fixnum_t n, lref_t initial)
+lref_t vectorcons(fixnum_t dim, lref_t initial)
 {
      lref_t vec = new_cell(TC_VECTOR);
 
-     SET_VECTOR_DIM(vec, (size_t) n);
-     SET_VECTOR_DATA(vec, (lref_t *) gc_malloc(((size_t) n) * sizeof(lref_t)));
+     vec->as.vector.dim = dim;
+     vec->as.vector.data = (lref_t *)gc_malloc((size_t)dim * sizeof(lref_t));
 
-     for (fixnum_t ii = 0; ii < n; ii++)
-          SET_VECTOR_ELEM(vec, ii, initial);
+     for (fixnum_t ii = 0; ii < dim; ii++)
+          vec->as.vector.data[ii] = initial;
 
      return vec;
 }
@@ -31,14 +31,15 @@ bool vector_equal(lref_t veca, lref_t vecb)
      assert(VECTORP(veca));
      assert(VECTORP(vecb));
 
-     size_t len = VECTOR_DIM(veca);
+     size_t dim = veca->as.vector.dim;
 
-     if (len != VECTOR_DIM(vecb))
+     if (dim != vecb->as.vector.dim)
           return FALSE;
 
-     for (size_t ii = 0; ii < len; ii++)
+     for (size_t ii = 0; ii < dim; ii++)
      {
-          if (!equalp(VECTOR_ELEM(veca, ii), VECTOR_ELEM(vecb, ii)))
+          if (!equalp(veca->as.vector.data[ii],
+                      vecb->as.vector.data[ii]))
                return FALSE;
      }
 
@@ -73,18 +74,16 @@ lref_t lvector(size_t argc, lref_t argv[])
      lref_t result = vectorcons(argc, NIL);
 
      for (size_t ii = 0; ii < argc; ii++)
-          SET_VECTOR_ELEM(result, ii, argv[ii]);
+          result->as.vector.data[ii] = argv[ii];
 
      return result;
 }
-
-
 
 lref_t lvector_ref(lref_t vec, lref_t i, lref_t default_value)
 {
      if (!VECTORP(vec))
           vmerror_wrong_type_n(1, vec);
-     
+
      size_t index = 0;
 
      if (NUMBERP(i))
@@ -94,8 +93,8 @@ lref_t lvector_ref(lref_t vec, lref_t i, lref_t default_value)
      else
           vmerror_wrong_type_n(2, i);
 
-     if (index < VECTOR_DIM(vec))
-          return VECTOR_ELEM(vec, index);
+     if (index < vec->as.vector.dim)
+          return vec->as.vector.data[index];
 
      if (NULLP(default_value))
           vmerror_index_out_of_bounds(i, vec);
@@ -118,9 +117,9 @@ lref_t lvector_set(lref_t vec, lref_t i, lref_t v)
      else
           vmerror_wrong_type_n(2, i);
 
-     if (index < VECTOR_DIM(vec))
+     if (index < vec->as.vector.dim)
      {
-          SET_VECTOR_ELEM(vec, index, v);
+          vec->as.vector.data[index] = v;
           return vec;
      }
 
@@ -137,19 +136,14 @@ lref_t lvector2list(lref_t vec)
      if (!VECTORP(vec))
           vmerror_wrong_type_n(1, vec);
 
-     fixnum_t length = object_length(vec);
-
-     for (fixnum_t jj = 0; jj < length; jj++)
+     for (fixnum_t jj = 0; jj < vec->as.vector.dim; jj++)
      {
-          lref_t cell = lcons(VECTOR_ELEM(vec, jj), NIL);
+          lref_t cell = lcons(vec->as.vector.data[jj], NIL);
 
-          if (NULLP(list))
-          {
+          if (NULLP(list)) {
                list = cell;
                tail = list;
-          }
-          else
-          {
+          } else {
                SET_CDR(tail, cell);
                tail = cell;
           }
@@ -170,7 +164,7 @@ lref_t llist2vector(lref_t xs)
      {
           assert(ii < length);
 
-          SET_VECTOR_ELEM(result, ii, lcar(l));
+          result->as.vector.data[ii] = lcar(l);
      }
 
      if (!NULLP(l))
@@ -184,8 +178,8 @@ lref_t lvector_fill(lref_t vec, lref_t v)
      if (!VECTORP(vec))
           vmerror_wrong_type_n(1, vec);
 
-     for (size_t ii = 0; ii < VECTOR_DIM(vec); ii++)
-          SET_VECTOR_ELEM(vec, ii, v);
+     for (size_t ii = 0; ii < vec->as.vector.dim; ii++)
+          vec->as.vector.data[ii] = v;
 
      return vec;
 }
@@ -196,10 +190,10 @@ lref_t lvector_copy(lref_t vec)
      if (!VECTORP(vec))
           vmerror_wrong_type_n(1, vec);
 
-     lref_t result = vectorcons(VECTOR_DIM(vec), NIL);
+     lref_t result = vectorcons(vec->as.vector.dim, NIL);
 
-     for (size_t ii = 0; ii < VECTOR_DIM(vec); ii++)
-          SET_VECTOR_ELEM(result, ii, VECTOR_ELEM(vec, ii));
+     for (size_t ii = 0; ii < vec->as.vector.dim; ii++)
+          result->as.vector.data[ii] = vec->as.vector.data[ii];
 
      return result;
 }
@@ -212,10 +206,14 @@ lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element)
 
      for (size_t ii = 0; ii < new_size; ii++)
      {
-          if (ii < VECTOR_DIM(vec))
-               SET_VECTOR_ELEM(result, ii, VECTOR_ELEM(vec, ii));
+          lref_t elem_value;
+
+          if (ii < vec->as.vector.dim)
+               elem_value = vec->as.vector.data[ii];
           else
-               SET_VECTOR_ELEM(result, ii, new_element);
+               elem_value = new_element;
+
+          result->as.vector.data[ii] = elem_value;
      }
 
      return result;

@@ -119,8 +119,8 @@ lref_t lheap_cell_count_by_typecode()
      /* Build the result list */
      result = vectorcons(LAST_INTERNAL_TYPEC + 1, NIL);
 
-     for (int i = 0; i <= LAST_INTERNAL_TYPEC; i++)
-          SET_VECTOR_ELEM(result, i, fixcons(internal_type_counts[i]));
+     for (size_t ii = 0; ii <= LAST_INTERNAL_TYPEC; ii++)
+          result->as.vector.data[ii] = fixcons(internal_type_counts[ii]);
 
      return result;
 }

@@ -764,7 +764,7 @@ lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_o
      if (!VECTORP(char_set))
           vmerror_wrong_type_n(2, char_set);
 
-     if (VECTOR_DIM(char_set) != _TCHAR_MAX)
+     if (char_set->as.vector.dim != _TCHAR_MAX)
           vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
 
      size_t loc = get_string_offset(maybe_initial_ofs);
@@ -772,7 +772,7 @@ lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_o
 
      for (; loc < STRING_DIM(string); loc++)
      {
-          if (TRUEP(VECTOR_ELEM(char_set, str[loc])))
+          if (TRUEP(char_set->as.vector.data[(size_t)str[loc]]))
                return fixcons(loc);
      }
 
@@ -787,7 +787,7 @@ lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_init
      if (!VECTORP(char_set))
           vmerror_wrong_type_n(2, char_set);
 
-     if (VECTOR_DIM(char_set) != _TCHAR_MAX)
+     if (char_set->as.vector.dim != _TCHAR_MAX)
           vmerror_index_out_of_bounds(fixcons(_TCHAR_MAX - 1), char_set);
 
      size_t substring_length = 0;
@@ -796,7 +796,7 @@ lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_init
 
      for (; loc < STRING_DIM(string); loc++)
      {
-          if (!TRUEP(VECTOR_ELEM(char_set, str[loc])))
+          if (!TRUEP(char_set->as.vector.data[(size_t)str[loc]]))
                break;
 
           substring_length++;

@@ -366,7 +366,7 @@ static void fast_read_vector(lref_t reader, lref_t * vec)
           if (EOFP(object))
                vmerror_fast_read("incomplete vector definition", reader, *vec);
 
-          SET_VECTOR_ELEM(*vec, ii, object);
+          (*vec)->as.vector.data[ii] = object;
      }
 }
 
@@ -525,9 +525,9 @@ static void fasl_ensure_valid_table_index(lref_t reader, size_t index)
      }
      else
      {
-          assert(VECTORP(FASL_READER_STREAM(reader)->table));
-
-          size_t old_len = VECTOR_DIM(FASL_READER_STREAM(reader)->table);
+          lref_t fasl_table = FASL_READER_STREAM(reader)->table;
+          assert(VECTORP(fasl_table));
+          size_t old_len = fasl_table->as.vector.dim;
 
           if (index >= old_len)
           {
@@ -535,13 +535,12 @@ static void fasl_ensure_valid_table_index(lref_t reader, size_t index)
                    (index >= old_len * 2) ? index + DEFAULT_FASL_TABLE_SIZE : (old_len * 2);
 
                FASL_READER_STREAM(reader)->table =
-                    vector_resize(FASL_READER_STREAM(reader)->table,
-                                  new_len > SIZE_MAX ? SIZE_MAX : (size_t) new_len, NIL);
+                    vector_resize(fasl_table, new_len > SIZE_MAX ? SIZE_MAX : (size_t) new_len, NIL);
           }
      }
 
      assert(VECTORP(FASL_READER_STREAM(reader)->table));
-     assert(index < VECTOR_DIM(FASL_READER_STREAM(reader)->table));
+     assert(index < (FASL_READER_STREAM(reader)->table)->as.vector.dim);
 }
 
 static fixnum_t fast_read_table_index(lref_t reader)
@@ -829,13 +828,13 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           case FASL_OP_READER_DEFINITION:
                index = fast_read_table_index(reader);
 
-               fasl_table_entry = _VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index);
+               fasl_table_entry = &(FASL_READER_STREAM(reader)->table->as.vector.data[index]);
 
                fast_read(reader, fasl_table_entry, allow_loader_ops);
 
                /* This should throw if the FASL table was resized
                 * during the call to read. */
-               assert(fasl_table_entry == _VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index));
+               assert(fasl_table_entry == &(FASL_READER_STREAM(reader)->table->as.vector.data[index]));
 
                *retval = *fasl_table_entry;
                break;
@@ -843,7 +842,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
           case FASL_OP_READER_REFERENCE:
                index = fast_read_table_index(reader);
 
-               *retval = VECTOR_ELEM(FASL_READER_STREAM(reader)->table, index);
+               *retval = FASL_READER_STREAM(reader)->table->as.vector.data[index];
                break;
 
           case FASL_OP_EOF:
