@@ -355,14 +355,14 @@ lref_t lvalues2list(lref_t obj)
 
 lref_t fast_op(int opcode, lref_t arg1, lref_t arg2, lref_t next)
 {
-     lref_t z = new_cell(TC_FAST_OP);
+     lref_t fop = new_cell(TC_FAST_OP);
 
-     SET_FAST_OP_OPCODE(z, opcode);
-     SET_FAST_OP_ARG1(z, arg1);
-     SET_FAST_OP_ARG2(z, arg2);
-     SET_FAST_OP_NEXT(z, next);
+     fop->header.opcode = opcode;
+     fop->as.fast_op.arg1 = arg1;
+     fop->as.fast_op.arg2 = arg2;
+     fop->as.fast_op.next = next;
 
-     return z;
+     return fop;
 }
 
 lref_t lfast_op(lref_t opcode, lref_t arg1, lref_t arg2, lref_t next)
@@ -380,7 +380,7 @@ lref_t lfast_op_opcode(lref_t fastop)
      if (!FAST_OP_P(fastop))
           vmerror_wrong_type_n(1, fastop);
 
-     return fixcons(FAST_OP_OPCODE(fastop));
+     return fixcons(fastop->header.opcode);
 }
 
 lref_t lfast_op_args(lref_t fast_op)
@@ -388,7 +388,9 @@ lref_t lfast_op_args(lref_t fast_op)
      if (!FAST_OP_P(fast_op))
           vmerror_wrong_type_n(1, fast_op);
 
-     return lcons(FAST_OP_ARG1(fast_op), lcons(FAST_OP_ARG2(fast_op), NIL));
+     return lcons(fast_op->as.fast_op.arg1,
+                  lcons(fast_op->as.fast_op.arg2,
+                        NIL));
 }
 
 lref_t lfast_op_next(lref_t fast_op)
@@ -396,7 +398,7 @@ lref_t lfast_op_next(lref_t fast_op)
      if (!FAST_OP_P(fast_op))
           vmerror_wrong_type_n(1, fast_op);
 
-     return FAST_OP_NEXT(fast_op);
+     return fast_op->as.fast_op.next;
 }
 
 bool fast_op_equal(lref_t a, lref_t b)
@@ -404,16 +406,16 @@ bool fast_op_equal(lref_t a, lref_t b)
      assert(FAST_OP_P(a));
      assert(FAST_OP_P(b));
 
-     if (FAST_OP_OPCODE(a) != FAST_OP_OPCODE(b))
+     if (a->header.opcode != b->header.opcode)
           return false;
 
-     if (FAST_OP_ARG1(a) != FAST_OP_ARG1(b))
+     if (a->as.fast_op.arg1 != b->as.fast_op.arg1)
           return false;
 
-     if (FAST_OP_ARG2(a) != FAST_OP_ARG2(b))
+     if (a->as.fast_op.arg2 != b->as.fast_op.arg2)
           return false;
 
-     if (FAST_OP_NEXT(a) != FAST_OP_NEXT(b))
+     if (a->as.fast_op.arg1 != b->as.fast_op.arg1)
           return false;
 
      return true;

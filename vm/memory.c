@@ -347,9 +347,9 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_FAST_OP:
-               gc_mark(FAST_OP_ARG1(obj));
-               gc_mark(FAST_OP_ARG2(obj));
-               obj = FAST_OP_NEXT(obj);
+               gc_mark(obj->as.fast_op.arg1);
+               gc_mark(obj->as.fast_op.arg2);
+               obj = obj->as.fast_op.next;
                break;
 
           case TC_FASL_READER:

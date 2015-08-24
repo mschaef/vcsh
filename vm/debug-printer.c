@@ -386,17 +386,21 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_FAST_OP:
-          fast_op_name = fast_op_opcode_name((enum fast_op_opcode_t)FAST_OP_OPCODE(obj));
+          fast_op_name = fast_op_opcode_name(obj->header.opcode);
 
           if (fast_op_name)
                scwritef("#<FOP@~c&:~cs ~s ~s => ~s>", port, (lref_t) obj,
-                        fast_op_name, FAST_OP_ARG1(obj), FAST_OP_ARG2(obj),
-                        FAST_OP_NEXT(obj));
+                        fast_op_name,
+                        obj->as.fast_op.arg1,
+                        obj->as.fast_op.arg2,
+                        obj->as.fast_op.next);
           else
                scwritef("#<FOP@~c&:~cd ~s ~s => ~s>", port, (lref_t) obj,
-                        FAST_OP_OPCODE(obj), FAST_OP_ARG1(obj), FAST_OP_ARG2(obj),
-                        FAST_OP_NEXT(obj));
-          break;
+                        obj->header.opcode,
+                        obj->as.fast_op.arg1,
+                        obj->as.fast_op.arg2,
+                        obj->as.fast_op.next);
+     break;
 
      case TC_FASL_READER:
           scwritef(_T("~u~s"), port,
