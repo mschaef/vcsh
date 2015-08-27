@@ -15,29 +15,29 @@
 
 /*  REVISIT: Macros should be moved entirely to Lisp... */
 
-lref_t macrocons(lref_t t)          
+lref_t macrocons(lref_t transformer)
 {
-     lref_t z = new_cell(TC_MACRO);
+     lref_t macro = new_cell(TC_MACRO);
 
-     SET_MACRO_TRANSFORMER(z, t);
+     macro->as.macro.transformer = transformer;
 
-     return (z);
+     return macro;
 }
 
-lref_t limacrocons(lref_t t)
+lref_t limacrocons(lref_t transformer)
 {
-     if (!CLOSUREP(t))
-          vmerror_wrong_type_n(1, t);
+     if (!CLOSUREP(transformer))
+          vmerror_wrong_type_n(1, transformer);
 
-     return macrocons(t);
+     return macrocons(transformer);
 }
 
-lref_t lmacro_transformer(lref_t mac)
+lref_t lmacro_transformer(lref_t macro)
 {
-     if (!MACROP(mac))
-          vmerror_wrong_type_n(1, mac);
+     if (!MACROP(macro))
+          vmerror_wrong_type_n(1, macro);
 
-     return MACRO_TRANSFORMER(mac);
+     return macro->as.macro.transformer;
 }
 
 lref_t lmacrop(lref_t obj)

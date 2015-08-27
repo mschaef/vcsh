@@ -303,7 +303,7 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_MACRO:
-               obj = MACRO_TRANSFORMER(obj);
+               obj = obj->as.macro.transformer;
                break;
 
           case TC_FLONUM:
@@ -315,8 +315,7 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_HASH:
-               for (size_t jj = 0; jj < HASH_SIZE(obj); ++jj)
-               {
+               for (size_t jj = 0; jj < HASH_SIZE(obj); ++jj) {
                     gc_mark(HASH_DATA(obj)[jj].key);
                     gc_mark(HASH_DATA(obj)[jj].val);
                }

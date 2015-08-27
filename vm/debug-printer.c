@@ -367,7 +367,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 
      case TC_MACRO:
           if (DEBUG_FLAG(DF_PRINT_CLOSURE_CODE))
-               scwritef("~u ~s", port, (lref_t) obj, MACRO_TRANSFORMER(obj));
+               scwritef("~u ~s", port, (lref_t) obj, obj->as.macro.transformer);
           else
                scwritef("~u", port, (lref_t) obj);
           break;

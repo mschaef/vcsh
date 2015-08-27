@@ -736,21 +736,8 @@ INLINE void SET_CLOSURE_PROPERTY_LIST(lref_t x, lref_t plist)
      x->as.closure.property_list = plist;
 }
 
-/*** macro ***/
-
-INLINE lref_t MACRO_TRANSFORMER(lref_t x)
-{
-     checked_assert(MACROP(x));
-     return x->as.macro.transformer;
-}
-
-INLINE void SET_MACRO_TRANSFORMER(lref_t x, lref_t transformer)
-{
-     checked_assert(MACROP(x));
-     x->as.macro.transformer = transformer;
-}
-
 /*** hash ***/
+
 INLINE size_t HASH_MASK(lref_t obj)
 {
      checked_assert(HASHP(obj));
