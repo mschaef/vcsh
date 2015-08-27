@@ -156,8 +156,8 @@ fixnum_t sxhash(lref_t obj)
           break;
 
      case TC_STRING:
-          for (ii = 0; ii < STRING_DIM(obj); ii++)
-               hash = (hash << 5) - hash + STRING_DATA(obj)[ii];
+          for (ii = 0; ii < obj->as.string.dim; ii++)
+               hash = (hash << 5) - hash + obj->as.string.data[ii];
           break;
 
      case TC_VECTOR:

@@ -91,7 +91,7 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
 
      if (!machine_readable)
      {
-          write_text(port, STRING_DATA(obj), STRING_DIM(obj));
+          write_text(port, obj->as.string.data, obj->as.string.dim);
           return;
      }
 
@@ -102,18 +102,19 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
      _TCHAR cbuff[2];
 
      /* To write strings more efficiently, this code scans for the longest
-      * block of characters that don't need special encoding, and then
+      * block of characters that doesn't need special encoding, and then
       * passes those blocks on to write_bytes. */
-     while (next_char_to_write < STRING_DIM(obj))
+     while (next_char_to_write < obj->as.string.dim)
      {
           unsigned int c;
           size_t next_special_char;
 
           /* Scan for the next special character, it ends the block... */
           for (next_special_char = next_char_to_write;
-               next_special_char < STRING_DIM(obj); next_special_char++)
+               next_special_char < obj->as.string.dim;
+               next_special_char++)
           {
-               c = STRING_DATA(obj)[next_special_char];
+               c = obj->as.string.data[next_special_char];
 
                if ((c == '\\') || (c == '"') || (c == '\n') || (c == '\r')
                    || (c == '\t') || (c == '\0') || (c < 32) || (c >= 127))
@@ -123,13 +124,13 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
           /* ...which then gets written out. */
           if (next_special_char - next_char_to_write > 0)
                write_text(port,
-                          &(STRING_DATA(obj)[next_char_to_write]),
+                          &(obj->as.string.data[next_char_to_write]),
                           next_special_char - next_char_to_write);
 
-          if (next_special_char >= STRING_DIM(obj))
+          if (next_special_char >= obj->as.string.dim)
                break;
 
-          c = STRING_DATA(obj)[next_special_char];
+          c = obj->as.string.data[next_special_char];
 
           /* Write the next special character. */
           switch (c)

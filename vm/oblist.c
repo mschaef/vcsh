@@ -220,7 +220,7 @@ lref_t simple_intern(lref_t print_name, lref_t package)
      if (!STRINGP(print_name) || !PACKAGEP(package))
           return NIL;
 
-     if (STRING_DIM(print_name) <= 0)
+     if (print_name->as.string.dim <= 0)
           return NIL;
 
      lref_t sym_rec = find_direct_symbol_record(print_name, package);
@@ -290,7 +290,7 @@ lref_t lstring2uninterned_symbol(lref_t str)
      if (!STRINGP(str))
           vmerror_wrong_type_n(1, str);
 
-     if (STRING_DIM(str) <= 0)
+     if (str->as.string.dim <= 0)
           vmerror_arg_out_of_range(str, _T("length > 0"));
 
      return symcons(str, NIL);

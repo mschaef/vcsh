@@ -750,32 +750,6 @@ INLINE void SET_MACRO_TRANSFORMER(lref_t x, lref_t transformer)
      x->as.macro.transformer = transformer;
 }
 
-/*** string ***/
-
-INLINE size_t STRING_DIM(lref_t x)
-{
-     checked_assert(STRINGP(x));
-     return x->as.string.dim;
-}
-
-INLINE void SET_STRING_DIM(lref_t x, size_t dim)
-{
-     checked_assert(STRINGP(x));
-     x->as.string.dim = dim;
-}
-
-INLINE _TCHAR *STRING_DATA(lref_t x)
-{
-     checked_assert(STRINGP(x));
-     return x->as.string.data;
-}
-
-INLINE _TCHAR *SET_STRING_DATA(lref_t x, _TCHAR * data)
-{
-     checked_assert(STRINGP(x));
-     return x->as.string.data = data;
-}
-
 /*** hash ***/
 INLINE size_t HASH_MASK(lref_t obj)
 {

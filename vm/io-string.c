@@ -31,7 +31,7 @@ size_t string_port_length(lref_t port)
      if (NULLP(PORT_STRING(port)))
           return 0;
      else
-          return STRING_DIM(PORT_STRING(port));
+          return PORT_STRING(port)->as.string.dim;
 }
 
 int string_port_peek_char(lref_t port)
@@ -39,10 +39,10 @@ int string_port_peek_char(lref_t port)
      lref_t port_str = PORT_STRING(port);
      struct port_text_info_t *pti = PORT_TEXT_INFO(port);
 
-     if (pti->str_ofs >= STRING_DIM(port_str))
+     if (pti->str_ofs >= port_str->as.string.dim)
           return -1;
 
-     return STRING_DATA(port_str)[pti->str_ofs];
+     return port_str->as.string.data[pti->str_ofs];
 }
 
 size_t string_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
@@ -50,15 +50,14 @@ size_t string_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
      size_t chars_read;
 
      lref_t port_str = PORT_STRING(port);
-     size_t str_len = STRING_DIM(port_str);
+     size_t str_len = port_str->as.string.dim;
      struct port_text_info_t *pti = PORT_TEXT_INFO(port);
 
-     for (chars_read = 0; chars_read < size; chars_read++)
-     {
+     for (chars_read = 0; chars_read < size; chars_read++) {
           if (pti->str_ofs >= str_len)
                break;
 
-          buf[chars_read] = STRING_DATA(port_str)[pti->str_ofs];
+          buf[chars_read] = port_str->as.string.data[pti->str_ofs];
 
           pti->str_ofs++;
      }

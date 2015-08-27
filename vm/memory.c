@@ -403,7 +403,7 @@ static void gc_clear_cell(lref_t obj)
      switch (TYPE(obj))
      {
      case TC_STRING:
-          gc_free(STRING_DATA(obj));
+          gc_free(obj->as.string.data);
           break;
 
      case TC_STRUCTURE:
