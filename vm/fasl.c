@@ -149,7 +149,7 @@ static void fast_read_list(lref_t reader, bool read_listd, lref_t * list)
 
           list_bud = next_list_cell;
 
-          fast_read(reader, _CAR(next_list_cell), false);
+          fast_read(reader, &(next_list_cell->as.cons.car), false);
 
           if (EOFP(CAR(next_list_cell)))
                vmerror_fast_read("incomplete list definition", reader, NIL);
@@ -157,7 +157,7 @@ static void fast_read_list(lref_t reader, bool read_listd, lref_t * list)
 
      if (read_listd)
      {
-          fast_read(reader, _CDR(list_bud), false);
+          fast_read(reader, &(list_bud->as.cons.cdr), false);
 
           if (EOFP(CDR(list_bud)))
                vmerror_fast_read("incomplete list defintion, missing cdr", reader, NIL);

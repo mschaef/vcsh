@@ -268,7 +268,6 @@ INLINE bool REFTYPEP(lref_t object, enum typecode_t type)
           && (object->header.type == type);
 }
 
-
 INLINE enum typecode_t TYPE(lref_t object)
 {
      if (NULLP(object))
@@ -333,20 +332,7 @@ INLINE lref_t boolcons(bool val)
      return MAKE_LREF2(LREF2_BOOL, val ? 1 : 0);
 }
 
-INLINE bool BOOLV(lref_t x)
-{
-     checked_assert(BOOLP(x));
-
-     return LREF2_VAL(x) != 0;
-}
-
 /*** cons/free-cell ***/
-
-INLINE lref_t *_CAR(lref_t x)
-{
-     checked_assert(CONSP(x));
-     return &(x->as.cons.car);
-}
 
 INLINE lref_t CAR(lref_t x)
 {
@@ -358,12 +344,6 @@ INLINE void SET_CAR(lref_t x, lref_t nv)
 {
      checked_assert(CONSP(x));
      x->as.cons.car = nv;
-}
-
-INLINE lref_t *_CDR(lref_t x)
-{
-     checked_assert(CONSP(x));
-     return &(x->as.cons.cdr);
 }
 
 INLINE lref_t CDR(lref_t x)
