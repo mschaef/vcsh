@@ -69,7 +69,6 @@ lref_t cmplxcons(flonum_t re, flonum_t im);
 
 fixnum_t get_c_fixnum(lref_t x);
 long get_c_long(lref_t x);
-double get_c_double(lref_t x);
 flonum_t get_c_flonum(lref_t x);
 flonum_t get_c_flonum_im(lref_t x);
 

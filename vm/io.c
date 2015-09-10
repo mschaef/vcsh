@@ -386,7 +386,7 @@ lref_t lbinary_write_flonum(lref_t v, lref_t port)
 
      uint8_t bytes[sizeof(flonum_t)];
 
-     io_encode_flonum(bytes, get_c_double(v));
+     io_encode_flonum(bytes, get_c_flonum(v));
 
      if (write_bytes(port, bytes, sizeof(flonum_t)) != sizeof(flonum_t))
           vmerror_io_error(_T("error writing to port."), port);

@@ -375,7 +375,7 @@ INLINE lref_t SET_NEXT_FREE_LIST(lref_t x, lref_t next)
 
 INLINE lref_t NEXT_FREE_CELL(lref_t x)
 {
-     checked_assert(FREE_CELL_P(x));     
+     checked_assert(FREE_CELL_P(x));
      return x->as.cons.cdr;
 }
 
@@ -401,29 +401,12 @@ INLINE flonum_t FLONM(lref_t x)
      return x->as.flonum.data;
 }
 
-INLINE void SET_FLONM(lref_t x, double val)
-{
-     checked_assert(FLONUMP(x));
-     x->as.flonum.data = val;
-}
 
 inline /* full INLINE causes problems with gcc 3.4.4, due to prototype. */ lref_t FLOIM(lref_t x)
 {
      checked_assert(FLONUMP(x));
 
      return x->as.flonum.im_part;
-}
-
-INLINE void SET_FLOIM(lref_t x, lref_t val)
-{
-     checked_assert(FLONUMP(x));
-
-     x->as.flonum.im_part = val;
-}
-
-INLINE flonum_t CMPLXRE(lref_t x)
-{
-     return FLONM(x);
 }
 
 INLINE flonum_t CMPLXIM(lref_t x)

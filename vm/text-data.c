@@ -869,8 +869,13 @@ typedef enum
      EURO_SEPERATOR
 } float_seperator;
 
-size_t float_format(_TCHAR * buf, size_t buf_len,
-                    double nd, int sigfigs, bool round, bool scientific, float_seperator sep)
+size_t float_format(_TCHAR * buf,
+                    size_t buf_len,
+                    double nd,
+                    int sigfigs,
+                    bool round,
+                    bool scientific,
+                    float_seperator sep)
 {
      /* First things first, get the easy cases out of the way. */
      if (isnan(nd))
@@ -1054,8 +1059,7 @@ lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s)
      else
           vmerror_arg_out_of_range(s, _T(":none, :us, or :euro"));
 
-     float_format(buf, STACK_STRBUF_LEN, get_c_double(n), (int) get_c_fixnum(sf), true, TRUEP(sci),
-                  sep);
+     float_format(buf, STACK_STRBUF_LEN, get_c_flonum(n), (int) get_c_fixnum(sf), true, TRUEP(sci), sep);
 
      return strconsbuf(buf);
 }

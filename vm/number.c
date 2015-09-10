@@ -41,37 +41,27 @@ lref_t fixcons(fixnum_t x)
 
 }
 
-lref_t flocons(flonum_t x)
+lref_t flocons(flonum_t re)
 {
-     lref_t z = new_cell(TC_FLONUM);
+     lref_t val = new_cell(TC_FLONUM);
 
-     SET_FLONM(z, x);
-     SET_FLOIM(z, NIL);
+     val->as.flonum.data = re;
+     val->as.flonum.im_part = NIL;
 
-     return (z);
+     return val;
 }
 
 lref_t cmplxcons(flonum_t re, flonum_t im)
 {
-     lref_t z = new_cell(TC_FLONUM);
+     lref_t val = new_cell(TC_FLONUM);
 
-     SET_FLONM(z, re);
-     SET_FLOIM(z, flocons(im));
+     val->as.flonum.data = re;
+     val->as.flonum.im_part = flocons(im);
 
-     return (z);
+     return val;
 }
 
 /* Number accessors *******************************************/
-
-long get_c_long(lref_t x)
-{
-     return (long) get_c_fixnum(x);
-}
-
-double get_c_double(lref_t x)
-{
-     return (double) get_c_flonum(x);
-}
 
 fixnum_t get_c_fixnum(lref_t x)
 {
@@ -81,7 +71,12 @@ fixnum_t get_c_fixnum(lref_t x)
      if (FIXNUMP(x))
           return FIXNM(x);
      else
-          return (fixnum_t) FLONM(x);
+          return (fixnum_t)FLONM(x);
+}
+
+long get_c_long(lref_t x)
+{
+     return (long)get_c_fixnum(x);
 }
 
 flonum_t get_c_flonum(lref_t x)
@@ -90,9 +85,9 @@ flonum_t get_c_flonum(lref_t x)
           vmerror_wrong_type(x);
 
      if (FLONUMP(x))
-          return (FLONM(x));
+          return FLONM(x);
      else
-          return (double) (FIXNM(x));
+          return (double)FIXNM(x);
 }
 
 flonum_t get_c_flonum_im(lref_t x)
@@ -738,7 +733,7 @@ lref_t lbitwise_ashr(lref_t x, lref_t n)
 lref_t lexp(lref_t x)
 {
      if (REALP(x))
-          return (flocons(exp(get_c_double(x))));
+          return flocons(exp(get_c_flonum(x)));
 
      /*  e^(y+xi) =  e^y (cos x + i sin x) */
 
@@ -753,7 +748,7 @@ lref_t llog(lref_t x)
      flonum_t xr = get_c_flonum(x);
 
      if ((REALP(x) || FIXNUMP(x)) && (xr >= 0.0))
-          return (flocons(log(xr)));
+          return flocons(log(xr));
 
      flonum_t xi = get_c_flonum_im(x);
 
@@ -766,7 +761,7 @@ lref_t lsin(lref_t x)
      if (COMPLEXP(x))
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return (flocons(sin(get_c_double(x))));
+     return flocons(sin(get_c_flonum(x)));
 }
 
 lref_t lcos(lref_t x)
@@ -774,7 +769,7 @@ lref_t lcos(lref_t x)
      if (COMPLEXP(x))
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return (flocons(cos(get_c_double(x))));
+     return flocons(cos(get_c_flonum(x)));
 }
 
 lref_t ltan(lref_t x)
@@ -782,7 +777,7 @@ lref_t ltan(lref_t x)
      if (COMPLEXP(x))
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return (flocons(tan(get_c_double(x))));
+     return flocons(tan(get_c_flonum(x)));
 }
 
 lref_t lasin(lref_t x)
@@ -790,7 +785,7 @@ lref_t lasin(lref_t x)
      if (COMPLEXP(x))
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return (flocons(asin(get_c_double(x))));
+     return flocons(asin(get_c_flonum(x)));
 }
 
 lref_t lacos(lref_t x)
@@ -798,7 +793,7 @@ lref_t lacos(lref_t x)
      if (COMPLEXP(x))
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return (flocons(acos(get_c_double(x))));
+     return flocons(acos(get_c_flonum(x)));
 }
 
 lref_t latan(lref_t x, lref_t y)
@@ -807,14 +802,14 @@ lref_t latan(lref_t x, lref_t y)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
      if (!NULLP(y))
-          return (flocons(atan2(get_c_double(x), get_c_double(y))));
+          return flocons(atan2(get_c_flonum(x), get_c_flonum(y)));
      else
-          return (flocons(atan(get_c_double(x))));
+          return flocons(atan(get_c_flonum(x)));
 }
 
 lref_t lsqrt(lref_t x)
 {
-     flonum_t xr = get_c_double(x);
+     flonum_t xr = get_c_flonum(x);
 
      if (COMPLEXP(x))
      {
@@ -840,10 +835,11 @@ lref_t lexpt(lref_t x, lref_t y)
 
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
+
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     return (flocons(pow(get_c_double(x), get_c_double(y))));
+     return flocons(pow(get_c_flonum(x), get_c_flonum(y)));
 }
 
 /* Complex Number Accessors **********************************/
@@ -856,7 +852,7 @@ lref_t lmake_rectangular(lref_t re, lref_t im)
      if (!(REALP(im) || FIXNUMP(im)))
           vmerror_wrong_type_n(2, im);
 
-     return cmplxcons(get_c_double(re), get_c_double(im));
+     return cmplxcons(get_c_flonum(re), get_c_flonum(im));
 }
 
 lref_t lmake_polar(lref_t r, lref_t theta)
@@ -867,8 +863,8 @@ lref_t lmake_polar(lref_t r, lref_t theta)
      if (!(REALP(theta) || FIXNUMP(theta)))
           vmerror_wrong_type_n(2, theta);
 
-     flonum_t fr = get_c_double(r);
-     flonum_t thetar = get_c_double(theta);
+     flonum_t fr = get_c_flonum(r);
+     flonum_t thetar = get_c_flonum(theta);
 
      return cmplxcons(fr * cos(thetar), fr * sin(thetar));
 }

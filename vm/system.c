@@ -306,9 +306,9 @@ lref_t lsleep(lref_t ms)
      if (!NUMBERP(ms))
           vmerror_wrong_type_n(1, ms);
 
-     double msec = get_c_double(ms);
+     flonum_t msec = get_c_flonum(ms);
 
-     sys_sleep((uintptr_t) msec);
+     sys_sleep((uintptr_t)msec);
 
      return NIL;
 }
