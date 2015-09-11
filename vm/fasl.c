@@ -287,7 +287,7 @@ static lref_t find_package(lref_t name)
           if (!PACKAGEP(p))
                panic("damaged package list");
 
-          if (_tcscmp(n, get_c_string(PACKAGE_NAME(p))) == 0)
+          if (_tcscmp(n, get_c_string(p->as.package.name)) == 0)
                return p;
      }
 

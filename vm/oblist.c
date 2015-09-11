@@ -22,9 +22,9 @@
  *
  * - name - The print name of the package.
  *
- * - symbol_bindings - A hash table mapping names to
- *   cons cells describing symbols. These cons cells
- *   have the following format: ( <symbol> . <exported?> )
+ * - bindings - A hash table mapping names to cons cells
+ *   describing symbols. These cons cells  have the 
+ *   following format: ( <symbol> . <exported?> )
  *
  * - use_list - A list of child packages used by the current
  *   package.
@@ -48,13 +48,13 @@ lref_t packagecons0(lref_t name, lref_t bindings, lref_t use_list)
 {
      assert(STRINGP(name));
 
-     lref_t new_package = new_cell(TC_PACKAGE);
+     lref_t obj = new_cell(TC_PACKAGE);
 
-     SET_PACKAGE_NAME(new_package, name);
-     SET_PACKAGE_BINDINGS(new_package, bindings);
-     SET_PACKAGE_USE_LIST(new_package, use_list);
+     obj->as.package.name = name;
+     obj->as.package.bindings = bindings;
+     obj->as.package.use_list = use_list;
 
-     return new_package;
+     return obj;
 }
 
 lref_t packagecons(lref_t name)
@@ -85,7 +85,7 @@ lref_t lpackage_name(lref_t p)      /*  ONLY SCHEME */
      if (!PACKAGEP(p))
           vmerror_wrong_type_n(1, p);
 
-     return PACKAGE_NAME(p);
+     return p->as.package.name;
 }
 
 lref_t lset_package_name(lref_t p, lref_t new_name)   /*  ONLY SCHEME */
@@ -96,7 +96,7 @@ lref_t lset_package_name(lref_t p, lref_t new_name)   /*  ONLY SCHEME */
      if (!STRINGP(new_name))
           vmerror_wrong_type_n(2, new_name);
 
-     SET_PACKAGE_NAME(p, new_name);
+     p->as.package.name = new_name;
 
      return p;
 }
@@ -106,7 +106,7 @@ lref_t lpackage_bindings(lref_t p)  /*  ONLY SCHEME */
      if (!PACKAGEP(p))
           vmerror_wrong_type_n(1, p);
 
-     return PACKAGE_BINDINGS(p);
+     return p->as.package.bindings;
 }
 
 lref_t lpackage_use_list(lref_t p)  /*  ONLY SCHEME */
@@ -114,7 +114,7 @@ lref_t lpackage_use_list(lref_t p)  /*  ONLY SCHEME */
      if (!PACKAGEP(p))
           vmerror_wrong_type_n(1, p);
 
-     return PACKAGE_USE_LIST(p);
+     return p->as.package.use_list;
 }
 
 lref_t lset_package_use_list(lref_t p, lref_t use_list)
@@ -125,7 +125,7 @@ lref_t lset_package_use_list(lref_t p, lref_t use_list)
      if (!list_of_packages_p(use_list))
           vmerror_arg_out_of_range(use_list, _T("bad use list"));
 
-     SET_PACKAGE_USE_LIST(p, use_list);
+     p->as.package.use_list = use_list;
 
      return p;
 }
@@ -147,7 +147,7 @@ static lref_t find_direct_symbol_record(lref_t sym_spec, lref_t package)
 
      assert(STRINGP(sym_name));
 
-     if (!hash_ref(PACKAGE_BINDINGS(package), sym_name, &sym_rec))
+     if (!hash_ref(package->as.package.bindings, sym_name, &sym_rec))
           return NIL;
 
      /*  If we find a different symbol of the same name in this package, then
@@ -171,7 +171,7 @@ lref_t ladd_symbol_to_package(lref_t symbol, lref_t package)
 
      lref_t symbol_record = lcons(symbol, boolcons(is_keyword));
 
-     lhash_set(PACKAGE_BINDINGS(package), SYMBOL_PNAME(symbol), symbol_record);
+     lhash_set(package->as.package.bindings, SYMBOL_PNAME(symbol), symbol_record);
 
      return NIL;
 }

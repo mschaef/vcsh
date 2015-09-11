@@ -289,10 +289,10 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_PACKAGE:
-               gc_mark(PACKAGE_BINDINGS(obj));
-               gc_mark(PACKAGE_USE_LIST(obj));
+               gc_mark(obj->as.package.bindings);
+               gc_mark(obj->as.package.use_list);
 
-               obj = PACKAGE_NAME(obj);
+               obj = obj->as.package.name;
                break;
 
           case TC_CLOSURE:

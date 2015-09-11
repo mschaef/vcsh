@@ -301,7 +301,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           {
                /* With only a minimal c-level package implementation, we
                 * just assume every symbol is private. */
-               scwritef("~a::~a", port, PACKAGE_NAME(SYMBOL_HOME(obj)), SYMBOL_PNAME(obj));
+               scwritef("~a::~a", port, SYMBOL_HOME(obj)->as.package.name, SYMBOL_PNAME(obj));
           }
           break;
 
@@ -344,7 +344,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_PACKAGE:
-          scwritef("~u ~a", port, (lref_t) obj, PACKAGE_NAME(obj));
+          scwritef("~u ~a", port, (lref_t) obj, obj->as.package.name);
           break;
 
      case TC_SUBR:

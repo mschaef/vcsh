@@ -155,7 +155,7 @@ struct lobject_t
           struct
           {
                lref_t name;
-               lref_t symbol_bindings;
+               lref_t bindings;
                lref_t use_list;
           } package;
           struct
@@ -422,7 +422,6 @@ INLINE _TCHAR CHARV(lref_t x)
      return (_TCHAR) LREF2_VAL(x);
 }
 
-
 /*** structure ***/
 
 INLINE size_t STRUCTURE_DIM(lref_t obj)
@@ -539,7 +538,6 @@ INLINE lref_t SYMBOL_VCELL(lref_t sym)
      return sym->as.symbol.vcell;
 }
 
-
 INLINE void SET_SYMBOL_VCELL(lref_t sym, lref_t value)
 {
      checked_assert(SYMBOLP(sym));
@@ -556,44 +554,6 @@ INLINE void SET_SYMBOL_HOME(lref_t x, lref_t home)
 {
      checked_assert(SYMBOLP(x));
      x->as.symbol.home = home;
-}
-
-
-/*** package ***/
-INLINE lref_t PACKAGE_NAME(lref_t x)
-{
-     checked_assert(PACKAGEP(x));
-     return (((*x).as.package.name));
-}
-
-INLINE void SET_PACKAGE_NAME(lref_t x, lref_t name)
-{
-     checked_assert(PACKAGEP(x));
-     x->as.package.name = name;
-}
-
-INLINE lref_t PACKAGE_BINDINGS(lref_t x)
-{
-     checked_assert(PACKAGEP(x));
-     return x->as.package.symbol_bindings;
-}
-
-INLINE void SET_PACKAGE_BINDINGS(lref_t x, lref_t symbol_bindings)
-{
-     checked_assert(PACKAGEP(x));
-     x->as.package.symbol_bindings = symbol_bindings;
-}
-
-INLINE lref_t PACKAGE_USE_LIST(lref_t x)
-{
-     checked_assert(PACKAGEP(x));
-     return x->as.package.use_list;
-}
-
-INLINE void SET_PACKAGE_USE_LIST(lref_t x, lref_t use_list)
-{
-     checked_assert(PACKAGEP(x));
-     x->as.package.use_list = use_list;
 }
 
 /*** subr ***/
