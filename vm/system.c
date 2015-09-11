@@ -301,14 +301,12 @@ lref_t lidirectory(lref_t dn, lref_t m)
 }
 
 
-lref_t lsleep(lref_t ms)
+lref_t lsleep(lref_t msec)
 {
-     if (!NUMBERP(ms))
-          vmerror_wrong_type_n(1, ms);
+     if (!NUMBERP(msec))
+          vmerror_wrong_type_n(1, msec);
 
-     flonum_t msec = get_c_flonum(ms);
-
-     sys_sleep((uintptr_t)msec);
+     sys_sleep(get_c_fixnum(msec));
 
      return NIL;
 }
