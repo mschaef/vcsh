@@ -42,8 +42,10 @@ type. If there is no valid typecode of that name, returns #f."
 (define (%representation-of obj)
   (let ((tc (%typecode obj)))
     (if (= tc system::TC_FLONUM)
-        (if (imag-part obj #f) 'complex 'flonum)
-        (typecode->name (%typecode obj)))))
+        (if (complex? obj)
+            'complex
+            'flonum)
+        (typecode->name tc))))
 
 
 
