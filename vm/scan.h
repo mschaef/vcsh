@@ -276,7 +276,7 @@ lref_t liimmediate_p(lref_t obj);
 lref_t liinternal_files();
 lref_t liload(lref_t fname);
 lref_t limacrocons(lref_t t);
-lref_t limag_part(lref_t x);
+lref_t limag_part(size_t argc, lref_t argv[]);
 lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s);
 lref_t linexact2exact(lref_t x);
 lref_t linexactp(lref_t x);

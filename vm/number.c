@@ -127,7 +127,7 @@ lref_t lnumberp(lref_t x)
 
 lref_t lcomplexp(lref_t x)
 {
-     if (NUMBERP(x))
+     if (COMPLEXP(x))
           return x;
      else
           return boolcons(false);
@@ -318,7 +318,7 @@ MAKE_NUMBER_COMPARISON_FN(lnum_lt, <, "<");
 
 lref_t ladd(lref_t x, lref_t y)
 {
-     dscwritef(DF_ALWAYS, (_T("; DEBUG: ladd  ~s + ~s\n"), x, y));
+
 
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
@@ -354,7 +354,6 @@ lref_t ladd(lref_t x, lref_t y)
 
 lref_t lsubtract(lref_t x, lref_t y)
 {
-     dscwritef(DF_ALWAYS, (_T("; DEBUG: lsubtract  ~s - ~s\n"), x, y));
 
      flonum_t xre, xim;
      flonum_t yre, yim;
@@ -407,7 +406,6 @@ lref_t lsubtract(lref_t x, lref_t y)
 
 lref_t lmultiply(lref_t x, lref_t y)
 {
-     dscwritef(DF_ALWAYS, (_T("; DEBUG: lmultiply  ~s * ~s\n"), x, y));
 
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
@@ -463,7 +461,6 @@ lref_t lmultiply(lref_t x, lref_t y)
 
 lref_t ldivide(lref_t x, lref_t y)
 {
-     dscwritef(DF_ALWAYS, (_T("; DEBUG: ldivide  ~s / ~s\n"), x, y));
 
      flonum_t xre, xim;
      flonum_t yre, yim;
@@ -952,6 +949,9 @@ lref_t lmake_polar(lref_t r, lref_t theta)
 
 lref_t lreal_part(lref_t x)
 {
+     if (FIXNUMP(x))
+          return x;
+
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
 
@@ -962,18 +962,24 @@ lref_t lreal_part(lref_t x)
      return flocons(xre);
 }
 
-lref_t limag_part(lref_t x)
+lref_t limag_part(size_t argc, lref_t argv[])
 {
-     if (!NUMBERP(x))
-          vmerror_wrong_type_n(1, x);
+     if (argc < 1)
+          vmerror_wrong_type(NIL);
 
-     flonum_t xre, xim;
+     lref_t cmplx = argv[0];
 
-     get_c_complex(x, &xre, &xim);
+     if (FIXNUMP(cmplx))
+          return (argc > 1) ? argv[1] : fixcons(0);
 
-     return flocons(xim);
+     if (!FLONUMP(cmplx))
+          vmerror_wrong_type(cmplx);
+
+     if (NULLP(FLOIM(cmplx)))
+          return (argc > 1) ? argv[1] :flocons(0.0);
+     else
+          return FLOIM(cmplx);
 }
-
 
 lref_t langle(lref_t x)
 {
@@ -1019,14 +1025,8 @@ lref_t lrandom(lref_t x)            /*  TESTTHIS */
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
 
-     if (FIXNUMP(x)) {
-          fixnum_t range = FIXNM(x);
-
-          if (range == 0)
-               vmerror_arg_out_of_range(x, _T(">0"));
-
-          return fixcons(mt19937_int64() % range);
-     }
+     if (FIXNUMP(x))
+          return fixcons(mt19937_int64() % FIXNM(x));
 
      bool x_complex;
      flonum_t xre, xim;

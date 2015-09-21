@@ -383,7 +383,7 @@ static void register_main_subrs()
     register_subr(_T("hash-set!"),                        SUBR_3,     (void*)lhash_set                           );
     register_subr(_T("hash-set-multiple!"),               SUBR_2,     (void*)lhash_set_multiple                  );
     register_subr(_T("hash?"),                            SUBR_1,     (void*)lhashp                              );
-    register_subr(_T("imag-part"),                        SUBR_1,     (void*)limag_part                          );
+    register_subr(_T("imag-part"),                        SUBR_ARGC,  (void*)limag_part                          );
     register_subr(_T("inexact->display-string"),          SUBR_4,     (void*)linexact2display_string             );
     register_subr(_T("inexact->exact"),                   SUBR_1,     (void*)linexact2exact                      );
     register_subr(_T("inexact?"),                         SUBR_1,     (void*)linexactp                           );
