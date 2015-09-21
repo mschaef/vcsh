@@ -54,8 +54,8 @@
                      (let ((current-methods (methods-for-signature new-gf (map type-of gf-args))))
                        (assert (not (null? current-methods)))
                        (letrec ((call-next-method (lambda ()
-                                                 (let ((next-fn (pop! current-methods)))
-                                                   (apply next-fn call-next-method gf-args)))))
+                                                    (let ((next-fn (pop! current-methods)))
+                                                      (apply next-fn call-next-method gf-args)))))
                          (call-next-method))))))
 
     (set-property! new-gf 'name gf-name)

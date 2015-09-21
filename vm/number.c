@@ -24,7 +24,6 @@
 #include "scan-private.h"
 #include "mt19937.h"
 
-
 /*** Number constructors ***/
 
 lref_t fixcons(fixnum_t x)
@@ -38,7 +37,6 @@ lref_t fixcons(fixnum_t x)
                    2,
                    fixcons(ux >> (FIXNUM_BITS - LREF1_TAG_SHIFT)),
                    fixcons(ux >> LREF1_TAG_SHIFT));
-
 }
 
 lref_t flocons(flonum_t re)
@@ -90,17 +88,28 @@ flonum_t get_c_flonum(lref_t x)
           return (double)FIXNM(x);
 }
 
-flonum_t get_c_flonum_im(lref_t x)
+bool get_c_complex(lref_t x, flonum_t *re, flonum_t *im)
 {
-     if (!NUMBERP(x))
-          vmerror_wrong_type(x);
+     if (FIXNUMP(x)) {
+          *re = (double)FIXNM(x);
+          *im = 0.0;
+          return false;
+     }
 
-     if (FIXNUMP(x))
-          return 0.0;
-     else if (COMPLEXP(x))
-          return CMPLXIM(x);
-     else
-          return 0.0;
+     if (FLONUMP(x)) {
+          *re = FLONM(x);
+
+          if (COMPLEXP(x)) {
+               *im = CMPLXIM(x);
+               return true;
+          } else {
+               *im = 0.0;
+               return false;
+          }
+     }
+
+     vmerror_wrong_type(x);
+     return false;
 }
 
 /* Number predicates ******************************************
@@ -309,6 +318,8 @@ MAKE_NUMBER_COMPARISON_FN(lnum_lt, <, "<");
 
 lref_t ladd(lref_t x, lref_t y)
 {
+     dscwritef(DF_ALWAYS, (_T("; DEBUG: ladd  ~s + ~s\n"), x, y));
+
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
 
@@ -318,24 +329,86 @@ lref_t ladd(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (COMPLEXP(x) || COMPLEXP(y))
-          return cmplxcons(get_c_flonum(x) + get_c_flonum(y),
-                           get_c_flonum_im(x) + get_c_flonum_im(y));
+     if (FLONUMP(x) || FLONUMP(y)) {
+          flonum_t xre, xim;
+          flonum_t yre, yim;
 
-     if (FLONUMP(x) || FLONUMP(y))
-          return flocons(get_c_flonum(x) + get_c_flonum(y));
+          bool x_complex = get_c_complex(x, &xre, &xim);
+          bool y_complex = get_c_complex(y, &yre, &yim);
+
+          if (x_complex || y_complex) {
+               return cmplxcons(xre + yre, xim + yim);
+          } else {
+               return flocons(xre + yre);
+          }
+     }
 
      fixnum_t xf = FIXNM(x);
      fixnum_t yf = FIXNM(y);
 
-     if (((yf>0) && (xf > (FIXNUM_MAX-yf))) || ((yf<0) && (xf < (FIXNUM_MIN-yf))))
+     if (((yf > 0) && (xf > (FIXNUM_MAX-yf))) || ((yf < 0) && (xf < (FIXNUM_MIN-yf))))
           return vmtrap(TRAP_OVERFLOW_FIXNUM_ADD, VMT_MANDATORY_TRAP, 2, x, y);
 
      return fixcons(xf + yf);
 }
 
+lref_t lsubtract(lref_t x, lref_t y)
+{
+     dscwritef(DF_ALWAYS, (_T("; DEBUG: lsubtract  ~s - ~s\n"), x, y));
+
+     flonum_t xre, xim;
+     flonum_t yre, yim;
+     bool x_complex, y_complex;
+
+     if (!NUMBERP(x))
+          vmerror_wrong_type_n(1, x);
+
+     if (NULLP(y)) {
+          if (FIXNUMP(x)) {
+               fixnum_t xf = FIXNM(x);
+
+               if (xf == FIXNUM_MIN)
+                    return vmtrap(TRAP_OVERFLOW_FIXNUM_NEGATE, VMT_MANDATORY_TRAP, 1, x);
+
+               return fixcons(-xf);
+          } else {
+               assert(FLONUMP(x));
+
+               x_complex = get_c_complex(x, &xre, &xim);
+
+               if (x_complex)
+                    return cmplxcons(-xre, -xim);
+               else
+                    return flocons(-xre);
+          }
+     }
+
+     if (!NUMBERP(y))
+          vmerror_wrong_type_n(2, y);
+
+     if (FLONUMP(x) || FLONUMP(y)) {
+          x_complex = get_c_complex(x, &xre, &xim);
+          y_complex = get_c_complex(y, &yre, &yim);
+
+          if (x_complex || y_complex)
+               cmplxcons(xre - yre, xim - yim);
+          else
+               return flocons(xre - yre);
+     }
+
+     fixnum_t xf = FIXNM(x);
+     fixnum_t yf = FIXNM(y);
+
+     if ((yf > 0 && xf < FIXNUM_MIN + yf) || (yf < 0 && xf > FIXNUM_MAX + yf))
+          return vmtrap(TRAP_OVERFLOW_FIXNUM_SUBTRACT, VMT_MANDATORY_TRAP, 2, x, y);
+
+     return fixcons(xf - yf);
+}
+
 lref_t lmultiply(lref_t x, lref_t y)
 {
+     dscwritef(DF_ALWAYS, (_T("; DEBUG: lmultiply  ~s * ~s\n"), x, y));
+
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
 
@@ -345,22 +418,22 @@ lref_t lmultiply(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (COMPLEXP(x) || COMPLEXP(y))
-     {
-          flonum_t xr = get_c_flonum(x);
-          flonum_t yr = get_c_flonum(y);
-          flonum_t xi = get_c_flonum_im(x);
-          flonum_t yi = get_c_flonum_im(y);
+     if (FLONUMP(x) || FLONUMP(y)) {
+          flonum_t xre, xim;
+          flonum_t yre, yim;
+          bool x_complex, y_complex;
 
-          return cmplxcons(xr * yr - xi * yi, xr * yi + xi * yr);
+          x_complex = get_c_complex(x, &xre, &xim);
+          y_complex = get_c_complex(y, &yre, &yim);
+
+          if (x_complex || y_complex)
+               return cmplxcons(xre * yre - xim * yim, xre * yim + xim * yre);
+          else
+               return flocons(xre * yre);
      }
-
-     if (FLONUMP(x) || FLONUMP(y))
-          return flocons(get_c_flonum(x) * get_c_flonum(y));
 
      fixnum_t xf = FIXNM(x);
      fixnum_t yf = FIXNM(y);
-
 
      if (xf > 0) {
           if (yf > 0) {
@@ -387,82 +460,43 @@ lref_t lmultiply(lref_t x, lref_t y)
      return fixcons(xf * yf);
 }
 
-lref_t lsubtract(lref_t x, lref_t y)
-{
-     if (!NUMBERP(x))
-          vmerror_wrong_type_n(1, x);
-
-     if (NULLP(y))
-     {
-          if (COMPLEXP(x))
-               return cmplxcons(-FLONM(x), -CMPLXIM(x));
-          else if (FLONUMP(x))
-               return flocons(-FLONM(x));
-
-          fixnum_t xf = FIXNM(x);
-
-          if (xf == FIXNUM_MIN)
-               return vmtrap(TRAP_OVERFLOW_FIXNUM_NEGATE, VMT_MANDATORY_TRAP, 1, x);
-
-          return fixcons(-xf);
-     }
-
-     if (!NUMBERP(y))
-          vmerror_wrong_type_n(2, y);
-
-     if (COMPLEXP(x) || COMPLEXP(y))
-          return cmplxcons(get_c_flonum(x) - get_c_flonum(y),
-                           get_c_flonum_im(x) - get_c_flonum_im(y));
-
-     if (FLONUMP(x) || FLONUMP(y))
-          return flocons(get_c_flonum(x) - get_c_flonum(y));
-
-     fixnum_t xf = FIXNM(x);
-     fixnum_t yf = FIXNM(y);
-
-     if ((yf > 0 && xf < FIXNUM_MIN + yf)
-         || (yf < 0 && xf > FIXNUM_MAX + yf))
-          return vmtrap(TRAP_OVERFLOW_FIXNUM_SUBTRACT, VMT_MANDATORY_TRAP, 2, x, y);
-
-     return fixcons(xf - yf);
-}
 
 lref_t ldivide(lref_t x, lref_t y)
 {
+     dscwritef(DF_ALWAYS, (_T("; DEBUG: ldivide  ~s / ~s\n"), x, y));
+
+     flonum_t xre, xim;
+     flonum_t yre, yim;
+     bool x_complex, y_complex;
+
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
 
-     if (NULLP(y))
-     {
-          if (COMPLEXP(x))
-          {
-               flonum_t xr = get_c_flonum(x);
-               flonum_t xi = get_c_flonum_im(x);
+     if (NULLP(y)) {
+          x_complex = get_c_complex(x, &xre, &xim);
 
-               flonum_t d = xr * xr + xi * xi;
+          if (x_complex) {
+               flonum_t d = xre * xre + xim * xim;
 
-               return cmplxcons(xr / d, -xi / d);
+               return cmplxcons(xre / d, -xim / d);
+          } else {
+               return flocons(1 / xre);
           }
-          else
-               return flocons(1 / get_c_flonum(x));
      }
 
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (COMPLEXP(x) || COMPLEXP(y))
-     {
-          flonum_t xr = get_c_flonum(x);
-          flonum_t yr = get_c_flonum(y);
-          flonum_t xi = get_c_flonum_im(x);
-          flonum_t yi = get_c_flonum_im(y);
+     x_complex = get_c_complex(x, &xre, &xim);
+     y_complex = get_c_complex(y, &yre, &yim);
 
-          flonum_t d = yr * yr + yi * yi;
+     if (x_complex || y_complex) {
+          flonum_t d = yre * yre + yim * yim;
 
-          return cmplxcons((xr * yr + xi * yi) / d, (xi * yr - xr * yi) / d);
+          return cmplxcons((xre * yre + xim * yim) / d, (xim * yre - xre * yim) / d);
+     } else {
+          return flocons(xre / yre);
      }
-
-     return flocons(get_c_flonum(x) / get_c_flonum(y));
 }
 
 /* Number-theoretic division **********************************/
@@ -732,106 +766,142 @@ lref_t lbitwise_ashr(lref_t x, lref_t n)
 
 lref_t lexp(lref_t x)
 {
-     if (REALP(x))
-          return flocons(exp(get_c_flonum(x)));
+     bool complex_x;
+     flonum_t xre, xim;
 
-     /*  e^(y+xi) =  e^y (cos x + i sin x) */
+     complex_x = get_c_complex(x, &xre, &xim);
 
-     flonum_t ere = exp(get_c_flonum(x));
-     flonum_t im = get_c_flonum_im(x);
-
-     return cmplxcons(ere * cos(im), ere * sin(im));
+     if (complex_x) {
+          /*  e^(y+xi) =  e^y (cos x + i sin x) */
+          return cmplxcons(xre * cos(xim), xre * sin(xim));
+     } else {
+          return flocons(exp(xre));
+     }
 }
 
 lref_t llog(lref_t x)
 {
-     flonum_t xr = get_c_flonum(x);
+     bool complex_x;
+     flonum_t xre, xim;
 
-     if ((REALP(x) || FIXNUMP(x)) && (xr >= 0.0))
-          return flocons(log(xr));
+     complex_x = get_c_complex(x, &xre, &xim);
 
-     flonum_t xi = get_c_flonum_im(x);
-
-     return cmplxcons(log(sqrt(xr * xr + xi * xi)), atan2(xi, xr));
+     if ((!complex_x || FIXNUMP(x)) && (xre >= 0.0)) {
+          return flocons(log(xre));
+     } else {
+          return cmplxcons(log(sqrt(xre * xre + xim * xim)), atan2(xim, xre));
+     }
 }
 
 
 lref_t lsin(lref_t x)
 {
-     if (COMPLEXP(x))
+     bool complex_x;
+     flonum_t xre, xim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+
+     if (complex_x)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return flocons(sin(get_c_flonum(x)));
+     return flocons(sin(xre));
 }
 
 lref_t lcos(lref_t x)
 {
-     if (COMPLEXP(x))
+     bool complex_x;
+     flonum_t xre, xim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+
+     if (complex_x)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return flocons(cos(get_c_flonum(x)));
+     return flocons(cos(xre));
 }
 
 lref_t ltan(lref_t x)
 {
-     if (COMPLEXP(x))
+     bool complex_x;
+     flonum_t xre, xim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+
+     if (complex_x)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return flocons(tan(get_c_flonum(x)));
+     return flocons(tan(xre));
 }
 
 lref_t lasin(lref_t x)
 {
-     if (COMPLEXP(x))
+     bool complex_x;
+     flonum_t xre, xim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+
+     if (complex_x)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return flocons(asin(get_c_flonum(x)));
+     return flocons(asin(xre));
 }
 
 lref_t lacos(lref_t x)
 {
-     if (COMPLEXP(x))
+     bool complex_x;
+     flonum_t xre, xim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+
+     if (complex_x)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     return flocons(acos(get_c_flonum(x)));
+     return flocons(acos(xre));
 }
 
 lref_t latan(lref_t x, lref_t y)
 {
-     if (COMPLEXP(x) || COMPLEXP(y))
+     bool complex_x;
+     flonum_t xre, xim;
+     bool complex_y;
+     flonum_t yre, yim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+     complex_y = !NULLP(y) && get_c_complex(y, &yre, &yim);
+
+     if (complex_x || complex_y)
           vmerror_unimplemented(_T("unimplemented for complex numbers"));
 
-     if (!NULLP(y))
-          return flocons(atan2(get_c_flonum(x), get_c_flonum(y)));
+     if (NULLP(y))
+          return flocons(atan(xre));
      else
-          return flocons(atan(get_c_flonum(x)));
+          return flocons(atan2(xre, yre));
 }
 
 lref_t lsqrt(lref_t x)
 {
-     flonum_t xr = get_c_flonum(x);
+     bool complex_x;
+     flonum_t xre, xim;
 
-     if (COMPLEXP(x))
-     {
-          flonum_t xr = get_c_flonum(x);
-          flonum_t xi = get_c_flonum_im(x);
+     complex_x = get_c_complex(x, &xre, &xim);
 
-          flonum_t c = pow((xr * xr) + (xi * xi), 0.25);
-          flonum_t a = 0.5 * atan2(xi, xr);
+     if (complex_x)
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
+
+     if (complex_x) {
+          flonum_t c = pow((xre * xre) + (xim * xim), 0.25);
+          flonum_t a = 0.5 * atan2(xim, xre);
 
           return cmplxcons(c * cos(a), c * sin(a));
+     } else if (xre < 0.0) {
+          return cmplxcons(0.0, sqrt(-xre));
+     } else {
+          return flocons(sqrt(xre));
      }
-     else if (xr < 0.0)
-          return cmplxcons(0.0, sqrt(-xr));
-     else
-          return flocons(sqrt(xr));
 }
 
 
-lref_t lexpt(lref_t x, lref_t y)
-{
-     if (COMPLEXP(x) || COMPLEXP(y))
-          vmerror_unimplemented(_T("unimplemented for complex numbers"));
+lref_t lexpt(lref_t x, lref_t y) {
 
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
@@ -839,7 +909,18 @@ lref_t lexpt(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     return flocons(pow(get_c_flonum(x), get_c_flonum(y)));
+     bool complex_x;
+     flonum_t xre, xim;
+     bool complex_y;
+     flonum_t yre, yim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+     complex_y = get_c_complex(y, &yre, &yim);
+
+     if (complex_x || complex_y)
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
+
+     return flocons(pow(xre, yre));
 }
 
 /* Complex Number Accessors **********************************/
@@ -869,89 +950,94 @@ lref_t lmake_polar(lref_t r, lref_t theta)
      return cmplxcons(fr * cos(thetar), fr * sin(thetar));
 }
 
-lref_t lreal_part(lref_t cmplx)
+lref_t lreal_part(lref_t x)
 {
-     if (FIXNUMP(cmplx) || REALP(cmplx))
-          return cmplx;
+     if (!NUMBERP(x))
+          vmerror_wrong_type_n(1, x);
 
-     if (!COMPLEXP(cmplx))
-          vmerror_wrong_type_n(1, cmplx);
+     flonum_t xre, xim;
 
-     return flocons(FLONM(cmplx));
+     get_c_complex(x, &xre, &xim);
+
+     return flocons(xre);
 }
 
-lref_t limag_part(size_t argc, lref_t argv[])
+lref_t limag_part(lref_t x)
 {
-     if (argc < 1)
-          vmerror_wrong_type(NIL);
+     if (!NUMBERP(x))
+          vmerror_wrong_type_n(1, x);
 
-     lref_t cmplx = argv[0];
+     flonum_t xre, xim;
 
-     if (FIXNUMP(cmplx))
-          return (argc > 1) ? argv[1] : fixcons(0);
+     get_c_complex(x, &xre, &xim);
 
-     if (!FLONUMP(cmplx))
-          vmerror_wrong_type(cmplx);
-
-     if (NULLP(FLOIM(cmplx)))
-          return (argc > 1) ? argv[1] :flocons(0.0);
-     else
-          return FLOIM(cmplx);
+     return flocons(xim);
 }
 
 
-lref_t langle(lref_t cmplx)
+lref_t langle(lref_t x)
 {
-     if (!NUMBERP(cmplx))
-          vmerror_wrong_type_n(1, cmplx);
+     if (!NUMBERP(x))
+          vmerror_wrong_type_n(1, x);
 
-     return flocons(atan2(get_c_flonum_im(cmplx), get_c_flonum(cmplx)));
+     bool complex_x;
+     flonum_t xre, xim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+
+     return flocons(atan2(xim, xre));
 }
 
-lref_t lmagnitude(lref_t cmplx)
+lref_t lmagnitude(lref_t x)
 {
-     if (FIXNUMP(cmplx))
-          return (FIXNM(cmplx) < 0) ? fixcons(-FIXNM(cmplx)) : cmplx;
-     else if (REALP(cmplx))
-          return (FLONM(cmplx) < 0) ? flocons(-FLONM(cmplx)) : cmplx;
-     else if (!COMPLEXP(cmplx))
-          vmerror_wrong_type_n(1, cmplx);
+     if (!NUMBERP(x))
+          vmerror_wrong_type_n(1, x);
 
-     flonum_t xr = get_c_flonum(cmplx);
-     flonum_t xi = get_c_flonum_im(cmplx);
+     if (FIXNUMP(x))
+          return (FIXNM(x) < 0) ? fixcons(-FIXNM(x)) : x;
 
-     return flocons(sqrt(xr * xr + xi * xi));
+     bool complex_x;
+     flonum_t xre, xim;
+
+     complex_x = get_c_complex(x, &xre, &xim);
+
+     if (complex_x) {
+          return flocons(sqrt(xre * xre + xim * xim));
+     } else {
+          return (FLONM(x) < 0) ? flocons(-FLONM(x)) : x;
+     }
 }
+
 
 /* Random number generator ************************************/
 
-lref_t lrandom(lref_t n)            /*  TESTTHIS */
+lref_t lrandom(lref_t x)            /*  TESTTHIS */
 {
-     if (NULLP(n))
+     if (NULLP(x))
           return flocons(mt19937_real2());
 
-     if (FIXNUMP(n))
-     {
-          fixnum_t range = FIXNM(n);
+     if (!NUMBERP(x))
+          vmerror_wrong_type_n(1, x);
+
+     if (FIXNUMP(x)) {
+          fixnum_t range = FIXNM(x);
 
           if (range == 0)
-               vmerror_arg_out_of_range(n, _T(">0"));
+               vmerror_arg_out_of_range(x, _T(">0"));
 
           return fixcons(mt19937_int64() % range);
      }
-     else if (!FLONUMP(n))
-          vmerror_wrong_type_n(1, n);
 
-     flonum_t re_range = get_c_flonum(n);
-     flonum_t im_range = get_c_flonum_im(n);
+     bool x_complex;
+     flonum_t xre, xim;
 
-     if (re_range == 0.0)
-          vmerror_arg_out_of_range(n, _T("<>0.0"));
+     x_complex = get_c_complex(x, &xre, &xim);
 
-     if (im_range == 0.0)
-          return flocons(mt19937_real2() * re_range);
-     else
-          return cmplxcons(mt19937_real2() * re_range, mt19937_real2() * im_range);
+     if (x_complex) {
+          return cmplxcons(mt19937_real2() * xre, mt19937_real2() * xim);
+     } else {
+          return flocons(mt19937_real2() * xre);
+     }
 }
 
 
@@ -959,12 +1045,13 @@ lref_t lset_random_seed(lref_t s)
 {
      fixnum_t seed = 1;
 
-     if (NULLP(s))
+     if (NULLP(s)) {
           seed = time(NULL);
-     else if (FIXNUMP(s))
+     } else if (FIXNUMP(s)) {
           seed = FIXNM(s);
-     else
+     } else {
           vmerror_wrong_type_n(1, s);
+     }
 
      init_mt19937((unsigned long) seed);
 
