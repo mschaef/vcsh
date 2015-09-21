@@ -962,23 +962,19 @@ lref_t lreal_part(lref_t x)
      return flocons(xre);
 }
 
-lref_t limag_part(size_t argc, lref_t argv[])
+lref_t limag_part(lref_t cmplx)
 {
-     if (argc < 1)
-          vmerror_wrong_type(NIL);
-
-     lref_t cmplx = argv[0];
-
      if (FIXNUMP(cmplx))
-          return (argc > 1) ? argv[1] : fixcons(0);
+          return fixcons(0);
 
-     if (!FLONUMP(cmplx))
-          vmerror_wrong_type(cmplx);
+     if (!NUMBERP(cmplx))
+          vmerror_wrong_type_n(1, cmplx);
 
-     if (NULLP(FLOIM(cmplx)))
-          return (argc > 1) ? argv[1] :flocons(0.0);
-     else
-          return FLOIM(cmplx);
+     flonum_t xre, xim;
+
+     get_c_complex(cmplx, &xre, &xim);
+
+     return flocons(xim);
 }
 
 lref_t langle(lref_t x)
