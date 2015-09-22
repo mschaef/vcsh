@@ -112,7 +112,7 @@
 
 (define (print-unreadably obj port :optional (print-details #f))
   (unreadable (write-strings port "#<")
-              (print (%representation-of obj) port #t #f)
+              (print (type-of obj) port #t #f)
               (when *print-addresses*
                 (write-strings port "@#x" (%obaddr-string obj)))
               (when print-details
