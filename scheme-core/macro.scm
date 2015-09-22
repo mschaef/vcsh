@@ -10,6 +10,7 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
+
 (defmacro (defmacro lambda-list . macro-body) ;; REVISIT: Macros with :optional arguments
   (check valid-lambda-list? lambda-list)
   (let ((macro-body macro-body) ; shadowed the argument to give us something settable.

@@ -315,9 +315,9 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_HASH:
-               for (size_t jj = 0; jj < HASH_SIZE(obj); ++jj) {
-                    gc_mark(HASH_DATA(obj)[jj].key);
-                    gc_mark(HASH_DATA(obj)[jj].val);
+               for (size_t jj = 0; jj < obj->as.hash.table->mask + 1; jj++) {
+                    gc_mark(obj->as.hash.table->data[jj].key);
+                    gc_mark(obj->as.hash.table->data[jj].val);
                }
 
                obj = NIL;
@@ -414,7 +414,7 @@ static void gc_clear_cell(lref_t obj)
           break;
 
      case TC_HASH:
-          gc_free(HASH_DATA(obj));
+          gc_free(obj->as.hash.table);
           break;
 
      case TC_PORT:

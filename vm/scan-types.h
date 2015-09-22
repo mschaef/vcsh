@@ -116,6 +116,15 @@ struct hash_entry_t
      lref_t val;
 };
 
+struct hash_table_t
+{
+     size_t mask;
+     bool is_shallow;
+     size_t count;
+
+     struct hash_entry_t data[0];
+};
+
 /*** The core boxed data type ***/
 
 #pragma pack(push, 4)
@@ -198,14 +207,7 @@ struct lobject_t
           } fast_op;
           struct
           {
-               size_t mask;
-               struct hash_entry_t *data;
-
-               struct
-               {
-                    unsigned int shallow_keys:1;
-                    unsigned int count:31;
-               } info;
+               struct hash_table_t *table;
           } hash;
           struct
           {
@@ -448,7 +450,6 @@ INLINE void SET_STRUCTURE_DATA(lref_t obj, lref_t * data)
      obj->as.vector.data = data;
 }
 
-
 INLINE lref_t STRUCTURE_LAYOUT(lref_t obj)
 {
      checked_assert(STRUCTUREP(obj));
@@ -657,37 +658,6 @@ INLINE void SET_CLOSURE_PROPERTY_LIST(lref_t x, lref_t plist)
 {
      checked_assert(CLOSUREP(x));
      x->as.closure.property_list = plist;
-}
-
-/*** hash ***/
-
-INLINE size_t HASH_MASK(lref_t obj)
-{
-     checked_assert(HASHP(obj));
-     return obj->as.hash.mask;
-}
-
-INLINE void SET_HASH_MASK(lref_t obj, size_t mask)
-{
-     checked_assert(HASHP(obj));
-     obj->as.hash.mask = mask;
-}
-
-INLINE size_t HASH_SIZE(lref_t obj)
-{
-     return HASH_MASK(obj) + 1;
-}
-
-INLINE struct hash_entry_t *HASH_DATA(lref_t obj)
-{
-     checked_assert(HASHP(obj));
-     return obj->as.hash.data;
-}
-
-INLINE struct hash_entry_t *SET_HASH_DATA(lref_t obj, struct hash_entry_t * data)
-{
-     checked_assert(HASHP(obj));
-     return obj->as.hash.data = data;
 }
 
 /*** fasl-stream ***/

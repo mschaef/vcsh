@@ -18,32 +18,57 @@ INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
      return (_h1 * 17 + 1) ^ _h2;
 }
 
-INLINE void SET_HASH_SHALLOW(lref_t hash, bool shallow_keys)
+INLINE size_t HASH_MASK(lref_t obj)
+{
+     checked_assert(HASHP(obj));
+     return obj->as.hash.table->mask;
+}
+
+INLINE void SET_HASH_MASK(lref_t obj, size_t mask)
+{
+     checked_assert(HASHP(obj));
+     obj->as.hash.table->mask = mask;
+}
+
+INLINE size_t HASH_SIZE(lref_t obj)
+{
+     return HASH_MASK(obj) + 1;
+}
+
+
+INLINE struct hash_entry_t *HASH_ENTRY(lref_t hash, size_t index)
 {
      assert(HASHP(hash));
 
-     hash->as.hash.info.shallow_keys = shallow_keys;
+     return &(hash->as.hash.table->data[index]);
+}
+
+INLINE void SET_HASH_SHALLOW(lref_t hash, bool is_shallow)
+{
+     assert(HASHP(hash));
+
+     hash->as.hash.table->is_shallow = is_shallow;
 }
 
 INLINE bool HASH_SHALLOW(lref_t hash)
 {
      assert(HASHP(hash));
 
-     return hash->as.hash.info.shallow_keys;
+     return hash->as.hash.table->is_shallow;
 }
 
 INLINE void SET_HASH_COUNT(lref_t hash, unsigned int count)
 {
      assert(HASHP(hash));
 
-     hash->as.hash.info.count = count;
+     hash->as.hash.table->count = count;
 }
 
 INLINE unsigned int HASH_COUNT(lref_t hash)
 {
      assert(HASHP(hash));
 
-     return hash->as.hash.info.count;
+     return hash->as.hash.table->count;
 }
 
 static void init_hash_entry(struct hash_entry_t * entry)
@@ -86,13 +111,13 @@ bool hash_iter_next(lref_t hash, hash_iter_t * iter, lref_t * key, lref_t * val)
 
      while (*iter < HASH_SIZE(hash))
      {
-          if (hash_entry_used_p(&HASH_DATA(hash)[*iter]))
+          if (hash_entry_used_p(HASH_ENTRY(hash, *iter)))
           {
                if (key)
-                    *key = HASH_DATA(hash)[*iter].key;
+                    *key = HASH_ENTRY(hash, *iter)->key;
 
                if (val)
-                    *val = HASH_DATA(hash)[*iter].val;
+                    *val = HASH_ENTRY(hash, *iter)->val;
 
                *iter = *iter + 1;
 
@@ -109,7 +134,6 @@ fixnum_t sxhash_eq(lref_t obj)
 {
      /* Slice off the tag bits, assuming that hashes will be mostly
       * homogeneous. */
-
      if (LREF1_TAG(obj) == LREF1_SPECIAL)
           return ((uintptr_t) obj) >> LREF2_TAG_SHIFT;
      else
@@ -168,15 +192,15 @@ fixnum_t sxhash(lref_t obj)
      case TC_STRUCTURE:
           hash = HASH_COMBINE(hash, sxhash(STRUCTURE_LAYOUT(obj)));
 
-          for (ii = 0; ii < STRUCTURE_DIM(obj); ++ii)
+          for (ii = 0; ii < STRUCTURE_DIM(obj); ii++)
                hash = HASH_COMBINE(hash, sxhash(STRUCTURE_ELEM(obj, ii)));
           break;
 
      case TC_HASH:
           for (ii = 0; ii < HASH_SIZE(obj); ii++)
           {
-               hash = HASH_COMBINE(hash, sxhash(HASH_DATA(obj)[ii].key));
-               hash = HASH_COMBINE(hash, sxhash(HASH_DATA(obj)[ii].val));
+               hash = HASH_COMBINE(hash, sxhash(HASH_ENTRY(obj, ii)->key));
+               hash = HASH_COMBINE(hash, sxhash(HASH_ENTRY(obj, ii)->val));
           }
           break;
 
@@ -236,19 +260,23 @@ static size_t round_up_to_power_of_two(size_t val)
      return rounded;
 }
 
-static void clear_hash_data(struct hash_entry_t * entries, size_t size)
+static void clear_hash_data(struct hash_table_t *table)
 {
-     for (size_t ii = 0; ii < size; ii++)
-          init_hash_entry(&entries[ii]);
+     for (size_t ii = 0; ii < table->mask + 1; ii++)
+          init_hash_entry(&table->data[ii]);
 }
 
-static struct hash_entry_t *allocate_hash_data(size_t size)
+static struct hash_table_t *allocate_hash_data(size_t size)
 {
-     struct hash_entry_t *data = gc_malloc(size * sizeof(*data));
+     struct hash_table_t *table =
+          gc_malloc(sizeof(struct hash_table_t)
+                    + size * sizeof(struct hash_entry_t));
 
-     clear_hash_data(data, size);
+     table->mask = size - 1;
 
-     return data;
+     clear_hash_data(table);
+
+     return table;
 }
 
 lref_t hashcons(bool shallow)
@@ -257,8 +285,9 @@ lref_t hashcons(bool shallow)
 
      size_t size = round_up_to_power_of_two(HASH_DEFAULT_INITIAL_SIZE);
 
+     hash->as.hash.table = allocate_hash_data(size);
+
      SET_HASH_MASK(hash, size - 1);
-     SET_HASH_DATA(hash, allocate_hash_data(size));
      SET_HASH_SHALLOW(hash, shallow);
      SET_HASH_COUNT(hash, 0);
 
@@ -346,7 +375,11 @@ static bool enlarge_hash(lref_t hash)
      if (new_size < current_size)
           return false;
 
-     struct hash_entry_t *new_data = allocate_hash_data(new_size);
+     struct hash_table_t *new_data = allocate_hash_data(new_size);
+
+     new_data->mask = new_size - 1;
+     new_data->is_shallow = HASH_SHALLOW(hash);
+     new_data->count = HASH_COUNT(hash);
 
      lref_t key, val;
 
@@ -357,7 +390,7 @@ static bool enlarge_hash(lref_t hash)
           for (fixnum_t index = href_index(HASH_SHALLOW(hash), new_size - 1, key);;
                index = href_next_index(new_size - 1, index))
           {
-               struct hash_entry_t *entry = &(new_data)[index];
+               struct hash_entry_t *entry = &(new_data->data[index]);
 
                if (hash_entry_unused_p(entry))
                {
@@ -369,10 +402,9 @@ static bool enlarge_hash(lref_t hash)
           }
      }
 
-     gc_free(HASH_DATA(hash));
+     gc_free(hash->as.hash.table);
 
-     SET_HASH_MASK(hash, new_size - 1);
-     SET_HASH_DATA(hash, new_data);
+     hash->as.hash.table = new_data;
 
      return true;
 }
@@ -384,7 +416,7 @@ static struct hash_entry_t *hash_lookup_entry(lref_t hash, lref_t key)
      for (fixnum_t index = href_index(HASH_SHALLOW(hash), HASH_MASK(hash), key);;
           index = href_next_index(HASH_MASK(hash), index))
      {
-          struct hash_entry_t *entry = &HASH_DATA(hash)[index];
+          struct hash_entry_t *entry = HASH_ENTRY(hash, index);
 
           if (hash_entry_deleted_p(entry))
                continue;
@@ -485,7 +517,7 @@ lref_t hash_set(lref_t hash, lref_t key, lref_t value, bool check_for_expand)
           for (fixnum_t index = href_index(HASH_SHALLOW(hash), HASH_MASK(hash), key);;
                index = href_next_index(HASH_MASK(hash), index))
           {
-               struct hash_entry_t *entry = &HASH_DATA(hash)[index];
+               struct hash_entry_t *entry = HASH_ENTRY(hash, index);
 
                if (hash_entry_unused_p(entry))
                {
@@ -559,7 +591,7 @@ lref_t lhash_clear(lref_t hash)
           vmerror_wrong_type_n(1, hash);
 
      SET_HASH_COUNT(hash, 0);
-     clear_hash_data(HASH_DATA(hash), HASH_SIZE(hash));
+     clear_hash_data(hash->as.hash.table);
 
      return hash;
 }
@@ -583,7 +615,7 @@ lref_t lihash_binding_vector(lref_t hash)
 
      for (size_t ii = 0; ii < hash_size; ii++)
      {
-          struct hash_entry_t *entry = &HASH_DATA(hash)[ii];
+          struct hash_entry_t *entry = HASH_ENTRY(hash, ii);
 
           lref_t btelem;
 
