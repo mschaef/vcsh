@@ -269,15 +269,13 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
      {
           lref_t str = argv[ii];
 
-          if (STRINGP(str))
-               write_text(port, STRING_DATA(str), STRING_DIM(str));
-          else if (CHARP(str))
-          {
+          if (STRINGP(str)) {
+               write_text(port, str->as.string.data, str->as.string.dim);
+          } else if (CHARP(str)) {
                _TCHAR ch = CHARV(str);
 
                write_text(port, &ch, 1);
-          }
-          else
+          } else
                vmerror_wrong_type_n(ii, str);
      }
 

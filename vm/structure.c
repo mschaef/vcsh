@@ -64,7 +64,7 @@ lref_t lstructurecons(lref_t slots, lref_t layout)
      if (!VECTORP(slots))
           vmerror_wrong_type_n(1, slots);
 
-     size_t len = VECTOR_DIM(slots);
+     size_t len = slots->as.vector.dim;
 
      validate_structure_layout(len, layout);
 
@@ -75,7 +75,7 @@ lref_t lstructurecons(lref_t slots, lref_t layout)
      SET_STRUCTURE_DATA(st, (lref_t *) gc_malloc(len * sizeof(lref_t)));
 
      for (size_t ii = 0; ii < len; ii++)
-          SET_STRUCTURE_ELEM(st, ii, VECTOR_ELEM(slots, ii));
+          SET_STRUCTURE_ELEM(st, ii, slots->as.vector.data[ii]);
 
      return st;
 }

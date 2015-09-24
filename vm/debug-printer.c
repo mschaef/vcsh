@@ -91,7 +91,7 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
 
      if (!machine_readable)
      {
-          write_text(port, STRING_DATA(obj), STRING_DIM(obj));
+          write_text(port, obj->as.string.data, obj->as.string.dim);
           return;
      }
 
@@ -102,18 +102,19 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
      _TCHAR cbuff[2];
 
      /* To write strings more efficiently, this code scans for the longest
-      * block of characters that don't need special encoding, and then
+      * block of characters that doesn't need special encoding, and then
       * passes those blocks on to write_bytes. */
-     while (next_char_to_write < STRING_DIM(obj))
+     while (next_char_to_write < obj->as.string.dim)
      {
           unsigned int c;
           size_t next_special_char;
 
           /* Scan for the next special character, it ends the block... */
           for (next_special_char = next_char_to_write;
-               next_special_char < STRING_DIM(obj); next_special_char++)
+               next_special_char < obj->as.string.dim;
+               next_special_char++)
           {
-               c = STRING_DATA(obj)[next_special_char];
+               c = obj->as.string.data[next_special_char];
 
                if ((c == '\\') || (c == '"') || (c == '\n') || (c == '\r')
                    || (c == '\t') || (c == '\0') || (c < 32) || (c >= 127))
@@ -123,13 +124,13 @@ static void debug_print_string(lref_t obj, lref_t port, bool machine_readable)
           /* ...which then gets written out. */
           if (next_special_char - next_char_to_write > 0)
                write_text(port,
-                          &(STRING_DATA(obj)[next_char_to_write]),
+                          &(obj->as.string.data[next_char_to_write]),
                           next_special_char - next_char_to_write);
 
-          if (next_special_char >= STRING_DIM(obj))
+          if (next_special_char >= obj->as.string.dim)
                break;
 
-          c = STRING_DATA(obj)[next_special_char];
+          c = obj->as.string.data[next_special_char];
 
           /* Write the next special character. */
           switch (c)
@@ -300,18 +301,18 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           {
                /* With only a minimal c-level package implementation, we
                 * just assume every symbol is private. */
-               scwritef("~a::~a", port, PACKAGE_NAME(SYMBOL_HOME(obj)), SYMBOL_PNAME(obj));
+               scwritef("~a::~a", port, SYMBOL_HOME(obj)->as.package.name, SYMBOL_PNAME(obj));
           }
           break;
 
      case TC_VECTOR:
           WRITE_TEXT_CONSTANT(port, _T("["));
 
-          for (ii = 0; ii < VECTOR_DIM(obj); ii++)
+          for (ii = 0; ii < obj->as.vector.dim; ii++)
           {
-               debug_print_object(VECTOR_ELEM(obj, ii), port, true);
+               debug_print_object(obj->as.vector.data[ii], port, true);
 
-               if (ii + 1 < VECTOR_DIM(obj))
+               if (ii + 1 < obj->as.vector.dim)
                     write_char(port, _T(' '));
           }
 
@@ -343,7 +344,7 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_PACKAGE:
-          scwritef("~u ~a", port, (lref_t) obj, PACKAGE_NAME(obj));
+          scwritef("~u ~a", port, (lref_t) obj, obj->as.package.name);
           break;
 
      case TC_SUBR:
@@ -361,12 +362,12 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_VALUES_TUPLE:
-          scwritef("~u ~s", port, (lref_t) obj, VALUES_TUPLE_VALUES(obj));
+          scwritef("~u ~s", port, (lref_t) obj, obj->as.values_tuple.values);
           break;
 
      case TC_MACRO:
           if (DEBUG_FLAG(DF_PRINT_CLOSURE_CODE))
-               scwritef("~u ~s", port, (lref_t) obj, MACRO_TRANSFORMER(obj));
+               scwritef("~u ~s", port, (lref_t) obj, obj->as.macro.transformer);
           else
                scwritef("~u", port, (lref_t) obj);
           break;
@@ -386,17 +387,21 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_FAST_OP:
-          fast_op_name = fast_op_opcode_name((enum fast_op_opcode_t)FAST_OP_OPCODE(obj));
+          fast_op_name = fast_op_opcode_name(obj->header.opcode);
 
           if (fast_op_name)
                scwritef("#<FOP@~c&:~cs ~s ~s => ~s>", port, (lref_t) obj,
-                        fast_op_name, FAST_OP_ARG1(obj), FAST_OP_ARG2(obj),
-                        FAST_OP_NEXT(obj));
+                        fast_op_name,
+                        obj->as.fast_op.arg1,
+                        obj->as.fast_op.arg2,
+                        obj->as.fast_op.next);
           else
                scwritef("#<FOP@~c&:~cd ~s ~s => ~s>", port, (lref_t) obj,
-                        FAST_OP_OPCODE(obj), FAST_OP_ARG1(obj), FAST_OP_ARG2(obj),
-                        FAST_OP_NEXT(obj));
-          break;
+                        obj->header.opcode,
+                        obj->as.fast_op.arg1,
+                        obj->as.fast_op.arg2,
+                        obj->as.fast_op.next);
+     break;
 
      case TC_FASL_READER:
           scwritef(_T("~u~s"), port,

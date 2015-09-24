@@ -102,9 +102,9 @@ size_t object_length(lref_t obj)  /*  REVISIT: Is it really necessary to be this
      case TC_CONS:
           return list_length(obj);
      case TC_STRING:
-          return STRING_DIM(obj);
+          return obj->as.string.dim;
      case TC_VECTOR:
-          return VECTOR_DIM(obj);
+          return obj->as.vector.dim;
      case TC_HASH:
           return hash_length(obj);
      case TC_PORT:

@@ -116,6 +116,15 @@ struct hash_entry_t
      lref_t val;
 };
 
+struct hash_table_t
+{
+     size_t mask;
+     bool is_shallow;
+     size_t count;
+
+     struct hash_entry_t data[0];
+};
+
 /*** The core boxed data type ***/
 
 #pragma pack(push, 4)
@@ -155,7 +164,7 @@ struct lobject_t
           struct
           {
                lref_t name;
-               lref_t symbol_bindings;
+               lref_t bindings;
                lref_t use_list;
           } package;
           struct
@@ -198,14 +207,7 @@ struct lobject_t
           } fast_op;
           struct
           {
-               size_t mask;
-               struct hash_entry_t *data;
-
-               struct
-               {
-                    unsigned int shallow_keys:1;
-                    unsigned int count:31;
-               } info;
+               struct hash_table_t *table;
           } hash;
           struct
           {
@@ -268,7 +270,6 @@ INLINE bool REFTYPEP(lref_t object, enum typecode_t type)
           && (object->header.type == type);
 }
 
-
 INLINE enum typecode_t TYPE(lref_t object)
 {
      if (NULLP(object))
@@ -296,140 +297,33 @@ INLINE enum typecode_t TYPE(lref_t object)
 /* full INLINE causes problems with gcc 3.4.4, due to prototype. */
 inline  lref_t FLOIM(lref_t x);
 
-INLINE bool FIXNUMP(lref_t x)
-{
-     return LREF1_TAG(x) == LREF1_FIXNUM;
-}
-
-INLINE bool CHARP(lref_t x)
-{
-     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_CHARACTER);
-}
-
-INLINE bool BOOLP(lref_t x)
-{
-     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_BOOL);
-}
-
-INLINE bool EOFP(lref_t x)
-{
-     return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_EOF);
-}
-
-INLINE bool UNBOUND_MARKER_P(lref_t x)
-{
-     return EQ(x, UNBOUND_MARKER);
-}
-
-INLINE bool FREE_CELL_P(lref_t x)
-{
-     return REFTYPEP(x, TC_FREE_CELL);
-}
-
-INLINE bool CONSP(lref_t x)
-{
-     return REFTYPEP(x, TC_CONS);
-}
-
-INLINE bool SYMBOLP(lref_t x)
-{
-     return REFTYPEP(x, TC_SYMBOL);
-}
-
-INLINE bool FLONUMP(lref_t x)
-{
-     return REFTYPEP(x, TC_FLONUM);
-}
-
-INLINE bool REALP(lref_t x)
-{
-     return (FIXNUMP(x) || (FLONUMP(x) && NULLP(FLOIM(x))));
-}
-
-INLINE bool COMPLEXP(lref_t x)
-{
-     return (FLONUMP(x) && !NULLP(FLOIM(x)));
-}
-
-INLINE bool NUMBERP(lref_t x)
-{
-     return (FIXNUMP(x) || FLONUMP(x));
-}
-
-INLINE bool STRINGP(lref_t x)
-{
-     return REFTYPEP(x, TC_STRING);
-}
-
-INLINE bool PACKAGEP(lref_t x)
-{
-     return REFTYPEP(x, TC_PACKAGE);
-}
-
-INLINE bool PORTP(lref_t x)
-{
-     return REFTYPEP(x, TC_PORT);
-}
-
-INLINE bool VECTORP(lref_t x)
-{
-     return REFTYPEP(x, TC_VECTOR);
-}
-
-INLINE bool STRUCTUREP(lref_t x)
-{
-     return REFTYPEP(x, TC_STRUCTURE);
-}
-
-INLINE bool HASHP(lref_t x)
-{
-     return REFTYPEP(x, TC_HASH);
-}
-
-INLINE bool CLOSUREP(lref_t x)
-{
-     return REFTYPEP(x, TC_CLOSURE);
-}
-
-INLINE bool SUBRP(lref_t x)
-{
-     return REFTYPEP(x, TC_SUBR);
-}
-
-INLINE bool PROCEDUREP(lref_t x)
-{
-     return CLOSUREP(x) || SUBRP(x);
-}
-
-INLINE bool MACROP(lref_t x)
-{
-     return REFTYPEP(x, TC_MACRO);
-}
-
-INLINE bool VALUES_TUPLE_P(lref_t x)
-{
-     return REFTYPEP(x, TC_VALUES_TUPLE);
-}
-
-INLINE bool FAST_OP_P(lref_t x)
-{
-     return REFTYPEP(x, TC_FAST_OP);
-}
-
-INLINE bool FASL_READER_P(lref_t x)
-{
-     return REFTYPEP(x, TC_FASL_READER);
-}
-
-INLINE bool TRUEP(lref_t x)
-{
-     return (x) != MAKE_LREF2(LREF2_BOOL, 0);
-}
-
-INLINE bool FALSEP(lref_t x)
-{
-     return !TRUEP(x);
-}
+INLINE bool FIXNUMP(lref_t x)          { return LREF1_TAG(x) == LREF1_FIXNUM;                                         }
+INLINE bool CHARP(lref_t x)            { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_CHARACTER); }
+INLINE bool BOOLP(lref_t x)            { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_BOOL);      }
+INLINE bool EOFP(lref_t x)             { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_EOF);       }
+INLINE bool UNBOUND_MARKER_P(lref_t x) { return EQ(x, UNBOUND_MARKER);                                                }
+INLINE bool FREE_CELL_P(lref_t x)      { return REFTYPEP(x, TC_FREE_CELL);                                            }
+INLINE bool CONSP(lref_t x)            { return REFTYPEP(x, TC_CONS);                                                 }
+INLINE bool SYMBOLP(lref_t x)          { return REFTYPEP(x, TC_SYMBOL);                                               }
+INLINE bool FLONUMP(lref_t x)          { return REFTYPEP(x, TC_FLONUM);                                               }
+INLINE bool REALP(lref_t x)            { return (FIXNUMP(x) || (FLONUMP(x) && NULLP(FLOIM(x))));                      }
+INLINE bool COMPLEXP(lref_t x)         { return (FLONUMP(x) && !NULLP(FLOIM(x)));                                     }
+INLINE bool NUMBERP(lref_t x)          { return (FIXNUMP(x) || FLONUMP(x));                                           }
+INLINE bool STRINGP(lref_t x)          { return REFTYPEP(x, TC_STRING);                                               }
+INLINE bool PACKAGEP(lref_t x)         { return REFTYPEP(x, TC_PACKAGE);                                              }
+INLINE bool PORTP(lref_t x)            { return REFTYPEP(x, TC_PORT);                                                 }
+INLINE bool VECTORP(lref_t x)          { return REFTYPEP(x, TC_VECTOR);                                               }
+INLINE bool STRUCTUREP(lref_t x)       { return REFTYPEP(x, TC_STRUCTURE);                                            }
+INLINE bool HASHP(lref_t x)            { return REFTYPEP(x, TC_HASH);                                                 }
+INLINE bool CLOSUREP(lref_t x)         { return REFTYPEP(x, TC_CLOSURE);                                              }
+INLINE bool SUBRP(lref_t x)            { return REFTYPEP(x, TC_SUBR);                                                 }
+INLINE bool PROCEDUREP(lref_t x)       { return CLOSUREP(x) || SUBRP(x);                                              }
+INLINE bool MACROP(lref_t x)           { return REFTYPEP(x, TC_MACRO);                                                }
+INLINE bool VALUES_TUPLE_P(lref_t x)   { return REFTYPEP(x, TC_VALUES_TUPLE);                                         }
+INLINE bool FAST_OP_P(lref_t x)        { return REFTYPEP(x, TC_FAST_OP);                                              }
+INLINE bool FASL_READER_P(lref_t x)    { return REFTYPEP(x, TC_FASL_READER);                                          }
+INLINE bool TRUEP(lref_t x)            { return (x) != MAKE_LREF2(LREF2_BOOL, 0);                                     }
+INLINE bool FALSEP(lref_t x)           { return !TRUEP(x);                                                            }
 
 /*** Boxed data accessors ***/
 
@@ -440,20 +334,7 @@ INLINE lref_t boolcons(bool val)
      return MAKE_LREF2(LREF2_BOOL, val ? 1 : 0);
 }
 
-INLINE bool BOOLV(lref_t x)
-{
-     checked_assert(BOOLP(x));
-
-     return LREF2_VAL(x) != 0;
-}
-
 /*** cons/free-cell ***/
-
-INLINE lref_t *_CAR(lref_t x)
-{
-     checked_assert(CONSP(x));
-     return &(x->as.cons.car);
-}
 
 INLINE lref_t CAR(lref_t x)
 {
@@ -465,12 +346,6 @@ INLINE void SET_CAR(lref_t x, lref_t nv)
 {
      checked_assert(CONSP(x));
      x->as.cons.car = nv;
-}
-
-INLINE lref_t *_CDR(lref_t x)
-{
-     checked_assert(CONSP(x));
-     return &(x->as.cons.cdr);
 }
 
 INLINE lref_t CDR(lref_t x)
@@ -502,7 +377,7 @@ INLINE lref_t SET_NEXT_FREE_LIST(lref_t x, lref_t next)
 
 INLINE lref_t NEXT_FREE_CELL(lref_t x)
 {
-     checked_assert(FREE_CELL_P(x));     
+     checked_assert(FREE_CELL_P(x));
      return x->as.cons.cdr;
 }
 
@@ -528,29 +403,12 @@ INLINE flonum_t FLONM(lref_t x)
      return x->as.flonum.data;
 }
 
-INLINE void SET_FLONM(lref_t x, double val)
-{
-     checked_assert(FLONUMP(x));
-     x->as.flonum.data = val;
-}
 
 inline /* full INLINE causes problems with gcc 3.4.4, due to prototype. */ lref_t FLOIM(lref_t x)
 {
      checked_assert(FLONUMP(x));
 
      return x->as.flonum.im_part;
-}
-
-INLINE void SET_FLOIM(lref_t x, lref_t val)
-{
-     checked_assert(FLONUMP(x));
-
-     x->as.flonum.im_part = val;
-}
-
-INLINE flonum_t CMPLXRE(lref_t x)
-{
-     return FLONM(x);
 }
 
 INLINE flonum_t CMPLXIM(lref_t x)
@@ -564,49 +422,6 @@ INLINE _TCHAR CHARV(lref_t x)
      checked_assert(CHARP(x));
 
      return (_TCHAR) LREF2_VAL(x);
-}
-
-/*** vector ***/
-INLINE size_t VECTOR_DIM(lref_t obj)
-{
-     checked_assert(VECTORP(obj));
-     return obj->as.vector.dim;
-}
-
-INLINE void SET_VECTOR_DIM(lref_t obj, size_t new_dim)
-{
-     checked_assert(VECTORP(obj));
-     obj->as.vector.dim = new_dim;
-}
-
-INLINE lref_t *VECTOR_DATA(lref_t obj)
-{
-     checked_assert(VECTORP(obj));
-     return obj->as.vector.data;
-}
-
-INLINE lref_t *SET_VECTOR_DATA(lref_t obj, lref_t * new_data)
-{
-     checked_assert(VECTORP(obj));
-     return obj->as.vector.data = new_data;
-}
-
-INLINE lref_t VECTOR_ELEM(lref_t vec, fixnum_t index)
-{
-     checked_assert(VECTORP(vec));
-     return vec->as.vector.data[index];
-}
-
-INLINE lref_t *_VECTOR_ELEM(lref_t vec, fixnum_t index)
-{
-     checked_assert(VECTORP(vec));
-     return &vec->as.vector.data[index];
-}
-
-INLINE void SET_VECTOR_ELEM(lref_t vec, fixnum_t index, lref_t new_value)
-{
-     checked_assert(VECTORP(vec));
-     vec->as.vector.data[index] = new_value;
 }
 
 /*** structure ***/
@@ -634,7 +449,6 @@ INLINE void SET_STRUCTURE_DATA(lref_t obj, lref_t * data)
      checked_assert(STRUCTUREP(obj));
      obj->as.vector.data = data;
 }
-
 
 INLINE lref_t STRUCTURE_LAYOUT(lref_t obj)
 {
@@ -725,7 +539,6 @@ INLINE lref_t SYMBOL_VCELL(lref_t sym)
      return sym->as.symbol.vcell;
 }
 
-
 INLINE void SET_SYMBOL_VCELL(lref_t sym, lref_t value)
 {
      checked_assert(SYMBOLP(sym));
@@ -742,44 +555,6 @@ INLINE void SET_SYMBOL_HOME(lref_t x, lref_t home)
 {
      checked_assert(SYMBOLP(x));
      x->as.symbol.home = home;
-}
-
-
-/*** package ***/
-INLINE lref_t PACKAGE_NAME(lref_t x)
-{
-     checked_assert(PACKAGEP(x));
-     return (((*x).as.package.name));
-}
-
-INLINE void SET_PACKAGE_NAME(lref_t x, lref_t name)
-{
-     checked_assert(PACKAGEP(x));
-     x->as.package.name = name;
-}
-
-INLINE lref_t PACKAGE_BINDINGS(lref_t x)
-{
-     checked_assert(PACKAGEP(x));
-     return x->as.package.symbol_bindings;
-}
-
-INLINE void SET_PACKAGE_BINDINGS(lref_t x, lref_t symbol_bindings)
-{
-     checked_assert(PACKAGEP(x));
-     x->as.package.symbol_bindings = symbol_bindings;
-}
-
-INLINE lref_t PACKAGE_USE_LIST(lref_t x)
-{
-     checked_assert(PACKAGEP(x));
-     return x->as.package.use_list;
-}
-
-INLINE void SET_PACKAGE_USE_LIST(lref_t x, lref_t use_list)
-{
-     checked_assert(PACKAGEP(x));
-     x->as.package.use_list = use_list;
 }
 
 /*** subr ***/
@@ -883,76 +658,6 @@ INLINE void SET_CLOSURE_PROPERTY_LIST(lref_t x, lref_t plist)
 {
      checked_assert(CLOSUREP(x));
      x->as.closure.property_list = plist;
-}
-
-/*** macro ***/
-
-INLINE lref_t MACRO_TRANSFORMER(lref_t x)
-{
-     checked_assert(MACROP(x));
-     return x->as.macro.transformer;
-}
-
-INLINE void SET_MACRO_TRANSFORMER(lref_t x, lref_t transformer)
-{
-     checked_assert(MACROP(x));
-     x->as.macro.transformer = transformer;
-}
-
-/*** string ***/
-INLINE size_t STRING_DIM(lref_t x)
-{
-     checked_assert(STRINGP(x));
-     return x->as.string.dim;
-}
-
-INLINE void SET_STRING_DIM(lref_t x, size_t dim)
-{
-     checked_assert(STRINGP(x));
-     x->as.string.dim = dim;
-}
-
-INLINE _TCHAR *STRING_DATA(lref_t x)
-{
-     checked_assert(STRINGP(x));
-     return x->as.string.data;
-}
-
-INLINE _TCHAR *SET_STRING_DATA(lref_t x, _TCHAR * data)
-{
-     checked_assert(STRINGP(x));
-     return x->as.string.data = data;
-}
-
-
-/*** hash ***/
-INLINE size_t HASH_MASK(lref_t obj)
-{
-     checked_assert(HASHP(obj));
-     return obj->as.hash.mask;
-}
-
-INLINE void SET_HASH_MASK(lref_t obj, size_t mask)
-{
-     checked_assert(HASHP(obj));
-     obj->as.hash.mask = mask;
-}
-
-INLINE size_t HASH_SIZE(lref_t obj)
-{
-     return HASH_MASK(obj) + 1;
-}
-
-INLINE struct hash_entry_t *HASH_DATA(lref_t obj)
-{
-     checked_assert(HASHP(obj));
-     return obj->as.hash.data;
-}
-
-INLINE struct hash_entry_t *SET_HASH_DATA(lref_t obj, struct hash_entry_t * data)
-{
-     checked_assert(HASHP(obj));
-     return obj->as.hash.data = data;
 }
 
 /*** fasl-stream ***/
@@ -1141,67 +846,5 @@ INLINE void SET_PORT_USER_OBJECT(lref_t x, lref_t user_object)
      PORT_PINFO(x)->user_object = user_object;
 }
 
-/*** values-tuple ***/
-INLINE lref_t VALUES_TUPLE_VALUES(lref_t vt)
-{
-     checked_assert(VALUES_TUPLE_P(vt));
-     return vt->as.values_tuple.values;
-}
-
-INLINE void SET_VALUES_TUPLE_VALUES(lref_t vt, lref_t vals)
-{
-     checked_assert(VALUES_TUPLE_P(vt));
-     vt->as.values_tuple.values = vals;
-}
-
-
-/*** fast op ***/
-INLINE int FAST_OP_OPCODE(lref_t fo)
-{
-     checked_assert(FAST_OP_P(fo));
-     return fo->header.opcode;
-}
-
-INLINE void SET_FAST_OP_OPCODE(lref_t fo, int opcode)
-{
-     checked_assert(FAST_OP_P(fo));
-     fo->header.opcode = opcode;
-}
-
-INLINE lref_t FAST_OP_ARG1(lref_t fo)
-{
-     checked_assert(FAST_OP_P(fo));
-     return fo->as.fast_op.arg1;
-}
-
-INLINE void SET_FAST_OP_ARG1(lref_t fo, lref_t arg1)
-{
-     checked_assert(FAST_OP_P(fo));
-     fo->as.fast_op.arg1 = arg1;
-}
-
-INLINE lref_t FAST_OP_ARG2(lref_t fo)
-{
-     checked_assert(FAST_OP_P(fo));
-     return fo->as.fast_op.arg2;
-}
-
-INLINE void SET_FAST_OP_ARG2(lref_t fo, lref_t arg2)
-{
-     checked_assert(FAST_OP_P(fo));
-     fo->as.fast_op.arg2 = arg2;
-}
-
-INLINE lref_t FAST_OP_NEXT(lref_t fo)
-{
-     checked_assert(FAST_OP_P(fo));
-     return fo->as.fast_op.next;
-}
-
-INLINE void SET_FAST_OP_NEXT(lref_t fo, lref_t next)
-{
-     checked_assert(FAST_OP_P(fo));
-     fo->as.fast_op.next = next;
-}
 
 #endif

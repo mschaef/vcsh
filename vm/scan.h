@@ -69,9 +69,9 @@ lref_t cmplxcons(flonum_t re, flonum_t im);
 
 fixnum_t get_c_fixnum(lref_t x);
 long get_c_long(lref_t x);
-double get_c_double(lref_t x);
 flonum_t get_c_flonum(lref_t x);
-flonum_t get_c_flonum_im(lref_t x);
+
+bool get_c_complex(lref_t x, flonum_t *re, flonum_t *im);
 
 lref_t charcons(_TCHAR ch);
 
@@ -276,7 +276,7 @@ lref_t liimmediate_p(lref_t obj);
 lref_t liinternal_files();
 lref_t liload(lref_t fname);
 lref_t limacrocons(lref_t t);
-lref_t limag_part(size_t argc, lref_t argv[]);
+lref_t limag_part(lref_t cmplx);
 lref_t linexact2display_string(lref_t n, lref_t sf, lref_t sci, lref_t s);
 lref_t linexact2exact(lref_t x);
 lref_t linexactp(lref_t x);

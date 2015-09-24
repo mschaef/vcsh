@@ -289,10 +289,10 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_PACKAGE:
-               gc_mark(PACKAGE_BINDINGS(obj));
-               gc_mark(PACKAGE_USE_LIST(obj));
+               gc_mark(obj->as.package.bindings);
+               gc_mark(obj->as.package.use_list);
 
-               obj = PACKAGE_NAME(obj);
+               obj = obj->as.package.name;
                break;
 
           case TC_CLOSURE:
@@ -303,7 +303,7 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_MACRO:
-               obj = MACRO_TRANSFORMER(obj);
+               obj = obj->as.macro.transformer;
                break;
 
           case TC_FLONUM:
@@ -315,10 +315,9 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_HASH:
-               for (size_t jj = 0; jj < HASH_SIZE(obj); ++jj)
-               {
-                    gc_mark(HASH_DATA(obj)[jj].key);
-                    gc_mark(HASH_DATA(obj)[jj].val);
+               for (size_t jj = 0; jj < obj->as.hash.table->mask + 1; jj++) {
+                    gc_mark(obj->as.hash.table->data[jj].key);
+                    gc_mark(obj->as.hash.table->data[jj].val);
                }
 
                obj = NIL;
@@ -329,27 +328,27 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_VECTOR:
-               for (size_t jj = 0; jj < VECTOR_DIM(obj); ++jj)
-                    gc_mark(VECTOR_ELEM(obj, jj));
+               for (size_t jj = 0; jj < obj->as.vector.dim; jj++)
+                    gc_mark(obj->as.vector.data[jj]);
 
                obj = NIL;
                break;
 
           case TC_STRUCTURE:
-               for (size_t jj = 0; jj < STRUCTURE_DIM(obj); ++jj)
+               for (size_t jj = 0; jj < STRUCTURE_DIM(obj); jj++)
                     gc_mark(STRUCTURE_ELEM(obj, jj));
 
                obj = STRUCTURE_LAYOUT(obj);
                break;
 
           case TC_VALUES_TUPLE:
-               obj = VALUES_TUPLE_VALUES(obj);
+               obj = obj->as.values_tuple.values;
                break;
 
           case TC_FAST_OP:
-               gc_mark(FAST_OP_ARG1(obj));
-               gc_mark(FAST_OP_ARG2(obj));
-               obj = FAST_OP_NEXT(obj);
+               gc_mark(obj->as.fast_op.arg1);
+               gc_mark(obj->as.fast_op.arg2);
+               obj = obj->as.fast_op.next;
                break;
 
           case TC_FASL_READER:
@@ -403,7 +402,7 @@ static void gc_clear_cell(lref_t obj)
      switch (TYPE(obj))
      {
      case TC_STRING:
-          gc_free(STRING_DATA(obj));
+          gc_free(obj->as.string.data);
           break;
 
      case TC_STRUCTURE:
@@ -411,11 +410,11 @@ static void gc_clear_cell(lref_t obj)
           break;
 
      case TC_VECTOR:
-          gc_free(VECTOR_DATA(obj));
+          gc_free(obj->as.vector.data);
           break;
 
      case TC_HASH:
-          gc_free(HASH_DATA(obj));
+          gc_free(obj->as.hash.table);
           break;
 
      case TC_PORT:

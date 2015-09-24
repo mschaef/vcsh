@@ -42,10 +42,10 @@ type. If there is no valid typecode of that name, returns #f."
 (define (%representation-of obj)
   (let ((tc (%typecode obj)))
     (if (= tc system::TC_FLONUM)
-        (if (imag-part obj #f) 'complex 'flonum)
-        (typecode->name (%typecode obj)))))
-
-
+        (if (complex? obj)
+            'complex
+            'flonum)
+        (typecode->name tc))))
 
 (define *class-graph* (make-hash))
 
@@ -151,6 +151,8 @@ type. If there is no valid typecode of that name, returns #f."
    structures, returns the structure type name."
   (cond ((structure? obj)
          (structure-type obj))
+        ((hash? obj)
+         (hash-ref obj 'type-of 'hash))
         (#t
          (%representation-of obj))))
 
