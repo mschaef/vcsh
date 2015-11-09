@@ -219,7 +219,7 @@
 (define-test hash-copy
   (let* ((a (identity-hash :a 1 :b 2 :c 3 :d 4))
          (b (hash-copy a))
-         (c {a 1 b 2 c 3 d 4})
+         (c '{a 1 b 2 c 3 d 4})
          (d (hash-copy c)))
     (test-case (not (eq? a b)))
     (test-case (equal? a b))
@@ -346,3 +346,4 @@
     (test-case (equal? (hash-ref h  19     )  19     ))
     (test-case (equal? (hash-ref h  1e19   )  1e19   ))
     ))
+
