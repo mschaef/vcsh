@@ -171,6 +171,9 @@
 (define (expand/logical form)
   `(,(car form) ,@(map expand-form (cdr form))))
 
+(define (expand-vector-form form)
+  `(vector ,@(vector->list form)))
+
 (define (form-expander form)
   (cond ((null? form)
          ())
@@ -191,6 +194,7 @@
                      (expand-form expanded-form))
                     (#t
                      (map expand-form form)))))))
+        ((vector? form) (expand-vector-form form))
         ((symbol? form) form)
         ((atom? form)   form)
         (#t             (error "Don't know how to expand this form: ~s" form))))
