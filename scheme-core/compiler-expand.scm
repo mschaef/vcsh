@@ -174,6 +174,9 @@
 (define (expand-vector-form form)
   `(vector ,@(vector->list form)))
 
+(define (expand-hash-form form)
+  `(list->hash (list ,@(hash->list form))))
+
 (define (form-expander form)
   (cond ((null? form)
          ())
@@ -195,6 +198,7 @@
                     (#t
                      (map expand-form form)))))))
         ((vector? form) (expand-vector-form form))
+        ((hash? form)   (expand-hash-form form))
         ((symbol? form) form)
         ((atom? form)   form)
         (#t             (error "Don't know how to expand this form: ~s" form))))
