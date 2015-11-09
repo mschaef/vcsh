@@ -2,7 +2,7 @@
 
 (define-test test-memq-index
   (test-case (runtime-error? (memq-index 'x :not-a-list)))
-  (test-case (runtime-error? (memq-index 'x [not a list either])))
+  (test-case (runtime-error? (memq-index 'x '[not a list either])))
   (test-case (runtime-error? (memq-index 1 '(x y z z . y))))
 
   (let ((xs '(1 :symbol (composite key) () "string")))

@@ -10,3 +10,7 @@
     (test-case (= (vector-ref a 0) 1))
     (test-case (= (vector-ref a 1) 2))
     (test-case (= (vector-ref a 2) 3))))
+
+(define-test vector-literal
+  (let ((a 42))
+    (test-case (equal? [42 42] [a a]))))

@@ -347,3 +347,8 @@
     (test-case (equal? (hash-ref h  1e19   )  1e19   ))
     ))
 
+(define-test hash-literal
+  (let ((key :xyzzy)
+        (value 42))
+    (test-case (equal? {:xyzzy 42} {key value}))))
+

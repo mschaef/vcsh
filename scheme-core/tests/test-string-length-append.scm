@@ -56,5 +56,5 @@
 
   (test-case (runtime-error? (string-append #t)))
   (test-case (runtime-error? (string-append '(no lists allowed))))
-  (test-case (runtime-error? (string-append [no vectors either])))
+  (test-case (runtime-error? (string-append '[no vectors either])))
   )

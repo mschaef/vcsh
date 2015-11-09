@@ -2,7 +2,7 @@
 
 (define-test test-memq
   (test-case (runtime-error? (memq 'x :not-a-list)))
-  (test-case (runtime-error? (memq 'x [not a list either])))
+  (test-case (runtime-error? (memq 'x '[not a list either])))
   (test-case (runtime-error? (memq 1 '(x y z z . y))))
 
   (let ((xs '(1 :symbol (composite key) () "string")))
