@@ -1,9 +1,11 @@
 (use-package! "unit-test")
 
 (define-test error
-  (handler-bind ((runtime-error 
-                  (lambda args (throw 'test-escape-tag))))
-    (test-case/execution-order 3
+  (test-case/execution-order 3
+    (handler-bind ((runtime-error 
+                    (lambda args
+                      (throw 'test-escape-tag))))
+      
       (checkpoint 1)
       (catch 'test-escape-tag
         (checkpoint 2)

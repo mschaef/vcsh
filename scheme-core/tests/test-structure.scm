@@ -269,8 +269,7 @@
     (let ((dt (read-from-string "#S(default-tester :s-1 1 :s-2 2 :s-3 3)")))
       (test-case (eq? (default-tester-s-1 dt) 1))
       (test-case (eq? (default-tester-s-2 dt) 2))
-      (test-case (eq? (default-tester-s-3 dt) 3))))
-  )
+      (test-case (eq? (default-tester-s-3 dt) 3)))))
 
 (define-structure ship-fancy
   (x :default 3 :get "westing")

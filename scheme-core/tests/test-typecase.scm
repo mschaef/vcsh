@@ -36,8 +36,7 @@
       ((character)
        (checkpoint 1)
        (checkpoint 2)
-       (checkpoint 3))))
-  )
+       (checkpoint 3)))))
 
 (define-test etypecase
   (test-case (runtime-error? (macroexpand '(etypecase x 1 ((foo) bar)))))
@@ -71,5 +70,4 @@
       ((character)
        (checkpoint 1)
        (checkpoint 2)
-       (checkpoint 3))))
-  )
+       (checkpoint 3)))))

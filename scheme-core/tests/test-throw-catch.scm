@@ -11,11 +11,11 @@
     (test-case/execution-order 3
       (checkpoint 1)
       (catch name-1
-	(checkpoint 2)
-	(throw name-1 12)
-	(checkpoint :does-not-run)
-	(throw name-1 24)
-	(checkpoint :does-not-run))
+        (checkpoint 2)
+        (throw name-1 12)
+        (checkpoint :does-not-run)
+        (throw name-1 24)
+        (checkpoint :does-not-run))
       (checkpoint 3))
    
     ; Return value of double catch block
@@ -28,12 +28,12 @@
     (test-case/execution-order 4
       (checkpoint 1)
       (catch name-1
-	(checkpoint 2)
-	(catch name-2
-	  (checkpoint 3)
-	  (throw name-1)
-	  (checkpoint :does-not-run))
-	(checkpoint :does-not-run))
+        (checkpoint 2)
+        (catch name-2
+          (checkpoint 3)
+          (throw name-1)
+          (checkpoint :does-not-run))
+        (checkpoint :does-not-run))
       (checkpoint 4))
 
     ; Catch with dynamic extent
@@ -45,12 +45,12 @@
       (test-case (equal? (catch name-1 (execute-throw name-1 12) 24) 12))
       
       (test-case/execution-order 4
-	(checkpoint 1)
-	(catch name-1
-	  (checkpoint 2)
-	  (execute-with-catch name-1 (lambda () 
-				       (checkpoint 3)
-				       (throw name-1)
-				       (checkpoint :does-not-run)))
-	  (checkpoint 4))) ; Lexically scoped catch/throw would skip this step
+        (checkpoint 1)
+        (catch name-1
+          (checkpoint 2)
+          (execute-with-catch name-1 (lambda () 
+                                       (checkpoint 3)
+                                       (throw name-1)
+                                       (checkpoint :does-not-run)))
+          (checkpoint 4))) ; Lexically scoped catch/throw would skip this step
       )))

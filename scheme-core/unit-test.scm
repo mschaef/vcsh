@@ -227,14 +227,15 @@
 
 (define *current-execution-order* '())
 
+(define (execution-order fn)
+  (dynamic-let ((*current-execution-order* '()))
+    (fn)
+    (reverse *current-execution-order*)))
+
 (defmacro (test-case/execution-order desired-order . code)
   (let ((desired-order (if (exact? desired-order) (iota desired-order 1 1) desired-order)))
-    (with-gensyms (return-value-sym)
-      `(dynamic-let ((*current-execution-order* '()))
-         (let ((,return-value-sym (begin ,@code)))
-           (let ((actual-order (reverse *current-execution-order*)))
-             (test-case (equal? actual-order ',desired-order)))
-           ,return-value-sym)))))
+    `(test-case (equal? ',desired-order
+                        (execution-order (lambda () ,@code))))))
 
 (define (checkpoint point-name :optional return-value)
   (push! (or point-name :does-not-execute)  *current-execution-order*)

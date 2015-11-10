@@ -1,12 +1,13 @@
 (use-package! "unit-test")
 
-(define-test begin-1
+(define-test begin-1-return-value
   (let ((test-value (gensym "test-value")))
     (test-case (equal? () (begin-1)))
     (test-case (equal? test-value (begin-1 test-value)))
     (test-case (equal? test-value (begin-1 test-value 1)))
-    (test-case (equal? test-value (begin-1 test-value 1 2 3))))
-  
+    (test-case (equal? test-value (begin-1 test-value 1 2 3)))))
+
+(define-test begin-1-execution-order
   (test-case/execution-order 2
     (checkpoint 1)
     (begin-1)

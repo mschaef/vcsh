@@ -58,12 +58,7 @@
 	     (throw 'foo)
 	     (checkpoint :unreached))
 	   '(1) '(20)))
-    (checkpoint 3))
-  )
-
-
-
-
+    (checkpoint 3)))
 
 (define-test mapping
   (test-case (equal? (map identity '()) '()))
@@ -127,8 +122,7 @@
 	     (throw 'foo)
 	     (checkpoint :unreached))
 	   '(1)))
-    (checkpoint 3))
-  )
+    (checkpoint 3)))
 
 (define-test map-pair-2
   (define (c+ x y) (+ x y)) ; + as a closure, rather than a subr
@@ -158,8 +152,7 @@
 	     (throw 'foo)
 	     (checkpoint :unreached))
 	   '(1) '(20)))
-    (checkpoint 3))
-  )
+    (checkpoint 3)))
 
 
 
