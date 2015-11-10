@@ -55,17 +55,17 @@
   (test-case (equal? '((?b c d) (?a . b)) (match? '(?a . ?b) '(b c d))))
   (test-case (equal? '((?c . 3) (?b . 2) (?a . 1)) (match? '(?a ?b ?c) '(1 2 3))))
 
-  (test-case (equal? '((?a . 1)) (match? [?a] [1])))
-  (test-case (equal? '((?c . 3) (?b . 2) (?a . 1)) (match? [?a ?b ?c] [1 2 3])))
+  (test-case (equal? '((?a . 1)) (match? '[?a] [1])))
+  (test-case (equal? '((?c . 3) (?b . 2) (?a . 1)) (match? '[?a ?b ?c] [1 2 3])))
 
-  (test-case (not (match? [?a ?a] [1 2])))
-  (test-case (not (match? [?a (?a ?a)] [2 (1 1)])))
-  (test-case (not (match? [?a (?a ?a)] [1 (2 1)])))
-  (test-case (not (match? [?a (?a ?a)] [1 (1 2)])))
+  (test-case (not (match? '[?a ?a] [1 2])))
+  (test-case (not (match? '[?a (?a ?a)] '[2 (1 1)])))
+  (test-case (not (match? '[?a (?a ?a)] '[1 (2 1)])))
+  (test-case (not (match? '[?a (?a ?a)] '[1 (1 2)])))
 
-  (test-case (not (match? [?a ?a ?a] [2 1 1])))
-  (test-case (not (match? [?a ?a ?a] [1 2 1])))
-  (test-case (not (match? [?a ?a ?a] [1 1 2])))
+  (test-case (not (match? '[?a ?a ?a] [2 1 1])))
+  (test-case (not (match? '[?a ?a ?a] [1 2 1])))
+  (test-case (not (match? '[?a ?a ?a] [1 1 2])))
 
   (test-case (not (match? '(?a [?a ?a]) '(2 [1 1]))))
   (test-case (not (match? '(?a [?a ?a]) '(1 [2 1]))))
@@ -120,21 +120,21 @@
 
   (test-case (null? (match? {} {})))
 
-  (test-case (null? (match? {key val} {key val})))
+  (test-case (null? (match? '{key val} '{key val})))
 
-  (test-case (equal? '((?a . val)) (match? {key ?a} {key val})))
+  (test-case (equal? '((?a . val)) (match? '{key ?a} '{key val})))
 
-  (test-case (not (match? {key val} {key ?a})))
+  (test-case (not (match? '{key val} '{key ?a})))
 
-  (test-case (not (match? {a ?a b ?a} {a b b c})))
+  (test-case (not (match? '{a ?a b ?a} '{a b b c})))
 
-  (test-case (match? {a ?a b ?b} {a b b c}))
+  (test-case (match? '{a ?a b ?b} '{a b b c}))
 
   (test-case (not (match? '({a ?a b ?a}) '({a b b c}))))
 
   (test-case (match? '({a ?a b ?b}) '({a b b c})))
 
-  (test-case (runtime-error? (match? {?a a} {?a a})))
+  (test-case (runtime-error? (match? '{?a a} '{?a a})))
 
   (test-case (not (match? (identity-hash) {})))
   (test-case (not (match? {} (identity-hash)))))

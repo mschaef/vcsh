@@ -257,9 +257,9 @@ character or #f if not found."
   #f)
 
 (define *charset-symbol-delimiter* 
- #.(charset-vector *charset-whitespace*
-                   #\( #\) #\[ #\] #\' #\{ #\}
-                   #\; #\: #\" #\# #\, #\ #\\))
+  '#.(charset-vector *charset-whitespace*
+                     #\( #\) #\[ #\] #\' #\{ #\}
+                     #\; #\: #\" #\# #\, #\ #\\))
 
 (define (char-symbol-delimiter? ch)
   "Returns <ch> if it is a character that is normally read as a delimiter between

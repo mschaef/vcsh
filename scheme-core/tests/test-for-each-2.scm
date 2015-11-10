@@ -39,15 +39,15 @@
     (test-case (equal? xs '())))
 
   (let ((xs '()))
-    (vector-for-each (lambda (x y) (push! (cons x y) xs)) [1] [a])
+    (vector-for-each (lambda (x y) (push! (cons x y) xs)) [1] '[a])
     (test-case (equal? xs '((1 . a)))))
 
   (let ((xs '()))
-    (vector-for-each (lambda (x y) (push! (cons x y) xs)) [1 2] [a b])
+    (vector-for-each (lambda (x y) (push! (cons x y) xs)) [1 2] '[a b])
     (test-case (equal? xs '((2 . b) (1 . a)))))
 
   (let ((xs '()))
-    (vector-for-each (lambda (x y) (push! (cons x y) xs)) [1 2 3 4 5] [a b c d e])
+    (vector-for-each (lambda (x y) (push! (cons x y) xs)) [1 2 3 4 5] '[a b c d e])
     (test-case (equal? xs '((5 . e) (4 . d) (3 . c) (2 . b) (1 . a)))))
 
   (test-case (runtime-error? (for-each (lambda (x) (error "Test Error")) '(1) '(1))))
@@ -64,6 +64,4 @@
 	     (throw 'foo)
 	     (checkpoint :unreached))
 	   '(1) '(2)))
-    (checkpoint 3))
-
-  )
+    (checkpoint 3)))

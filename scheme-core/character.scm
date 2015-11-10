@@ -35,30 +35,30 @@
 
 
 (define *charset-lowercase-alphabetic*
-  #.(charset-vector "abcdefghijklmnopqrstuvwxyz"))
+  '#.(charset-vector "abcdefghijklmnopqrstuvwxyz"))
 
 (define *charset-uppercase-alphabetic*
-  #.(charset-vector "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
+  '#.(charset-vector "ABCDEFGHIJKLMNOPQRSTUVWXYZ"))
 
 (define *charset-alphabetic*
-  #.(charset-vector *charset-lowercase-alphabetic*
-                    *charset-uppercase-alphabetic*))
+  '#.(charset-vector *charset-lowercase-alphabetic*
+                     *charset-uppercase-alphabetic*))
 
 (define *charset-numeric*
-  #.(charset-vector "0123456789"))
+  '#.(charset-vector "0123456789"))
 
 (define *charset-alphanumeric*
-  #.(charset-vector *charset-alphabetic*
-                    *charset-numeric*))
+  '#.(charset-vector *charset-alphabetic*
+                     *charset-numeric*))
 
 (define *charset-whitespace*
-  #.(charset-vector #\newline #\cr #\tab #\space))
+  '#.(charset-vector #\newline #\cr #\tab #\space))
 
 (define *charset-hex*
-  #.(charset-vector "0123456789abcdefABCDEF"))
+  '#.(charset-vector "0123456789abcdefABCDEF"))
 
 (define *charset-octal*
-  #.(charset-vector "01234567"))
+  '#.(charset-vector "01234567"))
 
 (define (char-alphabetic? x)
  "Returns#t if <char> is an alphabetic letter, #f otherwise."

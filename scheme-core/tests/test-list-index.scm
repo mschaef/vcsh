@@ -2,7 +2,7 @@
 
 (define-test test-list-index
   (test-case (runtime-error? (list-index (always #t) :not-a-list)))
-  (test-case (runtime-error? (list-index (always #t) [not a list either])))
+  (test-case (runtime-error? (list-index (always #t) '[not a list either])))
   (test-case (runtime-error? (list-index (always #f) '(x y z z . y))))
   (test-case (runtime-error? (list-index 1 '(x y z z y))))
 

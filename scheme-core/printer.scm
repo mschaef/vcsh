@@ -88,17 +88,17 @@
       (rich-write obj machine-readable? port)
       #f))
 
-(define *character-names* ["nul"      "soh"      "stx"
-                           "etx"      "eot"      "eng"
-                           "ack"      "bel"      "bs"
-                           "tab"      "newline"  "vtab"
-                           "formfeed" "cr"       "so"
-                           "si"       "dle"      "dc1"
-                           "dc2"      "dc3"      "dc4"
-                           "nak"      "syn"      "etb"
-                           "can"      "em"       "sub"
-                           "esc"      "fs"       "gs"
-                           "rs"       "us"       "space"])
+(define *character-names* '["nul"      "soh"      "stx"
+                            "etx"      "eot"      "eng"
+                            "ack"      "bel"      "bs"
+                            "tab"      "newline"  "vtab"
+                            "formfeed" "cr"       "so"
+                            "si"       "dle"      "dc1"
+                            "dc2"      "dc3"      "dc4"
+                            "nak"      "syn"      "etb"
+                            "can"      "em"       "sub"
+                            "esc"      "fs"       "gs"
+                            "rs"       "us"       "space"])
 
 (define (%obaddr-string obj)
   (let ((str (string-append "00000000" (number->string (%obaddr obj) 16))))

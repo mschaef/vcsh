@@ -2,7 +2,7 @@
 
 (define-test test-memv-index
   (test-case (runtime-error? (memv-index 'x :not-a-list)))
-  (test-case (runtime-error? (memv-index 'x [not a list either])))
+  (test-case (runtime-error? (memv-index 'x '[not a list either])))
   (test-case (runtime-error? (memv-index 1 '(x y z z . y))))
 
   (let ((xs '(1 :symbol (composite key) () "string")))
