@@ -236,12 +236,9 @@
              (test-case (equal? actual-order ',desired-order)))
            ,return-value-sym)))))
 
-(define (checkpoint point-name . optional-return-value)
-  (let ((point-name (if point-name point-name :does-not-execute)))
-    (push! point-name *current-execution-order*)
-    (if (null? optional-return-value)
-        '()
-        (car optional-return-value))))
+(define (checkpoint point-name :optional return-value)
+  (push! (or point-name :does-not-execute)  *current-execution-order*)
+  return-value)
 
 ;;;; Test utility functions and macros
 
@@ -318,7 +315,6 @@
 (define (can-fast-io-round-trip? obj)
   (let ((obj2 (fast-io-round-trip obj)))
     (EQUAL? obj obj2)))
-
 
 (define (write-to-string x)
   (let ((o (open-output-string)))
