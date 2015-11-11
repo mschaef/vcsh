@@ -936,7 +936,7 @@
              write-char
              write-qualified
              write-strings
-             zero?
-             )
+             write-to-string
+             zero?)
            (find-package "scheme")))
 

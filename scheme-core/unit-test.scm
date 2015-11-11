@@ -25,7 +25,6 @@
             "can-fast-io-round-trip?"
             "can-read/write-round-trip?"
             "fast-io-round-trip"
-            "write-to-string"
             "load-tests"
             "values-eq?"
             "values-equal?"
@@ -280,11 +279,8 @@
 (define (read/write-round-trip obj)
   "Returns the result of writing <object> to a string and reading it back in.
    (Theoretically, this should be the same thing for printable objects.)"
-  (let ((op (open-output-string)))
-    (set-port-translate-mode! op #f)
-    (write obj op)
-    (catch-all
-     (read-from-string (get-output-string op)))))
+  (catch-all
+   (read-from-string (write-to-string obj))))
 
 (define (can-read/write-round-trip? obj)
   "Given an object, determine if it can be written, and read back in,
@@ -310,12 +306,6 @@
 (define (can-fast-io-round-trip? obj)
   (let ((obj2 (fast-io-round-trip obj)))
     (EQUAL? obj obj2)))
-
-(define (write-to-string x)
-  (let ((o (open-output-string)))
-    (set-port-translate-mode! o #f)
-    (write x o)
-    (get-output-string o)))
 
 (define (shallow-list=? xs ys :optional (test eq?))
   (let loop ((xs xs) (ys ys))

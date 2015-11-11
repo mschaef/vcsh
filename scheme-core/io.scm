@@ -298,3 +298,9 @@ car and the column in the cdr."
                          (when (file-exists? ,internal-filename-var)
                            (delete-file ,internal-filename-var)))))))
 
+(define (write-to-string obj)
+  (let ((buf (open-output-string)))
+    (set-port-translate-mode! buf #f)
+    (write obj buf)
+    (get-output-string buf)))
+
