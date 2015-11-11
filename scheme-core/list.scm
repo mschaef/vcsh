@@ -929,18 +929,11 @@
 ;;;; List sequence generation
 
 (define (iseq from to)
-  "Returns an ordered list of the whole numbers in the range [<from>, <to>]."
-  (let loop ((current to) (accum ()))
+  "Returns an ordered list of the whole numbers in the range [<from>, <to>)."
+  (let loop ((current (- to 1)) (accum ()))
     (if (< current from)
         accum
         (loop (- current 1) (cons current accum)))))
-
-(define (iota count :optional (start 0) (step 1))
-  (check (>= 0) count)
-  (let loop ((count count) (val (+ start (* (- count 1) step))) (ans ()))
-    (if (<= count 0)
-        ans
-        (loop (- count 1) (- val step) (cons val ans)))))
 
 ;;;; List flatten/recursive copy
 

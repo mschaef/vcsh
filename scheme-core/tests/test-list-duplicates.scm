@@ -17,12 +17,11 @@
 
   (test-case (equal? '(y z) (duplicates '(x y z z y))))
 
-  (test-case (equal? () (duplicates (iseq 1 1000))))
+  (test-case (equal? () (duplicates (iseq 1 10))))
 
-  (test-case (equal? '(1) (duplicates (cons 1 (iseq 1 1000)))))
+  (test-case (equal? '(1) (duplicates (cons 1 (iseq 1 10)))))
 
-  (test-case (equal? '(1) (duplicates (append (iseq 1 1000) (cons 1)))))
-  )
+  (test-case (equal? '(1) (duplicates (append (iseq 1 10) (cons 1))))))
 
 
 ;; (define-test delete-duplicates

@@ -233,7 +233,7 @@
     (reverse *current-execution-order*)))
 
 (defmacro (test-case/execution-order desired-order . code)
-  (let ((desired-order (if (exact? desired-order) (iota desired-order 1 1) desired-order)))
+  (let ((desired-order (if (exact? desired-order) (iseq 1 (+ 1 desired-order)) desired-order)))
     `(test-case (equal? ',desired-order
                         (execution-order (lambda () ,@code))))))
 

@@ -46,8 +46,8 @@
     (test-case (can-fast-io-round-trip? (let ((a `(,s1 ,s2 ,s3))) (list a a))))
     (test-case (can-fast-io-round-trip? (let ((a `(,s1 ,s2 ,s3))) (cons a (cons a a)))))
     (test-case (can-fast-io-round-trip? (let ((a `(,s1 ,s2 ,s3))) (cons a (cons a (cdr a)))))))
-  (let* ((xs (iota 260 0 1))
-	 (ys (map (lambda (x) (list x x)) xs)))
+  (let* ((xs (iseq 0 100))
+         (ys (map (lambda (x) (list x x)) xs)))
     (test-case (can-fast-io-round-trip? (append xs xs)))
     (test-case (can-fast-io-round-trip? (append ys ys))))
 

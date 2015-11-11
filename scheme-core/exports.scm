@@ -450,7 +450,6 @@
              intern-keyword!
              internal-files
              invoke-hook
-             iota
              is-a?
              is-class?
              is-directory-basename?
