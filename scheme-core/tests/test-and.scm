@@ -25,16 +25,16 @@
 
 (define-test and/short-circuit
   (test-case
-   (equal? '(:second-leg)
+   (equal? '(1 2)
            (checkpoint-order-of 
-            (and #t
-                 (checkpoint :second-leg #t)))))
+            (and (checkpoint 1 #t)
+                 (checkpoint 2 #t)))))
   
   (test-case
-   (equal? '()
+   (equal? '(1)
            (checkpoint-order-of 
-            (and #f
-                 (checkpoint :second-leg #t)))))
+            (and (checkpoint 1 #f)
+                 (checkpoint 2 #t)))))
   
   (test-case
    (equal? '(1 2 3)
@@ -75,16 +75,16 @@
 
 (define-test and*/full-evaluation
   (test-case
-   (equal? '(:second-leg)
+   (equal? '(1 2)
            (checkpoint-order-of
-            (and* #t
-                  (checkpoint :second-leg #t)))))
+            (and* (checkpoint 1 #t)
+                  (checkpoint 2 #t)))))
 
   (test-case
-   (equal? '(:second-leg)
+   (equal? '(1 2)
            (checkpoint-order-of
-            (and* #f
-                  (checkpoint :second-leg #t)))))
+            (and* (checkpoint 1 #f)
+                  (checkpoint 2 #t)))))
   
   (test-case
    (equal? '(1 2 3)

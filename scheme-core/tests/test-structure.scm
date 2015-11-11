@@ -107,8 +107,7 @@
     (test-case (equal? (ship-dx ts2) -3.4))
     (test-case (equal? (ship-dy ts2) :stationary)))
 
-  (test-case (runtime-error? (make-ship :bad-slot 12)))
-  )
+  (test-case (runtime-error? (make-ship :bad-slot 12))))
 
 (define-test structure-equal
   (let ((ts-a (make-ship))
@@ -143,8 +142,7 @@
     (test-case (not (equal? ts-a ts-b)))
     (set-ship-dy! ts-b ts2)
 
-    (test-case (equal? ts-a ts-b))
-    ))
+    (test-case (equal? ts-a ts-b))))
 
 (define-test structure-sxhash
   (let ((ts-a (make-ship))
@@ -177,14 +175,11 @@
     (test-case (not (= (sxhash ts-a) (sxhash ts-b))))
     (set-ship-dy! ts-b ts2)
 
-    (test-case (= (sxhash ts-a) (sxhash ts-b)))
-    ))
-
+    (test-case (= (sxhash ts-a) (sxhash ts-b)))))
 
 (define-structure empty-structure)
 
 (define-test structure-empty
-  ;; All of these should exist
   (test-case (symbol-bound-to-procedure? 'make-empty-structure))
   (test-case (symbol-bound-to-procedure? 'copy-empty-structure))
   (test-case (symbol-bound-to-procedure? 'empty-structure?))
@@ -235,41 +230,53 @@
   (s-3 :default (begin (checkpoint 3) :baz)))
 
 (define-test structure-evaluated-defaults
-  (test-case/execution-order (1 2 3)
-    (let ((dt (make-default-tester)))
-      (test-case (eq? (default-tester-s-1 dt) :foo))
-      (test-case (eq? (default-tester-s-2 dt) :bar))
-      (test-case (eq? (default-tester-s-3 dt) :baz))))
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of 
+            (let ((dt (make-default-tester)))
+              (test-case (eq? (default-tester-s-1 dt) :foo))
+              (test-case (eq? (default-tester-s-2 dt) :bar))
+              (test-case (eq? (default-tester-s-3 dt) :baz))))))
 
-  (test-case/execution-order (1 2 3)
-    (let ((dt (make-structure-by-name 'default-tester)))
-      (test-case (eq? (default-tester-s-1 dt) :foo))
-      (test-case (eq? (default-tester-s-2 dt) :bar))
-      (test-case (eq? (default-tester-s-3 dt) :baz))))
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of 
+            (let ((dt (make-structure-by-name 'default-tester)))
+              (test-case (eq? (default-tester-s-1 dt) :foo))
+              (test-case (eq? (default-tester-s-2 dt) :bar))
+              (test-case (eq? (default-tester-s-3 dt) :baz))))))
 
-  (test-case/execution-order (1 2 3)
-    (let ((dt (read-from-string "#S(default-tester)")))
-      (test-case (eq? (default-tester-s-1 dt) :foo))
-      (test-case (eq? (default-tester-s-2 dt) :bar))
-      (test-case (eq? (default-tester-s-3 dt) :baz))))
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of 
+            (let ((dt (read-from-string "#S(default-tester)")))
+              (test-case (eq? (default-tester-s-1 dt) :foo))
+              (test-case (eq? (default-tester-s-2 dt) :bar))
+              (test-case (eq? (default-tester-s-3 dt) :baz))))))
 
-  (test-case/execution-order ()
-    (let ((dt (make-default-tester :s-1 1 :s-2 2 :s-3 3)))
-      (test-case (eq? (default-tester-s-1 dt) 1))
-      (test-case (eq? (default-tester-s-2 dt) 2))
-      (test-case (eq? (default-tester-s-3 dt) 3))))
+  (test-case
+   (equal? '()
+           (checkpoint-order-of 
+            (let ((dt (make-default-tester :s-1 1 :s-2 2 :s-3 3)))
+              (test-case (eq? (default-tester-s-1 dt) 1))
+              (test-case (eq? (default-tester-s-2 dt) 2))
+              (test-case (eq? (default-tester-s-3 dt) 3))))))
 
-  (test-case/execution-order ()
-    (let ((dt (make-structure-by-name 'default-tester :s-1 1 :s-2 2 :s-3 3)))
-      (test-case (eq? (default-tester-s-1 dt) 1))
-      (test-case (eq? (default-tester-s-2 dt) 2))
-      (test-case (eq? (default-tester-s-3 dt) 3))))
+  (test-case
+   (equal? '()
+           (checkpoint-order-of 
+            (let ((dt (make-structure-by-name 'default-tester :s-1 1 :s-2 2 :s-3 3)))
+              (test-case (eq? (default-tester-s-1 dt) 1))
+              (test-case (eq? (default-tester-s-2 dt) 2))
+              (test-case (eq? (default-tester-s-3 dt) 3))))))
 
-  (test-case/execution-order ()
-    (let ((dt (read-from-string "#S(default-tester :s-1 1 :s-2 2 :s-3 3)")))
-      (test-case (eq? (default-tester-s-1 dt) 1))
-      (test-case (eq? (default-tester-s-2 dt) 2))
-      (test-case (eq? (default-tester-s-3 dt) 3)))))
+  (test-case
+   (equal? '()
+           (checkpoint-order-of 
+            (let ((dt (read-from-string "#S(default-tester :s-1 1 :s-2 2 :s-3 3)")))
+              (test-case (eq? (default-tester-s-1 dt) 1))
+              (test-case (eq? (default-tester-s-2 dt) 2))
+              (test-case (eq? (default-tester-s-3 dt) 3)))))))
 
 (define-structure ship-fancy
   (x :default 3 :get "westing")
@@ -317,8 +324,7 @@
   (test-case (runtime-error? (read-from-string "#S()")))
   (test-case (runtime-error? (read-from-string "#S(ship :bad-slot 12)")))
   (test-case (runtime-error? (read-from-string "#S(ship :x 3 :bad-slot 12)")))
-  (test-case (runtime-error? (read-from-string "#S(ship :bad-slot 12 :y 5)")))
-  )
+  (test-case (runtime-error? (read-from-string "#S(ship :bad-slot 12 :y 5)"))))
 
 (define-test structure-fast-io
   (test-case (can-fast-io-round-trip? (make-ship)))
@@ -367,31 +373,28 @@
                                      (slot :get 12)))))
 
   (test-case (runtime-error? (eval '(define-structure test-structure
-                                     duplicate-slot
-                                     duplicate-slot))))
+                                      duplicate-slot
+                                      duplicate-slot))))
 
   (test-case (runtime-error? (eval '(define-structure test-structure
-                                     x
-                                     duplicate-slot
-                                     duplicate-slot))))
+                                      x
+                                      duplicate-slot
+                                      duplicate-slot))))
+  
+  (test-case (runtime-error? (eval '(define-structure test-structure
+                                      duplicate-slot
+                                      duplicate-slot
+                                      x))))
 
   (test-case (runtime-error? (eval '(define-structure test-structure
-                                     duplicate-slot
-                                     duplicate-slot
-                                     x))))
+                                      x
+                                      duplicate-slot
+                                      y
+                                      z
+                                      duplicate-slot)))))
 
-  (test-case (runtime-error? (eval '(define-structure test-structure
-                                     x
-                                     duplicate-slot
-                                     y
-                                     z
-                                     duplicate-slot))))
-  )
-
-
-
-;(define-structure ship x y dx dy)
-;(define-structure empty-structure)
+;; (define-structure ship x y dx dy)
+;; (define-structure empty-structure)
 
 (define-test structure-meta
   (test-case (equal? (structure-slots 'ship) '(:x :y :dx :dy)))
@@ -475,8 +478,7 @@
     (test-case (eq? (slot-ref s1 :x) 3))
     (test-case (eq? (slot-ref s1 :y) 4))
     (test-case (eq? (slot-ref s1 :dx) 1))
-    (test-case (eq? (slot-ref s1 :dy) -2))
-    ))
+    (test-case (eq? (slot-ref s1 :dy) -2))))
 
 
 

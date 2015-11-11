@@ -237,12 +237,8 @@
   `(checkpoint-order
     (lambda () ,@code)))
 
-(defmacro (test-case/execution-order desired-order . code)
-  (let ((desired-order (if (exact? desired-order) (iseq 1 (+ 1 desired-order)) desired-order)))
-    `(test-case (equal? ',desired-order (checkpoint-order-of ,@code)))))
-
 (define (checkpoint point-name :optional return-value)
-  (push! (or point-name :does-not-execute)  *current-execution-order*)
+  (push! point-name *current-execution-order*)
   return-value)
 
 ;;;; Test utility functions and macros

@@ -80,7 +80,7 @@
   (test-case (eq? (or* #t #t #f) #t))
   (test-case (eq? (or* #t #t #t) #t)))
 
-(define-test or*/short-circuit
+(define-test or*/full-evaluation
   (test-case
    (equal? '(:second-leg)
            (checkpoint-order-of
