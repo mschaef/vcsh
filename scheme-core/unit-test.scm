@@ -18,6 +18,7 @@
             "test-case"
             "test-case/execution-order"
             "checkpoint"
+            "checkpoint-order-of"
             "non-local-escape?"
             "read-error?"
             "runtime-error?"
@@ -227,15 +228,18 @@
 
 (define *current-execution-order* '())
 
-(define (execution-order fn)
+(define (checkpoint-order fn)
   (dynamic-let ((*current-execution-order* '()))
     (fn)
     (reverse *current-execution-order*)))
 
+(defmacro (checkpoint-order-of . code)
+  `(checkpoint-order
+    (lambda () ,@code)))
+
 (defmacro (test-case/execution-order desired-order . code)
   (let ((desired-order (if (exact? desired-order) (iseq 1 (+ 1 desired-order)) desired-order)))
-    `(test-case (equal? ',desired-order
-                        (execution-order (lambda () ,@code))))))
+    `(test-case (equal? ',desired-order (checkpoint-order-of ,@code)))))
 
 (define (checkpoint point-name :optional return-value)
   (push! (or point-name :does-not-execute)  *current-execution-order*)
