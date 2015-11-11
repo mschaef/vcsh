@@ -52,33 +52,45 @@
     (test-case (equal? (dtu-lambda-list llt-simple-3-args) '(x y z)))
     (test-case (equal? (dtu-lambda-list llt-docs-3-args) '(x y z)))
     
-    (test-case/execution-order (:begin :llt-simple :end)
-      (checkpoint :begin)
-      (llt-simple)
-      (checkpoint :end))
+    (test-case
+     (equal? '(:begin :llt-simple :end)
+             (checkpoint-order-of
+              (checkpoint :begin)
+              (llt-simple)
+              (checkpoint :end))))
     
-    (test-case/execution-order (:begin :llt-docs :end)
-      (checkpoint :begin)
-      (llt-docs)
-      (checkpoint :end))
+    (test-case
+     (equal? '(:begin :llt-docs :end)
+             (checkpoint-order-of
+              (checkpoint :begin)
+              (llt-docs)
+              (checkpoint :end))))
     
-    (test-case/execution-order (:begin :llt-simple-1-arg :end)
-      (checkpoint :begin)
-      (llt-simple-1-arg 1)
-      (checkpoint :end))
+    (test-case
+     (equal? '(:begin :llt-simple-1-arg :end)
+             (checkpoint-order-of
+              (checkpoint :begin)
+              (llt-simple-1-arg 1)
+              (checkpoint :end))))
     
-    (test-case/execution-order (:begin :llt-docs-1-arg :end)
-      (checkpoint :begin)
-      (llt-docs-1-arg 1)
-      (checkpoint :end))
+    (test-case
+     (equal? '(:begin :llt-docs-1-arg :end)
+             (checkpoint-order-of
+              (checkpoint :begin)
+              (llt-docs-1-arg 1)
+              (checkpoint :end))))
     
-    (test-case/execution-order (:begin :llt-simple-3-args :end)
-      (checkpoint :begin)
-      (llt-simple-3-args 1 2 3)
-      (checkpoint :end))
+    (test-case
+     (equal? '(:begin :llt-simple-3-args :end)
+             (checkpoint-order-of
+              (checkpoint :begin)
+              (llt-simple-3-args 1 2 3)
+              (checkpoint :end))))
     
-    (test-case/execution-order (:begin :llt-docs-3-args :end)
-      (checkpoint :begin)
-      (llt-docs-3-args 1 2 3)
-      (checkpoint :end))))
+    (test-case
+     (equal? '(:begin :llt-docs-3-args :end)
+             (checkpoint-order-of
+              (checkpoint :begin)
+              (llt-docs-3-args 1 2 3)
+              (checkpoint :end))))))
 

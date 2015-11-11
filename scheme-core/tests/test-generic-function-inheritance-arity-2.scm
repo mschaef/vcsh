@@ -49,102 +49,136 @@
 
 
 (define-test generic-function-inheritance-arity-2
-  (test-case/execution-order (:base-handling)
-    (tgfi-2 #\i #\i))
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2 #\i #\i))))
+  
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2 1 #\i))))
+  
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2 #\i 1))))
 
-  (test-case/execution-order (:base-handling)
-    (tgfi-2 1 #\i))
+  (test-case
+   (equal? '(:pre-fixnum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-fixnum)
+           (checkpoint-order-of
+            (tgfi-2 1 1))))
 
-  (test-case/execution-order (:base-handling)
-    (tgfi-2 #\i 1))
+  (test-case
+   (equal? '(:pre-number 
+             :base-handling 
+             :post-number)
+           (checkpoint-order-of
+            (tgfi-2 1 1.0))))
 
-  (test-case/execution-order (:pre-fixnum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-fixnum)
-    (tgfi-2 1 1))
+  (test-case
+   (equal? '(:pre-number 
+             :base-handling 
+             :post-number)
+           (checkpoint-order-of
+            (tgfi-2 1.0 1))))
 
-  (test-case/execution-order (:pre-number 
-			  :base-handling 
-			  :post-number)
-    (tgfi-2 1 1.0))
+  (test-case
+   (equal? '(:pre-flonum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-flonum)
+           (checkpoint-order-of
+            (tgfi-2 1.0 1.0))))
 
-  (test-case/execution-order (:pre-number 
-			  :base-handling 
-			  :post-number)
-    (tgfi-2 1.0 1))
+  (test-case
+   (equal? '(:pre-flonum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-flonum)
+           (checkpoint-order-of
+            (tgfi-2 1.0 1i))))
 
-  (test-case/execution-order (:pre-flonum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-flonum)
-    (tgfi-2 1.0 1.0))
+  (test-case
+   (equal? '(:pre-flonum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-flonum)
+           (checkpoint-order-of
+            (tgfi-2 1i 1.0))))
 
-  (test-case/execution-order (:pre-flonum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-flonum)
-    (tgfi-2 1.0 1i))
+  (test-case
+   (equal? '(:pre-complex
+             :pre-flonum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-flonum
+             :post-complex)
+           (checkpoint-order-of
+            (tgfi-2 1i 1i))))
 
-  (test-case/execution-order (:pre-flonum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-flonum)
-    (tgfi-2 1i 1.0))
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2a 1 1))))
 
-  (test-case/execution-order (:pre-complex
-			  :pre-flonum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-flonum
-			  :post-complex)
-    (tgfi-2 1i 1i))
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2a #\1 1))))
 
-  (test-case/execution-order (:base-handling)
-    (tgfi-2a 1 1))
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2a 1 #\1))))
 
-  (test-case/execution-order (:base-handling)
-    (tgfi-2a #\1 1))
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2a #\1 1.0))))
 
-  (test-case/execution-order (:base-handling)
-    (tgfi-2a 1 #\1))
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-2a 1.0 #\1))))
 
+  (test-case
+   (equal? '(:pre-flonum-number
+             :base-handling
+             :post-flonum-number)
+           (checkpoint-order-of
+            (tgfi-2a 1.0 1))))
+  
+  (test-case
+   (equal? '(:pre-number-flonum
+             :base-handling
+             :post-number-flonum)
+           (checkpoint-order-of
+            (tgfi-2a 1 1.0))))
 
-  (test-case/execution-order (:base-handling)
-    (tgfi-2a #\1 1.0))
+  (test-case
+   (equal? '(:pre-complex-number
+             :pre-flonum-number
+             :base-handling
+             :post-flonum-number
+             :post-complex-number)
+           (checkpoint-order-of
+            (tgfi-2a 1i 1))))
 
-  (test-case/execution-order (:base-handling)
-    (tgfi-2a 1.0 #\1))
-
-  (test-case/execution-order (:pre-flonum-number
-			  :base-handling
-			  :post-flonum-number)
-    (tgfi-2a 1.0 1))
-
-  (test-case/execution-order (:pre-number-flonum
-			  :base-handling
-			  :post-number-flonum)
-    (tgfi-2a 1 1.0))
-
-
-  (test-case/execution-order (:pre-complex-number
-			  :pre-flonum-number
-			  :base-handling
-			  :post-flonum-number
-			  :post-complex-number)
-    (tgfi-2a 1i 1))
-
-  (test-case/execution-order (:pre-number-complex
-			  :pre-number-flonum
-			  :base-handling
-			  :post-number-flonum
-			  :post-number-complex)
-    (tgfi-2a 1 1i))
-
-  )
+  (test-case
+   (equal? '(:pre-number-complex
+             :pre-number-flonum
+             :base-handling
+             :post-number-flonum
+             :post-number-complex)
+           (checkpoint-order-of
+            (tgfi-2a 1 1i)))))
 

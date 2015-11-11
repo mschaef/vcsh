@@ -46,32 +46,44 @@
   (test-case (equal? (dtu-lambda-list idt-simple-3-args) '(x y z)))
   (test-case (equal? (dtu-lambda-list idt-docs-3-args) '(x y z)))
 
-  (test-case/execution-order (:begin :idt-simple :end)
-    (checkpoint :begin)
-    (idt-simple)
-    (checkpoint :end))
+  (test-case
+   (equal? '(:begin :idt-simple :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (idt-simple)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :idt-docs :end)
-    (checkpoint :begin)
-    (idt-docs)
-    (checkpoint :end))
+  (test-case
+   (equal? '(:begin :idt-docs :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (idt-docs)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :idt-simple-1-arg :end)
-    (checkpoint :begin)
-    (idt-simple-1-arg 1)
-    (checkpoint :end))
+  (test-case
+   (equal? '(:begin :idt-simple-1-arg :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (idt-simple-1-arg 1)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :idt-docs-1-arg :end)
-    (checkpoint :begin)
-    (idt-docs-1-arg 1)
-    (checkpoint :end))
+  (test-case
+   (equal? '(:begin :idt-docs-1-arg :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (idt-docs-1-arg 1)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :idt-simple-3-args :end)
-    (checkpoint :begin)
-    (idt-simple-3-args 1 2 3)
-    (checkpoint :end))
+  (test-case
+   (equal? '(:begin :idt-simple-3-args :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (idt-simple-3-args 1 2 3)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :idt-docs-3-args :end)
-    (checkpoint :begin)
-    (idt-docs-3-args 1 2 3)
-    (checkpoint :end)))
+  (test-case
+   (equal? '(:begin :idt-docs-3-args :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (idt-docs-3-args 1 2 3)
+            (checkpoint :end)))))

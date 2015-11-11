@@ -61,34 +61,39 @@
         (after-evaluated-3? #f))
 
     (catch-all
-     (unwind-protect (lambda () (unwind-protect (lambda () (unwind-protect (lambda () 
-                                                                             (set! sequence-number 10)
-                                                                             (throw 'foo) )
-                                                                           (lambda () 
-                                                                             (incr! sequence-number)
-                                                                             (set! after-evaluated-1? sequence-number))))
-                                                (lambda () 
-                                                  (incr! sequence-number)
-                                                  (set! after-evaluated-2? sequence-number))))
-                     (lambda () 
-                       (incr! sequence-number)
-                       (set! after-evaluated-3? sequence-number))))
-
+     (unwind-protect
+      (lambda ()
+        (unwind-protect
+         (lambda ()
+           (unwind-protect
+            (lambda () 
+              (set! sequence-number 10)
+              (throw 'foo) )
+            (lambda () 
+              (incr! sequence-number)
+              (set! after-evaluated-1? sequence-number))))
+         (lambda () 
+           (incr! sequence-number)
+           (set! after-evaluated-2? sequence-number))))
+      (lambda () 
+        (incr! sequence-number)
+        (set! after-evaluated-3? sequence-number))))
     (test-case (eq? after-evaluated-1? 11))
     (test-case (eq? after-evaluated-2? 12))
     (test-case (eq? after-evaluated-3? 13)))
 
-  (test-case/execution-order 4
-    (let ((return-value (begin
-                          (let ((catch-return-value (catch 'test-name
-                                                      (checkpoint 1)
-                                                      (unwind-protect (lambda () 
-                                                                        (checkpoint 2))
-                                                                      (lambda () 
-                                                                        (checkpoint 3)
-                                                                        (throw 'test-name :test-return-value)
-                                                                        (checkpoint :unreached-1)))
-                                                      (checkpoint :unreached-2))))
-                            (checkpoint 4 catch-return-value)))))
-      (test-case (equal? :test-return-value return-value)))))
-
+  (test-case
+   (equal? '(1 2 3 4)
+           (checkpoint-order-of
+            (let ((return-value (begin
+                                  (let ((catch-return-value (catch 'test-name
+                                                              (checkpoint 1)
+                                                              (unwind-protect (lambda () 
+                                                                                (checkpoint 2))
+                                                                              (lambda () 
+                                                                                (checkpoint 3)
+                                                                                (throw 'test-name :test-return-value)
+                                                                                (checkpoint :unreached-1)))
+                                                              (checkpoint :unreached-2))))
+                                    (checkpoint 4 catch-return-value)))))
+              (test-case (equal? :test-return-value return-value)))))))

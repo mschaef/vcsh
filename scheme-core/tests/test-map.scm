@@ -15,16 +15,17 @@
   (test-case (not (runtime-error? (map (lambda (x) (error "Test Error")) '()))))
   (test-case (runtime-error? (map (lambda (x) (error "Test Error")) '(1))))
 
-  (test-case/execution-order 3
-    (checkpoint 1)
-    (catch 'foo
-      (map (lambda (x) 
-	     (checkpoint 2) 
-	     (throw 'foo)
-	     (checkpoint :unreached))
-	   '(1)))
-    (checkpoint 3))
-  )
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of
+            (checkpoint 1)
+            (catch 'foo
+              (map (lambda (x) 
+                     (checkpoint 2) 
+                     (throw 'foo)
+                     (checkpoint :unreached))
+                   '(1)))
+            (checkpoint 3)))))
 
 (define-test map-2
   (define (c+ x y) (+ x y)) ; + as a closure, rather than a subr
@@ -50,15 +51,17 @@
   (test-case (not (runtime-error? (map (lambda (x) (error "Test Error")) '() '(2)))))
   (test-case (runtime-error? (map (lambda (x) (error "Test Error")) '(1) '(2))))
 
-  (test-case/execution-order 3
-    (checkpoint 1)
-    (catch 'foo
-      (map (lambda (x y)
-	     (checkpoint 2) 
-	     (throw 'foo)
-	     (checkpoint :unreached))
-	   '(1) '(20)))
-    (checkpoint 3)))
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of
+            (checkpoint 1)
+            (catch 'foo
+              (map (lambda (x y)
+                     (checkpoint 2) 
+                     (throw 'foo)
+                     (checkpoint :unreached))
+                   '(1) '(20)))
+            (checkpoint 3)))))
 
 (define-test mapping
   (test-case (equal? (map identity '()) '()))
@@ -114,15 +117,17 @@
   (test-case (not (runtime-error? (map-pair (lambda (x) (error "Test Error")) '()))))
   (test-case (runtime-error? (map-pair (lambda (x) (error "Test Error")) '(1))))
 
-  (test-case/execution-order 3
-    (checkpoint 1)
-    (catch 'foo
-      (map-pair (lambda (x) 
-	     (checkpoint 2) 
-	     (throw 'foo)
-	     (checkpoint :unreached))
-	   '(1)))
-    (checkpoint 3)))
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of
+            (checkpoint 1)
+            (catch 'foo
+              (map-pair (lambda (x) 
+                          (checkpoint 2) 
+                          (throw 'foo)
+                          (checkpoint :unreached))
+                        '(1)))
+            (checkpoint 3)))))
 
 (define-test map-pair-2
   (define (c+ x y) (+ x y)) ; + as a closure, rather than a subr
@@ -144,15 +149,14 @@
   (test-case (not (runtime-error? (map-pair (lambda (x) (error "Test Error")) '() '(2)))))
   (test-case (runtime-error? (map-pair (lambda (x) (error "Test Error")) '(1) '(2))))
 
-  (test-case/execution-order 3
-    (checkpoint 1)
-    (catch 'foo
-      (map-pair (lambda (x y)
-	     (checkpoint 2) 
-	     (throw 'foo)
-	     (checkpoint :unreached))
-	   '(1) '(20)))
-    (checkpoint 3)))
-
-
-
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of
+            (checkpoint 1)
+            (catch 'foo
+              (map-pair (lambda (x y)
+                          (checkpoint 2) 
+                          (throw 'foo)
+                          (checkpoint :unreached))
+                        '(1) '(20)))
+            (checkpoint 3)))))

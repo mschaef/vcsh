@@ -42,14 +42,14 @@
   (test-case (not (runtime-error? (for-each (lambda (x) (error "Test Error")) '()))))
   (test-case (runtime-error? (for-each (lambda (x) (error "Test Error")) '(1))))
 
-  (test-case/execution-order 3
-    (checkpoint 1)
-    (catch 'foo
-      (for-each (lambda (x) 
-	     (checkpoint 2) 
-	     (throw 'foo)
-	     (checkpoint :unreached))
-	   '(1)))
-    (checkpoint 3))
-
-  )
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of
+            (checkpoint 1)
+            (catch 'foo
+              (for-each (lambda (x) 
+                          (checkpoint 2) 
+                          (throw 'foo)
+                          (checkpoint :unreached))
+                        '(1)))
+            (checkpoint 3)))))

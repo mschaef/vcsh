@@ -1,13 +1,11 @@
 (use-package! "unit-test")
 
 (define-test linear-execution
-  (test-case/execution-order 5
-    (checkpoint 1)
-    (checkpoint 2)
-    (checkpoint 3)
-    (checkpoint 4)
-    (checkpoint 5)))
-
-;
-; Boolean test cases
-;
+  (test-case
+   (equal? '(1 2 3 4 5)
+           (checkpoint-order-of
+            (checkpoint 1)
+            (checkpoint 2)
+            (checkpoint 3)
+            (checkpoint 4)
+            (checkpoint 5)))))

@@ -30,13 +30,15 @@
                           ((flonum) :xyzzy)
                           (#t 12))))
 
-  (test-case/execution-order 3
-    (typecase #\a
-      ((fixnum) 12)
-      ((character)
-       (checkpoint 1)
-       (checkpoint 2)
-       (checkpoint 3)))))
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of
+            (typecase #\a
+              ((fixnum) 12)
+              ((character)
+               (checkpoint 1)
+               (checkpoint 2)
+               (checkpoint 3)))))))
 
 (define-test etypecase
   (test-case (runtime-error? (macroexpand '(etypecase x 1 ((foo) bar)))))
@@ -64,10 +66,12 @@
                               ((fixnum) :foo)
                               ((character) :bar)
                               ((symbol flonum) :xyzzy))))
-  (test-case/execution-order 3
-    (etypecase #\a
-      ((fixnum) 12)
-      ((character)
-       (checkpoint 1)
-       (checkpoint 2)
-       (checkpoint 3)))))
+  (test-case
+   (equal? '(1 2 3)
+           (checkpoint-order-of
+            (etypecase #\a
+              ((fixnum) 12)
+              ((character)
+               (checkpoint 1)
+               (checkpoint 2)
+               (checkpoint 3)))))))

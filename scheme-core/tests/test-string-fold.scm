@@ -30,16 +30,18 @@
 		  (string-fold (lambda (ch chs) (throw catch-tag return-value)) () "12345"))
 		return-value))
 
-    (test-case/execution-order 4
-	(checkpoint 1)
-	(catch catch-tag
-	  (checkpoint 2)
-	  (string-fold 
-	   (lambda (ch chs) 
-	     (checkpoint 3)
-	     (throw catch-tag return-value)
-	     (checkpoint #f))
-	   () 
-	   "12345")
-	  (checkpoint #f))
-	(checkpoint 4))))
+    (test-case
+     (equal? '(1 2 3 4)
+             (checkpoint-order-of
+              (checkpoint 1)
+              (catch catch-tag
+                (checkpoint 2)
+                (string-fold 
+                 (lambda (ch chs) 
+                   (checkpoint 3)
+                   (throw catch-tag return-value)
+                   (checkpoint #f))
+                 () 
+                 "12345")
+                (checkpoint #f))
+              (checkpoint 4))))))

@@ -24,31 +24,37 @@
   (checkpoint :post-complex))
 
 (define-test generic-function-inheritance-arity-1
-  (test-case/execution-order (:base-handling)
-    (tgfi-1 #\i))
+  (test-case
+   (equal? '(:base-handling)
+           (checkpoint-order-of
+            (tgfi-1 #\i))))
+  
+  (test-case
+   (equal? '(:pre-fixnum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-fixnum)
+           (checkpoint-order-of
+            (tgfi-1 1))))
 
-  (test-case/execution-order (:pre-fixnum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-fixnum)
-    (tgfi-1 1))
+  (test-case
+   (equal? '(:pre-flonum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-flonum)
+           (checkpoint-order-of
+            (tgfi-1 1.0))))
 
-  (test-case/execution-order (:pre-flonum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-flonum)
-    (tgfi-1 1.0))
-
-  (test-case/execution-order (:pre-complex
-			  :pre-flonum 
-			  :pre-number 
-			  :base-handling 
-			  :post-number 
-			  :post-flonum
-			  :post-complex)
-    (tgfi-1 1i))
-
-  )
+  (test-case
+   (equal? '(:pre-complex
+             :pre-flonum 
+             :pre-number 
+             :base-handling 
+             :post-number 
+             :post-flonum
+             :post-complex)
+           (checkpoint-order-of
+            (tgfi-1 1i)))))
 

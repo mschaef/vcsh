@@ -46,32 +46,44 @@
   (test-case (equal? (dtu-lambda-list edt-simple-3-args) '(x y z)))
   (test-case (equal? (dtu-lambda-list edt-docs-3-args) '(x y z)))
 
-  (test-case/execution-order (:begin :edt-simple :end)
-                             (checkpoint :begin)
-                             (edt-simple)
-                             (checkpoint :end))
+  (test-case
+   (equal? '(:begin :edt-simple :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (edt-simple)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :edt-docs :end)
-                             (checkpoint :begin)
-                             (edt-docs)
-                             (checkpoint :end))
+  (test-case
+   (equal? '(:begin :edt-docs :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (edt-docs)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :edt-simple-1-arg :end)
-                             (checkpoint :begin)
-                             (edt-simple-1-arg 1)
-                             (checkpoint :end))
+  (test-case
+   (equal? '(:begin :edt-simple-1-arg :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (edt-simple-1-arg 1)
+            (checkpoint :end))))
+  
+  (test-case
+   (equal? '(:begin :edt-docs-1-arg :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (edt-docs-1-arg 1)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :edt-docs-1-arg :end)
-                             (checkpoint :begin)
-                             (edt-docs-1-arg 1)
-                             (checkpoint :end))
+  (test-case
+   (equal? '(:begin :edt-simple-3-args :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (edt-simple-3-args 1 2 3)
+            (checkpoint :end))))
 
-  (test-case/execution-order (:begin :edt-simple-3-args :end)
-                             (checkpoint :begin)
-                             (edt-simple-3-args 1 2 3)
-                             (checkpoint :end))
-
-  (test-case/execution-order (:begin :edt-docs-3-args :end)
-                             (checkpoint :begin)
-                             (edt-docs-3-args 1 2 3)
-                             (checkpoint :end)))
+  (test-case
+   (equal? '(:begin :edt-docs-3-args :end)
+           (checkpoint-order-of
+            (checkpoint :begin)
+            (edt-docs-3-args 1 2 3)
+            (checkpoint :end)))))
