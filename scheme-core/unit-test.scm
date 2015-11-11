@@ -245,15 +245,6 @@
 
 ;;;; Test utility functions and macros
 
-(defmacro (non-local-escape? . code)
-  "Returns a boolean indicating if <code> attempts a non-local-escape."
-  (let ((escapes-sym (gensym)))
-    `(let ((,escapes-sym #t))
-       (catch-all
-        ,@code
-        (set! ,escapes-sym #f))
-       ,escapes-sym)))
-
 (define *runtime-error-escape* (gensym "error-escape"))
 
 (define (throws-runtime-error? fn)
