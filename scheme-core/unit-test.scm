@@ -243,7 +243,7 @@
   (push! point-name *current-execution-order*)
   return-value)
 
-;;;; Test utility functions and macros
+;;;; Error validation
 
 (define *runtime-error-escape* (gensym "error-escape"))
 
@@ -262,7 +262,6 @@
 
 (define *read-error-escape* (gensym "error-escape"))
 
-
 (define (throws-read-error? fn)
   "Returns #t if <fn> throws a read error, #f otherwise."
   (catch *read-error-escape*
@@ -275,6 +274,8 @@
 (defmacro (read-error? . code)
   "Returns #t if the execution of <code> throws a read error, #f otherwise."
   `(throws-read-error? (lambda () ,@code)))
+
+;;;; Utility functions
 
 (define (read/write-round-trip obj)
   "Returns the result of writing <object> to a string and reading it back in.
