@@ -226,7 +226,7 @@
 
 ;;;; Execution order checking.
 
-(define *current-execution-order* '())
+(define *current-execution-order* #f)
 
 (define (checkpoint-order fn)
   (dynamic-let ((*current-execution-order* '()))
@@ -238,6 +238,8 @@
     (lambda () ,@code)))
 
 (define (checkpoint point-name :optional return-value)
+  (unless *current-execution-order*
+    (error "Cannot make a checkpoint outside of a checkpoint block."))
   (push! point-name *current-execution-order*)
   return-value)
 
