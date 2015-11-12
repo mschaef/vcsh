@@ -91,11 +91,6 @@
                                      :form            :TOPLEVEL-OF-TEST
                                      :cause           cause)))
 
-(defmacro (define-test test-name . code)
-  "Define a test named <test-name> implemented with the code in <code>."
-  (let ((loc (form-source-location (car code))))
-    `(add-test! ',test-name ',loc (lambda () ,@code))))
-
 (define (all-tests)
   "Returns a list of all currently defined tests, sorted in alphabetical
    order by test name."
@@ -129,10 +124,46 @@
               (if (> *check-count* 1) "s" "")
               (if (> *check-fail-count* 0) (format #t " (~a FAILED!)" *check-fail-count*) "")))))
 
-(define (test-location-string form-loc)
-  (if form-loc
-      (format #f "~a:~a:~a" (car form-loc) (cadr form-loc) (cddr form-loc))
-      "?:?:?"))
+;;;; Test definition
+
+(define (check-condition condition-passed? condition-form source-location)
+  (define (condition-failed failure-type :optional (cause #f))
+    (report-failure (make-test-failure :name            *running-test-case*
+                                       :source-location source-location
+                                       :form            condition-form
+                                       :type            failure-type
+                                       :cause           cause)))
+  (incr! *check-count*)
+  (incr! *total-check-count*)
+  (when *force-gc-on-check* (gc))
+  (when *show-check-conditions*
+    (format #t "Checking Condition: ~s\n" condition-form))
+  (catch *check-escape*
+    (unless (handler-bind ((runtime-error
+                            (lambda (error-info)
+                              (condition-failed :runtime-error error-info)
+                              (throw *check-escape* #f)))
+                           (unhandled-abort
+                            (lambda args
+                              (condition-failed :unhandled-abort args)
+                              (throw *check-escape* #f)))
+                           (uncaught-throw
+                            (lambda args
+                              (condition-failed :uncaught-throw args)
+                              (throw *check-escape* #f))))
+              (condition-passed?))
+      (condition-failed :test-failed))))
+
+(defmacro (test-case condition)
+  `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
+
+(defmacro (define-test test-name . code)
+  "Define a test named <test-name> implemented with the code in <code>."
+  (let ((loc (form-source-location (car code))))
+    `(add-test! ',test-name ',loc (lambda () ,@code))))
+
+
+;;;; Test Runner
 
 (define (load-tests :optional (load-directory #f) (filename-template "test*.scm"))
   "Loads all unit test files from the specified <load-directory>. The load directory
@@ -142,6 +173,11 @@
    (for-each load (directory (if load-directory
                                  (make-filename load-directory filename-template)
                                  filename-template)))))
+
+(define (test-location-string form-loc)
+  (if form-loc
+      (format #f "~a:~a:~a" (car form-loc) (cadr form-loc) (cddr form-loc))
+      "?:?:?"))
 
 (define (show-check-fails)
   (unless (null? *check-fails*)
@@ -189,39 +225,6 @@
         (show-check-fails)
         (format #t "\n~a total checks run.\n" *total-check-count*)
         (null? *check-fails*)))))
-
-;;;; Condition checking
-
-(define (check-condition condition-passed? condition-form source-location)
-  (define (condition-failed failure-type :optional (cause #f))
-    (report-failure (make-test-failure :name            *running-test-case*
-                                       :source-location source-location
-                                       :form            condition-form
-                                       :type            failure-type
-                                       :cause           cause)))
-  (incr! *check-count*)
-  (incr! *total-check-count*)
-  (when *force-gc-on-check* (gc))
-  (when *show-check-conditions*
-    (format #t "Checking Condition: ~s\n" condition-form))
-  (catch *check-escape*
-    (unless (handler-bind ((runtime-error
-                            (lambda (error-info)
-                              (condition-failed :runtime-error error-info)
-                              (throw *check-escape* #f)))
-                           (unhandled-abort
-                            (lambda args
-                              (condition-failed :unhandled-abort args)
-                              (throw *check-escape* #f)))
-                           (uncaught-throw
-                            (lambda args
-                              (condition-failed :uncaught-throw args)
-                              (throw *check-escape* #f))))
-              (condition-passed?))
-      (condition-failed :test-failed))))
-
-(defmacro (test-case condition)
-  `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
 
 
 ;;;; Execution order checking.
