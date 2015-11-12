@@ -99,7 +99,7 @@
 (define (all-tests)
   "Returns a list of all currently defined tests, sorted in alphabetical
    order by test name."
-  (qsort (hash-keys *test-cases*) string> symbol-name))
+  (qsort (hash-keys *test-cases*) string<-ci symbol-name))
 
 ;;;; Unit test execution
 
@@ -124,14 +124,15 @@
       (format #t "; ~a..." (test-case-name test-case))
       (run-test test-case)
       (indent 50)
-      (format #t " ~a check~a." *check-count* (if (> *check-count* 1) "s" ""))
-      (when (> *check-fail-count* 0) (format #t " (~a FAILED!)" *check-fail-count*))
-      (newline))))
+      (format #t " ~a check~a.~a\n"
+              *check-count*
+              (if (> *check-count* 1) "s" "")
+              (if (> *check-fail-count* 0) (format #t " (~a FAILED!)" *check-fail-count*) "")))))
 
 (define (test-location-string form-loc)
   (if form-loc
       (format #f "~a:~a:~a" (car form-loc) (cadr form-loc) (cddr form-loc))
-      (format #f "?:?:?")))
+      "?:?:?"))
 
 (define (load-tests :optional (load-directory #f) (filename-template "test*.scm"))
   "Loads all unit test files from the specified <load-directory>. The load directory
