@@ -158,8 +158,7 @@
     (hash-clear! h/equal)
 
     (test-case (= 0 (length h/eq)))
-    (test-case (= 0 (length h/equal)))
-    ))
+    (test-case (= 0 (length h/equal)))))
 
 (define-test hash-clear!
   (let ((h (make-hash)))
@@ -171,8 +170,7 @@
     (hash-clear! h)
 
     (test-case (not (hash-has? h 'foo)))
-    (test-case (= 0 (length h)))
-    ))
+    (test-case (= 0 (length h)))))
 
 (define-test list->hash
   (test-case (runtime-error? (list->hash :not-a-list)))
@@ -305,50 +303,35 @@
 
     (test-case (eq? (hash-ref h car) 'car))
     (test-case (eq? (hash-ref h cdr) 'cdr))))
-    
-(define-test hash-flonum-keys
-  (let ((h (make-hash)))
-    (hash-set! h #inan    #inan   )
-    (hash-set! h #ineginf #ineginf)
-    (hash-set! h #iposinf #iposinf)
-    (hash-set! h -1e19    -1e19   )
-    (hash-set! h -1e9     -1e9    )
-    (hash-set! h -19      -19     )
-    (hash-set! h -1.9     -1.9    )
-    (hash-set! h -1.1     -1.1    )
-    (hash-set! h -1.0     -1.0    )
-    (hash-set! h -1e-9    -1e-9   )
-    (hash-set! h -0.1     -0.1    )
-    (hash-set! h  0.0      0.0    )
-    (hash-set! h  0.1      0.1    )
-    (hash-set! h  1e-9     1e-9   )
-    (hash-set! h  1.1      1.1    )      
-    (hash-set! h  1.9      1.9    )
-    (hash-set! h  19       19     )
-    (hash-set! h  1e19     1e19   )
 
-    (test-case (equal? (hash-ref h #inan   )  #inan  ))
-    (test-case (equal? (hash-ref h #ineginf) #ineginf))
-    (test-case (equal? (hash-ref h #iposinf) #iposinf))
-    (test-case (equal? (hash-ref h -1e19   ) -1e19   ))
-    (test-case (equal? (hash-ref h -1e9    ) -1e9    ))
-    (test-case (equal? (hash-ref h -19     ) -19     ))
-    (test-case (equal? (hash-ref h -1.9    ) -1.9    ))
-    (test-case (equal? (hash-ref h -1.1    ) -1.1    ))
-    (test-case (equal? (hash-ref h -1.0    ) -1.0    ))
-    (test-case (equal? (hash-ref h -1e-9   ) -1e-9   ))
-    (test-case (equal? (hash-ref h -0.1    ) -0.1    ))
-    (test-case (equal? (hash-ref h  0.0    )  0.0    ))
-    (test-case (equal? (hash-ref h  0.1    )  0.1    ))
-    (test-case (equal? (hash-ref h  1e-9   )  1e-9   ))
-    (test-case (equal? (hash-ref h  1.1    )  1.1    ))
-    (test-case (equal? (hash-ref h  1.9    )  1.9    ))
-    (test-case (equal? (hash-ref h  19     )  19     ))
-    (test-case (equal? (hash-ref h  1e19   )  1e19   ))
-    ))
+(define (can-retrieve-hash-key? key)
+  (equal? :test-value (hash-ref {key :test-value} key)))
+
+(define-test hash-flonum-keys
+  (test-case (can-retrieve-hash-key? #inan   ))
+  (test-case (can-retrieve-hash-key? #ineginf))
+  (test-case (can-retrieve-hash-key? #iposinf))
+  (test-case (can-retrieve-hash-key? -1e19   ))
+  (test-case (can-retrieve-hash-key? -1e9    ))
+  (test-case (can-retrieve-hash-key? -19     ))
+  (test-case (can-retrieve-hash-key? -1.9    ))
+  (test-case (can-retrieve-hash-key? -1.1    ))
+  (test-case (can-retrieve-hash-key? -1.0    ))
+  (test-case (can-retrieve-hash-key? -1e-9   ))
+  (test-case (can-retrieve-hash-key? -0.1    ))
+  (test-case (can-retrieve-hash-key?  0.0    ))
+  (test-case (can-retrieve-hash-key?  0.1    ))
+  (test-case (can-retrieve-hash-key?  1e-9   ))
+  (test-case (can-retrieve-hash-key?  1.1    ))
+  (test-case (can-retrieve-hash-key?  1.9    ))
+  (test-case (can-retrieve-hash-key?  19     ))
+  (test-case (can-retrieve-hash-key?  1e19   )))
 
 (define-test hash-literal
   (let ((key :xyzzy)
         (value 42))
-    (test-case (equal? {:xyzzy 42} {key value}))))
+    (test-case (equal? {:xyzzy 42} {key value})))
+
+  (let ((create-hash-fn (lambda () {})))
+    (test-case (not (eq? (create-hash-fn) (create-hash-fn))))))
 

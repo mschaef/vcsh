@@ -12,5 +12,8 @@
     (test-case (= (vector-ref a 2) 3))))
 
 (define-test vector-literal
-  (let ((a 42))
-    (test-case (equal? [42 42] [a a]))))
+  (let ((value 42))
+    (test-case (equal? [42 42] [value value])))
+
+  (let ((create-vector-fn (lambda () [])))
+    (test-case (not (eq? (create-vector-fn) (create-vector-fn))))))
