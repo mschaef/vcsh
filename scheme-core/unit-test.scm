@@ -48,11 +48,7 @@
 (define *test-cases* (make-identity-hash))
 (define *running-test-case* #f)
 
-
-(define *check-count* 0)
-(define *total-check-count* 0)
-(define *check-fail-count* 0)
-(define *check-fails* '())
+(define *check-results* '())
 (define *check-escape* (gensym "check-escape"))
 (define *test-escape* (gensym "test-escape"))
 
@@ -73,28 +69,68 @@
                                                     :runner   runner))
   (values))
 
-(define-structure test-failure
+(define (all-tests)
+  "Returns a list of all currently defined tests, sorted in alphabetical
+   order by test name."
+  (qsort (hash-keys *test-cases*) string<-ci symbol-name))
+
+(define (test-by-name test-name)
+  (hash-ref *test-cases* test-name #f))
+
+;;;; Test result reporting
+
+(define-structure test-result
   name
   source-location
   form
   (type :default :test-failed)
   (cause :default #f))
 
-(define (report-failure test-failure)
-  (check test-failure? test-failure)
-  (incr! *check-fail-count*)
-  (push! test-failure *check-fails*))
+(define (failure-result? test-result)
+  (not (eq? :passed (test-result-cause test-result))))
+
+(define (report-test-result test-result)
+  (check test-result? test-result)
+  (push! test-result *check-results*))
+
+(define (test-passed test-name location)
+  (report-test-result (make-test-result :name            test-name
+                                        :source-location location
+                                        :form            :TOPLEVEL-OF-TEST
+                                        :cause           :passed)))
 
 (define (test-failed test-name location cause)
-  (report-failure (make-test-failure :name            test-name
-                                     :source-location location
-                                     :form            :TOPLEVEL-OF-TEST
-                                     :cause           cause)))
+  (report-test-result (make-test-result :name            test-name
+                                        :source-location location
+                                        :form            :TOPLEVEL-OF-TEST
+                                        :cause           cause)))
 
-(define (all-tests)
-  "Returns a list of all currently defined tests, sorted in alphabetical
-   order by test name."
-  (qsort (hash-keys *test-cases*) string<-ci symbol-name))
+;;;; Condition checking
+
+(define (check-condition condition-passed? condition-form source-location)
+  (define (condition-failed failure-type :optional (cause #f))
+    (report-test-result (make-test-result :name            *running-test-case*
+                                          :source-location source-location
+                                          :form            condition-form
+                                          :type            failure-type
+                                          :cause           cause))
+    (throw *check-escape* #f))
+  (when *force-gc-on-check* (gc))
+  (when *show-check-conditions*
+    (format #t "Checking Condition: ~s\n" condition-form))
+  (catch *check-escape*
+    (if (handler-bind ((runtime-error
+                        (lambda (error-info) (condition-failed :runtime-error error-info)))
+                       (unhandled-abort
+                        (lambda args (condition-failed :unhandled-abort args)))
+                       (uncaught-throw
+                        (lambda args (condition-failed :uncaught-throw args))))
+          (condition-passed?))
+        (test-passed *running-test-case* source-location)
+        (condition-failed :test-failed))))
+
+(defmacro (test-case condition)
+  `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
 
 ;;;; Unit test execution
 
@@ -107,61 +143,31 @@
     (handler-bind ((runtime-error   (lambda args (fail 'runtime-error   args)))
                    (unhandled-abort (lambda args (fail 'unhandled-abort args)))
                    (uncaught-throw  (lambda args (fail 'uncaught-throw  args))))
-      (dynamic-let ((*running-test-case* (test-case-name test-case)))
-        ((test-case-runner test-case))))))
+      (dynamic-let ((*running-test-case* (test-case-name test-case))
+                    (*check-results* ()))
+        ((test-case-runner test-case))
+        *check-results*))))
 
-(define (execute-test test-name)
-  (let ((test-case (hash-ref *test-cases* test-name)))
-    (dynamic-let ((*error* *show-test-messages*)
-                  (*info* *show-test-messages*))
-      (set! *check-count* 0)
-      (set! *check-fail-count* 0)
-      (format #t "; ~a..." (test-case-name test-case))
-      (run-test test-case)
+(define (execute-test test-case)
+  (dynamic-let ((*error* *show-test-messages*)
+                (*info* *show-test-messages*))
+    (format #t "; ~a..." (test-case-name test-case))
+    (let* ((check-results (run-test test-case))
+           (result-count (length check-results))
+           (failure-count (length (filter failure-result? check-results))))
       (indent 50)
       (format #t " ~a check~a.~a\n"
-              *check-count*
-              (if (> *check-count* 1) "s" "")
-              (if (> *check-fail-count* 0) (format #t " (~a FAILED!)" *check-fail-count*) "")))))
+              result-count
+              (if (> result-count 1) "s" "")
+              (if (> failure-count 0) (format #f " (~a FAILED!)" failure-count) ""))
+      check-results)))
 
 ;;;; Test definition
-
-(define (check-condition condition-passed? condition-form source-location)
-  (define (condition-failed failure-type :optional (cause #f))
-    (report-failure (make-test-failure :name            *running-test-case*
-                                       :source-location source-location
-                                       :form            condition-form
-                                       :type            failure-type
-                                       :cause           cause)))
-  (incr! *check-count*)
-  (incr! *total-check-count*)
-  (when *force-gc-on-check* (gc))
-  (when *show-check-conditions*
-    (format #t "Checking Condition: ~s\n" condition-form))
-  (catch *check-escape*
-    (unless (handler-bind ((runtime-error
-                            (lambda (error-info)
-                              (condition-failed :runtime-error error-info)
-                              (throw *check-escape* #f)))
-                           (unhandled-abort
-                            (lambda args
-                              (condition-failed :unhandled-abort args)
-                              (throw *check-escape* #f)))
-                           (uncaught-throw
-                            (lambda args
-                              (condition-failed :uncaught-throw args)
-                              (throw *check-escape* #f))))
-              (condition-passed?))
-      (condition-failed :test-failed))))
-
-(defmacro (test-case condition)
-  `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
 
 (defmacro (define-test test-name . code)
   "Define a test named <test-name> implemented with the code in <code>."
   (let ((loc (form-source-location (car code))))
     `(add-test! ',test-name ',loc (lambda () ,@code))))
-
 
 ;;;; Test Runner
 
@@ -179,25 +185,26 @@
       (format #f "~a:~a:~a" (car form-loc) (cadr form-loc) (cddr form-loc))
       "?:?:?"))
 
-(define (show-check-fails)
-  (unless (null? *check-fails*)
-    (format #t "--------------------------------\n")
-    (dolist (failure (reverse *check-fails*))
-      (format #t "~a: failure in ~s\n"
-              (test-location-string (test-failure-source-location failure))
-              (test-failure-name failure))
-      (when *show-failed-test-forms*
-        (format #t " form >  ~s\n" (test-failure-form failure)))
-      (when *show-failed-test-causes*
-        (format #t " cause >  ~s\n" (test-failure-cause failure)))
-      (when (eq? (test-failure-type failure) :runtime-error)
-        (format #t " >  caused by: ~I\n"
-                (hash-ref (test-failure-cause failure) :message)
-                (hash-ref (test-failure-cause failure) :args))))
-    (format #t "\n\n~a Failure(s)!\n" (length *check-fails*))
-    (format #t "--------------------------------\n")))
+(define (show-check-fails check-results)
+  (let ((failures (filter failure-result? check-results)))
+    (unless (null? failures)
+      (format #t "--------------------------------\n")
+      (dolist (failure (reverse failures))
+        (format #t "~a: failure in ~s\n"
+                (test-location-string (test-result-source-location failure))
+                (test-result-name failure))
+        (when *show-failed-test-forms*
+          (format #t " form >  ~s\n" (test-result-form failure)))
+        (when *show-failed-test-causes*
+          (format #t " cause >  ~s\n" (test-result-cause failure)))
+        (when (eq? (test-result-type failure) :runtime-error)
+          (format #t " >  caused by: ~I\n"
+                  (hash-ref (test-result-cause failure) :message)
+                  (hash-ref (test-result-cause failure) :args))))
+      (format #t "\n\n~a Failure(s)!\n" (length failures))
+      (format #t "--------------------------------\n"))))
 
-(define (test . specific-tests)
+(define (test :optional (tests-to-run (all-tests)))
   (catch 'abort-tests
     (handler-bind ((uncaught-throw
                     (lambda (tag retval)
@@ -217,15 +224,13 @@
                       (info "***USER BREAK***")
                       (throw 'abort-tests (list 'user-break)))))
       (catch 'error-escape
-        (set! *total-check-count* 0)
-        (set! *check-fails* '())
         (newline)
-        (dolist (test-name (if (null? specific-tests) (all-tests) specific-tests))
-          (execute-test test-name))
-        (show-check-fails)
-        (format #t "\n~a total checks run.\n" *total-check-count*)
-        (null? *check-fails*)))))
-
+        (let ((test-results (append-map (lambda (test-name)
+                                          (execute-test (test-by-name test-name)))
+                                        tests-to-run)))
+          (show-check-fails (filter failure-result? test-results))
+          (format #t "\n~a total checks run.\n" (length test-results))
+        (null? (filter failure-result? test-results)))))))
 
 ;;;; Execution order checking.
 
