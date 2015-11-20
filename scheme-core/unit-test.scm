@@ -98,12 +98,6 @@
   (check test-result? test-result)
   (push! test-result *check-results*))
 
-(define (test-passed test-name location)
-  (report-test-result (make-test-result :name            test-name
-                                        :source-location location
-                                        :form            :TOPLEVEL-OF-TEST
-                                        :cause           :passed)))
-
 (define (test-failed test-name location cause)
   (report-test-result (make-test-result :name            test-name
                                         :source-location location
@@ -113,7 +107,13 @@
 ;;;; Condition checking
 
 (define (check-condition condition-passed? condition-form source-location)
-  (define (condition-failed failure-type :optional (cause #f))
+  (define (condition-passed)
+    (report-test-result (make-test-result :name            *running-test-case*
+                                          :source-location source-location
+                                          :form            condition-form
+                                          :cause           :passed)))
+
+  (define (condition-failed failure-type cause)
     (report-test-result (make-test-result :name            *running-test-case*
                                           :source-location source-location
                                           :form            condition-form
@@ -130,8 +130,8 @@
                        (uncaught-throw
                         (lambda args (condition-failed :uncaught-throw args))))
           (condition-passed?))
-        (test-passed *running-test-case* source-location)
-        (condition-failed :test-failed))))
+        (condition-passed)
+        (condition-failed :test-failed #f))))
 
 (defmacro (test-case condition)
   `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
