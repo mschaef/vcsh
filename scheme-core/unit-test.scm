@@ -39,7 +39,6 @@
 
 (define *show-check-conditions* #f) ;; REVISIT: flag configurable
 (define *show-test-messages* #t)
-(define *force-gc-on-check* #f)
 (define *show-failed-test-forms* #f)
 (define *show-failed-test-causes* #f)
 
@@ -121,7 +120,6 @@
                                           :type            failure-type
                                           :cause           cause))
     (throw *check-escape* #f))
-  (when *force-gc-on-check* (gc))
   (when *show-check-conditions*
     (message "Checking Condition: ~s\n" condition-form))
   (catch *check-escape*
