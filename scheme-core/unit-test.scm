@@ -138,15 +138,20 @@
 
 ;;;; Unit test execution
 
+(define (call-with-unexpected-escape-handler fn handler)
+  (handler-bind ((runtime-error   (lambda args (apply handler 'runtime-error   args)))
+                 (unhandled-abort (lambda args (apply handler 'unhandled-abort args)))
+                 (uncaught-throw  (lambda args (apply handler 'uncaught-throw  args))))
+    (fn)))
+
+(defmacro (with-unexpected-escape-handler handler . code)
+  `(call-with-unexpected-escape-handler (lambda () ,@code) ,handler))
+
 (define (run-test test-case)
-  (define (fail reason args)
-    (test-failed (test-case-name test-case) (test-case-location test-case)
-                 (cons reason args))
-    (throw *test-escape* #f))
   (catch *test-escape*
-    (handler-bind ((runtime-error   (lambda args (fail 'runtime-error   args)))
-                   (unhandled-abort (lambda args (fail 'unhandled-abort args)))
-                   (uncaught-throw  (lambda args (fail 'uncaught-throw  args))))
+    (with-unexpected-escape-handler (lambda args
+                                      (test-failed (test-case-name test-case) (test-case-location test-case) args)
+                                      (throw *test-escape* #f))
       (dynamic-let ((*running-test-case* (test-case-name test-case))
                     (*check-results* ()))
         ((test-case-runner test-case))
