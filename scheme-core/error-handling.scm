@@ -75,13 +75,21 @@
                       (%panic (format #f "Unhandled Abort: ~s, args=~s" condition args)))))
 
 
-;;;; Info messaging 
+;;;; Info messages
 
 (define *info* #t)
 
 (define (info message . args)
   (when *info*
     (format (current-error-port) "; Info: ~I\n" message args)))
+
+;;;; Warning messages
+
+(define *warning* #t)
+
+(define (warning message . args)
+  (when *warning*
+    (format (current-error-port) "; Warning: ~I\n" message args)))
 
 ;;;; System Stack Frame Access and Decode Methods
 

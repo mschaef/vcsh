@@ -52,6 +52,7 @@
              *silent*
              *time-flonum-print-precision*
              *use-debug-printer*
+             *warning*
              +
              -
              ->bag
@@ -904,6 +905,7 @@
              vector-resize!
              vector-set!
              vector?
+             warning
              watch
              watch-environment
              watch-locals

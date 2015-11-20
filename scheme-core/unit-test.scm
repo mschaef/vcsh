@@ -69,7 +69,7 @@
   (check symbol? test-name)
   (check closure? runner)
   (when (hash-has? *test-cases* test-name)
-    (message "; WARNING: Redefining test case ~s" test-name))
+    (warning "Redefining test case ~s" test-name))
   (hash-set! *test-cases* test-name (make-test-case :name     test-name
                                                     :location location
                                                     :runner   runner))
