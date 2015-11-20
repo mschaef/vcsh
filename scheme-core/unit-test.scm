@@ -43,6 +43,12 @@
 (define *show-failed-test-forms* #f)
 (define *show-failed-test-causes* #f)
 
+;;;; Test output
+
+(define (message . args)
+  "Write a test output message using format-style arguments."
+  (apply format #t args))
+
 ;;;; Unit test definitions.
 
 (define *test-cases* (make-identity-hash))
@@ -63,7 +69,7 @@
   (check symbol? test-name)
   (check closure? runner)
   (when (hash-has? *test-cases* test-name)
-    (format #t "; WARNING: Redefining test case ~s" test-name))
+    (message "; WARNING: Redefining test case ~s" test-name))
   (hash-set! *test-cases* test-name (make-test-case :name     test-name
                                                     :location location
                                                     :runner   runner))
@@ -117,7 +123,7 @@
     (throw *check-escape* #f))
   (when *force-gc-on-check* (gc))
   (when *show-check-conditions*
-    (format #t "Checking Condition: ~s\n" condition-form))
+    (message "Checking Condition: ~s\n" condition-form))
   (catch *check-escape*
     (if (handler-bind ((runtime-error
                         (lambda (error-info) (condition-failed :runtime-error error-info)))
@@ -151,11 +157,11 @@
 (define (execute-test test-case)
   (dynamic-let ((*error* *show-test-messages*)
                 (*info* *show-test-messages*))
-    (format #t "; ~a..." (test-case-name test-case))
+    (message "; ~a..." (test-case-name test-case))
     (let* ((check-results (run-test test-case))
            (result-count (length check-results))
            (failure-count (length (filter failure-result? check-results))))
-      (format #t "~50T~a check~a.~a\n"
+      (message "~50T~a check~a.~a\n"
               result-count
               (if (> result-count 1) "s" "")
               (if (> failure-count 0) (format #f " (~a FAILED!)" failure-count) ""))
@@ -187,35 +193,35 @@
 (define (show-check-fails check-results)
   (let ((failures (filter failure-result? check-results)))
     (unless (null? failures)
-      (format #t "--------------------------------\n")
+      (message "--------------------------------\n")
       (dolist (failure (reverse failures))
-        (format #t "~a: failure in ~s\n"
+        (message "~a: failure in ~s\n"
                 (test-location-string (test-result-source-location failure))
                 (test-result-name failure))
         (when *show-failed-test-forms*
-          (format #t " form >  ~s\n" (test-result-form failure)))
+          (message " form >  ~s\n" (test-result-form failure)))
         (when *show-failed-test-causes*
-          (format #t " cause >  ~s\n" (test-result-cause failure)))
+          (message " cause >  ~s\n" (test-result-cause failure)))
         (when (eq? (test-result-type failure) :runtime-error)
-          (format #t " >  caused by: ~I\n"
+          (message " >  caused by: ~I\n"
                   (hash-ref (test-result-cause failure) :message)
                   (hash-ref (test-result-cause failure) :args))))
-      (format #t "\n\n~a Failure(s)!\n" (length failures))
-      (format #t "--------------------------------\n"))))
+      (message "\n\n~a Failure(s)!\n" (length failures))
+      (message "--------------------------------\n"))))
 
 (define (test :optional (tests-to-run (all-tests)))
   (catch 'abort-tests
     (handler-bind ((uncaught-throw
                     (lambda (tag retval)
-                      (format #t "Uncaught throw during evaluation: ~a\n" tag)
+                      (message "Uncaught throw during evaluation: ~a\n" tag)
                       (throw 'abort-tests (list retval))))
                    (unhandled-abort
                     (lambda (condition args)
-                      (format #t "Unhandled abort during evaluation: ~a\n\nargs=~a\n\n" condition args)
+                      (message "Unhandled abort during evaluation: ~a\n\nargs=~a\n\n" condition args)
                       (throw 'abort-tests (list condition))))
                    (runtime-error
                     (lambda (error-info)
-                      (format #t "; Unhandled runtime error during test evaluation.\n")
+                      (message "; Unhandled runtime error during test evaluation.\n")
                       (dynamic-let ((*error* #t))
                         (show-runtime-error error-info))))
                    (user-break
@@ -228,7 +234,7 @@
                                           (execute-test (test-by-name test-name)))
                                         tests-to-run)))
           (show-check-fails (filter failure-result? test-results))
-          (format #t "\n~a total checks run.\n" (length test-results))
+          (message "\n~a total checks run.\n" (length test-results))
         (null? (filter failure-result? test-results)))))))
 
 ;;;; Execution order checking.
