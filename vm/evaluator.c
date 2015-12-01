@@ -372,6 +372,9 @@ static lref_t *find_matching_escape(lref_t *start_frame, lref_t tag)
 
           lref_t ftag = frame[FOFS_ESCAPE_TAG];
 
+          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: frame tag ~a (looking for ~a)\n"),
+                                     ftag, tag))
+
           if (NULLP(ftag) || EQ(ftag, tag))
                return frame;
      }
