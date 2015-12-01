@@ -116,7 +116,7 @@
     (#t #f)))
 
 (define (frame-decode frp)
-  (let ((frame (make-identity-hash)))
+  (let ((frame (make-hash)))
     (hash-set! frame :frp frp)
     (let ((ftype (frame-type frp)))
       (hash-set! frame :frame-type ftype)
