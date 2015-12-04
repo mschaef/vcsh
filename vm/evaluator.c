@@ -372,12 +372,14 @@ static lref_t *find_matching_escape(lref_t *start_frame, lref_t tag)
 
           lref_t ftag = frame[FOFS_ESCAPE_TAG];
 
-          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: frame tag ~a (looking for ~a)\n"),
-                                     ftag, tag))
+          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: frame tag ~a (looking for ~a)\n"), ftag, tag));
 
-          if (NULLP(ftag) || EQ(ftag, tag))
+          if (NULLP(ftag) || EQ(ftag, tag)) {
                return frame;
+          }
      }
+
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: No escape frame for ~a\n"), tag));
 
      return NULL;
 }
@@ -576,13 +578,15 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                CURRENT_TIB()->escape_frame = find_matching_escape(CURRENT_TIB()->frame, tag);
                CURRENT_TIB()->escape_value = escape_retval;
 
-               unwind_stack_for_throw();
+               if (CURRENT_TIB()->escape_frame == NULL) {
+                    /* If we don't find a matching catch for the throw, we have a
+                     * problem and need to invoke a trap. */
+                    vmtrap(TRAP_UNCAUGHT_THROW,
+                           (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
+                           2, tag, escape_retval);
+               }
 
-               /* If we don't find a matching catch for the throw, we have a
-                * problem and need to invoke a trap. */
-               vmtrap(TRAP_UNCAUGHT_THROW,
-                      (enum vmt_options_t)(VMT_MANDATORY_TRAP | VMT_HANDLER_MUST_ESCAPE),
-                      2, tag, escape_retval);
+               unwind_stack_for_throw();
 
                fop = fop->as.fast_op.next;
                break;
