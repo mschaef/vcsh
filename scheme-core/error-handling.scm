@@ -219,7 +219,6 @@
       (format (current-error-port) "Entering debug REPL\n")
       (handler-bind ((runtime-error handle-runtime-error))
         (repl)))
-    
     (throw 'error-escape)))
 
 (define (ignore-user-break)

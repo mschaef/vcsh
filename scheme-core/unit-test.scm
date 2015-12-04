@@ -48,6 +48,28 @@
   "Write a test output message using format-style arguments."
   (apply format #t args))
 
+;;;; Error Trap
+
+(define (call-with-unexpected-escape-handler fn handler)
+  (let* ((escape-name (gensym "unexpected-escape")))
+    (catch escape-name
+      (handler-bind ((runtime-error
+                      (lambda args
+                        (apply handler 'runtime-error args)
+                        (throw escape-name)))
+                     (unhandled-abort
+                      (lambda args
+                        (apply handler 'unhandled-abort args)
+                        (throw escape-name)))
+                     (uncaught-throw
+                      (lambda args
+                        (apply handler 'uncaught-throw args)
+                        (throw escape-name))))
+        (fn)))))
+
+(defmacro (with-unexpected-escape-handler handler . code)
+  `(call-with-unexpected-escape-handler (lambda () ,@code) ,handler))
+
 ;;;; Unit test definitions.
 
 (define *test-cases* (make-identity-hash))
@@ -113,45 +135,31 @@
                                           :form            condition-form
                                           :cause           :passed)))
 
-  (define (condition-failed failure-type cause)
+  (define (condition-failed failure-type . cause)
     (report-test-result (make-test-result :name            *running-test-case*
                                           :source-location source-location
                                           :form            condition-form
                                           :type            failure-type
-                                          :cause           cause))
+                                          :cause           (car cause)))
     (throw *check-escape* #f))
   (when *show-check-conditions*
     (message "Checking Condition: ~s\n" condition-form))
   (catch *check-escape*
-    (if (handler-bind ((runtime-error
-                        (lambda (error-info) (condition-failed :runtime-error error-info)))
-                       (unhandled-abort
-                        (lambda args (condition-failed :unhandled-abort args)))
-                       (uncaught-throw
-                        (lambda args (condition-failed :uncaught-throw args))))
-          (condition-passed?))
-        (condition-passed)
-        (condition-failed :test-failed #f))))
+    (with-unexpected-escape-handler condition-failed
+       (if (condition-passed?)
+           (condition-passed)
+           (condition-failed :test-failed #f)))))
 
 (defmacro (test-case condition)
   `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
 
 ;;;; Unit test execution
 
-(define (call-with-unexpected-escape-handler fn handler)
-  (handler-bind ((runtime-error   (lambda args (apply handler 'runtime-error   args)))
-                 (unhandled-abort (lambda args (apply handler 'unhandled-abort args)))
-                 (uncaught-throw  (lambda args (apply handler 'uncaught-throw  args))))
-    (fn)))
-
-(defmacro (with-unexpected-escape-handler handler . code)
-  `(call-with-unexpected-escape-handler (lambda () ,@code) ,handler))
-
 (define (run-test test-case)
   (catch *test-escape*
     (with-unexpected-escape-handler (lambda args
                                       (test-failed (test-case-name test-case) (test-case-location test-case) args)
-                                      (throw *test-escape* #f))
+                                      (throw *test-escape* ()))
       (dynamic-let ((*running-test-case* (test-case-name test-case))
                     (*check-results* ()))
         ((test-case-runner test-case))
@@ -205,7 +213,7 @@
           (message " form >  ~s\n" (test-result-form failure)))
         (when *show-failed-test-causes*
           (message " cause >  ~s\n" (test-result-cause failure)))
-        (when (eq? (test-result-type failure) :runtime-error)
+        (when (eq? (test-result-type failure) 'runtime-error)
           (message " >  caused by: ~I\n"
                   (hash-ref (test-result-cause failure) :message)
                   (hash-ref (test-result-cause failure) :args))))
