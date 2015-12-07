@@ -157,13 +157,13 @@
 
 (define (run-test test-case)
   (catch *test-escape*
-    (with-unexpected-escape-handler (lambda args
-                                      (test-failed (test-case-name test-case) (test-case-location test-case) args)
-                                      (throw *test-escape* ()))
       (dynamic-let ((*running-test-case* (test-case-name test-case))
                     (*check-results* ()))
-        ((test-case-runner test-case))
-        *check-results*))))
+        (with-unexpected-escape-handler (lambda args
+                                          (test-failed (test-case-name test-case) (test-case-location test-case) args)
+                                          (throw *test-escape* *check-results*))
+           ((test-case-runner test-case)))
+        *check-results*)))
 
 (define (execute-test test-case)
   (dynamic-let ((*error* *show-test-messages*)
@@ -222,20 +222,7 @@
 
 (define (test :optional (tests-to-run (all-tests)))
   (catch 'abort-tests
-    (handler-bind ((uncaught-throw
-                    (lambda (tag retval)
-                      (message "Uncaught throw during evaluation: ~a\n" tag)
-                      (throw 'abort-tests (list retval))))
-                   (unhandled-abort
-                    (lambda (condition args)
-                      (message "Unhandled abort during evaluation: ~a\n\nargs=~a\n\n" condition args)
-                      (throw 'abort-tests (list condition))))
-                   (runtime-error
-                    (lambda (error-info)
-                      (message "; Unhandled runtime error during test evaluation.\n")
-                      (dynamic-let ((*error* #t))
-                        (show-runtime-error error-info))))
-                   (user-break
+    (handler-bind ((user-break
                     (lambda ()
                       (info "***USER BREAK***")
                       (throw 'abort-tests (list 'user-break)))))
