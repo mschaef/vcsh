@@ -55,15 +55,15 @@
     (catch escape-name
       (handler-bind ((runtime-error
                       (lambda args
-                        (apply handler 'runtime-error args)
+                        (apply handler :runtime-error args)
                         (throw escape-name)))
                      (unhandled-abort
                       (lambda args
-                        (apply handler 'unhandled-abort args)
+                        (apply handler :unhandled-abort args)
                         (throw escape-name)))
                      (uncaught-throw
                       (lambda args
-                        (apply handler 'uncaught-throw args)
+                        (apply handler :uncaught-throw args)
                         (throw escape-name))))
         (fn)))))
 
@@ -72,7 +72,7 @@
 
 ;;;; Unit test definitions.
 
-(define *test-cases* (make-identity-hash))
+(define *test-cases* (make-hash))
 (define *running-test-case* #f)
 
 (define *check-results* '())
@@ -107,9 +107,9 @@
 ;;;; Test result reporting
 
 (define-structure test-result
-  (name :default *running-test-case*)
-  source-location
-  form
+  (test-case :default *running-test-case*)
+  (condition-form :default #f)
+  (source-location :default #f)
   outcome
   (cause :default #f))
 
@@ -120,25 +120,26 @@
   (check test-result? test-result)
   (push! test-result *check-results*))
 
-(define (test-failed location cause)
-  (report-test-result (make-test-result :source-location location
-                                        :form            :TOPLEVEL-OF-TEST
-                                        :outcome         :toplevel-test-failure
-                                        :cause           cause)))
+(define (test-failed cause)
+  (report-test-result
+   (make-test-result :outcome         :toplevel-test-failure
+                     :cause           cause)))
 
 ;;;; Condition checking
 
 (define (check-condition condition-passed? condition-form source-location)
   (define (condition-passed)
-    (report-test-result (make-test-result :source-location source-location
-                                          :form            condition-form
-                                          :outcome         :check-succeeded)))
+    (report-test-result
+     (make-test-result :source-location source-location
+                       :condition-form  condition-form
+                       :outcome         :check-succeeded)))
 
   (define (condition-failed failure-type . cause)
-    (report-test-result (make-test-result :source-location source-location
-                                          :form            condition-form
-                                          :outcome         failure-type
-                                          :cause           (car cause)))
+    (report-test-result
+     (make-test-result :source-location source-location
+                       :condition-form  condition-form
+                       :outcome         failure-type
+                       :cause           (car cause)))
     (throw *check-escape* #f))
   (when *show-check-conditions*
     (message "Checking Condition: ~s\n" condition-form))
@@ -155,10 +156,10 @@
 
 (define (run-test test-case)
   (catch *test-escape*
-      (dynamic-let ((*running-test-case* (test-case-name test-case))
+      (dynamic-let ((*running-test-case* test-case)
                     (*check-results* ()))
         (with-unexpected-escape-handler (lambda args
-                                          (test-failed (test-case-source-location test-case) args)
+                                          (test-failed args)
                                           (throw *test-escape* *check-results*))
            ((test-case-runner test-case)))
         *check-results*)))
@@ -195,26 +196,32 @@
                                  filename-template)))))
 
 (define (test-result-location-string result)
-  (let ((form-loc (test-result-source-location result)))
-    (if form-loc
-        (format #f "~a:~a:~a" (car form-loc) (cadr form-loc) (cddr form-loc))
-        "?:?:?")))
+  (define (location-string location)
+    (format #f "~a:~a:~a" (car location) (cadr location) (cddr location)))
+  (aif (test-result-source-location result)
+       (location-string it)
+       (aif (test-case-source-location (test-result-test-case result))
+            (location-string it)
+            "?:?:?")))
 
 (define (show-check-fails check-results)
-  (let ((failures (filter failure-result? check-results)))
-    (unless (null? failures)
+  (let ((failure-results (filter failure-result? check-results)))
+    (unless (null? failure-results)
       (message "--------------------------------\n")
-      (dolist (failure (reverse failures))
-        (message "~a: failure in ~s\n" (test-result-location-string failure) (test-result-name failure))
+      (dolist (failure-result (reverse failure-results))
+        (message "~a: FAIL (~a) in ~s\n"
+                 (test-result-location-string failure-result)
+                 (test-result-outcome failure-result)
+                 (test-case-name (test-result-test-case failure-result)))
         (when *show-failed-test-forms*
-          (message " form >  ~s\n" (test-result-form failure)))
+          (message " form >  ~s\n" (test-result-condition-form failure-result)))
         (when *show-failed-test-causes*
-          (message " cause >  ~s\n" (test-result-cause failure)))
-        (when (eq? (test-result-outcome failure) 'runtime-error)
+          (message " cause >  ~s\n" (test-result-cause failure-result)))
+        (when (eq? (test-result-outcome failure-result) :runtime-error)
           (message " >  caused by: ~I\n"
-                  (hash-ref (test-result-cause failure) :message)
-                  (hash-ref (test-result-cause failure) :args))))
-      (message "\n\n~a Failure(s)!\n" (length failures))
+                  (hash-ref (test-result-cause failure-result) :message)
+                  (hash-ref (test-result-cause failure-result) :args))))
+      (message "\n\n~a Failure(s)!\n" (length failure-results))
       (message "--------------------------------\n"))))
 
 (define (test :optional (tests-to-run (all-tests)))

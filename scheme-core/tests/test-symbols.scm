@@ -23,6 +23,6 @@
     (test-case (eq? global-name (symbol-bound? global-name)))    
     (test-case (not (runtime-error? (symbol-value global-name))))
     (test-case (not (runtime-error? (eval global-name))))
-    
+
     (test-case (eq? global-value (symbol-value global-name)))
     (test-case (eq? global-value (eval global-name)))))
