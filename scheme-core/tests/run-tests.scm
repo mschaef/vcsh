@@ -2,6 +2,9 @@
 (require-package! "unit-test")
 (use-package! "unit-test")
 
+(require-package! "unit-test-utils")
+(use-package! "unit-test-utils")
+
 (define *test-case-path* (filename-path *current-load-file*))
 
 (define (run)

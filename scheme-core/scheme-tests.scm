@@ -1,7 +1,9 @@
-
 (define-package "unit-test-suite"
-  (:requires "unit-test")
-  (:uses "scheme" "unit-test"))
+  (:requires "unit-test"
+             "unit-test-utils")
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 #.`(begin
      ,@(map #L(list 'include _)

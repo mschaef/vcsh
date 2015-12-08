@@ -25,7 +25,7 @@ tested: all scheme-tests.scf
 scheme-tests.scf: vcsh${EXE_EXT} scheme-tests.scm
 	./vcsh -c scheme-tests.scm
 
-SCHEME_MODULES=csv.scm autoload.scm unit-test.scm
+SCHEME_MODULES=csv.scm autoload.scm unit-test.scm unit-test-utils.scm
 
 SCHEME_MODULES_C:=$(SCHEME_MODULES:.scm=.c)
 
