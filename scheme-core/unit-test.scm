@@ -16,10 +16,8 @@
             "all-tests"
             "test"
             "test-case"
-            "test-case/execution-order"
             "checkpoint"
             "checkpoint-order-of"
-            "non-local-escape?"
             "read-error?"
             "runtime-error?"
             "can-fast-io-round-trip?"
@@ -87,8 +85,6 @@
 (define (add-test! test-name source-location runner)
   "Extend the unit test dictionary to include a test named
    <test-name> implemented by the function <test-fn>."
-  (check symbol? test-name)
-  (check closure? runner)
   (when (hash-has? *test-cases* test-name)
     (warning "Redefining test case ~s" test-name))
   (hash-set! *test-cases* test-name (make-test-case :name            test-name
@@ -116,26 +112,25 @@
 (define (failure-result? test-result)
   (not (eq? :check-succeeded (test-result-outcome test-result))))
 
-(define (report-test-result test-result)
-  (check test-result? test-result)
+(define (report-test-result! test-result)
   (push! test-result *check-results*))
 
 (define (test-failed cause)
-  (report-test-result
-   (make-test-result :outcome         :toplevel-test-failure
-                     :cause           cause)))
+  (report-test-result!
+   (make-test-result :outcome :toplevel-test-failure
+                     :cause   cause)))
 
 ;;;; Condition checking
 
 (define (check-condition condition-passed? condition-form source-location)
   (define (condition-passed)
-    (report-test-result
+    (report-test-result!
      (make-test-result :source-location source-location
                        :condition-form  condition-form
                        :outcome         :check-succeeded)))
 
   (define (condition-failed failure-type . cause)
-    (report-test-result
+    (report-test-result!
      (make-test-result :source-location source-location
                        :condition-form  condition-form
                        :outcome         failure-type
