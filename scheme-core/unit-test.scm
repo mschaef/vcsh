@@ -81,19 +81,19 @@
 
 (define-structure test-case
   name
-  location
+  source-location
   runner)
 
-(define (add-test! test-name location runner)
+(define (add-test! test-name source-location runner)
   "Extend the unit test dictionary to include a test named
    <test-name> implemented by the function <test-fn>."
   (check symbol? test-name)
   (check closure? runner)
   (when (hash-has? *test-cases* test-name)
     (warning "Redefining test case ~s" test-name))
-  (hash-set! *test-cases* test-name (make-test-case :name     test-name
-                                                    :location location
-                                                    :runner   runner))
+  (hash-set! *test-cases* test-name (make-test-case :name            test-name
+                                                    :source-location source-location
+                                                    :runner          runner))
   (values))
 
 (define (all-tests)
@@ -107,38 +107,35 @@
 ;;;; Test result reporting
 
 (define-structure test-result
-  name
+  (name :default *running-test-case*)
   source-location
   form
   outcome
   (cause :default #f))
 
 (define (failure-result? test-result)
-  (not (eq? :test-passed (test-result-outcome test-result))))
+  (not (eq? :check-succeeded (test-result-outcome test-result))))
 
 (define (report-test-result test-result)
   (check test-result? test-result)
   (push! test-result *check-results*))
 
-(define (test-failed test-name location cause)
-  (report-test-result (make-test-result :name            test-name
-                                        :source-location location
+(define (test-failed location cause)
+  (report-test-result (make-test-result :source-location location
                                         :form            :TOPLEVEL-OF-TEST
-                                        :outcome         :test-failed
+                                        :outcome         :toplevel-test-failure
                                         :cause           cause)))
 
 ;;;; Condition checking
 
 (define (check-condition condition-passed? condition-form source-location)
   (define (condition-passed)
-    (report-test-result (make-test-result :name            *running-test-case*
-                                          :source-location source-location
+    (report-test-result (make-test-result :source-location source-location
                                           :form            condition-form
-                                          :outcome         :test-passed)))
+                                          :outcome         :check-succeeded)))
 
   (define (condition-failed failure-type . cause)
-    (report-test-result (make-test-result :name            *running-test-case*
-                                          :source-location source-location
+    (report-test-result (make-test-result :source-location source-location
                                           :form            condition-form
                                           :outcome         failure-type
                                           :cause           (car cause)))
@@ -161,7 +158,7 @@
       (dynamic-let ((*running-test-case* (test-case-name test-case))
                     (*check-results* ()))
         (with-unexpected-escape-handler (lambda args
-                                          (test-failed (test-case-name test-case) (test-case-location test-case) args)
+                                          (test-failed (test-case-source-location test-case) args)
                                           (throw *test-escape* *check-results*))
            ((test-case-runner test-case)))
         *check-results*)))
