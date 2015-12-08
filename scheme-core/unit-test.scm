@@ -110,11 +110,11 @@
   name
   source-location
   form
-  (type :default :test-failed)
+  outcome
   (cause :default #f))
 
 (define (failure-result? test-result)
-  (not (eq? :passed (test-result-cause test-result))))
+  (not (eq? :test-passed (test-result-outcome test-result))))
 
 (define (report-test-result test-result)
   (check test-result? test-result)
@@ -124,6 +124,7 @@
   (report-test-result (make-test-result :name            test-name
                                         :source-location location
                                         :form            :TOPLEVEL-OF-TEST
+                                        :outcome         :test-failed
                                         :cause           cause)))
 
 ;;;; Condition checking
@@ -133,13 +134,13 @@
     (report-test-result (make-test-result :name            *running-test-case*
                                           :source-location source-location
                                           :form            condition-form
-                                          :cause           :passed)))
+                                          :outcome         :test-passed)))
 
   (define (condition-failed failure-type . cause)
     (report-test-result (make-test-result :name            *running-test-case*
                                           :source-location source-location
                                           :form            condition-form
-                                          :type            failure-type
+                                          :outcome         failure-type
                                           :cause           (car cause)))
     (throw *check-escape* #f))
   (when *show-check-conditions*
@@ -191,29 +192,28 @@
   "Loads all unit test files from the specified <load-directory>. The load directory
    defaults to the current directory. <filename-template> can optionally be specified
    to determine which files are considered unit tests."
- (dynamic-let ((*info* #t)) ;; REVISIT: Make this configurable?
+ (dynamic-let ((*info* #t))
    (for-each load (directory (if load-directory
                                  (make-filename load-directory filename-template)
                                  filename-template)))))
 
-(define (test-location-string form-loc)
-  (if form-loc
-      (format #f "~a:~a:~a" (car form-loc) (cadr form-loc) (cddr form-loc))
-      "?:?:?"))
+(define (test-result-location-string result)
+  (let ((form-loc (test-result-source-location result)))
+    (if form-loc
+        (format #f "~a:~a:~a" (car form-loc) (cadr form-loc) (cddr form-loc))
+        "?:?:?")))
 
 (define (show-check-fails check-results)
   (let ((failures (filter failure-result? check-results)))
     (unless (null? failures)
       (message "--------------------------------\n")
       (dolist (failure (reverse failures))
-        (message "~a: failure in ~s\n"
-                (test-location-string (test-result-source-location failure))
-                (test-result-name failure))
+        (message "~a: failure in ~s\n" (test-result-location-string failure) (test-result-name failure))
         (when *show-failed-test-forms*
           (message " form >  ~s\n" (test-result-form failure)))
         (when *show-failed-test-causes*
           (message " cause >  ~s\n" (test-result-cause failure)))
-        (when (eq? (test-result-type failure) 'runtime-error)
+        (when (eq? (test-result-outcome failure) 'runtime-error)
           (message " >  caused by: ~I\n"
                   (hash-ref (test-result-cause failure) :message)
                   (hash-ref (test-result-cause failure) :args))))

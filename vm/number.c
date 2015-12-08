@@ -318,8 +318,6 @@ MAKE_NUMBER_COMPARISON_FN(lnum_lt, <, "<");
 
 lref_t ladd(lref_t x, lref_t y)
 {
-
-
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
 
