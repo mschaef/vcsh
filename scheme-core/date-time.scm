@@ -658,10 +658,10 @@
                         :zone-offset tz-offset))))
 
 (define (duration :keyword (days 0) (hours 0) (minutes 0) (seconds 0))
-  (check exact? days)
-  (check exact? hours)
-  (check exact? minutes)
-  (check real? seconds)
+  (runtime-check exact? days)
+  (runtime-check exact? hours)
+  (runtime-check exact? minutes)
+  (runtime-check real? seconds)
   (receive (sec nsec) (tm%parse-realtime (+ seconds
                                             (* 60 (+ minutes
                                                      (* 60 (+ hours
@@ -978,8 +978,8 @@
 (define tm%directives ()) ;; SRFI-19
 
 (define (set-date-output-directive-handler! char fn)
-  (check char? char)
-  (check procedure? fn)
+  (runtime-check char? char)
+  (runtime-check procedure? fn)
   (push! (cons char fn) tm%directives))
 
 (eval-when (:load-toplevel :compile-toplevel :execute)

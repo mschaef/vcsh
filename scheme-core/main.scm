@@ -108,7 +108,7 @@
   `(set-file-argument-handler!  (lambda (arg) ,@code)))
 
 (define (fasl-load filename)
-  (check string? filename)
+  (runtime-check string? filename)
   (with-port ip (open-file filename :encoding :binary)
     (%%fasl-load (make-fasl-reader ip))))
 

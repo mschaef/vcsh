@@ -17,8 +17,8 @@
   (%%throw tag value))
 
 (define (unwind-protect thunk after)
-  (check procedure? thunk)
-  (check procedure? after)
+  (runtime-check procedure? thunk)
+  (runtime-check procedure? after)
   (%%with-unwind-fn after (thunk)))
 
 (defmacro (catch tag-form . body)
@@ -111,7 +111,7 @@
     ((0) #f)
     ((1)
      (let ((xs (car xss)))
-       (check vector? xs)
+       (runtime-check vector? xs)
        (let loop ((ii 0))
          (when (< ii (length xs))
            (fn (vector-ref xs ii))
@@ -150,7 +150,7 @@
   (eq? form #f))
 
 (define (parse-cond-clause clause)
-  (check list? clause "Invalid cond clause.")
+  (runtime-check list? clause "Invalid cond clause.")
   (values (car clause) (cdr clause)))
 
 (define (clause-body-statement code)
@@ -173,8 +173,8 @@
                     (cond ,@(cdr clauses))))))))
 
 (define (check-case-clause clause)
-  (check list? clause "Invalid case clause.")
-  (check (or (eq? #t) list?) (first clause) "Invalid case guard."))
+  (runtime-check list? clause "Invalid case clause.")
+  (runtime-check (or (eq? #t) list?) (first clause) "Invalid case guard."))
 
 (define (case-clause-guard-predicate-form val-sym clause-guard)
   (cond ((eq? clause-guard #t)

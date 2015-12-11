@@ -6,7 +6,7 @@
 (define-structure %int-test foo)
 
 (define (symbol-bound-to-procedure? sym)
-  (check symbol? sym)
+  (runtime-check symbol? sym)
   (and (symbol-bound? sym)
        (procedure? (symbol-value sym))))
 

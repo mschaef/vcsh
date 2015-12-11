@@ -48,7 +48,7 @@
    hook function in the order it was added, passing in <args>. A
    top level dynamic escape named end-hook is established to allow
    hook functions to abort processing prematurely. Returns nothing."
-  (check symbol? hook)
+  (runtime-check symbol? hook)
   (catch 'end-hook
        (dolist (hook-fn (->hook hook))
                (apply (->hook-function hook-fn) args)))
@@ -59,7 +59,7 @@
    <hook-fn>. <hook-fn> can either be a procedure or a symbol naming
    a procedure. It is only added if missing. Returns a list of the
    hook functions currently established on the hook, after the addition."
-  (check symbol? hook)
+  (runtime-check symbol? hook)
   (let ((hook-functions (->hook hook)))
     (if (memq hook-fn hook-functions)
         hook-functions
@@ -70,6 +70,6 @@
    symbol <hook>. <hook-fn> can either be a procedure or a symbol naming
    a procedure. It is only removed if present.  Returns a list of the
    hook functions currently established on the hook, after the removal."
-  (check symbol? hook)
+  (runtime-check symbol? hook)
   (set-symbol-value! hook (delete hook-fn (->hook hook) eq?)))
 

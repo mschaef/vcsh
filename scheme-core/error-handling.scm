@@ -300,7 +300,7 @@
 
 ;;;; Predicate checking
 
-(defmacro (check predicate value . msg)
+(defmacro (runtime-check predicate value . msg)
   "Applies <predicate> to <value> and signals an error if false. <predicate>
    can either be a symbol naming a predicate, a list describing a composite
    predicate, or a comparison predicate. A composite predicate is specified by

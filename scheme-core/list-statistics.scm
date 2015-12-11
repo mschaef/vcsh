@@ -54,7 +54,7 @@
    one for each dimension. The two standard deviations are returned as the real and imaginary
    components of a complex number."
   (define (sdev su2 n) (sqrt (* (/ 1 (- n 1)) su2)))
-  (check stats-list? pts)
+  (runtime-check stats-list? pts)
   (mvbind (count x-sum x2-sum y-sum y2-sum xy-sum)
       (list-stat-sums (list-mean-center pts))
     (if (list-2d? pts)
@@ -64,20 +64,20 @@
         (sdev x2-sum count))))
 
 (define (list-lr pts)
-  (check stats-list? pts)
+  (runtime-check stats-list? pts)
   (dbind (x-mean y-mean) (rectangular->list (list-mean pts))
     (mvbind (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
       (let ((b (/ xy-sum x2-sum)))
         (vector b (- y-mean (* b x-mean)))))))
 
 (define (list-cov pts population?)
-  (check stats-list? pts)
+  (runtime-check stats-list? pts)
   (mvbind (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
     (* (/ 1 (- count (if population? 0 1.0)))
        xy-sum)))
 
 (define (list-corr pts)
-  (check stats-list? pts)
+  (runtime-check stats-list? pts)
   (mvbind (count x-sum x2-sum y-sum y2-sum xy-sum) (list-stat-sums pts)
     (/ xy-sum
        (sqrt (* x2-sum y2-sum)))))

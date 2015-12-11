@@ -34,7 +34,7 @@
 (define (make-composite-symbol package . names) ;; nee build-symbol
   "Builds a symbol by calling string-append to concatenate <names>,
    and then interning a symbol of that name into <package>."
-  (check package? package)
+  (runtime-check package? package)
   (intern! (apply string-append names) package))
 
 
@@ -395,7 +395,7 @@
    as <sym-spec>. If the symbol record is not found, returns #f.
    If <require-external?> is #t, then the symbol must be externally
    visible to be returned."
-  (check package? package)
+  (runtime-check package? package)
   (let* ((sym-name (name->string sym-spec "symbol"))
          (binding (hash-ref (%package-bindings package) sym-name #f)))
       (if (or (not binding)
@@ -416,7 +416,7 @@
    symbol in the package must be the same as <sym-spec>. If the
    symbol record is not found, both return values are returned
    as #f."
-  (check package? package)
+  (runtime-check package? package)
   (let loop ((pkgs (cons package (%package-use-list package))))
     (if (null? pkgs)
         (values #f #f)
@@ -507,7 +507,7 @@
 (define (exported? symbol)
   "Returns #t if <symbol> is exported from its home package, #f otherwise.
    If <symbol> is not a symbol, throws an error."
-  (check symbol? symbol)
+  (runtime-check symbol? symbol)
   (aif (symbol-package symbol)
        (mvbind (sym status) (find-symbol (symbol-name symbol) it)
          (eq? status :external))
@@ -520,7 +520,7 @@
    package, it will remain accessible through that package, even though
    it might no longer have a home. Throws an error if <sym> is not a
    symbol or <package> is not a package."
-  (check symbol? sym)
+  (runtime-check symbol? sym)
   (let ((package (->package package #L(error "Target package for unintern not found: ~a" _))))
     (mvbind (psym visibility) (find-symbol sym package)
       (when (and (eq? psym sym)
@@ -561,9 +561,9 @@
       (number->string *gensym-count*)))))
 
 (defmacro (with-gensyms gensym-names . code)
-  (check list? gensym-names)
+  (runtime-check list? gensym-names)
   `(let ,(map (lambda (gensym-name)
-                (check symbol? gensym-name)
+                (runtime-check symbol? gensym-name)
                 `(,gensym-name (gensym ,(symbol-name gensym-name))))
               gensym-names) ,@code))
 
@@ -588,7 +588,7 @@
   (filter symbol-bound? (all-package-symbols package)))
 
 (define (symbol-bound? sym :optional (lenv ()))
-  (check symbol? sym)
+  (runtime-check symbol? sym)
   (if (or (pair? (env-lookup sym lenv))
           (not (eq? (%symbol-vcell sym)
                     (%unbound-marker))))
@@ -596,7 +596,7 @@
       #f))
 
 (define (%symbol-value sym :optional (lenv ()))
-  (check symbol? sym)
+  (runtime-check symbol? sym)
   (aif (pair? (env-lookup sym lenv))
        (car it)
        (%symbol-vcell sym)))
@@ -608,7 +608,7 @@
         val)))
 
 (define (set-symbol-value! sym val :optional (lenv ()))
-  (check (not keyword?) sym)
+  (runtime-check (not keyword?) sym)
   (aif (pair? (env-lookup sym lenv))
        (set-car! it val)
        (begin
@@ -618,7 +618,7 @@
            val)))
 
 (define (unbind-symbol! sym)
-  (check (and symbol? (not keyword?)) sym)
+  (runtime-check (and symbol? (not keyword?)) sym)
   (%set-symbol-vcell! sym (%unbound-marker))
   (values))
 

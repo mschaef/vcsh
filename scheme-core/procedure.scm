@@ -95,7 +95,7 @@
 
 
 (defmacro (accept-optional! r-arg-name default-form)
-  (check symbol? r-arg-name)
+  (runtime-check symbol? r-arg-name)
   `(if (null? ,r-arg-name)
        ,default-form
        (pop! ,r-arg-name)))
@@ -110,7 +110,7 @@
            (loop (cddr p-list))))))
 
 (defmacro (accept-keyword r-arg-name keyword default-form)
-  (check symbol? r-arg-name)
+  (runtime-check symbol? r-arg-name)
   `(keyword-val ,keyword ,r-arg-name `(lambda () ,default-form)))
 
 (define (check-keywords arg-list valid-keywords)
@@ -202,7 +202,7 @@
          (error "Invalid syntax for define: ~a" (cons name defn)))))
 
 (define (%primitive-kind subr)
-  (check primitive? subr)
+  (runtime-check primitive? subr)
   (case (%subr-type-code subr)
     ((0) :subr-0)
     ((1) :subr-1)
@@ -368,7 +368,7 @@
 (define (%subr-by-name name :optional (default :NOT-FOUND-SO-PANIC))
   "Returns a subr named <name>, returning <default> if not found. If
    <default> is not specified, panics if <name> is not found."
-  (check string? name)
+  (runtime-check string? name)
   (let ((subr (hash-ref (%subr-table) name default)))
     (if (eq? subr :NOT-FOUND-SO-PANIC)
        (%panic (string-append "Undefined SUBR in %subr-by-name: " name))

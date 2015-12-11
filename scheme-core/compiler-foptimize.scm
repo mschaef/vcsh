@@ -56,9 +56,9 @@
 
 (defmacro (define-integration app-form fop-form)
   (dbind (fn-sym . args) app-form
-    (check valid-lambda-list? args)
+    (runtime-check valid-lambda-list? args)
     (mvbind (arity rest?) (lambda-list-arity args)
-      (check not rest?)
+      (runtime-check not rest?)
       `(eval-when (:load-toplevel :compile-toplevel :execute)
          (register-integration-expander! ,fn-sym ,arity
                                          (lambda ,args ,fop-form))))))

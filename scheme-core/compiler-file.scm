@@ -73,8 +73,8 @@
   (hash-keys *toplevel-form-handlers*))
 
 (defmacro (define-toplevel-form pattern . code) ;; TODO: share with the (very similar) code in compiler-meaning.
-  (check pair? pattern)
-  (check symbol? (car pattern))
+  (runtime-check pair? pattern)
+  (runtime-check symbol? (car pattern))
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      (hash-push! *toplevel-form-handlers* ',(car pattern)
                  (cons (lambda (form)

@@ -147,7 +147,7 @@
 ;;;; List indexing
 
 (define (list-ref xs index)
-  (check (and exact? (>= 0)) index)
+  (runtime-check (and exact? (>= 0)) index)
   (let loop ((pos xs) (ii 0))
     (cond ((null-list? pos)
            (error "List index out of range: ~s" index))
@@ -157,7 +157,7 @@
            (loop (cdr pos) (+ ii 1))))))
 
 (define (list-set! xs index val)
-  (check (and exact? (>= 0)) index)
+  (runtime-check (and exact? (>= 0)) index)
   (let loop ((pos xs) (ii 0))
     (cond ((null-list? pos)
            (error "List index out of range: ~s" index))
@@ -171,7 +171,7 @@
 (define (nth-cdr xs n)
   "Returns the result of calling cdr <n> times on <xs>. <n> must be a
    non-negative exact number. If it is not, an error is thrown."
-  (check (and exact? (>= 0)) n)
+  (runtime-check (and exact? (>= 0)) n)
   (let loop ((xs xs) (n n))
     (if (or (= 0 n) (null? xs))
         xs
@@ -247,34 +247,34 @@
 
 (define (q-items q)
   "Returns a list of the queue items in the queue <q>."
-  (check queue? q)
+  (runtime-check queue? q)
   (%q-items (cdr q)))
 
 (define (q-enqueue! x q)
   "Enqueues a new item <x> into the queue <q>."
-  (check queue? q)
+  (runtime-check queue? q)
   (%q-enqueue! x (cdr q)))
 
 (define (q-enqueue-list! xs q)
   "Enqueues a new list of items <xs> into the queue <q>, destructively altering <xs>."
-  (check queue? q)
+  (runtime-check queue? q)
   (%q-enqueue-list! xs (cdr q)))
 
 (define (q-dequeue! q)
   "Removes the next element from the queue <q>. Signals an error if <q> is
    empty."
-  (check queue? q)
+  (runtime-check queue? q)
   (when (%q-empty? (cdr q))
     (error "Cannot dequeue element from empty queue."))
   (%q-dequeue! (cdr q)))
 
 (define (q-empty? q)
   "Returns a boolean indicating if the queue <q> is empty."
-  (check queue? q)
+  (runtime-check queue? q)
   (%q-empty? (cdr q)))
 
 (define (make-list count :optional (initial ()))
-  (check (and exact? (>= 0)) count)
+  (runtime-check (and exact? (>= 0)) count)
   (let loop ((ii count) (accum ()))
     (if (= ii 0)
         accum
@@ -588,9 +588,9 @@
                      (loop (cons (car xs) less) greater (+ index 1) (cdr xs)))
                     (#t
                      (loop less (cons (car xs) greater) (+ index 1) (cdr xs))))))))
-    (check list? xs)
-    (check procedure? less?)
-    (check procedure? key)
+    (runtime-check list? xs)
+    (runtime-check procedure? less?)
+    (runtime-check procedure? key)
     (sort-step xs)))
 
 
@@ -656,7 +656,7 @@
   "Returns a new list consisting of the first <n> elements of
    the list <xs>. Throws an error if there are not that many
    elements in the list"
-  (check integer? n)
+  (runtime-check integer? n)
   (let loop ((remaining-xs xs) (accum ()) (still-need n))
     (cond ((= still-need 0)     (reverse! accum))
           ((null? remaining-xs) (error "Cannot take ~s items from ~s" n xs))
@@ -668,7 +668,7 @@
   "Returns a new list consisting of the first <n> elements of
    the list <xs>. Throws an error if there are not that many
    elements in the list"
-  (check integer? n)
+  (runtime-check integer? n)
   (let loop ((remaining-xs xs) (accum ()) (still-need n))
     (cond ((or (= still-need 0)
                (null? remaining-xs))  (reverse! accum))
@@ -679,7 +679,7 @@
 (define (take! xs n)
   "Returns a list consisting of the first <n> elements of the list
    <xs>. <xs> is destructively altered to return this list."
-  (check integer? n)
+  (runtime-check integer? n)
   (if (= n 0)
       '()
       (begin
@@ -692,7 +692,7 @@
 (define (take-while pred? xs)
   "Returns a new list consisting of every item in <xs> up until
    the first item that does not satisfy <pred?>."
-  (check procedure? pred?)
+  (runtime-check procedure? pred?)
   (let loop ((xs xs) (accum ()))
     (if (null-list? xs)
         (reverse! accum)
@@ -714,7 +714,7 @@
   "Returns a new list consisting of every item in <xs> up until
    the first item that does not satisfy <pred?>. <xs> is desctructively
    altered to return this list."
-  (check procedure? pred?)
+  (runtime-check procedure? pred?)
   (if (or (null-list? xs)
           (not (pred? (car xs))))
       '()
@@ -747,7 +747,7 @@
 (define (drop-while pred? xs)
   "Returns the tail of <xs>, starting with the first item that does
    not satisfy <pred?>."
-  (check procedure? pred?)
+  (runtime-check procedure? pred?)
   (let loop ((xs xs))
     (if (null-list? xs)
         '()
@@ -795,7 +795,7 @@
 (define (span pred? xs)
   "Returns two lists, the longest initial prefix of <xs> in which every
    item satifies <pred?>, and the rest of the list."
-  (check procedure? pred?)
+  (runtime-check procedure? pred?)
   (let recur ((xs xs))
     (if (null-list? xs)
         (values '() '())
@@ -809,7 +809,7 @@
   "Returns two lists, the longest initial prefix of <xs> in which every
    item satifies <pred?>, and the rest of the list. <xs> is destructively
    altered."
-  (check procedure? pred?)
+  (runtime-check procedure? pred?)
   (if (or (null-list? xs) (not (pred? (car xs)))) (values '() xs)
       (let ((suffix (let lp ((prev xs) (rest (cdr xs)))
                       (if (null-list? rest) rest
@@ -964,10 +964,10 @@
 (define (random-subsequence xs count)
   "Given a list or vector of items <xs>, return a random selection of <count>
    elements from that sequence."
-  (check (or list? vector?) xs)
+  (runtime-check (or list? vector?) xs)
   (let* ((chosen-key (gensym "chosen"))
          (xs-vec (if (list? xs) (list->vector xs) (vector-copy xs))))
-    (check (< (length xs)) count)
+    (runtime-check (< (length xs)) count)
     (let choose-next ((chosen ())
                       (number-left count))
       (if (= number-left 0)

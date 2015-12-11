@@ -120,14 +120,14 @@
                       ((:literal)  actual)
                       ((:fast-op)  (fasm actual))
                       ((:fast-ops) (map fasm actual))
-                      ((:symbol)   (check symbol? actual))
+                      ((:symbol)   (runtime-check symbol? actual))
                       (#t
                        (error "Invalid fast-op formal argument type: ~s" formal))))
                   formals
                   actuals)))))
 
 (define (fop-assemble outermost-asm)
-  (check list? outermost-asm "Malformed FOP assembly syntax.")
+  (runtime-check list? outermost-asm "Malformed FOP assembly syntax.")
 
   (unless (eq? (car outermost-asm) :closure)
     (error "assemble expects to assemble either a closure: ~s" outermost-asm))

@@ -2,8 +2,8 @@
 (define *auto-files* (make-hash))
 
 (define (parse-auto-filename file-desc)
-  (check string? file-desc)
-  (check (> 2) (length file-desc))
+  (runtime-check string? file-desc)
+  (runtime-check (> 2) (length file-desc))
   (let ((mode-flag (string-ref file-desc 0))
         (filename (substring file-desc 1)))
     (values (case mode-flag

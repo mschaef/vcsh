@@ -59,7 +59,7 @@ type. If there is no valid typecode of that name, returns #f."
 (define (validate-class-name . class-names)
   (let loop ((class-names class-names))
     (unless (null? class-names)
-      (check valid-class-name? (car class-names))
+      (runtime-check valid-class-name? (car class-names))
       (loop (cdr class-names)))))
 
 (define (class-superclass class-name)

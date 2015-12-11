@@ -25,7 +25,7 @@
   "Determine the mode of <port>. The mode will be one of the
 keywords, :input, :output, :input/output, or :closed. If <port> is not
 a port, an error will be signaled."
-  (check port? port)
+  (runtime-check port? port)
   (cond ((and (input-port? port) (output-port? port))
          :input/output)
         ((input-port? port)
@@ -128,10 +128,10 @@ a port, an error will be signaled."
   (%control-field system::VMCTRL_CURRENT_DEBUG_PORT))
 
 (define (check-for-text-mode-input-port port)
-  (check (and input-port? (not binary-port?)) port))
+  (runtime-check (and input-port? (not binary-port?)) port))
 
 (define (check-for-text-mode-output-port port)
-  (check (and output-port? (not binary-port?)) port))
+  (runtime-check (and output-port? (not binary-port?)) port))
 
 (define (set-current-input-port port)
   "Sets the current standard input port to <port>, returning the previous

@@ -134,7 +134,7 @@
    symbols in <search-package>, unless <search-package> is #f, in
    which case all packages are searched."
   (define (symbol-search-text symbol)
-    (check symbol? symbol)
+    (runtime-check symbol? symbol)
     (if (not (symbol-bound? symbol))
         ""
         (string-append (symbol-name symbol)
@@ -315,7 +315,7 @@
    signals 'beyond-requested-column with the current column position,
    and makes no changes to the output port. <indent-character> allows
    characters other than #\\space to be used to indent."
-  (check char? indent-character)
+  (runtime-check char? indent-character)
   (let ((current-column (cdr (port-location port))))
     (cond ((< column 0)
            (error "Column index must be non-negative: ~s." column))
@@ -456,7 +456,7 @@
   "Defines a function with an implicit lambda list of
    (take '(_0 _1 _2 _3 _4 _5) args). This is intended to be
    used with a readsharp handler that shortens the syntax."
-  (check (and exact? (>= 0) (< 6)) args)
+  (runtime-check (and exact? (>= 0) (< 6)) args)
   `(lambda ,(if args (take '(_0 _1 _2 _3 _4 _5) args) '(_))
      ,@form))
 

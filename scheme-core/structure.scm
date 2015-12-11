@@ -43,7 +43,7 @@
    for the structure, the base name for the structure type, and a
    flag indicating if the structure type is internal. Internal
    structure types are those prefixed with a #\\%  character."
-  (check (and symbol? symbol-package (not keyword?)) structure-name
+  (runtime-check (and symbol? symbol-package (not keyword?)) structure-name
          "Bad structure name.")
   (let* ((name-text (symbol-name structure-name))
          (impl? (and (char=? #\% (string-ref name-text 0))
@@ -137,7 +137,7 @@
    structure or a structure type name. Returns #f if <structure> is orphaned
    or an unknown type. Throws an error if <structure> is itself an invalid
    type name."
-  (check (or structure? symbol?) structure
+  (runtime-check (or structure? symbol?) structure
          "Expected structure or structure type name.")
   (if (structure? structure)
       (if (orphaned-structure? structure)
@@ -150,7 +150,7 @@
    structure or a structure type name. Returns #f if <structure> is orphaned
    or an unknown type. Throws an error if <structure> is itself an invalid
    type name."
-  (check (or structure? symbol?) structure
+  (runtime-check (or structure? symbol?) structure
          "Expected structure or structure type name.")
   (let ((meta (%structure-meta structure)))
     (aif (and meta (assq :documentation meta))
@@ -208,7 +208,7 @@
   "Returns the type name of the structure <structure>. Note that this is usually
    a symbol, but for an instance of a orphaned structure type, the type name is
    returned as a two element list composed of :orphaned and the former type name."
-  (check %structure? structure)
+  (runtime-check %structure? structure)
   (first (%structure-layout structure)))
 
 ;;; TEST: unit tests for orphaned structures
@@ -242,7 +242,7 @@
    returns #f otherwise. <structure> can either be a structure object or
    a symbol naming a structure type. If a structure type is not found,
    throws an error."
-  (check keyword? slot-name)
+  (runtime-check keyword? slot-name)
   (aif (memq slot-name (aif (structure-slots structure)
                             it
                             (error "Unknown structure type: ~s" structure)))

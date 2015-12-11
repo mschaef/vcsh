@@ -110,13 +110,13 @@
                           (char->integer #\A)))
 
 (define (char-upcase x)
-  (check char? x)
+  (runtime-check char? x)
   (if (char-lower-case? x)
      (integer->char (- (char->integer x) *uc-lc-offset*))
    x))
 
 (define (char-downcase x)
-  (check char? x)
+  (runtime-check char? x)
   (if (char-upper-case? x)
      (integer->char (+ (char->integer x) *uc-lc-offset*))
     x))

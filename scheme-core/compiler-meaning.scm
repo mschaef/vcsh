@@ -69,8 +69,8 @@
   (hash-keys *special-form-handlers*))
 
 (defmacro (define-special-form pattern . code)
-  (check pair? pattern)
-  (check symbol? (car pattern))
+  (runtime-check pair? pattern)
+  (runtime-check symbol? (car pattern))
   `(eval-when (:compile-toplevel :load-toplevel :execute)
      (hash-push! *special-form-handlers* ',(car pattern)
                  (cons (lambda (form)

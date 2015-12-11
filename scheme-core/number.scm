@@ -44,7 +44,7 @@
            (loop (bitwise-or n (bitwise-shift-left 1 (car remaining))) (cdr remaining))))))
 
 (define (exact->bits n)
-  (check exact? n)
+  (runtime-check exact? n)
   (let loop ((n n) (position 0) (bits ()))
     (cond ((= n 0) bits)
           ((= 1 (bitwise-and n 1))
@@ -53,7 +53,7 @@
            (loop (bitwise-arithmatic-shift-right n 1) (+ position 1) bits)))))
 
 (define (population-count n)
-  (check exact? n)
+  (runtime-check exact? n)
   (let loop ((n n) (bit-count 0))
     (cond ((= n 0) bit-count)
           ((= 1 (bitwise-and n 1))
@@ -75,7 +75,7 @@
 
 (define (min . xs) ; REVISIT: use reduce ?
   "Returns the least value of <xs>."
-  (check (> 0) (length xs))
+  (runtime-check (> 0) (length xs))
   (let loop ((current-min (car xs)) (xs (cdr xs)))
     (if (null? xs)
         current-min
@@ -83,7 +83,7 @@
 
 (define (max . xs) ; REVISIT: use reduce ?
   "Returns the greatest value of <xs>."
-  (check (> 0) (length xs))
+  (runtime-check (> 0) (length xs))
   (let loop ((current-max (car xs)) (xs (cdr xs)))
     (if (null? xs)
         current-max

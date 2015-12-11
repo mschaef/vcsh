@@ -89,7 +89,7 @@
   (= 0 (string-length string)))
 
 (define (string-fold kons knil str)
-  (check string? str)
+  (runtime-check string? str)
   (let loop ((ii 0) (result knil))
     (if (= ii (length str))
         result
@@ -206,9 +206,9 @@
 
 (define (string-replace string old new)
  "Replace every occurrence of the string <old> within <string> with <new>."
- (check string? string)
- (check string? old)
- (check string? new)
+ (runtime-check string? string)
+ (runtime-check string? old)
+ (runtime-check string? new)
  (let ((os (open-output-string)))
    (let loop ((loc 0))
         (acond  ((string-search old string loc)

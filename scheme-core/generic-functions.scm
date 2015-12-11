@@ -29,7 +29,7 @@
                     'invalidate-method-list-cache!)
 
 (define (generic-function-methods generic-function)
-  (check generic-function? generic-function)
+  (runtime-check generic-function? generic-function)
   (get-property generic-function 'method-table ()))
 
 (define (compute-methods-for-signature generic-function signature)
@@ -67,10 +67,10 @@
     new-gf))
 
 (define (parse-method-spec method-spec)
-  (check list? method-spec  "Method specifiers must be proper lists: ~a")
+  (runtime-check list? method-spec  "Method specifiers must be proper lists: ~a")
   
   (dbind (method-name . lambda-list) method-spec
-    (check symbol? method-name "Method names must be symbols.")
+    (runtime-check symbol? method-name "Method names must be symbols.")
 
     (let ((lambda-list (canonicalize-method-lambda-list lambda-list)))
       (values method-name
@@ -78,10 +78,10 @@
               (map cadr lambda-list)))))
 
 (define (parse-generic-function-spec gf-spec)
-  (check list? gf-spec  "Generic function specifiers must be proper lists: ~a")
+  (runtime-check list? gf-spec  "Generic function specifiers must be proper lists: ~a")
   
   (dbind (gf-name . lambda-list) gf-spec
-    (check symbol? gf-name "Generic function names must be symbols.")
+    (runtime-check symbol? gf-name "Generic function names must be symbols.")
 
     (unless (every? symbol? lambda-list)
       (error "Generic function argument names must be symbols: ~a" lambda-list))
@@ -128,9 +128,9 @@
   "Adds the method defined by <method-closure>, with the signature <arg-types>,
    to <generic-function>"
 
-  (check generic-function? generic-function)
-  (check closure? method-closure)
-  (check list? arg-types)
+  (runtime-check generic-function? generic-function)
+  (runtime-check closure? method-closure)
+  (runtime-check list? arg-types)
 
   (let ((gf-arity (get-property generic-function 'generic-function-arity -1))
         (gf-name (get-property generic-function 'name))
@@ -153,19 +153,19 @@
       (eq? type-name #t)))
 
 (define (canonicalize-method-lambda-list lambda-list)
-  (check list? lambda-list "Method lambda lists must be proper lists.")
+  (runtime-check list? lambda-list "Method lambda lists must be proper lists.")
   (let ((canonical-lambda-list (map #L(if (atom? _) (list _ #t) _) lambda-list)))
     (dolist (formal canonical-lambda-list)
-      (check (and list? length=2?) formal "Method arguments must be two element lists or symbols.")
-      (check symbol? (first formal) "Method argument names must be symbols.")
-      (check valid-type-name? (second formal)))
+      (runtime-check (and list? length=2?) formal "Method arguments must be two element lists or symbols.")
+      (runtime-check symbol? (first formal) "Method argument names must be symbols.")
+      (runtime-check valid-type-name? (second formal)))
     canonical-lambda-list))
 
 (define (parse-method-spec method-spec)
-  (check list? method-spec  "Method specifiers must be proper lists: ~a")
+  (runtime-check list? method-spec  "Method specifiers must be proper lists: ~a")
   
   (dbind (method-name . lambda-list) method-spec
-    (check symbol? method-name "Method names must be symbols.")
+    (runtime-check symbol? method-name "Method names must be symbols.")
 
     (let ((lambda-list (canonicalize-method-lambda-list lambda-list)))
       (values method-name

@@ -53,8 +53,8 @@
    the procedure <expander>. <expander> is a procedure that's
    called on the argument list of the iterate sequence, and returns
    a iterate-sequence-expansion."
-  (check symbol? seq-type)
-  (check procedure? expander)
+  (runtime-check symbol? seq-type)
+  (runtime-check procedure? expander)
   (set-property! seq-type 'iterate-sequence-expander expander))
 
 (defmacro (define-iterate-sequence-expander seq-lambda-list . forms)
@@ -63,9 +63,9 @@
    names the sequence type and must be a symbol. All of <forms> are places
    within the body of the expander function; The return value of <forms>
    must be an iterate-sequence-expansion."
-  (check list? seq-lambda-list)
-  (check symbol? (car seq-lambda-list))
-  (check (not null?) forms)
+  (runtime-check list? seq-lambda-list)
+  (runtime-check symbol? (car seq-lambda-list))
+  (runtime-check (not null?) forms)
   `(eval-when (:load-toplevel :compile-toplevel :execute)
      (set-iterate-sequence-expander! ',(car seq-lambda-list)
                                      (lambda ,(cdr seq-lambda-list) ,@forms))))
@@ -166,15 +166,15 @@
    the loop must terminate, and if not, how each sequence should be advanced to
    the next step. The current list of validate sequence types can be found by
    calling all-iterate-sequence-types."
-  (check symbol? loop-name)
-  (check list? seqs)
+  (runtime-check symbol? loop-name)
+  (runtime-check list? seqs)
   (mvbind (user-state-var-names user-state-var-init-forms) (parse-let-variables user-state-vars)
    (define (validate-expansion expansion)
       ;; REVISIT: Add expansion validation here, for custom sequence developers
       expansion)
     (define (expand-iterate-sequence-clause sequence-clause)
-      (check list? sequence-clause)
-      (check symbol? (car sequence-clause))
+      (runtime-check list? sequence-clause)
+      (runtime-check symbol? (car sequence-clause))
       
       (aif (get-property (car sequence-clause) 'iterate-sequence-expander)
            (validate-expansion (apply it (cdr sequence-clause)))

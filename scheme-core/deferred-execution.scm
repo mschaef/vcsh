@@ -94,8 +94,8 @@
   "Schedules <closure> to be called at <realtime>. If events are currently being
    processed, then the schedule add is deferred until the next call to
    %schedule-all-deferred-events."
-  (check number? realtime)
-  (check closure? closure)
+  (runtime-check number? realtime)
+  (runtime-check closure? closure)
   (if *currently-processing-events*
       (push! (cons realtime closure) *deferred-schedule-events*)
       (%set-scheduled-event-list! (insert-ordered *scheduled-event-list* (cons realtime closure) < car))))

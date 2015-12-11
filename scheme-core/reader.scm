@@ -49,9 +49,9 @@
 
 (define (set-char-syntax! syntax-table char reader-action)
   "Sets the reader action in <syntax-table> for <char> to <reader-action>."
-  (check syntax-table? syntax-table)
-  (check char? char)
-  (check reader-action? reader-action)
+  (runtime-check syntax-table? syntax-table)
+  (runtime-check char? char)
+  (runtime-check reader-action? reader-action)
   (hash-set! (syntax-table-char-mapping syntax-table)
              char
              reader-action)
@@ -59,15 +59,15 @@
 
 (define (set-default-syntax! syntax-table reader-action)
   "Sets the default reader action in <syntax-table> to <reader-action>."
-  (check syntax-table? syntax-table)
-  (check reader-action? reader-action)
+  (runtime-check syntax-table? syntax-table)
+  (runtime-check reader-action? reader-action)
   (set-syntax-table-default-mapping! syntax-table reader-action)
   reader-action)
 
 (define (char-syntax syntax-table char)
   "Returns the reader action for <char> based on the specified <syntax-table>.
    If there is no action, returns #f."
-  (check char? char)
+  (runtime-check char? char)
   (let loop ((syntax-binding (aif (hash-ref (syntax-table-char-mapping syntax-table) char #f)
                              it
                              (syntax-table-default-mapping syntax-table))))
@@ -390,9 +390,9 @@ character or #f if not found."
 ;; The list reader
 
 (define (read-sequence port begin-char end-char)
-  (check input-port? port)
-  (check char? begin-char)
-  (check char? end-char)
+  (runtime-check input-port? port)
+  (runtime-check char? begin-char)
+  (runtime-check char? end-char)
   (let ((list-location (port-location port))
         (current-sequence (%make-q)))
     (read-expected-char begin-char port :reader-list-expected)
@@ -615,7 +615,7 @@ character or #f if not found."
   (set-default-syntax! *read-syntax* 'read-number-or-symbol))
 
 (define (read :optional (port (current-input-port)) (recursive? #f))
-  (check input-port? port)
+  (runtime-check input-port? port)
   (flush-whitespace port)
   (let* ((location (port-location port))
          (obj (let loop ((syntax-table *read-syntax*))

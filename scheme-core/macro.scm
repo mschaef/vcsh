@@ -12,7 +12,7 @@
 
 
 (defmacro (defmacro lambda-list . macro-body) ;; REVISIT: Macros with :optional arguments
-  (check valid-lambda-list? lambda-list)
+  (runtime-check valid-lambda-list? lambda-list)
   (let ((macro-body macro-body) ; shadowed the argument to give us something settable.
         (macro-name (car lambda-list))
         (macro-formals (cdr lambda-list))

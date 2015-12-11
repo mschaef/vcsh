@@ -222,7 +222,6 @@
              character
              character->string
              charset-vector
-             check
              circular-list
              class-name
              class-of
@@ -706,6 +705,7 @@
              round
              run
              runtime
+             runtime-check
              runtime-error
              same-length?
              second

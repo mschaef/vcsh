@@ -68,7 +68,7 @@
    of the format ( <choice-displayed-object> . <choice-selected-object>).
    If the user sat on the pot and didn't choose anything, none-chosen is
    thrown with () as the return value."
-  (check list? choices)
+  (runtime-check list? choices)
   (newline)
   (let ((l (length choices)))
     (let display-next ((choices choices) (i 0))
@@ -111,7 +111,7 @@
 (define *repl-abbreviations-enabled* #t)
 
 (define (extend-repl-abbreviations! abbreviation fn quoted?)
-  (check keyword? abbreviation)
+  (runtime-check keyword? abbreviation)
   (when (assoc abbreviation *repl-abbreviations*)
     (info "Duplicate REPL abbreviation: ~s" abbreviation))
   (push! `(,abbreviation ,fn ,@(if quoted? '(:quote) ()))
