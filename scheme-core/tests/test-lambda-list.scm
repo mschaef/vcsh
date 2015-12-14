@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-lambda-list"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define (def-tll0-args)                (vector :def-tll0-args))
 (define (def-tll0-args/r . r)          (vector :def-tll0-args/r r))

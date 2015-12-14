@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-class-graph"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-test class-graph
   (with-gensyms (tc-1 tc-2 tc-3 tc-4 tc-5 tc-6)

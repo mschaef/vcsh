@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-dbind"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-test dbind
   (dbind x '(1 2 3)

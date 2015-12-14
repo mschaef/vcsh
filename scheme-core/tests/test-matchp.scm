@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-matchp"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-structure match-test-structure x y)
 (define-structure match-test-structure-3 x y z)

@@ -1,6 +1,7 @@
-(use-package! "unit-test")
-
-
+(define-package "test-reader"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-test read
   (check (runtime-error? (read 12)))
@@ -249,9 +250,10 @@
   (check (eq? 'unquote-splicing (car (read-from-string ",@a"))))
   (check (eq? 'quote            (car (read-from-string "'a"))))
 
-  (check
-   (equal? '(quasiquote (quote ((unquote a) (unquote-splicing b))))
-           (read-from-string "`'( ,a ,@b )"))))
+  (with-package "test-reader"
+                (check
+                 (equal? '(quasiquote (quote ((unquote a) (unquote-splicing b))))
+                         (read-from-string "`'( ,a ,@b )")))))
 
 (define read-time-evaluation-test-var-1 #f)
 (define readsharp-eval-test-fn #f)
@@ -260,14 +262,15 @@
   (check (equal? 0.0 (read-from-string "#.0.0")))
   (check (equal? 4 (read-from-string "#.(+ 2 2)")))
 
-  (check (equal? 12 (read-from-string "#.(set! read-time-evaluation-test-var-1 12)")))
+  (with-package "test-reader"
+                (check (equal? 12 (read-from-string "#.(set! read-time-evaluation-test-var-1 12)")))
 
-  (check (equal? 12 read-time-evaluation-test-var-1))
+                (check (equal? 12 read-time-evaluation-test-var-1))
 
-  (dynamic-let ((readsharp-eval-test-fn (lambda (x)
-                                          (cons x x))))
-               (check (equal? '(12 . 12)
-                                  (read-from-string "#.(readsharp-eval-test-fn 12)")))))
+                (dynamic-let ((readsharp-eval-test-fn (lambda (x)
+                                                        (cons x x))))
+                  (check (equal? '(12 . 12)
+                                 (read-from-string "#.(readsharp-eval-test-fn 12)"))))))
 
 
 (define-test read-list
@@ -280,30 +283,30 @@
   (let ((xs (read-from-string "()")))
     (check (null? xs)))
 
-  (let ((xs (read-from-string "(a)")))
+  (let ((xs (read-from-string "(:a)")))
     (check (list? xs))
     (check (= 1 (length xs)))
-    (check (eq? 'a (car xs))))
+    (check (eq? :a (car xs))))
 
-  (let ((xs (read-from-string "(a . b)")))
+  (let ((xs (read-from-string "(:a . :b)")))
     (check (pair? xs))
     (check (not (list? xs)))
-    (check (eq? 'a (car xs)))
-    (check (eq? 'b (cdr xs))))
+    (check (eq? :a (car xs)))
+    (check (eq? :b (cdr xs))))
 
-  (let ((xs (read-from-string "(a b c)")))
+  (let ((xs (read-from-string "(:a :b :c)")))
     (check (list? xs))
     (check (= 3 (length xs)))
-    (check (eq? 'a (car xs)))
-    (check (eq? 'b (cadr xs)))
-    (check (eq? 'c (caddr xs))))
+    (check (eq? :a (car xs)))
+    (check (eq? :b (cadr xs)))
+    (check (eq? :c (caddr xs))))
 
-  (let ((xs (read-from-string "(a b . c)")))
+  (let ((xs (read-from-string "(:a :b . :c)")))
     (check (pair? xs))
     (check (not (list? xs)))
-    (check (eq? 'a (car xs)))
-    (check (eq? 'b (cadr xs)))
-    (check (eq? 'c (cddr xs)))))
+    (check (eq? :a (car xs)))
+    (check (eq? :b (cadr xs)))
+    (check (eq? :c (cddr xs)))))
 
 (define-test read-string
 
@@ -339,7 +342,8 @@
 
   (check (equal? 12 (read-from-string "#@beef=12")))
   (check (equal? :keyword (read-from-string "#@beef=:keyword")))
-  (check (equal? 'sym (read-from-string "#@beef=sym"))))
+  (with-package "test-reader"
+                (check (equal? 'sym (read-from-string "#@beef=sym")))))
    
 
 (define-test read-vector

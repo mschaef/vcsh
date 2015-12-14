@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-quasiquote"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-test quasiquote-list
   (let ((a 1) 

@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-structure"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-structure ship x y dx dy)
 (define-structure ship-2 x y dx dy)
@@ -247,7 +250,8 @@
   (check
    (equal? '(1 2 3)
            (checkpoint-order-of 
-            (let ((dt (read-from-string "#S(default-tester)")))
+            (let ((dt (with-package "test-structure"
+                                    (read-from-string "#S(default-tester)"))))
               (check (eq? (default-tester-s-1 dt) :foo))
               (check (eq? (default-tester-s-2 dt) :bar))
               (check (eq? (default-tester-s-3 dt) :baz))))))
@@ -271,7 +275,8 @@
   (check
    (equal? '()
            (checkpoint-order-of 
-            (let ((dt (read-from-string "#S(default-tester :s-1 1 :s-2 2 :s-3 3)")))
+            (let ((dt (with-package "test-structure"
+                                    (read-from-string "#S(default-tester :s-1 1 :s-2 2 :s-3 3)"))))
               (check (eq? (default-tester-s-1 dt) 1))
               (check (eq? (default-tester-s-2 dt) 2))
               (check (eq? (default-tester-s-3 dt) 3)))))))
@@ -294,7 +299,7 @@
   (check (symbol-bound-to-procedure? 'northing)))
 
 (define-test structure-io
-  (check (can-read/write-round-trip? (make-ship)))
+  (check (can-read/write-round-trip?  (make-ship)))
   (check (can-read/write-round-trip? (make-empty-structure)))
 
   (let ((ts (make-ship)))
@@ -302,17 +307,17 @@
     (set-ship-y! ts (make-ship))
     (check (can-read/write-round-trip? ts)))
 
-  (let ((ts (read-from-string "#S(ship)")))
+  (let ((ts (with-package "test-structure" (read-from-string "#S(ship)"))))
     (check (ship? ts))
     (check (eq? () (ship-x ts)))
     (check (eq? () (ship-y ts))))
 
-  (let ((ts (read-from-string "#S(ship :x 3)")))
+  (let ((ts (with-package "test-structure" (read-from-string "#S(ship :x 3)"))))
     (check (ship? ts))
     (check (eq? 3 (ship-x ts)))
     (check (eq? () (ship-y ts))))
 
-  (let ((ts (read-from-string "#S(ship :x 3 :y 4)")))
+  (let ((ts (with-package "test-structure" (read-from-string "#S(ship :x 3 :y 4)"))))
     (check (ship? ts))
     (check (eq? 3 (ship-x ts)))
     (check (eq? 4 (ship-y ts))))
@@ -477,6 +482,3 @@
     (check (eq? (slot-ref s1 :y) 4))
     (check (eq? (slot-ref s1 :dx) 1))
     (check (eq? (slot-ref s1 :dy) -2))))
-
-
-

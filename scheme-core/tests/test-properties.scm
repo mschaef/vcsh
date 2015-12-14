@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-properties"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-test properties/symbols
   (let* ((test-symbol (gensym "property-test-symbol"))

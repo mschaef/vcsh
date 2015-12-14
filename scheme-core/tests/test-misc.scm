@@ -1,4 +1,7 @@
-(use-package! "unit-test")
+(define-package "test-misc"
+  (:uses "scheme"
+         "unit-test"
+         "unit-test-utils"))
 
 (define-test misc
   (check (can-read/write-round-trip? #t))
