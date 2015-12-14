@@ -18,8 +18,8 @@
             
             "check"))
 
-;; REVISIT: unit tests over ranged x (ie: this should apply from all x in [0,255]
-;; REVISIT: test-case that shows expected/actual values (should probably special case based on nested form)
+;; REVISIT: check-for (multiple checks over a set of bindings of a given var)
+;; REVISIT: check that shows expected/actual values
 
 ;;;; Unit test setup
 

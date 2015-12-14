@@ -81,7 +81,7 @@
             (edt-simple-3-args 1 2 3)
             (checkpoint :end))))
 
-  (checkn
+  (check
    (equal? '(:begin :edt-docs-3-args :end)
            (checkpoint-order-of
             (checkpoint :begin)
