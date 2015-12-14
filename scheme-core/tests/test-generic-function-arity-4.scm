@@ -13,20 +13,20 @@
   :flonum)
 
 (define-test generic-function-arity-4
-  (test-case (eq? (tgf-4 #\1 2 3 4) :default-handling))
-  (test-case (eq? (tgf-4 1 #\2 3 4) :default-handling))
-  (test-case (eq? (tgf-4 1 2 #\3 4) :default-handling))
-  (test-case (eq? (tgf-4 1 2 3 #\4) :default-handling))
-  (test-case (eq? (tgf-4 #\1 #\2 #\3 #\4) :default-handling))
+  (check (eq? (tgf-4 #\1 2 3 4) :default-handling))
+  (check (eq? (tgf-4 1 #\2 3 4) :default-handling))
+  (check (eq? (tgf-4 1 2 #\3 4) :default-handling))
+  (check (eq? (tgf-4 1 2 3 #\4) :default-handling))
+  (check (eq? (tgf-4 #\1 #\2 #\3 #\4) :default-handling))
 
-  (test-case (eq? (tgf-4 1 2 3 4) :fixnum))
+  (check (eq? (tgf-4 1 2 3 4) :fixnum))
 
-  (test-case (eq? (tgf-4 1.0 2 3 4) :number))
-  (test-case (eq? (tgf-4 1 2.0 3 4) :number))
-  (test-case (eq? (tgf-4 1 2 3.0 4) :number))
-  (test-case (eq? (tgf-4 1 2 3 4.0) :number))
+  (check (eq? (tgf-4 1.0 2 3 4) :number))
+  (check (eq? (tgf-4 1 2.0 3 4) :number))
+  (check (eq? (tgf-4 1 2 3.0 4) :number))
+  (check (eq? (tgf-4 1 2 3 4.0) :number))
 
-  (test-case (eq? (tgf-4 1.0 2.0 3.0 4.0) :flonum))
-  (test-case (eq? (tgf-4 1i 2i 3i 4i) :flonum)))
+  (check (eq? (tgf-4 1.0 2.0 3.0 4.0) :flonum))
+  (check (eq? (tgf-4 1i 2i 3i 4i) :flonum)))
 
 

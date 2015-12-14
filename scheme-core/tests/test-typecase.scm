@@ -1,36 +1,36 @@
 (use-package! "unit-test")
 
 (define-test typecase
-  (test-case (runtime-error? (macroexpand '(typecase x 1 ((foo) bar)))))
-  (test-case (runtime-error? (macroexpand '(typecase x ((foo 12) bar)))))
-  (test-case (runtime-error? (macroexpand '(typecase x (foo bar)))))
-  (test-case (runtime-error? (macroexpand '(typecase x (12 bar)))))
+  (check (runtime-error? (macroexpand '(typecase x 1 ((foo) bar)))))
+  (check (runtime-error? (macroexpand '(typecase x ((foo 12) bar)))))
+  (check (runtime-error? (macroexpand '(typecase x (foo bar)))))
+  (check (runtime-error? (macroexpand '(typecase x (12 bar)))))
 
-  (test-case (equal? :foo (typecase 1
+  (check (equal? :foo (typecase 1
                             ((fixnum) :foo)
                             ((flonum) :xyzzy))))
 
-  (test-case (not (runtime-error? (typecase 'symbol
+  (check (not (runtime-error? (typecase 'symbol
                                     ((fixnum) 12)))))
   
 
-  (test-case (equal? :xyzzy (typecase 'symbol
+  (check (equal? :xyzzy (typecase 'symbol
                               ((fixnum) :foo)
                               ((character) :bar)
                               ((flonum symbol) :xyzzy))))
 
-  (test-case (equal? :xyzzy (typecase 'symbol
+  (check (equal? :xyzzy (typecase 'symbol
                               ((fixnum) :foo)
                               ((character) :bar)
                               ((symbol flonum) :xyzzy))))
 
-  (test-case (equal? 12 (typecase 'symbol
+  (check (equal? 12 (typecase 'symbol
                           ((fixnum) :foo)
                           ((character) :bar)
                           ((flonum) :xyzzy)
                           (#t 12))))
 
-  (test-case
+  (check
    (equal? '(1 2 3)
            (checkpoint-order-of
             (typecase #\a
@@ -41,32 +41,32 @@
                (checkpoint 3)))))))
 
 (define-test etypecase
-  (test-case (runtime-error? (macroexpand '(etypecase x 1 ((foo) bar)))))
-  (test-case (runtime-error? (macroexpand '(etypecase x ((foo 12) bar)))))
-  (test-case (runtime-error? (macroexpand '(etypecase x (foo bar)))))
-  (test-case (runtime-error? (macroexpand '(etypecase x (12 bar)))))
+  (check (runtime-error? (macroexpand '(etypecase x 1 ((foo) bar)))))
+  (check (runtime-error? (macroexpand '(etypecase x ((foo 12) bar)))))
+  (check (runtime-error? (macroexpand '(etypecase x (foo bar)))))
+  (check (runtime-error? (macroexpand '(etypecase x (12 bar)))))
 
-  (test-case (runtime-error? (macroexpand '(etypecase x ((fixnum) bar) (#t baz)))))
+  (check (runtime-error? (macroexpand '(etypecase x ((fixnum) bar) (#t baz)))))
 
-  (test-case (equal? :foo (etypecase 1
+  (check (equal? :foo (etypecase 1
                             ((fixnum) :foo)
                             ((flonum) :xyzzy))))
 
-  (test-case (runtime-error? (etypecase 'symbol
+  (check (runtime-error? (etypecase 'symbol
                                ((fixnum) :foo)
                                ((character) :bar)
                                ((flonum) :xyzzy))))
 
-  (test-case (equal? :xyzzy (etypecase 'symbol
+  (check (equal? :xyzzy (etypecase 'symbol
                               ((fixnum) :foo)
                               ((character) :bar)
                               ((flonum symbol) :xyzzy))))
 
-  (test-case (equal? :xyzzy (etypecase 'symbol
+  (check (equal? :xyzzy (etypecase 'symbol
                               ((fixnum) :foo)
                               ((character) :bar)
                               ((symbol flonum) :xyzzy))))
-  (test-case
+  (check
    (equal? '(1 2 3)
            (checkpoint-order-of
             (etypecase #\a

@@ -1,60 +1,64 @@
 (use-package! "unit-test")
 
 (define-test unwind-protect-coverage
-                                        ; No error
+  ;; No error
   (let ((after-evaluated? #f))
     (unwind-protect
-     (lambda () )
-     (lambda () (set! after-evaluated? #t) ))
-    (test-case after-evaluated?))
+     (lambda ())
+     (lambda () (set! after-evaluated? #t)))
+    (check after-evaluated?))
   
   ;; No error - return value
   (let ((after-evaluated? #f))
-    (test-case (eq? 'foo
+    (check (eq? 'foo
                     (unwind-protect
                      (lambda () 'foo)
-                     (lambda () (set! after-evaluated? #t) ))))
-    (test-case after-evaluated?))
+                     (lambda () (set! after-evaluated? #t)))))
+    (check after-evaluated?))
 
-                                        ; No error - return value (w/GC)
+  ;; No error - return value (w/GC)
   (let ((after-evaluated? #f))
-    (test-case (eq? 'foo
+    (check (eq? 'foo
                     (unwind-protect
                      (lambda () (gc) 'foo)
                      (lambda () (set! after-evaluated? #t)))))
-    (test-case after-evaluated?))
+    (check after-evaluated?))
 
-                                        ; Error
+  ;; Error
   (let ((after-evaluated? #f))
     (catch-all
      (unwind-protect
       (lambda () (throw 'frobozzle))
-      (lambda () (set! after-evaluated? #t) )))
-    (test-case after-evaluated?))
+      (lambda () (set! after-evaluated? #t))))
+    (check after-evaluated?))
 
-                                        ; Nested - No Error
+  ;; Nested - No Error
   (let ((sequence-number 0)
         (after-evaluated-1? #f)
         (after-evaluated-2? #f)
         (after-evaluated-3? #f))
 
     (catch-all
-     (unwind-protect (lambda () (unwind-protect (lambda () (unwind-protect (lambda () )
-                                                                           (lambda () 
-                                                                             (incr! sequence-number)
-                                                                             (set! after-evaluated-1? sequence-number))))
-                                                (lambda () 
-                                                  (incr! sequence-number)
-                                                  (set! after-evaluated-2? sequence-number))))
-                     (lambda () 
-                       (incr! sequence-number)
-                       (set! after-evaluated-3? sequence-number))))
+     (unwind-protect
+      (lambda ()
+        (unwind-protect
+         (lambda ()
+           (unwind-protect (lambda ())
+                           (lambda () 
+                             (incr! sequence-number)
+                             (set! after-evaluated-1? sequence-number))))
+         (lambda () 
+           (incr! sequence-number)
+           (set! after-evaluated-2? sequence-number))))
+      (lambda () 
+        (incr! sequence-number)
+        (set! after-evaluated-3? sequence-number))))
 
-    (test-case (eq? after-evaluated-1? 1))
-    (test-case (eq? after-evaluated-2? 2))
-    (test-case (eq? after-evaluated-3? 3)))
+    (check (eq? after-evaluated-1? 1))
+    (check (eq? after-evaluated-2? 2))
+    (check (eq? after-evaluated-3? 3)))
   
-                                        ; Nested - Error
+  ;; Nested - Error
   (let ((sequence-number 0)
         (after-evaluated-1? #f)
         (after-evaluated-2? #f)
@@ -68,7 +72,7 @@
            (unwind-protect
             (lambda () 
               (set! sequence-number 10)
-              (throw 'foo) )
+              (throw 'foo))
             (lambda () 
               (incr! sequence-number)
               (set! after-evaluated-1? sequence-number))))
@@ -78,11 +82,11 @@
       (lambda () 
         (incr! sequence-number)
         (set! after-evaluated-3? sequence-number))))
-    (test-case (eq? after-evaluated-1? 11))
-    (test-case (eq? after-evaluated-2? 12))
-    (test-case (eq? after-evaluated-3? 13)))
+    (check (eq? after-evaluated-1? 11))
+    (check (eq? after-evaluated-2? 12))
+    (check (eq? after-evaluated-3? 13)))
 
-  (test-case
+  (check
    (equal? '(1 2 3 4)
            (checkpoint-order-of
             (let ((return-value (begin
@@ -96,4 +100,4 @@
                                                                                 (checkpoint :unreached-1)))
                                                               (checkpoint :unreached-2))))
                                     (checkpoint 4 catch-return-value)))))
-              (test-case (equal? :test-return-value return-value)))))))
+              (check (equal? :test-return-value return-value)))))))

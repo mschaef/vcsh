@@ -22,14 +22,14 @@
                (loop (+ i 1) j))))))
 
 (define-test fast-io-strings-and-characters
-  (test-case (can-fast-io-round-trip? ""))
-  (test-case (can-fast-io-round-trip? "a"))
-  (test-case (can-fast-io-round-trip? "\n"))
-  (test-case (can-fast-io-round-trip? "\n\r"))
-  (test-case (can-fast-io-round-trip? "\r\n"))
-  (test-case (can-fast-io-round-trip? "\r"))
-  (test-case (can-fast-io-round-trip? (make-all-byte-string)))
-  (test-case (can-fast-io-round-trip? (make-all-byte-combo-string)))
+  (check (can-fast-io-round-trip? ""))
+  (check (can-fast-io-round-trip? "a"))
+  (check (can-fast-io-round-trip? "\n"))
+  (check (can-fast-io-round-trip? "\n\r"))
+  (check (can-fast-io-round-trip? "\r\n"))
+  (check (can-fast-io-round-trip? "\r"))
+  (check (can-fast-io-round-trip? (make-all-byte-string)))
+  (check (can-fast-io-round-trip? (make-all-byte-combo-string)))
 
   (dotimes (n (char->integer (system-info :most-positive-character))) 
-    (test-case (can-fast-io-round-trip? (integer->char n)))))
+    (check (can-fast-io-round-trip? (integer->char n)))))

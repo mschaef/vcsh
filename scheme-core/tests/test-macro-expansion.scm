@@ -7,7 +7,7 @@
   x)
 
 (define-test macro-expansion
-  (test-case
+  (check
    (equal? '(foo bar baz) (macroexpand '(test-macro-1 foo bar baz))))
-  (test-case 
+  (check 
    (equal? '(foo bar baz) (macroexpand '(test-macro-2 foo bar baz)))))

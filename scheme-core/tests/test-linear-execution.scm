@@ -1,7 +1,7 @@
 (use-package! "unit-test")
 
 (define-test linear-execution
-  (test-case
+  (check
    (equal? '(1 2 3 4 5)
            (checkpoint-order-of
             (checkpoint 1)

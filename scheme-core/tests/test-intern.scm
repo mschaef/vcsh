@@ -12,41 +12,39 @@
 
 
 (define-test intern!
-  (test-case (runtime-error? (intern! 12)))
-  (test-case (runtime-error? (intern! "test-symbol" 12)))
+  (check (runtime-error? (intern! 12)))
+  (check (runtime-error? (intern! "test-symbol" 12)))
 
   (let ((unknown-package (random-string)))
-    (test-case (runtime-error? (intern! "xyzzy" unknown-package))))
+    (check (runtime-error? (intern! "xyzzy" unknown-package))))
 
   (let* ((sym-name (random-string))
          (sym (intern! sym-name "scheme")))
-    (test-case (equal? (symbol-name sym) sym-name))
-    (test-case (eq? (symbol-package sym) (find-package "scheme"))))
+    (check (equal? (symbol-name sym) sym-name))
+    (check (eq? (symbol-package sym) (find-package "scheme"))))
 
   (let* ((sym-name (random-string))
          (sym (intern! sym-name "unit-test")))
-    (test-case (equal? (symbol-name sym) sym-name))
-    (test-case (eq? (symbol-package sym) (find-package "unit-test"))))
+    (check (equal? (symbol-name sym) sym-name))
+    (check (eq? (symbol-package sym) (find-package "unit-test"))))
 
 
   (let* ((sym-name (random-string))
          (pkg (find-package "scheme"))
          (sym (intern! sym-name pkg)))
-    (test-case (equal? (symbol-name sym) sym-name))
-    (test-case (eq? (symbol-package sym) pkg)))
+    (check (equal? (symbol-name sym) sym-name))
+    (check (eq? (symbol-package sym) pkg)))
 
   (let* ((sym-name (random-string))
          (pkg (find-package "unit-test"))
          (sym (intern! sym-name pkg)))
-    (test-case (equal? (symbol-name sym) sym-name))
-    (test-case (eq? (symbol-package sym) pkg)))
+    (check (equal? (symbol-name sym) sym-name))
+    (check (eq? (symbol-package sym) pkg)))
 
   (let ((sym-name (random-string)))
-    (test-case (symbol? (intern! sym-name)))
-    (test-case (equal? (symbol-name (intern! sym-name)) sym-name))
-    (test-case (eq? (intern! sym-name) (intern! sym-name))))
+    (check (symbol? (intern! sym-name)))
+    (check (equal? (symbol-name (intern! sym-name)) sym-name))
+    (check (eq? (intern! sym-name) (intern! sym-name))))
 
   (let ((sym-name (random-string)))
-    (test-case (eq? (intern! sym-name "scheme") (intern! sym-name "scheme"))))
-
-  )
+    (check (eq? (intern! sym-name "scheme") (intern! sym-name "scheme")))))

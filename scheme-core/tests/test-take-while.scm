@@ -1,24 +1,24 @@
 (use-package! "unit-test")
 
 (define-test take-while
-  (test-case (equal? (take-while even? ())))
-  (test-case (runtime-error? (take-while even? :foo)))
-  (test-case (runtime-error? (take-while :not-a-procecdure '(1 2 3))))
+  (check (equal? (take-while even? ())))
+  (check (runtime-error? (take-while even? :foo)))
+  (check (runtime-error? (take-while :not-a-procecdure '(1 2 3))))
 
   (let ((xs '(2 4 8 1 2)))
-    (test-case (equal? (take-while even? xs) '(2 4 8)))
-    (test-case (not (eq? (take-while even? xs) xs))))
+    (check (equal? (take-while even? xs) '(2 4 8)))
+    (check (not (eq? (take-while even? xs) xs))))
 
   (let ((xs '(2 4 8 1 2)))
-    (test-case (equal? (take-while even? xs) '(2 4 8)))
-    (test-case (not (eq? (take-while even? xs) xs))))
+    (check (equal? (take-while even? xs) '(2 4 8)))
+    (check (not (eq? (take-while even? xs) xs))))
 
   (let ((xs '(2 4 8 1 . 2)))
-    (test-case (equal? (take-while even? xs) '(2 4 8)))
-    (test-case (not (eq? (take-while even? xs) xs))))
+    (check (equal? (take-while even? xs) '(2 4 8)))
+    (check (not (eq? (take-while even? xs) xs))))
 
-  (test-case (runtime-error? (take-while (always #t) '(2 4 8 1 . 2))))
+  (check (runtime-error? (take-while (always #t) '(2 4 8 1 . 2))))
 
-  (test-case (equal? (take-while even? '(1 3 5)) '()))
-  (test-case (equal? (take-while even? '(1 2 4)) '())))
+  (check (equal? (take-while even? '(1 3 5)) '()))
+  (check (equal? (take-while even? '(1 2 4)) '())))
 

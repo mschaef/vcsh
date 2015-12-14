@@ -19,69 +19,69 @@
     "idt-docs-3-args documentation"
     (checkpoint :idt-docs-3-args))
 
-  (test-case (equal? (documentation idt-simple) #f))
-  (test-case (equal? (documentation idt-docs) "idt-docs documentation"))
+  (check (equal? (documentation idt-simple) #f))
+  (check (equal? (documentation idt-docs) "idt-docs documentation"))
   
-  (test-case (equal? (documentation idt-simple-1-arg) #f))
-  (test-case (equal? (documentation idt-docs-1-arg) "idt-docs-1-arg documentation"))
+  (check (equal? (documentation idt-simple-1-arg) #f))
+  (check (equal? (documentation idt-docs-1-arg) "idt-docs-1-arg documentation"))
   
-  (test-case (equal? (documentation idt-simple-3-args) #f))
-  (test-case (equal? (documentation idt-docs-3-args) "idt-docs-3-args documentation"))
+  (check (equal? (documentation idt-simple-3-args) #f))
+  (check (equal? (documentation idt-docs-3-args) "idt-docs-3-args documentation"))
 
-  (test-case (equal? (procedure-name idt-simple) 'idt-simple))
-  (test-case (equal? (procedure-name idt-docs) 'idt-docs))
+  (check (equal? (procedure-name idt-simple) 'idt-simple))
+  (check (equal? (procedure-name idt-docs) 'idt-docs))
 
-  (test-case (equal? (procedure-name idt-simple-1-arg) 'idt-simple-1-arg))
-  (test-case (equal? (procedure-name idt-docs-1-arg) 'idt-docs-1-arg))
+  (check (equal? (procedure-name idt-simple-1-arg) 'idt-simple-1-arg))
+  (check (equal? (procedure-name idt-docs-1-arg) 'idt-docs-1-arg))
 
-  (test-case (equal? (procedure-name idt-simple-3-args) 'idt-simple-3-args))
-  (test-case (equal? (procedure-name idt-docs-3-args) 'idt-docs-3-args))
+  (check (equal? (procedure-name idt-simple-3-args) 'idt-simple-3-args))
+  (check (equal? (procedure-name idt-docs-3-args) 'idt-docs-3-args))
   
-  (test-case (equal? (dtu-lambda-list idt-simple) ()))
-  (test-case (equal? (dtu-lambda-list idt-docs) ()))
+  (check (equal? (dtu-lambda-list idt-simple) ()))
+  (check (equal? (dtu-lambda-list idt-docs) ()))
   
-  (test-case (equal? (dtu-lambda-list idt-simple-1-arg) '(x)))
-  (test-case (equal? (dtu-lambda-list idt-docs-1-arg) '(x)))
+  (check (equal? (dtu-lambda-list idt-simple-1-arg) '(x)))
+  (check (equal? (dtu-lambda-list idt-docs-1-arg) '(x)))
   
-  (test-case (equal? (dtu-lambda-list idt-simple-3-args) '(x y z)))
-  (test-case (equal? (dtu-lambda-list idt-docs-3-args) '(x y z)))
+  (check (equal? (dtu-lambda-list idt-simple-3-args) '(x y z)))
+  (check (equal? (dtu-lambda-list idt-docs-3-args) '(x y z)))
 
-  (test-case
+  (check
    (equal? '(:begin :idt-simple :end)
            (checkpoint-order-of
             (checkpoint :begin)
             (idt-simple)
             (checkpoint :end))))
 
-  (test-case
+  (check
    (equal? '(:begin :idt-docs :end)
            (checkpoint-order-of
             (checkpoint :begin)
             (idt-docs)
             (checkpoint :end))))
 
-  (test-case
+  (check
    (equal? '(:begin :idt-simple-1-arg :end)
            (checkpoint-order-of
             (checkpoint :begin)
             (idt-simple-1-arg 1)
             (checkpoint :end))))
 
-  (test-case
+  (check
    (equal? '(:begin :idt-docs-1-arg :end)
            (checkpoint-order-of
             (checkpoint :begin)
             (idt-docs-1-arg 1)
             (checkpoint :end))))
 
-  (test-case
+  (check
    (equal? '(:begin :idt-simple-3-args :end)
            (checkpoint-order-of
             (checkpoint :begin)
             (idt-simple-3-args 1 2 3)
             (checkpoint :end))))
 
-  (test-case
+  (check
    (equal? '(:begin :idt-docs-3-args :end)
            (checkpoint-order-of
             (checkpoint :begin)

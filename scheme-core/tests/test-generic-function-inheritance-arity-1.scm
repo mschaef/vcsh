@@ -24,12 +24,12 @@
   (checkpoint :post-complex))
 
 (define-test generic-function-inheritance-arity-1
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-1 #\i))))
   
-  (test-case
+  (check
    (equal? '(:pre-fixnum 
              :pre-number 
              :base-handling 
@@ -38,7 +38,7 @@
            (checkpoint-order-of
             (tgfi-1 1))))
 
-  (test-case
+  (check
    (equal? '(:pre-flonum 
              :pre-number 
              :base-handling 
@@ -47,7 +47,7 @@
            (checkpoint-order-of
             (tgfi-1 1.0))))
 
-  (test-case
+  (check
    (equal? '(:pre-complex
              :pre-flonum 
              :pre-number 

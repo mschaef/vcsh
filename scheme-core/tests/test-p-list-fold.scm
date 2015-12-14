@@ -7,19 +7,17 @@
      in reverse order."
     (cons (cons name value) list))
 
-  (test-case (eq? :test (p-list-fold + :test ())))
-  (test-case (runtime-error? (p-list-fold + 0 '(:non-numeric :non-numeric))))
-  (test-case (runtime-error? (p-list-fold (lambda (n v xs) (error "foo")) () '(1 2))))
-  (test-case (not (runtime-error? (p-list-fold (lambda (n v xs) (error "foo")) () ()))))
-  (test-case (runtime-error? (p-list-fold fold/->a-list () :not-a-list)))
+  (check (eq? :test (p-list-fold + :test ())))
+  (check (runtime-error? (p-list-fold + 0 '(:non-numeric :non-numeric))))
+  (check (runtime-error? (p-list-fold (lambda (n v xs) (error "foo")) () '(1 2))))
+  (check (not (runtime-error? (p-list-fold (lambda (n v xs) (error "foo")) () ()))))
+  (check (runtime-error? (p-list-fold fold/->a-list () :not-a-list)))
 
-  (test-case (equal? '((:baz . 3) (:bar . 2) (:foo . 1))
+  (check (equal? '((:baz . 3) (:bar . 2) (:foo . 1))
                      (p-list-fold fold/->a-list () '(:foo 1 :bar 2 :baz 3))))
 
-  (test-case (equal? '((:baz) (:bar . 2) (:foo . 1))
+  (check (equal? '((:baz) (:bar . 2) (:foo . 1))
                        (p-list-fold fold/->a-list () '(:foo 1 :bar 2 :baz))))
 
-  (test-case (equal? () (p-list-fold fold/->a-list () ())))
-
-  )
+  (check (equal? () (p-list-fold fold/->a-list () ()))))
 

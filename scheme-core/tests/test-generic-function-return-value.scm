@@ -16,8 +16,8 @@
   (+ 13 (call-next-method)))
 
 (define-test generic-function-return-value
-  (test-case (= (tgf-rv #\f) 1))
-  (test-case (= (tgf-rv 1) 9))
-  (test-case (= (tgf-rv 1.0) 11))
-  (test-case (= (tgf-rv 1i) 24)))
+  (check (= (tgf-rv #\f) 1))
+  (check (= (tgf-rv 1) 9))
+  (check (= (tgf-rv 1.0) 11))
+  (check (= (tgf-rv 1i) 24)))
 

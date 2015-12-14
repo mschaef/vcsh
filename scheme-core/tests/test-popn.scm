@@ -3,11 +3,11 @@
 (define-test pop!
   (let* ((x '(:foo :bar :baz))
 	 (y x))
-    (test-case (eq? (pop! x) :foo))
-    (test-case (equal? x (cdr y)))
-    (test-case (eq? (pop! x) :bar))
-    (test-case (equal? x (cddr y)))
-    (test-case (eq? (pop! x) :baz))
-    (test-case (equal? x (cdddr y)))
-    (test-case (equal? y '(:foo :bar :baz)))))
+    (check (eq? (pop! x) :foo))
+    (check (equal? x (cdr y)))
+    (check (eq? (pop! x) :bar))
+    (check (equal? x (cddr y)))
+    (check (eq? (pop! x) :baz))
+    (check (equal? x (cdddr y)))
+    (check (equal? y '(:foo :bar :baz)))))
 

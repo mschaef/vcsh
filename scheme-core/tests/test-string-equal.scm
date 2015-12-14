@@ -8,9 +8,9 @@
 (define ts40b "0123456789012345678901234567890123456789")
 
 (define-test string-equal
-  (test-case (equal? ts10a ts10a))
-  (test-case (equal? ts20a ts20a))
-  (test-case (equal? ts40a ts40a))
-  (test-case (equal? ts10a ts10b))
-  (test-case (equal? ts20a ts20b))
-  (test-case (equal? ts40a ts40b)))
+  (check (equal? ts10a ts10a))
+  (check (equal? ts20a ts20a))
+  (check (equal? ts40a ts40a))
+  (check (equal? ts10a ts10b))
+  (check (equal? ts20a ts20b))
+  (check (equal? ts40a ts40b)))

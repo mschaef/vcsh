@@ -25,69 +25,69 @@
 	      "llt-docs-3-args documentation"
 	      (checkpoint :llt-docs-3-args))))
 
-    (test-case (equal? (documentation llt-simple) #f))
-    (test-case (equal? (documentation llt-docs) "llt-docs documentation"))
+    (check (equal? (documentation llt-simple) #f))
+    (check (equal? (documentation llt-docs) "llt-docs documentation"))
     
-    (test-case (equal? (documentation llt-simple-1-arg) #f))
-    (test-case (equal? (documentation llt-docs-1-arg) "llt-docs-1-arg documentation"))
+    (check (equal? (documentation llt-simple-1-arg) #f))
+    (check (equal? (documentation llt-docs-1-arg) "llt-docs-1-arg documentation"))
     
-    (test-case (equal? (documentation llt-simple-3-args) #f))
-    (test-case (equal? (documentation llt-docs-3-args) "llt-docs-3-args documentation"))
+    (check (equal? (documentation llt-simple-3-args) #f))
+    (check (equal? (documentation llt-docs-3-args) "llt-docs-3-args documentation"))
     
-    (test-case (equal? (procedure-name llt-simple) #f))
-    (test-case (equal? (procedure-name llt-docs) #f))
+    (check (equal? (procedure-name llt-simple) #f))
+    (check (equal? (procedure-name llt-docs) #f))
     
-    (test-case (equal? (procedure-name llt-simple-1-arg) #f))
-    (test-case (equal? (procedure-name llt-docs-1-arg) #f))
+    (check (equal? (procedure-name llt-simple-1-arg) #f))
+    (check (equal? (procedure-name llt-docs-1-arg) #f))
     
-    (test-case (equal? (procedure-name llt-simple-3-args) #f))
-    (test-case (equal? (procedure-name llt-docs-3-args) #f))
+    (check (equal? (procedure-name llt-simple-3-args) #f))
+    (check (equal? (procedure-name llt-docs-3-args) #f))
     
-    (test-case (equal? (dtu-lambda-list llt-simple) ()))
-    (test-case (equal? (dtu-lambda-list llt-docs) ()))
+    (check (equal? (dtu-lambda-list llt-simple) ()))
+    (check (equal? (dtu-lambda-list llt-docs) ()))
     
-    (test-case (equal? (dtu-lambda-list llt-simple-1-arg) '(x)))
-    (test-case (equal? (dtu-lambda-list llt-docs-1-arg) '(x)))
+    (check (equal? (dtu-lambda-list llt-simple-1-arg) '(x)))
+    (check (equal? (dtu-lambda-list llt-docs-1-arg) '(x)))
     
-    (test-case (equal? (dtu-lambda-list llt-simple-3-args) '(x y z)))
-    (test-case (equal? (dtu-lambda-list llt-docs-3-args) '(x y z)))
+    (check (equal? (dtu-lambda-list llt-simple-3-args) '(x y z)))
+    (check (equal? (dtu-lambda-list llt-docs-3-args) '(x y z)))
     
-    (test-case
+    (check
      (equal? '(:begin :llt-simple :end)
              (checkpoint-order-of
               (checkpoint :begin)
               (llt-simple)
               (checkpoint :end))))
     
-    (test-case
+    (check
      (equal? '(:begin :llt-docs :end)
              (checkpoint-order-of
               (checkpoint :begin)
               (llt-docs)
               (checkpoint :end))))
     
-    (test-case
+    (check
      (equal? '(:begin :llt-simple-1-arg :end)
              (checkpoint-order-of
               (checkpoint :begin)
               (llt-simple-1-arg 1)
               (checkpoint :end))))
     
-    (test-case
+    (check
      (equal? '(:begin :llt-docs-1-arg :end)
              (checkpoint-order-of
               (checkpoint :begin)
               (llt-docs-1-arg 1)
               (checkpoint :end))))
     
-    (test-case
+    (check
      (equal? '(:begin :llt-simple-3-args :end)
              (checkpoint-order-of
               (checkpoint :begin)
               (llt-simple-3-args 1 2 3)
               (checkpoint :end))))
     
-    (test-case
+    (check
      (equal? '(:begin :llt-docs-3-args :end)
              (checkpoint-order-of
               (checkpoint :begin)

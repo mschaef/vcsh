@@ -1,54 +1,54 @@
 (use-package! "unit-test")
 
 (define-test or/truth-table
-  (test-case (boolean? (or #f #f #f)))
-  (test-case (boolean? (or #t #t #t)))
-  (test-case (not (boolean? (or #f 4))))
+  (check (boolean? (or #f #f #f)))
+  (check (boolean? (or #t #t #t)))
+  (check (not (boolean? (or #f 4))))
 
-  (test-case (eq? (or) #f))
-  (test-case (eq? (or #f) #f))
-  (test-case (eq? (or #t) #t))
-  (test-case (eq? (or #f #f) #f))
-  (test-case (eq? (or #f #t) #t))
-  (test-case (eq? (or #t #f) #t))
-  (test-case (eq? (or #t #t) #t))
-  (test-case (eq? (or #f #f #f) #f))
-  (test-case (eq? (or #f #f #t) #t))
-  (test-case (eq? (or #f #t #f) #t))
-  (test-case (eq? (or #f #t #t) #t))
-  (test-case (eq? (or #t #f #f) #t))
-  (test-case (eq? (or #t #f #t) #t))
-  (test-case (eq? (or #t #t #f) #t))
-  (test-case (eq? (or #t #t #t) #t)))
+  (check (eq? (or) #f))
+  (check (eq? (or #f) #f))
+  (check (eq? (or #t) #t))
+  (check (eq? (or #f #f) #f))
+  (check (eq? (or #f #t) #t))
+  (check (eq? (or #t #f) #t))
+  (check (eq? (or #t #t) #t))
+  (check (eq? (or #f #f #f) #f))
+  (check (eq? (or #f #f #t) #t))
+  (check (eq? (or #f #t #f) #t))
+  (check (eq? (or #f #t #t) #t))
+  (check (eq? (or #t #f #f) #t))
+  (check (eq? (or #t #f #t) #t))
+  (check (eq? (or #t #t #f) #t))
+  (check (eq? (or #t #t #t) #t)))
 
 (define-test or/short-circuit
-  (test-case
+  (check
    (equal? '(:second-leg)
            (checkpoint-order-of
             (or #f
                 (checkpoint :second-leg #t)))))
 
-  (test-case
+  (check
    (equal? ()
              (checkpoint-order-of
               (or #t
                   (checkpoint :second-leg #t)))))
 
-  (test-case
+  (check
    (equal? '(1 2 3)
              (checkpoint-order-of
               (or (checkpoint 1 #f)
                   (checkpoint 2 #f)
                   (checkpoint 3 #f)))))
 
-  (test-case
+  (check
    (equal? '(1)
              (checkpoint-order-of
               (or (checkpoint 1 #t)
                   (checkpoint 2 #f)
                   (checkpoint 3 #f)))))
 
-  (test-case
+  (check
    (equal? '(1)
              (checkpoint-order-of
               (or (checkpoint 1 #t)
@@ -56,58 +56,58 @@
                   (checkpoint 3 #t))))))
 
 (define-test or/return-value
-  (test-case (eq? (or :foo) :foo))
-    (test-case (eq? (or #f :foo) :foo))
-    (test-case (eq? (or #f #f :foo) :foo)))
+  (check (eq? (or :foo) :foo))
+    (check (eq? (or #f :foo) :foo))
+    (check (eq? (or #f #f :foo) :foo)))
 
 (define-test or*/truth-table
-  (test-case (boolean? (or* #f #f #f)))
-  (test-case (boolean? (or* #t #t #t)))
+  (check (boolean? (or* #f #f #f)))
+  (check (boolean? (or* #t #t #t)))
 
-  (test-case (eq? (or*) #f))
-  (test-case (eq? (or* #f) #f))
-  (test-case (eq? (or* #t) #t))
-  (test-case (eq? (or* #f #f) #f))
-  (test-case (eq? (or* #f #t) #t))
-  (test-case (eq? (or* #t #f) #t))
-  (test-case (eq? (or* #t #t) #t))
-  (test-case (eq? (or* #f #f #f) #f))
-  (test-case (eq? (or* #f #f #t) #t))
-  (test-case (eq? (or* #f #t #f) #t))
-  (test-case (eq? (or* #f #t #t) #t))
-  (test-case (eq? (or* #t #f #f) #t))
-  (test-case (eq? (or* #t #f #t) #t))
-  (test-case (eq? (or* #t #t #f) #t))
-  (test-case (eq? (or* #t #t #t) #t)))
+  (check (eq? (or*) #f))
+  (check (eq? (or* #f) #f))
+  (check (eq? (or* #t) #t))
+  (check (eq? (or* #f #f) #f))
+  (check (eq? (or* #f #t) #t))
+  (check (eq? (or* #t #f) #t))
+  (check (eq? (or* #t #t) #t))
+  (check (eq? (or* #f #f #f) #f))
+  (check (eq? (or* #f #f #t) #t))
+  (check (eq? (or* #f #t #f) #t))
+  (check (eq? (or* #f #t #t) #t))
+  (check (eq? (or* #t #f #f) #t))
+  (check (eq? (or* #t #f #t) #t))
+  (check (eq? (or* #t #t #f) #t))
+  (check (eq? (or* #t #t #t) #t)))
 
 (define-test or*/full-evaluation
-  (test-case
+  (check
    (equal? '(:second-leg)
            (checkpoint-order-of
             (or* #f
                  (checkpoint :second-leg #t)))))
 
-  (test-case
+  (check
    (equal? '(:second-leg)
            (checkpoint-order-of
             (or* #t
                  (checkpoint :second-leg #t)))))
 
-  (test-case
+  (check
    (equal? '(1 2 3)
            (checkpoint-order-of
             (or* (checkpoint 1 #f)
                  (checkpoint 2 #f)
                  (checkpoint 3 #f)))))
   
-  (test-case
+  (check
    (equal? '(1 2 3)
              (checkpoint-order-of
               (or* (checkpoint 1 #t)
                    (checkpoint 2 #f)
                    (checkpoint 3 #f)))))
 
-  (test-case
+  (check
    (equal? '(1 2 3)
            (checkpoint-order-of
             (or* (checkpoint 1 #t)
@@ -115,6 +115,6 @@
                  (checkpoint 3 #t))))))
 
 (define-test or*/return-value
-  (test-case (eq? (or* :foo) #t))
-  (test-case (eq? (or* #f :foo) #t))
-  (test-case (eq? (or* #f #f :foo) #t)))
+  (check (eq? (or* :foo) #t))
+  (check (eq? (or* #f :foo) #t))
+  (check (eq? (or* #f #f :foo) #t)))

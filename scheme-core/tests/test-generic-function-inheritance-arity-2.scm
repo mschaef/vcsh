@@ -49,22 +49,22 @@
 
 
 (define-test generic-function-inheritance-arity-2
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2 #\i #\i))))
   
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2 1 #\i))))
   
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2 #\i 1))))
 
-  (test-case
+  (check
    (equal? '(:pre-fixnum 
              :pre-number 
              :base-handling 
@@ -73,21 +73,21 @@
            (checkpoint-order-of
             (tgfi-2 1 1))))
 
-  (test-case
+  (check
    (equal? '(:pre-number 
              :base-handling 
              :post-number)
            (checkpoint-order-of
             (tgfi-2 1 1.0))))
 
-  (test-case
+  (check
    (equal? '(:pre-number 
              :base-handling 
              :post-number)
            (checkpoint-order-of
             (tgfi-2 1.0 1))))
 
-  (test-case
+  (check
    (equal? '(:pre-flonum 
              :pre-number 
              :base-handling 
@@ -96,7 +96,7 @@
            (checkpoint-order-of
             (tgfi-2 1.0 1.0))))
 
-  (test-case
+  (check
    (equal? '(:pre-flonum 
              :pre-number 
              :base-handling 
@@ -105,7 +105,7 @@
            (checkpoint-order-of
             (tgfi-2 1.0 1i))))
 
-  (test-case
+  (check
    (equal? '(:pre-flonum 
              :pre-number 
              :base-handling 
@@ -114,7 +114,7 @@
            (checkpoint-order-of
             (tgfi-2 1i 1.0))))
 
-  (test-case
+  (check
    (equal? '(:pre-complex
              :pre-flonum 
              :pre-number 
@@ -125,46 +125,46 @@
            (checkpoint-order-of
             (tgfi-2 1i 1i))))
 
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2a 1 1))))
 
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2a #\1 1))))
 
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2a 1 #\1))))
 
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2a #\1 1.0))))
 
-  (test-case
+  (check
    (equal? '(:base-handling)
            (checkpoint-order-of
             (tgfi-2a 1.0 #\1))))
 
-  (test-case
+  (check
    (equal? '(:pre-flonum-number
              :base-handling
              :post-flonum-number)
            (checkpoint-order-of
             (tgfi-2a 1.0 1))))
   
-  (test-case
+  (check
    (equal? '(:pre-number-flonum
              :base-handling
              :post-number-flonum)
            (checkpoint-order-of
             (tgfi-2a 1 1.0))))
 
-  (test-case
+  (check
    (equal? '(:pre-complex-number
              :pre-flonum-number
              :base-handling
@@ -173,7 +173,7 @@
            (checkpoint-order-of
             (tgfi-2a 1i 1))))
 
-  (test-case
+  (check
    (equal? '(:pre-number-complex
              :pre-number-flonum
              :base-handling

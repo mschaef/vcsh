@@ -1,11 +1,11 @@
 (use-package! "unit-test")
 
 (define-test random
-  (test-case (runtime-error? (random #t)))
-  (test-case (runtime-error? (random :non-numeric)))
+  (check (runtime-error? (random #t)))
+  (check (runtime-error? (random :non-numeric)))
   
-  (test-case (exact? (random 43)))
-  (test-case (inexact? (random 43.0)))
-  (test-case (inexact? (random)))
-  (test-case (complex? (random 2+2i)))
-  (test-case (complex? (random 2i))))
+  (check (exact? (random 43)))
+  (check (inexact? (random 43.0)))
+  (check (inexact? (random)))
+  (check (complex? (random 2+2i)))
+  (check (complex? (random 2i))))

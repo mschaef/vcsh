@@ -4,33 +4,33 @@
 (define-test string-fold
   (define (ccons a d) (cons a d))
   
-  (test-case (not (runtime-error? (string-fold cons '() "0123456789"))))
-  (test-case (not (runtime-error? (string-fold cons '() ""))))
-  (test-case (not (runtime-error? (string-fold ccons '() "0123456789"))))
-  (test-case (not (runtime-error? (string-fold ccons '() ""))))
+  (check (not (runtime-error? (string-fold cons '() "0123456789"))))
+  (check (not (runtime-error? (string-fold cons '() ""))))
+  (check (not (runtime-error? (string-fold ccons '() "0123456789"))))
+  (check (not (runtime-error? (string-fold ccons '() ""))))
 
-  (test-case (runtime-error? (string-fold cons '() ())))
-  (test-case (runtime-error? (string-fold 12 '() "0123456789")))
+  (check (runtime-error? (string-fold cons '() ())))
+  (check (runtime-error? (string-fold 12 '() "0123456789")))
 
-  (test-case (equal? '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
+  (check (equal? '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
 		 (reverse (string-fold cons '() "0123456789"))))
-  (test-case (equal? '() (reverse (string-fold cons '() ""))))
+  (check (equal? '() (reverse (string-fold cons '() ""))))
 
-  (test-case (equal? '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
+  (check (equal? '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
 		 (reverse (string-fold ccons '() "0123456789"))))
-  (test-case (equal? '() (reverse (string-fold ccons '() ""))))
+  (check (equal? '() (reverse (string-fold ccons '() ""))))
 
-  (test-case (runtime-error? (string-fold (lambda (ch chs) (error "foo")) () "12345")))
-  (test-case (not (runtime-error? (string-fold (lambda (ch chs) (error "foo")) () ""))))
+  (check (runtime-error? (string-fold (lambda (ch chs) (error "foo")) () "12345")))
+  (check (not (runtime-error? (string-fold (lambda (ch chs) (error "foo")) () ""))))
 
   (let ((catch-tag (gensym "string-fold-catch-tag"))
 	(return-value (gensym "string-fold-return-value")))
 
-    (test-case (eq? (catch catch-tag
+    (check (eq? (catch catch-tag
 		  (string-fold (lambda (ch chs) (throw catch-tag return-value)) () "12345"))
 		return-value))
 
-    (test-case
+    (check
      (equal? '(1 2 3 4)
              (checkpoint-order-of
               (checkpoint 1)

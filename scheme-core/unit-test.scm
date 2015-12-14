@@ -16,7 +16,7 @@
             "all-tests"
             "run-tests"
             
-            "test-case"))
+            "check"))
 
 ;; REVISIT: unit tests over ranged x (ie: this should apply from all x in [0,255]
 ;; REVISIT: test-case that shows expected/actual values (should probably special case based on nested form)
@@ -134,7 +134,7 @@
            (condition-passed)
            (condition-failed :test-failed #f)))))
 
-(defmacro (test-case condition)
+(defmacro (check condition)
   `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
 
 ;;;; Unit test execution

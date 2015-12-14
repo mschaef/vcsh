@@ -7,26 +7,26 @@
         (l4 ())
         (l5 '(8 9 10)))
 
-    (test-case (runtime-error? (append :not-a-list l1)))
-    (test-case (runtime-error? (append l1 :not-a-list l1)))
-    (test-case (runtime-error? (append l1 :not-a-list :not-a-list)))
+    (check (runtime-error? (append :not-a-list l1)))
+    (check (runtime-error? (append l1 :not-a-list l1)))
+    (check (runtime-error? (append l1 :not-a-list :not-a-list)))
 
-    (test-case (equal? (append '(1 2 . 3) l2) '(1 2 4 5 6)))
-    (test-case (equal? '(1 2 3 1 2 . 3) (append l1 '(1 2 . 3))))
+    (check (equal? (append '(1 2 . 3) l2) '(1 2 4 5 6)))
+    (check (equal? '(1 2 3 1 2 . 3) (append l1 '(1 2 . 3))))
     
-    (test-case (eq? () (append l4)))
-    (test-case (eq? () (append l4 l4)))
-    (test-case (eq? () (append l4 l4 l4 l4 l4 l4 l4)))
+    (check (eq? () (append l4)))
+    (check (eq? () (append l4 l4)))
+    (check (eq? () (append l4 l4 l4 l4 l4 l4 l4)))
     
-    (test-case (equal? '(1 2 3 4 5 6) (append l1 l2)))
+    (check (equal? '(1 2 3 4 5 6) (append l1 l2)))
 
-    (test-case (equal? '(1 2 3 4 5 6 7 8 9 10) (append l1 l2 l3 l4 l5)))
+    (check (equal? '(1 2 3 4 5 6 7 8 9 10) (append l1 l2 l3 l4 l5)))
 
-    (test-case (equal? '(1 2 3) (append l1 l4)))
-    (test-case (equal? '(1 2 3) (append l4 l1)))
+    (check (equal? '(1 2 3) (append l1 l4)))
+    (check (equal? '(1 2 3) (append l4 l1)))
 
-    (test-case (equal? l1 '(1 2 3)))
-    (test-case (equal? l2 '(4 5 6)))
-    (test-case (equal? l3 '(7)))
-    (test-case (equal? l4 ()))
-    (test-case (equal? l5 '(8 9 10)))))
+    (check (equal? l1 '(1 2 3)))
+    (check (equal? l2 '(4 5 6)))
+    (check (equal? l3 '(7)))
+    (check (equal? l4 ()))
+    (check (equal? l5 '(8 9 10)))))

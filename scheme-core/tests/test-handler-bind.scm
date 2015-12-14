@@ -2,9 +2,9 @@
 
 (define-test handler-bind
 
-  (test-case (equal? (handler-bind ((signal-1 (lambda () :foo))) 12) 12))
+  (check (equal? (handler-bind ((signal-1 (lambda () :foo))) 12) 12))
 
-  (test-case
+  (check
    (equal? '(1 2 3 4)
            (checkpoint-order-of
             (checkpoint 1)
@@ -14,7 +14,7 @@
               (checkpoint 3)
               (checkpoint 4)))))
 
-  (test-case
+  (check
    (equal? '(1 2 3)
            (checkpoint-order-of
             (handler-bind ((signal-1 (lambda () (checkpoint 2))))
@@ -22,7 +22,7 @@
               (signal 'signal-1)
               (checkpoint 3)))))
 
-  (test-case
+  (check
    (equal? '(1 2 3 4)
            (checkpoint-order-of
             (handler-bind ((signal-1 (lambda () (checkpoint 3))))
@@ -31,7 +31,7 @@
                 (signal 'signal-1)
                 (checkpoint 4))))))
 
-  (test-case
+  (check
    (equal? '(:begin :inner-begin :outer :inner-end :outer :end)
            (checkpoint-order-of
             (handler-bind ((signal-1 (lambda () 
@@ -44,7 +44,7 @@
                 (signal 'signal-1)
                 (checkpoint :end))))))
 
-  (test-case
+  (check
    (equal? '(1 2 3 4)
            (checkpoint-order-of
             (handler-bind ((condition-1 (lambda args (checkpoint 2)))
@@ -54,7 +54,7 @@
               (signal 'condition-2)
               (checkpoint 4)))))
   
-  (test-case
+  (check
    (equal? '(:begin 
              :outer-handler-established 
              :in-catch 
@@ -74,7 +74,7 @@
               (signal 'test-handler)
               (checkpoint :end)))))
 
-  (test-case
+  (check
    (equal? '(:begin 
              :outer-handler-established 
              :in-catch 

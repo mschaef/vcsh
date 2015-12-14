@@ -1,11 +1,11 @@
 (use-package! "unit-test")
 
 (define-test list?-dotted-list?
-  (test-case (list? '()))
-  (test-case (list? '(1 2 3)))
-  (test-case (not (list? '(1 2 . 4))))
+  (check (list? '()))
+  (check (list? '(1 2 3)))
+  (check (not (list? '(1 2 . 4))))
 
-  (test-case (not (dotted-list? '())))
-  (test-case (not (dotted-list? '(1 2 3))))
-  (test-case (dotted-list? '(1 2 . 4))))
+  (check (not (dotted-list? '())))
+  (check (not (dotted-list? '(1 2 3))))
+  (check (dotted-list? '(1 2 . 4))))
 

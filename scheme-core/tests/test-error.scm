@@ -1,7 +1,7 @@
 (use-package! "unit-test")
 
 (define-test error
-  (test-case
+  (check
    (equal? '(1 2 3)
            (checkpoint-order-of
             (handler-bind ((runtime-error 

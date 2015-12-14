@@ -25,49 +25,45 @@
 (define-method (tgf-2b (x number) (y complex)) :complex)
 
 (define-test generic-function-arity-2
-  (test-case (eq? (tgf-2 3 3) :fixnum))
-  (test-case (eq? (tgf-2 3.0 3.0) :flonum))
-  (test-case (eq? (tgf-2 3i 3i) :complex))
-  (test-case (eq? (tgf-2 #\3  #\3) :character))
-  (test-case (eq? (tgf-2 "3" "3") :string))
+  (check (eq? (tgf-2 3 3) :fixnum))
+  (check (eq? (tgf-2 3.0 3.0) :flonum))
+  (check (eq? (tgf-2 3i 3i) :complex))
+  (check (eq? (tgf-2 #\3  #\3) :character))
+  (check (eq? (tgf-2 "3" "3") :string))
 
-  (test-case (eq? (tgf-2 3 3) :fixnum))
-  (test-case (eq? (tgf-2 3.0 3) :default-handling))
-  (test-case (eq? (tgf-2 3i 3) :default-handling))
+  (check (eq? (tgf-2 3 3) :fixnum))
+  (check (eq? (tgf-2 3.0 3) :default-handling))
+  (check (eq? (tgf-2 3i 3) :default-handling))
 
-  (test-case (eq? (tgf-2 3 3) :fixnum))
-  (test-case (eq? (tgf-2 3 3.0) :default-handling))
-  (test-case (eq? (tgf-2 3 3i) :default-handling))
-
-
-  (test-case (eq? (tgf-2a 3 3) :fixnum))
-  (test-case (eq? (tgf-2a 3.0 3.0) :flonum))
-  (test-case (eq? (tgf-2a 3i 3i) :complex))
-  (test-case (eq? (tgf-2a #\3  #\3) :default-handling))
-  (test-case (eq? (tgf-2a "3" "3") :default-handling))
-
-  (test-case (eq? (tgf-2a 3 3) :fixnum))
-  (test-case (eq? (tgf-2a 3.0 3) :flonum))
-  (test-case (eq? (tgf-2a 3i 3) :complex))
-
-  (test-case (eq? (tgf-2a 3 3) :fixnum))
-  (test-case (eq? (tgf-2a 3 3.0) :fixnum))
-  (test-case (eq? (tgf-2a 3 3i) :fixnum))
-
-  (test-case (eq? (tgf-2b 3 3) :fixnum))
-  (test-case (eq? (tgf-2b 3.0 3.0) :flonum))
-  (test-case (eq? (tgf-2b 3i 3i) :complex))
-  (test-case (eq? (tgf-2b #\3  #\3) :default-handling))
-  (test-case (eq? (tgf-2b "3" "3") :default-handling))
-
-  (test-case (eq? (tgf-2b 3 3) :fixnum))
-  (test-case (eq? (tgf-2b 3.0 3) :fixnum))
-  (test-case (eq? (tgf-2b 3i 3) :fixnum))
-
-  (test-case (eq? (tgf-2b 3 3) :fixnum))
-  (test-case (eq? (tgf-2b 3 3.0) :flonum))
-  (test-case (eq? (tgf-2b 3 3i) :complex))
-
-  )
+  (check (eq? (tgf-2 3 3) :fixnum))
+  (check (eq? (tgf-2 3 3.0) :default-handling))
+  (check (eq? (tgf-2 3 3i) :default-handling))
 
 
+  (check (eq? (tgf-2a 3 3) :fixnum))
+  (check (eq? (tgf-2a 3.0 3.0) :flonum))
+  (check (eq? (tgf-2a 3i 3i) :complex))
+  (check (eq? (tgf-2a #\3  #\3) :default-handling))
+  (check (eq? (tgf-2a "3" "3") :default-handling))
+
+  (check (eq? (tgf-2a 3 3) :fixnum))
+  (check (eq? (tgf-2a 3.0 3) :flonum))
+  (check (eq? (tgf-2a 3i 3) :complex))
+
+  (check (eq? (tgf-2a 3 3) :fixnum))
+  (check (eq? (tgf-2a 3 3.0) :fixnum))
+  (check (eq? (tgf-2a 3 3i) :fixnum))
+
+  (check (eq? (tgf-2b 3 3) :fixnum))
+  (check (eq? (tgf-2b 3.0 3.0) :flonum))
+  (check (eq? (tgf-2b 3i 3i) :complex))
+  (check (eq? (tgf-2b #\3  #\3) :default-handling))
+  (check (eq? (tgf-2b "3" "3") :default-handling))
+
+  (check (eq? (tgf-2b 3 3) :fixnum))
+  (check (eq? (tgf-2b 3.0 3) :fixnum))
+  (check (eq? (tgf-2b 3i 3) :fixnum))
+
+  (check (eq? (tgf-2b 3 3) :fixnum))
+  (check (eq? (tgf-2b 3 3.0) :flonum))
+  (check (eq? (tgf-2b 3 3i) :complex)))

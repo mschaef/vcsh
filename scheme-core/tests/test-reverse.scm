@@ -1,27 +1,27 @@
 (use-package! "unit-test")
 
 (define-test reverse
-  (test-case (runtime-error? (reverse :symbol)))
+  (check (runtime-error? (reverse :symbol)))
 
-  (test-case (equal? () (reverse ())))
+  (check (equal? () (reverse ())))
 
   (let ((xs (list 1)))
-    (test-case (equal? '(1) (reverse xs)))
-    (test-case (not (eq? xs (reverse xs)))))
+    (check (equal? '(1) (reverse xs)))
+    (check (not (eq? xs (reverse xs)))))
 
   (let ((xs (list 1 2 3)))
-    (test-case (equal? '(3 2 1) (reverse xs)))
-    (test-case (not (eq? xs (reverse xs))))))
+    (check (equal? '(3 2 1) (reverse xs)))
+    (check (not (eq? xs (reverse xs))))))
 
 (define-test reverse!
-  (test-case (runtime-error? (reverse! :symbol)))
+  (check (runtime-error? (reverse! :symbol)))
 
-  (test-case (equal? () (reverse! ())))
+  (check (equal? () (reverse! ())))
 
   (let ((xs (list 1)))
-    (test-case (equal? '(1) (reverse! xs)))
-    (test-case (eq? xs (reverse! xs))))
+    (check (equal? '(1) (reverse! xs)))
+    (check (eq? xs (reverse! xs))))
 
   (let ((xs (list 1 2 3)))
-    (test-case (equal? '(3 2 1) (reverse! xs)))
-    (test-case (eq? xs (reverse! xs)))))
+    (check (equal? '(3 2 1) (reverse! xs)))
+    (check (eq? xs (reverse! xs)))))

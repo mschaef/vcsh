@@ -19,35 +19,35 @@
     (let* ((s1-name (random-string))
            (s1 (intern! s1-name p1)))
 
-      (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-      (test-case (values-eq? (find-symbol s1-name p2) #f #f))
+      (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+      (check (values-eq? (find-symbol s1-name p2) #f #f))
       
       (import! s1 p2)
 
-      (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-      (test-case (values-eq? (find-symbol s1-name p2) s1 :internal))
+      (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+      (check (values-eq? (find-symbol s1-name p2) s1 :internal))
 
-      (test-case (eq? (intern! s1-name p2) s1))
+      (check (eq? (intern! s1-name p2) s1))
 
-      (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-      (test-case (values-eq? (find-symbol s1-name p2) s1 :internal)))
+      (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+      (check (values-eq? (find-symbol s1-name p2) s1 :internal)))
 
     (let* ((s1-name (random-string))
            (s1 (intern! s1-name p1))
            (s2 (intern! s1-name p2)))
  
-      (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-      (test-case (values-eq? (find-symbol s1-name p2) s2 :internal))
+      (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+      (check (values-eq? (find-symbol s1-name p2) s2 :internal))
       
-      (test-case (runtime-error? (import! s1 p2)))
+      (check (runtime-error? (import! s1 p2)))
 
-      (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-      (test-case (values-eq? (find-symbol s1-name p2) s2 :internal))
+      (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+      (check (values-eq? (find-symbol s1-name p2) s2 :internal))
 
-      (test-case (eq? (intern! s1-name p2) s2))
+      (check (eq? (intern! s1-name p2) s2))
 
-      (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-      (test-case (values-eq? (find-symbol s1-name p2) s2 :internal)))))
+      (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+      (check (values-eq? (find-symbol s1-name p2) s2 :internal)))))
 
     
 
@@ -71,47 +71,40 @@
     (use-package! p1 p2)
 
     ;; s1 and s2 are in p1 but not in p2
-    (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-    (test-case (values-eq? (find-symbol s1-name p1-name) s1 :internal))
-    (test-case (values-eq? (find-symbol s2-name p1) s2 :internal))
-    (test-case (values-eq? (find-symbol s2-name p1-name) s2 :internal))
+    (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+    (check (values-eq? (find-symbol s1-name p1-name) s1 :internal))
+    (check (values-eq? (find-symbol s2-name p1) s2 :internal))
+    (check (values-eq? (find-symbol s2-name p1-name) s2 :internal))
 
-    (test-case (values-eq? (find-symbol s1-name p2) #f #f))
-    (test-case (values-eq? (find-symbol s1-name p2-name) #f #f))
-    (test-case (values-eq? (find-symbol s2-name p2) #f #f))
-    (test-case (values-eq? (find-symbol s2-name p2-name) #f #f))
+    (check (values-eq? (find-symbol s1-name p2) #f #f))
+    (check (values-eq? (find-symbol s1-name p2-name) #f #f))
+    (check (values-eq? (find-symbol s2-name p2) #f #f))
+    (check (values-eq? (find-symbol s2-name p2-name) #f #f))
  
     ;; s-bad is not in p1 or p2
-    (test-case (values-eq? (find-symbol s-bad-name p1) #f #f))
-    (test-case (values-eq? (find-symbol s-bad-name p2) #f #f))
+    (check (values-eq? (find-symbol s-bad-name p1) #f #f))
+    (check (values-eq? (find-symbol s-bad-name p2) #f #f))
 
     ;; Export s2 so that it's visible from p2
     (export! s2 p1)
 
     ;; s1 and s2 are in p1 but only s2 is in p2
-    (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-    (test-case (values-eq? (find-symbol s1-name p1-name) s1 :internal))
-    (test-case (values-eq? (find-symbol s2-name p1) s2 :external))
-    (test-case (values-eq? (find-symbol s2-name p1-name) s2 :external))
+    (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+    (check (values-eq? (find-symbol s1-name p1-name) s1 :internal))
+    (check (values-eq? (find-symbol s2-name p1) s2 :external))
+    (check (values-eq? (find-symbol s2-name p1-name) s2 :external))
    
-    (test-case (values-eq? (find-symbol s1-name p2) #f #f))
-    (test-case (values-eq? (find-symbol s1-name p2-name) #f #f))
-    (test-case (values-eq? (find-symbol s2-name p2) s2 :inherited))
-    (test-case (values-eq? (find-symbol s2-name p2-name) s2 :inherited))
+    (check (values-eq? (find-symbol s1-name p2) #f #f))
+    (check (values-eq? (find-symbol s1-name p2-name) #f #f))
+    (check (values-eq? (find-symbol s2-name p2) s2 :inherited))
+    (check (values-eq? (find-symbol s2-name p2-name) s2 :inherited))
 
     ;; post export, s1 and s2 are in still p1
-    (test-case (values-eq? (find-symbol s1-name p1) s1 :internal))
-    (test-case (values-eq? (find-symbol s1-name p1-name) s1 :internal))
-    (test-case (values-eq? (find-symbol s2-name p1) s2 :external))
-    (test-case (values-eq? (find-symbol s2-name p1-name) s2 :external))
+    (check (values-eq? (find-symbol s1-name p1) s1 :internal))
+    (check (values-eq? (find-symbol s1-name p1-name) s1 :internal))
+    (check (values-eq? (find-symbol s2-name p1) s2 :external))
+    (check (values-eq? (find-symbol s2-name p1-name) s2 :external))
 
     ;; s-bad is still not in p1 or p2
-    (test-case (values-eq? (find-symbol s-bad-name p1) #f #f))
-    (test-case (values-eq? (find-symbol s-bad-name p2) #f #f))
-    ))
-
-    
-
-         
-
-    
+    (check (values-eq? (find-symbol s-bad-name p1) #f #f))
+    (check (values-eq? (find-symbol s-bad-name p2) #f #f))))
