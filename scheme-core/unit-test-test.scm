@@ -21,4 +21,4 @@
   (test-case (throw 'uncaught-throw)))
 
 (define (run)
-  (if (time (test)) 0 1))
+  (if (time (run-tests)) 0 1))

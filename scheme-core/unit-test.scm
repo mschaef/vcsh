@@ -14,7 +14,8 @@
   (:uses "scheme")
   (:exports "define-test"
             "all-tests"
-            "test"
+            "run-tests"
+            
             "test-case"))
 
 ;; REVISIT: unit tests over ranged x (ie: this should apply from all x in [0,255]
@@ -208,7 +209,7 @@
       (message "\n\n~a Failure(s)!\n" (length failure-results))
       (message "--------------------------------\n"))))
 
-(define (test :optional (tests-to-run (all-tests)))
+(define (run-tests :optional (tests-to-run (all-tests)))
   (catch 'abort-tests
     (handler-bind ((user-break
                     (lambda ()

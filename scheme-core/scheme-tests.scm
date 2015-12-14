@@ -12,6 +12,6 @@
 
 (define (run)
   (in-package! "unit-test-suite")
-  (if (time (test))
+  (if (time (run-tests))
       0
       1))

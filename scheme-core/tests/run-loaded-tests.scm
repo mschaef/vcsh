@@ -4,4 +4,4 @@
 
 (require-package! "unit-test")
 
-(define (run) (if (test) 0 1))
+(define (run) (if (run-tests) 0 1))

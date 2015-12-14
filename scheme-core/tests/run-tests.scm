@@ -10,7 +10,7 @@
 (define (run)
   (dynamic-let ((scheme::*location-mapping* (make-identity-hash)))
     (load-tests *test-case-path*)
-    (if (time (test)) 0 1)))
+    (if (time (run-tests)) 0 1)))
 
 
 
