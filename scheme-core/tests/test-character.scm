@@ -484,25 +484,17 @@
   (check (not (char? [1 2 3 4 5])))
   (check (not (char? (or #f 4)))))
 
-(define-test integer->char
-  (check (runtime-error? (integer->char -1.0)))
-  (check (runtime-error? (integer->char 65536.0)))
-  (check (runtime-error? (integer->char #\a)))
-  (check (runtime-error? (integer->char [1])))
-  (check (runtime-error? (integer->char [1 2 3])))
-  (check (runtime-error? (integer->char [1 2 3])))
-  (check (runtime-error? (integer->char '(1 2 3))))
-  (check (runtime-error? (integer->char -1)))
-  (check (runtime-error? (integer->char 256)))
-  (check (runtime-error? (integer->char 65535)))
-  (check (runtime-error? (integer->char 65536)))
+(define-test integer->char/error
+  (check-for (bad-val '(-1.0 65536.0 #\a [1] [1 2 3] [1 2 3]
+                        '(1 2 3) -1 256 65535 65536))
+             (runtime-error? (integer->char bad-val))))
 
-  (let ((number-of-characters 256))
-    (dotimes (n number-of-characters) (check (char? (integer->char n))))
-    (dotimes (n number-of-characters) (check (= n (char->integer (integer->char n)))))
-    (dotimes (n number-of-characters) (check (char=? (integer->char n) (integer->char n))))))
+(define-test integer->char/algebraic
+  (check-for (n (iseq 0 256))
+             (char? (integer->char n)))
 
-;
-; Vector test cases
-;
+  (check-for (n (iseq 0 256))
+             (= n (char->integer (integer->char n))))
 
+  (check-for (n (iseq 0 256))
+             (char=? (integer->char n) (integer->char n))))

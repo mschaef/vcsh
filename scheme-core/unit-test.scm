@@ -16,7 +16,8 @@
             "all-tests"
             "run-tests"
             
-            "check"))
+            "check"
+            "check-for"))
 
 ;; REVISIT: check-for (multiple checks over a set of bindings of a given var)
 ;; REVISIT: check that shows expected/actual values
@@ -136,6 +137,9 @@
 
 (defmacro (check condition)
   `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
+
+(defmacro (check-for binding-form condition)
+  `(dolist ,binding-form (check ,condition)))
 
 ;;;; Unit test execution
 
