@@ -131,27 +131,27 @@
     (message "Checking Condition: ~s\n" condition-form))
   (catch *check-escape*
     (with-unexpected-escape-handler condition-failed
-       (if (condition-passed?)
-           (condition-passed)
-           (condition-failed :test-failed #f)))))
+      (if (condition-passed?)
+          (condition-passed)
+          (condition-failed :test-failed #f)))))
 
 (defmacro (check condition)
   `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
 
-(defmacro (check-for binding-form condition)
+(defmacro (check-for binding-form . conditions)
   `(dolist ,binding-form (check ,condition)))
 
 ;;;; Unit test execution
 
 (define (run-test test-case)
   (catch *test-escape*
-      (dynamic-let ((*running-test-case* test-case)
-                    (*check-results* ()))
-        (with-unexpected-escape-handler (lambda args
-                                          (test-failed args)
-                                          (throw *test-escape* *check-results*))
-           ((test-case-runner test-case)))
-        *check-results*)))
+    (dynamic-let ((*running-test-case* test-case)
+                  (*check-results* ()))
+      (with-unexpected-escape-handler (lambda args
+                                        (test-failed args)
+                                        (throw *test-escape* *check-results*))
+        ((test-case-runner test-case)))
+      *check-results*)))
 
 (define (execute-test test-case)
   (dynamic-let ((*error* *show-test-messages*)
@@ -179,10 +179,10 @@
   "Loads all unit test files from the specified <load-directory>. The load directory
    defaults to the current directory. <filename-template> can optionally be specified
    to determine which files are considered unit tests."
- (dynamic-let ((*info* #t))
-   (for-each load (directory (if load-directory
-                                 (make-filename load-directory filename-template)
-                                 filename-template)))))
+  (dynamic-let ((*info* #t))
+    (for-each load (directory (if load-directory
+                                  (make-filename load-directory filename-template)
+                                  filename-template)))))
 
 (define (test-result-location-string result)
   (define (location-string location)

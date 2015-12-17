@@ -487,14 +487,14 @@
 (define-test integer->char/error
   (check-for (bad-val '(-1.0 65536.0 #\a [1] [1 2 3] [1 2 3]
                         '(1 2 3) -1 256 65535 65536))
-             (runtime-error? (integer->char bad-val))))
+    (runtime-error? (integer->char bad-val))))
 
 (define-test integer->char/algebraic
   (check-for (n (iseq 0 256))
-             (char? (integer->char n)))
+    (char? (integer->char n)))
 
   (check-for (n (iseq 0 256))
-             (= n (char->integer (integer->char n))))
+    (= n (char->integer (integer->char n))))
 
   (check-for (n (iseq 0 256))
-             (char=? (integer->char n) (integer->char n))))
+    (char=? (integer->char n) (integer->char n))))
