@@ -138,7 +138,7 @@
 (defmacro (check condition)
   `(check-condition (lambda () ,condition) ',condition ',(form-source-location condition)))
 
-(defmacro (check-for binding-form . conditions)
+(defmacro (check-for binding-form condition)
   `(dolist ,binding-form (check ,condition)))
 
 ;;;; Unit test execution

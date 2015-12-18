@@ -3,486 +3,177 @@
          "unit-test"
          "unit-test-utils"))
 
+(define-test char-alphabetic?/non-character
+  (check-for (non-char '(0 0.0 "non-character"))
+    (not (char-alphabetic? non-char))))
+
+(define-test char-alphabetic?/non-alphabetic
+  (check-for (char '(#\0 #\9 #\space #\newline #\cr #\tab #\\))
+    (not (char-alphabetic? char))))
+
 (define-test char-alphabetic?
+  (check-for (char '(#\a #\b #\c #\d #\e #\f #\g #\h #\i #\j #\k #\l #\m
+                     #\n #\o #\p #\q #\r #\s #\t #\u #\v #\w #\x #\y #\z
+                     #\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K #\L #\M
+                     #\N #\O #\P #\Q #\R #\S #\T #\U #\V #\W #\X #\Y #\Z))
+    (char-alphabetic? char)))
 
-  (check (not (char-alphabetic? 0)))
-  (check (not (char-alphabetic? 0.0)))
-  (check (not (char-alphabetic? "non-string")))
+(define-test char-numeric?/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (not (char-numeric? char))))
 
-  (check (not (char-alphabetic? #\0)))
-  (check (not (char-alphabetic? #\9)))
-  (check (not (char-alphabetic? #\space)))
-  (check (not (char-alphabetic? #\newline)))
-  (check (not (char-alphabetic? #\cr)))
-  (check (not (char-alphabetic? #\tab)))
-  (check (not (char-alphabetic? #\\)))
+(define-test char-numeric?/non-numeric
+  (check-for (char '(#\a #\z #\A #\Z #\space #\newline #\cr #\tab #\\))
+    (not (char-numeric? char))))
 
-  (check (char-alphabetic? #\a))
-  (check (char-alphabetic? #\b))
-  (check (char-alphabetic? #\c))
-  (check (char-alphabetic? #\d))
-  (check (char-alphabetic? #\e))
-  (check (char-alphabetic? #\f))
-  (check (char-alphabetic? #\g))
-  (check (char-alphabetic? #\h))
-  (check (char-alphabetic? #\i))
-  (check (char-alphabetic? #\j))
-  (check (char-alphabetic? #\k))
-  (check (char-alphabetic? #\l))
-  (check (char-alphabetic? #\m))
-  (check (char-alphabetic? #\n))
-  (check (char-alphabetic? #\o))
-  (check (char-alphabetic? #\p))
-  (check (char-alphabetic? #\q))
-  (check (char-alphabetic? #\r))
-  (check (char-alphabetic? #\s))
-  (check (char-alphabetic? #\t))
-  (check (char-alphabetic? #\u))
-  (check (char-alphabetic? #\v))
-  (check (char-alphabetic? #\w))
-  (check (char-alphabetic? #\x))
-  (check (char-alphabetic? #\y))
-  (check (char-alphabetic? #\z))
-  (check (char-alphabetic? #\A))
-  (check (char-alphabetic? #\B))
-  (check (char-alphabetic? #\C))
-  (check (char-alphabetic? #\D))
-  (check (char-alphabetic? #\E))
-  (check (char-alphabetic? #\F))
-  (check (char-alphabetic? #\G))
-  (check (char-alphabetic? #\H))
-  (check (char-alphabetic? #\I))
-  (check (char-alphabetic? #\J))
-  (check (char-alphabetic? #\K))
-  (check (char-alphabetic? #\L))
-  (check (char-alphabetic? #\M))
-  (check (char-alphabetic? #\N))
-  (check (char-alphabetic? #\O))
-  (check (char-alphabetic? #\P))
-  (check (char-alphabetic? #\Q))
-  (check (char-alphabetic? #\R))
-  (check (char-alphabetic? #\S))
-  (check (char-alphabetic? #\T))
-  (check (char-alphabetic? #\U))
-  (check (char-alphabetic? #\V))
-  (check (char-alphabetic? #\W))
-  (check (char-alphabetic? #\X))
-  (check (char-alphabetic? #\Y))
-  (check (char-alphabetic? #\Z)))
+(define-test char-numeric?/numeric
+  (check-for (char '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9))
+    (char-numeric? char)))
 
-(define-test char-numeric?
+(define-test char-whitespace?/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (not (char-whitespace? char))))
 
-  (check (not (char-numeric? 0)))
-  (check (not (char-numeric? 0.0)))
-  (check (not (char-numeric? "non-string")))
+(define-test char-whitespace?/non-whitespace
+  (check-for (char '(#\a #\z #\A #\Z #\\ #\0 #\0))
+    (not (char-whitespace? char))))
 
-  (check (not (char-numeric? #\a)))
-  (check (not (char-numeric? #\z)))
-  (check (not (char-numeric? #\A)))
-  (check (not (char-numeric? #\Z)))
-  (check (not (char-numeric? #\space)))
-  (check (not (char-numeric? #\newline)))
-  (check (not (char-numeric? #\cr)))
-  (check (not (char-numeric? #\tab)))
-  (check (not (char-numeric? #\\)))
+(define-test char-whitespace?/whitespace
+  (check-for (char '(#\space #\newline #\cr #\tab))
+    (char-whitespace? char)))
 
-  (check (char-numeric? #\0))
-  (check (char-numeric? #\1))
-  (check (char-numeric? #\2))
-  (check (char-numeric? #\3))
-  (check (char-numeric? #\4))
-  (check (char-numeric? #\5))
-  (check (char-numeric? #\6))
-  (check (char-numeric? #\7))
-  (check (char-numeric? #\8))
-  (check (char-numeric? #\9)))
+(define-test char-upper-case?/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (not (char-upper-case? char))))
 
-(define-test char-whitespace?
+(define-test char-upper-case?/non-upper-case
+  (check-for (char '(#\space #\newline #\cr #\tab #\\ #\0 #\9))
+    (not (char-upper-case? char)))
+  
+  (check-for (char '(#\a #\b #\c #\d #\e #\f #\g #\h #\i #\j #\k #\l #\m
+                     #\n #\o #\p #\q #\r #\x #\t #\u #\v #\w #\x #\y #\z))
+    (not (char-upper-case? char))))
 
-  (check (not (char-whitespace? 0)))
-  (check (not (char-whitespace? 0.0)))
-  (check (not (char-whitespace? "non-string")))
+(define-test char-upper-case?/upper-case
+  (check-for (char '(#\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K #\L #\M
+                     #\N #\O #\P #\Q #\R #\X #\T #\U #\V #\W #\X #\Y #\Z))
+    (char-upper-case? char)))
 
-  (check (not (char-whitespace? #\a)))
-  (check (not (char-whitespace? #\z)))
-  (check (not (char-whitespace? #\A)))
-  (check (not (char-whitespace? #\Z)))
-  (check (not (char-whitespace? #\\)))
-  (check (not (char-whitespace? #\0)))
-  (check (not (char-whitespace? #\9)))
+(define-test char-lower-case?/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (not (char-lower-case? char))))
 
-  (check (char-whitespace? #\space))
-  (check (char-whitespace? #\newline))
-  (check (char-whitespace? #\cr))
-  (check (char-whitespace? #\tab)))
-
-(define-test char-upper-case?
-
-  (check (not (char-upper-case? 0)))
-  (check (not (char-upper-case? 0.0)))
-  (check (not (char-upper-case? "non-string")))
-
-  (check (not (char-upper-case? #\space)))
-  (check (not (char-upper-case? #\newline)))
-  (check (not (char-upper-case? #\cr)))
-  (check (not (char-upper-case? #\tab)))
-  (check (not (char-upper-case? #\\)))
-
-  (check (not (char-upper-case? #\a)))
-  (check (not (char-upper-case? #\b)))
-  (check (not (char-upper-case? #\c)))
-  (check (not (char-upper-case? #\d)))
-  (check (not (char-upper-case? #\e)))
-  (check (not (char-upper-case? #\f)))
-  (check (not (char-upper-case? #\g)))
-  (check (not (char-upper-case? #\h)))
-  (check (not (char-upper-case? #\i)))
-  (check (not (char-upper-case? #\j)))
-  (check (not (char-upper-case? #\k)))
-  (check (not (char-upper-case? #\l)))
-  (check (not (char-upper-case? #\m)))
-  (check (not (char-upper-case? #\n)))
-  (check (not (char-upper-case? #\o)))
-  (check (not (char-upper-case? #\p)))
-  (check (not (char-upper-case? #\q)))
-  (check (not (char-upper-case? #\r)))
-  (check (not (char-upper-case? #\x)))
-  (check (not (char-upper-case? #\t)))
-  (check (not (char-upper-case? #\u)))
-  (check (not (char-upper-case? #\v)))
-  (check (not (char-upper-case? #\w)))
-  (check (not (char-upper-case? #\x)))
-  (check (not (char-upper-case? #\y)))
-  (check (not (char-upper-case? #\z)))
-
-  (check (char-upper-case? #\A))
-  (check (char-upper-case? #\B))
-  (check (char-upper-case? #\C))
-  (check (char-upper-case? #\D))
-  (check (char-upper-case? #\E))
-  (check (char-upper-case? #\F))
-  (check (char-upper-case? #\G))
-  (check (char-upper-case? #\H))
-  (check (char-upper-case? #\I))
-  (check (char-upper-case? #\J))
-  (check (char-upper-case? #\K))
-  (check (char-upper-case? #\L))
-  (check (char-upper-case? #\M))
-  (check (char-upper-case? #\N))
-  (check (char-upper-case? #\O))
-  (check (char-upper-case? #\P))
-  (check (char-upper-case? #\Q))
-  (check (char-upper-case? #\R))
-  (check (char-upper-case? #\S))
-  (check (char-upper-case? #\T))
-  (check (char-upper-case? #\U))
-  (check (char-upper-case? #\V))
-  (check (char-upper-case? #\W))
-  (check (char-upper-case? #\X))
-  (check (char-upper-case? #\Y))
-  (check (char-upper-case? #\Z)))
-
-(define-test char-lower-case?
-
-  (check (not (char-lower-case? 0)))
-  (check (not (char-lower-case? 0.0)))
-  (check (not (char-lower-case? "non-string")))
-
-  (check (not (char-lower-case? #\space)))
-  (check (not (char-lower-case? #\newline)))
-  (check (not (char-lower-case? #\cr)))
-  (check (not (char-lower-case? #\tab)))
-  (check (not (char-lower-case? #\\)))
-
-  (check (char-lower-case? #\a))
-  (check (char-lower-case? #\b))
-  (check (char-lower-case? #\c))
-  (check (char-lower-case? #\d))
-  (check (char-lower-case? #\e))
-  (check (char-lower-case? #\f))
-  (check (char-lower-case? #\g))
-  (check (char-lower-case? #\h))
-  (check (char-lower-case? #\i))
-  (check (char-lower-case? #\j))
-  (check (char-lower-case? #\k))
-  (check (char-lower-case? #\l))
-  (check (char-lower-case? #\m))
-  (check (char-lower-case? #\n))
-  (check (char-lower-case? #\o))
-  (check (char-lower-case? #\p))
-  (check (char-lower-case? #\q))
-  (check (char-lower-case? #\r))
-  (check (char-lower-case? #\x))
-  (check (char-lower-case? #\t))
-  (check (char-lower-case? #\u))
-  (check (char-lower-case? #\v))
-  (check (char-lower-case? #\w))
-  (check (char-lower-case? #\x))
-  (check (char-lower-case? #\y))
-  (check (char-lower-case? #\z))
-
-  (check (not (char-lower-case? #\A)))
-  (check (not (char-lower-case? #\B)))
-  (check (not (char-lower-case? #\C)))
-  (check (not (char-lower-case? #\D)))
-  (check (not (char-lower-case? #\E)))
-  (check (not (char-lower-case? #\F)))
-  (check (not (char-lower-case? #\G)))
-  (check (not (char-lower-case? #\H)))
-  (check (not (char-lower-case? #\I)))
-  (check (not (char-lower-case? #\J)))
-  (check (not (char-lower-case? #\K)))
-  (check (not (char-lower-case? #\L)))
-  (check (not (char-lower-case? #\M)))
-  (check (not (char-lower-case? #\N)))
-  (check (not (char-lower-case? #\O)))
-  (check (not (char-lower-case? #\P)))
-  (check (not (char-lower-case? #\Q)))
-  (check (not (char-lower-case? #\R)))
-  (check (not (char-lower-case? #\S)))
-  (check (not (char-lower-case? #\T)))
-  (check (not (char-lower-case? #\U)))
-  (check (not (char-lower-case? #\V)))
-  (check (not (char-lower-case? #\W)))
-  (check (not (char-lower-case? #\X)))
-  (check (not (char-lower-case? #\Y)))
-  (check (not (char-lower-case? #\Z))))
-
-(define-test char-octal? 
-
-  (check (not (char-octal? 0)))
-  (check (not (char-octal? 0.0)))
-  (check (not (char-octal? "non-string")))
-
-  (check (not (char-octal? #\space)))
-  (check (not (char-octal? #\newline)))
-  (check (not (char-octal? #\cr)))
-  (check (not (char-octal? #\tab)))
-  (check (not (char-octal? #\\)))
-
-  (check (char-octal? #\0))
-  (check (char-octal? #\1))
-  (check (char-octal? #\2))
-  (check (char-octal? #\3))
-  (check (char-octal? #\4))
-  (check (char-octal? #\5))
-  (check (char-octal? #\6))
-  (check (char-octal? #\7))
-  (check (not (char-octal? #\8)))
-  (check (not (char-octal? #\9)))
-
-  (check (not (char-octal? #\a)))
-  (check (not (char-octal? #\b)))
-  (check (not (char-octal? #\c)))
-  (check (not (char-octal? #\d)))
-  (check (not (char-octal? #\e)))
-  (check (not (char-octal? #\f)))
-
-  (check (not (char-octal? #\A)))
-  (check (not (char-octal? #\B)))
-  (check (not (char-octal? #\C)))
-  (check (not (char-octal? #\D)))
-  (check (not (char-octal? #\E)))
-  (check (not (char-octal? #\F))))
-
-(define-test char-hex? 
-
-  (check (not (char-hex? 0)))
-  (check (not (char-hex? 0.0)))
-  (check (not (char-hex? "non-string")))
-
-  (check (not (char-hex? #\space)))
-  (check (not (char-hex? #\newline)))
-  (check (not (char-hex? #\cr)))
-  (check (not (char-hex? #\tab)))
-  (check (not (char-hex? #\\)))
-
-  (check (char-hex? #\0))
-  (check (char-hex? #\1))
-  (check (char-hex? #\2))
-  (check (char-hex? #\3))
-  (check (char-hex? #\4))
-  (check (char-hex? #\5))
-  (check (char-hex? #\6))
-  (check (char-hex? #\7))
-  (check (char-hex? #\8))
-  (check (char-hex? #\9))
-
-  (check (char-hex? #\a))
-  (check (char-hex? #\b))
-  (check (char-hex? #\c))
-  (check (char-hex? #\d))
-  (check (char-hex? #\e))
-  (check (char-hex? #\f))
-
-  (check (char-hex? #\A))
-  (check (char-hex? #\B))
-  (check (char-hex? #\C))
-  (check (char-hex? #\D))
-  (check (char-hex? #\E))
-  (check (char-hex? #\F)))
-
-(define-test char-upcase
-
-  (check (runtime-error? (char-upcase 0)))
-  (check (runtime-error? (char-upcase 0.0)))
-  (check (runtime-error? (char-upcase "non-string")))
-
-  (check (eq? (char-upcase #\0) #\0))
-  (check (eq? (char-upcase #\1) #\1))
-  (check (eq? (char-upcase #\2) #\2))
-  (check (eq? (char-upcase #\3) #\3))
-  (check (eq? (char-upcase #\4) #\4))
-  (check (eq? (char-upcase #\5) #\5))
-  (check (eq? (char-upcase #\6) #\6))
-  (check (eq? (char-upcase #\7) #\7))
-  (check (eq? (char-upcase #\8) #\8))
-  (check (eq? (char-upcase #\9) #\9))
-
-  (check (eq? (char-upcase #\a) #\A))
-  (check (eq? (char-upcase #\b) #\B))
-  (check (eq? (char-upcase #\c) #\C))
-  (check (eq? (char-upcase #\d) #\D))
-  (check (eq? (char-upcase #\e) #\E))
-  (check (eq? (char-upcase #\f) #\F))
-  (check (eq? (char-upcase #\g) #\G))
-  (check (eq? (char-upcase #\h) #\H))
-  (check (eq? (char-upcase #\i) #\I))
-  (check (eq? (char-upcase #\j) #\J))
-  (check (eq? (char-upcase #\k) #\K))
-  (check (eq? (char-upcase #\l) #\L))
-  (check (eq? (char-upcase #\m) #\M))
-  (check (eq? (char-upcase #\n) #\N))
-  (check (eq? (char-upcase #\o) #\O))
-  (check (eq? (char-upcase #\p) #\P))
-  (check (eq? (char-upcase #\q) #\Q))
-  (check (eq? (char-upcase #\r) #\R))
-  (check (eq? (char-upcase #\s) #\S))
-  (check (eq? (char-upcase #\t) #\T))
-  (check (eq? (char-upcase #\u) #\U))
-  (check (eq? (char-upcase #\v) #\V))
-  (check (eq? (char-upcase #\w) #\W))
-  (check (eq? (char-upcase #\x) #\X))
-  (check (eq? (char-upcase #\y) #\Y))
-  (check (eq? (char-upcase #\z) #\Z))
-
-  (check (eq? (char-upcase #\A) #\A))
-  (check (eq? (char-upcase #\B) #\B))
-  (check (eq? (char-upcase #\C) #\C))
-  (check (eq? (char-upcase #\D) #\D))
-  (check (eq? (char-upcase #\E) #\E))
-  (check (eq? (char-upcase #\F) #\F))
-  (check (eq? (char-upcase #\G) #\G))
-  (check (eq? (char-upcase #\H) #\H))
-  (check (eq? (char-upcase #\I) #\I))
-  (check (eq? (char-upcase #\J) #\J))
-  (check (eq? (char-upcase #\K) #\K))
-  (check (eq? (char-upcase #\L) #\L))
-  (check (eq? (char-upcase #\M) #\M))
-  (check (eq? (char-upcase #\N) #\N))
-  (check (eq? (char-upcase #\O) #\O))
-  (check (eq? (char-upcase #\P) #\P))
-  (check (eq? (char-upcase #\Q) #\Q))
-  (check (eq? (char-upcase #\R) #\R))
-  (check (eq? (char-upcase #\S) #\S))
-  (check (eq? (char-upcase #\T) #\T))
-  (check (eq? (char-upcase #\U) #\U))
-  (check (eq? (char-upcase #\V) #\V))
-  (check (eq? (char-upcase #\W) #\W))
-  (check (eq? (char-upcase #\X) #\X))
-  (check (eq? (char-upcase #\Y) #\Y))
-  (check (eq? (char-upcase #\Z) #\Z)))
+(define-test char-lower-case?/non-lower-case
+  (check-for (char '(#\space #\newline #\cr #\tab #\\ #\0 #\9))
+    (not (char-lower-case? char))))
 
 
-(define-test char-downcase
+(define-test char-lower-case?/non-lower-case
+  (check-for (char '(#\space #\newline #\cr #\tab #\\ #\0 #\9))
+    (not (char-lower-case? char)))
+  
+  (check-for (char '(#\A #\B #\C #\D #\E #\F #\G #\H #\I #\J #\K #\L #\M
+                     #\N #\O #\P #\Q #\R #\X #\T #\U #\V #\W #\X #\Y #\Z))
+    (not (char-lower-case? char))))
 
-  (check (runtime-error? (char-downcase 0)))
-  (check (runtime-error? (char-downcase 0.0)))
-  (check (runtime-error? (char-downcase "non-string")))
+(define-test char-lower-case?/lower-case
+  (check-for (char '(#\a #\b #\c #\d #\e #\f #\g #\h #\i #\j #\k #\l #\m
+                     #\n #\o #\p #\q #\r #\x #\t #\u #\v #\w #\x #\y #\z))
+    (char-lower-case? char)))
 
-  (check (eq? (char-downcase #\0) #\0))
-  (check (eq? (char-downcase #\1) #\1))
-  (check (eq? (char-downcase #\2) #\2))
-  (check (eq? (char-downcase #\3) #\3))
-  (check (eq? (char-downcase #\4) #\4))
-  (check (eq? (char-downcase #\5) #\5))
-  (check (eq? (char-downcase #\6) #\6))
-  (check (eq? (char-downcase #\7) #\7))
-  (check (eq? (char-downcase #\8) #\8))
-  (check (eq? (char-downcase #\9) #\9))
+(define-test char-octal?/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (not (char-octal? char))))
 
-  (check (eq? (char-downcase #\a) #\a))
-  (check (eq? (char-downcase #\b) #\b))
-  (check (eq? (char-downcase #\c) #\c))
-  (check (eq? (char-downcase #\d) #\d))
-  (check (eq? (char-downcase #\e) #\e))
-  (check (eq? (char-downcase #\f) #\f))
-  (check (eq? (char-downcase #\g) #\g))
-  (check (eq? (char-downcase #\h) #\h))
-  (check (eq? (char-downcase #\i) #\i))
-  (check (eq? (char-downcase #\j) #\j))
-  (check (eq? (char-downcase #\k) #\k))
-  (check (eq? (char-downcase #\l) #\l))
-  (check (eq? (char-downcase #\m) #\m))
-  (check (eq? (char-downcase #\n) #\n))
-  (check (eq? (char-downcase #\o) #\o))
-  (check (eq? (char-downcase #\p) #\p))
-  (check (eq? (char-downcase #\q) #\q))
-  (check (eq? (char-downcase #\r) #\r))
-  (check (eq? (char-downcase #\s) #\s))
-  (check (eq? (char-downcase #\t) #\t))
-  (check (eq? (char-downcase #\u) #\u))
-  (check (eq? (char-downcase #\v) #\v))
-  (check (eq? (char-downcase #\w) #\w))
-  (check (eq? (char-downcase #\x) #\x))
-  (check (eq? (char-downcase #\y) #\y))
-  (check (eq? (char-downcase #\z) #\z))
+(define-test char-octal?/non-octal
+  (check-for (char '(#\space #\newline #\cr #\tab #\\ #\8 #\9
+                     #\a #\b #\c #\d #\e #\f #\A #\B #\C #\D
+                     #\E #\F))
+    (not (char-octal? char))))
 
-  (check (eq? (char-downcase #\A) #\a))
-  (check (eq? (char-downcase #\B) #\b))
-  (check (eq? (char-downcase #\C) #\c))
-  (check (eq? (char-downcase #\D) #\d))
-  (check (eq? (char-downcase #\E) #\e))
-  (check (eq? (char-downcase #\F) #\f))
-  (check (eq? (char-downcase #\G) #\g))
-  (check (eq? (char-downcase #\H) #\h))
-  (check (eq? (char-downcase #\I) #\i))
-  (check (eq? (char-downcase #\J) #\j))
-  (check (eq? (char-downcase #\K) #\k))
-  (check (eq? (char-downcase #\L) #\l))
-  (check (eq? (char-downcase #\M) #\m))
-  (check (eq? (char-downcase #\N) #\n))
-  (check (eq? (char-downcase #\O) #\o))
-  (check (eq? (char-downcase #\P) #\p))
-  (check (eq? (char-downcase #\Q) #\q))
-  (check (eq? (char-downcase #\R) #\r))
-  (check (eq? (char-downcase #\S) #\s))
-  (check (eq? (char-downcase #\T) #\t))
-  (check (eq? (char-downcase #\U) #\u))
-  (check (eq? (char-downcase #\V) #\v))
-  (check (eq? (char-downcase #\W) #\w))
-  (check (eq? (char-downcase #\X) #\x))
-  (check (eq? (char-downcase #\Y) #\y))
-  (check (eq? (char-downcase #\Z) #\z)))
+(define-test char-octal?/non-octal
+  (check-for (char '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7))
+    (char-octal? char)))
+
+(define-test char-hex?/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (not (char-hex? char))))
+
+(define-test char-hex?/non-hex
+  (check-for (char '(#\space #\newline #\cr #\tab
+                     #\g #\G #\z #\Z))
+    (not (char-hex? char))))
+
+(define-test char-hex?/hex
+  (check-for (char '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9
+                     #\a #\b #\c #\d #\e #\f
+                     #\A #\B #\C #\D #\E #\F))
+    (char-hex? char)))
+
+
+(define-test char-upcase/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (runtime-error? (char-upcase char))))
+
+(define-test char-upcase/non-alphabetic
+  (check-for (char '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9
+                     #\+ #\- #\space #\newline #\cr #\tab #\\))
+    (check-for (eq? char (char-upcase char)))))
+
+(define-test char-upcase/uppercase
+  (check-for (char '(#\A #\B #\C #\D #\E #\F #\G #\H #\I #\J
+                     #\K #\L #\M #\N #\O #\P #\Q #\R #\S #\T
+                     #\U #\V #\W #\X #\Y #\Z))
+    (check-for (eq? char (char-upcase char)))))
+
+(define-test char-upcase/lowercase
+  (check-for (letter-pair '((#\a . #\A) (#\b . #\B) (#\c . #\C) (#\d . #\D) (#\e . #\E)
+                            (#\f . #\F) (#\g . #\G) (#\h . #\H) (#\i . #\I) (#\j . #\J)
+                            (#\k . #\K) (#\l . #\L) (#\m . #\M) (#\n . #\N) (#\o . #\O)
+                            (#\p . #\P) (#\q . #\Q) (#\r . #\R) (#\s . #\S) (#\t . #\T)
+                            (#\u . #\U) (#\v . #\V) (#\w . #\W) (#\x . #\X) (#\y . #\Y)
+                            (#\z . #\Z)))
+    (dbind (input . expected) letter-pair
+      (check (eq? expected (char-upcase input))))))
+
+
+(define-test char-downcase/non-character
+  (check-for (char '(0 0.0 "non-character"))
+    (runtime-error? (char-downcase char))))
+
+(define-test char-downcase/non-alphabetic
+  (check-for (char '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9
+                     #\+ #\- #\space #\newline #\cr #\tab #\\))
+    (check-for (eq? char (char-downcase char)))))
+
+(define-test char-downcase/uppercase
+  (check-for (char '(#\a #\b #\c #\d #\e #\f #\g #\h #\i #\j
+                     #\k #\l #\m #\n #\o #\p #\q #\r #\s #\t
+                     #\u #\v #\w #\x #\y #\z))
+    (check-for (eq? char (char-downcase char)))))
+
+(define-test char-downcase/lowercase
+  (check-for (letter-pair '((#\A . #\a) (#\B . #\b) (#\C . #\c) (#\D . #\d) (#\E . #\e)
+                            (#\F . #\f) (#\G . #\g) (#\H . #\h) (#\I . #\i) (#\J . #\j)
+                            (#\K . #\k) (#\L . #\l) (#\M . #\m) (#\N . #\n) (#\O . #\o)
+                            (#\P . #\p) (#\Q . #\q) (#\R . #\r) (#\S . #\s) (#\T . #\t)
+                            (#\U . #\u) (#\V . #\v) (#\W . #\w) (#\X . #\x) (#\Y . #\y)
+                            (#\Z . #\z)))
+    (dbind (input . expected) letter-pair
+      (check (eq? expected (char-downcase input))))))
+
 
 (define-test character->string
   (check (runtime-error? (character->string 11)))
   (check (equal? "a" (character->string #\a))))
 
-(define-test char?
-  (check (char? #\a))
-  (check (char? #\b))
-  (check (char? #\Z))
-  (check (char? #\newline))
-  (check (char? #\space))
-  (check (char? #\;))
-  (check (char? #\@))
-  (check (char? #\#))
-  (check (not (char? 1)))
-  (check (not (char? 'symbol)))
-  (check (not (char? #t)))
-  (check (not (char? [1 2 3 4 5])))
-  (check (not (char? (or #f 4)))))
+(define-test char?/positive
+  (check-for (char '(#\a #\b #\Z #\newline #\space #\; #\@ #\#))
+    (char? char)))
+
+(define-test char?/negative
+  (check-for (not-char '(1 symbol #t [1 2 3]))
+    (not (char? not-char))))
 
 (define-test integer->char/error
   (check-for (bad-val '(-1.0 65536.0 #\a [1] [1 2 3] [1 2 3]

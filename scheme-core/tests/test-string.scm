@@ -551,10 +551,11 @@
     (get-output-string p)))
 
 (define-test string-round-trip
-  (dotimes (n 256)
-    (check (can-read/write-round-trip? (make-string 1 (integer->char n)))))
-  (dotimes (n 256)
-    (check (can-read/write-round-trip? (make-string 3 (integer->char n)))))
+  (check-for (n (iseq 0 256))
+    (can-read/write-round-trip? (make-string 1 (integer->char n))))
+  (check-for (n (iseq 0 256))
+    (can-read/write-round-trip? (make-string 3 (integer->char n))))
+
   (let ((ab-str (make-all-byte-string))
         (abc-str (make-all-byte-combo-string)))
     (check (can-read/write-round-trip? "\t\n"))
