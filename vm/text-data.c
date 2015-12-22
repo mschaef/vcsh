@@ -735,6 +735,9 @@ lref_t lstringp(lref_t x)
 
 lref_t lstring_length(lref_t string)
 {
+     if (!STRINGP(string))
+          vmerror_wrong_type_n(1, string);
+
      return fixcons(string->as.string.dim);
 }
 
