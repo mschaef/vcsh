@@ -26,7 +26,7 @@
 (define *puzzle* (make-vector (+ size 1)))
 (define *p* (make-vector (+ typemax 1)))
 (for-each (lambda (i) (vector-set! *p* i (make-vector (+ size 1))))
-          (iota (+ typemax 1)))
+          (iseq 0 (+ typemax 1)))
 
 (define (fit i j)
   (let ((end (vector-ref *piecemax* i)))

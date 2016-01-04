@@ -871,20 +871,17 @@
                                          (loop (cons (car xs) less) greater (+ index 1) (cdr xs)))
                                         (#t
                                          (loop less (cons (car xs) greater) (+ index 1) (cdr xs))))))))
-                        (check list? xs)
-                        (check procedure? less?)
-                        (check procedure? key)
                         (sort-step xs)))))))
 
 (defbench EQUAL?
   (account
    (bench-repeat 2048
-       (EQUAL? {(h e l l o - w o r l d) 123
-                (f r o b o z z l e) 23
-                [1 2 3 4 2 2 3] 23}
-               {(f r o b o z z l e) 23
-                [1 2 3 4 2 2 3] 23
-                (h e l l o - w o r l d) 123}))))
+       (EQUAL? '{(h e l l o - w o r l d) 123
+                 (f r o b o z z l e) 23
+                 [1 2 3 4 2 2 3] 23}
+               '{(f r o b o z z l e) 23
+                 [1 2 3 4 2 2 3] 23
+                 (h e l l o - w o r l d) 123}))))
 
 (define (fast-bench)
   "Run the benchmark suite on a useful subset of the overall

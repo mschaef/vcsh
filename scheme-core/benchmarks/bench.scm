@@ -157,7 +157,6 @@ it's running on."
 (define benchmark-time-sym (gensym))
 
 (defmacro (defbench benchname . code)
-  (check symbol? benchname)
   `(hash-set! *benchmarks* ',benchname (lambda ()
                                          (let ((,benchmark-time-sym #f))
                                            ,@code
