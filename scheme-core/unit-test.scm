@@ -86,7 +86,7 @@
 (define (all-tests)
   "Returns a list of all currently defined tests, sorted in alphabetical
    order by test name."
-  (qsort (hash-keys *test-cases*) string<-ci symbol-name))
+  (qsort (hash-keys *test-cases*) string< full-symbol-name))
 
 (define (test-by-name test-name)
   (hash-ref *test-cases* test-name #f))

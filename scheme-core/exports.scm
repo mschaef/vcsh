@@ -383,6 +383,7 @@
              fourth
              free-cell
              fresh-line
+             full-symbol-name
              gc
              gc-info
              gc-runtime

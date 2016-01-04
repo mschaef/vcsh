@@ -223,6 +223,7 @@
          (when *print-addresses*
            (write-strings port "@#x" (%obaddr-string obj))))
         ((and (not *print-packages-always*)
+              (package? *package*)
               (mvbind (found-sym status) (find-symbol (symbol-name obj) *package*)
                 (eq? found-sym obj)))
          (write-symbol-string port (symbol-name obj)))

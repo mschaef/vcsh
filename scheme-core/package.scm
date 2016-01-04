@@ -622,4 +622,6 @@
   (%set-symbol-vcell! sym (%unbound-marker))
   (values))
 
-
+(define (full-symbol-name sym)
+  (dynamic-let ((*print-packages-always* #t))
+    (write-to-string sym)))

@@ -198,6 +198,14 @@
     (repeat 10 (display (random-letter) o))
     (get-output-string o)))
 
+(define-test symbol-printing-without-package
+  (check (equal? ":test"
+                 (dynamic-let ((*package* #f))
+                           (write-to-string :test))))
+  (check (equal? "test-symbols::test"
+                 (dynamic-let ((*package* #f))
+                   (write-to-string 'test)))))
+
 (define-test symbol-printing-package-names
   (let ((original-package *package*)
         (p1-name (random-string))
