@@ -822,7 +822,7 @@
 (define (break pred? xs)
   "Returns two lists, the longest initial prefix of <xs> in which every
    item does not satify <pred?>, and the rest of the list."
-  (span  (lambda (x) (not (pred? x))) xs))
+  (span (lambda (x) (not (pred? x))) xs))
 
 (define (break! pred? xs)
   "Returns two lists, the longest initial prefix of <xs> in which every
@@ -839,20 +839,17 @@
 
 ;;;; Association Lists
 
-(define (ass key a-list equality-predicate?)
+(define (assoc key a-list)
   (let loop ((pos a-list))
     (cond ((null? pos)
            #f)
           ((pair? pos)
            (if (and (pair? (car pos))
-                    (equality-predicate? key (caar pos)))
+                    (equal? key (caar pos)))
                (car pos)
                (loop (cdr pos))))
           (#t
            (error "improper a-list at ~s: ~s" pos a-list)))))
-
-(define (assoc key a-list)
-  (ass key a-list equal?))
 
 (define (alist . k/vs)
   "Create an alist from an arbitrary (non-zero) number of <key>/<value>
