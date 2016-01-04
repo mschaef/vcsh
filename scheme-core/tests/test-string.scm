@@ -4,200 +4,186 @@
          "unit-test-utils"))
 
 (define-test string-comparison-ci
-  (check (eq? #t (string<-ci "alpha" "omega")))
-  (check (eq? #f (string<-ci "alpha" "alpha")))
-  (check (eq? #f (string<-ci "omega" "alpha")))
+  (check (string<-ci "alpha" "omega"))
+  (check (not (string<-ci "alpha" "alpha")))
+  (check (not (string<-ci "omega" "alpha")))
 
-  (check (eq? #t (string<=-ci "alpha" "omega")))
-  (check (eq? #t (string<=-ci "alpha" "alpha")))
-  (check (eq? #f (string<=-ci "omega" "alpha")))
+  (check (string<=-ci "alpha" "omega"))
+  (check (string<=-ci "alpha" "alpha"))
+  (check (not (string<=-ci "omega" "alpha")))
 
-  (check (eq? #f (string=-ci "alpha" "omega")))
-  (check (eq? #t (string=-ci "alpha" "alpha")))
-  (check (eq? #f (string=-ci "omega" "alpha")))
+  (check (not (string=-ci "alpha" "omega")))
+  (check (string=-ci "alpha" "alpha"))
+  (check (not (string=-ci "omega" "alpha")))
 
-  (check (eq? #f (string>-ci "alpha" "omega")))
-  (check (eq? #f (string>-ci "alpha" "alpha")))
-  (check (eq? #t (string>-ci "omega" "alpha")))
+  (check (not (string>-ci "alpha" "omega")))
+  (check (not (string>-ci "alpha" "alpha")))
+  (check (string>-ci "omega" "alpha"))
 
-  (check (eq? #f (string>=-ci "alpha" "omega")))
-  (check (eq? #t (string>=-ci "alpha" "alpha")))
-  (check (eq? #t (string>=-ci "omega" "alpha")))
+  (check (not (string>=-ci "alpha" "omega")))
+  (check (string>=-ci "alpha" "alpha"))
+  (check (string>=-ci "omega" "alpha"))
 
-  (check (eq? #t (string!=-ci "alpha" "omega")))
-  (check (eq? #f (string!=-ci "alpha" "alpha")))
-  (check (eq? #t (string!=-ci "omega" "alpha")))
+  (check (string!=-ci "alpha" "omega"))
+  (check (not (string!=-ci "alpha" "alpha")))
+  (check (string!=-ci "omega" "alpha"))
 
-  (check (eq? #t (string<-ci "ALPHA" "OMEGA")))
-  (check (eq? #f (string<-ci "ALPHA" "ALPHA")))
-  (check (eq? #f (string<-ci "OMEGA" "ALPHA")))
+  (check (string<-ci "ALPHA" "OMEGA"))
+  (check (not (string<-ci "ALPHA" "ALPHA")))
+  (check (not (string<-ci "OMEGA" "ALPHA")))
 
-  (check (eq? #t (string<=-ci "ALPHA" "OMEGA")))
-  (check (eq? #t (string<=-ci "ALPHA" "ALPHA")))
-  (check (eq? #f (string<=-ci "OMEGA" "ALPHA")))
+  (check (string<=-ci "ALPHA" "OMEGA"))
+  (check (string<=-ci "ALPHA" "ALPHA"))
+  (check (not (string<=-ci "OMEGA" "ALPHA")))
 
-  (check (eq? #f (string=-ci "ALPHA" "OMEGA")))
-  (check (eq? #t (string=-ci "ALPHA" "ALPHA")))
-  (check (eq? #f (string=-ci "OMEGA" "ALPHA")))
+  (check (not (string=-ci "ALPHA" "OMEGA")))
+  (check (string=-ci "ALPHA" "ALPHA"))
+  (check (not (string=-ci "OMEGA" "ALPHA")))
 
-  (check (eq? #f (string>-ci "ALPHA" "OMEGA")))
-  (check (eq? #f (string>-ci "ALPHA" "ALPHA")))
-  (check (eq? #t (string>-ci "OMEGA" "ALPHA")))
+  (check (not (string>-ci "ALPHA" "OMEGA")))
+  (check (not (string>-ci "ALPHA" "ALPHA")))
+  (check (string>-ci "OMEGA" "ALPHA"))
 
-  (check (eq? #f (string>=-ci "ALPHA" "OMEGA")))
-  (check (eq? #t (string>=-ci "ALPHA" "ALPHA")))
-  (check (eq? #t (string>=-ci "OMEGA" "ALPHA")))
+  (check (not (string>=-ci "ALPHA" "OMEGA")))
+  (check (string>=-ci "ALPHA" "ALPHA"))
+  (check (string>=-ci "OMEGA" "ALPHA"))
 
-  (check (eq? #t (string!=-ci "ALPHA" "OMEGA")))
-  (check (eq? #f (string!=-ci "ALPHA" "ALPHA")))
-  (check (eq? #t (string!=-ci "OMEGA" "ALPHA")))
+  (check (string!=-ci "ALPHA" "OMEGA"))
+  (check (not (string!=-ci "ALPHA" "ALPHA")))
+  (check (string!=-ci "OMEGA" "ALPHA"))
 
-  (check (eq? #t (string<-ci "alpha" "OMEGA")))
-  (check (eq? #f (string<-ci "alpha" "ALPHA")))
-  (check (eq? #f (string<-ci "omega" "ALPHA")))
+  (check (string<-ci "alpha" "OMEGA"))
+  (check (not (string<-ci "alpha" "ALPHA")))
+  (check (not (string<-ci "omega" "ALPHA")))
 
-  (check (eq? #t (string<=-ci "alpha" "OMEGA")))
-  (check (eq? #t (string<=-ci "alpha" "ALPHA")))
-  (check (eq? #f (string<=-ci "omega" "ALPHA")))
+  (check (string<=-ci "alpha" "OMEGA"))
+  (check (string<=-ci "alpha" "ALPHA"))
+  (check (not (string<=-ci "omega" "ALPHA")))
 
-  (check (eq? #f (string=-ci "alpha" "OMEGA")))
-  (check (eq? #t (string=-ci "alpha" "ALPHA")))
-  (check (eq? #f (string=-ci "omega" "ALPHA")))
+  (check (not (string=-ci "alpha" "OMEGA")))
+  (check (string=-ci "alpha" "ALPHA"))
+  (check (not (string=-ci "omega" "ALPHA")))
 
-  (check (eq? #f (string>-ci "alpha" "OMEGA")))
-  (check (eq? #f (string>-ci "alpha" "ALPHA")))
-  (check (eq? #t (string>-ci "omega" "ALPHA")))
+  (check (not (string>-ci "alpha" "OMEGA")))
+  (check (not (string>-ci "alpha" "ALPHA")))
+  (check (string>-ci "omega" "ALPHA"))
 
-  (check (eq? #f (string>=-ci "alpha" "OMEGA")))
-  (check (eq? #t (string>=-ci "alpha" "ALPHA")))
-  (check (eq? #t (string>=-ci "omega" "ALPHA")))
+  (check (not (string>=-ci "alpha" "OMEGA")))
+  (check (string>=-ci "alpha" "ALPHA"))
+  (check (string>=-ci "omega" "ALPHA"))
 
-  (check (eq? #t (string!=-ci "alpha" "OMEGA")))
-  (check (eq? #f (string!=-ci "alpha" "ALPHA")))
-  (check (eq? #t (string!=-ci "omega" "ALPHA")))
+  (check (string!=-ci "alpha" "OMEGA"))
+  (check (not (string!=-ci "alpha" "ALPHA")))
+  (check (string!=-ci "omega" "ALPHA"))
 
-  (check (eq? #t (string<-ci "ALPHA" "omega")))
-  (check (eq? #f (string<-ci "ALPHA" "alpha")))
-  (check (eq? #f (string<-ci "OMEGA" "alpha")))
+  (check (string<-ci "ALPHA" "omega"))
+  (check (not (string<-ci "ALPHA" "alpha")))
+  (check (not (string<-ci "OMEGA" "alpha")))
 
-  (check (eq? #t (string<=-ci "ALPHA" "omega")))
-  (check (eq? #t (string<=-ci "ALPHA" "alpha")))
-  (check (eq? #f (string<=-ci "OMEGA" "alpha")))
+  (check (string<=-ci "ALPHA" "omega"))
+  (check (string<=-ci "ALPHA" "alpha"))
+  (check (not (string<=-ci "OMEGA" "alpha")))
 
-  (check (eq? #f (string=-ci "ALPHA" "omega")))
-  (check (eq? #t (string=-ci "ALPHA" "alpha")))
-  (check (eq? #f (string=-ci "OMEGA" "alpha")))
+  (check (not (string=-ci "ALPHA" "omega")))
+  (check (string=-ci "ALPHA" "alpha"))
+  (check (not (string=-ci "OMEGA" "alpha")))
 
-  (check (eq? #f (string>-ci "ALPHA" "omega")))
-  (check (eq? #f (string>-ci "ALPHA" "alpha")))
-  (check (eq? #t (string>-ci "OMEGA" "alpha")))
+  (check (not (string>-ci "ALPHA" "omega")))
+  (check (not (string>-ci "ALPHA" "alpha")))
+  (check (string>-ci "OMEGA" "alpha"))
 
-  (check (eq? #f (string>=-ci "ALPHA" "omega")))
-  (check (eq? #t (string>=-ci "ALPHA" "alpha")))
-  (check (eq? #t (string>=-ci "OMEGA" "alpha")))
+  (check (not (string>=-ci "ALPHA" "omega")))
+  (check (string>=-ci "ALPHA" "alpha"))
+  (check (string>=-ci "OMEGA" "alpha"))
 
-  (check (eq? #t (string!=-ci "ALPHA" "omega")))
-  (check (eq? #f (string!=-ci "ALPHA" "alpha")))
-  (check (eq? #t (string!=-ci "OMEGA" "alpha"))))
+  (check (string!=-ci "ALPHA" "omega"))
+  (check (not (string!=-ci "ALPHA" "alpha")))
+  (check (string!=-ci "OMEGA" "alpha")))
 
-
-(define ts10a "0123456789")
-(define ts20a "01234567890123456789")
-(define ts40a "0123456789012345678901234567890123456789")
-(define ts10b "0123456789")
-(define ts20b "01234567890123456789")
-(define ts40b "0123456789012345678901234567890123456789")
-
-(define-test string-comparison ; TODO: need string-comparison tests for case-sensitivity
+(define-test strcmp/bad-arguments
   (check (runtime-error? (strcmp 123 "test")))
   (check (runtime-error? (strcmp "test" 123)))
-  (check (runtime-error? (strcmp 456 123)))
-  (check (eq? 0 (strcmp ts10a ts10a)))
+  (check (runtime-error? (strcmp 456 123))))
+
+(define-test string-comparison ; TODO: need string-comparison tests for case-sensitivity
+
+  (check (eq? 0 (strcmp "" "")))
+  (check (eq? 0 (strcmp "a" "a")))
+  (check (eq? 0 (strcmp "abcde" "abcde")))
 
   (check (> 0 (strcmp "alpha" "omega")))
   (check (< 0 (strcmp "omega" "alpha")))
-
   (check (> 0 (strcmp "alpha" "alphaz")))
 
-  (check (eq? #t (string< "alpha" "omega")))
-  (check (eq? #f (string< "alpha" "alpha")))
-  (check (eq? #f (string< "omega" "alpha")))
+  (check (string< "alpha" "omega"))
+  (check (not (string< "alpha" "alpha")))
+  (check (not (string< "omega" "alpha")))
 
-  (check (eq? #t (string<= "alpha" "omega")))
-  (check (eq? #t (string<= "alpha" "alpha")))
-  (check (eq? #f (string<= "omega" "alpha")))
+  (check (string<= "alpha" "omega"))
+  (check (string<= "alpha" "alpha"))
+  (check (not (string<= "omega" "alpha")))
 
-  (check (eq? #f (string= "alpha" "omega")))
-  (check (eq? #t (string= "alpha" "alpha")))
-  (check (eq? #f (string= "omega" "alpha")))
+  (check (not (string= "alpha" "omega")))
+  (check (string= "alpha" "alpha"))
+  (check (not (string= "omega" "alpha")))
 
-  (check (eq? #f (string> "alpha" "omega")))
-  (check (eq? #f (string> "alpha" "alpha")))
-  (check (eq? #t (string> "omega" "alpha")))
+  (check (not (string> "alpha" "omega")))
+  (check (not (string> "alpha" "alpha")))
+  (check (string> "omega" "alpha"))
 
-  (check (eq? #f (string>= "alpha" "omega")))
-  (check (eq? #t (string>= "alpha" "alpha")))
-  (check (eq? #t (string>= "omega" "alpha")))
+  (check (not (string>= "alpha" "omega")))
+  (check (string>= "alpha" "alpha"))
+  (check (string>= "omega" "alpha"))
 
-  (check (eq? #t (string!= "alpha" "omega")))
-  (check (eq? #f (string!= "alpha" "alpha")))
-  (check (eq? #t (string!= "omega" "alpha"))))
+  (check (string!= "alpha" "omega"))
+  (check (not (string!= "alpha" "alpha")))
+  (check (string!= "omega" "alpha")))
 
 
-(define-test string-drop-right
+(define-test string-drop-right/bad-arguments
   (check (runtime-error? (string-drop-right :symbol 0)))
   (check (runtime-error? (string-drop-right 1234 0)))
   (check (runtime-error? (string-drop-right "foo" :symbol)))
-  (check (runtime-error? (string-drop-right "foo" "bar")))
+  (check (runtime-error? (string-drop-right "foo" "bar"))))
 
-  (check (equal? (string-drop-right "" 0) ""))
+(define-test string-drop-right/arguments-out-of-range
   (check (runtime-error? (string-drop-right "" 1)))
   (check (runtime-error? (string-drop-right "" 2)))
-  
-  (check (equal? (string-drop-right "12345" 0) "12345"))
-  (check (equal? (string-drop-right "12345" 1) "1234"))
-  (check (equal? (string-drop-right "12345" 2) "123"))
-  (check (equal? (string-drop-right "12345" 3) "12"))
-  (check (equal? (string-drop-right "12345" 4) "1"))
-  (check (equal? (string-drop-right "12345" 5) ""))
   (check (runtime-error? (string-drop-right "12345" 6))))
 
+(define-test string-drop-right/positive
+  (check (equal? "" (string-drop-right "" 0)))
+  (check (equal? "12345" (string-drop-right "12345" 0)))
+  (check (equal? "1234" (string-drop-right "12345" 1)))
+  (check (equal? "" (string-drop-right "12345" 5))))
 
-(define-test string-drop
+(define-test string-drop/bad-arguments
   (check (runtime-error? (string-drop :symbol 0)))
   (check (runtime-error? (string-drop 1234 0)))
   (check (runtime-error? (string-drop "foo" :symbol)))
-  (check (runtime-error? (string-drop "foo" "bar")))
+  (check (runtime-error? (string-drop "foo" "bar"))))
 
-  (check (equal? (string-drop "" 0) ""))
+
+(define-test string-drop/arguments-out-of-range
   (check (runtime-error? (string-drop "" 1)))
   (check (runtime-error? (string-drop "" 2)))
-  
-  (check (equal? (string-drop "12345" 0) "12345"))
-  (check (equal? (string-drop "12345" 1) "2345"))
-  (check (equal? (string-drop "12345" 2) "345"))
-  (check (equal? (string-drop "12345" 3) "45"))
-  (check (equal? (string-drop "12345" 4) "5"))
-  (check (equal? (string-drop "12345" 5) ""))
   (check (runtime-error? (string-drop "12345" 6))))
 
+(define-test string-drop/positive
+  (check (equal? "" (string-drop "" 0)))
+  (check (equal? "12345" (string-drop "12345" 0)))
+  (check (equal? "2345" (string-drop "12345" 1)))
+  (check (equal? "" (string-drop "12345" 5))))
 
+(define-test equal?/string-positive
+  (check (equal? "" ""))
+  (check (equal? "a" "a"))
+  (check (equal? "abcde" "abcde")))
 
-(define ts10a "0123456789")
-(define ts20a "01234567890123456789")
-(define ts40a "0123456789012345678901234567890123456789")
-(define ts10b "0123456789")
-(define ts20b "01234567890123456789")
-(define ts40b "0123456789012345678901234567890123456789")
-
-(define-test string-equal
-  (check (equal? ts10a ts10a))
-  (check (equal? ts20a ts20a))
-  (check (equal? ts40a ts40a))
-  (check (equal? ts10a ts10b))
-  (check (equal? ts20a ts20b))
-  (check (equal? ts40a ts40b)))
-
+(define-test equal?/string-negative
+  (check (not (equal? "hello" :non-string)))
+  (check (not (equal?  :non-string "hello")))
+  (check (not (equal? "hello" "HELLO"))))
 
 (define-test string-first-character-substring
   ;; Test error hangling
@@ -234,20 +220,12 @@
   (check (not (string-first-substring " \nhello" (charset-vector " \t\n") 2)))
   (check (eq? 5 (string-first-substring "hello 123" (charset-vector "abcdefghijklmnopqrstuvwxyz") 2))))
 
-
-
-
+(define-test string-fold/bad-arguments
+  (check (runtime-error? (string-fold 12 '() "0123456789")))
+  (check (runtime-error? (string-fold cons '() ()))))
 
 (define-test string-fold
   (define (ccons a d) (cons a d))
-  
-  (check (not (runtime-error? (string-fold cons '() "0123456789"))))
-  (check (not (runtime-error? (string-fold cons '() ""))))
-  (check (not (runtime-error? (string-fold ccons '() "0123456789"))))
-  (check (not (runtime-error? (string-fold ccons '() ""))))
-
-  (check (runtime-error? (string-fold cons '() ())))
-  (check (runtime-error? (string-fold 12 '() "0123456789")))
 
   (check (equal? '(#\0 #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9)
 		 (reverse (string-fold cons '() "0123456789"))))
@@ -291,81 +269,50 @@
 (define ts20b "01234567890123456789")
 (define ts40b "0123456789012345678901234567890123456789")
 
-(define-test string-length-append
-  (check (eq? 10 (string-length ts10a)))
-  (check (eq? 20 (string-length ts20a)))
-  (check (eq? 40 (string-length ts40a)))
-   
-  (check (equal? (string-append ts10a ts10a) ts20a))
-  (check (eq? 20 (string-length (string-append ts10a ts10a))))
-  (check (equal? (string-append "" ts10a) ts10a))
-  (check (eq? 10 (string-length (string-append "" ts10a))))
-  (check (equal? (string-append ts10a "") ts10a))
-  (check (eq? 10 (string-length (string-append ts10a ""))))
-   
-  (check (equal? (string-append ts10a ts10a ts10a ts10a) ts40a))
-  (check (eq? 40 (string-length (string-append ts10a ts10a ts10a ts10a))))
-   
-  (check (equal? (string-append "" "" "" ts10a) ts10a))
-  (check (eq? 10 (string-length (string-append "" "" "" ts10a))))
-  (check (equal? (string-append ts10a "" "" "") ts10a))
-  (check (eq? 10 (string-length (string-append ts10a "" "" ""))))
-  (check (equal? (string-append "" ts10a "" "") ts10a))
-  (check (eq? 10 (string-length (string-append "" ts10a "" ""))))
+(define-test string-length/bad-arguments
+  (check-for (val '(0 #\a [1 2]))
+    (runtime-error? (string-length val))))
 
-  (check (equal? "foobar" (string-append :foo :bar)))
-  (check (equal? "foobar" (string-append :fo :ob :ar)))
-  (check (equal? "foobar" (string-append :foobar)))
+(define-test string-length/positive
+  (check (= 0 (string-length "")))
+  (check (= 1 (string-length "1")))
+  (check (= 5 (string-length "12345"))))
 
+(define-test string-length/argument-types
+  (check (equal? "test" (string-append "test")))
+  (check (equal? "test" (string-append :test)))
+  (check (equal? "A" (string-append #\A)))
+  (check (equal? "A" (string-append 65))))
+
+(define-test string-append/positive
   (check (equal? "foobar" (string-append "foo" "bar")))
-  (check (equal? "foobar" (string-append "fo" "ob" "ar")))
-  (check (equal? "foobar" (string-append "foobar")))
-  
-  (check (equal? "foobar" (string-append #\f "oo" #\b "a" #\r)))
-  (check (equal? "foobar" (string-append #\f #\o #\o #\b #\a #\r)))
-  (check (equal? "foobar" (string-append 102 111 111 98 97 114)))
-  (check (equal? "foobar" (string-append #\f 111 #\o 98 97 #\r)))
+  (check (equal? "foobar" (string-append #\f "oo" 98 "a" :r))))
 
-  (check (runtime-error? (string-append -1 "foobar")))
-  (check (runtime-error? (string-append "foo" -1 "bar")))
-  (check (runtime-error? (string-append "foobar" -1)))
-  
-  (check (runtime-error? (string-append 256 "foobar")))
-  (check (runtime-error? (string-append "foo" 256 "bar")))
-  (check (runtime-error? (string-append "foobar" 256)))
-
-  (check (runtime-error? (string-append 65.0 "foobar")))
-  (check (runtime-error? (string-append "foo" 65.0 "bar")))
-  (check (runtime-error? (string-append "foobar" 65.0)))
-
+(define-test string-append/bad-arguments
+  (check (runtime-error? (string-append -1)))
+  (check (runtime-error? (string-append 256)))
+  (check (runtime-error? (string-append 65.0)))
   (check (runtime-error? (string-append #t)))
   (check (runtime-error? (string-append '(no lists allowed))))
   (check (runtime-error? (string-append '[no vectors either]))))
 
-
-(define-test string-port-length
+(define-test length/string-port
   (let ((os (open-output-string)))
-    (set-port-translate-mode! os #f)
-
     (check (= 0 (length os)))
 
     (display "1" os)
-
     (check (= 1 (length os)))
 
     (display "2345" os)
-
     (check (= 5 (length os)))
-
+    
     (display "\n" os)
-
     (check (= 6 (length os)))
 
     (display "67890" os)
-
     (check (= 11 (length os)))))
 
-(define-test string-port-mode
+(define-test port-mode/string-port
   (let ((os (open-output-string))
         (is (open-input-string "test string")))
     (check (eq? :output (port-mode os)))
@@ -385,66 +332,27 @@
     (check (eq? :output (port-mode op)))))
 
 
-(defmacro (output-string port-var . code)
-  `(let ((,port-var (open-output-string)))
-     ,@code
-     (get-output-string ,port-var)))
-
-
 (define-test string-port-translate-test
-  (check (equal? (output-string p 
-                                    (display "hello" p))
-                     "hello"))
-  (check (equal? (output-string p 
-                                    (display "hello\r" p))
-                     "hello\r"))
-  (check (equal? (output-string p 
-                                    (display "hello\n" p))
-                     "hello\n"))
-  (check (equal? (output-string p 
-                                    (display "hello\r\n" p))
-                     "hello\r\n"))
-  (check (equal? (output-string p 
-                                    (display "\rhello" p))
-                     "\rhello"))
-  (check (equal? (output-string p 
-                                    (display "\nhello" p))
-                     "\nhello"))
-  (check (equal? (output-string p 
-                                    (display "\r\nhello" p))
-                     "\r\nhello"))
-  (check (equal? (output-string p 
-                                    (display "hello\rworld" p))
-                     "hello\rworld"))
-  (check (equal? (output-string p 
-                                    (display "hello\nworld" p))
-                     "hello\nworld"))
-  (check (equal? (output-string p 
-                                    (display "hello\r\nworld" p))
-                     "hello\r\nworld"))
-  (check (equal? (output-string p 
-                                    (display "hello" p)
-                                    (display "world" p))
-                     "helloworld"))
-  (check (equal? (output-string p 
-                                    (display "hello\r" p)
-                                    (display "world" p))
-                     "hello\rworld"))
-  (check (equal? (output-string p 
-                                    (display "hello\n" p)
-                                    (display "world" p))
-                     "hello\nworld"))
-  (check (equal? (output-string p 
-                                    (display "hello\r\n" p)
-                                    (display "world" p))
-                     "hello\r\nworld"))
-  (check (equal? (output-string p 
-                                    (display "hello\r" p)
-                                    (display "\nworld" p))
-                     "hello\r\nworld")))
+  (define (display-to-string . vals)
+    (with-output-to-string
+      (dolist (val vals)
+        (display val))))
 
-
-
+  (check (equal? "hello" (display-to-string "hello")))
+  (check (equal? "hello\r" (display-to-string "hello\r")))
+  (check (equal? "hello\n" (display-to-string "hello\n")))
+  (check (equal? "hello\r\n" (display-to-string "hello\r\n")))
+  (check (equal? "\rhello" (display-to-string "\rhello")))
+  (check (equal? "\nhello" (display-to-string "\nhello")))
+  (check (equal? "\r\nhello" (display-to-string "\r\nhello")))
+  (check (equal? "hello\rworld" (display-to-string "hello\rworld")))
+  (check (equal? "hello\nworld" (display-to-string "hello\nworld")))
+  (check (equal? "hello\r\nworld" (display-to-string "hello\r\nworld")))
+  (check (equal? "helloworld" (display-to-string "hello" "world")))
+  (check (equal? "hello\rworld" (display-to-string "hello\r" "world")))
+  (check (equal? "hello\nworld" (display-to-string "hello\n" "world")))
+  (check (equal? "hello\r\nworld" (display-to-string "hello\r\n" "world")))
+  (check (equal? "hello\r\nworld" (display-to-string "hello\r" "\nworld"))))
 
 (define-test string-quasiquote
   (let ((str-var "xyzzy")
@@ -474,44 +382,41 @@
     (check (equal? #"$$${str-var}$$${num-var}$$" "$xyzzy$12$"))))
 
 
-
-(define ts10a "0123456789")
-(define ts20a "01234567890123456789")
-(define ts40a "0123456789012345678901234567890123456789")
-(define ts10b "0123456789")
-(define ts20b "01234567890123456789")
-(define ts40b "0123456789012345678901234567890123456789")
+(define-test string-ref/non-string
+  (check (runtime-error? (string-ref 123 123)))
+  (check (runtime-error? (string-ref "1" 'non-a-number)))
+  (check (runtime-error? (string-ref "1" 10.0)))
+  (check (runtime-error? (string-ref "1" -10)))
+  (check (runtime-error? (string-ref "1" 100))))
 
 (define-test string-ref
-  (check (runtime-error? (string-ref 123 123)))
-  (check (runtime-error? (string-ref ts10a 'non-a-number)))
-  (check (runtime-error? (string-ref ts10a 10.0)))
-  (check (runtime-error? (string-ref ts10a -10)))
-  (check (runtime-error? (string-ref ts10a 100)))
-   
-  (check (eq? (string-ref ts10a 0) #\0))
-  (check (eq? (string-ref ts10a 1) #\1))
-  (check (eq? (string-ref ts10a 2) #\2))
-  (check (eq? (string-ref ts10a 3) #\3))
-  (check (eq? (string-ref ts10a 4) #\4))
-  (check (eq? (string-ref ts10a 5) #\5))
-  (check (eq? (string-ref ts10a 6) #\6))
-  (check (eq? (string-ref ts10a 7) #\7))
-  (check (eq? (string-ref ts10a 8) #\8))
-  (check (eq? (string-ref ts10a 9) #\9)))
+  (let ((test-string "0123456789"))
+    (check (eq? #\0 (string-ref test-string 0)))
+    (check (eq? #\1 (string-ref test-string 1)))
+    (check (eq? #\2 (string-ref test-string 2)))
+    (check (eq? #\3 (string-ref test-string 3)))
+    (check (eq? #\4 (string-ref test-string 4)))
+    (check (eq? #\5 (string-ref test-string 5)))
+    (check (eq? #\6 (string-ref test-string 6)))
+    (check (eq? #\7 (string-ref test-string 7)))
+    (check (eq? #\8 (string-ref test-string 8)))
+    (check (eq? #\9 (string-ref test-string 9)))))
 
 
-(define-test string-replace
+(define-test string-replace/bad-arguments
   (check (runtime-error? (string-replace 23 "old" "new")))
   (check (runtime-error? (string-replace "string" 23 "new")))
   (check (runtime-error? (string-replace "string" "old" 23)))
-
   (check (runtime-error? (string-replace "string" "old")))
-  (check (runtime-error? (string-replace "string")))
+  (check (runtime-error? (string-replace "string"))))
 
-  (check (equal? "test" (string-replace "test" "old" "new")))
+(define-test string-replace/replace-nothing
+  (check (equal? "test" (string-replace "test" "old" "new"))))
 
-  (check (equal? "test" (string-replace "replace-everything" "replace-everything" "test")))
+(define-test string-replace/replace-verything
+  (check (equal? "test" (string-replace "replace-everything" "replace-everything" "test"))))
+
+(define-test string-replace
 
   (check (equal? "foo" (string-replace "foo" "@" "!")))
   (check (equal? "foo" (string-replace "foo" "@" "!")))
@@ -535,20 +440,16 @@
 
 
 (define (make-all-byte-string)
-  (let ((p (open-output-string)))
-    (set-port-translate-mode! p #f)
+  (with-output-to-string
     (dotimes (ii 256)
-      (display (integer->char ii) p))
-    (get-output-string p)))
+      (display (integer->char ii)))))
 
 (define (make-all-byte-combo-string)
-  (let ((p (open-output-string)))
-    (set-port-translate-mode! p #f)
+  (with-output-to-string
     (dotimes (ii 256)
       (dotimes (jj 256)
-        (display (integer->char ii) p)
-        (display (integer->char jj) p)))
-    (get-output-string p)))
+        (display (integer->char ii))
+        (display (integer->char jj))))))
 
 (define-test string-round-trip
   (check-for (n (iseq 0 256))
@@ -685,69 +586,60 @@
   (check (equal? 6  (string-search #\2 "1234512345" 4)))
   (check (equal? 0  (string-search #\a "abaabaaabaaaab"))))
 
-
-(define ts10a "0123456789")
-(define ts20a "01234567890123456789")
-(define ts40a "0123456789012345678901234567890123456789")
-(define ts10b "0123456789")
-(define ts20b "01234567890123456789")
-(define ts40b "0123456789012345678901234567890123456789")
+(define-test string-set!/bad-arguments
+  (let ((test-string "0123456789"))
+    (check (runtime-error? (string-set! test-string 1.0 #\c)))
+    (check (runtime-error? (string-set! 12 1 #\c)))
+    (check (runtime-error? (string-set! 'string-set-doesnt-support-symbols 1 #\c)))
+    (check (runtime-error? (string-set! test-string -1 #\a)))
+    (check (runtime-error? (string-set! test-string 20 #\a)))
+    (check (runtime-error? (string-set! test-string 'no-symbols-here-either)))
+    (check (runtime-error? (string-set! test-string "nope. no strings")))
+    (check (runtime-error? (string-set! test-string 12 "not here either.")))
+    (check (runtime-error? (string-set! test-string 3.14159)))
+    ;; test-string should be unaltered
+    (check (equal? test-string "0123456789"))))
 
 (define-test string-set!
-  (check (runtime-error? (string-set! ts10a 1.0 #\c)))
-  (check (runtime-error? (string-set! 12 1 #\c)))
-  (check (runtime-error? (string-set! 'string-set-doesnt-support-symbols 1 #\c)))
-  (check (runtime-error? (string-set! ts10a -1 #\a)))
-  (check (runtime-error? (string-set! ts10a 20 #\a)))
-  (check (runtime-error? (string-set! ts10a 'no-symbols-here-either)))
-  (check (runtime-error? (string-set! ts10a "nope. no strings")))
-  (check (runtime-error? (string-set! ts10a 12 "not here either.")))
-  (check (runtime-error? (string-set! ts10a 3.14159))) 
-  (check (equal? ts10a "0123456789")) ; ts10a should be unaltered
-  
-  (let ((ts-set (string-copy "foobar")))
-    (check (equal? (string-set! (string-copy "*oobar") 0 #\f) ts-set))
-    (check (equal? (string-set! (string-copy "*oobar") 0 102) ts-set))
+   (let ((ts-set (string-copy "foobar")))
+    (check (equal? ts-set (string-set! (string-copy "*oobar") 0 #\f)))
+    (check (equal? ts-set (string-set! (string-copy "*oobar") 0 102)))
     (check (equal? "*oobar" (string-set! ts-set 0 #\*)))
     (check (equal? "*oobar" ts-set))))
 
-
-(define-test string-take-right
+(define-test string-take-right/bad-arguments
   (check (runtime-error? (string-take-right :symbol 0)))
   (check (runtime-error? (string-take-right 1234 0)))
   (check (runtime-error? (string-take-right "foo" :symbol)))
-  (check (runtime-error? (string-take-right "foo" "bar")))
+  (check (runtime-error? (string-take-right "foo" "bar"))))
 
-  (check (equal? (string-take-right "" 0) ""))
+(define-test string-take-right/arguments-out-of-range
   (check (runtime-error? (string-take-right "" 1)))
   (check (runtime-error? (string-take-right "" 2)))
-  
-  (check (equal? (string-take-right "12345" 0) ""))
-  (check (equal? (string-take-right "12345" 1) "5"))
-  (check (equal? (string-take-right "12345" 2) "45"))
-  (check (equal? (string-take-right "12345" 3) "345"))
-  (check (equal? (string-take-right "12345" 4) "2345"))
-  (check (equal? (string-take-right "12345" 5) "12345"))
   (check (runtime-error? (string-take-right "12345" 6))))
 
+(define-test string-take-right/positive
+  (check (equal? (string-take-right "" 0) ""))
+  (check (equal? (string-take-right "12345" 0) ""))
+  (check (equal? (string-take-right "12345" 1) "5"))
+  (check (equal? (string-take-right "12345" 5) "12345")))
 
-(define-test string-take
+(define-test string-take/bad-arguments
   (check (runtime-error? (string-take :symbol 0)))
   (check (runtime-error? (string-take 1234 0)))
   (check (runtime-error? (string-take "foo" :symbol)))
-  (check (runtime-error? (string-take "foo" "bar")))
+  (check (runtime-error? (string-take "foo" "bar"))))
 
-  (check (equal? (string-take "" 0) ""))
+(define-test string-take/arguments-out-of-range
   (check (runtime-error? (string-take "" 1)))
   (check (runtime-error? (string-take "" 2)))
-  
-  (check (equal? (string-take "12345" 0) ""))
-  (check (equal? (string-take "12345" 1) "1"))
-  (check (equal? (string-take "12345" 2) "12"))
-  (check (equal? (string-take "12345" 3) "123"))
-  (check (equal? (string-take "12345" 4) "1234"))
-  (check (equal? (string-take "12345" 5) "12345"))
   (check (runtime-error? (string-take "12345" 6))))
+
+(define-test string-take
+  (check (equal? "" (string-take "" 0)))
+  (check (equal? "" (string-take "12345" 0)))
+  (check (equal? "1" (string-take "12345" 1)))
+  (check (equal? "12345" (string-take "12345" 5))))
 
 
 (define ts10a "0123456789")
@@ -923,39 +815,35 @@
   (check (equal? #f (string->number "12+2" 2)))
   (check (equal? #f (string->number "12i" 2))))
 
-(define ts10a "0123456789")
 
-(define-test string?
-  (check (equal? ts10a (string? ts10a)))
-  (check (not (string? 12))))
+(define-test string?/non-string
+  (check-for (non-string '(0 0.0 'symbol [] {}))
+    (not (string? non-string))))
 
-(define ts10a "0123456789")
-(define ts20a "01234567890123456789")
-(define ts40a "0123456789012345678901234567890123456789")
-(define ts10b "0123456789")
-(define ts20b "01234567890123456789")
-(define ts40b "0123456789012345678901234567890123456789")
-
+(define-test string?/string
+  (check-for (string '("" "a" "abc"))
+    (check  (eq? string (string? string)))))
 
 ;; TESTTHIS: Test substring with null end offset
 
+(define-test substring/bad-arguments
+  (let ((test-string "0123456789"))
+    (check (runtime-error? (substring 123 2 3)))
+    (check (runtime-error? (substring test-string 'non-number 3)))
+    (check (runtime-error? (substring test-string 3 'non-number)))))
+
+(define-test substring/arguments-out-of-range
+  (let ((test-string "0123456789"))
+    (check (runtime-error? (substring test-string -1 5)))
+    (check (runtime-error? (substring test-string  6 5)))
+    (check (runtime-error? (substring test-string  6 -1)))
+    (check (runtime-error? (substring test-string  6 11)))))
+
 (define-test substring
-  (check (runtime-error? (substring 123 2 3)))
-  (check (runtime-error? (substring ts10a 'non-number 3)))
-  (check (runtime-error? (substring ts10a 3 'non-number)))
-  (check (runtime-error? (substring ts10a -1 5)))
-  (check (runtime-error? (substring ts10a  6 5)))
-  (check (runtime-error? (substring ts10a  6 -1)))
-  (check (runtime-error? (substring ts10a  6 11)))
-
-  (check (equal? ts10a (substring ts10a 0 10)))
-  (check (equal? "" (substring ts10a 0 0)))
-  (check (equal? "01" (substring ts10a 0 2)))
-  (check (equal? "" (substring ts10a 2 2)))
-  (check (equal? "234" (substring ts10a 2 5)))
-
-  (check (equal? ts10a (substring ts40a 0 10)))
-  (check (equal? "" (substring ts40a 0 0)))
-  (check (equal? "01" (substring ts40a 0 2)))
-  (check (equal? "" (substring ts40a 2 2)))
-  (check (equal? "234" (substring ts40a 2 5))))
+  (let ((test-string "0123456789"))
+    (check (equal? test-string (substring test-string 0 10)))
+    (check (equal? "" (substring test-string 0 0)))
+    (check (equal? "01" (substring test-string 0 2)))
+    (check (equal? "" (substring test-string 2 2)))
+    (check (equal? "234" (substring test-string 2 5)))
+    (check (equal? "23456789" (substring test-string 2)))))
