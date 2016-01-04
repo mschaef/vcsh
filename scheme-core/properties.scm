@@ -8,7 +8,7 @@
    named property does not exist, return <default>."
   (if (macro? obj)
       (get-property (%macro-transformer obj) key default)
-      (aif (assq key (%property-list obj))
+      (aif (assoc key (%property-list obj))
            (cdr it)
            default)))
 

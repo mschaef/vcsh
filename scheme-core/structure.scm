@@ -109,15 +109,15 @@
              (layout (list name (slots->layout slots-meta))))
         (define (slot-procedures)
           (append-map (lambda (slot-defn)
-                        `(,@(aif (cdr (assq :set slot-defn))
-                                 `((:set ,(intern! it pkg) ,(cdr (assq :name slot-defn))))
+                        `(,@(aif (cdr (assoc :set slot-defn))
+                                 `((:set ,(intern! it pkg) ,(cdr (assoc :name slot-defn))))
                                  ())
-                          ,@(aif (cdr (assq :get slot-defn))
-                                 `((:get ,(intern! it pkg) ,(cdr (assq :name slot-defn))))
+                          ,@(aif (cdr (assoc :get slot-defn))
+                                 `((:get ,(intern! it pkg) ,(cdr (assoc :name slot-defn))))
                                  ())))
                       slots-meta))
         (define (slot-defaults)
-          (map #L(cons (car _) (cdr (assq :default _))) slots-meta))
+          (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
         (values name
                 (if doc-string
                     (list layout (cons :documentation doc-string)
@@ -153,7 +153,7 @@
   (runtime-check (or structure? symbol?) structure
          "Expected structure or structure type name.")
   (let ((meta (%structure-meta structure)))
-    (aif (and meta (assq :documentation meta))
+    (aif (and meta (assoc :documentation meta))
          (cdr it)
          #f)))
 
@@ -178,7 +178,7 @@
   (unless (pair? new-layout)
     (error "Expected list for structure layout ~s" new-layout))
   (let* ((structure-type-name (car new-layout))
-         (existing-meta (assq 'scheme::structure-meta (%property-list structure-type-name)))
+         (existing-meta (assoc 'scheme::structure-meta (%property-list structure-type-name)))
          (old-layout (if existing-meta (cadr existing-meta) ()))
          (obsolete? (not (equal? new-layout old-layout))))
     (if obsolete?
@@ -353,14 +353,14 @@
              expected type. ${(slot-docs slot-name)}"
            (unless (%structure? s ',layout)
              (error "Expected a structure of type ~s, but found ~s." ',(car layout) s))
-           (%structure-ref s ,(second (assq slot-name (cadr layout))))))
+           (%structure-ref s ,(second (assoc slot-name (cadr layout))))))
       (define (setter-form proc-name slot-name)
         `(define (,proc-name s v)
            ,#"Updates the ${slot-name} slot of of <s> to <v>. <s> must be of structure
             type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
            (unless (%structure? s ',layout)
              (error "Expected a structure of type ~s, but found ~s." ',(car layout) s))
-           (%structure-set! s ,(second (assq slot-name (cadr layout))) v)))
+           (%structure-set! s ,(second (assoc slot-name (cadr layout))) v)))
 
       (awhen (duplicates? (map car (cadr layout)))
         (error "Duplicate slots ~s in definition of structure type: ~s."

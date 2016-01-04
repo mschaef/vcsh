@@ -84,7 +84,7 @@
               (dformat "~a THIS PROCEDURE IS CURRENTLY TRACED AND DOES NOT ELIMIMINATE TAIL CALLS." it)
               #f))
         ((procedure? obj)
-         (aif (assq 'documentation (%property-list obj))
+         (aif (assoc 'documentation (%property-list obj))
               (if it (cdr it) #f)
               #f))
         ((macro? obj)
@@ -613,7 +613,7 @@
 
 (define (type-stats-delta x y)
   (define (lookup-x type)
-    (aif (assq type x) (cdr it) 0))
+    (aif (assoc type x) (cdr it) 0))
   (map #L(cons (car _) ( - (lookup-x (car _)) (cdr _))) y))
 
 (define (write-type-stats-table ts)

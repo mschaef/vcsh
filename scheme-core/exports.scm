@@ -115,11 +115,8 @@
              arg
              argument-values
              asin
-             ass
              assert
              assoc
-             assq
-             assv
              at
              atan
              atom?

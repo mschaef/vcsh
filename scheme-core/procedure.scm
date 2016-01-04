@@ -222,7 +222,7 @@
    lambda list is unknown, it is returned as #f."
   (cond ((closure? procedure)
          (values (car (%closure-code procedure))
-                 (aif (assq 'lambda-list (%property-list procedure)) (cdr it) #f))) ; REVISIT: use procedure-property ?
+                 (aif (assoc 'lambda-list (%property-list procedure)) (cdr it) #f))) ; REVISIT: use procedure-property ?
         ((primitive? procedure)
          (values (case (%primitive-kind procedure)
                    ((:subr-0) '())

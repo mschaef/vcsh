@@ -15,7 +15,7 @@
 (define (generic-function? obj)
   "Returns #t if <obj> is a generic function."
   (and (closure? obj)
-       (aif (assq 'generic-function? (%property-list obj))
+       (aif (assoc 'generic-function? (%property-list obj))
             (cdr it)
             #f)))
 

@@ -75,7 +75,7 @@
    variables are universal and can match anything anywere.  Returns an a-list
    ((<var> . <val>) ... ) if <form> matches, and #f otherwise."
   (define (maybe-extend-env? env var val)
-    (aif (assq var env)
+    (aif (assoc var env)
          (if (equal? val (cdr it))
              env
              #f)
@@ -133,7 +133,7 @@
      (let ((pat-vars (match-pattern-variables pat)))
        `(let ((,match-var (match? ',pat ,val)))
           (if ,match-var
-              (let (,@(map #L(list _ `(cdr (assq ',_ ,match-var))) (remove match-universal-pattern-var? pat-vars)))
+              (let (,@(map #L(list _ `(cdr (assoc ',_ ,match-var))) (remove match-universal-pattern-var? pat-vars)))
                 ,if-true-form)
               ,if-false-form)))))
 

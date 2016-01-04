@@ -851,12 +851,6 @@
           (#t
            (error "improper a-list at ~s: ~s" pos a-list)))))
 
-(define (assq key a-list)
-  (ass key a-list eq?))
-
-(define (assv key a-list)
-  (ass key a-list eqv?))
-
 (define (assoc key a-list)
   (ass key a-list equal?))
 
