@@ -754,6 +754,7 @@
              sqrt
              stats-list?
              strcmp
+             stricmp
              string
              string!=
              string!=-ci

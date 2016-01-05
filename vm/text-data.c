@@ -700,26 +700,62 @@ lref_t lstring2number(lref_t s, lref_t r)
      return flocons(flo_result);
 }
 
-lref_t lisp_strcmp(lref_t s1, lref_t s2)
+lref_t lisp_strcmp(lref_t string_1, lref_t string_2)
 {
      size_t loc;
 
-     if (!STRINGP(s1))
-          vmerror_wrong_type_n(1, s1);
-     if (!STRINGP(s2))
-          vmerror_wrong_type_n(2, s2);
+     if (!STRINGP(string_1))
+          vmerror_wrong_type_n(1, string_1);
+     if (!STRINGP(string_2))
+          vmerror_wrong_type_n(2, string_2);
 
-     for (loc = 0; (loc < s1->as.string.dim) && (loc < s2->as.string.dim); loc++)
+     for (loc = 0; (loc < string_1->as.string.dim) && (loc < string_2->as.string.dim); loc++)
      {
-          if (s1->as.string.data[loc] > s2->as.string.data[loc])
+          _TCHAR char_1 = string_1->as.string.data[loc];
+          _TCHAR char_2 = string_2->as.string.data[loc];
+
+          if (char_1 > char_2)
                return fixcons(1);
-          else if (s1->as.string.data[loc] < s2->as.string.data[loc])
+          else if (char_1 < char_2)
                return fixcons(-1);
      }
 
-     if (loc < s1->as.string.dim)
+     if (loc < string_1->as.string.dim)
           return fixcons(1);
-     else if (loc < s2->as.string.dim)
+     else if (loc < string_2->as.string.dim)
+          return fixcons(-1);
+
+     return fixcons(0);
+}
+
+lref_t lisp_stricmp(lref_t string_1, lref_t string_2)
+{
+     size_t loc;
+
+     if (!STRINGP(string_1))
+          vmerror_wrong_type_n(1, string_1);
+     if (!STRINGP(string_2))
+          vmerror_wrong_type_n(2, string_2);
+
+     for (loc = 0; (loc < string_1->as.string.dim) && (loc < string_2->as.string.dim); loc++)
+     {
+          _TCHAR char_1 = string_1->as.string.data[loc];
+          _TCHAR char_2 = string_2->as.string.data[loc];
+
+          if (_istupper(char_1))
+               char_1 = _totlower(char_1);
+          if (_istupper(char_2))
+               char_2 = _totlower(char_2);
+
+          if (char_1 > char_2)
+               return fixcons(1);
+          else if (char_1 < char_2)
+               return fixcons(-1);
+     }
+
+     if (loc < string_1->as.string.dim)
+          return fixcons(1);
+     else if (loc < string_2->as.string.dim)
           return fixcons(-1);
 
      return fixcons(0);

@@ -10,44 +10,19 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-(define (string-case-fold x)
-  (string-downcase (string-upcase x)))
+(define (string>  string-1 string-2) (> (strcmp string-1 string-2) 0))
+(define (string<  string-1 string-2) (< (strcmp string-1 string-2) 0))
+(define (string>= string-1 string-2) (>= (strcmp string-1 string-2) 0))
+(define (string<= string-1 string-2) (<= (strcmp string-1 string-2) 0))
+(define (string=  string-1 string-2) (= (strcmp string-1 string-2) 0))
+(define (string!= string-1 string-2) (not (= (strcmp string-1 string-2) 0)))
 
-(define (string>  x y)
-  (> (strcmp x y) 0))
-
-(define (string<  x y)
-  (< (strcmp x y) 0))
-
-(define (string>= x y)
-  (>= (strcmp x y) 0))
-
-(define (string<= x y)
-  (<= (strcmp x y) 0))
-
-(define (string=  x y)
-  (= (strcmp x y) 0))
-
-(define (string!= x y)
-  (not (= (strcmp x y) 0)))
-
-(define (string>-ci  x y)
-  (> (strcmp (string-case-fold x)  (string-case-fold y)) 0))
-
-(define (string<-ci  x y)
-  (< (strcmp (string-case-fold x) (string-case-fold y)) 0))
-
-(define (string>=-ci x y)
-  (>= (strcmp (string-case-fold x) (string-case-fold y)) 0))
-
-(define (string<=-ci x y)
-  (<= (strcmp (string-case-fold x) (string-case-fold y)) 0))
-
-(define (string=-ci  x y)
-  (= (strcmp (string-case-fold x) (string-case-fold y)) 0))
-
-(define (string!=-ci x y)
-  (not (= (strcmp (string-case-fold x) (string-case-fold y)) 0)))
+(define (string>-ci  string-1 string-2) (> (stricmp string-1 string-2) 0))
+(define (string<-ci  string-1 string-2) (< (stricmp string-1 string-2) 0))
+(define (string>=-ci string-1 string-2) (>= (stricmp string-1 string-2) 0))
+(define (string<=-ci string-1 string-2) (<= (stricmp string-1 string-2) 0))
+(define (string=-ci  string-1 string-2) (= (stricmp string-1 string-2) 0))
+(define (string!=-ci string-1 string-2) (not (= (stricmp string-1 string-2) 0)))
 
 (define (string-take string count)
   "Returns the <count> leftmost characters of <string>."

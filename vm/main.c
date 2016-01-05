@@ -466,6 +466,7 @@ static void register_main_subrs()
     register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
     register_subr(_T("sqrt"),                             SUBR_1,     (void*)lsqrt                               );
     register_subr(_T("strcmp"),                           SUBR_2,     (void*)lisp_strcmp                         );
+    register_subr(_T("stricmp"),                          SUBR_2,     (void*)lisp_stricmp                        );
     register_subr(_T("string->number"),                   SUBR_2,     (void*)lstring2number                      );
     register_subr(_T("string->uninterned-symbol"),        SUBR_1,     (void*)lstring2uninterned_symbol           );
     register_subr(_T("string-append"),                    SUBR_ARGC,  (void*)lstring_append                      );

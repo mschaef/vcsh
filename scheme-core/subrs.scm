@@ -228,6 +228,7 @@
 (%define sleep #.(host-scheme::%subr-by-name "sleep"))
 (%define sqrt #.(host-scheme::%subr-by-name "sqrt"))
 (%define strcmp #.(host-scheme::%subr-by-name "strcmp"))
+(%define stricmp #.(host-scheme::%subr-by-name "stricmp"))
 (%define string->number #.(host-scheme::%subr-by-name "string->number"))
 (%define string->uninterned-symbol #.(host-scheme::%subr-by-name "string->uninterned-symbol"))
 (%define string-append #.(host-scheme::%subr-by-name "string-append"))
