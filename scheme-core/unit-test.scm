@@ -15,7 +15,6 @@
   (:exports "define-test"
             "all-tests"
             "run-tests"
-            
             "check"
             "check-for"))
 
@@ -26,10 +25,10 @@
 
 ;; A few Configuration options
 
-(define *show-check-conditions* #f) ;; REVISIT: flag configurable
-(define *show-test-messages* #t)
-(define *show-failed-test-forms* #f)
-(define *show-failed-test-causes* #f)
+(define *show-check-conditions* (environment-variable/boolean "UNIT_TEST_SHOW_CHECK_CONDITIONS" #f)) 
+(define *show-test-errors* (environment-variable/boolean "UNIT_TEST_SHOW_ERRORS" #t))
+(define *show-failed-test-forms* (environment-variable/boolean "UNIT_TEST_SHOW_FAILED_FORMS" #f))
+(define *show-failed-test-causes* (environment-variable/boolean "UNIT_TEST_SHOW_TEST_CAUSES" #f))
 
 ;;;; Test output
 
@@ -154,8 +153,8 @@
       *check-results*)))
 
 (define (execute-test test-case)
-  (dynamic-let ((*error* *show-test-messages*)
-                (*info* *show-test-messages*))
+  (dynamic-let ((*error* *show-test-errors*)
+                (*info* *show-test-errors*))
     (message "; ~a..." (test-case-name test-case))
     (let* ((check-results (run-test test-case))
            (result-count (length check-results))

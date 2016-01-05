@@ -538,6 +538,7 @@
                  (error "Incomplete paramaterized format code in format string: ~s" format-string))
                 (#t
                  (case (read-char ip)
+                   
                    ((#\t) (formatter/periodic-tab-stop arg (next-segment)))
                    ((#\T) (formatter/absolute-tab-stop arg (next-segment)))
                    ((#\@)

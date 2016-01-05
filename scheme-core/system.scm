@@ -64,6 +64,16 @@
        (cdr it)
        #f))
 
+(define (environment-variable/boolean name :optional (default #f))
+  (aif (environment-variable name) 
+       (text->boolean it)
+       default))
+
+(define (environment-variable/number name :optional (default #f))
+  (or (aand (environment-variable name) 
+            (string->number it))
+      default))
+
 (define *current-load-file* #f)
 
 (define (char-path-quote? ch) 

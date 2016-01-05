@@ -314,6 +314,8 @@
              env-lookup
              environment
              environment-variable
+             environment-variable/boolean
+             environment-variable/number
              eof-object?
              eq?
              equal?
