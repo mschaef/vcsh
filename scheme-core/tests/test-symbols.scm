@@ -198,45 +198,35 @@
     (repeat 10 (display (random-letter) o))
     (get-output-string o)))
 
-(define-test symbol-printing-without-package
+(define-test printer-symbols/no-global-package
   (check (equal? ":test"
                  (dynamic-let ((*package* #f))
-                           (write-to-string :test))))
+                   (write-to-string :test))))
   (check (equal? "test-symbols::test"
                  (dynamic-let ((*package* #f))
                    (write-to-string 'test)))))
 
+(define-test make-package/duplicate-package-name
+  (let ((test-package-name (random-string)))
+    (make-package! test-package-name)
+    (let ((package (find-package test-package-name)))
+      (check (package? package))
+      (check (equal? (package-name package) test-package-name)))
+    (check (runtime-error? (make-package! test-package-name)))))
+
 (define-test symbol-printing-package-names
-  (let ((original-package *package*)
-        (p1-name (random-string))
-        (p2-name (random-string))
-        (p3-name (random-string))
-        (sym1-name (random-string))
-        (sym2-name (random-string))
-        (symx-name (random-string))
-        (symx2-name (random-string))
-        (p1 #f)
-        (p2 #f)
-        (p3 #f))
-
-    (set! p1 (make-package! p1-name))
-    (check (runtime-error? (make-package! p1-name)))
-
-    (set! p2 (make-package! p2-name))
-    (check (runtime-error? (make-package! p1-name)))
-    (check (runtime-error? (make-package! p2-name)))
-
-    (set! p3 (make-package! p3-name))
-    (check (runtime-error? (make-package! p1-name)))
-    (check (runtime-error? (make-package! p2-name)))
-    (check (runtime-error? (make-package! p3-name)))
+  (let* ((p1-name (random-string))
+         (p2-name (random-string))
+         (p3-name (random-string))
+         (sym1-name (random-string))
+         (sym2-name (random-string))
+         (symx-name (random-string))
+         (symx2-name (random-string))
+         (p1 (make-package! p1-name))
+         (p2 (make-package! p2-name))
+         (p3 (make-package! p3-name)))
 
     (use-package! p2 p3)
-
-    (check (package? p1))
-    (check (package? p2))
-    (check (equal? (package-name p1) p1-name))
-    (check (equal? (package-name p2) p2-name))
 
     (let ((sym1 (intern! sym1-name))
           (sym2 (intern! sym2-name p1-name))
