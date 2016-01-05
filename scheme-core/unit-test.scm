@@ -220,9 +220,8 @@
                       (throw 'abort-tests (list 'user-break)))))
       (catch 'error-escape
         (newline)
-        (let ((test-results (append-map (lambda (test-name)
-                                          (execute-test (test-by-name test-name)))
-                                        tests-to-run)))
+        (let ((test-results (append-map execute-test
+                                        (map test-by-name tests-to-run))))
           (show-check-fails (filter failure-result? test-results))
           (message "\n~a total checks run.\n" (length test-results))
         (null? (filter failure-result? test-results)))))))

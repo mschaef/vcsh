@@ -3,14 +3,14 @@
 #
 # The sub-Makefile for the Scheme image, vcsh0, and vcsh.
 #
-# (C) Copyright 2001-2011 East Coast Toolworks Inc.
+# (C) Copyright 2001-2015 East Coast Toolworks Inc.
 # (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
 #
 # See the file "license.terms" for information on usage and
 # redistribution of this file, and for a DISCLAIMER OF ALL
 # WARRANTIES.
 
-.PHONY: indented tested
+.PHONY: indented tested tested-aot
 
 TARGETS=scanlib${LIB_EXT} vcsh${EXE_EXT}
 
@@ -19,8 +19,11 @@ include ../config.${PLATFORM}
 
 SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-run.scf
 
-tested: all scheme-tests.scf
+tested-aot: tested scheme-tests.scf
 	 ./vcsh scheme-tests.scf
+
+tested: all
+	./vcsh scheme-tests.scm
 
 scheme-tests.scf: vcsh${EXE_EXT} scheme-tests.scm
 	./vcsh -c scheme-tests.scm
