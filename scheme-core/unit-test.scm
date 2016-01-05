@@ -160,7 +160,7 @@
     (let* ((check-results (run-test test-case))
            (result-count (length check-results))
            (failure-count (length (filter failure-result? check-results))))
-      (message "~50T~a check~a.~a\n"
+      (message "~72T~a check~a.~a\n"
               result-count
               (if (> result-count 1) "s" "")
               (if (> failure-count 0) (format #f " (~a FAILED!)" failure-count) ""))
