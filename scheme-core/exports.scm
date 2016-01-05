@@ -753,8 +753,6 @@
              split-string-once-from-right
              sqrt
              stats-list?
-             strcmp
-             stricmp
              string
              string!=
              string!=-ci

@@ -7,8 +7,7 @@
 
 #.`(begin
      ,@(map #L(list 'include _)
-            (qsort (directory "tests/test*.scm")
-                   (lambda (x y) (> 0 (strcmp x y))))))
+            (qsort (directory "tests/test*.scm") string>)))
 
 (define (run)
   (in-package! "unit-test-suite")

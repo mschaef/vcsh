@@ -3,6 +3,31 @@
          "unit-test"
          "unit-test-utils"))
 
+(define-test string-comparison-ci/bad-arguments
+  (check (runtime-error? (string>-ci 42 "string"))) 
+  (check (runtime-error? (string>-ci "string" 42))) 
+  (check (runtime-error? (string>-ci 21 42))) 
+
+  (check (runtime-error? (string<-ci 42 "string"))) 
+  (check (runtime-error? (string<-ci "string" 42))) 
+  (check (runtime-error? (string<-ci 21 42))) 
+
+  (check (runtime-error? (string>=-ci 42 "string")))
+  (check (runtime-error? (string>=-ci "string" 42)))
+  (check (runtime-error? (string>=-ci 21 42)))
+
+  (check (runtime-error? (string<=-ci 42 "string")))
+  (check (runtime-error? (string<=-ci "string" 42)))
+  (check (runtime-error? (string<=-ci 21 42)))
+
+  (check (runtime-error? (string=-ci 42 "string")))   
+  (check (runtime-error? (string=-ci "string" 42)))   
+  (check (runtime-error? (string=-ci 21 42)))   
+
+  (check (runtime-error? (string!=-ci 42 "string")))
+  (check (runtime-error? (string!=-ci "string" 42)))
+  (check (runtime-error? (string!=-ci 21 42))))
+
 (define-test string-comparison-ci
   (check (string<-ci "alpha" "omega"))
   (check (not (string<-ci "alpha" "alpha")))
@@ -100,20 +125,33 @@
   (check (not (string!=-ci "ALPHA" "alpha")))
   (check (string!=-ci "OMEGA" "alpha")))
 
-(define-test strcmp/bad-arguments
-  (check (runtime-error? (strcmp 123 "test")))
-  (check (runtime-error? (strcmp "test" 123)))
-  (check (runtime-error? (strcmp 456 123))))
+
+(define-test string-comparison/bad-arguments
+  (check (runtime-error? (string> 42 "string"))) 
+  (check (runtime-error? (string> "string" 42))) 
+  (check (runtime-error? (string> 21 42))) 
+
+  (check (runtime-error? (string< 42 "string"))) 
+  (check (runtime-error? (string< "string" 42))) 
+  (check (runtime-error? (string< 21 42))) 
+
+  (check (runtime-error? (string>= 42 "string")))
+  (check (runtime-error? (string>= "string" 42)))
+  (check (runtime-error? (string>= 21 42)))
+
+  (check (runtime-error? (string<= 42 "string")))
+  (check (runtime-error? (string<= "string" 42)))
+  (check (runtime-error? (string<= 21 42)))
+
+  (check (runtime-error? (string= 42 "string")))   
+  (check (runtime-error? (string= "string" 42)))   
+  (check (runtime-error? (string= 21 42)))   
+
+  (check (runtime-error? (string!= 42 "string")))
+  (check (runtime-error? (string!= "string" 42)))
+  (check (runtime-error? (string!= 21 42))))
 
 (define-test string-comparison ; TODO: need string-comparison tests for case-sensitivity
-
-  (check (eq? 0 (strcmp "" "")))
-  (check (eq? 0 (strcmp "a" "a")))
-  (check (eq? 0 (strcmp "abcde" "abcde")))
-
-  (check (> 0 (strcmp "alpha" "omega")))
-  (check (< 0 (strcmp "omega" "alpha")))
-  (check (> 0 (strcmp "alpha" "alphaz")))
 
   (check (string< "alpha" "omega"))
   (check (not (string< "alpha" "alpha")))
