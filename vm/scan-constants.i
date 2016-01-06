@@ -253,7 +253,6 @@ BEGIN_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
 #endif
 
     VM_CONSTANT(DF_NONE                 , 0x00000000)
-    VM_CONSTANT(DF_ALL                  , 0xFFFFFFFF)
 END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
 
 #define DF_ALWAYS DF_NONE

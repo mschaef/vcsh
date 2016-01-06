@@ -221,8 +221,7 @@ static struct
      { "startup-foplog", DF_STARTUP_FOPLOG},
 #endif
      { "no-startup", DF_NO_STARTUP},
-     { "all", DF_ALL},
-     { NULL, DF_ALL},
+     { NULL, (enum debug_flag_t)0},
 };
 /* *INDENT-ON* */
 
