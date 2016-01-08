@@ -168,7 +168,7 @@ lref_t lstress_c_heap(lref_t c, lref_t s)
 lref_t lsysob(lref_t addr)          /* address->object */
 {
      return (lref_t) get_c_long(addr);
-};
+}
 
 lref_t lobaddr(lref_t object)       /* object->address */
 {

@@ -522,16 +522,6 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (set-char-syntax! *readsharp-syntax* #\" 'read-string-quasiquote))
 
-;;;; A tool for getting a free cell
-
-(define (%get-free-cell)
-  "Return a pointer to an unallocated free cell on the heap."
-  (let* ((x (cons :soon-to-be :free-cell))
-         (x-addr (+ 17 (%obaddr x)))) ; The +17 is to fool the conservative GC
-    (set! x ())
-    (gc)
-    (%sysob (- x-addr 17))))
-
 ;;;; An auto watch facility that evaluates and prints watch expressions after
 ;;;; each interactive form.
 
