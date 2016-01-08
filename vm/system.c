@@ -384,8 +384,13 @@ lref_t lsystem_info()
      lhash_set(obj, keyword_intern(_T("most-positive-flonum")), flocons(FLONUM_MAX));
      lhash_set(obj, keyword_intern(_T("most-negative-flonum")), flocons(FLONUM_MIN));
      lhash_set(obj, keyword_intern(_T("flonum-epsilon")), flocons(FLONUM_EPSILON));
+
      lhash_set(obj, keyword_intern(_T("most-positive-fixnum")), fixcons(FIXNUM_MAX));
      lhash_set(obj, keyword_intern(_T("most-negative-fixnum")), fixcons(FIXNUM_MIN));
+
+     lhash_set(obj, keyword_intern(_T("most-positive-fix32")), fixcons(FIX32_MAX));
+     lhash_set(obj, keyword_intern(_T("most-negative-fix32")), fixcons(FIX32_MIN));
+
      lhash_set(obj, keyword_intern(_T("most-positive-character")), charcons(_TCHAR_MAX));
 
      lhash_set(obj, keyword_intern(_T("runtime-resolution")), flocons(1.0 / sys_time_resolution()));

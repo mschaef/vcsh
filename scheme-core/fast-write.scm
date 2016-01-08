@@ -165,7 +165,8 @@
         ((and (>= object -32768) (<= object 32767))
          (fast-write-opcode system::FASL_OP_FIX16 port)
          (write-binary-fixnum-s16 object port))
-        ((and (>= object -2147483648) (<= object 2147483647))
+        ((and (>= object #.(system-info :most-negative-fix32))
+              (<= object #.(system-info :most-positive-fix32)))
          (fast-write-opcode system::FASL_OP_FIX32 port)
          (write-binary-fixnum-s32 object port))
         (#t

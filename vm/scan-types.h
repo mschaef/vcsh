@@ -49,6 +49,9 @@ typedef uintptr_t unsigned_fixnum_t;
 #define FIXNUM_UNSIGNED_MAX  (UINTPTR_MAX >> LREF1_TAG_SHIFT)
 #define FIXNUM_UNSIGNED_MIN  (UINTPTR_MIN >> LREF1_TAG_SHIFT)
 
+#define FIX32_MAX (INT32_MAX >> LREF1_TAG_SHIFT)
+#define FIX32_MIN (INT32_MIN >> LREF1_TAG_SHIFT)
+
 typedef double flonum_t;
 
 #define FLONUM_MAX DBL_MAX
