@@ -108,7 +108,7 @@
       next-frp)))
 
 (define (frame-type frp)
-  (case (frame-ref frp system::FOFS_FTYPE :raw)
+  (case (inexact->exact (frame-ref frp system::FOFS_FTYPE :raw))
     ((#.system::FRAME_SUBR  ) 'system::FRAME_SUBR  )
     ((#.system::FRAME_EVAL  ) 'system::FRAME_EVAL  )
     ((#.system::FRAME_ESCAPE) 'system::FRAME_ESCAPE)
