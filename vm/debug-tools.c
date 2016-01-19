@@ -127,11 +127,11 @@ lref_t lheap_cell_count_by_typecode()
 
 lref_t lmemref(lref_t addr)
 {
-     size_t baseaddr = (size_t) get_c_long(addr);
+     uintptr_t baseaddr = (uintptr_t)get_c_flonum(addr);
 
-     intptr_t *obj = (intptr_t *) baseaddr;
+     uintptr_t *obj = (uintptr_t *) baseaddr;
 
-     return fixcons((fixnum_t)*obj);
+     return flocons((uintptr_t)*obj);
 }
 
 lref_t lstress_lisp_heap(lref_t c)
@@ -167,12 +167,12 @@ lref_t lstress_c_heap(lref_t c, lref_t s)
 
 lref_t lsysob(lref_t addr)          /* address->object */
 {
-     return (lref_t) get_c_long(addr);
+     return (lref_t)((uintptr_t)get_c_flonum(addr));
 }
 
 lref_t lobaddr(lref_t object)       /* object->address */
 {
-     return fixcons((fixnum_t) object);
+     return flocons((uintptr_t)object);
 }
 
 lref_t lset_debug_flags(lref_t v)

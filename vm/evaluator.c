@@ -156,7 +156,7 @@ lref_t vmtrap(enum trap_type_t trap, enum vmt_options_t options, size_t argc, ..
      lref_t argv[ARG_BUF_LEN];
 
      argv[0] = fixcons(trap);
-     argv[1] = fixcons((fixnum_t)CURRENT_TIB()->frame);
+     argv[1] = flocons((uintptr_t)CURRENT_TIB()->frame);
      for (size_t ii = 2; ii < argc + 2; ii++)
           argv[ii] = va_arg(args, lref_t);
 
@@ -703,7 +703,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                if (UNBOUND_MARKER_P(binding))
                     vmerror_unbound(sym);
 
-               SET_SYMBOL_VCELL(sym, fixcons((fixnum_t)CURRENT_TIB()->frame));
+               SET_SYMBOL_VCELL(sym, flocons((uintptr_t)CURRENT_TIB()->frame));
 
                retval = execute_fast_op(fop->as.fast_op.arg2, env);
                fop = fop->as.fast_op.next;
