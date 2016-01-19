@@ -150,10 +150,10 @@
 ;;-- only the tm%tai-epoch-in-jd might need changing if
 ;;   a different epoch is used.
 
-(define tm%nano 1000000000) ;; SRFI-19
-(define tm%nano/msec 1000000)
-(define tm%sid  86400)    ; seconds in a day ;; SRFI-19
-(define tm%sihd 43200)    ; seconds in a half day ;; SRFI-19
+(define tm%nano 1000000000.0) ;; SRFI-19
+(define tm%nano/msec 1000000.0)
+(define tm%sid  86400.0)    ; seconds in a day ;; SRFI-19
+(define tm%sihd 43200.0)    ; seconds in a half day ;; SRFI-19
 (define tm%tai-epoch-in-jd (/ 4881175 2)) ; julian day number for 'the epoch' ;; SRFI-19
 
 
@@ -181,30 +181,30 @@
 ;; each entry is ( utc seconds since epoch . # seconds to add for tai )
 ;; note they go higher to lower, and end in 1972.
 (define tm%leap-second-table ;; SRFI-19
- '((1136073600 . 33)
-  (915148800 . 32)
-  (867715200 . 31)
-  (820454400 . 30)
-  (773020800 . 29)
-  (741484800 . 28)
-  (709948800 . 27)
-  (662688000 . 26)
-  (631152000 . 25)
-  (567993600 . 24)
-  (489024000 . 23)
-  (425865600 . 22)
-  (394329600 . 21)
-  (362793600 . 20)
-  (315532800 . 19)
-  (283996800 . 18)
-  (252460800 . 17)
-  (220924800 . 16)
-  (189302400 . 15)
-  (157766400 . 14)
-  (126230400 . 13)
-  (94694400 . 12)
-  (78796800 . 11)
-  (63072000 . 10)))
+ '((1136073600.0 . 33)
+  (915148800.0 . 32)
+  (867715200.0 . 31)
+  (820454400.0 . 30)
+  (773020800.0 . 29)
+  (741484800.0 . 28)
+  (709948800.0 . 27)
+  (662688000.0 . 26)
+  (631152000.0 . 25)
+  (567993600.0 . 24)
+  (489024000.0 . 23)
+  (425865600.0 . 22)
+  (394329600.0 . 21)
+  (362793600.0 . 20)
+  (315532800.0 . 19)
+  (283996800.0 . 18)
+  (252460800.0 . 17)
+  (220924800.0 . 16)
+  (189302400.0 . 15)
+  (157766400.0 . 14)
+  (126230400.0 . 13)
+  (94694400.0 . 12)
+  (78796800.0 . 11)
+  (63072000.0 . 10)))
 
 
 (define (tm%leap-second-delta utc-seconds) ;; SRFI-19
@@ -251,9 +251,10 @@
    seconds and an exact number of nanoseconds."
   (let ((t seconds))
     (values
-     (inexact->exact (floor t)) ; sec
-     (inexact->exact (floor (* tm%nano (- t (floor t))))) ; nsec
-     )))
+     ;; sec
+     (floor t)
+     ;; nsec
+     (floor (* tm%nano (- t (floor t)))))))
 
 (define (tm%realtime->time-utc rt)
    (receive (seconds nsec) (tm%parse-realtime rt)
@@ -603,8 +604,8 @@
 (define (tm%fractional-part r) ;; SRFI-19
   (if (integer? r) "0"
       (let ((str (number->string (exact->inexact r))))
-	(let ((ppos (tm%char-pos #\. str 0 (string-length str))))
-	  (substring str  (+ ppos 1) (string-length str))))))
+        (let ((ppos (tm%char-pos #\. str 0 (string-length str))))
+          (substring str  (+ ppos 1) (string-length str))))))
 
 ;; gives the seconds/date/month/year
 (define (tm%decode-julian-day-number jdn) ;; SRFI-19
@@ -623,7 +624,7 @@
      (if (>= 0 y) (- y 1) y))))
 
 (define (tm%local-tz-offset) ;; SRFI-19
-  (inexact->exact (- (scheme::realtime-time-zone-offset))))
+  (- (scheme::realtime-time-zone-offset)))
 
 ;; special thing -- ignores nanos
 (define (tm%time->julian-day-number seconds tz-offset) ;; SRFI-19
@@ -658,10 +659,6 @@
                         :zone-offset tz-offset))))
 
 (define (duration :keyword (days 0) (hours 0) (minutes 0) (seconds 0))
-  (runtime-check exact? days)
-  (runtime-check exact? hours)
-  (runtime-check exact? minutes)
-  (runtime-check real? seconds)
   (receive (sec nsec) (tm%parse-realtime (+ seconds
                                             (* 60 (+ minutes
                                                      (* 60 (+ hours
@@ -909,7 +906,7 @@
 	  new-str))))
 
 (define (tm%last-n-digits i n) ;; SRFI-19
-  (inexact->exact (abs (remainder i (expt 10 n)))))
+  (abs (remainder i (expt 10 n))))
 
 (define (tm%locale-abbr-weekday n)  ;; SRFI-19
   (->text (vector-ref tm%locale-abbr-weekday-vector n)))
@@ -965,10 +962,10 @@
     ((negative? offset) (display "-" port))
     (#t (display "+" port)))
   (if (not (= offset 0))
-      (let ( (hours   (abs (quotient offset (* 60 60))))
-	     (minutes (abs (quotient (remainder offset (* 60 60)) 60))) )
-	(display (tm%padding hours #\0 2) port)
-	(display (tm%padding minutes #\0 2) port))))
+      (let ((hours   (abs (quotient offset (* 60 60))))
+            (minutes (abs (quotient (remainder offset (* 60 60)) 60))))
+        (display (tm%padding (inexact->exact hours) #\0 2) port)
+        (display (tm%padding (inexact->exact minutes) #\0 2) port))))
 
 ;; A table of output formatting directives.
 ;; the first time is the format char.
