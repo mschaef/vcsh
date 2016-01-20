@@ -709,6 +709,16 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                fop = fop->as.fast_op.next;
                break;
 
+          case FOP_STACK_BOUNDARY:
+               sym = execute_fast_op(fop->as.fast_op.arg1, env);
+
+               fstack_enter_frame(FRAME_STACK_BOUNDARY);
+               fstack_push((lref_t)sym);
+
+               retval = execute_fast_op(fop->as.fast_op.arg2, env);
+               fstack_leave_frame();
+               break;
+
           default:
                panic("Unsupported fast-op");
           }
@@ -780,7 +790,8 @@ lref_t lapply(size_t argc, lref_t argv[])
 
 lref_t lget_current_frames(lref_t sc)
 {
-     return NIL;
+
+    return NIL;
 }
 
 lref_t topmost_primitive()

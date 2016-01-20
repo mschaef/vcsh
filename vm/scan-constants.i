@@ -148,6 +148,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_GET_HFRAMES,              23 )
     VM_CONSTANT(FOP_SET_HFRAMES,              24 )
     VM_CONSTANT(FOP_GLOBAL_PRESERVE_FRAME,    25 )
+    VM_CONSTANT(FOP_STACK_BOUNDARY,           26 )
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
 BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
@@ -259,10 +260,11 @@ END_VM_CONSTANT_TABLE(debug_flag_t, debug_flag_name)
 
 
 BEGIN_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
-    VM_CONSTANT(FRAME_SUBR   , 0)
-    VM_CONSTANT(FRAME_EVAL   , 1)
-    VM_CONSTANT(FRAME_ESCAPE , 3)
-    VM_CONSTANT(FRAME_UNWIND , 4)
+    VM_CONSTANT(FRAME_SUBR           , 0)
+    VM_CONSTANT(FRAME_EVAL           , 1)
+    VM_CONSTANT(FRAME_STACK_BOUNDARY , 2)
+    VM_CONSTANT(FRAME_ESCAPE         , 3)
+    VM_CONSTANT(FRAME_UNWIND         , 4)
 END_VM_CONSTANT_TABLE(frame_type_t, frame_type_name)
 
 
@@ -275,6 +277,8 @@ BEGIN_VM_CONSTANT_TABLE(frame_ofs_t, frame_ofs_name)
     VM_ANON_CONSTANT(FOFS_EVAL_FORM_PTR     , -2)
     VM_ANON_CONSTANT(FOFS_EVAL_IFORM        , -3)
     VM_ANON_CONSTANT(FOFS_EVAL_ENV          , -4)
+
+    VM_ANON_CONSTANT(FOFS_BOUNDARY_TAG      , -2)
 
     VM_ANON_CONSTANT(FOFS_UNWIND_AFTER      , -2)
 

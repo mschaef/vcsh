@@ -109,10 +109,11 @@
 
 (define (frame-type frp)
   (case (frame-ref frp system::FOFS_FTYPE :raw)
-    ((#.system::FRAME_SUBR  ) 'system::FRAME_SUBR  )
-    ((#.system::FRAME_EVAL  ) 'system::FRAME_EVAL  )
-    ((#.system::FRAME_ESCAPE) 'system::FRAME_ESCAPE)
-    ((#.system::FRAME_UNWIND) 'system::FRAME_UNWIND)
+    ((#.system::FRAME_SUBR            ) 'system::FRAME_SUBR            )
+    ((#.system::FRAME_EVAL            ) 'system::FRAME_EVAL            )
+    ((#.system::FRAME_STACK_BOUNDARY  ) 'system::FRAME_STACK_BOUNDARY  )
+    ((#.system::FRAME_ESCAPE          ) 'system::FRAME_ESCAPE          )
+    ((#.system::FRAME_UNWIND          ) 'system::FRAME_UNWIND          )
     (#t #f)))
 
 (define (frame-decode frp)
@@ -127,6 +128,8 @@
          (hash-set! frame :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref))
          (hash-set! frame :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref))
          (hash-set! frame :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)))
+        ((system::FRAME_STACK_BOUNDARY)
+         (hash-set! frame :tag          (frame-ref frp system::FOFS_BOUNDARY_TAG :lref)))
         ((system::FRAME_UNWIND)
          (hash-set! frame :after-thunk  (frame-ref frp system::FOFS_UNWIND_AFTER :lref)))
         ((system::FRAME_ESCAPE)
@@ -183,6 +186,8 @@
       (case (hash-ref frame :frame-type)
         ((system::FRAME_SUBR)
          (format op "  [SUBR: ~s]\n\n" (hash-ref frame :subr)))
+        ((system::FRAME_STACK_BOUNDARY)
+         (format op "  [BOUNDARY: ~s]\n\n" (hash-ref frame :tag)))
         ((system::FRAME_EVAL)
          (format op "F+~a> ~s\n\n"
                  (- (hash-ref frame :frp) initial-frp)
