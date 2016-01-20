@@ -717,6 +717,8 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
 
                retval = execute_fast_op(fop->as.fast_op.arg2, env);
                fstack_leave_frame();
+
+               fop = fop->as.fast_op.next;
                break;
 
           default:
