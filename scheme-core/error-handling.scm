@@ -107,35 +107,27 @@
         #f
       next-frp)))
 
-(define (frame-type frp)
-  (case (frame-ref frp system::FOFS_FTYPE :raw)
-    ((#.system::FRAME_SUBR            ) 'system::FRAME_SUBR            )
-    ((#.system::FRAME_EVAL            ) 'system::FRAME_EVAL            )
-    ((#.system::FRAME_STACK_BOUNDARY  ) 'system::FRAME_STACK_BOUNDARY  )
-    ((#.system::FRAME_ESCAPE          ) 'system::FRAME_ESCAPE          )
-    ((#.system::FRAME_UNWIND          ) 'system::FRAME_UNWIND          )
-    (#t #f)))
 
 (define (frame-decode frp)
-  (let ((frame (make-hash)))
-    (hash-set! frame :frp frp)
-    (let ((ftype (frame-type frp)))
-      (hash-set! frame :frame-type ftype)
-      (case ftype
-        ((system::FRAME_SUBR)
-         (hash-set! frame :subr         (frame-ref frp system::FOFS_SUBR_SUBR :lref)))
-        ((system::FRAME_EVAL)
-         (hash-set! frame :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref))
-         (hash-set! frame :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref))
-         (hash-set! frame :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)))
-        ((system::FRAME_STACK_BOUNDARY)
-         (hash-set! frame :tag          (frame-ref frp system::FOFS_BOUNDARY_TAG :lref)))
-        ((system::FRAME_UNWIND)
-         (hash-set! frame :after-thunk  (frame-ref frp system::FOFS_UNWIND_AFTER :lref)))
-        ((system::FRAME_ESCAPE)
-         (hash-set! frame :tag          (frame-ref frp system::FOFS_ESCAPE_TAG :lref))
-         (hash-set! frame :escape-frp   (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)))))
-    frame))
+  (case (frame-ref frp system::FOFS_FTYPE :raw)
+    ((#.system::FRAME_SUBR)
+     {:frame-type 'system::FRAME_SUBR
+      :subr        (frame-ref frp system::FOFS_SUBR_SUBR :lref)})
+    ((#.system::FRAME_EVAL)
+     {:frame-type   'system::FRAME_EVAL
+      :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref)
+      :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref)
+      :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)})
+    ((#.system::FRAME_STACK_BOUNDARY)
+     {:frame-type 'system::FRAME_STACK_BOUNDARY
+      :tag        (frame-ref frp system::FOFS_BOUNDARY_TAG :lref)})
+    ((#.system::FRAME_UNWIND)
+     {:frame-type 'system::FRAME_UNWIND
+     :after-thunk (frame-ref frp system::FOFS_UNWIND_AFTER :lref)})
+    ((#.system::FRAME_ESCAPE)
+     {:frame-type 'system::FRAME_ESCAPE
+      :tag        (frame-ref frp system::FOFS_ESCAPE_TAG :lref)
+      :escape-frp (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)})))
 
 ;;;; Stack Trace Capture and Display
 
