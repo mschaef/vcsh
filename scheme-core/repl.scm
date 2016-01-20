@@ -235,10 +235,9 @@
 (define (repl-eval form :optional (env ()))
   "Evaluates <form> in environment <env>, suppressing errors and returning
   return values as a list, rather than as multiple values."
-   (with-preserved-stack-boundary
-     (with-repl-error-handling "evaluation"
-       (mvbind results (time (eval `(begin-user-stack ,form) env))
-         results))))
+  (with-repl-error-handling "evaluation"
+      (mvbind results (time (eval `(begin-user-stack ,form) env))
+        results)))
 
 (define *repl-pre-read-hook* ())
 (define *repl-pre-print-value-hook* ())

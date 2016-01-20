@@ -168,18 +168,15 @@
 (define-special-form (the-environment)
   `(:get-env))
 
-(define-special-form (scheme::%preserve-initial-fsp global-var body-form)
-  (warn-if-global-unbound global-var)
-  `(:sequence
-    (:sequence
-     (:get-fsp)
-     (:global-set! ,global-var))
-    ,(expanded-form-meaning body-form cenv)))
-
 (define-special-form (scheme::%preserve-initial-frame global-var body-form)
   (warn-if-global-unbound global-var)
   `(:global-preserve-frame
     ,global-var
+    ,(expanded-form-meaning body-form cenv)))
+
+(define-special-form (scheme::%with-stack-boundary tag-form body-form)
+  `(:stack-boundary
+    ,(expanded-form-meaning tag-form cenv)
     ,(expanded-form-meaning body-form cenv)))
 
 (define-special-form (scheme::%%catch tag-form body-form)

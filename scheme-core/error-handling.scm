@@ -141,34 +141,30 @@
 
 (define *capture-system-frames* #f)
 
-(define *system-stack-boundary* #f)
-
-(defmacro (with-preserved-stack-boundary . code)
-  `(dynamic-let ((*system-stack-boundary* *system-stack-boundary*))
-     ,@code))
-
 (defmacro (begin-user-stack form)
-  `(scheme::%preserve-initial-frame *system-stack-boundary*
+  `(scheme::%with-stack-boundary :user
       ,form))
 
-(define (fold-stack-frames kons knil start-frp :optional (stop-frp? #f))
-  (let loop ((knil knil)
-             (frp start-frp))
-    ;; TOOO: add safety checks to avoid faulting while walking stack, if we find an invalid frp
-    (if (and frp
-             (not (eqv? frp stop-frp?))) 
-        (loop (kons frp knil) (frame-link frp))
-        knil)))
+(define (frame-boundary-tag frame)
+  (and (eq? (hash-ref frame :frame-type) 'system::FRAME_STACK_BOUNDARY)
+       (hash-ref frame :tag #f)))
 
-(define (capture-stack start-frp :optional (stop-frp? #f))
+(define (capture-stack-with-stop start-frp stop-frame?)
   (reverse!
-   (fold-stack-frames (lambda (frame rest)
-                        (cons (frame-decode frame) rest))
-                      ()
-                      start-frp
-                      (if *capture-system-frames*
-                          #f
-                          *system-stack-boundary*))))
+   (let loop ((frames ())
+              (frp start-frp))
+     (if frp
+         (let ((frame (frame-decode frp)))
+           (if (stop-frame? frame)
+               frames
+               (loop (cons frame frames) (frame-link frp))))
+         frames))))
+
+(define (capture-stack start-frp)
+  (capture-stack-with-stop start-frp
+                           (lambda (frame)
+                             (and (not *capture-system-frames*)
+                                  (eq? :user (frame-boundary-tag frame))))))
 
 (define *current-frp* #f)
 
@@ -185,17 +181,16 @@
     (dolist (frame (reverse frames))
       (case (hash-ref frame :frame-type)
         ((system::FRAME_SUBR)
-         (format op "  [SUBR: ~s]\n\n" (hash-ref frame :subr)))
+         (format op "  [SUBR: ~s]" (hash-ref frame :subr)))
         ((system::FRAME_STACK_BOUNDARY)
-         (format op "  [BOUNDARY: ~s]\n\n" (hash-ref frame :tag)))
+         (format op "  [BOUNDARY: ~s]" (hash-ref frame :tag)))
         ((system::FRAME_EVAL)
-         (format op "F+~a> ~s\n\n"
-                 (- (hash-ref frame :frp) initial-frp)
-                 (hash-ref frame :current-form)))
+         (format op "> ~s" (hash-ref frame :current-form)))
         ((system::FRAME_ESCAPE)
-         (format op "  [ESCAPE: ~s]\n\n" (hash-ref frame :tag)))
+         (format op "  [ESCAPE: ~s]" (hash-ref frame :tag)))
         ((system::FRAME_UNWIND)
-         (format op "  [UNWIND-PROTECT]\n\n"))))))
+         (format op "  [UNWIND-PROTECT]")))
+      (format op "\n\n"))))
 
 ;;;; Error handling
 
