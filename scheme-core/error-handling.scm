@@ -166,13 +166,6 @@
                              (and (not *capture-system-frames*)
                                   (eq? :user (frame-boundary-tag frame))))))
 
-(define *current-frp* #f)
-
-(define (capture-stack-for-error)
-  (dynamic-let ((*current-frp* *current-frp*))
-    (scheme::%preserve-initial-frame
-     *current-frp*
-     (capture-stack *current-frp*))))
 
 ;;;; Stack display
 
@@ -230,10 +223,12 @@
       (abort 'runtime-error error-info))))
 
 (define (error message . args)
-  (apply error-with-stack
-         (capture-stack-for-error)
-         message
-         args))
+     (apply error-with-stack
+            (capture-stack (scheme::%%get-frame))
+            message
+            args)
+;     (scheme::%with-stack-boundary :error )
+     )
 
 (define (ignore-error)
   (throw 'ignore-error))
