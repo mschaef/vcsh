@@ -170,20 +170,25 @@
 ;;;; Stack display
 
 (define (show-frames frames op)
-  (let ((initial-frp (hash-ref (car frames) :frp)))
-    (dolist (frame (reverse frames))
-      (case (hash-ref frame :frame-type)
-        ((system::FRAME_SUBR)
-         (format op "  [SUBR: ~s]" (hash-ref frame :subr)))
-        ((system::FRAME_STACK_BOUNDARY)
-         (format op "  [BOUNDARY: ~s]" (hash-ref frame :tag)))
-        ((system::FRAME_EVAL)
-         (format op "> ~s" (hash-ref frame :current-form)))
-        ((system::FRAME_ESCAPE)
-         (format op "  [ESCAPE: ~s]" (hash-ref frame :tag)))
-        ((system::FRAME_UNWIND)
-         (format op "  [UNWIND-PROTECT]")))
-      (format op "\n\n"))))
+  (define (show-frame format-string . args)
+    (format op "~I\n\n" format-string args))
+  
+  (dolist (frame (reverse frames))
+    (case (hash-ref frame :frame-type)
+      ((system::FRAME_SUBR)
+       (show-frame "  [SUBR: ~s]" (hash-ref frame :subr)))
+      ((system::FRAME_STACK_BOUNDARY)
+       (show-frame "  [BOUNDARY: ~s]" (hash-ref frame :tag)))
+      ((system::FRAME_EVAL)
+       (let ((initial-form (hash-ref frame :initial-form))
+             (current-form (hash-ref frame :current-form)))
+         (show-frame "> ~s" initial-form)
+         (unless (eq? initial-form current-form)
+           (show-frame ">>> ~s" current-form))))
+      ((system::FRAME_ESCAPE)
+       (show-frame "  [ESCAPE: ~s]" (hash-ref frame :tag)))
+      ((system::FRAME_UNWIND)
+       (show-frame "  [UNWIND-PROTECT]")))))
 
 ;;;; Error handling
 
@@ -223,12 +228,14 @@
       (abort 'runtime-error error-info))))
 
 (define (error message . args)
+  (scheme::%with-stack-boundary :error 
      (apply error-with-stack
-            (capture-stack (scheme::%%get-frame))
+            (cdr
+             (drop-while (negate (lambda (frame)
+                                   (eq? :error (frame-boundary-tag frame))))
+                         (capture-stack (scheme::%%get-frame))))
             message
-            args)
-;     (scheme::%with-stack-boundary :error )
-     )
+            args)))
 
 (define (ignore-error)
   (throw 'ignore-error))
