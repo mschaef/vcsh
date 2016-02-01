@@ -126,8 +126,7 @@
      :after-thunk (frame-ref frp system::FOFS_UNWIND_AFTER :lref)})
     ((#.system::FRAME_ESCAPE)
      {:frame-type 'system::FRAME_ESCAPE
-      :tag        (frame-ref frp system::FOFS_ESCAPE_TAG :lref)
-      :escape-frp (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)})))
+      :tag        (frame-ref frp system::FOFS_ESCAPE_TAG :lref)})))
 
 ;;;; Stack Trace Capture and Display
 
