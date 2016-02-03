@@ -378,20 +378,24 @@
   (values (map car xs)
           (map cdr xs)))
 
+(define (for-each-1 fn xs)
+  (let loop ((xs xs))
+    (when (pair? xs)
+      (fn (car xs))
+      (loop (cdr xs)))))
+
+(define (for-each-n fn xss)
+  (let loop ((xss xss))
+    (when (every? pair? xss)
+      (mvbind (cars cdrs) (cars+cdrs xss)
+        (apply fn cars)
+           (loop cdrs)))))
+
 (define (for-each fn . xss)
   (case (length xss)
     ((0) #f)
-    ((1)
-     (let loop ((xs (car xss)))
-          (when (pair? xs)
-            (fn (car xs))
-                 (loop (cdr xs)))))
-    (#t
-     (let loop ((xss xss))
-          (when (every? pair? xss)
-            (mvbind (cars cdrs) (cars+cdrs xss)
-              (apply fn cars)
-              (loop cdrs)))))))
+    ((1) (for-each-1 fn (car xss)))
+    (#t (for-each-n fn xss))))
 
 (define (map fn . xss)
   (if (null? xss)
@@ -754,24 +758,24 @@
             (loop (cdr xs))
             xs))))
 
-
 ;;;; List filtering
 
-(define (filter pred xs)
-  "Returns a list of all objects in the list <xs> that satisfy predicate <pred>."
-  (let ((filtered-xs '()))
+(define (filter include? xs)
+  "Returns a list of all objects in the list <xs> that satisfy
+predicate <include?>."
+  (let ((filtered-xs (%make-q)))
     (dolist (x xs)
-      (when (pred x)
-        (push! x filtered-xs)))
-    (reverse! filtered-xs)))
+      (when (include? x)
+        (%q-enqueue! x filtered-xs)))
+    (%q-items filtered-xs)))
 
-(define (remove pred lis)
-  "Removed all object from list <lis> that satisfy predicate <pred>."
-  (filter (lambda (x) (not (pred x))) lis))
+(define (remove exclude? lis)
+  "Removed all object from list <lis> that satisfy predicate <exclude?>."
+  (filter (negate exclude?) lis))
 
 (define (delete x xs :optional (test? equal?)) ; TEST
-  "Returns <xs> with all instances of <x> deleted. <test?> is the equality predicate
-   used to identity instances of <x>."
+  "Returns <xs> with all instances of <x> deleted. <test?> is the
+equality predicate used to identity instances of <x>."
   (filter (lambda (y) (not (test? x y))) xs))
 
 (UNIMPLEMENTED delete! "Copy from non-destructive (delete...)") ; REVISIT

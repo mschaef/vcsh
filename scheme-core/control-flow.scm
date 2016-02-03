@@ -103,7 +103,7 @@
     (unless (symbol? var)
       (error "dolist requires a symbol for a variable binding" var))
     `(begin
-       (for-each (lambda (,var) ,@body) ,list-form)
+       (for-each-1 (lambda (,var) ,@body) ,list-form)
        ,result-form)))
 
 (define (vector-for-each fn . xss)
