@@ -427,6 +427,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      lref_t argv[ARG_BUF_LEN];
      lref_t after;
      lref_t tag;
+     lref_t cell;
      lref_t escape_retval;
      lref_t *jmpbuf_ptr;
      jmp_buf *jmpbuf;
@@ -717,6 +718,17 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
 
                retval = execute_fast_op(fop->as.fast_op.arg2, env);
                fstack_leave_frame();
+
+               fop = fop->as.fast_op.next;
+               break;
+
+          case FOP_FAST_ENQUEUE_CELL:
+               retval = execute_fast_op(fop->as.fast_op.arg2, env);
+
+               cell = execute_fast_op(fop->as.fast_op.arg1, env);
+
+               SET_CDR(CAR(retval), cell);
+               SET_CAR(retval, cell);
 
                fop = fop->as.fast_op.next;
                break;

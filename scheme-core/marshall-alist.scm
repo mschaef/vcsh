@@ -1,3 +1,5 @@
+
+
 (define (shuffle-list xs)
   (map car
        (qsort (map (lambda (x) (cons x (random))) xs)
@@ -32,3 +34,5 @@
          ((>= i n-lookups) answer)))))
 
 
+; user> (begin (make-test-alist 500000) ())
+; time = 24715.8 ms (4658.76 gc), 207849057 cons work, 796409940 fops, 636816274 frames

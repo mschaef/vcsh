@@ -149,6 +149,7 @@ BEGIN_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
     VM_CONSTANT(FOP_SET_HFRAMES,              24 )
     VM_CONSTANT(FOP_GLOBAL_PRESERVE_FRAME,    25 )
     VM_CONSTANT(FOP_STACK_BOUNDARY,           26 )
+    VM_CONSTANT(FOP_FAST_ENQUEUE_CELL,        27 )
 END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 
 BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)

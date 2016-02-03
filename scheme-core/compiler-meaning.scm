@@ -207,6 +207,11 @@
   `(:set-hframes 
     ,(expanded-form-meaning new-hframes cenv)))
 
+(define-special-form (scheme::%%fast-enqueue-cell cell-form queue-form)
+  `(:fast-enqueue-cell
+    ,(expanded-form-meaning cell-form cenv)
+    ,(expanded-form-meaning queue-form cenv)))
+
 (define (expanded-form-meaning form cenv)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
