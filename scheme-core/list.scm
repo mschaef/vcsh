@@ -197,11 +197,7 @@
 
 (defmacro (%q-enqueue-cell! x q)
   "Enqueues a new cell <x> into the queue <q>."
-  `(let ((new-q-cons ,x)
-         (q ,q))
-     (set-cdr! (car q) new-q-cons)
-     (set-car! q new-q-cons)
-     q))
+  `(%%fast-enqueue-cell ,x ,q))
 
 (defmacro (%q-enqueue! x q)
   "Enqueues a new item <x> into the queue <q>."
