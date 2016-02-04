@@ -215,51 +215,47 @@
 
 ;;;; The fast-op disassembler
 
-(define *disassemble-show-fast-op-addresses* #f)
-
-
 (define (disassemble . functions)
   (define (print-closure-code code)
-    (let recur ((code code))
+
+    (define (emit format-str . args)
       (trace-indent)
-      (when *disassemble-show-fast-op-addresses*
-        (dformat "~@ " code))
-      (cond ((compiler::fast-op? code)
-             (mvbind (opcode opname actuals) (compiler::parse-fast-op code)
+      (dformat  "~I\n" format-str args))
+
+    (let recur ((code code))
+      (mvbind (opcode opname actuals) (compiler::parse-fast-op code)
+        (cond ((not opname)
+               (emit "<INVALID-OPCODE: ~s>" opcode))
+              ((eq? :closure opname)
+               (emit "~s ~s {" opname (car actuals))
+               (in-trace-level
+                (recur (cadr actuals)))
+               (emit "}"))
+              ((memq opname '(:literal :local-ref :local-set! :global-ref :global-set!))
+               (emit "~s ~s" opname (car actuals)))
+              
+              (#t
                (let ((formals (compiler::fop-name->formals opname)))
-                 (cond
-                  ((not formals)
-                   (dformat "INVALID-OPCODE: ~s\n" opcode))
-
-                  ((eq? :closure opname)
-                   (dformat "{ ~s ~s\n" opname (car actuals))
-                   (in-trace-level
-                    (recur (cadr actuals)))
-                   (trace-indent)
-                   (dformat "}"))
-
-                  
-                  (#t
-                   (dformat "~s" opname)
-                   (doiterate ((list formal formals)
-                               (list actual actuals))
-                     (case formal
-                       ((:fast-ops)
-                        (dformat " (")
-                        (in-trace-level
-                         (dolist (op actual)
-                           (dformat "\n")
-                           (recur op)))
-                        (dformat "\n")
-                        (trace-indent)
-                        (dformat ")"))
-                       ((:fast-op)
-                        (in-trace-level
-                         (recur actual)))
-                       (#t
-                        (dformat " ~s" actual)))))))))
-            (#t
-             (dformat "~s\n" code)))))
+                 (if (null? formals)
+                     (emit "~s" opname)
+                     (emit "~s (" opname))
+                 (in-trace-level
+                  (doiterate ((list formal formals)
+                              (list actual actuals))
+                    (case formal
+                      ((:fast-ops)
+                       (dolist (op actual)
+                         (recur op)))
+                      ((:fast-op)
+                       (recur actual))
+                      (#t
+                       (emit " ~s" actual)))))
+                 (unless (null? formals)
+                   (emit ")"))))))
+      (let ((next (%fast-op-next code)))
+        (unless (null? next)
+          (recur next)))))
+  
   (define (print-closure-disassembly closure)
     (dformat ";;;; Disassembly of ~s\n" closure)
     (dformat ";; args: ~s\n" (car (%closure-code closure)))
