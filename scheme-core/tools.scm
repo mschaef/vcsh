@@ -230,21 +230,14 @@
                  (cond
                   ((not formals)
                    (dformat "INVALID-OPCODE: ~s\n" opcode))
+
                   ((eq? :closure opname)
-                   (dformat "~s ~s {{\n" opname (car actuals))
+                   (dformat "{ ~s ~s\n" opname (car actuals))
                    (in-trace-level
                     (recur (cadr actuals)))
                    (trace-indent)
-                   (dformat "}}"))
+                   (dformat "}"))
 
-                  ((eq? :sequence opname)
-                   (dformat "~s {\n" opname)
-                   (in-trace-level
-                    (dolist (actual actuals)
-                      (recur actual)
-                      (dformat "\n")))
-                   (trace-indent)
-                   (dformat "}"))                  
                   
                   (#t
                    (dformat "~s" opname)
@@ -312,6 +305,7 @@
 ;;;; The function tracer
 
 (define *trace-level* 0)
+(define *spaces-per-trace-level* 2)
 
 (defmacro (in-trace-level . code)
   `(dynamic-let ((*trace-level* (+ 1 *trace-level*)))
@@ -319,7 +313,7 @@
 
 (define (trace-indent :optional (port (current-debug-port)))
   (fresh-line port)
-  (indent *trace-level* #\space port))
+  (indent (* *spaces-per-trace-level* *trace-level*) #\space port))
 
 (define (indent column
                 :optional
