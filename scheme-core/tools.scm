@@ -217,6 +217,7 @@
 
 (define *disassemble-show-fast-op-addresses* #f)
 
+
 (define (disassemble . functions)
   (define (print-closure-code code)
     (let recur ((code code))
@@ -230,21 +231,35 @@
                   ((not formals)
                    (dformat "INVALID-OPCODE: ~s\n" opcode))
                   ((eq? :closure opname)
-                   (dformat "~s ~s {\n" opname (car actuals))
+                   (dformat "~s ~s {{\n" opname (car actuals))
                    (in-trace-level
                     (recur (cadr actuals)))
                    (trace-indent)
-                   (dformat "}"))
+                   (dformat "}}"))
+
+                  ((eq? :sequence opname)
+                   (dformat "~s {\n" opname)
+                   (in-trace-level
+                    (dolist (actual actuals)
+                      (recur actual)
+                      (dformat "\n")))
+                   (trace-indent)
+                   (dformat "}"))                  
+                  
                   (#t
                    (dformat "~s" opname)
                    (doiterate ((list formal formals)
                                (list actual actuals))
                      (case formal
                        ((:fast-ops)
+                        (dformat " (")
                         (in-trace-level
                          (dolist (op actual)
                            (dformat "\n")
-                           (recur op))))
+                           (recur op)))
+                        (dformat "\n")
+                        (trace-indent)
+                        (dformat ")"))
                        ((:fast-op)
                         (in-trace-level
                          (recur actual)))
