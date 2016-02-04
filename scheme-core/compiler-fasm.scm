@@ -112,23 +112,31 @@
 
 (forward fasm)
 
-(define (fasm asm)
+(define (fasm-block asms next-op)
+  (fold-right fasm next-op asms))
+
+(define (prepare-fast-op-arg formal actual)
+  (if (null? formal)
+      ()
+      (case formal
+        ((:literal)  actual)
+        ((:fast-op)  (fasm actual ()))
+        ((:fast-ops) (map #L(fasm _ ()) actual))
+        ((:symbol)   (runtime-check symbol? actual))
+        (#t
+         (error "Invalid fast-op formal argument type: ~s" formal)))))
+
+(define (fasm asm next-op)
   (dbind (op . actuals) asm
-    (mvbind (opcode formals) (lookup-fast-op op)
-      (unless (same-length? actuals formals)
-        (error "Improper number of arguments while assembling ~s" asm))
-      (apply scheme::%fast-op
-             opcode
-             (map (lambda (formal actual)
-                    (case formal
-                      ((:literal)  actual)
-                      ((:fast-op)  (fasm actual))
-                      ((:fast-ops) (map fasm actual))
-                      ((:symbol)   (runtime-check symbol? actual))
-                      (#t
-                       (error "Invalid fast-op formal argument type: ~s" formal))))
-                  formals
-                  actuals)))))
+    (if (eq? op :block)
+        (fasm-block actuals next-op)
+        (mvbind (opcode formals) (lookup-fast-op op)
+          (unless (same-length? actuals formals)
+            (error "Improper number of arguments while assembling ~s" asm))
+          (scheme::%fast-op opcode
+                            (prepare-fast-op-arg (first formals) (first actuals))
+                            (prepare-fast-op-arg (second formals) (second actuals))
+                            next-op)))))
 
 (define (fop-assemble outermost-asm)
   (runtime-check list? outermost-asm "Malformed FOP assembly syntax.")
@@ -137,7 +145,7 @@
     (error "assemble expects to assemble either a closure: ~s" outermost-asm))
 
   (dbind (opcode (l-list . p-list) src) outermost-asm
-    (scheme::%closure () (cons l-list (fasm src)) p-list)))
+    (scheme::%closure () (cons l-list (fasm src ())) p-list)))
 
 (define (cpass/fasm fasm)
   (fop-assemble fasm))
