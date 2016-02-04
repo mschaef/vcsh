@@ -438,6 +438,13 @@ static void dump_fast_op(int arity, bool has_next)
 
       dump_next_object(buf, NULL);
     }
+
+  if (has_next)
+    {
+      _sntprintf(buf, STRBUF_SIZE, _T("next_op"));
+
+      dump_next_object(buf, NULL);
+    }
 }
 
 static void dump_structure()
