@@ -216,13 +216,7 @@
 ;; TODO: Add ecase
 
 (defmacro (while cond-form . body)
-  (with-gensyms (while-loop-sym)
-    `(begin
-       (let ,while-loop-sym ()
-            (when ,cond-form
-              ,@body
-              (,while-loop-sym)))
-       (values))))
+  `(%%while-true ,cond-form (begin ,@body)))
 
 (defmacro (until test . body)
   `(while (not ,test) ,@body))

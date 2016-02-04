@@ -379,10 +379,10 @@
           (map cdr xs)))
 
 (define (for-each-1 fn xs)
-  (let loop ((xs xs))
-    (when (pair? xs)
+  (let ((xs xs))
+    (while (pair? xs)
       (fn (car xs))
-      (loop (cdr xs)))))
+      (set! xs (cdr xs)))))
 
 (define (for-each-n fn xss)
   (let loop ((xss xss))
