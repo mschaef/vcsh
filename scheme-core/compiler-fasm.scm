@@ -88,7 +88,8 @@
                   #f)
               (if defn
                   (take args (fop-defn-arity defn))
-                  args)))))
+                  args)
+              (scheme::%fast-op-next fast-op)))))
 
 (define (fop-name->formals fop-name)
   (aif (hash-ref *fop-name->fop-defn* fop-name #f)

@@ -229,16 +229,18 @@
            (check-sharing-and-write (%structure-ref object ii)))))
 
       ((fast-op)
-       (mvbind (fop-opcode fop-name args) (compiler::parse-fast-op object #f)
+       (mvbind (fop-opcode fop-name args next-op) (compiler::parse-fast-op object #f)
          (fast-write-opcode (case (length args)
-                              ((0) system::FASL_OP_FAST_OP_0)
-                              ((1) system::FASL_OP_FAST_OP_1)
-                              ((2) system::FASL_OP_FAST_OP_2)
+                              ((0) (if (null? next-op) system::FASL_OP_FAST_OP_0 system::FASL_OP_FAST_OP_0N))
+                              ((1) (if (null? next-op) system::FASL_OP_FAST_OP_1 system::FASL_OP_FAST_OP_1N))
+                              ((2) (if (null? next-op) system::FASL_OP_FAST_OP_2 system::FASL_OP_FAST_OP_2N))
                               (#t (error "Unsupported fast-op arity: ~s" object)))
                             port)
          (check-sharing-and-write fop-opcode)
          (dolist (arg args)
-           (check-sharing-and-write arg))))
+           (check-sharing-and-write arg))
+         (unless (null? next-op)
+           (check-sharing-and-write next-op))))
 
       (#t
        (error "fast-write of unsupported type ~a : ~s" (%representation-of object) object))))
