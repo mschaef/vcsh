@@ -76,6 +76,7 @@
 (define-fast-op :global-preserve-frame  #.system::FOP_GLOBAL_PRESERVE_FRAME :symbol :fast-op   )
 (define-fast-op :stack-boundary         #.system::FOP_STACK_BOUNDARY        :fast-op :fast-op  )
 (define-fast-op :fast-enqueue-cell      #.system::FOP_FAST_ENQUEUE_CELL     :fast-op :fast-op  )
+(define-fast-op :while-true             #.system::FOP_WHILE_TRUE            :fast-op :fast-op  )
 
 (define (parse-fast-op fast-op)
   (let ((opcode (scheme::%fast-op-opcode fast-op))

@@ -733,6 +733,13 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                fop = fop->as.fast_op.next;
                break;
 
+          case FOP_WHILE_TRUE:
+               while(TRUEP(execute_fast_op(fop->as.fast_op.arg1, env))) {
+                    retval = execute_fast_op(fop->as.fast_op.arg2, env);
+               }
+               fop = fop->as.fast_op.next;
+               break;
+
           default:
                panic("Unsupported fast-op");
           }

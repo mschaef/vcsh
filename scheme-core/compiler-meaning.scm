@@ -212,6 +212,11 @@
     ,(expanded-form-meaning cell-form cenv)
     ,(expanded-form-meaning queue-form cenv)))
 
+(define-special-form (scheme::%%while-true cond-form body-form)
+  `(:while-true
+    ,(expanded-form-meaning cond-form cenv)
+    ,(expanded-form-meaning body-form cenv)))
+
 (define (expanded-form-meaning form cenv)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")
     (lambda (form)
