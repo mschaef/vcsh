@@ -223,7 +223,7 @@
       (dformat  "~I\n" format-str args))
 
     (let recur ((code code))
-      (mvbind (opcode opname actuals) (compiler::parse-fast-op code)
+      (mvbind (opcode opname actuals next-op) (compiler::parse-fast-op code)
         (cond ((not opname)
                (emit "<INVALID-OPCODE: ~s>" opcode))
               ((eq? :closure opname)
@@ -252,9 +252,9 @@
                        (emit " ~s" actual)))))
                  (unless (null? formals)
                    (emit ")"))))))
-      (let ((next (%fast-op-next code)))
-        (unless (null? next)
-          (recur next)))))
+      (unless (null? next-op)
+        (emit "=>")
+        (recur next-op))))
   
   (define (print-closure-disassembly closure)
     (dformat ";;;; Disassembly of ~s\n" closure)
