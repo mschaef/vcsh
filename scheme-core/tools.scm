@@ -251,10 +251,10 @@
                       (#t
                        (emit " ~s" actual)))))
                  (unless (null? formals)
-                   (emit ")"))))))
-      (unless (null? next-op)
-        (emit "=>")
-        (recur next-op))))
+                   (emit ")"))))) 
+        (unless (null? next-op)
+          (emit "=>")
+          (recur next-op)))))
   
   (define (print-closure-disassembly closure)
     (dformat ";;;; Disassembly of ~s\n" closure)
