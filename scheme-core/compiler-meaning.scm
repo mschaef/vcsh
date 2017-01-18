@@ -103,6 +103,13 @@
              ,(expanded-form-meaning (car args) cenv)
              ,(recur (cdr args)))))))
 
+(define-special-form (scheme::block . args)
+  (cond ((null? args)
+         `(:literal ()))
+        (#t
+         `(:block
+           ,@(map #L(expanded-form-meaning _ cenv) args)))))
+
 (define-special-form (or . args)
   (let recur ((args args))
     (cond ((null? args)
