@@ -468,11 +468,4 @@ lref_t lwrite_char(lref_t ch, lref_t port);
 lref_t lwrite_strings(size_t argc, lref_t argv[]);
 lref_t lwrite_to_string(lref_t exp);
 
-
-#if defined(WITH_FOPLOG_SUPPORT)
-lref_t lifoplog_reset();
-lref_t lifoplog_enable(lref_t enablep);
-lref_t lifoplog_snapshot();
-#endif
-
 #endif

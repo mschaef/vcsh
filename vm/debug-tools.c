@@ -217,9 +217,6 @@ static struct
      { "show-fast-load-forms", DF_SHOW_FAST_LOAD_FORMS},
      { "show-fast-load-units", DF_SHOW_FAST_LOAD_UNITS},
      { "test-vm", DF_TEST_VM},
-#if defined(WITH_FOPLOG_SUPPORT)
-     { "startup-foplog", DF_STARTUP_FOPLOG},
-#endif
      { "no-startup", DF_NO_STARTUP},
      { NULL, (enum debug_flag_t)0},
 };

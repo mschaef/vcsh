@@ -440,13 +440,6 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      while(!NULLP(fop)) {
           _process_interrupts();
 
-#if defined(WITH_FOPLOG_SUPPORT)
-          if (CURRENT_TIB()->foplog_enable) {
-               CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
-               CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
-          }
-#endif
-
           switch(fop->header.opcode)
           {
           case FOP_LITERAL:
@@ -807,7 +800,6 @@ lref_t lapply(size_t argc, lref_t argv[])
 
 lref_t lget_current_frames(lref_t sc)
 {
-
     return NIL;
 }
 
@@ -823,35 +815,3 @@ lref_t topmost_primitive()
 
      return NIL;
 }
-
-#if defined(WITH_FOPLOG_SUPPORT)
-lref_t lifoplog_reset()
-{
-     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
-          CURRENT_TIB()->foplog[ii] = NIL;
-
-     CURRENT_TIB()->foplog_index = 0;
-
-     return NIL;
-}
-
-lref_t lifoplog_enable(lref_t enablep)
-{
-     lref_t prev = boolcons(CURRENT_TIB()->foplog_enable);
-
-     CURRENT_TIB()->foplog_enable = TRUEP(enablep);
-
-     return prev;
-}
-
-lref_t lifoplog_snapshot()
-{
-     lref_t result = vectorcons(FOPLOG_SIZE, fixcons(-1));
-
-     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
-          SET_VECTOR_ELEM(result, ii, CURRENT_TIB()->foplog[ii]);
-
-     return result;
-}
-#endif
-
