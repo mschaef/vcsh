@@ -244,7 +244,8 @@ EVAL_INLINE void *fstack_alloca(size_t size)
 
 EVAL_INLINE void fstack_push(lref_t val)
 {
-     *(--CURRENT_TIB()->fsp) = val;
+     CURRENT_TIB()->fsp--;
+     *(CURRENT_TIB()->fsp) = val;
 }
 
 EVAL_INLINE void fstack_enter_frame(enum frame_type_t ft)
@@ -256,10 +257,31 @@ EVAL_INLINE void fstack_enter_frame(enum frame_type_t ft)
      fstack_push((lref_t)ft);
 }
 
+EVAL_INLINE void fstack_enter_subr_frame(lref_t subr) {
+     fstack_enter_frame(FRAME_SUBR);
+     fstack_push(subr);
+}
+
+EVAL_INLINE void fstack_enter_boundary_frame(lref_t sym) {
+     fstack_enter_frame(FRAME_STACK_BOUNDARY);
+     fstack_push((lref_t)sym);
+}
+
+EVAL_INLINE void fstack_enter_eval_frame(lref_t *form, lref_t fop, lref_t env) {
+     fstack_enter_frame(FRAME_EVAL);
+     fstack_push((lref_t)form);
+     fstack_push(fop);
+     fstack_push(env);
+}
+
+EVAL_INLINE void fstack_enter_unwind_frame(lref_t unwind_after) {
+     fstack_enter_frame(FRAME_UNWIND);
+     fstack_push(unwind_after);
+}
+
 EVAL_INLINE void fstack_leave_frame()
 {
      CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
-
      CURRENT_TIB()->frame = *(lref_t **)(CURRENT_TIB()->frame);
 }
 
@@ -283,8 +305,7 @@ EVAL_INLINE lref_t subr_apply(lref_t function, size_t argc, lref_t argv[], lref_
 
      UNREFERENCED(env);
 
-     fstack_enter_frame(FRAME_SUBR);
-     fstack_push((lref_t)function);
+     fstack_enter_subr_frame(function);
 
      switch (SUBR_TYPE(function))
      {
@@ -432,10 +453,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
 
      STACK_CHECK(&fop);
 
-     fstack_enter_frame(FRAME_EVAL);
-     fstack_push((lref_t)&fop);
-     fstack_push((lref_t)fop);
-     fstack_push((lref_t)env);
+     fstack_enter_eval_frame(&fop, fop, env);
 
      while(!NULLP(fop)) {
           _process_interrupts();
@@ -608,8 +626,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_WITH_UNWIND_FN:
-               fstack_enter_frame(FRAME_UNWIND);
-               fstack_push((lref_t)execute_fast_op(fop->as.fast_op.arg1, env));
+               fstack_enter_unwind_frame(execute_fast_op(fop->as.fast_op.arg1, env));
 
                retval = execute_fast_op(fop->as.fast_op.arg2, env);
 
@@ -702,10 +719,10 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
           case FOP_STACK_BOUNDARY:
                sym = execute_fast_op(fop->as.fast_op.arg1, env);
 
-               fstack_enter_frame(FRAME_STACK_BOUNDARY);
-               fstack_push((lref_t)sym);
+               fstack_enter_boundary_frame(sym);
 
                retval = execute_fast_op(fop->as.fast_op.arg2, env);
+
                fstack_leave_frame();
 
                fop = fop->as.fast_op.next;
