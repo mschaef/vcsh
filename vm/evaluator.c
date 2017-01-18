@@ -38,10 +38,7 @@ lref_t lset_stack_limit(lref_t amount)
           return boolcons(false);
      }
 
-     dscwritef(DF_SHOW_GC, ("stack_size = ~cd bytes, [~c&,~c&]\n",
-                            new_size_limit,
-                            new_limit_obj,
-                            sys_get_stack_start()));
+     dscwritef(DF_SHOW_GC, ("stack_size = ~cd bytes, [~c&,~c&]\n", new_size_limit, new_limit_obj, sys_get_stack_start()));
 
      return fixcons(new_size_limit);
 }
@@ -421,7 +418,7 @@ void unwind_stack_for_throw()
 
           if (frame == CURRENT_TIB()->escape_frame)
           {
-               struct __jmp_buf_tag * jmpbuf = (struct __jmp_buf_tag *)frame[FOFS_ESCAPE_JMPBUF_PTR];
+               jmp_buf *jmpbuf = (jmp_buf *)frame[FOFS_ESCAPE_JMPBUF_PTR];
 
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: longjmp to frame: ~c&, jmpbuf: ~c&\n"), frame, jmpbuf));
 
@@ -430,7 +427,7 @@ void unwind_stack_for_throw()
                CURRENT_TIB()->frame = (lref_t *)frame[FOFS_ESCAPE_FRAME];
                CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
 
-               longjmp(jmpbuf, 1);
+               longjmp(*jmpbuf, 1);
           }
      }
 }
