@@ -239,41 +239,54 @@ EVAL_INLINE void *fstack_alloca(size_t size)
      return (void *)(CURRENT_TIB()->fsp);
 }
 
-EVAL_INLINE void fstack_push(lref_t val)
+EVAL_INLINE lref_t *fstack_enter_frame(enum frame_type_t ft, size_t slots)
 {
-     CURRENT_TIB()->fsp--;
-     *(CURRENT_TIB()->fsp) = val;
-}
+     lref_t *prev_frame = CURRENT_TIB()->frame;
+     lref_t *frame = CURRENT_TIB()->fsp - 1;
 
-EVAL_INLINE void fstack_enter_frame(enum frame_type_t ft)
-{
-     fstack_push((lref_t)(CURRENT_TIB()->frame));
+     CURRENT_TIB()->frame = frame;;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->frame - 1 - slots;
 
-     CURRENT_TIB()->frame = CURRENT_TIB()->fsp;
+     frame[FOFS_LINK] = (lref_t)prev_frame;
+     frame[FOFS_FTYPE] = (lref_t)ft;
 
-     fstack_push((lref_t)ft);
+     return frame;
 }
 
 EVAL_INLINE void fstack_enter_subr_frame(lref_t subr) {
-     fstack_enter_frame(FRAME_SUBR);
-     fstack_push(subr);
+     lref_t *frame = fstack_enter_frame(FRAME_SUBR, 1);
+
+     frame[FOFS_SUBR_SUBR] = subr;
 }
 
 EVAL_INLINE void fstack_enter_boundary_frame(lref_t sym) {
-     fstack_enter_frame(FRAME_STACK_BOUNDARY);
-     fstack_push((lref_t)sym);
+     lref_t *frame = fstack_enter_frame(FRAME_STACK_BOUNDARY, 1);
+
+     frame[FOFS_BOUNDARY_TAG] = sym;
 }
 
 EVAL_INLINE void fstack_enter_eval_frame(lref_t *form, lref_t fop, lref_t env) {
-     fstack_enter_frame(FRAME_EVAL);
-     fstack_push((lref_t)form);
-     fstack_push(fop);
-     fstack_push(env);
+     lref_t *frame = fstack_enter_frame(FRAME_EVAL, 3);
+
+     frame[FOFS_EVAL_FORM_PTR] = (lref_t)form;
+     frame[FOFS_EVAL_IFORM] = fop;
+     frame[FOFS_EVAL_ENV] = env;
 }
 
 EVAL_INLINE void fstack_enter_unwind_frame(lref_t unwind_after) {
-     fstack_enter_frame(FRAME_UNWIND);
-     fstack_push(unwind_after);
+     lref_t *frame = fstack_enter_frame(FRAME_UNWIND, 1);
+
+     frame[FOFS_UNWIND_AFTER] = unwind_after;
+}
+
+EVAL_INLINE jmp_buf *fstack_enter_catch_frame(lref_t tag, lref_t *escape_frame) {
+     lref_t *frame = fstack_enter_frame(FRAME_ESCAPE, 3);
+
+     frame[FOFS_ESCAPE_TAG] = tag;
+     frame[FOFS_ESCAPE_FRAME] = (lref_t)CURRENT_TIB()->frame;
+     frame[FOFS_ESCAPE_JMPBUF_PTR] = (lref_t)fstack_alloca(sizeof(jmp_buf));
+
+     return (jmp_buf *)frame[FOFS_ESCAPE_JMPBUF_PTR];
 }
 
 EVAL_INLINE void fstack_leave_frame()
@@ -445,7 +458,6 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      lref_t tag;
      lref_t cell;
      lref_t escape_retval;
-     lref_t *jmpbuf_ptr;
      jmp_buf *jmpbuf;
 
      STACK_CHECK(&fop);
@@ -599,14 +611,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
           case FOP_CATCH:
                tag = execute_fast_op(fop->as.fast_op.arg1, env);
 
-               fstack_enter_frame(FRAME_ESCAPE);
-               fstack_push((lref_t)tag);
-               fstack_push((lref_t)CURRENT_TIB()->frame);
-               fstack_push(NIL);
-
-               jmpbuf_ptr = CURRENT_TIB()->fsp;
-               jmpbuf = (jmp_buf *)fstack_alloca(sizeof(jmp_buf));
-               *(jmpbuf_ptr) = (lref_t)jmpbuf;
+               jmpbuf = fstack_enter_catch_frame(tag, CURRENT_TIB()->frame);
 
                dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp tag: ~a, frame: ~c&, jmpbuf: ~c&\n"), tag, CURRENT_TIB()->frame, jmpbuf));
 
