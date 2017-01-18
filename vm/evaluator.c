@@ -382,36 +382,34 @@ static lref_t *find_matching_escape(lref_t *start_frame, lref_t tag)
      if (CURRENT_TIB()->escape_frame != NULL)
           start_frame = fstack_prev_frame(CURRENT_TIB()->escape_frame);
 
-     for(lref_t *frame = start_frame;
-         frame != NULL;
-         frame = fstack_prev_frame(frame))
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: looking for escape tag ~a\n"), tag));
+
+     for(lref_t *frame = start_frame; frame != NULL; frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) != FRAME_ESCAPE)
                continue;
 
           lref_t ftag = frame[FOFS_ESCAPE_TAG];
 
-          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: frame tag ~a (looking for ~a)\n"), ftag, tag));
+          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: frame: ~c&, tag ~a\n"), frame, ftag));
 
           if (NULLP(ftag) || EQ(ftag, tag)) {
                return frame;
           }
      }
 
-     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: No escape frame for ~a\n"), tag));
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: No escape frame for tag ~a\n"), tag));
 
      return NULL;
 }
 
 void unwind_stack_for_throw()
 {
-     for(lref_t *frame = CURRENT_TIB()->frame;
-         frame != NULL;
-         frame = fstack_prev_frame(frame))
+     for(lref_t *frame = CURRENT_TIB()->frame; frame != NULL; frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) == FRAME_UNWIND)
           {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw invoking unwind : ~c&\n"), frame));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw invoking unwind, frame: ~c&\n"), frame));
 
                apply1(frame[FOFS_UNWIND_AFTER], 0, NULL);
 
@@ -423,14 +421,16 @@ void unwind_stack_for_throw()
 
           if (frame == CURRENT_TIB()->escape_frame)
           {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, frame));
+               struct __jmp_buf_tag * jmpbuf = (struct __jmp_buf_tag *)frame[FOFS_ESCAPE_JMPBUF_PTR];
+
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: longjmp to frame: ~c&, jmpbuf: ~c&\n"), frame, jmpbuf));
 
                CURRENT_TIB()->escape_frame = NULL;
 
                CURRENT_TIB()->frame = (lref_t *)frame[FOFS_ESCAPE_FRAME];
                CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
 
-               longjmp((struct __jmp_buf_tag *)frame[FOFS_ESCAPE_JMPBUF_PTR], 1);
+               longjmp(jmpbuf, 1);
           }
      }
 }
@@ -581,7 +581,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                tag = execute_fast_op(fop->as.fast_op.arg1, env);
                escape_retval = execute_fast_op(fop->as.fast_op.arg2, env);
 
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, escape_retval));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a, retval = ~a\n"), tag, escape_retval));
 
                CURRENT_TIB()->escape_frame = find_matching_escape(CURRENT_TIB()->frame, tag);
                CURRENT_TIB()->escape_value = escape_retval;
@@ -611,10 +611,12 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                jmpbuf = (jmp_buf *)fstack_alloca(sizeof(jmp_buf));
                *(jmpbuf_ptr) = (lref_t)jmpbuf;
 
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp tag: ~a, frame: ~c&, jmpbuf: ~c&\n"), tag, CURRENT_TIB()->frame, jmpbuf));
+
                if (setjmp(*jmpbuf) == 0) {
                     retval = execute_fast_op(fop->as.fast_op.arg2, env);
                } else {
-                    dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->escape_value));
+                    dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch, retval = ~a\n"), CURRENT_TIB()->escape_value));
 
                     retval = CURRENT_TIB()->escape_value;
                     CURRENT_TIB()->escape_value = NIL;
