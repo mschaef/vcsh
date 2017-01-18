@@ -249,8 +249,6 @@ EVAL_INLINE void fstack_push(lref_t val)
 
 EVAL_INLINE void fstack_enter_frame(enum frame_type_t ft)
 {
-     CURRENT_TIB()->count_enter_frame++;
-
      fstack_push((lref_t)(CURRENT_TIB()->frame));
 
      CURRENT_TIB()->frame = CURRENT_TIB()->fsp;
@@ -440,8 +438,6 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      fstack_push((lref_t)env);
 
      while(!NULLP(fop)) {
-          CURRENT_TIB()->count_fop++;
-
           _process_interrupts();
 
 #if defined(WITH_FOPLOG_SUPPORT)
