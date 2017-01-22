@@ -71,19 +71,20 @@ it's running on."
 
 (define (save-benchmark-results)
   "Saves the current set of benchmark results to disk."
-  (with-port of (open-file *benchmark-results-filename* :mode :write)
-    (display ";;;; Saved benchmark results - DO NOT ALTER!!!\n" of)
-    (display ";;;; \n" of)
-    (display ";;;; \n" of)
-    (display "\n" of)
-    (let ((results (qsort (append-map #L(hash-ref *reference-benchmark-result-sets* _ ())
-                                      (hash-keys *reference-benchmark-result-sets*))
-                          <
-                          benchmark-result-seq)))
-      (dolist (result results)
-        (write result of)
-        (newline of)))
-    (display "; end benchmark results\n" of)))
+  (with-package "bench"
+    (with-port of (open-file *benchmark-results-filename* :mode :write)
+      (display ";;;; Saved benchmark results - DO NOT ALTER!!!\n" of)
+      (display ";;;; \n" of)
+      (display ";;;; \n" of)
+      (display "\n" of)
+      (let ((results (qsort (append-map #L(hash-ref *reference-benchmark-result-sets* _ ())
+                                        (hash-keys *reference-benchmark-result-sets*))
+                            <
+                            benchmark-result-seq)))
+        (dolist (result results)
+          (write result of)
+          (newline of)))
+      (display "; end benchmark results\n" of))))
 
 (define (load-benchmark-results)
   "Loads the current set of benchmark results from disk."
