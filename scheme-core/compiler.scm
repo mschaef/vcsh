@@ -25,8 +25,7 @@
              "compiler-meaning.scm"
              "compiler-foptimize.scm"
              "compiler-form.scm"
-             "compiler-file.scm"
-             )
+             "compiler-file.scm")
   (:exports "compile-file"
             "*verbose*"
             "*output-file-name*"
@@ -37,5 +36,4 @@
             "*files-to-compile*"
             "*initial-package*"
             "*disable-load-unit-boundaries*"
-            "compile"
-            ))
+            "compile"))

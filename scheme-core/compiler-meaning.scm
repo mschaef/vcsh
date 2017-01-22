@@ -13,29 +13,34 @@
 
 (define *show-meanings* #f)
 
-(define (l-list-vars l-list)
-  (let retry ((l-list l-list))
-    (cond ((null? l-list)
-           ())
-          ((atom? l-list)
-           `(,l-list))
-          (#t
-           (cons (car l-list) (retry (cdr l-list)))))))
+(define (lambda-list-variables lambda-list)
+  (let retry ((lambda-list lambda-list))
+    (cond
+     ((null? lambda-list)
+      ())
+     ((atom? lambda-list)
+      `(,lambda-list))
+     (#t
+      (cons (car lambda-list) (retry (cdr lambda-list)))))))
 
 (define (extend-cenv l-list cenv)
-  (cons (l-list-vars l-list) cenv))
+  (cons (lambda-list-variables l-list) cenv))
+
+(define (bound-in-cenv-frame? var cenv-frame)
+  (unless (list? cenv-frame)
+    (error "Malformed frame ~s in cenv: ~s" cenv-frame cenv))
+  (memq var cenv-frame))
 
 (define (bound-in-cenv? var cenv)
-  (let loop ((rest cenv))
-    (cond ((null? rest) #f)
-          ((atom? rest) (error "Malformed cenv: ~s" cenv))
-          (#t
-           (let ((cenv-frame (car rest)))
-             (unless (list? cenv-frame)
-               (error "Malformed frame ~s in cenv: ~s" cenv-frame cenv))
-             (if (memq var (car rest))
-                 #t
-                 (loop (cdr rest))))))))
+  (let loop ((remaining-frames cenv))
+    (cond
+     ((null? remaining-frames)
+      #f)
+     ((atom? remaining-frames)
+      (error "Malformed cenv: ~s" cenv))
+     (#t
+      (or (bound-in-cenv-frame? var (car remaining-frames))
+          (loop (cdr remaining-frames)))))))
 
 (forward expanded-form-meaning)
 
