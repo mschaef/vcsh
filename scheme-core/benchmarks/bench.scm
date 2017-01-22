@@ -270,6 +270,9 @@ it's running on."
 (push! '(:bench bench "Runs the benchmark suite")
        scheme::*repl-abbreviations*)
 
+(push! '(:fast-bench fast-bench "Runs the fast benchmark suite")
+       scheme::*repl-abbreviations*)
+
 (push! '(:pbr promote-benchmark-results "Promotes the current benchmark results to 'official' status")
        scheme::*repl-abbreviations*)
 
