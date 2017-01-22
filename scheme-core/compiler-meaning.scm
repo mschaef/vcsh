@@ -14,33 +14,44 @@
 (define *show-meanings* #f)
 
 (define (lambda-list-variables lambda-list)
-  (let retry ((lambda-list lambda-list))
+  "Given a lambda list, return a list of descriptive tuples of each
+variable bound by that lambda list. Each tuple contains the bound
+symbol, the type of binding (:var or :rest), and the index of the binding
+within the environment."
+  (let loop ((binding-index 0)
+              (lambda-list lambda-list))
     (cond
      ((null? lambda-list)
       ())
      ((atom? lambda-list)
-      `(,lambda-list))
+      `((,lambda-list :var ,binding-index)))
      (#t
-      (cons (car lambda-list) (retry (cdr lambda-list)))))))
+      (cons `(,(car lambda-list) :rest ,binding-index)
+            (loop (+ binding-index 1) (cdr lambda-list)))))))
 
-(define (extend-cenv l-list cenv)
-  (cons (lambda-list-variables l-list) cenv))
+(define (extend-cenv lambda-list cenv)
+  (cons (lambda-list-variables lambda-list) cenv))
 
 (define (bound-in-cenv-frame? var cenv-frame)
   (unless (list? cenv-frame)
     (error "Malformed frame ~s in cenv: ~s" cenv-frame cenv))
-  (memq var cenv-frame))
+  (assoc var cenv-frame))
 
 (define (bound-in-cenv? var cenv)
-  (let loop ((remaining-frames cenv))
+  "Determine whether or not a variable is bound in the given cenv. Returns a
+description of the binding coordinates: (frame-index var-name binding-type binding-index)"
+  (let loop ((frame-index 0)
+             (remaining-frames cenv))
     (cond
      ((null? remaining-frames)
       #f)
      ((atom? remaining-frames)
       (error "Malformed cenv: ~s" cenv))
      (#t
-      (or (bound-in-cenv-frame? var (car remaining-frames))
-          (loop (cdr remaining-frames)))))))
+      (aif (bound-in-cenv-frame? var (car remaining-frames))
+           (cons frame-index it)
+           (loop (+ frame-index 1)
+                 (cdr remaining-frames)))))))
 
 (forward expanded-form-meaning)
 
