@@ -750,6 +750,11 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                fop = fop->as.fast_op.next;
                break;
 
+          case FOP_LOCAL_REF_BY_INDEX:
+          case FOP_LOCAL_REF_RESTARG:
+          case FOP_LOCAL_SET_BY_INDEX:
+               panic("Indexing into local frames currently unsupported.");
+
           default:
                panic("Unsupported fast-op");
           }

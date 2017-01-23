@@ -23,7 +23,7 @@
 
 (define (valid-fop-formals? formals)
   (define (valid-formal-type? type)
-    (memq type '(:literal :symbol :fast-op :fast-ops)))
+    (memq type '(:literal :symbol :fast-op :fast-ops :index)))
   (if (and (list? formals)
            (<= (length formals) 3)
            (every? valid-formal-type? formals))
@@ -77,6 +77,9 @@
 (define-fast-op :stack-boundary         #.system::FOP_STACK_BOUNDARY        :fast-op :fast-op  )
 (define-fast-op :fast-enqueue-cell      #.system::FOP_FAST_ENQUEUE_CELL     :fast-op :fast-op  )
 (define-fast-op :while-true             #.system::FOP_WHILE_TRUE            :fast-op :fast-op  )
+(define-fast-op :local-ref-by-index     #.system::FOP_LOCAL_REF_BY_INDEX     :index :index      )
+(define-fast-op :local-ref-restarg      #.system::FOP_LOCAL_REF_RESTARG      :index :index      )
+(define-fast-op :local-set-by-index     #.system::FOP_LOCAL_SET_BY_INDEX     :index :index      )
 
 (define (parse-fast-op fast-op)
   (let ((opcode (scheme::%fast-op-opcode fast-op))
@@ -123,6 +126,7 @@
         ((:fast-op)  (fasm actual ()))
         ((:fast-ops) (map #L(fasm _ ()) actual))
         ((:symbol)   (runtime-check symbol? actual))
+        ((:index)    (runtime-check exact? actual))
         (#t
          (error "Invalid fast-op formal argument type: ~s" formal)))))
 
