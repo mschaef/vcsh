@@ -24,9 +24,9 @@ within the environment."
      ((null? lambda-list)
       ())
      ((atom? lambda-list)
-      `((,lambda-list :var ,binding-index)))
+      `((,lambda-list :rest ,binding-index)))
      (#t
-      (cons `(,(car lambda-list) :rest ,binding-index)
+      (cons `(,(car lambda-list) :var ,binding-index)
             (loop (+ binding-index 1) (cdr lambda-list)))))))
 
 (define (extend-cenv lambda-list cenv)
@@ -172,7 +172,7 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
   (aif (bound-in-cenv? var cenv)
        (begin
          (when (eq? :rest (third it))
-           (compile-warning form "Should not rebind a rest binding: ~s" var))
+           (compile-error form "Cannot rebind a rest binding: ~s" var))
          `(:sequence
            ,(expanded-form-meaning val-form cenv)
            (:local-set! ,var)))
