@@ -32,7 +32,7 @@ within the environment."
 (define (extend-cenv lambda-list cenv)
   (cons (lambda-list-variables lambda-list) cenv))
 
-(define (bound-in-cenv-frame? var cenv-frame)
+(define (bound-in-cenv-frame? var cenv-frame cenv)
   (unless (list? cenv-frame)
     (error "Malformed frame ~s in cenv: ~s" cenv-frame cenv))
   (assoc var cenv-frame))
@@ -48,7 +48,7 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
      ((atom? remaining-frames)
       (error "Malformed cenv: ~s" cenv))
      (#t
-      (aif (bound-in-cenv-frame? var (car remaining-frames))
+      (aif (bound-in-cenv-frame? var (car remaining-frames) cenv)
            (cons frame-index it)
            (loop (+ frame-index 1)
                  (cdr remaining-frames)))))))
@@ -60,9 +60,10 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
       (type-of (symbol-value sym))
       '#f))
 
-(define (warn-if-global-unbound var)
+(define (bound-global var)
   (unless (symbol-bound? var)
-    (compile-warning var "Global variable unbound: ~s" var)))
+    (compile-warning var "Global variable unbound: ~s" var))
+  var)
 
 (define (meaning/application form cenv)
   `(:apply ,(expanded-form-meaning (car form) cenv)
@@ -74,8 +75,7 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
         ((bound-in-cenv? form cenv)
          `(:local-ref ,form))
         (#t
-         (warn-if-global-unbound form)
-         `(:global-ref ,form))))
+         `(:global-ref ,(bound-global form)))))
 
 (define *special-form-handlers* (make-identity-hash))
 
@@ -167,17 +167,18 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
      ,(expanded-form-meaning else-form cenv))))
 
 (define-special-form (set! var val-form)
-  (cond ((keyword? var)
-         (compile-error form "Cannot rebind a keyword: ~s" var))
-        ((bound-in-cenv? var cenv)
+  (when (keyword? var)
+    (compile-error form "Cannot rebind a keyword: ~s" var))
+  (aif (bound-in-cenv? var cenv)
+       (begin
+         (when (eq? :rest (third it))
+           (compile-warning form "Should not rebind a rest binding: ~s" var))
          `(:sequence
            ,(expanded-form-meaning val-form cenv)
            (:local-set! ,var)))
-        (#t
-         (warn-if-global-unbound var)
-         `(:sequence
-           ,(expanded-form-meaning val-form cenv)
-           (:global-set! ,var)))))
+       `(:sequence
+         ,(expanded-form-meaning val-form cenv)
+         (:global-set! ,(bound-global var)))))
 
 (define compile)
 
@@ -192,9 +193,8 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
   `(:get-env))
 
 (define-special-form (scheme::%preserve-initial-frame global-var body-form)
-  (warn-if-global-unbound global-var)
   `(:global-preserve-frame
-    ,global-var
+    ,(bound-global global-var)
     ,(expanded-form-meaning body-form cenv)))
 
 (define-special-form (scheme::%with-stack-boundary tag-form body-form)
