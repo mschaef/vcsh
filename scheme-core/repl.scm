@@ -257,6 +257,11 @@
           (dynamic-let ((*print-readably* #f))
             (format #t "; ##~a = ~s\n" history-index value)))))))
 
+(define (exit :optional (retval 0))
+  "Forcibly shuts down the interpreter, via a dynamic escape, causing the
+   interpreter to return <retval> as a return value."
+  (throw '%end-it-all retval))
+
 (define (repl :optional (env ()))
   "Enters a read-eval-print-loop, which will print a  prompt, read a form,
    evaluate the input in environment <env>, and finally print the results.
@@ -270,7 +275,7 @@
           (repl-prompt *repl-level*)
           (let ((form (repl-read *repl-abbreviations*)))
             (when (eof-object? form)
-              (throw 'repl-escape))
+              (exit 0))
             (apply repl-print (repl-eval form env))
             (with-repl-error-handling "post-hook"
              (invoke-hook '*repl-post-hook*)))) ;; REVISIT: error guard
@@ -278,9 +283,8 @@
 
 (define (toplevel-repl)
   "Enters a toplevel Lisp REPL. A toplevel Lisp REPL is distinguished
-   by the fact that it has unique handling for the 'repl-quit and
-   'repl-toplevel dynamic escapes used to quit the system and return to the
-   toplevel REPL."
+by the fact that it has unique handling for the 'repl-toplevel dynamic
+escape used to return to the toplevel REPL."
   (catch 'repl-quit
     (let loop ()
       (catch 'repl-toplevel
@@ -297,11 +301,6 @@
   "Exits all read-eval-print-loops, and invokes a new toplevel loop."
   (throw 'repl-toplevel)
   (values))
-
-(define (exit :optional (retval 0))
-  "Forcibly shuts down the interpreter, via a dynamic escape, causing the
-   interpreter to return <retval> as a return value."
-  (throw '%end-it-all retval))
 
 
 (add-hook-function! '*repl-post-hook* 'do-idle-processing)
