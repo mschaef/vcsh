@@ -12,6 +12,7 @@
 ;;;; WARRANTIES.
 
 (define *show-meanings* #f)
+(define *indexed-lvars* #f)
 
 (define (lambda-list-variables lambda-list)
   "Given a lambda list, return a list of descriptive tuples of each
@@ -70,12 +71,13 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
            ,(map #L(expanded-form-meaning _ cenv) (cdr form))))
 
 (define (meaning/symbol form cenv)
-  (cond ((keyword? form)
-         `(:literal ,form))
-        ((bound-in-cenv? form cenv)
-         `(:local-ref ,form))
-        (#t
-         `(:global-ref ,(bound-global form)))))
+  (if (keyword? form)
+      `(:literal ,form)
+      (aif (bound-in-cenv? form cenv)
+           (if *indexed-lvars*
+               `(:local-ref-by-index ,(first it) (,fourth it))               
+               `(:local-ref ,form))
+           `(:global-ref ,(bound-global form)))))
 
 (define *special-form-handlers* (make-identity-hash))
 
