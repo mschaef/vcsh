@@ -75,7 +75,7 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
       `(:literal ,form)
       (aif (bound-in-cenv? form cenv)
            (if *indexed-lvars*
-               `(:local-ref-by-index ,(first it) (,fourth it))               
+               `(:local-ref-by-index ,(first it) ,(fourth it))
                `(:local-ref ,form))
            `(:global-ref ,(bound-global form)))))
 
