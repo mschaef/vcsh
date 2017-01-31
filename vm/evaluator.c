@@ -202,9 +202,7 @@ lref_t lenvlookup(lref_t var, lref_t env)
 
           lref_t al, fl;
 
-          for (fl = CAR(tmp), al = CDR(tmp);
-               CONSP(fl);
-               fl = CDR(fl), al = CDR(al))
+          for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
           {
                if (!CONSP(al))
                     vmerror_arg_out_of_range(NIL, _T("too few arguments"));
@@ -818,9 +816,7 @@ lref_t lapply(size_t argc, lref_t argv[])
 
 lref_t topmost_primitive()
 {
-     for(lref_t *frame = CURRENT_TIB()->frame;
-         frame != NULL;
-         frame = fstack_prev_frame(frame))
+     for(lref_t *frame = CURRENT_TIB()->frame; frame != NULL; frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) == FRAME_SUBR)
                return frame[FOFS_SUBR_SUBR];
