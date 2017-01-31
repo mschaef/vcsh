@@ -461,12 +461,11 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      jmp_buf *jmpbuf;
 
      STACK_CHECK(&fop);
+     _process_interrupts();
 
      fstack_enter_eval_frame(&fop, fop, env);
 
      while(!NULLP(fop)) {
-          _process_interrupts();
-
           switch(fop->header.opcode)
           {
           case FOP_LITERAL:
@@ -765,8 +764,6 @@ lref_t apply1(lref_t fn, size_t argc, lref_t argv[])
      checked_assert((argc == 0) || (argv != NULL));
 
      lref_t retval = NIL;
-
-     STACK_CHECK(&fn);
 
      lref_t env = NIL;
      lref_t next_form = apply(fn, argc, argv, &env, &retval);
