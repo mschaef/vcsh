@@ -202,9 +202,7 @@ lref_t lenvlookup(lref_t var, lref_t env)
 
           lref_t al, fl;
 
-          for (fl = CAR(tmp), al = CDR(tmp);
-               CONSP(fl);
-               fl = CDR(fl), al = CDR(al))
+          for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
           {
                if (!CONSP(al))
                     vmerror_arg_out_of_range(NIL, _T("too few arguments"));
@@ -461,12 +459,11 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      jmp_buf *jmpbuf;
 
      STACK_CHECK(&fop);
+     _process_interrupts();
 
      fstack_enter_eval_frame(&fop, fop, env);
 
      while(!NULLP(fop)) {
-          _process_interrupts();
-
           switch(fop->header.opcode)
           {
           case FOP_LITERAL:
@@ -771,8 +768,6 @@ lref_t apply1(lref_t fn, size_t argc, lref_t argv[])
 
      lref_t retval = NIL;
 
-     STACK_CHECK(&fn);
-
      lref_t env = NIL;
      lref_t next_form = apply(fn, argc, argv, &env, &retval);
 
@@ -824,16 +819,9 @@ lref_t lapply(size_t argc, lref_t argv[])
 
 /***** Frame Management *****/
 
-lref_t lget_current_frames(lref_t sc)
-{
-    return NIL;
-}
-
 lref_t topmost_primitive()
 {
-     for(lref_t *frame = CURRENT_TIB()->frame;
-         frame != NULL;
-         frame = fstack_prev_frame(frame))
+     for(lref_t *frame = CURRENT_TIB()->frame; frame != NULL; frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) == FRAME_SUBR)
                return frame[FOFS_SUBR_SUBR];
