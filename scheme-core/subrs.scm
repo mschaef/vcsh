@@ -26,7 +26,6 @@
 (%define %fast-op-next #.(host-scheme::%subr-by-name "%fast-op-next"))
 (%define %file-details #.(host-scheme::%subr-by-name "%file-details"))
 
-(%define %get-current-frames #.(host-scheme::%subr-by-name "%get-current-frames"))
 (%define %hash-binding-vector #.(host-scheme::%subr-by-name "%hash-binding-vector"))
 (%define %immediate? #.(host-scheme::%subr-by-name "%immediate?"))
 (%define %internal-files #.(host-scheme::%subr-by-name "%internal-files"))

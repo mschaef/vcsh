@@ -816,11 +816,6 @@ lref_t lapply(size_t argc, lref_t argv[])
 
 /***** Frame Management *****/
 
-lref_t lget_current_frames(lref_t sc)
-{
-    return NIL;
-}
-
 lref_t topmost_primitive()
 {
      for(lref_t *frame = CURRENT_TIB()->frame;

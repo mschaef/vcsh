@@ -248,7 +248,6 @@ lref_t lgc();
 lref_t lgc_info();
 lref_t lgc_runtime();
 lref_t lgc_status(lref_t new_gc_status);
-lref_t lget_current_frames(lref_t skip_count);
 lref_t lget_output_string(lref_t port);
 lref_t lhandler_frames();
 lref_t lhash2alist(lref_t hash);

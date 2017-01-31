@@ -261,7 +261,6 @@ static void register_main_subrs()
     register_subr(_T("%fast-op-next"),                    SUBR_1,     (void*)lfast_op_next                       );
     register_subr(_T("identity-hash?"),                   SUBR_1,     (void*)lidentity_hash_p                    );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
-    register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
     register_subr(_T("%internal-files"),                  SUBR_0,     (void*)liinternal_files                    );
