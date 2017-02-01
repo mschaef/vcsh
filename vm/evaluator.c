@@ -221,6 +221,20 @@ lref_t lenvlookup(lref_t var, lref_t env)
      return NIL;
 }
 
+lref_t lenvlookup_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
+{
+     lref_t frame = env;
+
+     for (; frame_index; frame_index--)
+          frame = CDR(frame);
+
+     lref_t actuals = CDR(CAR(frame));
+     for(; var_index; var_index--)
+          actuals = CDR(actuals);
+
+     return CAR(actuals);
+}
+
 /* Frame stack
  *
  * The interpreter stack. This is used in a very similar fashion
@@ -748,6 +762,12 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_LOCAL_REF_BY_INDEX:
+               retval = lenvlookup_by_index(FIXNM(fop->as.fast_op.arg1),
+                                            FIXNM(fop->as.fast_op.arg2),
+                                            env);
+               fop = fop->as.fast_op.next;
+               break;
+
           case FOP_LOCAL_REF_RESTARG:
           case FOP_LOCAL_SET_BY_INDEX:
                panic("Indexing into local frames currently unsupported.");
