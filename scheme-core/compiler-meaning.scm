@@ -179,7 +179,9 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
            (compile-error form "Cannot rebind a rest binding: ~s" var))
          `(:sequence
            ,(expanded-form-meaning val-form cenv)
-           (:local-set! ,var)))
+           ,(if *indexed-lvars*
+                `(:local-set-by-index ,(first it) ,(fourth it))
+                `(:local-set! ,var))))
        `(:sequence
          ,(expanded-form-meaning val-form cenv)
          (:global-set! ,(bound-global var)))))
