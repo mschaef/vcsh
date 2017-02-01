@@ -251,8 +251,11 @@ lref_t lenvlookup_set_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t 
 
 lref_t lenvlookup_restarg_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
 {
-     lref_t frame = env;
+     if (var_index == 0) {
+          return lenvlookup_by_index(frame_index, 0, env);
+     }
 
+     lref_t frame = env;
      for (; frame_index; frame_index--)
           frame = CDR(frame);
 
