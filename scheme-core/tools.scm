@@ -213,7 +213,7 @@
 
 ;;;; The fast-op disassembler
 
-(define (disassemble . functions)
+(define (disassemble function)
   (define (print-closure-code code)
 
     (define (emit format-str . args)
@@ -263,18 +263,17 @@
         (dformat ";; prop ~s: ~s\n" prop-name prop-value)))
     (print-closure-code (cdr (%closure-code closure))))
   (dynamic-let ((*print-readably* #f))
-    (dolist (f functions)
-      (let ((f (if (symbol? f) (symbol-value f) f)))
-        (cond ((generic-function? f)
-               (dformat  "generic function disassembly:\n\n")
-               (dolist (method (generic-function-methods f))
-                 (dformat "\nmethod disassemble ~s:\n" (car method))
-                 (print-closure-disassembly (cdr method))
-                 (dformat "\n")))
-              ((closure? f)
-               (print-closure-disassembly f))
-              (#t
-               (error "Cannot disassemble: ~s" f)))))))
+    (cond ((generic-function? function)
+           (dformat  "generic function disassembly:\n\n")
+           (dolist (method (generic-function-methods function))
+             (dformat "\nmethod disassemble ~s:\n" (car method))
+             (print-closure-disassembly (cdr method))
+             (dformat "\n")))
+          ((closure? function)
+           (print-closure-disassembly function))
+          (#t
+           (error "Cannot disassemble: ~s" function))))
+  function)
 
 ;;;; Printer support for fast-ops
 
