@@ -549,12 +549,12 @@
   (let ((gensym-count 0))
     (lambda name
       (incr! gensym-count)
-      (if (or (not (pair? name))
-              (not (string? (car name))))
-          (set! name "GS")
-          (set! name (car name)))
-      (string->uninterned-symbol
-       (string-append name "-" (number->string gensym-count))))))
+      (let ((name (if (or (not (pair? name))
+                          (not (string? (car name))))
+                      "GS"
+                      (car name))))
+        (string->uninterned-symbol
+         (string-append name "-" (number->string gensym-count)))))))
 
 (defmacro (with-gensyms gensym-names . code)
   (runtime-check list? gensym-names)
