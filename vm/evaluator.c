@@ -191,21 +191,21 @@ static lref_t extend_env(lref_t actuals, lref_t formals, lref_t env)
 
 lref_t lenvlookup(lref_t var, lref_t env)
 {
-     lref_t frame;
+     lref_t frames;
 
-     for (frame = env; CONSP(frame); frame = CDR(frame))
+     for (frames = env; CONSP(frames); frames = CDR(frames))
      {
-          lref_t tmp = CAR(frame);
+          lref_t frame = CAR(frames);
 
-          if (!CONSP(tmp))
+          if (!CONSP(frame))
                panic("damaged frame");
 
           lref_t al, fl;
 
-          for (fl = CAR(tmp), al = CDR(tmp); CONSP(fl); fl = CDR(fl), al = CDR(al))
+          for (fl = CAR(frame), al = CDR(frame); CONSP(fl); fl = CDR(fl), al = CDR(al))
           {
                if (!CONSP(al))
-                    vmerror_arg_out_of_range(NIL, _T("too few arguments"));
+                    vmerror_arg_out_of_range(frame, _T("too few arguments"));
 
                if (EQ(CAR(fl), var))
                     return al;
@@ -215,7 +215,7 @@ lref_t lenvlookup(lref_t var, lref_t env)
                return lcons(al, NIL);
      }
 
-     if (!NULLP(frame))
+     if (!NULLP(frames))
           panic("damaged env");
 
      return NIL;
