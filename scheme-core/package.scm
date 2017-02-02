@@ -545,20 +545,16 @@
           (add-symbol-to-package sym package)
           sym))))
 
-(define *gensym-count* 0)
-
 (define gensym
-  (lambda name
-    (set! *gensym-count* (+ *gensym-count* 1))
-    (if (or (not (pair? name))
-            (not (string? (car name))))
-        (set! name "GS")
-        (set! name (car name)))
-    (string->uninterned-symbol
-     (string-append
-      name
-      "-"
-      (number->string *gensym-count*)))))
+  (let ((gensym-count 0))
+    (lambda name
+      (incr! gensym-count)
+      (let ((name (if (or (not (pair? name))
+                          (not (string? (car name))))
+                      "GS"
+                      (car name))))
+        (string->uninterned-symbol
+         (string-append name "-" (number->string gensym-count)))))))
 
 (defmacro (with-gensyms gensym-names . code)
   (runtime-check list? gensym-names)

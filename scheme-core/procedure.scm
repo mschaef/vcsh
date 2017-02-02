@@ -355,7 +355,9 @@
                  old-binding-symbols symbols))))))
 
 (defmacro (dynamic-let new-bindings . code)
-  (let ((new-binding-symbols (map gensym new-bindings)))
+  (let ((new-binding-symbols (map (lambda (new-binding)
+                                    (gensym (symbol-name (car new-binding))))
+                                  new-bindings)))
     `(%protect-symbol-values ,(map (lambda (binding) (car binding)) new-bindings)
                              (let ,(map (lambda (new-binding-symbol new-binding)
                                           (list new-binding-symbol (cadr new-binding)))
