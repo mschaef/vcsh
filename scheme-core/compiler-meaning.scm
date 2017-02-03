@@ -12,7 +12,7 @@
 ;;;; WARRANTIES.
 
 (define *show-meanings* #f)
-(define *indexed-lvars* #f)
+(define *indexed-lvars* #t)
 
 (define (lambda-list-variables lambda-list)
   "Given a lambda list, return a list of descriptive tuples of each
