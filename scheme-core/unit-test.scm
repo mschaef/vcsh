@@ -32,9 +32,12 @@
 
 ;;;; Test output
 
+(define *test-output-port* (current-output-port))
+
 (define (message . args)
   "Write a test output message using format-style arguments."
-  (apply format #t args))
+  (apply format *test-output-port* args)
+  (flush-port *test-output-port*))
 
 ;;;; Error Trap
 
