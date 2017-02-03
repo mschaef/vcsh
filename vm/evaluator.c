@@ -221,7 +221,7 @@ lref_t lenvlookup(lref_t var, lref_t env)
      return NIL;
 }
 
-lref_t lenvlookup_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
+lref_t binding_cell_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
 {
      lref_t frame = env;
 
@@ -229,24 +229,32 @@ lref_t lenvlookup_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
           frame = CDR(frame);
 
      lref_t actuals = CDR(CAR(frame));
-     for(; var_index; var_index--)
+     for(; !NULLP(actuals) && var_index; var_index--)
           actuals = CDR(actuals);
 
-     return CAR(actuals);
+     return actuals;
 }
 
-lref_t lenvlookup_set_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env, lref_t val)
+lref_t lenvlookup_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
 {
-     lref_t frame = env;
+     lref_t binding_cell = binding_cell_by_index(frame_index, var_index, env);
 
-     for (; frame_index; frame_index--)
-          frame = CDR(frame);
+     if (NULLP(binding_cell)) {
+          vmerror_arg_out_of_range(NIL, _T("too few arguments"));
+     }
 
-     lref_t actuals = CDR(CAR(frame));
-     for(; var_index; var_index--)
-          actuals = CDR(actuals);
+     return CAR(binding_cell);
+}
 
-     SET_CAR(actuals, val);
+void lenvlookup_set_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env, lref_t val)
+{
+     lref_t binding_cell = binding_cell_by_index(frame_index, var_index, env);
+
+     if (NULLP(binding_cell)) {
+          vmerror_arg_out_of_range(NIL, _T("too few arguments (no binding cell)"));
+     }
+
+     SET_CAR(binding_cell, val);
 }
 
 lref_t lenvlookup_restarg_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
@@ -255,15 +263,7 @@ lref_t lenvlookup_restarg_by_index(fixnum_t frame_index, fixnum_t var_index, lre
           return lenvlookup_by_index(frame_index, 0, env);
      }
 
-     lref_t frame = env;
-     for (; frame_index; frame_index--)
-          frame = CDR(frame);
-
-     lref_t actuals = CDR(CAR(frame));
-     for(; var_index; var_index--)
-          actuals = CDR(actuals);
-
-     return actuals;
+     return binding_cell_by_index(frame_index, var_index, env);
 }
 
 /* Frame stack
