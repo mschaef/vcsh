@@ -115,7 +115,6 @@
 (%define cos #.(host-scheme::%subr-by-name "cos"))
 (%define debug-write #.(host-scheme::%subr-by-name "debug-write"))
 (%define delete-file #.(host-scheme::%subr-by-name "delete-file"))
-(%define env-lookup #.(host-scheme::%subr-by-name "env-lookup"))
 (%define environment #.(host-scheme::%subr-by-name "environment"))
 (%define eof-object? #.(host-scheme::%subr-by-name "eof-object?"))
 (%define eq? #.(host-scheme::%subr-by-name "eq?"))

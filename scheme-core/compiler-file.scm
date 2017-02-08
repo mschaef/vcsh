@@ -40,7 +40,7 @@
                (port-location port))))
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
-      (dynamic-let ((*package* (symbol-value *package-var* ())))
+      (dynamic-let ((*package* (symbol-value *package-var*)))
         (trace-message *show-actions* "* READ in ~s\n" *package*)
         (*compiler-reader* port)))))
 
@@ -237,14 +237,14 @@
   ;; REVISIT: Logic to restore *package* after compiling a file. Ideally, this should
   ;; match the behavior of scheme::call-as-loader, although it is unclear how this
   ;; relates to the way we do cross-compilation.
-  (let ((original-package (symbol-value *package-var* ())))
+  (let ((original-package (symbol-value *package-var*)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
       (trace-message #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-file filename)
         (begin-load-unit filename output-fasl-stream)
         (compile-port-forms input-port output-fasl-stream)
         (end-load-unit filename output-fasl-stream)))
-    (set-symbol-value! *package-var* original-package ())))
+    (set-symbol-value! *package-var* original-package)))
 
 (define (compile-file/checked filename output-fasl-stream)
   (let ((compile-error-count 0))

@@ -81,8 +81,8 @@
                                                                "<uninterned-symbol>"))
             ,(make-inspect-item :desc "p-list" :value (%property-list obj))
             ,(make-inspect-item :desc "value"  :value (if (symbol-bound? obj)
-                                                              (symbol-value obj)
-                                                              :unbound)))))
+                                                          (symbol-value obj)
+                                                          :unbound)))))
 
 (define-method (object->inspect-ctx (obj closure))
   (make-inspect-ctx
