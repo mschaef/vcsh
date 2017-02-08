@@ -12,7 +12,6 @@
 ;;;; WARRANTIES.
 
 (define *show-meanings* #f)
-(define *indexed-lvars* #t)
 
 (define (lambda-list-variables lambda-list)
   "Given a lambda list, return a list of descriptive tuples of each
@@ -74,11 +73,9 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
   (if (keyword? form)
       `(:literal ,form)
       (aif (bound-in-cenv? form cenv)
-           (if *indexed-lvars*
-               (if (eq? :var (third it))
-                   `(:local-ref-by-index ,(first it) ,(fourth it))
-                   `(:local-ref-restarg ,(first it) ,(fourth it)))
-               `(:local-ref ,form))
+           (if (eq? :var (third it))
+               `(:local-ref-by-index ,(first it) ,(fourth it))
+               `(:local-ref-restarg ,(first it) ,(fourth it)))
            `(:global-ref ,(bound-global form)))))
 
 (define *special-form-handlers* (make-identity-hash))
@@ -179,9 +176,7 @@ description of the binding coordinates: (frame-index var-name binding-type bindi
            (compile-error form "Cannot rebind a rest binding: ~s" var))
          `(:sequence
            ,(expanded-form-meaning val-form cenv)
-           ,(if *indexed-lvars*
-                `(:local-set-by-index ,(first it) ,(fourth it))
-                `(:local-set! ,var))))
+           (:local-set-by-index ,(first it) ,(fourth it))))
        `(:sequence
          ,(expanded-form-meaning val-form cenv)
          (:global-set! ,(bound-global var)))))

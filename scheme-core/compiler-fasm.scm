@@ -50,9 +50,7 @@
 
 (define-fast-op :literal                #.system::FOP_LITERAL               :literal           )
 (define-fast-op :global-ref             #.system::FOP_GLOBAL_REF            :symbol            )
-(define-fast-op :local-ref              #.system::FOP_LOCAL_REF             :symbol            )
 (define-fast-op :global-set!            #.system::FOP_GLOBAL_SET            :symbol            )
-(define-fast-op :local-set!             #.system::FOP_LOCAL_SET             :symbol            )
 (define-fast-op :apply-global           #.system::FOP_APPLY_GLOBAL          :symbol :fast-ops  )
 (define-fast-op :apply                  #.system::FOP_APPLY                 :fast-op :fast-ops )
 (define-fast-op :if-true                #.system::FOP_IF_TRUE               :fast-op :fast-op  )
@@ -77,9 +75,9 @@
 (define-fast-op :stack-boundary         #.system::FOP_STACK_BOUNDARY        :fast-op :fast-op  )
 (define-fast-op :fast-enqueue-cell      #.system::FOP_FAST_ENQUEUE_CELL     :fast-op :fast-op  )
 (define-fast-op :while-true             #.system::FOP_WHILE_TRUE            :fast-op :fast-op  )
-(define-fast-op :local-ref-by-index     #.system::FOP_LOCAL_REF_BY_INDEX     :index :index      )
-(define-fast-op :local-ref-restarg      #.system::FOP_LOCAL_REF_RESTARG      :index :index      )
-(define-fast-op :local-set-by-index     #.system::FOP_LOCAL_SET_BY_INDEX     :index :index      )
+(define-fast-op :local-ref-by-index     #.system::FOP_LOCAL_REF_BY_INDEX    :index :index      )
+(define-fast-op :local-ref-restarg      #.system::FOP_LOCAL_REF_RESTARG     :index :index      )
+(define-fast-op :local-set-by-index     #.system::FOP_LOCAL_SET_BY_INDEX    :index :index      )
 
 (define (parse-fast-op fast-op)
   (let ((opcode (scheme::%fast-op-opcode fast-op))
