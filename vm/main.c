@@ -348,7 +348,6 @@ static void register_main_subrs()
     register_subr(_T("cos"),                              SUBR_1,     (void*)lcos                                );
     register_subr(_T("debug-write"),                      SUBR_1,     (void*)ldebug_write                        );
     register_subr(_T("delete-file"),                      SUBR_1,     (void*)ldelete_file                        );
-    register_subr(_T("env-lookup"),                       SUBR_2,     (void*)lenvlookup                          );
     register_subr(_T("environment"),                      SUBR_0,     (void*)lenvironment                        );
     register_subr(_T("eof-object?"),                      SUBR_1,     (void*)leof_objectp                        );
     register_subr(_T("eq?"),                              SUBR_2,     (void*)leq                                 );

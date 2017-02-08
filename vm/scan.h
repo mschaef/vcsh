@@ -225,7 +225,6 @@ lref_t ldo_external_symbols(lref_t args, lref_t env);
 lref_t ldo_symbols(lref_t args, lref_t env);
 lref_t ldump_heap_state(lref_t port);
 lref_t lenvironment();
-lref_t lenvlookup(lref_t var, lref_t env);
 lref_t leof_objectp(lref_t obj);
 lref_t leq(lref_t x, lref_t y);
 lref_t leql(lref_t x, lref_t y);

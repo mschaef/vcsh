@@ -189,38 +189,6 @@ static lref_t extend_env(lref_t actuals, lref_t formals, lref_t env)
           return lcons(lcons(formals, actuals), env);
 }
 
-lref_t lenvlookup(lref_t var, lref_t env)
-{
-     lref_t frames;
-
-     for (frames = env; CONSP(frames); frames = CDR(frames))
-     {
-          lref_t frame = CAR(frames);
-
-          if (!CONSP(frame))
-               panic("damaged frame");
-
-          lref_t al, fl;
-
-          for (fl = CAR(frame), al = CDR(frame); CONSP(fl); fl = CDR(fl), al = CDR(al))
-          {
-               if (!CONSP(al))
-                    vmerror_arg_out_of_range(frame, _T("too few arguments"));
-
-               if (EQ(CAR(fl), var))
-                    return al;
-          }
-
-          if (SYMBOLP(fl) && EQ(fl, var))
-               return lcons(al, NIL);
-     }
-
-     if (!NULLP(frames))
-          panic("damaged env");
-
-     return NIL;
-}
-
 lref_t binding_cell_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
 {
      lref_t frame = env;
@@ -536,24 +504,6 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                     vmerror_unbound(sym);
 
                SET_SYMBOL_VCELL(sym, retval);
-
-               fop = fop->as.fast_op.next;
-               break;
-
-          case FOP_LOCAL_REF:
-               sym = fop->as.fast_op.arg1;
-               binding = lenvlookup(sym, env);
-
-               retval = CAR(binding);
-
-               fop = fop->as.fast_op.next;
-               break;
-
-          case FOP_LOCAL_SET:
-               sym = fop->as.fast_op.arg1;
-               binding = lenvlookup(sym, env);
-
-               SET_CAR(binding, retval);
 
                fop = fop->as.fast_op.next;
                break;
