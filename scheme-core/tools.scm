@@ -217,26 +217,31 @@
   (define (print-closure-code code)
 
     (define (emit format-str . args)
+      (dformat "\n")
       (trace-indent)
-      (dformat  "~I\n" format-str args))
+      (dformat  "~I" format-str args))
 
+    (define (close)
+      (dformat ")"))
+    
     (let recur ((code code))
       (mvbind (opcode opname actuals next-op) (compiler::parse-fast-op code)
         (cond ((not opname)
                (emit "<INVALID-OPCODE: ~s>" opcode))
               ((eq? :closure opname)
-               (emit "~s ~s {" opname (car actuals))
+               (emit "(~s ~s ~s" opname (caar actuals) (cdar actuals))
                (in-trace-level
-                (recur (cadr actuals)))
-               (emit "}"))
-              ((memq opname '(:literal :local-ref :local-set! :global-ref :global-set!))
-               (emit "~s ~s" opname (car actuals)))
+                (recur (cadr actuals))
+                (close)))
+              ((memq opname '(:literal :local-ref :local-set! :global-ref :global-set!
+                              :local-ref-by-index :local-set-by-index :local-ref-restarg))
+               (emit "~s" (cons opname actuals)))
               
               (#t
                (let ((formals (compiler::fop-name->formals opname)))
                  (if (null? formals)
                      (emit "~s" opname)
-                     (emit "~s (" opname))
+                     (emit "(~s" opname))
                  (in-trace-level
                   (doiterate ((list formal formals)
                               (list actual actuals))
@@ -247,9 +252,9 @@
                       ((:fast-op)
                        (recur actual))
                       (#t
-                       (emit " ~s" actual)))))
-                 (unless (null? formals)
-                   (emit ")"))))) 
+                       (emit " ~s" actual))))
+                  (unless (null? formals)
+                    (close)))))) 
         (unless (null? next-op)
           (emit "=>")
           (recur next-op)))))
