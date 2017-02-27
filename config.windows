@@ -101,4 +101,4 @@ clean: clean-cov clean-local
 	${RM_F} scheme/*~ gmon${OBJ_EXT}ut *.gcno
 
 TAGS:
-	etags *.[ch] *.cpp
+	etags *.[ch] *.c
