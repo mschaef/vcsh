@@ -116,81 +116,77 @@
     (#t #f)))
 
 (define (frame-decode frp)
-  (let ((frame (make-hash)))
-    (hash-set! frame :frp frp)
-    (let ((ftype (frame-type frp)))
-      (hash-set! frame :frame-type ftype)
-      (case ftype
-        ((system::FRAME_SUBR)
-         (hash-set! frame :subr         (frame-ref frp system::FOFS_SUBR_SUBR :lref)))
-        ((system::FRAME_EVAL)
-         (hash-set! frame :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref))
-         (hash-set! frame :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref))
-         (hash-set! frame :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)))
-        ((system::FRAME_UNWIND)
-         (hash-set! frame :after-thunk  (frame-ref frp system::FOFS_UNWIND_AFTER :lref)))
-        ((system::FRAME_ESCAPE)
-         (hash-set! frame :tag          (frame-ref frp system::FOFS_ESCAPE_TAG :lref))
-         (hash-set! frame :escape-frp   (frame-ref frp system::FOFS_ESCAPE_FRAME :raw)))))
-    frame))
+  (case (frame-ref frp system::FOFS_FTYPE :raw)
+    ((#.system::FRAME_SUBR)
+     {:frame-type 'system::FRAME_SUBR
+      :subr        (frame-ref frp system::FOFS_SUBR_SUBR :lref)})
+    ((#.system::FRAME_EVAL)
+     {:frame-type   'system::FRAME_EVAL
+      :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref)
+      :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref)
+      :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)})
+    ((#.system::FRAME_STACK_BOUNDARY)
+     {:frame-type 'system::FRAME_STACK_BOUNDARY
+      :tag        (frame-ref frp system::FOFS_BOUNDARY_TAG :lref)})
+    ((#.system::FRAME_UNWIND)
+     {:frame-type 'system::FRAME_UNWIND
+     :after-thunk (frame-ref frp system::FOFS_UNWIND_AFTER :lref)})
+    ((#.system::FRAME_ESCAPE)
+     {:frame-type 'system::FRAME_ESCAPE
+      :tag        (frame-ref frp system::FOFS_ESCAPE_TAG :lref)})))
 
 ;;;; Stack Trace Capture and Display
 
 (define *capture-system-frames* #f)
 
-(define *system-stack-boundary* #f)
-
-(defmacro (with-preserved-stack-boundary . code)
-  `(dynamic-let ((*system-stack-boundary* *system-stack-boundary*))
-     ,@code))
-
 (defmacro (begin-user-stack form)
-  `(scheme::%preserve-initial-frame *system-stack-boundary*
+  `(scheme::%with-stack-boundary :user
       ,form))
 
-(define (fold-stack-frames kons knil start-frp :optional (stop-frp? #f))
-  (let loop ((knil knil)
-             (frp start-frp))
-    ;; TOOO: add safety checks to avoid faulting while walking stack, if we find an invalid frp
-    (if (and frp
-             (not (eqv? frp stop-frp?))) 
-        (loop (kons frp knil) (frame-link frp))
-        knil)))
+(define (frame-boundary-tag frame)
+  (and (eq? (hash-ref frame :frame-type) 'system::FRAME_STACK_BOUNDARY)
+       (hash-ref frame :tag #f)))
 
-(define (capture-stack start-frp :optional (stop-frp? #f))
+(define (capture-stack-with-stop start-frp stop-frame?)
   (reverse!
-   (fold-stack-frames (lambda (frame rest)
-                        (cons (frame-decode frame) rest))
-                      ()
-                      start-frp
-                      (if *capture-system-frames*
-                          #f
-                          *system-stack-boundary*))))
+   (let loop ((frames ())
+              (frp start-frp))
+     (if frp
+         (let ((frame (frame-decode frp)))
+           (if (stop-frame? frame)
+               frames
+               (loop (cons frame frames) (frame-link frp))))
+         frames))))
 
-(define *current-frp* #f)
+(define (capture-stack start-frp)
+  (capture-stack-with-stop start-frp
+                           (lambda (frame)
+                             (and (not *capture-system-frames*)
+                                  (eq? :user (frame-boundary-tag frame))))))
 
-(define (capture-stack-for-error)
-  (dynamic-let ((*current-frp* *current-frp*))
-    (scheme::%preserve-initial-frame
-     *current-frp*
-     (capture-stack *current-frp*))))
 
 ;;;; Stack display
 
 (define (show-frames frames op)
-  (let ((initial-frp (hash-ref (car frames) :frp)))
-    (dolist (frame (reverse frames))
-      (case (hash-ref frame :frame-type)
-        ((system::FRAME_SUBR)
-         (format op "  [SUBR: ~s]\n\n" (hash-ref frame :subr)))
-        ((system::FRAME_EVAL)
-         (format op "F+~a> ~s\n\n"
-                 (- (hash-ref frame :frp) initial-frp)
-                 (hash-ref frame :current-form)))
-        ((system::FRAME_ESCAPE)
-         (format op "  [ESCAPE: ~s]\n\n" (hash-ref frame :tag)))
-        ((system::FRAME_UNWIND)
-         (format op "  [UNWIND-PROTECT]\n\n"))))))
+  (define (show-frame format-string . args)
+    (format op "~I\n\n" format-string args))
+  
+  (dolist (frame (reverse frames))
+    (case (hash-ref frame :frame-type)
+      ((system::FRAME_SUBR)
+       (show-frame "  [SUBR: ~s]" (hash-ref frame :subr)))
+      ((system::FRAME_STACK_BOUNDARY)
+       (show-frame "  [BOUNDARY: ~s]" (hash-ref frame :tag)))
+      ((system::FRAME_EVAL)
+       (let ((initial-form (hash-ref frame :initial-form))
+             (current-form (hash-ref frame :current-form)))
+         (show-frame "> ~s" initial-form)
+         (unless (eq? initial-form current-form)
+           (show-frame ">>> ~s" current-form))))
+      ((system::FRAME_ESCAPE)
+       (show-frame "  [ESCAPE: ~s]" (hash-ref frame :tag)))
+      ((system::FRAME_UNWIND)
+       (show-frame "  [UNWIND-PROTECT]")))))
 
 ;;;; Error handling
 
@@ -230,10 +226,14 @@
       (abort 'runtime-error error-info))))
 
 (define (error message . args)
-  (apply error-with-stack
-         (capture-stack-for-error)
-         message
-         args))
+  (scheme::%with-stack-boundary :error 
+     (apply error-with-stack
+            (cdr
+             (drop-while (negate (lambda (frame)
+                                   (eq? :error (frame-boundary-tag frame))))
+                         (capture-stack (scheme::%%get-frame))))
+            message
+            args)))
 
 (define (ignore-error)
   (throw 'ignore-error))

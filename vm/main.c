@@ -261,7 +261,6 @@ static void register_main_subrs()
     register_subr(_T("%fast-op-next"),                    SUBR_1,     (void*)lfast_op_next                       );
     register_subr(_T("identity-hash?"),                   SUBR_1,     (void*)lidentity_hash_p                    );
     register_subr(_T("%file-details"),                    SUBR_2,     (void*)lifile_details                      );
-    register_subr(_T("%get-current-frames"),              SUBR_1,     (void*)lget_current_frames                 );
     register_subr(_T("%hash-binding-vector"),             SUBR_1,     (void*)lihash_binding_vector               );
     register_subr(_T("%immediate?"),                      SUBR_1,     (void*)liimmediate_p                       );
     register_subr(_T("%internal-files"),                  SUBR_0,     (void*)liinternal_files                    );
@@ -349,7 +348,6 @@ static void register_main_subrs()
     register_subr(_T("cos"),                              SUBR_1,     (void*)lcos                                );
     register_subr(_T("debug-write"),                      SUBR_1,     (void*)ldebug_write                        );
     register_subr(_T("delete-file"),                      SUBR_1,     (void*)ldelete_file                        );
-    register_subr(_T("env-lookup"),                       SUBR_2,     (void*)lenvlookup                          );
     register_subr(_T("environment"),                      SUBR_0,     (void*)lenvironment                        );
     register_subr(_T("eof-object?"),                      SUBR_1,     (void*)leof_objectp                        );
     register_subr(_T("eq?"),                              SUBR_2,     (void*)leq                                 );
@@ -519,13 +517,6 @@ static void register_main_subrs()
     register_subr(_T("write-binary-string"),              SUBR_2,     (void*)lwrite_binary_string                );
     register_subr(_T("write-char"),                       SUBR_2,     (void*)lwrite_char                         );
     register_subr(_T("write-strings"),                    SUBR_ARGC,  (void*)lwrite_strings                      );
-
-#if defined(WITH_FOPLOG_SUPPORT)
-    register_subr(_T("%foplog-reset"),                    SUBR_0,     (void*)lifoplog_reset                      );
-    register_subr(_T("%foplog-enable"),                   SUBR_1,     (void*)lifoplog_enable                     );
-    register_subr(_T("%foplog-snapshot"),                 SUBR_0,     (void*)lifoplog_snapshot                   );
-#endif
-
 /* *INDENT-ON* */
 }
 
@@ -601,10 +592,6 @@ void init0(int argc, _TCHAR * argv[], enum debug_flag_t initial_debug_flags)
      interp.thread.frame = NULL;
 
      process_vm_arguments(argc, argv);
-
-#if defined(WITH_FOPLOG_SUPPORT)
-     interp.thread.foplog_enable = DEBUG_FLAG(DF_STARTUP_FOPLOG);
-#endif
 
      if (interp.debug_flags != DF_NONE)
           dscwritef(DF_ALWAYS, ("; DEBUG: debug_flags=0x~cx\n", interp.debug_flags));

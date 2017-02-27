@@ -26,7 +26,6 @@
 (%define %fast-op-next #.(host-scheme::%subr-by-name "%fast-op-next"))
 (%define %file-details #.(host-scheme::%subr-by-name "%file-details"))
 
-(%define %get-current-frames #.(host-scheme::%subr-by-name "%get-current-frames"))
 (%define %hash-binding-vector #.(host-scheme::%subr-by-name "%hash-binding-vector"))
 (%define %immediate? #.(host-scheme::%subr-by-name "%immediate?"))
 (%define %internal-files #.(host-scheme::%subr-by-name "%internal-files"))
@@ -116,7 +115,6 @@
 (%define cos #.(host-scheme::%subr-by-name "cos"))
 (%define debug-write #.(host-scheme::%subr-by-name "debug-write"))
 (%define delete-file #.(host-scheme::%subr-by-name "delete-file"))
-(%define env-lookup #.(host-scheme::%subr-by-name "env-lookup"))
 (%define environment #.(host-scheme::%subr-by-name "environment"))
 (%define eof-object? #.(host-scheme::%subr-by-name "eof-object?"))
 (%define eq? #.(host-scheme::%subr-by-name "eq?"))

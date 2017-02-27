@@ -23,7 +23,7 @@
 
 (define (valid-fop-formals? formals)
   (define (valid-formal-type? type)
-    (memq type '(:literal :symbol :fast-op :fast-ops)))
+    (memq type '(:literal :symbol :fast-op :fast-ops :index)))
   (if (and (list? formals)
            (<= (length formals) 3)
            (every? valid-formal-type? formals))
@@ -50,9 +50,7 @@
 
 (define-fast-op :literal                #.system::FOP_LITERAL               :literal           )
 (define-fast-op :global-ref             #.system::FOP_GLOBAL_REF            :symbol            )
-(define-fast-op :local-ref              #.system::FOP_LOCAL_REF             :symbol            )
 (define-fast-op :global-set!            #.system::FOP_GLOBAL_SET            :symbol            )
-(define-fast-op :local-set!             #.system::FOP_LOCAL_SET             :symbol            )
 (define-fast-op :apply-global           #.system::FOP_APPLY_GLOBAL          :symbol :fast-ops  )
 (define-fast-op :apply                  #.system::FOP_APPLY                 :fast-op :fast-ops )
 (define-fast-op :if-true                #.system::FOP_IF_TRUE               :fast-op :fast-op  )
@@ -74,6 +72,12 @@
 (define-fast-op :get-hframes            #.system::FOP_GET_HFRAMES                              )
 (define-fast-op :set-hframes            #.system::FOP_SET_HFRAMES           :fast-op           )
 (define-fast-op :global-preserve-frame  #.system::FOP_GLOBAL_PRESERVE_FRAME :symbol :fast-op   )
+(define-fast-op :stack-boundary         #.system::FOP_STACK_BOUNDARY        :fast-op :fast-op  )
+(define-fast-op :fast-enqueue-cell      #.system::FOP_FAST_ENQUEUE_CELL     :fast-op :fast-op  )
+(define-fast-op :while-true             #.system::FOP_WHILE_TRUE            :fast-op :fast-op  )
+(define-fast-op :local-ref-by-index     #.system::FOP_LOCAL_REF_BY_INDEX    :index :index      )
+(define-fast-op :local-ref-restarg      #.system::FOP_LOCAL_REF_RESTARG     :index :index      )
+(define-fast-op :local-set-by-index     #.system::FOP_LOCAL_SET_BY_INDEX    :index :index      )
 
 (define (parse-fast-op fast-op)
   (let ((opcode (scheme::%fast-op-opcode fast-op))
@@ -85,7 +89,8 @@
                   #f)
               (if defn
                   (take args (fop-defn-arity defn))
-                  args)))))
+                  args)
+              (scheme::%fast-op-next fast-op)))))
 
 (define (fop-name->formals fop-name)
   (aif (hash-ref *fop-name->fop-defn* fop-name #f)
@@ -108,23 +113,32 @@
 
 (forward fasm)
 
-(define (fasm asm)
+(define (fasm-block asms next-op)
+  (fold-right fasm next-op asms))
+
+(define (prepare-fast-op-arg formal actual)
+  (if (null? formal)
+      ()
+      (case formal
+        ((:literal)  actual)
+        ((:fast-op)  (fasm actual ()))
+        ((:fast-ops) (map #L(fasm _ ()) actual))
+        ((:symbol)   (runtime-check symbol? actual))
+        ((:index)    (runtime-check exact? actual))
+        (#t
+         (error "Invalid fast-op formal argument type: ~s" formal)))))
+
+(define (fasm asm next-op)
   (dbind (op . actuals) asm
-    (mvbind (opcode formals) (lookup-fast-op op)
-      (unless (same-length? actuals formals)
-        (error "Improper number of arguments while assembling ~s" asm))
-      (apply scheme::%fast-op
-             opcode
-             (map (lambda (formal actual)
-                    (case formal
-                      ((:literal)  actual)
-                      ((:fast-op)  (fasm actual))
-                      ((:fast-ops) (map fasm actual))
-                      ((:symbol)   (runtime-check symbol? actual))
-                      (#t
-                       (error "Invalid fast-op formal argument type: ~s" formal))))
-                  formals
-                  actuals)))))
+    (if (eq? op :block)
+        (fasm-block actuals next-op)
+        (mvbind (opcode formals) (lookup-fast-op op)
+          (unless (same-length? actuals formals)
+            (error "Improper number of arguments while assembling ~s" asm))
+          (scheme::%fast-op opcode
+                            (prepare-fast-op-arg (first formals) (first actuals))
+                            (prepare-fast-op-arg (second formals) (second actuals))
+                            next-op)))))
 
 (define (fop-assemble outermost-asm)
   (runtime-check list? outermost-asm "Malformed FOP assembly syntax.")
@@ -133,7 +147,7 @@
     (error "assemble expects to assemble either a closure: ~s" outermost-asm))
 
   (dbind (opcode (l-list . p-list) src) outermost-asm
-    (scheme::%closure () (cons l-list (fasm src)) p-list)))
+    (scheme::%closure () (cons l-list (fasm src ())) p-list)))
 
 (define (cpass/fasm fasm)
   (fop-assemble fasm))

@@ -38,10 +38,7 @@ lref_t lset_stack_limit(lref_t amount)
           return boolcons(false);
      }
 
-     dscwritef(DF_SHOW_GC, ("stack_size = ~cd bytes, [~c&,~c&]\n",
-                            new_size_limit,
-                            new_limit_obj,
-                            sys_get_stack_start()));
+     dscwritef(DF_SHOW_GC, ("stack_size = ~cd bytes, [~c&,~c&]\n", new_size_limit, new_limit_obj, sys_get_stack_start()));
 
      return fixcons(new_size_limit);
 }
@@ -192,38 +189,49 @@ static lref_t extend_env(lref_t actuals, lref_t formals, lref_t env)
           return lcons(lcons(formals, actuals), env);
 }
 
-lref_t lenvlookup(lref_t var, lref_t env)
+lref_t binding_cell_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
 {
-     lref_t frame;
+     lref_t frame = env;
 
-     for (frame = env; CONSP(frame); frame = CDR(frame))
-     {
-          lref_t tmp = CAR(frame);
+     for (; frame_index; frame_index--)
+          frame = CDR(frame);
 
-          if (!CONSP(tmp))
-               panic("damaged frame");
+     lref_t actuals = CDR(CAR(frame));
+     for(; !NULLP(actuals) && var_index; var_index--)
+          actuals = CDR(actuals);
 
-          lref_t al, fl;
+     return actuals;
+}
 
-          for (fl = CAR(tmp), al = CDR(tmp);
-               CONSP(fl);
-               fl = CDR(fl), al = CDR(al))
-          {
-               if (!CONSP(al))
-                    vmerror_arg_out_of_range(NIL, _T("too few arguments"));
+lref_t lenvlookup_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
+{
+     lref_t binding_cell = binding_cell_by_index(frame_index, var_index, env);
 
-               if (EQ(CAR(fl), var))
-                    return al;
-          }
-
-          if (SYMBOLP(fl) && EQ(fl, var))
-               return lcons(al, NIL);
+     if (NULLP(binding_cell)) {
+          vmerror_arg_out_of_range(NIL, _T("too few arguments"));
      }
 
-     if (!NULLP(frame))
-          panic("damaged env");
+     return CAR(binding_cell);
+}
 
-     return NIL;
+void lenvlookup_set_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env, lref_t val)
+{
+     lref_t binding_cell = binding_cell_by_index(frame_index, var_index, env);
+
+     if (NULLP(binding_cell)) {
+          vmerror_arg_out_of_range(NIL, _T("too few arguments (no binding cell)"));
+     }
+
+     SET_CAR(binding_cell, val);
+}
+
+lref_t lenvlookup_restarg_by_index(fixnum_t frame_index, fixnum_t var_index, lref_t env)
+{
+     if (var_index == 0) {
+          return lenvlookup_by_index(frame_index, 0, env);
+     }
+
+     return binding_cell_by_index(frame_index, var_index, env);
 }
 
 /* Frame stack
@@ -242,26 +250,59 @@ EVAL_INLINE void *fstack_alloca(size_t size)
      return (void *)(CURRENT_TIB()->fsp);
 }
 
-EVAL_INLINE void fstack_push(lref_t val)
+EVAL_INLINE lref_t *fstack_enter_frame(enum frame_type_t ft, size_t slots)
 {
-     *(--CURRENT_TIB()->fsp) = val;
+     lref_t *prev_frame = CURRENT_TIB()->frame;
+     lref_t *frame = CURRENT_TIB()->fsp - 1;
+
+     CURRENT_TIB()->frame = frame;;
+     CURRENT_TIB()->fsp = CURRENT_TIB()->frame - 1 - slots;
+
+     frame[FOFS_LINK] = (lref_t)prev_frame;
+     frame[FOFS_FTYPE] = (lref_t)ft;
+
+     return frame;
 }
 
-EVAL_INLINE void fstack_enter_frame(enum frame_type_t ft)
-{
-     CURRENT_TIB()->count_enter_frame++;
+EVAL_INLINE void fstack_enter_subr_frame(lref_t subr) {
+     lref_t *frame = fstack_enter_frame(FRAME_SUBR, 1);
 
-     fstack_push((lref_t)(CURRENT_TIB()->frame));
+     frame[FOFS_SUBR_SUBR] = subr;
+}
 
-     CURRENT_TIB()->frame = CURRENT_TIB()->fsp;
+EVAL_INLINE void fstack_enter_boundary_frame(lref_t sym) {
+     lref_t *frame = fstack_enter_frame(FRAME_STACK_BOUNDARY, 1);
 
-     fstack_push((lref_t)ft);
+     frame[FOFS_BOUNDARY_TAG] = sym;
+}
+
+EVAL_INLINE void fstack_enter_eval_frame(lref_t *form, lref_t fop, lref_t env) {
+     lref_t *frame = fstack_enter_frame(FRAME_EVAL, 3);
+
+     frame[FOFS_EVAL_FORM_PTR] = (lref_t)form;
+     frame[FOFS_EVAL_IFORM] = fop;
+     frame[FOFS_EVAL_ENV] = env;
+}
+
+EVAL_INLINE void fstack_enter_unwind_frame(lref_t unwind_after) {
+     lref_t *frame = fstack_enter_frame(FRAME_UNWIND, 1);
+
+     frame[FOFS_UNWIND_AFTER] = unwind_after;
+}
+
+EVAL_INLINE jmp_buf *fstack_enter_catch_frame(lref_t tag, lref_t *escape_frame) {
+     lref_t *frame = fstack_enter_frame(FRAME_ESCAPE, 3);
+
+     frame[FOFS_ESCAPE_TAG] = tag;
+     frame[FOFS_ESCAPE_FRAME] = (lref_t)CURRENT_TIB()->frame;
+     frame[FOFS_ESCAPE_JMPBUF_PTR] = (lref_t)fstack_alloca(sizeof(jmp_buf));
+
+     return (jmp_buf *)frame[FOFS_ESCAPE_JMPBUF_PTR];
 }
 
 EVAL_INLINE void fstack_leave_frame()
 {
      CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
-
      CURRENT_TIB()->frame = *(lref_t **)(CURRENT_TIB()->frame);
 }
 
@@ -285,8 +326,7 @@ EVAL_INLINE lref_t subr_apply(lref_t function, size_t argc, lref_t argv[], lref_
 
      UNREFERENCED(env);
 
-     fstack_enter_frame(FRAME_SUBR);
-     fstack_push((lref_t)function);
+     fstack_enter_subr_frame(function);
 
      switch (SUBR_TYPE(function))
      {
@@ -363,36 +403,34 @@ static lref_t *find_matching_escape(lref_t *start_frame, lref_t tag)
      if (CURRENT_TIB()->escape_frame != NULL)
           start_frame = fstack_prev_frame(CURRENT_TIB()->escape_frame);
 
-     for(lref_t *frame = start_frame;
-         frame != NULL;
-         frame = fstack_prev_frame(frame))
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: looking for escape tag ~a\n"), tag));
+
+     for(lref_t *frame = start_frame; frame != NULL; frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) != FRAME_ESCAPE)
                continue;
 
           lref_t ftag = frame[FOFS_ESCAPE_TAG];
 
-          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: frame tag ~a (looking for ~a)\n"), ftag, tag));
+          dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: frame: ~c&, tag ~a\n"), frame, ftag));
 
           if (NULLP(ftag) || EQ(ftag, tag)) {
                return frame;
           }
      }
 
-     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: No escape frame for ~a\n"), tag));
+     dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: No escape frame for tag ~a\n"), tag));
 
      return NULL;
 }
 
 void unwind_stack_for_throw()
 {
-     for(lref_t *frame = CURRENT_TIB()->frame;
-         frame != NULL;
-         frame = fstack_prev_frame(frame))
+     for(lref_t *frame = CURRENT_TIB()->frame; frame != NULL; frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) == FRAME_UNWIND)
           {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw invoking unwind : ~c&\n"), frame));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw invoking unwind, frame: ~c&\n"), frame));
 
                apply1(frame[FOFS_UNWIND_AFTER], 0, NULL);
 
@@ -404,14 +442,16 @@ void unwind_stack_for_throw()
 
           if (frame == CURRENT_TIB()->escape_frame)
           {
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp (from fsp=~c&) to target frame: ~c&\n"), CURRENT_TIB()->fsp, frame));
+               jmp_buf *jmpbuf = (jmp_buf *)frame[FOFS_ESCAPE_JMPBUF_PTR];
+
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: longjmp to frame: ~c&, jmpbuf: ~c&\n"), frame, jmpbuf));
 
                CURRENT_TIB()->escape_frame = NULL;
 
                CURRENT_TIB()->frame = (lref_t *)frame[FOFS_ESCAPE_FRAME];
                CURRENT_TIB()->fsp = CURRENT_TIB()->frame + 1;
 
-               longjmp((struct __jmp_buf_tag *)frame[FOFS_ESCAPE_JMPBUF_PTR], 1);
+               longjmp(*jmpbuf, 1);
           }
      }
 }
@@ -427,29 +467,16 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      lref_t argv[ARG_BUF_LEN];
      lref_t after;
      lref_t tag;
+     lref_t cell;
      lref_t escape_retval;
-     lref_t *jmpbuf_ptr;
      jmp_buf *jmpbuf;
 
      STACK_CHECK(&fop);
+     _process_interrupts();
 
-     fstack_enter_frame(FRAME_EVAL);
-     fstack_push((lref_t)&fop);
-     fstack_push((lref_t)fop);
-     fstack_push((lref_t)env);
+     fstack_enter_eval_frame(&fop, fop, env);
 
      while(!NULLP(fop)) {
-          CURRENT_TIB()->count_fop++;
-
-          _process_interrupts();
-
-#if defined(WITH_FOPLOG_SUPPORT)
-          if (CURRENT_TIB()->foplog_enable) {
-               CURRENT_TIB()->foplog[CURRENT_TIB()->foplog_index] = fop;
-               CURRENT_TIB()->foplog_index = (CURRENT_TIB()->foplog_index + 1) % FOPLOG_SIZE;
-          }
-#endif
-
           switch(fop->header.opcode)
           {
           case FOP_LITERAL:
@@ -477,24 +504,6 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                     vmerror_unbound(sym);
 
                SET_SYMBOL_VCELL(sym, retval);
-
-               fop = fop->as.fast_op.next;
-               break;
-
-          case FOP_LOCAL_REF:
-               sym = fop->as.fast_op.arg1;
-               binding = lenvlookup(sym, env);
-
-               retval = CAR(binding);
-
-               fop = fop->as.fast_op.next;
-               break;
-
-          case FOP_LOCAL_SET:
-               sym = fop->as.fast_op.arg1;
-               binding = lenvlookup(sym, env);
-
-               SET_CAR(binding, retval);
 
                fop = fop->as.fast_op.next;
                break;
@@ -573,7 +582,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                tag = execute_fast_op(fop->as.fast_op.arg1, env);
                escape_retval = execute_fast_op(fop->as.fast_op.arg2, env);
 
-               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a :~a\n"), tag, escape_retval));
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: throw ~a, retval = ~a\n"), tag, escape_retval));
 
                CURRENT_TIB()->escape_frame = find_matching_escape(CURRENT_TIB()->frame, tag);
                CURRENT_TIB()->escape_value = escape_retval;
@@ -594,19 +603,14 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
           case FOP_CATCH:
                tag = execute_fast_op(fop->as.fast_op.arg1, env);
 
-               fstack_enter_frame(FRAME_ESCAPE);
-               fstack_push((lref_t)tag);
-               fstack_push((lref_t)CURRENT_TIB()->frame);
-               fstack_push(NIL);
+               jmpbuf = fstack_enter_catch_frame(tag, CURRENT_TIB()->frame);
 
-               jmpbuf_ptr = CURRENT_TIB()->fsp;
-               jmpbuf = (jmp_buf *)fstack_alloca(sizeof(jmp_buf));
-               *(jmpbuf_ptr) = (lref_t)jmpbuf;
+               dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: setjmp tag: ~a, frame: ~c&, jmpbuf: ~c&\n"), tag, CURRENT_TIB()->frame, jmpbuf));
 
                if (setjmp(*jmpbuf) == 0) {
                     retval = execute_fast_op(fop->as.fast_op.arg2, env);
                } else {
-                    dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch retval =~a\n"), CURRENT_TIB()->escape_value));
+                    dscwritef(DF_SHOW_THROWS, (_T("; DEBUG: catch, retval = ~a\n"), CURRENT_TIB()->escape_value));
 
                     retval = CURRENT_TIB()->escape_value;
                     CURRENT_TIB()->escape_value = NIL;
@@ -618,8 +622,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                break;
 
           case FOP_WITH_UNWIND_FN:
-               fstack_enter_frame(FRAME_UNWIND);
-               fstack_push((lref_t)execute_fast_op(fop->as.fast_op.arg1, env));
+               fstack_enter_unwind_frame(execute_fast_op(fop->as.fast_op.arg1, env));
 
                retval = execute_fast_op(fop->as.fast_op.arg2, env);
 
@@ -709,6 +712,58 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                fop = fop->as.fast_op.next;
                break;
 
+          case FOP_STACK_BOUNDARY:
+               sym = execute_fast_op(fop->as.fast_op.arg1, env);
+
+               fstack_enter_boundary_frame(sym);
+
+               retval = execute_fast_op(fop->as.fast_op.arg2, env);
+
+               fstack_leave_frame();
+
+               fop = fop->as.fast_op.next;
+               break;
+
+          case FOP_FAST_ENQUEUE_CELL:
+               retval = execute_fast_op(fop->as.fast_op.arg2, env);
+
+               cell = execute_fast_op(fop->as.fast_op.arg1, env);
+
+               SET_CDR(CAR(retval), cell);
+               SET_CAR(retval, cell);
+
+               fop = fop->as.fast_op.next;
+               break;
+
+          case FOP_WHILE_TRUE:
+               while(TRUEP(execute_fast_op(fop->as.fast_op.arg1, env))) {
+                    retval = execute_fast_op(fop->as.fast_op.arg2, env);
+               }
+               fop = fop->as.fast_op.next;
+               break;
+
+          case FOP_LOCAL_REF_BY_INDEX:
+               retval = lenvlookup_by_index(FIXNM(fop->as.fast_op.arg1),
+                                            FIXNM(fop->as.fast_op.arg2),
+                                            env);
+               fop = fop->as.fast_op.next;
+               break;
+
+          case FOP_LOCAL_REF_RESTARG:
+               retval = lenvlookup_restarg_by_index(FIXNM(fop->as.fast_op.arg1),
+                                                    FIXNM(fop->as.fast_op.arg2),
+                                                    env);
+               fop = fop->as.fast_op.next;
+               break;
+
+          case FOP_LOCAL_SET_BY_INDEX:
+               lenvlookup_set_by_index(FIXNM(fop->as.fast_op.arg1),
+                                       FIXNM(fop->as.fast_op.arg2),
+                                       env,
+                                       retval);
+               fop = fop->as.fast_op.next;
+               break;
+
           default:
                panic("Unsupported fast-op");
           }
@@ -724,8 +779,6 @@ lref_t apply1(lref_t fn, size_t argc, lref_t argv[])
      checked_assert((argc == 0) || (argv != NULL));
 
      lref_t retval = NIL;
-
-     STACK_CHECK(&fn);
 
      lref_t env = NIL;
      lref_t next_form = apply(fn, argc, argv, &env, &retval);
@@ -778,16 +831,9 @@ lref_t lapply(size_t argc, lref_t argv[])
 
 /***** Frame Management *****/
 
-lref_t lget_current_frames(lref_t sc)
-{
-     return NIL;
-}
-
 lref_t topmost_primitive()
 {
-     for(lref_t *frame = CURRENT_TIB()->frame;
-         frame != NULL;
-         frame = fstack_prev_frame(frame))
+     for(lref_t *frame = CURRENT_TIB()->frame; frame != NULL; frame = fstack_prev_frame(frame))
      {
           if (fstack_frame_type(frame) == FRAME_SUBR)
                return frame[FOFS_SUBR_SUBR];
@@ -795,35 +841,3 @@ lref_t topmost_primitive()
 
      return NIL;
 }
-
-#if defined(WITH_FOPLOG_SUPPORT)
-lref_t lifoplog_reset()
-{
-     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
-          CURRENT_TIB()->foplog[ii] = NIL;
-
-     CURRENT_TIB()->foplog_index = 0;
-
-     return NIL;
-}
-
-lref_t lifoplog_enable(lref_t enablep)
-{
-     lref_t prev = boolcons(CURRENT_TIB()->foplog_enable);
-
-     CURRENT_TIB()->foplog_enable = TRUEP(enablep);
-
-     return prev;
-}
-
-lref_t lifoplog_snapshot()
-{
-     lref_t result = vectorcons(FOPLOG_SIZE, fixcons(-1));
-
-     for(int ii = 0; ii < FOPLOG_SIZE; ii++)
-          SET_VECTOR_ELEM(result, ii, CURRENT_TIB()->foplog[ii]);
-
-     return result;
-}
-#endif
-

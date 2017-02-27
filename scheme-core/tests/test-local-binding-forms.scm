@@ -3,6 +3,7 @@
          "unit-test"
          "unit-test-utils"))
 
+
 (define-test let
   (let (unbound-var)
     (check (equal? unbound-var '())))
@@ -10,11 +11,6 @@
     (check (closure? closure)))
   (let ((x (let lp ((x2 10)) x2)))
     (check (equal? x 10)))
-
-  (check
-   (runtime-error?
-    (let lp ((x 0) (y 10) z)
-      (lp))))
 
   (let lp ((x 0) (y 10) z)
     (check (equal? z '())))

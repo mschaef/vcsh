@@ -225,7 +225,6 @@ lref_t ldo_external_symbols(lref_t args, lref_t env);
 lref_t ldo_symbols(lref_t args, lref_t env);
 lref_t ldump_heap_state(lref_t port);
 lref_t lenvironment();
-lref_t lenvlookup(lref_t var, lref_t env);
 lref_t leof_objectp(lref_t obj);
 lref_t leq(lref_t x, lref_t y);
 lref_t leql(lref_t x, lref_t y);
@@ -248,7 +247,6 @@ lref_t lgc();
 lref_t lgc_info();
 lref_t lgc_runtime();
 lref_t lgc_status(lref_t new_gc_status);
-lref_t lget_current_frames(lref_t skip_count);
 lref_t lget_output_string(lref_t port);
 lref_t lhandler_frames();
 lref_t lhash2alist(lref_t hash);
@@ -467,12 +465,5 @@ lref_t lwrite_binary_string(lref_t string, lref_t port);
 lref_t lwrite_char(lref_t ch, lref_t port);
 lref_t lwrite_strings(size_t argc, lref_t argv[]);
 lref_t lwrite_to_string(lref_t exp);
-
-
-#if defined(WITH_FOPLOG_SUPPORT)
-lref_t lifoplog_reset();
-lref_t lifoplog_enable(lref_t enablep);
-lref_t lifoplog_snapshot();
-#endif
 
 #endif

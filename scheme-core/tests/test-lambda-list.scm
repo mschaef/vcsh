@@ -22,14 +22,6 @@
   (set! a3 :mutable-a3)
   (vector :def-tll3-args/mutable-3 a1 a2 a3))
 
-(define (def-tll0-args/mutable-rest . r)
-  (set! r '(rest is immutable!))
-  (vector :def-tll0-args/mutable-rest r))
-
-(define (def-tll3-args/mutable-rest a1 a2 a3 . r)
-  (set! r '(rest is still immutable!))
-  (vector :def-tll3-args/mutable-rest a1 a2 a3 r))
-
 (define-test lambda-list/plain-define
   (check (eq? (procedure-name def-tll0-args)   'def-tll0-args))
   (check (equal? (def-tll0-args) (vector :def-tll0-args)))
@@ -61,18 +53,10 @@
   (check (runtime-error? (def-tll3-args/r)))
   (check (runtime-error? (def-tll3-args/r 1)))
   (check (equal? (def-tll3-args/r 1 2 3)
-                     (vector :def-tll3-args/r 1 2 3 ())))
+                 (vector :def-tll3-args/r 1 2 3 ())))
   (check (equal? (def-tll3-args/r 1 2 3 4 5 6)
-                     (vector :def-tll3-args/r 1 2 3 '(4 5 6))))
+                 (vector :def-tll3-args/r 1 2 3 '(4 5 6))))
 
-  ;; Rest arguments in the current interpreter are mutable if they are
-  ;; the only argument.
-  ;;
-  ;; (check (equal? (def-tll0-args/mutable-rest)
-  ;;                     (vector :def-tll0-args/mutable-rest ())))
-  ;;
-  ;; (check (equal? (def-tll0-args/mutable-rest 1 2 3)
-  ;;                    (vector :def-tll0-args/mutable-rest '(1 2 3))))
   (check (equal? (def-tll1-arg/mutable 12)
                  (vector :def-tll1-arg/mutable :mutable-a1)))
   
@@ -80,14 +64,7 @@
                  (vector :def-tll3-args/mutable-1 :mutable-a1 2 3)))
   
   (check (equal? (def-tll3-args/mutable-3 1 2 3)
-                 (vector :def-tll3-args/mutable-3 1 2 :mutable-a3)))
-
-  (check (equal? (def-tll3-args/mutable-rest 1 2 3)
-                 (vector :def-tll3-args/mutable-rest 1 2 3 ())))
-
-  (check (equal? (def-tll3-args/mutable-rest 1 2 3 4 5 6)
-                 (vector :def-tll3-args/mutable-rest 1 2 3 '(4 5 6)))))
-
+                 (vector :def-tll3-args/mutable-3 1 2 :mutable-a3))))
 
 (define-test lambda-list/plain-local-define
   (define (ldef-tll0-args)                (vector :ldef-tll0-args))
@@ -109,14 +86,6 @@
   (define (ldef-tll3-args/mutable-3 a1 a2 a3)
     (set! a3 :mutable-a3)
     (vector :ldef-tll3-args/mutable-3 a1 a2 a3))
-
-  (define (ldef-tll0-args/mutable-rest . r)
-    (set! r '(rest is immutable!))
-    (vector :ldef-tll0-args/mutable-rest r))
-
-  (define (ldef-tll3-args/mutable-rest a1 a2 a3 . r)
-    (set! r '(rest is still immutable!))
-    (vector :ldef-tll3-args/mutable-rest a1 a2 a3 r))
 
   (check (eq? (procedure-name ldef-tll0-args)   'ldef-tll0-args))
   (check (equal? (ldef-tll0-args) (vector :ldef-tll0-args)))
@@ -152,15 +121,6 @@
   (check (equal? (ldef-tll3-args/r 1 2 3 4 5 6)
                      (vector :ldef-tll3-args/r 1 2 3 '(4 5 6))))
 
-  ;; Rest arguments in the current interpreter are mutable if they are
-  ;; the only argument.
-  ;;
-  ;;  (check (equal? (ldef-tll0-args/mutable-rest)
-  ;;             (vector :ldef-tll0-args/mutable-rest ())))
-  ;;
-  ;;  (check (equal? (ldef-tll0-args/mutable-rest 1 2 3)
-  ;;                     (vector :ldef-tll0-args/mutable-rest '(1 2 3))))
-
   (check (equal? (ldef-tll1-arg/mutable 12)
                      (vector :ldef-tll1-arg/mutable :mutable-a1)))
 
@@ -168,13 +128,7 @@
                      (vector :ldef-tll3-args/mutable-1 :mutable-a1 2 3)))
 
   (check (equal? (ldef-tll3-args/mutable-3 1 2 3)
-                     (vector :ldef-tll3-args/mutable-3 1 2 :mutable-a3)))
-
-  (check (equal? (ldef-tll3-args/mutable-rest 1 2 3)
-                     (vector :ldef-tll3-args/mutable-rest 1 2 3 ())))
-
-  (check (equal? (ldef-tll3-args/mutable-rest 1 2 3 4 5 6)
-                     (vector :ldef-tll3-args/mutable-rest 1 2 3 '(4 5 6)))))
+                     (vector :ldef-tll3-args/mutable-3 1 2 :mutable-a3))))
 
 (define lam-tll0-args   (lambda ()             (vector :lam-tll0-args)))
 (define lam-tll0-args/r (lambda r              (vector :lam-tll0-args/r r)))

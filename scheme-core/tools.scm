@@ -60,12 +60,10 @@
   (let ((result (%time-apply0 fn)))
     (dynamic-let ((*print-addresses* #f)
                   (*flonum-print-precision* *time-flonum-print-precision*))
-      (dformat "~&; time = ~a ms (~a gc), ~a cons work, ~a fops, ~a frames\n"
+      (dformat "~&; time = ~a ms (~a gc), ~a cons work\n"
               (* 1000.0 (vector-ref result 1))
               (* 1000.0 (vector-ref result 2))
-              (vector-ref result 3)
-              (vector-ref result 4)
-              (vector-ref result 5)))
+              (vector-ref result 3)))
     (vector-ref result 0)))
 
 (defmacro (time . code)
@@ -213,67 +211,6 @@
               `(dformat "; WATCH: ~s = ~s\n" ',expr ,expr))
             exprs)))
 
-;;;; The fast-op disassembler
-
-(define *disassemble-show-fast-op-addresses* #f)
-
-(define (disassemble . functions)
-  (define (print-closure-code code)
-    (let recur ((code code))
-      (trace-indent)
-      (when *disassemble-show-fast-op-addresses*
-        (dformat "~@ " code))
-      (cond ((compiler::fast-op? code)
-             (mvbind (opcode opname actuals) (compiler::parse-fast-op code)
-               (let ((formals (compiler::fop-name->formals opname)))
-                 (cond
-                  ((not formals)
-                   (dformat "INVALID-OPCODE: ~s\n" opcode))
-                  ((eq? :closure opname)
-                   (dformat "~s ~s {\n" opname (car actuals))
-                   (in-trace-level
-                    (recur (cadr actuals)))
-                   (trace-indent)
-                   (dformat "}"))
-                  (#t
-                   (dformat "~s" opname)
-                   (doiterate ((list formal formals)
-                               (list actual actuals))
-                     (case formal
-                       ((:fast-ops)
-                        (in-trace-level
-                         (dolist (op actual)
-                           (dformat "\n")
-                           (recur op))))
-                       ((:fast-op)
-                        (in-trace-level
-                         (recur actual)))
-                       (#t
-                        (dformat " ~s" actual)))))))))
-            (#t
-             (dformat "~s\n" code)))))
-  (define (print-closure-disassembly closure)
-    (dformat ";;;; Disassembly of ~s\n" closure)
-    (dformat ";; args: ~s\n" (car (%closure-code closure)))
-    (dformat ";; lenv: ~s\n" (%closure-env closure))
-    (dolist (property-binding (%property-list closure))
-      (dbind (prop-name . prop-value) property-binding
-        (dformat ";; prop ~s: ~s\n" prop-name prop-value)))
-    (print-closure-code (cdr (%closure-code closure))))
-  (dynamic-let ((*print-readably* #f))
-    (dolist (f functions)
-      (let ((f (if (symbol? f) (symbol-value f) f)))
-        (cond ((generic-function? f)
-               (dformat  "generic function disassembly:\n\n")
-               (dolist (method (generic-function-methods f))
-                 (dformat "\nmethod disassemble ~s:\n" (car method))
-                 (print-closure-disassembly (cdr method))
-                 (dformat "\n")))
-              ((closure? f)
-               (print-closure-disassembly f))
-              (#t
-               (error "Cannot disassemble: ~s" f)))))))
-
 ;;;; Printer support for fast-ops
 
 (define-method (print-object (obj fast-op) port machine-readable? shared-structure-map)
@@ -297,14 +234,14 @@
 ;;;; The function tracer
 
 (define *trace-level* 0)
+(define *spaces-per-trace-level* 2)
+
+(define (call-within-trace-level fn)
+  (dynamic-let ((*trace-level* (+ 1 *trace-level*)))
+    (fn)))
 
 (defmacro (in-trace-level . code)
-  `(dynamic-let ((*trace-level* (+ 1 *trace-level*)))
-     ,@code))
-
-(define (trace-indent :optional (port (current-debug-port)))
-  (fresh-line port)
-  (indent *trace-level* #\space port))
+  `(call-within-trace-level (lambda () ,@code)))
 
 (define (indent column
                 :optional
@@ -325,6 +262,10 @@
           (#t
            (signal 'beyond-requested-column current-column)))
     port))
+
+(define (trace-indent :optional (port (current-debug-port)))
+  (fresh-line port)
+  (indent (* *spaces-per-trace-level* *trace-level*) #\space port))
 
 (define (traced-procedure? fn)
   "Given a procedure <fn>, determine if it is currently traced. The return
@@ -421,6 +362,76 @@
 (define-repl-abbreviation :tnr trace/no-returns)
 (define-repl-abbreviation :ut untrace)
 (define-repl-abbreviation :uta untrace-all)
+
+;;;; The fast-op disassembler
+
+(define (disassemble function)
+  (define (print-closure-code code)
+
+    (define (emit format-str . args)
+      (dformat "\n")
+      (trace-indent)
+      (dformat  "~I" format-str args))
+
+    (define (close)
+      (dformat ")"))
+    
+    (let recur ((code code))
+      (mvbind (opcode opname actuals next-op) (compiler::parse-fast-op code)
+        (cond ((not opname)
+               (emit "<INVALID-OPCODE: ~s>" opcode))
+              ((eq? :closure opname)
+               (emit "(~s ~s ~s" opname (caar actuals) (cdar actuals))
+               (in-trace-level
+                (recur (cadr actuals))
+                (close)))
+              ((memq opname '(:literal :local-ref :local-set! :global-ref :global-set!
+                              :local-ref-by-index :local-set-by-index :local-ref-restarg))
+               (emit "~s" (cons opname actuals)))
+              
+              (#t
+               (let ((formals (compiler::fop-name->formals opname)))
+                 (if (null? formals)
+                     (emit "~s" opname)
+                     (emit "(~s" opname))
+                 (in-trace-level
+                  (doiterate ((list formal formals)
+                              (list actual actuals))
+                    (case formal
+                      ((:fast-ops)
+                       (dolist (op actual)
+                         (recur op)))
+                      ((:fast-op)
+                       (recur actual))
+                      (#t
+                       (emit " ~s" actual))))
+                  (unless (null? formals)
+                    (close)))))) 
+        (unless (null? next-op)
+          (emit "=>")
+          (recur next-op)))))
+  
+  (define (print-closure-disassembly closure)
+    (dformat ";;;; Disassembly of ~s\n" closure)
+    (dformat ";; args: ~s\n" (car (%closure-code closure)))
+    (dformat ";; lenv: ~s\n" (%closure-env closure))
+    (dolist (property-binding (%property-list closure))
+      (dbind (prop-name . prop-value) property-binding
+        (dformat ";; prop ~s: ~s\n" prop-name prop-value)))
+    (print-closure-code (cdr (%closure-code closure))))
+  (dynamic-let ((*print-readably* #f))
+    (cond ((generic-function? function)
+           (dformat  "generic function disassembly:\n\n")
+           (dolist (method (generic-function-methods function))
+             (dformat "\nmethod disassemble ~s:\n" (car method))
+             (print-closure-disassembly (cdr method))
+             (dformat "\n")))
+          ((closure? function)
+           (print-closure-disassembly function))
+          (#t
+           (error "Cannot disassemble: ~s" function))))
+  function)
+
 
 (define (display-packages :optional (display-symbols? #f))
 

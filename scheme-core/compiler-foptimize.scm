@@ -32,10 +32,12 @@
 
   (let ((fasm (fn fasm)))
     (dbind (fop-name . fop-actuals) fasm
-        (let ((fop-formals (fop-name->formals fop-name)))
-          (if fop-formals
-              `(,fop-name ,@(map-fop-args fop-formals fop-actuals))
-              (error "Invalid FOP transformation result: ~s" fasm))))))
+      (if (eq? fop-name :block)
+          `(,fop-name ,@(map #L(map-fop-assembly fn _) fop-actuals))
+          (let ((fop-formals (fop-name->formals fop-name)))
+            (if fop-formals
+                `(,fop-name ,@(map-fop-args fop-formals fop-actuals))
+                (error "Invalid FOP transformation result: ~s" fasm)))))))
 
 ;;;; Global application optimization
 
@@ -117,3 +119,4 @@
 
 (define (cpass/fasm-optimize fasm)
   (optimize-fop-assembly fasm))
+

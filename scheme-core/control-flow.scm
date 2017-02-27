@@ -103,7 +103,7 @@
     (unless (symbol? var)
       (error "dolist requires a symbol for a variable binding" var))
     `(begin
-       (for-each (lambda (,var) ,@body) ,list-form)
+       (for-each-1 (lambda (,var) ,@body) ,list-form)
        ,result-form)))
 
 (define (vector-for-each fn . xss)
@@ -216,13 +216,7 @@
 ;; TODO: Add ecase
 
 (defmacro (while cond-form . body)
-  (with-gensyms (while-loop-sym)
-    `(begin
-       (let ,while-loop-sym ()
-            (when ,cond-form
-              ,@body
-              (,while-loop-sym)))
-       (values))))
+  `(%%while-true ,cond-form (begin ,@body)))
 
 (defmacro (until test . body)
   `(while (not ,test) ,@body))

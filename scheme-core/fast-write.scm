@@ -71,6 +71,21 @@
           (hash-set! (sharing-map-indicies smap) object #f)))
       smap)))
 
+(define (write-binary-fixnum fixnum port)
+  (cond
+   ((and (>= fixnum -128) (<= fixnum 127))
+    (fast-write-opcode system::FASL_OP_FIX8 port)
+    (write-binary-fixnum-s8 fixnum port))
+   ((and (>= fixnum -32768) (<= fixnum 32767))
+    (fast-write-opcode system::FASL_OP_FIX16 port)
+    (write-binary-fixnum-s16 fixnum port))
+   ((and (>= fixnum -2147483648) (<= fixnum 2147483647))
+    (fast-write-opcode system::FASL_OP_FIX32 port)
+    (write-binary-fixnum-s32 fixnum port))
+   (#t
+    (fast-write-opcode system::FASL_OP_FIX64 port)
+    (write-binary-fixnum-s64 fixnum port))))
+
 (define (fast-write-using-shared-structure-table object port smap)
   "Writes <object> on <port> in FASL format. <smap> is a hash table
   `mapping shared objects to object IDs.  It is used to avoid writing shared
@@ -158,20 +173,7 @@
                   (check-sharing-and-write xs))))))
 
       ((fixnum)
-       (cond
-        ((and (>= object -128) (<= object 127))
-         (fast-write-opcode system::FASL_OP_FIX8 port)
-         (write-binary-fixnum-s8 object port))
-        ((and (>= object -32768) (<= object 32767))
-         (fast-write-opcode system::FASL_OP_FIX16 port)
-         (write-binary-fixnum-s16 object port))
-        ((and (>= object #.(system-info :most-negative-fix32))
-              (<= object #.(system-info :most-positive-fix32)))
-         (fast-write-opcode system::FASL_OP_FIX32 port)
-         (write-binary-fixnum-s32 object port))
-        (#t
-         (fast-write-opcode system::FASL_OP_FIX64 port)
-         (write-binary-fixnum-s64 object port))))
+        (write-binary-fixnum object port))
 
       ((flonum)
        (fast-write-opcode system::FASL_OP_FLOAT port)
@@ -230,16 +232,18 @@
            (check-sharing-and-write (%structure-ref object ii)))))
 
       ((fast-op)
-       (mvbind (fop-opcode fop-name args) (compiler::parse-fast-op object #f)
+       (mvbind (fop-opcode fop-name args next-op) (compiler::parse-fast-op object #f)
          (fast-write-opcode (case (length args)
-                              ((0) system::FASL_OP_FAST_OP_0)
-                              ((1) system::FASL_OP_FAST_OP_1)
-                              ((2) system::FASL_OP_FAST_OP_2)
+                              ((0) (if (null? next-op) system::FASL_OP_FAST_OP_0 system::FASL_OP_FAST_OP_0N))
+                              ((1) (if (null? next-op) system::FASL_OP_FAST_OP_1 system::FASL_OP_FAST_OP_1N))
+                              ((2) (if (null? next-op) system::FASL_OP_FAST_OP_2 system::FASL_OP_FAST_OP_2N))
                               (#t (error "Unsupported fast-op arity: ~s" object)))
                             port)
          (check-sharing-and-write fop-opcode)
          (dolist (arg args)
-           (check-sharing-and-write arg))))
+           (check-sharing-and-write arg))
+         (unless (null? next-op)
+           (check-sharing-and-write next-op))))
 
       (#t
        (error "fast-write of unsupported type ~a : ~s" (%representation-of object) object))))

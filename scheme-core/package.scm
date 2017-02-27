@@ -545,20 +545,16 @@
           (add-symbol-to-package sym package)
           sym))))
 
-(define *gensym-count* 0)
-
 (define gensym
-  (lambda name
-    (set! *gensym-count* (+ *gensym-count* 1))
-    (if (or (not (pair? name))
-            (not (string? (car name))))
-        (set! name "GS")
-        (set! name (car name)))
-    (string->uninterned-symbol
-     (string-append
-      name
-      "-"
-      (number->string *gensym-count*)))))
+  (let ((gensym-count 0))
+    (lambda name
+      (incr! gensym-count)
+      (let ((name (if (or (not (pair? name))
+                          (not (string? (car name))))
+                      "GS"
+                      (car name))))
+        (string->uninterned-symbol
+         (string-append name "-" (number->string gensym-count)))))))
 
 (defmacro (with-gensyms gensym-names . code)
   (runtime-check list? gensym-names)
@@ -587,35 +583,23 @@
 (define (all-package-variables :optional (package *package*))
   (filter symbol-bound? (all-package-symbols package)))
 
-(define (symbol-bound? sym :optional (lenv ()))
+(define (symbol-bound? sym)
   (runtime-check symbol? sym)
-  (if (or (pair? (env-lookup sym lenv))
-          (not (eq? (%symbol-vcell sym)
-                    (%unbound-marker))))
-      sym
-      #f))
+  (and (not (eq? (%symbol-vcell sym)
+                 (%unbound-marker)))
+       sym))
 
-(define (%symbol-value sym :optional (lenv ()))
-  (runtime-check symbol? sym)
-  (aif (pair? (env-lookup sym lenv))
-       (car it)
-       (%symbol-vcell sym)))
+(define (symbol-value sym)
+  (if (symbol-bound? sym)
+      (%symbol-vcell sym)
+      (error "unbound global: ~s" sym)))
 
-(define (symbol-value sym :optional (lenv ()))
-  (let ((val (%symbol-value sym lenv)))
-    (if (eq? val (%unbound-marker))
-        (error "unbound global: ~s" sym)
-        val)))
-
-(define (set-symbol-value! sym val :optional (lenv ()))
+(define (set-symbol-value! sym val)
   (runtime-check (not keyword?) sym)
-  (aif (pair? (env-lookup sym lenv))
-       (set-car! it val)
-       (begin
-         (unless (symbol-bound? sym ())
-           (error "unbound global: ~s" sym))
-         (%set-symbol-vcell! sym val)
-           val)))
+  (unless (symbol-bound? sym ())
+    (error "unbound global: ~s" sym))
+  (%set-symbol-vcell! sym val)
+  val)
 
 (define (unbind-symbol! sym)
   (runtime-check (and symbol? (not keyword?)) sym)

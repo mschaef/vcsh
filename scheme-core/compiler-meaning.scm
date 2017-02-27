@@ -13,29 +13,45 @@
 
 (define *show-meanings* #f)
 
-(define (l-list-vars l-list)
-  (let retry ((l-list l-list))
-    (cond ((null? l-list)
-           ())
-          ((atom? l-list)
-           `(,l-list))
-          (#t
-           (cons (car l-list) (retry (cdr l-list)))))))
+(define (lambda-list-variables lambda-list)
+  "Given a lambda list, return a list of descriptive tuples of each
+variable bound by that lambda list. Each tuple contains the bound
+symbol, the type of binding (:var or :rest), and the index of the binding
+within the environment."
+  (let loop ((binding-index 0)
+              (lambda-list lambda-list))
+    (cond
+     ((null? lambda-list)
+      ())
+     ((atom? lambda-list)
+      `((,lambda-list :rest ,binding-index)))
+     (#t
+      (cons `(,(car lambda-list) :var ,binding-index)
+            (loop (+ binding-index 1) (cdr lambda-list)))))))
 
-(define (extend-cenv l-list cenv)
-  (cons (l-list-vars l-list) cenv))
+(define (extend-cenv lambda-list cenv)
+  (cons (lambda-list-variables lambda-list) cenv))
+
+(define (bound-in-cenv-frame? var cenv-frame cenv)
+  (unless (list? cenv-frame)
+    (error "Malformed frame ~s in cenv: ~s" cenv-frame cenv))
+  (assoc var cenv-frame))
 
 (define (bound-in-cenv? var cenv)
-  (let loop ((rest cenv))
-    (cond ((null? rest) #f)
-          ((atom? rest) (error "Malformed cenv: ~s" cenv))
-          (#t
-           (let ((cenv-frame (car rest)))
-             (unless (list? cenv-frame)
-               (error "Malformed frame ~s in cenv: ~s" cenv-frame cenv))
-             (if (memq var (car rest))
-                 #t
-                 (loop (cdr rest))))))))
+  "Determine whether or not a variable is bound in the given cenv. Returns a
+description of the binding coordinates: (frame-index var-name binding-type binding-index)"
+  (let loop ((frame-index 0)
+             (remaining-frames cenv))
+    (cond
+     ((null? remaining-frames)
+      #f)
+     ((atom? remaining-frames)
+      (error "Malformed cenv: ~s" cenv))
+     (#t
+      (aif (bound-in-cenv-frame? var (car remaining-frames) cenv)
+           (cons frame-index it)
+           (loop (+ frame-index 1)
+                 (cdr remaining-frames)))))))
 
 (forward expanded-form-meaning)
 
@@ -44,22 +60,23 @@
       (type-of (symbol-value sym))
       '#f))
 
-(define (warn-if-global-unbound var)
+(define (bound-global var)
   (unless (symbol-bound? var)
-    (compile-warning var "Global variable unbound: ~s" var)))
+    (compile-warning var "Global variable unbound: ~s" var))
+  var)
 
 (define (meaning/application form cenv)
   `(:apply ,(expanded-form-meaning (car form) cenv)
            ,(map #L(expanded-form-meaning _ cenv) (cdr form))))
 
 (define (meaning/symbol form cenv)
-  (cond ((keyword? form)
-         `(:literal ,form))
-        ((bound-in-cenv? form cenv)
-         `(:local-ref ,form))
-        (#t
-         (warn-if-global-unbound form)
-         `(:global-ref ,form))))
+  (if (keyword? form)
+      `(:literal ,form)
+      (aif (bound-in-cenv? form cenv)
+           (if (eq? :var (third it))
+               `(:local-ref-by-index ,(first it) ,(fourth it))
+               `(:local-ref-restarg ,(first it) ,(fourth it)))
+           `(:global-ref ,(bound-global form)))))
 
 (define *special-form-handlers* (make-identity-hash))
 
@@ -103,6 +120,13 @@
              ,(expanded-form-meaning (car args) cenv)
              ,(recur (cdr args)))))))
 
+(define-special-form (scheme::block . args)
+  (cond ((null? args)
+         `(:literal ()))
+        (#t
+         `(:block
+           ,@(map #L(expanded-form-meaning _ cenv) args)))))
+
 (define-special-form (or . args)
   (let recur ((args args))
     (cond ((null? args)
@@ -144,17 +168,18 @@
      ,(expanded-form-meaning else-form cenv))))
 
 (define-special-form (set! var val-form)
-  (cond ((keyword? var)
-         (compile-error form "Cannot rebind a keyword: ~s" var))
-        ((bound-in-cenv? var cenv)
+  (when (keyword? var)
+    (compile-error form "Cannot rebind a keyword: ~s" var))
+  (aif (bound-in-cenv? var cenv)
+       (begin
+         (when (eq? :rest (third it))
+           (compile-error form "Cannot rebind a rest binding: ~s" var))
          `(:sequence
            ,(expanded-form-meaning val-form cenv)
-           (:local-set! ,var)))
-        (#t
-         (warn-if-global-unbound var)
-         `(:sequence
-           ,(expanded-form-meaning val-form cenv)
-           (:global-set! ,var)))))
+           (:local-set-by-index ,(first it) ,(fourth it))))
+       `(:sequence
+         ,(expanded-form-meaning val-form cenv)
+         (:global-set! ,(bound-global var)))))
 
 (define compile)
 
@@ -168,18 +193,14 @@
 (define-special-form (the-environment)
   `(:get-env))
 
-(define-special-form (scheme::%preserve-initial-fsp global-var body-form)
-  (warn-if-global-unbound global-var)
-  `(:sequence
-    (:sequence
-     (:get-fsp)
-     (:global-set! ,global-var))
+(define-special-form (scheme::%preserve-initial-frame global-var body-form)
+  `(:global-preserve-frame
+    ,(bound-global global-var)
     ,(expanded-form-meaning body-form cenv)))
 
-(define-special-form (scheme::%preserve-initial-frame global-var body-form)
-  (warn-if-global-unbound global-var)
-  `(:global-preserve-frame
-    ,global-var
+(define-special-form (scheme::%with-stack-boundary tag-form body-form)
+  `(:stack-boundary
+    ,(expanded-form-meaning tag-form cenv)
     ,(expanded-form-meaning body-form cenv)))
 
 (define-special-form (scheme::%%catch tag-form body-form)
@@ -209,6 +230,16 @@
 (define-special-form (scheme::%%set-hframes new-hframes)
   `(:set-hframes 
     ,(expanded-form-meaning new-hframes cenv)))
+
+(define-special-form (scheme::%%fast-enqueue-cell cell-form queue-form)
+  `(:fast-enqueue-cell
+    ,(expanded-form-meaning cell-form cenv)
+    ,(expanded-form-meaning queue-form cenv)))
+
+(define-special-form (scheme::%%while-true cond-form body-form)
+  `(:while-true
+    ,(expanded-form-meaning cond-form cenv)
+    ,(expanded-form-meaning body-form cenv)))
 
 (define (expanded-form-meaning form cenv)
   (call-with-compiler-tracing *show-meanings* '("MEANING-OF" "IS")

@@ -40,16 +40,6 @@ struct interpreter_thread_info_block_t
 
      lref_t *escape_frame;
      lref_t escape_value;
-
-     size_t count_fop;
-     size_t count_enter_frame;
-
-#if defined(WITH_FOPLOG_SUPPORT)
-     bool foplog_enable;
-     lref_t foplog[FOPLOG_SIZE];
-     bool foplog_active;
-     size_t foplog_index;
-#endif
 };
 
 struct interpreter_t

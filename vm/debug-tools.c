@@ -217,9 +217,6 @@ static struct
      { "show-fast-load-forms", DF_SHOW_FAST_LOAD_FORMS},
      { "show-fast-load-units", DF_SHOW_FAST_LOAD_UNITS},
      { "test-vm", DF_TEST_VM},
-#if defined(WITH_FOPLOG_SUPPORT)
-     { "startup-foplog", DF_STARTUP_FOPLOG},
-#endif
      { "no-startup", DF_NO_STARTUP},
      { NULL, (enum debug_flag_t)0},
 };
@@ -312,18 +309,16 @@ lref_t ltime_apply0(lref_t fn)
      flonum_t t = sys_runtime();
      flonum_t gc_t = interp.gc_total_run_time;
      size_t cells = interp.gc_total_cells_allocated;
-     size_t fops = CURRENT_TIB()->count_fop;
-     size_t frames = CURRENT_TIB()->count_enter_frame;
 
-     lref_t argv[6];
+     lref_t result = apply1(fn, 0, NULL);
 
-     argv[0] = apply1(fn, 0, NULL);
-     argv[1] = flocons(sys_runtime() - t);
-     argv[2] = flocons(interp.gc_total_run_time - gc_t);
-     argv[3] = fixcons(interp.gc_total_cells_allocated - cells);
-     argv[4] = fixcons(CURRENT_TIB()->count_fop - fops);
-     argv[5] = fixcons(CURRENT_TIB()->count_enter_frame - frames);
+     lref_t resultvec[4];
 
-     return lvector(6, argv);
+     resultvec[0] = result;
+     resultvec[1] = flocons(sys_runtime() - t);
+     resultvec[2] = flocons(interp.gc_total_run_time - gc_t);
+     resultvec[3] = fixcons(interp.gc_total_cells_allocated - cells);
+
+     return lvector(4, resultvec);
 }
 
