@@ -79,7 +79,8 @@
    ((and (>= fixnum -32768) (<= fixnum 32767))
     (fast-write-opcode system::FASL_OP_FIX16 port)
     (write-binary-fixnum-s16 fixnum port))
-   ((and (>= fixnum -2147483648) (<= fixnum 2147483647))
+   ((and (>= fixnum (system-info :most-negative-fix32)
+             (<= fixnum (system-info :most-positive-fix32))))
     (fast-write-opcode system::FASL_OP_FIX32 port)
     (write-binary-fixnum-s32 fixnum port))
    (#t

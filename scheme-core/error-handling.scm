@@ -116,24 +116,25 @@
     (#t #f)))
 
 (define (frame-decode frp)
-  (case (frame-ref frp system::FOFS_FTYPE :raw)
-    ((#.system::FRAME_SUBR)
+  (case (frame-type frp)
+    ((system::FRAME_SUBR)
      {:frame-type 'system::FRAME_SUBR
       :subr        (frame-ref frp system::FOFS_SUBR_SUBR :lref)})
-    ((#.system::FRAME_EVAL)
+    ((system::FRAME_EVAL)
      {:frame-type   'system::FRAME_EVAL
       :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref)
       :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref)
       :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)})
-    ((#.system::FRAME_STACK_BOUNDARY)
+    ((system::FRAME_STACK_BOUNDARY)
      {:frame-type 'system::FRAME_STACK_BOUNDARY
       :tag        (frame-ref frp system::FOFS_BOUNDARY_TAG :lref)})
-    ((#.system::FRAME_UNWIND)
+    ((system::FRAME_UNWIND)
      {:frame-type 'system::FRAME_UNWIND
      :after-thunk (frame-ref frp system::FOFS_UNWIND_AFTER :lref)})
-    ((#.system::FRAME_ESCAPE)
+    ((system::FRAME_ESCAPE)
      {:frame-type 'system::FRAME_ESCAPE
-      :tag        (frame-ref frp system::FOFS_ESCAPE_TAG :lref)})))
+      :tag        (frame-ref frp system::FOFS_ESCAPE_TAG :lref)})
+    (#t {:frame-type 'invalid :frp frp} )))
 
 ;;;; Stack Trace Capture and Display
 
