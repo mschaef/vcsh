@@ -81,27 +81,18 @@ bool string_equal(lref_t a, lref_t b)
 
 /* String Constructor *****************************************/
 
-static size_t string_storage_size(size_t bytes_to_be_stored)
+static size_t string_storage_size(size_t str_size)
 {
-     /* Strings are stored in the smallest power-of-2 sized block
-      * of memory in which they (plus a pad byte) will fit. The
-      * minimum block size is 16 bytes, everything smaller is rounded
-      * up. */
-     size_t storage_size = 16;
+     size_t buf_size = 16;
 
-     size_t i = bytes_to_be_stored;
-
-     while (i >= 16)
+     while (buf_size <= str_size)
      {
-          i >>= 1;
-
-          storage_size <<= 1;
+          buf_size <<= 1;
      }
 
-     assert(bytes_to_be_stored <= storage_size);
-
-     return storage_size;
+     return buf_size;
 }
+
 
 lref_t strrecons(lref_t obj, size_t new_length)
 {
@@ -132,6 +123,13 @@ lref_t strrecons(lref_t obj, size_t new_length)
      return obj;
 }
 
+static void allocate_string_buffer(lref_t obj, size_t length)
+{
+     obj->as.string.data = NULL;
+     obj->as.string.dim = 0;
+
+     strrecons(obj, length);
+}
 
 lref_t strcons()
 {
@@ -149,7 +147,6 @@ lref_t strconsbuf(const _TCHAR * buffer)
 
      return strconsbufn(_tcslen(buffer), buffer);
 }
-
 
 lref_t strconsbuf1(const _TCHAR * buffer, _TCHAR trailing)
 {
@@ -175,32 +172,11 @@ lref_t strconsbufn(size_t length, const _TCHAR * buffer)
 {
      lref_t new_string = new_cell(TC_STRING);
 
-     new_string->as.string.data = NULL;
-     new_string->as.string.dim = 0;
+     allocate_string_buffer(new_string, length);
 
-     strrecons(new_string, length);
-
-     if (buffer)
+     if (buffer) {
           memcpy(new_string->as.string.data, buffer, length);
-
-     return new_string;
-}
-
-lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer)
-{
-     /* This variant of strcons is used to transfer ownership
-      * of <buffer> to the interpreter, so that the interpreter
-      * will free the buffer when the cell is reclaimed. <buffer>
-      * must be dynamically allocated with gc_malloc for this
-      * to work. */
-
-     lref_t new_string = new_cell(TC_STRING);
-
-     /*  String buffers must be null terminated. */
-     assert(buffer[length] == _T('\0'));
-
-     new_string->as.string.data = buffer;
-     new_string->as.string.dim = length;
+     }
 
      return new_string;
 }
@@ -424,12 +400,13 @@ lref_t lstring_trim(lref_t str, lref_t tc)
           vmerror_wrong_type_n(1, str);
 
      const _TCHAR *trim_chars = _T(" \t\r\n");
+     _TCHAR buffer[STACK_STRBUF_LEN];
 
      if (!NULLP(tc)) {
-          if (!STRINGP(tc))
-               vmerror_wrong_type_n(2, str);
+          if(get_c_string(tc, STACK_STRBUF_LEN, buffer) < 0)
+               vmerror_arg_out_of_range(tc, _T("trim character specification too long"));
 
-          trim_chars = get_c_string(tc);
+          trim_chars = buffer;
      }
 
 
@@ -451,13 +428,15 @@ lref_t lstring_trim_left(lref_t str, lref_t tc)
           vmerror_wrong_type_n(1, str);
 
      const _TCHAR *trim_chars = _T(" \t\r\n");
+     _TCHAR buffer[STACK_STRBUF_LEN];
 
      if (!NULLP(tc)) {
-          if (!STRINGP(tc))
-               vmerror_wrong_type_n(2, str);
+          if(get_c_string(tc, STACK_STRBUF_LEN, buffer) < 0)
+               vmerror_arg_out_of_range(tc, _T("trim character specification too long"));
 
-          trim_chars = get_c_string(tc);
+          trim_chars = buffer;
      }
+
 
      size_t start = 0;
 
@@ -473,12 +452,13 @@ lref_t lstring_trim_right(lref_t str, lref_t tc)
           vmerror_wrong_type_n(1, str);
 
      const _TCHAR *trim_chars = _T(" \t\r\n");
+     _TCHAR buffer[STACK_STRBUF_LEN];
 
      if (!NULLP(tc)) {
-          if (!STRINGP(tc))
-               vmerror_wrong_type_n(2, str);
+          if(get_c_string(tc, STACK_STRBUF_LEN, buffer) < 0)
+               vmerror_arg_out_of_range(tc, _T("trim character specification too long"));
 
-          trim_chars = get_c_string(tc);
+          trim_chars = buffer;
      }
 
      size_t end = str->as.string.dim;
@@ -658,7 +638,7 @@ bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t *result)
 
 lref_t lstring2number(lref_t s, lref_t r)
 {
-     _TCHAR *string, *endobj;
+     _TCHAR *endobj;
      long radix = 10;
      fixnum_t fix_result = 0;
      flonum_t flo_result = 0;
@@ -677,7 +657,10 @@ lref_t lstring2number(lref_t s, lref_t r)
      if ((radix > 36) || (radix < 2))
           vmerror_arg_out_of_range(r, _T("[2,36]"));
 
-     string = get_c_string(s);
+     _TCHAR string[STACK_STRBUF_LEN];
+     if (get_c_string(s, STACK_STRBUF_LEN, string) < 0)
+          vmerror_arg_out_of_range(s, _T("number string too long"));
+
 
      /* string->number doesn't do any sort of 'nice' processing
       * of the string it accepts. In other words, the string must
@@ -865,41 +848,33 @@ void string_appendd(lref_t str, const _TCHAR *buf, size_t len)
  * C string access
  */
 
-_TCHAR *try_get_c_string(lref_t x)
+int get_c_string(lref_t obj, size_t buflen, _TCHAR *buf)
 {
-     if (SYMBOLP(x))
-     {
-          x = SYMBOL_PNAME(x);
+     assert(buflen > 0);
+     assert(buf);
 
-          assert(STRINGP(x));
+     if (SYMBOLP(obj))
+     {
+          obj = SYMBOL_PNAME(obj);
+
+          assert(STRINGP(obj));
      }
 
-     if (STRINGP(x))
-          return x->as.string.data;
+     if (!STRINGP(obj)) {
+          vmerror_wrong_type(obj);
+     }
+
+     int n = MIN2(buflen - 1, obj->as.string.dim);
+
+     memcpy(buf, obj->as.string.data, n);
+     buf[n] = _T('\0');
+
+     if (n < obj->as.string.dim)
+          return -1;
      else
-          return NULL;
+          return n;
 }
 
-_TCHAR *get_c_string(lref_t x)
-{
-     _TCHAR *str = try_get_c_string(x);
-
-     if (str)
-          return str;
-
-     vmerror_wrong_type(x);
-
-     return NULL;
-}
-
-_TCHAR *get_c_string_dim(lref_t x, size_t * len)
-{
-     _TCHAR *rc = get_c_string(x);
-
-     *len = _tcslen(rc);
-
-     return rc;
-}
 
 typedef enum
 {

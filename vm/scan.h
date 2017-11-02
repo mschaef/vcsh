@@ -92,11 +92,9 @@ lref_t strconsbuf(const _TCHAR * buffer);
 lref_t strconsbuf1(const _TCHAR * buffer, _TCHAR trailing);
 lref_t strconsdup(lref_t str);
 lref_t strconsbufn(size_t length, const _TCHAR * buffer);
-lref_t strcons_transfer_buffer(size_t length, _TCHAR * buffer);
 
-_TCHAR *get_c_string(lref_t x);
-_TCHAR *get_c_string_dim(lref_t x, size_t *);
-_TCHAR *try_get_c_string(lref_t x);
+int get_c_string(lref_t obj, size_t buflen, _TCHAR *buf);
+
 
 /**** Hash Tables ****/
 

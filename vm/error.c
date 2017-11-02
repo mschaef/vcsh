@@ -138,10 +138,15 @@ void vmerror_fast_read(const _TCHAR * message, lref_t reader, lref_t details /* 
 
 lref_t lpanic(lref_t msg)           /*  If everything goes to hell, call this... */
 {
-     if (STRINGP(msg))
-          panic(get_c_string(msg));
-     else
-          panic("Invalid string passed to %panic!\n");
+     _TCHAR buf[STACK_STRBUF_LEN];
+
+     if (!STRINGP(msg))
+          panic("Invalid string passed to %panic.\n");
+
+     if(get_c_string(msg, STACK_STRBUF_LEN, buf) < 0)
+          panic("%panic message too long.\n");
+
+     panic(buf);
 
      return NIL;
 }

@@ -24,13 +24,19 @@
 
 lref_t lsystem(size_t argc, lref_t argv[])
 {
-     size_t len = 0;
-     _TCHAR *command_line = get_c_string_dim(lstring_append(argc, argv), &len);
+     _TCHAR buf[STACK_STRBUF_LEN];
+
+     lref_t command_line = lstring_append(argc, argv);
+
+     int len = get_c_string(command_line, STACK_STRBUF_LEN, buf);
 
      if (len == 0)
           vmerror_arg_out_of_range(NIL, _T("empty command line"));
 
-     return fixcons(system(command_line));
+     if (len < 0)
+          vmerror_arg_out_of_range(command_line, _T("command line length too long"));
+
+     return fixcons(system(buf));
 }
 
 lref_t lenvironment()
@@ -82,22 +88,35 @@ lref_t lset_environment_variable(lref_t varname, lref_t value)
      if (!STRINGP(value))
           vmerror_wrong_type_n(2, value);
 
-     enum sys_retcode_t rc = sys_setenv(get_c_string(varname), get_c_string(value));
+     _TCHAR namebuf[STACK_STRBUF_LEN];
+     _TCHAR valbuf[STACK_STRBUF_LEN];
 
-     if (rc == SYS_OK)
-          return boolcons(true);
+     if(get_c_string(varname, STACK_STRBUF_LEN, namebuf) < 0)
+          vmerror_arg_out_of_range(varname, _T("environment variable name too long"));
 
-     vmerror_io_error(_T("Error setting environment variable"), varname);
+     if(get_c_string(value, STACK_STRBUF_LEN, valbuf) < 0)
+          vmerror_arg_out_of_range(value, _T("environment variable value too long"));
 
-     return NIL;
+     enum sys_retcode_t rc = sys_setenv(namebuf, valbuf);
+
+     if (rc != SYS_OK)
+          vmerror_io_error(_T("Error setting environment variable"), varname);
+
+     return boolcons(true);
 }
 
 lref_t ltemporary_file_name(lref_t p)
 {
-     if (!(STRINGP(p) || NULLP(p)))
-          vmerror_wrong_type_n(1, p);
+     _TCHAR *prefix = _T("vcsh-temp");
+     _TCHAR prefixbuf[STACK_STRBUF_LEN];
 
-     _TCHAR *prefix = NULLP(p) ? (_TCHAR *) "vcsh-temp" : get_c_string(p);
+     if (!NULLP(p)) {
+          if (get_c_string(p, STACK_STRBUF_LEN, prefixbuf) < 0) {
+               vmerror_arg_out_of_range(p, _T("temporary filename prefix too long"));
+          }
+
+          prefix = prefixbuf;
+     }
 
      _TCHAR buf[STACK_STRBUF_LEN];
 
@@ -113,10 +132,13 @@ lref_t ltemporary_file_name(lref_t p)
 
 lref_t ldelete_file(lref_t filename)
 {
-     if (!STRINGP(filename))
-          vmerror_wrong_type_n(1, filename);
+     _TCHAR filenamebuf[STACK_STRBUF_LEN];
 
-     enum sys_retcode_t rc = sys_delete_file(get_c_string(filename));
+     if(get_c_string(filename, STACK_STRBUF_LEN, filenamebuf) < 0) {
+          vmerror_arg_out_of_range(filename, _T("filename too long"));
+     }
+
+     enum sys_retcode_t rc = sys_delete_file(filenamebuf);
 
      if (rc == SYS_OK)
           return boolcons(true);
@@ -196,22 +218,24 @@ lref_t file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 
 lref_t lifile_details(lref_t path, lref_t existance_onlyp)
 {
-     if (!STRINGP(path))
-          vmerror_wrong_type_n(1, path);
+     struct sys_stat_t file_info;
+     _TCHAR pathbuf[STACK_STRBUF_LEN];
 
      if (!(NULLP(existance_onlyp) || BOOLP(existance_onlyp)))
           vmerror_wrong_type_n(2, existance_onlyp);
 
-     struct sys_stat_t file_info;
+     if(get_c_string(path, STACK_STRBUF_LEN, pathbuf) < 0) {
+          vmerror_arg_out_of_range(path, _T("path too long"));
+     }
 
      /*  If stat fails, we assume the file does not exist and return false. */
-     if (sys_stat(get_c_string(path), &file_info))
+     if (sys_stat(pathbuf, &file_info))
           return boolcons(false);
 
      if (!NULLP(existance_onlyp) && TRUEP(existance_onlyp))
           return boolcons(true);
 
-     return file_details_object(get_c_string(path), &file_info);
+     return file_details_object(pathbuf, &file_info);
 }
 
 lref_t lidirectory(lref_t dn, lref_t m)
@@ -240,10 +264,12 @@ lref_t lidirectory(lref_t dn, lref_t m)
      else if (!NULLP(m))
           vmerror_wrong_type_n(2, m);
 
-     const _TCHAR *dirname = get_c_string(dn);
+     _TCHAR dirname[STACK_STRBUF_LEN];
+     if (get_c_string(dn, STACK_STRBUF_LEN, dirname) < 0)
+          vmerror_arg_out_of_range(dn, _T("dirname string too long"));
 
      if (_tcslen(dirname) == 0)
-          dirname = _T("./");
+          _tcsncpy(dirname, _T("./"), STACK_STRBUF_LEN);
 
      struct sys_dir_t *d;
      enum sys_retcode_t rc;

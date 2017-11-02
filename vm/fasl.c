@@ -278,8 +278,6 @@ lref_t lset_fasl_package_list(lref_t packages)
 
 static lref_t find_package(lref_t name)
 {
-     _TCHAR *n = get_c_string(name);
-
      for (lref_t l = interp.fasl_package_list; CONSP(l); l = CDR(l))
      {
           lref_t p = CAR(l);
@@ -287,7 +285,7 @@ static lref_t find_package(lref_t name)
           if (!PACKAGEP(p))
                panic("damaged package list");
 
-          if (_tcscmp(n, get_c_string(p->as.package.name)) == 0)
+          if (equalp(name, p->as.package.name))
                return p;
      }
 

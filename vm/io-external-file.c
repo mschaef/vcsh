@@ -49,19 +49,20 @@ void file_port_open(lref_t obj)
 
      assert(STRINGP(PORT_PINFO(obj)->port_name));
 
-     if (PORT_OUTPUTP(obj))
-          f = fopen(get_c_string(PORT_PINFO(obj)->port_name), "wb");
-     else if (PORT_INPUTP(obj))
-          f = fopen(get_c_string(PORT_PINFO(obj)->port_name), "rb");
-     else
+     if (PORT_CLOSEDP(obj))
           panic("File port open for closed port");
 
-     if (f)
-     {
+     _TCHAR buf[STACK_STRBUF_LEN];
+
+     lref_t filename = PORT_PINFO(obj)->port_name;
+     if(get_c_string(filename, STACK_STRBUF_LEN, buf) < 0)
+          vmerror_arg_out_of_range(filename, _T("filename too long"));
+
+     f = fopen(buf, PORT_OUTPUTP(obj) ? "wb" : "rb");
+
+     if (f) {
           SET_PORT_FILE(obj, f);
-     }
-     else
-     {
+     } else {
           SET_PORT_MODE(obj, PORT_CLOSED);
           vmerror_io_error(_T("cannot open file"), PORT_PINFO(obj)->port_name);
      }
