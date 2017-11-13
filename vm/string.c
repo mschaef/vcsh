@@ -30,10 +30,7 @@ bool string_equal(lref_t a, lref_t b)
      if (len != b->as.string.dim)
           return false;
 
-     if (memcmp(a->as.string.data, b->as.string.data, len) == 0)
-          return true;
-     else
-          return false;
+     return (memcmp(a->as.string.data, b->as.string.data, len) == 0);
 }
 
 static size_t string_storage_size(size_t str_size)
@@ -136,6 +133,32 @@ lref_t strconsbufn(size_t length, const _TCHAR * buffer)
      return new_string;
 }
 
+
+lref_t lstringp(lref_t x)
+{
+     if (STRINGP(x))
+          return x;
+     else
+          return boolcons(false);
+}
+
+lref_t lstring_length(lref_t string)
+{
+     if (!STRINGP(string))
+          vmerror_wrong_type_n(1, string);
+
+     return fixcons(string->as.string.dim);
+}
+
+
+lref_t lstring_copy(lref_t string)
+{
+     if (!STRINGP(string))
+          vmerror_wrong_type_n(1, string);
+
+     return strconsdup(string);
+}
+
 lref_t lstring_ref(lref_t a, lref_t i)
 {
      if (!STRINGP(a))
@@ -225,7 +248,7 @@ lref_t lstring_append(size_t argc, lref_t argv[])
                panic("Unexpected string type in string-append concatenation phase.");
      }
 
-     return (s);
+     return s;
 }
 
 lref_t lsubstring(lref_t str, lref_t start, lref_t end)
@@ -516,23 +539,6 @@ lref_t lisp_stricmp(lref_t string_1, lref_t string_2)
      return fixcons(0);
 }
 
-lref_t lstringp(lref_t x)
-{
-     if (STRINGP(x))
-          return x;
-     else
-          return boolcons(false);
-}
-
-lref_t lstring_length(lref_t string)
-{
-     if (!STRINGP(string))
-          vmerror_wrong_type_n(1, string);
-
-     return fixcons(string->as.string.dim);
-}
-
-
 lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_ofs)
 {
      if (!STRINGP(string))
@@ -583,14 +589,6 @@ lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_init
           return boolcons(false);
      else
           return fixcons(loc);
-}
-
-lref_t lstring_copy(lref_t string)
-{
-     if (!STRINGP(string))
-          vmerror_wrong_type_n(1, string);
-
-     return strconsdup(string);
 }
 
 lref_t lcharacter2string(lref_t obj)
