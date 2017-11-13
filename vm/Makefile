@@ -27,6 +27,7 @@ tested: all ./scansh0${EXE_EXT}
 SCC0=scc0/scc0
 
 VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
+       character${OBJ_EXT} \
        constants${OBJ_EXT} \
        core${OBJ_EXT} \
        debug-printer${OBJ_EXT} \
@@ -48,10 +49,11 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        memory${OBJ_EXT} \
        mt19937${OBJ_EXT} \
        number${OBJ_EXT} \
+       number-format${OBJ_EXT} \
        oblist${OBJ_EXT} \
+       string${OBJ_EXT} \
        structure${OBJ_EXT} \
        system${OBJ_EXT} \
-       text-data${OBJ_EXT} \
        vector${OBJ_EXT}
 
 VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.c)
