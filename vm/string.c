@@ -45,13 +45,12 @@ static size_t string_storage_size(size_t str_size)
      return buf_size;
 }
 
-
 lref_t strrecons(lref_t obj, size_t new_length)
 {
      size_t space_needed;
      size_t space_already_allocated = 0;
 
-     space_needed = string_storage_size(new_length + 1);
+     space_needed = string_storage_size(new_length);
 
      if (obj->as.string.data != NULL)
           space_already_allocated = string_storage_size(obj->as.string.dim);
@@ -59,10 +58,8 @@ lref_t strrecons(lref_t obj, size_t new_length)
      if (space_already_allocated != space_needed) {
           _TCHAR *new_buffer = (_TCHAR *)gc_malloc(space_needed);
 
-          memset(new_buffer, 0, space_needed);
-
           if (obj->as.string.data) {
-               memcpy(new_buffer, obj->as.string.data, obj->as.string.dim + 1);
+               memcpy(new_buffer, obj->as.string.data, obj->as.string.dim);
 
                gc_free(obj->as.string.data);
           }
@@ -132,7 +129,6 @@ lref_t strconsbufn(size_t length, const _TCHAR * buffer)
 
      return new_string;
 }
-
 
 lref_t lstringp(lref_t x)
 {
@@ -611,7 +607,6 @@ void string_appendd(lref_t str, const _TCHAR *buf, size_t len)
      strrecons(str, size + len);
 
      memcpy(&(str->as.string.data[size]), buf, len);
-     str->as.string.data[size + len + 1] = _T('\0');
 }
 
 int get_c_string(lref_t obj, size_t buflen, _TCHAR *buf)
@@ -640,4 +635,3 @@ int get_c_string(lref_t obj, size_t buflen, _TCHAR *buf)
      else
           return n;
 }
-
