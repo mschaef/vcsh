@@ -761,7 +761,7 @@ void init_debugger_output()
      initialize_port(&interp.debugger_output,
                      &debug_port_class,
                      NIL,
-                     PORT_OUTPUT,
+                     PORT_OUTPUT | PORT_TEXT,
                      NIL,
                      NULL);
 

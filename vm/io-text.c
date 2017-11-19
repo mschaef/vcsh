@@ -558,7 +558,7 @@ lref_t lopen_text_input_port(lref_t underlying)
 
      return portcons(&text_port_class,
                      lport_name(underlying),
-                     PORT_INPUT,
+                     PORT_INPUT | PORT_TEXT,
                      underlying,
                      NULL);
 }
@@ -573,7 +573,7 @@ lref_t lopen_text_output_port(lref_t underlying)
 
      return portcons(&text_port_class,
                      lport_name(underlying),
-                     PORT_OUTPUT,
+                     PORT_OUTPUT | PORT_TEXT,
                      underlying,
                      NULL);
 }

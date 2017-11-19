@@ -83,7 +83,7 @@ lref_t lopen_input_string(lref_t string)
           vmerror_wrong_type_n(1, string);
 
      lref_t port =
-          portcons(&input_string_port_class, NIL, PORT_INPUT, strconsdup(string), NULL);
+          portcons(&input_string_port_class, NIL, PORT_INPUT | PORT_TEXT, strconsdup(string), NULL);
 
      struct port_text_info_t *pti = allocate_text_info();
 
@@ -139,7 +139,7 @@ struct port_class_t output_string_port_class = {
 
 lref_t lopen_output_string()
 {
-     lref_t port = portcons(&output_string_port_class, NIL, PORT_OUTPUT, NIL, NULL);
+     lref_t port = portcons(&output_string_port_class, NIL, PORT_OUTPUT | PORT_TEXT, NIL, NULL);
 
      SET_PORT_TEXT_INFO(port, allocate_text_info());
      SET_PORT_STRING(port, strconsbuf(_T("")));

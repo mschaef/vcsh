@@ -692,6 +692,7 @@ enum port_mode_t
      PORT_CLOSED = 0x00,
      PORT_INPUT = 0x01,
      PORT_OUTPUT = 0x02,
+     PORT_TEXT = 0x04,
 
      PORT_DIRECTION = PORT_INPUT | PORT_OUTPUT
 };
@@ -805,12 +806,12 @@ INLINE void SET_PORT_MODE(lref_t x, enum port_mode_t mode)
 
 INLINE bool BINARY_PORTP(lref_t x)
 {
-     return PORTP(x) && (PORT_TEXT_INFO(x) == NULL);
+     return PORTP(x) && ((PORT_MODE(x) & PORT_TEXT) != PORT_TEXT);
 }
 
 INLINE bool TEXT_PORTP(lref_t x)
 {
-     return PORTP(x) && (PORT_TEXT_INFO(x) != NULL);
+     return PORTP(x) && ((PORT_MODE(x) & PORT_TEXT) == PORT_TEXT);
 }
 
 INLINE bool PORT_CLOSEDP(lref_t port)
