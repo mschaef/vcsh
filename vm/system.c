@@ -45,8 +45,7 @@ lref_t lenvironment()
 
      lref_t vars = NIL;
 
-     for (size_t i = 0; env_strings[i] != NULL; i++)
-     {
+     for (size_t i = 0; env_strings[i] != NULL; i++) {
           lref_t var_name = NIL;
           lref_t var_value = NIL;
 
@@ -59,8 +58,7 @@ lref_t lenvironment()
 
           var_name = strconsbufn(loc - current_var, current_var);
 
-          if (*loc)
-          {
+          if (*loc) {
                loc++;
 
                _TCHAR *current_value = loc;
@@ -154,8 +152,7 @@ lref_t file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 
      lref_t file_type = NULL;
 
-     switch (info->_filetype)
-     {
+     switch (info->_filetype) {
      case SYS_FT_REG:
           file_type = keyword_intern(_T("file"));
           break;
@@ -246,19 +243,14 @@ lref_t lidirectory(lref_t dn, lref_t m)
      if (!STRINGP(dn))
           vmerror_wrong_type_n(1, dn);
 
-     if (SYMBOLP(m))
-     {
-          if (keyword_intern("directories") == m)
-          {
+     if (SYMBOLP(m)) {
+          if (keyword_intern("directories") == m) {
                include_dirs = true;
                include_files = false;
-          }
-          else if (keyword_intern("files") == m)
-          {
+          } else if (keyword_intern("files") == m) {
                include_dirs = false;
                include_files = true;
-          }
-          else if (keyword_intern("all") != m)
+          } else if (keyword_intern("all") != m)
                vmerror_arg_out_of_range(m, _T(":directories, :files, or :all"));
      }
      else if (!NULLP(m))
@@ -274,8 +266,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
      struct sys_dir_t *d;
      enum sys_retcode_t rc;
 
-     if ((rc = sys_opendir(dirname, &d)) != SYS_OK)
-     {
+     if ((rc = sys_opendir(dirname, &d)) != SYS_OK) {
           vmerror_io_error(_T("Error opening directory"), dn);
           return NIL;
      }
@@ -284,8 +275,7 @@ lref_t lidirectory(lref_t dn, lref_t m)
 
      bool done = false;
 
-     for (;;)
-     {
+     for (;;) {
           struct sys_dirent_t entry;
 
           rc = sys_readdir(d, &entry, &done);   /* rc preserved 'til end of loop */
@@ -293,16 +283,13 @@ lref_t lidirectory(lref_t dn, lref_t m)
           if (done)
                break;
 
-          if (entry._type == SYS_FT_DIR)
-          {
+          if (entry._type == SYS_FT_DIR) {
                if (!include_dirs)
                     continue;
 
                filenames = lcons(strconsbuf1(entry._name, _T('/')), filenames);
 
-          }
-          else
-          {
+          } else {
                if (!include_files)
                     continue;
 
@@ -312,14 +299,12 @@ lref_t lidirectory(lref_t dn, lref_t m)
 
      enum sys_retcode_t cdrc = sys_closedir(d);
 
-     if (rc != SYS_OK)          /* rc from sys_readdir, to report errors from scan. */
-     {
+     if (rc != SYS_OK) {         /* rc from sys_readdir, to report errors from scan. */
           vmerror_io_error(_T("Error reading directory"), dn);
           return NIL;
      }
 
-     if (cdrc != SYS_OK)
-     {
+     if (cdrc != SYS_OK) {
           vmerror_io_error(_T("Error closing directory"), dn);
      }
 
@@ -472,8 +457,7 @@ static lref_t sha1_encode_digest(uint8_t *digest)
 {
      _TCHAR encoded_digest[CC_SHA1_DIGEST_LENGTH * 2];
 
-     for(size_t ii = 0; ii < CC_SHA1_DIGEST_LENGTH; ii++)
-     {
+     for(size_t ii = 0; ii < CC_SHA1_DIGEST_LENGTH; ii++) {
           encoded_digest[ii * 2 + 0] = hexchar((digest[ii] >> 4) & 0xF);
           encoded_digest[ii * 2 + 1] = hexchar((digest[ii] >> 0) & 0xF);
      }
