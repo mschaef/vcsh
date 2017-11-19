@@ -186,6 +186,7 @@
 (%define pair? #.(host-scheme::%subr-by-name "pair?"))
 (%define peek-char #.(host-scheme::%subr-by-name "peek-char"))
 (%define port? #.(host-scheme::%subr-by-name "port?"))
+(%define port-class-name #.(host-scheme::%subr-by-name "port-class-name"))
 (%define port-column #.(host-scheme::%subr-by-name "port-column"))
 (%define port-row #.(host-scheme::%subr-by-name "port-row"))
 (%define port-name #.(host-scheme::%subr-by-name "port-name"))

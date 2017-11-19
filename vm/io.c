@@ -172,7 +172,6 @@ lref_t lport_openp(lref_t obj)
      return boolcons(!PORT_CLOSEDP(obj));
 }
 
-
 lref_t lport_name(lref_t port)
 {
      if (NULLP(port))
@@ -182,6 +181,17 @@ lref_t lport_name(lref_t port)
           vmerror_wrong_type_n(1, port);
 
      return PORT_PINFO(port)->port_name;
+}
+
+lref_t lport_class_name(lref_t port)
+{
+     if (NULLP(port))
+          port = CURRENT_INPUT_PORT();
+
+     if (!PORTP(port))
+          vmerror_wrong_type_n(1, port);
+
+     return strconsbuf(PORT_CLASS(port)->name);
 }
 
 lref_t lclose_port(lref_t port)
@@ -305,7 +315,7 @@ bool read_binary_flonum(lref_t port, flonum_t *result)
      assert(BINARY_PORTP(port));
 
      uint8_t bytes[sizeof(flonum_t)];
-     
+
      if (read_bytes(port, bytes, sizeof(flonum_t)) != sizeof(flonum_t))
           return false;
 

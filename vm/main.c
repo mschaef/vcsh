@@ -422,6 +422,7 @@ static void register_main_subrs()
     register_subr(_T("pair?"),                            SUBR_1,     (void*)lconsp                              );
     register_subr(_T("peek-char"),                        SUBR_1,     (void*)lpeek_char                          );
     register_subr(_T("port?"),                            SUBR_1,     (void*)lportp                              );
+    register_subr(_T("port-class-name"),                  SUBR_1,     (void*)lport_class_name                    );
     register_subr(_T("port-closed?"),                     SUBR_1,     (void*)lport_closedp                       );
     register_subr(_T("port-column"),                      SUBR_1,     (void*)lport_column                        );
     register_subr(_T("port-row"),                         SUBR_1,     (void*)lport_row                           );
@@ -535,8 +536,7 @@ static void global_environment_asserts()
 
 static void load_init_load_files()
 {
-     for (size_t ii = 0; ii < interp.init_load_file_count; ii++)
-     {
+     for (size_t ii = 0; ii < interp.init_load_file_count; ii++) {
           lref_t fname = strconsbuf(interp.init_load_file_name[ii]);
 
           dscwritef(DF_ALWAYS, ("; Init Loading ~a...\n", fname));

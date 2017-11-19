@@ -618,6 +618,7 @@
              port-at-end?
              port-closed?
              port-column
+             port-class-name
              port-location
              port-row
              port-mode

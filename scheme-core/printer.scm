@@ -354,7 +354,9 @@
 
 (define-method  (print-object (obj port) port machine-readable? shared-structure-map)
   (print-unreadable-object obj port
-    (write-strings port " name:")
+    (write-strings port "(")
+    (write-strings port (port-class-name obj))
+    (write-strings port ") name:")
     (print (port-name obj) port machine-readable? #f)
     (write-strings port " ")
     (when (binary-port? obj)
