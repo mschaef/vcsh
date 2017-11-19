@@ -37,47 +37,38 @@ static size_t string_storage_size(size_t str_size)
 {
      size_t buf_size = 16;
 
-     while (buf_size <= str_size)
-     {
+     while (buf_size <= str_size) {
           buf_size <<= 1;
      }
 
      return buf_size;
 }
 
-lref_t strrecons(lref_t obj, size_t new_length)
+static void string_ensure_space(lref_t str, size_t new_dim)
 {
-     size_t space_needed;
-     size_t space_already_allocated = 0;
+     size_t new_bufsize;
+     size_t old_bufsize;
 
-     space_needed = string_storage_size(new_length);
+     old_bufsize = string_storage_size(str->as.string.dim);
+     new_bufsize = string_storage_size(new_dim);
 
-     if (obj->as.string.data != NULL)
-          space_already_allocated = string_storage_size(obj->as.string.dim);
+     if (old_bufsize == new_bufsize)
+          return;
 
-     if (space_already_allocated != space_needed) {
-          _TCHAR *new_buffer = (_TCHAR *)gc_malloc(space_needed);
+     _TCHAR *new_buffer = (_TCHAR *)gc_malloc(new_bufsize);
 
-          if (obj->as.string.data) {
-               memcpy(new_buffer, obj->as.string.data, obj->as.string.dim);
+     memcpy(new_buffer, str->as.string.data, str->as.string.dim);
+     gc_free(str->as.string.data);
 
-               gc_free(obj->as.string.data);
-          }
-
-          obj->as.string.data = new_buffer;
-     }
-
-     obj->as.string.dim = new_length;
-
-     return obj;
+     str->as.string.data = new_buffer;
 }
 
-static void allocate_string_buffer(lref_t obj, size_t length)
+static void string_allocate_buffer(lref_t obj, size_t length)
 {
-     obj->as.string.data = NULL;
-     obj->as.string.dim = 0;
+     size_t space_needed = string_storage_size(length);
 
-     strrecons(obj, length);
+     obj->as.string.data = (_TCHAR *)gc_malloc(space_needed);
+     obj->as.string.dim = length;
 }
 
 lref_t strcons()
@@ -121,7 +112,7 @@ lref_t strconsbufn(size_t length, const _TCHAR * buffer)
 {
      lref_t new_string = new_cell(TC_STRING);
 
-     allocate_string_buffer(new_string, length);
+     string_allocate_buffer(new_string, length);
 
      if (buffer) {
           memcpy(new_string->as.string.data, buffer, length);
@@ -130,69 +121,89 @@ lref_t strconsbufn(size_t length, const _TCHAR * buffer)
      return new_string;
 }
 
-lref_t lstringp(lref_t x)
+lref_t lstringp(lref_t obj)
 {
-     if (STRINGP(x))
-          return x;
+     if (STRINGP(obj))
+          return obj;
      else
           return boolcons(false);
 }
 
-lref_t lstring_length(lref_t string)
-{
-     if (!STRINGP(string))
-          vmerror_wrong_type_n(1, string);
-
-     return fixcons(string->as.string.dim);
+size_t string_length(lref_t str) {
+     return str->as.string.dim;
 }
 
-
-lref_t lstring_copy(lref_t string)
+lref_t lstring_length(lref_t str)
 {
-     if (!STRINGP(string))
-          vmerror_wrong_type_n(1, string);
+     if (!STRINGP(str))
+          vmerror_wrong_type_n(1, str);
 
-     return strconsdup(string);
+     return fixcons(string_length(str));
 }
 
-lref_t lstring_ref(lref_t a, lref_t i)
+lref_t lstring_copy(lref_t str)
 {
-     if (!STRINGP(a))
-          vmerror_wrong_type_n(1, a);
+     if (!STRINGP(str))
+          vmerror_wrong_type_n(1, str);
 
-     if (!FIXNUMP(i))
-          vmerror_wrong_type_n(2, i);
-
-     fixnum_t k = get_c_fixnum(i);
-
-     if ((k < 0) || ((size_t) k >= a->as.string.dim))
-          vmerror_index_out_of_bounds(i, a);
-
-     return charcons(a->as.string.data[k]);
+     return strconsdup(str);
 }
 
-lref_t lstring_set(lref_t a, lref_t i, lref_t v)
+_TCHAR string_ref(lref_t str, size_t index) {
+     return str->as.string.data[index];
+}
+
+lref_t lstring_ref(lref_t str, lref_t idx_)
 {
-     if (!STRINGP(a))
-          vmerror_wrong_type_n(1, a);
+     if (!STRINGP(str))
+          vmerror_wrong_type_n(1, str);
 
-     if (!FIXNUMP(i))
-          vmerror_wrong_type_n(2, i);
+     if (!FIXNUMP(idx_))
+          vmerror_wrong_type_n(2, idx_);
 
-     fixnum_t k = get_c_fixnum(i);
+     fixnum_t idx = get_c_fixnum(idx_);
 
-     if ((k < 0) || ((size_t) k >= a->as.string.dim))
-          vmerror_index_out_of_bounds(i, a);
+     if ((idx < 0) || ((size_t) idx >= string_length(str)))
+          vmerror_index_out_of_bounds(idx_, str);
+
+     return charcons(string_ref(str, idx));
+}
+
+lref_t lstring_set(lref_t str, lref_t idx_, lref_t v)
+{
+     if (!STRINGP(str))
+          vmerror_wrong_type_n(1, str);
+
+     if (!FIXNUMP(idx_))
+          vmerror_wrong_type_n(2, idx_);
+
+     fixnum_t idx = get_c_fixnum(idx_);
+
+     if ((idx < 0) || ((size_t) idx >= string_length(str)))
+          vmerror_index_out_of_bounds(idx_, str);
 
      if (FIXNUMP(v)) {
-          a->as.string.data[k] = (_TCHAR)FIXNM(v);
+          str->as.string.data[idx] = (_TCHAR)FIXNM(v);
      } else if (CHARP(v)) {
-          a->as.string.data[k] = CHARV(v);
+          str->as.string.data[idx] = CHARV(v);
      } else {
           vmerror_wrong_type_n(3, v);
      }
 
-     return (a);
+     return str;
+}
+
+void string_appendd(lref_t str, const _TCHAR *buf, size_t len)
+{
+     assert(STRINGP(str));
+
+     size_t size = str->as.string.dim;
+
+     string_ensure_space(str, size + len);
+
+     str->as.string.dim += len;
+
+     memcpy(&(str->as.string.data[size]), buf, len);
 }
 
 lref_t lstring_append(size_t argc, lref_t argv[])
@@ -224,8 +235,7 @@ lref_t lstring_append(size_t argc, lref_t argv[])
      _TCHAR *data = s->as.string.data;
      size_t pos = 0;
 
-     for (size_t ii = 0; ii < argc; ii++)
-     {
+     for (size_t ii = 0; ii < argc; ii++) {
           current_string = argv[ii];
 
           if (SYMBOLP(current_string))
@@ -340,8 +350,7 @@ lref_t lstring_search_from_right(lref_t tok, lref_t str, lref_t maybe_from)
      while (str_loc < str->as.string.dim) {
           size_t tok_loc = tok->as.string.dim - 1;
 
-          while (tok_data[tok_loc] == str_data[str_loc - (tok->as.string.dim - tok_loc - 1)])
-          {
+          while (tok_data[tok_loc] == str_data[str_loc - (tok->as.string.dim - tok_loc - 1)]) {
                if (tok_loc == 0)
                     return fixcons(str_loc - (tok->as.string.dim - 1));
 
@@ -371,7 +380,6 @@ lref_t lstring_trim(lref_t str, lref_t tc)
 
           trim_chars = buffer;
      }
-
 
      size_t start = 0;
      size_t end = str->as.string.dim;
@@ -483,8 +491,7 @@ lref_t lisp_strcmp(lref_t string_1, lref_t string_2)
      if (!STRINGP(string_2))
           vmerror_wrong_type_n(2, string_2);
 
-     for (loc = 0; (loc < string_1->as.string.dim) && (loc < string_2->as.string.dim); loc++)
-     {
+     for (loc = 0; (loc < string_1->as.string.dim) && (loc < string_2->as.string.dim); loc++) {
           _TCHAR char_1 = string_1->as.string.data[loc];
           _TCHAR char_2 = string_2->as.string.data[loc];
 
@@ -511,8 +518,7 @@ lref_t lisp_stricmp(lref_t string_1, lref_t string_2)
      if (!STRINGP(string_2))
           vmerror_wrong_type_n(2, string_2);
 
-     for (loc = 0; (loc < string_1->as.string.dim) && (loc < string_2->as.string.dim); loc++)
-     {
+     for (loc = 0; (loc < string_1->as.string.dim) && (loc < string_2->as.string.dim); loc++) {
           _TCHAR char_1 = string_1->as.string.data[loc];
           _TCHAR char_2 = string_2->as.string.data[loc];
 
@@ -549,8 +555,7 @@ lref_t lstring_first_char(lref_t string, lref_t char_set, lref_t maybe_initial_o
      size_t loc = get_string_offset(maybe_initial_ofs);
      _TCHAR *str = string->as.string.data;
 
-     for (; loc < string->as.string.dim; loc++)
-     {
+     for (; loc < string->as.string.dim; loc++) {
           if (TRUEP(char_set->as.vector.data[(size_t)str[loc]]))
                return fixcons(loc);
      }
@@ -573,8 +578,7 @@ lref_t lstring_first_substring(lref_t string, lref_t char_set, lref_t maybe_init
      size_t loc = get_string_offset(maybe_initial_ofs);
      _TCHAR *str = string->as.string.data;
 
-     for (; loc < string->as.string.dim; loc++)
-     {
+     for (; loc < string->as.string.dim; loc++) {
           if (!TRUEP(char_set->as.vector.data[(size_t)str[loc]]))
                break;
 
@@ -597,25 +601,12 @@ lref_t lcharacter2string(lref_t obj)
      return strconsch(buf);
 }
 
-
-void string_appendd(lref_t str, const _TCHAR *buf, size_t len)
-{
-     assert(STRINGP(str));
-
-     size_t size = str->as.string.dim;
-
-     strrecons(str, size + len);
-
-     memcpy(&(str->as.string.data[size]), buf, len);
-}
-
 int get_c_string(lref_t obj, size_t buflen, _TCHAR *buf)
 {
      assert(buflen > 0);
      assert(buf);
 
-     if (SYMBOLP(obj))
-     {
+     if (SYMBOLP(obj)) {
           obj = SYMBOL_PNAME(obj);
 
           assert(STRINGP(obj));

@@ -28,7 +28,7 @@ INLINE lref_t PORT_STRING(lref_t port)
 
 size_t input_string_port_length(lref_t port)
 {
-     return PORT_STRING(port)->as.string.dim;
+     return string_length(PORT_STRING(port));
 }
 
 int input_string_port_peek_char(lref_t port)
@@ -36,31 +36,31 @@ int input_string_port_peek_char(lref_t port)
      lref_t port_str = PORT_STRING(port);
      struct port_text_info_t *pti = PORT_TEXT_INFO(port);
 
-     if (pti->str_ofs >= port_str->as.string.dim)
+     if (pti->str_ofs >= string_length(port_str))
           return -1;
 
-     return port_str->as.string.data[pti->str_ofs];
+     return string_ref(port_str, pti->str_ofs);
 }
 
 size_t input_string_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
 {
      size_t chars_read;
-
      lref_t port_str = PORT_STRING(port);
-     size_t str_len = port_str->as.string.dim;
+
      struct port_text_info_t *pti = PORT_TEXT_INFO(port);
 
      for (chars_read = 0; chars_read < size; chars_read++) {
-          if (pti->str_ofs >= str_len)
+          if (pti->str_ofs >= string_length(port_str))
                break;
 
-          buf[chars_read] = port_str->as.string.data[pti->str_ofs];
+          buf[chars_read] = string_ref(port_str, pti->str_ofs);
 
           pti->str_ofs++;
      }
 
      return chars_read;
 }
+
 struct port_class_t input_string_port_class = {
      _T("STRING-INPUT"),
 
@@ -96,7 +96,7 @@ lref_t lopen_input_string(lref_t string)
 
 size_t output_string_port_length(lref_t port)
 {
-     return PORT_STRING(port)->as.string.dim;
+     return string_length(PORT_STRING(port));
 }
 
 size_t output_string_port_write_chars(lref_t port, const _TCHAR *buf, size_t size)

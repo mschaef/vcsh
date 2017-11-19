@@ -269,6 +269,9 @@ lref_t vector_resize(lref_t vec, size_t new_size, lref_t new_element);
 
 void string_appendd(lref_t str, const _TCHAR *buf, size_t len);
 
+size_t string_length(lref_t str);
+_TCHAR string_ref(lref_t str, size_t index);
+
 /**** Macro constructor ****/
 
 lref_t macrocons(lref_t t);
