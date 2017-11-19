@@ -34,15 +34,12 @@ int read_char(lref_t port)
 
      int ch = EOF;
 
-     if (PORT_TEXT_INFO(port)->pbuf_valid)          
-     {
+     if (PORT_TEXT_INFO(port)->pbuf_valid) {
           /* Unread buffer */
           PORT_TEXT_INFO(port)->pbuf_valid = false;
 
           ch = PORT_TEXT_INFO(port)->pbuf;
-     }
-     else
-     {
+     } else {
           /* Specific string read handling. */
           _TCHAR tch;
 
@@ -51,13 +48,11 @@ int read_char(lref_t port)
      }
 
      /* Update the text position indicators */
-     if (ch == '\n')
-     {
+     if (ch == '\n') {
           PORT_TEXT_INFO(port)->pline_mcol = PORT_TEXT_INFO(port)->col;
           PORT_TEXT_INFO(port)->col = 0;
           PORT_TEXT_INFO(port)->row++;
-     }
-     else
+     } else
           PORT_TEXT_INFO(port)->col++;
 
      return ch;
@@ -66,7 +61,7 @@ int read_char(lref_t port)
 int peek_char(lref_t port)
 {
      assert(TEXT_PORTP(port) && PORT_INPUTP(port));
-     
+
      if (PORT_CLASS(port)->peek_char == NULL)
           vmerror_unsupported(_T("Peek not supported on this port."));
 
@@ -139,14 +134,13 @@ lref_t lport_set_translate_mode(lref_t port, lref_t mode)
      return boolcons(old_translate_mode);
 }
 
-
 /*** Text Input ***/
 
 lref_t lread_char(lref_t port)
 {
      if (NULLP(port))
           port = CURRENT_INPUT_PORT();
-      
+
      if (!TEXT_PORTP(port))
           vmerror_wrong_type_n(1, port);
 
@@ -189,15 +183,14 @@ static int flush_whitespace(lref_t port, bool skip_lisp_comments)
 {
      int c = '\0';
 
-     while(c != EOF)
-     {
+     while(c != EOF) {
           c = peek_char(port);
-          
+
           if ((c == _T(';')) && skip_lisp_comments) {
                flush_lisp_comment(port);
                continue;
           }
-                 
+
           if (!_istspace(c) && (c != _T('\0')))
                break;
 
@@ -265,8 +258,7 @@ lref_t lwrite_strings(size_t argc, lref_t argv[])
      if (PORT_INPUTP(port))
           vmerror_unsupported(_T("cannot write-strings to input ports"));
 
-     for (size_t ii = 1; ii < argc; ii++)
-     {
+     for (size_t ii = 1; ii < argc; ii++) {
           lref_t str = argv[ii];
 
           if (STRINGP(str)) {
@@ -326,8 +318,7 @@ lref_t lread_line(lref_t port)
 
      bool read_anything = false;
 
-     for (ch = read_char(port); (ch != EOF) && (ch != _T('\n')); ch = read_char(port))
-     {
+     for (ch = read_char(port); (ch != EOF) && (ch != _T('\n')); ch = read_char(port)) {
           read_anything = true;
 
           write_char(op, ch);
@@ -363,12 +354,10 @@ lref_t lfresh_line(lref_t port)
      if (!TEXT_PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-
      if (PORT_INPUTP(port))
           vmerror_unsupported(_T("cannot fresh-line to input ports"));
 
-     if ((PORT_TEXT_INFO(port)->col != 0) && !PORT_TEXT_INFO(port)->needs_lf)
-     {
+     if ((PORT_TEXT_INFO(port)->col != 0) && !PORT_TEXT_INFO(port)->needs_lf) {
           lnewline(port);
           return boolcons(true);
      }
@@ -413,8 +402,7 @@ int text_port_peek_char(lref_t port)
      assert(!PORT_TEXT_INFO(port)->pbuf_valid);
 
      /* Update position. */
-     switch (ch)
-     {
+     switch (ch) {
      case '\n':
           PORT_TEXT_INFO(port)->col = PORT_TEXT_INFO(port)->pline_mcol;
           PORT_TEXT_INFO(port)->row--;
@@ -439,8 +427,7 @@ size_t text_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
 {
      size_t chars_read = 0;
 
-     while(chars_read < size)
-     {
+     while(chars_read < size) {
           _TCHAR ch;
 
           if (read_bytes(PORT_UNDERLYING(port), &ch, sizeof(_TCHAR)) == 0)
@@ -449,15 +436,11 @@ size_t text_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
           /* translation mode forces all input newlines (CR, LF,
            * CR+LF) into LF's.
            */
-          if (PORT_TEXT_INFO(port)->translate)
-          {
-               if (ch == '\r')
-               {
+          if (PORT_TEXT_INFO(port)->translate) {
+               if (ch == '\r') {
                     ch = '\n';
                     PORT_TEXT_INFO(port)->needs_lf = TRUE;
-               }
-               else if (PORT_TEXT_INFO(port)->needs_lf)
-               {
+               } else if (PORT_TEXT_INFO(port)->needs_lf) {
                     PORT_TEXT_INFO(port)->needs_lf = FALSE;
 
                     /*  Avoid double counting newline. */
@@ -478,12 +461,10 @@ size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
       * by line seperators. write_bytes is called for each block to
       * actually do the write, and line seperators are correctly
       * translated to CR+LF pairs. */
-     for (size_t pos = 0; pos < count;)
-     {
+     for (size_t pos = 0; pos < count;) {
           unsigned int c = _T('\0');
           /* Emit a needed LF, if necessary. */
-          if (PORT_TEXT_INFO(port)->needs_lf)
-          {
+          if (PORT_TEXT_INFO(port)->needs_lf) {
                if (buf[pos] == _T('\n'))
                     pos++;
 
@@ -498,8 +479,7 @@ size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
           /* Scan for the next eoln character, it ends the block... */
           size_t eoln_pos;
 
-          for (eoln_pos = pos; (eoln_pos < count); eoln_pos++)
-          {
+          for (eoln_pos = pos; (eoln_pos < count); eoln_pos++) {
                c = buf[eoln_pos];
 
                if ((c == '\n') || (c == '\r'))
@@ -508,10 +488,8 @@ size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
 
           size_t seg_len = eoln_pos - pos;
 
-          if (seg_len  == 0)
-          {
-               switch (c)
-               {
+          if (seg_len  == 0) {
+               switch (c) {
                case _T('\n'):
                     if (PORT_TEXT_INFO(port)->translate)
                          write_bytes(PORT_UNDERLYING(port), _T("\r\n"), 2 * sizeof(_TCHAR));
@@ -532,9 +510,7 @@ size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
                }
 
                eoln_pos++;
-          }
-          else
-          {
+          } else {
                PORT_TEXT_INFO(port)->col += seg_len;
 
                write_bytes(PORT_UNDERLYING(port), &(buf[pos]), seg_len * sizeof(_TCHAR));

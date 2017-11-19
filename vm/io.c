@@ -309,7 +309,6 @@ MAKE_LREAD_BINARY_FIXNUM(int32)
 MAKE_LREAD_BINARY_FIXNUM(uint64)
 MAKE_LREAD_BINARY_FIXNUM(int64)
 
-
 bool read_binary_flonum(lref_t port, flonum_t *result)
 {
      assert(BINARY_PORTP(port));
