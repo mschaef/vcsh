@@ -106,7 +106,8 @@
       (let* ((prefix (if internal-type? "%" ""))
              (slots-meta (map #L(parse-structure-slot _ prefix base-name) slots-spec))
              (name (intern! base-name pkg))
-             (layout (list name (slots->layout slots-meta))))
+             (layout (list name (slots->layout slots-meta)))
+             (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
         (define (slot-procedures)
           (append-map (lambda (slot-defn)
                         `(,@(aif (cdr (assoc :set slot-defn))
@@ -123,11 +124,12 @@
                     (list layout (cons :documentation doc-string)
                           (cons :slots slots-meta))
                     (list layout (cons :slots slots-meta)))
-                (cons* (list :constructor (intern! #"${prefix}make-${base-name}" pkg)
+                (cons* (list :constructor constructor-name
                              (slot-defaults))
                        (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
                        (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
-                       (slot-procedures)))))))
+                       (slot-procedures))
+                constructor-name)))))
 
 
 (define *global-structure-dictionary* ())
@@ -158,7 +160,7 @@
          #f)))
 
 
-(define (%register-structure-type! structure-type-name meta)
+(define (%register-structure-type! structure-type-name meta constructor-name)
   "Registers a new structure type, <name>, with metadata <meta>. This includes
    de-registering any older type of the same name, and orphaning any existing
    objects of that type."
@@ -171,6 +173,7 @@
   (make-class< structure-type-name 'structure)
   ;; Register the type itself.
   (set-property! structure-type-name 'structure-meta meta)
+  (set-property! structure-type-name 'structure-constructor constructor-name)
   (unless (member structure-type-name *global-structure-dictionary*)
     (push! structure-type-name *global-structure-dictionary*)))
 
@@ -274,7 +277,7 @@
 
 (define (make-structure-by-name type-name . args)
   (aif (get-property type-name 'structure-constructor)
-       (apply it args)
+       (apply (symbol-value it) args)
        (error "Structure type not found: ~s" type-name)))
 
 (define (structure-slot-by-name structure slot-name)
@@ -312,7 +315,7 @@
          (error "Invalid value for slot-set!: ~s"))))
 
 (defmacro (define-structure name . slots)
-  (mvbind (name meta procs) (parse-structure-definition name slots)
+  (mvbind (name meta procs constructor-name) (parse-structure-definition name slots)
     (let ((layout (car meta)))
       (define (structure-docs)
         (aif (assoc :documentation meta)
@@ -327,11 +330,9 @@
       (define (constructor-form proc-name defaults)
         (let ((defaults (map #L(list (car _) (gensym _) (cdr _)) defaults)))
           (with-gensyms (initial-values-sym structure-sym)
-              `(begin
-                 (define (,proc-name :keyword ,@defaults)
-                   ,#"Constructs a new instance of structure type ${name}. ${(structure-docs)}"
-                   (%structurecons (vector ,@(map cadr defaults)) ',layout))
-                 (set-property! ',name 'structure-constructor ,proc-name)))))
+            `(define (,proc-name :keyword ,@defaults)
+               ,#"Constructs a new instance of structure type ${name}. ${(structure-docs)}"
+               (%structurecons (vector ,@(map cadr defaults)) ',layout)))))
       (define (copier-form proc-name)
         `(define (,proc-name s)
            ,#"Copies an instance <s> of structure type ${name}, throwing an error
@@ -376,6 +377,5 @@
                            (#t (error "Invalid structure procedure type, ~s" (car proc))))
                          (cdr proc)))
                 procs)
-         (%register-structure-type! ',name ',meta)
+         (%register-structure-type! ',name ',meta ',constructor-name)
          ',name))))
-
