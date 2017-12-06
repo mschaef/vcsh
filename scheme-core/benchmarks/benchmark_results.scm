@@ -4247,5 +4247,6 @@
 #S(benchmark-result :seq 7354 :system ("mschae-mba-osx" :linux :debug) :test-name write-char-to-string :timings (23.2121 23.2121) :run-time #D"2017-02-03T17:41:09-0500")
 #S(benchmark-result :seq 7355 :system ("mschae-mba-osx" :linux :debug) :test-name write-strings-to-string :timings (5.45427 5.45427) :run-time #D"2017-02-03T17:41:20-0500")
 #S(benchmark-result :seq 7356 :system ("mschae-mba-osx" :linux :debug) :test-name type-determination :timings (129.199 97.3999) :run-time #D"2017-12-06T05:59:08-0500")
+#S(benchmark-result :seq 7357 :system ("mschae-mba-osx" :linux :debug) :test-name structure/write :timings (13895.9 9935.84) :run-time #D"2017-12-06T10:43:46-0500")
+#S(benchmark-result :seq 7358 :system ("mschae-mba-osx" :linux :debug) :test-name type-determination :timings (68.9082 49.2395) :run-time #D"2017-12-06T10:44:05-0500")
 ; end benchmark results
-

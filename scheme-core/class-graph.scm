@@ -11,8 +11,7 @@
 ;;;; WARRANTIES.
 
 (define *typecode-map*
-  {
-   #.system::TC_FREE_CELL      'free-cell  
+  {#.system::TC_FREE_CELL      'free-cell  
    #.system::TC_NIL            'nil  
    #.system::TC_BOOLEAN        'boolean  
    #.system::TC_CONS           'cons  
@@ -34,9 +33,7 @@
    #.system::TC_UNBOUND_MARKER 'unbound-marker 
    #.system::TC_GC_TRIP_WIRE   'trip-wire 
    #.system::TC_FAST_OP        'fast-op
-   #.system::TC_FASL_READER    'fasl-reader
-   }
-  )
+   #.system::TC_FASL_READER    'fasl-reader})
 
 (define (typecode->name tc)
   "Given a numeric typecode <tc>, return the symbolic name for the
@@ -49,7 +46,7 @@ type. If there is no valid typecode of that name, returns #f."
         (if (complex? obj)
             'complex
             'flonum)
-        (typecode->name tc))))
+        (hash-ref *typecode-map* tc #f))))
 
 (define *class-graph* (make-hash))
 
@@ -159,4 +156,3 @@ type. If there is no valid typecode of that name, returns #f."
          (hash-ref obj 'type-of 'hash))
         (#t
          (%representation-of obj))))
-
