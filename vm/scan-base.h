@@ -247,7 +247,7 @@ enum
      FAST_LOAD_STACK_DEPTH = 16,
 
      /*  The number of arguments contained in argment buffers */
-     ARG_BUF_LEN = 32,
+     ARG_BUF_LEN = 64,
 
      /*  The number of cells on a sub-freelist */
      SUB_FREELIST_SIZE = 1024,
