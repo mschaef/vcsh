@@ -719,9 +719,10 @@
        (set-benchmark-structure-f3! structure :baz)))))
 
 (defbench structure/read
-  (account
-   (bench-repeat 10000
-                 (read-from-string "#S(benchmark-structure :f1 1 :f2 2 :f3 3)"))))
+  (with-package "bench"
+    (account
+     (bench-repeat 10000
+       (read-from-string "#S(benchmark-structure :f1 1 :f2 2 :f3 3)")))))
 
 (defbench structure/write
   (let ((op (open-null-output-port)))
