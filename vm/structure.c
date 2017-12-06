@@ -31,42 +31,12 @@ lref_t lcopy_structure(lref_t st)
      return new_st;
 }
 
-static void validate_structure_layout(size_t slots, lref_t layout)
-{
-     if (!CONSP(layout))
-          vmerror_wrong_type_n(2, layout);
-
-     size_t len = (size_t) get_c_long(llength(layout));
-
-     if (len != 2)
-          vmerror_arg_out_of_range(layout, _T("bad structure layout, length<>2"));
-
-     lref_t slot_layout = CAR(CDR(layout));
-
-     if (get_c_long(llength(slot_layout)) != (long) slots)
-          vmerror_arg_out_of_range(lcons(slot_layout, fixcons(slots)),
-                                   _T("bad structure layout, wrong number of slots"));
-
-     for (; CONSP(slot_layout); slot_layout = CDR(slot_layout))
-     {
-          if (!CONSP(CAR(slot_layout)))
-               vmerror_arg_out_of_range(lcons(slot_layout, layout),
-                                        _T("bad structure layout, bad slot layout"));
-
-          if (!SYMBOLP(CAR(CAR(slot_layout))))
-               vmerror_arg_out_of_range(layout,
-                                        _T("bad structure layout, missing slot name"));
-     }
-}
-
 lref_t lstructurecons(lref_t slots, lref_t layout)
 {
      if (!VECTORP(slots))
           vmerror_wrong_type_n(1, slots);
 
      size_t len = slots->as.vector.dim;
-
-     validate_structure_layout(len, layout);
 
      lref_t st = new_cell(TC_STRUCTURE);
 
