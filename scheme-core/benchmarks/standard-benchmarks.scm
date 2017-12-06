@@ -6,7 +6,6 @@
 	(list-from-by-1 (+ b inc) (- elems 1) (cons b accum))))
   (list-from-by-1 b elems '()))
 
-
 (defbench exec-loop-repeat
   (account
    (bench-repeat 100000 1)))
@@ -882,6 +881,13 @@
                '{(f r o b o z z l e) 23
                  [1 2 3 4 2 2 3] 23
                  (h e l l o - w o r l d) 123}))))
+
+(defbench type-determination
+  (account
+   (bench-repeat 40000
+     (type-of "string")
+     (type-of 123)
+     (type-of 'a))))
 
 (define (fast-bench)
   "Run the benchmark suite on a useful subset of the overall
