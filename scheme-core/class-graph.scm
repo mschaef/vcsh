@@ -10,34 +10,38 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
+(define *typecode-map*
+  {
+   #.system::TC_FREE_CELL      'free-cell  
+   #.system::TC_NIL            'nil  
+   #.system::TC_BOOLEAN        'boolean  
+   #.system::TC_CONS           'cons  
+   #.system::TC_FIXNUM         'fixnum  
+   #.system::TC_FLONUM         'flonum  
+   #.system::TC_CHARACTER      'character  
+   #.system::TC_SYMBOL         'symbol  
+   #.system::TC_PACKAGE        'package  
+   #.system::TC_SUBR           'subr  
+   #.system::TC_CLOSURE        'closure 
+   #.system::TC_MACRO          'macro 
+   #.system::TC_STRING         'string 
+   #.system::TC_VECTOR         'vector 
+   #.system::TC_STRUCTURE      'structure 
+   #.system::TC_HASH           'hash 
+   #.system::TC_PORT           'port 
+   #.system::TC_END_OF_FILE    'end-of-file 
+   #.system::TC_VALUES_TUPLE   'values-tuple 
+   #.system::TC_UNBOUND_MARKER 'unbound-marker 
+   #.system::TC_GC_TRIP_WIRE   'trip-wire 
+   #.system::TC_FAST_OP        'fast-op
+   #.system::TC_FASL_READER    'fasl-reader
+   }
+  )
+
 (define (typecode->name tc)
   "Given a numeric typecode <tc>, return the symbolic name for the
 type. If there is no valid typecode of that name, returns #f."
-  (case tc
-    ((#.system::TC_FREE_CELL)      'free-cell)  
-    ((#.system::TC_NIL)            'nil)  
-    ((#.system::TC_BOOLEAN)        'boolean)  
-    ((#.system::TC_CONS)           'cons)  
-    ((#.system::TC_FIXNUM)         'fixnum)  
-    ((#.system::TC_FLONUM)         'flonum)  
-    ((#.system::TC_CHARACTER)      'character)  
-    ((#.system::TC_SYMBOL)         'symbol)  
-    ((#.system::TC_PACKAGE)        'package)  
-    ((#.system::TC_SUBR)           'subr)  
-    ((#.system::TC_CLOSURE)        'closure) 
-    ((#.system::TC_MACRO)          'macro) 
-    ((#.system::TC_STRING)         'string) 
-    ((#.system::TC_VECTOR)         'vector) 
-    ((#.system::TC_STRUCTURE)      'structure) 
-    ((#.system::TC_HASH)           'hash) 
-    ((#.system::TC_PORT)           'port) 
-    ((#.system::TC_END_OF_FILE)    'end-of-file) 
-    ((#.system::TC_VALUES_TUPLE)   'values-tuple) 
-    ((#.system::TC_UNBOUND_MARKER) 'unbound-marker) 
-    ((#.system::TC_GC_TRIP_WIRE)   'trip-wire) 
-    ((#.system::TC_FAST_OP)        'fast-op)
-    ((#.system::TC_FASL_READER)    'fasl-reader)
-    (#t #f)))
+  (hash-ref *typecode-map* tc #f))
 
 (define (%representation-of obj)
   (let ((tc (%typecode obj)))
