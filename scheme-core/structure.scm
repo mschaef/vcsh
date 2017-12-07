@@ -252,15 +252,6 @@
        slot-name
        #f))
 
-(define (initialize-structure structure slot-name/values)
-  "Initializes <structure> by setting the slots in <slot-name/values>
-   to the listed values. <slot-name/values> is a list in Common Lisp
-   property list syntax."
-  (p-list-fold (lambda (slot-name value structure)
-                 (set-structure-slot-by-name! structure slot-name value))
-               structure
-               slot-name/values))
-
 (define (copy-structure s)
   "Returns a duplicate copy of structure <s>, performing a slot-by-slot shallow
    copy."
