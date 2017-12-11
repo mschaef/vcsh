@@ -97,12 +97,9 @@
    <structure-spec> and a <slots-spet>, returning three values:
    the structure name, the structure metadata, and a list of
    procedures the structure definition s requested be created."
-  (let ((doc-string (aif (string? (car slots-spec)) it #f))
+  (let ((doc-string (aif (string? (car slots-spec)) it ""))
         (slots-spec (if (string? (car slots-spec)) (cdr slots-spec) slots-spec)))
-    (mvbind (pkg base-name internal-type?)
-        (parse-structure-name (if (pair? structure-spec)
-                                  (car structure-spec)
-                                  structure-spec))
+    (mvbind (pkg base-name internal-type?) (parse-structure-name structure-spec)
       (let* ((prefix (if internal-type? "%" ""))
              (slots-meta (map #L(parse-structure-slot _ prefix base-name) slots-spec))
              (name (intern! base-name pkg))
@@ -120,12 +117,10 @@
         (define (slot-defaults)
           (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
         (values name
-                (if doc-string
-                    (list layout (cons :documentation doc-string)
-                          (cons :slots slots-meta))
-                    (list layout (cons :slots slots-meta)))
-                (cons* (list :constructor constructor-name
-                             (slot-defaults))
+                (list layout
+                      (cons :documentation "")
+                      (cons :slots slots-meta))
+                (cons* (list :constructor constructor-name (slot-defaults))
                        (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
                        (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
                        (slot-procedures))
@@ -309,9 +304,7 @@
   (mvbind (name meta procs constructor-name) (parse-structure-definition name slots)
     (let ((layout (car meta)))
       (define (structure-docs)
-        (aif (assoc :documentation meta)
-             #"Type documentation: ${(cdr it)}"
-             ""))
+        (cdr (assoc :documentation meta)))
       (define (slot-docs slot-name)
         (let* ((slots (cdr (assoc :slots meta)))
                (slot (cdr (assoc slot-name slots))))
