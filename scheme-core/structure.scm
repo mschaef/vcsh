@@ -57,44 +57,40 @@
    is the name of the slot and whose cdr is an a-list completely describing
    the properties of the slot. If the slot specification is invalid,
    throws an appropriate error."
-  (let ((slot-spec (->list slot-spec)))
-    (let ((name (intern-keyword! (symbol-name (car slot-spec)))))
-      (define (validate-attr-value attr val)
-        (define (bad-value)
-          (error "Invalid structure slot specification: ~s, bad ~s, ~s"
-                 slot-spec attr val))
-        (case attr
-          ((:documentation) (unless (string? val) (bad-value)))
-          ((:get :set)      (unless (or (eq? val #f) (string? val)) (bad-value)))
-          ((:default)
-           () ; REVISIT: fix when the  body-less case clause error is fixed in the compiler
-           ;; anything is permissable here
-           )
-          (#t
-           (error "Invalid structure slot specification: ~s, bad attribute: ~s"
-                  slot-spec attr))))
+  (let* ((slot-spec (->list slot-spec))
+         (slot-name (intern-keyword! (symbol-name (car slot-spec)))))
+    (define (validate-attr-value attr val)
+      (define (bad-value)
+        (error "Invalid structure slot specification: ~s, bad ~s, ~s"
+               slot-spec attr val))
+      (case attr
+        ((:documentation) (unless (string? val) (bad-value)))
+        ((:get :set)      (unless (or (eq? val #f) (string? val)) (bad-value)))
+        ((:default)
+         () ; REVISIT: fix when the  body-less case clause error is fixed in the compiler
+         ;; anything is permissable here
+         )
+        (#t
+         (error "Invalid structure slot specification: ~s, bad attribute: ~s"
+                slot-spec attr))))
 
-      (let ((doc-string (aif (string? (cadr slot-spec)) it #f))
-            (slot-spec (if (string? (cadr slot-spec))
-                           (cddr slot-spec) (cdr slot-spec)))
-            (base-alist (alist :name name
-                               :default ()
-                               :get #"${prefix}${base-name}-${name}"
-                               :set #"${prefix}set-${base-name}-${name}!")))
-        (cons name
-              (minimal-alist
-               (p-list-fold (lambda (attr val rest)
-                              (validate-attr-value attr val)
-                              (alist-cons attr val rest))
-                            (if doc-string
-                                (alist-cons :documentation doc-string base-alist)
-                                base-alist)
-                            slot-spec)))))))
-
+    (let ((slot-spec (if (string? (cadr slot-spec))
+                         (cons* :documentation (cadr slot-spec) (cddr slot-spec))
+                         (cdr slot-spec))))
+      (cons slot-name
+            (minimal-alist
+             (p-list-fold (lambda (attr val rest)
+                            (validate-attr-value attr val)
+                            (alist-cons attr val rest))
+                          (alist :name slot-name
+                                 :default ()
+                                 :get #"${prefix}${base-name}-${slot-name}"
+                                 :set #"${prefix}set-${base-name}-${slot-name}!")
+                          slot-spec))))))
 
 (define (parse-structure-definition structure-spec slots-spec)
   "Parses a structure definition composed of two parts, a
-   <structure-spec> and a <slots-spet>, returning three values:
+   <structure-spec> and a <slots-spec>, returning three values:
    the structure name, the structure metadata, and a list of
    procedures the structure definition s requested be created."
   (let ((doc-string (aif (string? (car slots-spec)) it ""))
@@ -118,7 +114,7 @@
           (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
         (values name
                 (list layout
-                      (cons :documentation "")
+                      (cons :documentation doc-string)
                       (cons :slots slots-meta))
                 (cons* (list :constructor constructor-name (slot-defaults))
                        (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
