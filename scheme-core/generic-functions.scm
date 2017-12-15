@@ -93,7 +93,7 @@
 
   (mvbind (gf-name lambda-list) (parse-generic-function-spec gf-spec)
     
-    (mvbind (doc-string declarations code) (parse-code-body code)
+    (mvbind (doc-string code) (accept-documentable-block code)
 
       `(begin
 
