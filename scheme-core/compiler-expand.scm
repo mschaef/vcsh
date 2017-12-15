@@ -57,8 +57,11 @@
         ((runtime-error
           (if *debug*
               handle-runtime-error
-              (lambda (message args . rest)
-                (compile-error form (format #f "Macro signaled error: ~I" message args) args)
+              (lambda (error-info)
+                (compile-error form (format #f "Macro signaled error: ~I"
+                                            (hash-ref error-info :message)
+                                            (hash-ref error-info :args))
+                               (hash-ref error-info :args))
                 (throw 'end-compiler-macroexpand (values #f ()))))))
       (compiler-macroexpand-1 form))))
 
