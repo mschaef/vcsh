@@ -243,6 +243,8 @@
 (define *repl-pre-print-value-hook* ())
 (define *repl-post-hook* ())
 
+(define *last-repl-error* #f)
+
 (define (repl-print . values)
   "Prints each of <values> in a nicely formatted, REPL-like, way, updating
    the REPL history."
@@ -250,8 +252,11 @@
     (catch 'repl-do-not-print
       (with-repl-error-handling "pre-print-value-hook"
        (invoke-hook '*repl-pre-print-value-hook* value))
-      (handler-bind ((runtime-error (lambda (message args)
-                                      (format (current-error-port) "; REPL Print Error: ~I" message args)
+      (handler-bind ((runtime-error (lambda (error-info)
+                                      (set! *last-repl-error* error-info)
+                                      (format (current-error-port) "; REPL Print Error: ~I\n"
+                                              (hash-ref error-info :message)
+                                              (hash-ref error-info :args))
                                       (throw 'repl-do-not-print))))
         (let ((history-index (extend-repl-history! value)))
           (dynamic-let ((*print-readably* #f))
