@@ -469,6 +469,7 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
      lref_t tag;
      lref_t cell;
      lref_t escape_retval;
+     lref_t tail_fop;
      jmp_buf *jmpbuf;
 
      STACK_CHECK(&fop);
@@ -534,7 +535,18 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                     vmerror_arg_out_of_range(fop->as.fast_op.arg2,
                                              _T("bad formal argument list"));
 
-               fop = apply(fn, argc, argv, &env, &retval);
+               tail_fop = apply(fn, argc, argv, &env, &retval);
+
+               if (NULLP(tail_fop)) {
+                    fop = fop->as.fast_op.next;
+               } else {
+                    if (NULLP(fop->as.fast_op.next)) {
+                         fop = tail_fop;
+                    } else {
+                         execute_fast_op(tail_fop, env);
+                         fop = fop->as.fast_op.next;
+                    }
+               }
                break;
 
           case FOP_APPLY:
@@ -558,7 +570,18 @@ static lref_t execute_fast_op(lref_t fop, lref_t env)
                     vmerror_arg_out_of_range(fop->as.fast_op.arg2,
                                              _T("bad formal argument list"));
 
-               fop = apply(fn, argc, argv, &env, &retval);
+               tail_fop = apply(fn, argc, argv, &env, &retval);
+
+               if (NULLP(tail_fop)) {
+                    fop = fop->as.fast_op.next;
+               } else {
+                    if (NULLP(fop->as.fast_op.next)) {
+                         fop = tail_fop;
+                    } else {
+                         execute_fast_op(tail_fop, env);
+                         fop = fop->as.fast_op.next;
+                    }
+               }
                break;
 
           case FOP_IF_TRUE:
