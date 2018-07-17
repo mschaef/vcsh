@@ -11,6 +11,7 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
+#include <stdlib.h>
 #include <signal.h>
 
 #include "../vm/scan.h"
