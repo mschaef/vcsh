@@ -20,7 +20,7 @@
   (:uses "scheme"
          "compiler"))
 
-(compiler::trace-message #t ";;;; Configuring for cross compile of Scheme image.\n")
+;;(compiler::compiler-trace #t ";;;; Configuring for cross compile of Scheme image.\n")
 
 (define *shared-target-symbols* ;; REVISIT: Better way to build this list? Please?
   (set-union (compiler::toplevel-file-form-symbols)

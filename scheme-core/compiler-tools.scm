@@ -23,16 +23,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Diagnostic messages
 
-(define *compiler-output-port* (current-error-port))
-(define *compiler-error-port* (current-error-port))
-
-(define (trace-message write? . format-args)
-  "Write a compiler trace message if <write?> is true. <format-args> are passed
+(define (compiler-trace trace? . format-args)
+  "Write a compiler trace message if <trace?> is true. <format-args> are passed
    into format to generate the output text, written to the compiler output port.
-   If <write?> is #f, nothing is done."
-  (when write?
-    (trace-indent *compiler-output-port*)
-    (apply format *compiler-output-port* format-args)))
+   If <trace?> is #f, nothing is done."
+  (when trace?
+    (apply scheme::trace-message format-args)))
 
 (define (call-with-compiler-tracing trace? label fn . args)
   (let ((trace? (and trace? (list? args))))
@@ -46,12 +42,7 @@
             (#t
              (error "Invalid trace label: ~s" label))))
     (define (message prefix label args)
-      (when trace?
-        (trace-indent *compiler-output-port*)
-        (format  *compiler-output-port* "~a ~a:" prefix label)
-        (dolist (arg args)
-          (format *compiler-output-port* " ~s"arg))
-        (newline *compiler-output-port*)))
+      (compiler-trace trace? "~a ~a: ~s" prefix label args))
     (if trace?
         (mvbind (from-label to-label) (parse-label)
           (message ">" from-label args)
@@ -80,7 +71,7 @@
 (define (compiler-evaluate form)
   "Evaluates <form>, signaling a compiler-error in the event of a failure."
   (catch 'end-compiler-evaluate
-    (trace-message *show-actions* "==> COMPILER-EVALUATE: ~s\n" form)
+    (compiler-trace *show-actions* "==> COMPILER-EVALUATE: ~s\n" form)
     (handler-bind  ((runtime-error
                      (if *debug*
                          handle-runtime-error

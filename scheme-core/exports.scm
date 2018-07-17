@@ -868,6 +868,7 @@
              toplevel-repl
              trace
              trace-indent
+             trace-message
              trace/no-returns
              traced-procedure
              traced-procedure?

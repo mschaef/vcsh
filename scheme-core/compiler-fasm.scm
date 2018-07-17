@@ -79,6 +79,15 @@
 (define-fast-op :local-ref-restarg      #.system::FOP_LOCAL_REF_RESTARG     :index :index      )
 (define-fast-op :local-set-by-index     #.system::FOP_LOCAL_SET_BY_INDEX    :index :index      )
 
+(define (fast-op->ops fast-op)
+  (let ((ops (scheme::%make-q)))
+    (let loop ((fast-op fast-op))
+      (if (null? fast-op)
+          (list->vector ops)
+          (begin
+            (scheme::%q-enqueue! fast-op ops)
+            (loop (scheme::%fast-op-next fast-op)))))))
+
 (define (parse-fast-op fast-op)
   (let ((opcode (scheme::%fast-op-opcode fast-op))
         (args (scheme::%fast-op-args fast-op)))

@@ -71,9 +71,9 @@
 
 (define (load-compiler-load-files)
   (dolist (file *compiler-load-files*)
-    (compiler::trace-message #t "; Loading compiler load file: ~s\n" file)
+    (compiler::compiler-trace #t "; Loading compiler load file: ~s\n" file)
     (load file) ; REVISIT: error check this?
-    (compiler::trace-message #t "; Done loading compiler load file: ~s\n" file)))
+    (compiler::compiler-trace #t "; Done loading compiler load file: ~s\n" file)))
 
 
 (define (run)

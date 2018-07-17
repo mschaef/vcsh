@@ -41,7 +41,7 @@
     (handler-bind ((read-error (lambda (message port loc)
                                  (compile-read-error message port loc))))
       (dynamic-let ((*package* (symbol-value *package-var*)))
-        (trace-message *show-actions* "* READ in ~s\n" *package*)
+        (compiler-trace *show-actions* "* READ in ~s\n" *package*)
         (*compiler-reader* port)))))
 
 (define (form-list-reader forms)
@@ -102,8 +102,8 @@
   (let* ((value-thunk (compile value-form))
          (value (value-thunk)))
 
-    (trace-message *show-actions* "==> DEFINE: ~s := ~s\n" symbol value)
-    (trace-message *verbose* "; defining ~a\n" symbol)
+    (compiler-trace *show-actions* "==> DEFINE: ~s := ~s\n" symbol value)
+    (compiler-trace *verbose* "; defining ~a\n" symbol)
 
     ;; error checking here???
     (scheme::%define-global symbol value)
@@ -145,14 +145,14 @@
 ;;;; The toplevel form main loop
 
 (define (emit-action form output-fasl-stream)
-  (trace-message *show-actions* "==> EMIT-ACTION: ~s\n" form)
+  (compiler-trace *show-actions* "==> EMIT-ACTION: ~s\n" form)
   (fasl-write-op output-fasl-stream system::FASL_OP_LOADER_APPLY0 (compile form)))
 
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
-  (trace-message *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
-                 (if load-time-eval? " [load-time]" "")
-                 (if compile-time-eval? " [compile-time]" "")
-                 form)
+  (compiler-trace *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
+                  (if load-time-eval? " [load-time]" "")
+                  (if compile-time-eval? " [compile-time]" "")
+                  form)
   ;; Forms that aren't lists evaluate to themselves and can be ignored
   (when (pair? form)
     (aif (hash-ref *toplevel-form-handlers* (car form))
@@ -187,7 +187,7 @@
    of the context for the message. <message-type> is the type of message to be written.
    <message> is a format string with the message text and <message-args> is a list of
    arguments to the message format string."
-  (format *compiler-error-port* "~a ~a - ~I\n" context-desc message-type message message-args))
+  (format (current-error-port) "~a ~a - ~I\n" context-desc message-type message message-args))
 
 (define (compiler-message/form context-form message-type message message-args)
   "Display a compiler message to the compiler error port. <context-form> is a form
@@ -229,7 +229,7 @@
     (error "Cannot begin load unit boundaries unless they have already been disabled on the command line."))
   (unless (string? filename)
     (error "Bad filename for beginning load unit boundaries: ~s" filename))
-  (trace-message #t "; Beginning load unit boundaries with filename: ~a\n" filename)
+  (compiler-trace #t "; Beginning load unit boundaries with filename: ~a\n" filename)
   (set! *disable-load-unit-boundaries* #f)
   (begin-load-unit filename output-fasl-stream))
 
@@ -239,7 +239,7 @@
   ;; relates to the way we do cross-compilation.
   (let ((original-package (symbol-value *package-var*)))
     (dynamic-let ((*files-currently-compiling* (cons filename *files-currently-compiling*)))
-      (trace-message #t "; Compiling file: ~a\n" filename)
+      (compiler-trace #t "; Compiling file: ~a\n" filename)
       (with-port input-port (open-file filename)
         (begin-load-unit filename output-fasl-stream)
         (compile-port-forms input-port output-fasl-stream)
@@ -276,7 +276,7 @@
                  (next-file (cdr filenames)
                             (+ error-count (compile-file/checked (car filenames) output-fasl-stream))))
                 ((> error-count 0)
-                 (format *compiler-error-port* "; ~a error(s) detected while compiling.\n" error-count)
+                 (format (current-error-port) "; ~a error(s) detected while compiling.\n" error-count)
                  (end-compile-abnormally 2))
                 (#t
                  ()))))))
@@ -294,14 +294,14 @@
             (find-package *initial-package*))
        (scheme::%define-global compiler::*package-var* it)
        (begin
-         (trace-message #t "Initial package not found: ~s" *initial-package*)
+         (compiler-trace #t "Initial package not found: ~s" *initial-package*)
          (end-compile-abnormally 127))))
 
 (define (compiler-runtime-error-handler error-info)
   (if *debug*
       (handle-runtime-error error-info)
       (begin
-        (trace-message #t "; Runtime error during compile:\n;   ~I\n"
+        (compiler-trace #t "; Runtime error during compile:\n;   ~I\n"
                        (hash-ref error-info :message)
                        (hash-ref error-info :args))
         (end-compile-abnormally 127))))
@@ -330,6 +330,6 @@
           (dynamic-let ((*location-mapping* (make-identity-hash)))
             (do-compile-files input-filenames
                               output-filename))
-          (trace-message #t "; Compile completed successfully.\n"))
+          (compiler-trace #t "; Compile completed successfully.\n"))
         0))))
 
