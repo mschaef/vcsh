@@ -42,7 +42,7 @@
                scheme::hash
                scheme::port
                scheme::end-of-file
-               scheme::values-typle
+               scheme::values-tuple
                scheme::unbound-marker
                scheme::trip-wire
                scheme::fast-op)

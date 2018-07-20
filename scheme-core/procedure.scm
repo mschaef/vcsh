@@ -17,16 +17,15 @@
            (symbol? (car vars))
            (valid-variable-list? (cdr vars)))))
 
-(define (parse-code-body code)
-  "Parses the code body <code> into a tuple of documentation, declarations, and code. If
-   there is no documentation or no declarations, then those are returned as #f."
-  (let ((code code)
-        (doc-string #f)
-        (declarations #f))
-    (when (and (string? (car code)) (not (null? (cdr code))))
-      (set! doc-string (car code))
-      (pop! code))
-    (values doc-string declarations code)))
+(define (accept-documentable-block block)
+  "Accept a block (<block>) of forms that has an optional
+documentation string at the beginning. Returns two values: the
+documentation string and a list of the remaining block items. If there
+is no documentation string, it is returned as #f."
+  (let ((doc-string (and (not (null? (cdr block)))
+                         (string? (car block)))))
+    (values doc-string
+            (if doc-string (cdr block) block))))
 
 (define (parse-lambda-list l-list)
   "Parse the lambda list <l-list>, returning four values: the list
@@ -127,10 +126,9 @@
     (if (null? r-arg)
         `(%lambda ,p-list ,l-list ,@code)
         (with-gensyms (immutable-rest)
-          (mvbind (doc-string decls code) (parse-code-body code)
+          (mvbind (doc-string code) (accept-documentable-block code)
              `(%lambda ,p-list (,@n-args . ,immutable-rest)
                 ,@(if doc-string `(,doc-string) ())
-                ,@(if decls `(,decls) ())
                 (let ((,r-arg ,immutable-rest))
                   ,@code)))))))
 
@@ -172,20 +170,20 @@
               ()
               `((check-keywords ,rest-arg ',(map second k-args)))))
 
-        (mvbind (doc-string decls code) (parse-code-body code)
+        (mvbind (doc-string code) (accept-documentable-block code)
           (when doc-string
             (push! `(documentation . ,doc-string) p-list))
 
-        (if (not special?)
-            `(%lambda ,p-list ,l-list ,@(canonicalize-code-body code))
+          (if (not special?)
+              `(%lambda ,p-list ,l-list ,@(canonicalize-code-body code))
 
-            `(,(if (null? o-args) '%lambda '%lambda/mutable-rest)
-              ,p-list (,@n-args . ,rest-arg)
+              `(,(if (null? o-args) '%lambda '%lambda/mutable-rest)
+                ,p-list (,@n-args . ,rest-arg)
 
-              (let* (,@(o-arg-binding-forms)
-                     ,@(k-arg-binding-forms))
-                ,@(k-arg-strict-check-form)
-                ,@(canonicalize-code-body code)))))))))
+                (let* (,@(o-arg-binding-forms)
+                       ,@(k-arg-binding-forms))
+                  ,@(k-arg-strict-check-form)
+                  ,@(canonicalize-code-body code)))))))))
 
 (defmacro (lambda arglist . code)
   `(named-lambda #f ,arglist ,@code))

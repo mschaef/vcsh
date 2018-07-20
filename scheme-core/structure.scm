@@ -57,56 +57,47 @@
    is the name of the slot and whose cdr is an a-list completely describing
    the properties of the slot. If the slot specification is invalid,
    throws an appropriate error."
+
+  (define (validate-attr-value attr val)
+    (case attr
+      ((:documentation)
+       (unless (string? val)
+         (error "Invalid structure slot documentation: ~s, must be a string: ~s" slot-spec val)))
+      ((:get :set)
+       (unless (or (eq? val #f) (string? val))
+         (error "Invalid structure slot getter/setter ~s, must be either #f or a string: ~s" slot-spec val)))
+      ((:default))
+      (#t
+       (error "Invalid structure slot specification: ~s, bad attribute: ~s" slot-spec attr)))
+    val)
+    
   (let ((slot-spec (->list slot-spec)))
-    (let ((name (intern-keyword! (symbol-name (car slot-spec)))))
-      (define (validate-attr-value attr val)
-        (define (bad-value)
-          (error "Invalid structure slot specification: ~s, bad ~s, ~s"
-                 slot-spec attr val))
-        (case attr
-          ((:documentation) (unless (string? val) (bad-value)))
-          ((:get :set)      (unless (or (eq? val #f) (string? val)) (bad-value)))
-          ((:default)
-           () ; REVISIT: fix when the  body-less case clause error is fixed in the compiler
-           ;; anything is permissable here
-           )
-          (#t
-           (error "Invalid structure slot specification: ~s, bad attribute: ~s"
-                  slot-spec attr))))
-
-      (let ((doc-string (aif (string? (cadr slot-spec)) it #f))
-            (slot-spec (if (string? (cadr slot-spec))
-                           (cddr slot-spec) (cdr slot-spec)))
-            (base-alist (alist :name name
-                               :default ()
-                               :get #"${prefix}${base-name}-${name}"
-                               :set #"${prefix}set-${base-name}-${name}!")))
-        (cons name
-              (minimal-alist
-               (p-list-fold (lambda (attr val rest)
-                              (validate-attr-value attr val)
-                              (alist-cons attr val rest))
-                            (if doc-string
-                                (alist-cons :documentation doc-string base-alist)
-                                base-alist)
-                            slot-spec)))))))
-
+    (let ((slot-name (intern-keyword! (symbol-name (car slot-spec))))
+          (slot-spec (if (string? (cadr slot-spec))
+                         (cons* :documentation (cadr slot-spec) (cddr slot-spec))
+                         (cdr slot-spec))))
+      (cons slot-name
+            (minimal-alist
+             (p-list-fold (lambda (attr val rest)
+                            (alist-cons attr (validate-attr-value attr val) rest))
+                          (alist :name slot-name
+                                 :default ()
+                                 :get #"${prefix}${base-name}-${slot-name}"
+                                 :set #"${prefix}set-${base-name}-${slot-name}!")
+                          slot-spec))))))
 
 (define (parse-structure-definition structure-spec slots-spec)
   "Parses a structure definition composed of two parts, a
-   <structure-spec> and a <slots-spet>, returning three values:
+   <structure-spec> and a <slots-spec>, returning three values:
    the structure name, the structure metadata, and a list of
    procedures the structure definition s requested be created."
-  (let ((doc-string (aif (string? (car slots-spec)) it #f))
-        (slots-spec (if (string? (car slots-spec)) (cdr slots-spec) slots-spec)))
-    (mvbind (pkg base-name internal-type?)
-        (parse-structure-name (if (pair? structure-spec)
-                                  (car structure-spec)
-                                  structure-spec))
+  (mvbind (doc-string slots-spec)  (accept-documentable-block slots-spec)
+    (mvbind (pkg base-name internal-type?) (parse-structure-name structure-spec)
       (let* ((prefix (if internal-type? "%" ""))
              (slots-meta (map #L(parse-structure-slot _ prefix base-name) slots-spec))
              (name (intern! base-name pkg))
-             (layout (list name (slots->layout slots-meta))))
+             (layout (list name (slots->layout slots-meta)))
+             (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
         (define (slot-procedures)
           (append-map (lambda (slot-defn)
                         `(,@(aif (cdr (assoc :set slot-defn))
@@ -119,15 +110,14 @@
         (define (slot-defaults)
           (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
         (values name
-                (if doc-string
-                    (list layout (cons :documentation doc-string)
-                          (cons :slots slots-meta))
-                    (list layout (cons :slots slots-meta)))
-                (cons* (list :constructor (intern! #"${prefix}make-${base-name}" pkg)
-                             (slot-defaults))
+                (list layout
+                      (cons :documentation (or doc-string ""))
+                      (cons :slots slots-meta))
+                (cons* (list :constructor constructor-name (slot-defaults))
                        (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
                        (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
-                       (slot-procedures)))))))
+                       (slot-procedures))
+                constructor-name)))))
 
 
 (define *global-structure-dictionary* ())
@@ -158,7 +148,7 @@
          #f)))
 
 
-(define (%register-structure-type! structure-type-name meta)
+(define (%register-structure-type! structure-type-name meta constructor-name)
   "Registers a new structure type, <name>, with metadata <meta>. This includes
    de-registering any older type of the same name, and orphaning any existing
    objects of that type."
@@ -171,6 +161,7 @@
   (make-class< structure-type-name 'structure)
   ;; Register the type itself.
   (set-property! structure-type-name 'structure-meta meta)
+  (set-property! structure-type-name 'structure-constructor constructor-name)
   (unless (member structure-type-name *global-structure-dictionary*)
     (push! structure-type-name *global-structure-dictionary*)))
 
@@ -249,15 +240,6 @@
        slot-name
        #f))
 
-(define (initialize-structure structure slot-name/values)
-  "Initializes <structure> by setting the slots in <slot-name/values>
-   to the listed values. <slot-name/values> is a list in Common Lisp
-   property list syntax."
-  (p-list-fold (lambda (slot-name value structure)
-                 (set-structure-slot-by-name! structure slot-name value))
-               structure
-               slot-name/values))
-
 (define (copy-structure s)
   "Returns a duplicate copy of structure <s>, performing a slot-by-slot shallow
    copy."
@@ -274,7 +256,7 @@
 
 (define (make-structure-by-name type-name . args)
   (aif (get-property type-name 'structure-constructor)
-       (apply it args)
+       (apply (symbol-value it) args)
        (error "Structure type not found: ~s" type-name)))
 
 (define (structure-slot-by-name structure slot-name)
@@ -287,37 +269,11 @@
                    (%structure-slot-index structure slot-name)
                    new-value))
 
-(define (slot-ref object key :optional (default-value #f))
-  "Retrieves the value of the slot in <object> named by <key>. <object> can be
-   either a hash, an instance, or a structure. Attempts to retrieve unknown
-   slots from a structure will return <default-value>."
-  (cond ((structure? object)
-         (if (structure-has-slot? object key)
-             (structure-slot-by-name object key default-value)
-             default-value))
-        ((hash? object)
-         (hash-ref object key default-value))
-        (#t
-         (error "Invalid value for slot-ref: ~s"))))
-
-(define (slot-set! object key value)
-  "Updates the value of the slot in <object> named by <key> to <value>. <object>
-   can be either a hash, an instance, or a structure. In the case of a structure,
-   attempts to set a non-existant <key> will throw an error."
-  (cond ((structure? object)
-          (set-structure-slot-by-name! object key value))
-        ((hash? object)
-         (hash-set! object key value))
-        (#t
-         (error "Invalid value for slot-set!: ~s"))))
-
 (defmacro (define-structure name . slots)
-  (mvbind (name meta procs) (parse-structure-definition name slots)
+  (mvbind (name meta procs constructor-name) (parse-structure-definition name slots)
     (let ((layout (car meta)))
       (define (structure-docs)
-        (aif (assoc :documentation meta)
-             #"Type documentation: ${(cdr it)}"
-             ""))
+        (cdr (assoc :documentation meta)))
       (define (slot-docs slot-name)
         (let* ((slots (cdr (assoc :slots meta)))
                (slot (cdr (assoc slot-name slots))))
@@ -327,11 +283,9 @@
       (define (constructor-form proc-name defaults)
         (let ((defaults (map #L(list (car _) (gensym _) (cdr _)) defaults)))
           (with-gensyms (initial-values-sym structure-sym)
-              `(begin
-                 (define (,proc-name :keyword ,@defaults)
-                   ,#"Constructs a new instance of structure type ${name}. ${(structure-docs)}"
-                   (%structurecons (vector ,@(map cadr defaults)) ',layout))
-                 (set-property! ',name 'structure-constructor ,proc-name)))))
+            `(define (,proc-name :keyword ,@defaults)
+               ,#"Constructs a new instance of structure type ${name}. ${(structure-docs)}"
+               (%structurecons (vector ,@(map cadr defaults)) ',layout)))))
       (define (copier-form proc-name)
         `(define (,proc-name s)
            ,#"Copies an instance <s> of structure type ${name}, throwing an error
@@ -376,6 +330,32 @@
                            (#t (error "Invalid structure procedure type, ~s" (car proc))))
                          (cdr proc)))
                 procs)
-         (%register-structure-type! ',name ',meta)
+         (%register-structure-type! ',name ',meta ',constructor-name)
          ',name))))
+
+;;;; Keyed data type support
+
+(define (slot-ref object key :optional (default-value #f))
+  "Retrieves the value of the slot in <object> named by <key>. <object> can be
+   either a hash, an instance, or a structure. Attempts to retrieve unknown
+   slots from a structure will return <default-value>."
+  (cond ((structure? object)
+         (if (structure-has-slot? object key)
+             (structure-slot-by-name object key default-value)
+             default-value))
+        ((hash? object)
+         (hash-ref object key default-value))
+        (#t
+         (error "Invalid value for slot-ref: ~s"))))
+
+(define (slot-set! object key value)
+  "Updates the value of the slot in <object> named by <key> to <value>. <object>
+   can be either a hash, an instance, or a structure. In the case of a structure,
+   attempts to set a non-existant <key> will throw an error."
+  (cond ((structure? object)
+          (set-structure-slot-by-name! object key value))
+        ((hash? object)
+         (hash-set! object key value))
+        (#t
+         (error "Invalid value for slot-set!: ~s"))))
 
