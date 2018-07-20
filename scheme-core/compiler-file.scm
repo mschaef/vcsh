@@ -121,13 +121,11 @@
         (directory file-spec)
         (list file-spec)))
   (dolist (filename (file-spec-files))
-    (call-with-compiler-tracing *show-actions* '("BEGIN-INCLUDE" "END-INCLUDE")
-                                (lambda (filename)
-                                  (when (currently-compiling-file? filename)
-                                    (compile-fatal-error #f "Recursive include of ~s while compiling ~s"
-                                                         filename *files-currently-compiling*))
-                                  (compile-file/simple filename output-fasl-stream))
-      filename)))
+    (with-compiler-tracing *show-actions* (include filename)
+      (when (currently-compiling-file? filename)
+        (compile-fatal-error #f "Recursive include of ~s while compiling ~s"
+                             filename *files-currently-compiling*))
+      (compile-file/simple filename output-fasl-stream))))
 
 (define-toplevel-form (scheme::%define symbol value-form)
   (compile-toplevel-definition symbol value-form output-fasl-stream))

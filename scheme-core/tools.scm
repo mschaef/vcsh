@@ -11,7 +11,6 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-
 (define (dformat format-str . args)
   "Display a formatted message to the current debug port."
   (apply format (current-debug-port) format-str args))

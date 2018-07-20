@@ -268,6 +268,7 @@
              dbind-if-match
              dbind-matches?
              debug-write
+             debug-message
              defalias
              defer-until-idle
              define
@@ -289,7 +290,6 @@
              delete-package!
              delq
              describe
-             dformat
              directory
              disassemble
              display

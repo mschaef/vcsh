@@ -11,12 +11,6 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; Option variables
-
-;(scheme::eval-when (:compile-toplevel :load-toplevel :execute)
-;  (host-scheme::repl))
-
 (define *debug* #f)
 (define *verbose* #f)
 
@@ -31,26 +25,17 @@
     (apply scheme::trace-message format-args)))
 
 (define (call-with-compiler-tracing trace? label fn . args)
-  (let ((trace? (and trace? (list? args))))
-    (define (parse-label)
-      (cond ((string? label) (values label "TO"))
-            ((list? label)
-             (case (length label)
-               ((0) (values "FROM" "TO"))
-               ((1) (values (car label) "TO"))
-               (#t (values (car label) (cadr label)))))
-            (#t
-             (error "Invalid trace label: ~s" label))))
-    (define (message prefix label args)
-      (compiler-trace trace? "~a ~a: ~s" prefix label args))
-    (if trace?
-        (mvbind (from-label to-label) (parse-label)
-          (message ">" from-label args)
-          (mvbind results (in-trace-level (apply fn args))
-            (message "<" to-label results)
-            (apply values results)))
-        (apply fn args))))
+  (if (and trace? (list? args))
+      (begin
+        (scheme::trace-message ">>> ~a: ~s" label args)
+        (let ((result (in-trace-level (fn))))
+          (scheme::trace-message "<<< ~a: ~s" label result)
+          result))
+      (fn)))
 
+(defmacro (with-compiler-tracing trace? arglist . body)
+  (dbind (label . args) arglist
+    `(call-with-compiler-tracing ,trace? ',label (lambda () ,@body) ,@args)))
 
 ;;;; Ways to signal compilation events
 

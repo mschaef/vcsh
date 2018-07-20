@@ -15,10 +15,8 @@
 (define *show-expansions* #f)
 
 (define (apply-expander expander form)
-  (call-with-compiler-tracing (and *show-expansions* (pair? form))
-      '("EXPAND" "INTO")
-      (lambda (form) (expander form))
-    form))
+  (with-compiler-tracing (and *show-expansions* (pair? form)) (expand form)
+    (expander form)))
 
 (define (compiler-macroexpand-1 form)
   (aif (and (pair? form)
