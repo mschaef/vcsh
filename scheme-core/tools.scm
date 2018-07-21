@@ -271,6 +271,10 @@
   (and (closure? fn)
        (get-property fn '%traced-procedure)))
 
+(define *printing-trace-message* #f
+  "Flag that indicates if the tracer is printing a trace line. Used to avoid
+recurstively tracing functions used by the tracer itself.")
+
 (define (traced-procedure fn :optional (write-returns? #t))
   "Return a traced version of the procedure <fn>.  This version of the procedure
    will display messages on entry and on exit. The transformation that makes this
@@ -283,19 +287,24 @@
       (let* ((fn-name (aif (procedure-name fn) it fn))
              (traced-procedure
               (lambda args
-                (in-trace-level
-                 (trace-message " > TRACE ~s" (cons fn-name args))
-                 (let ((normal-return #f))
-                   (unwind-protect
-                    (lambda ()
-                      (let ((rc (apply fn args)))
-                        (when write-returns?
-                          (trace-message " < TRACE-RETURNS=~s" rc))
-                        (set! normal-return #t)
-                        rc))
-                    (lambda ()
-                      (unless normal-return
-                        (trace-message " <<< TRACE-ESCAPING")))))))))
+                (if *printing-trace-message*
+                    (apply fn args)
+                    (in-trace-level
+                     (dynamic-let ((*printing-trace-message* #t))
+                       (trace-message " > TRACE ~s" (cons fn-name args)))
+                     (let ((normal-return #f))
+                       (unwind-protect
+                        (lambda ()
+                          (let ((rc (apply fn args)))
+                            (when write-returns?
+                              (dynamic-let ((*printing-trace-message* #t))
+                                (trace-message " < TRACE-RETURNS=~s" rc)))
+                            (set! normal-return #t)
+                            rc))
+                        (lambda ()
+                          (unless normal-return
+                            (dynamic-let ((*printing-trace-message* #t))
+                              (trace-message " <<< TRACE-ESCAPING")))))))))))
         (set-property! traced-procedure `%traced-procedure fn)
         traced-procedure)))
 
