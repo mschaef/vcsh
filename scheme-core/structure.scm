@@ -91,13 +91,10 @@
    <structure-spec> and a <slots-spec>, returning three values:
    the structure name, the structure metadata, and a list of
    procedures the structure definition s requested be created."
-  (mvbind (doc-string slots-spec)  (accept-documentable-block slots-spec)
+  (mvbind (doc-string slots-spec) (accept-documentable-block slots-spec)
     (mvbind (pkg base-name internal-type?) (parse-structure-name structure-spec)
       (let* ((prefix (if internal-type? "%" ""))
-             (slots-meta (map #L(parse-structure-slot _ prefix base-name) slots-spec))
-             (name (intern! base-name pkg))
-             (layout (list name (slots->layout slots-meta)))
-             (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
+             (slots-meta (map #L(parse-structure-slot _ prefix base-name) slots-spec)))
         (define (slot-procedures)
           (append-map (lambda (slot-defn)
                         `(,@(aif (cdr (assoc :set slot-defn))
@@ -109,16 +106,17 @@
                       slots-meta))
         (define (slot-defaults)
           (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
-        (values name
-                (list layout
-                      (cons :documentation (or doc-string ""))
-                      (cons :slots slots-meta))
-                (cons* (list :constructor constructor-name (slot-defaults))
-                       (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
-                       (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
-                       (slot-procedures))
-                constructor-name)))))
-
+        (let ((name (intern! base-name pkg))
+              (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
+          (values name
+                  (list (list name (slots->layout slots-meta))
+                        (cons :documentation (or doc-string ""))
+                        (cons :slots slots-meta))
+                  (cons* (list :constructor constructor-name (slot-defaults))
+                         (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
+                         (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
+                         (slot-procedures))
+                  constructor-name))))))
 
 (define *global-structure-dictionary* ())
 
@@ -146,7 +144,6 @@
     (aif (and meta (assoc :documentation meta))
          (cdr it)
          #f)))
-
 
 (define (%register-structure-type! structure-type-name meta constructor-name)
   "Registers a new structure type, <name>, with metadata <meta>. This includes
@@ -182,7 +179,7 @@
 ;; REVISIT: Do we need a way to 'forget' structure types?
 
 (define (slots->layout slots)
-  (let recur ((index 0) ;; REVISIT: implement iterate from Scheme48
+  (let recur ((index 0)
               (slots slots))
     (if (null? slots)
         ()
@@ -191,9 +188,8 @@
 
 (define (structure? structure)
   "Returns <structure> if it is a structure, returns #f otherwise."
-  (if (%structure? structure)
-      structure
-      #f))
+  (and (%structure? structure)
+       structure))
 
 (define (structure-type structure)
   "Returns the type name of the structure <structure>. Note that this is usually
@@ -207,11 +203,10 @@
 (define (orphaned-structure? structure)
   "Returns <structure> if it is an instance of a orphaned structure type, returns #f
    otherwise."
-  (if (and (structure? structure)
-           (list? (structure-type structure))
-           (eq? (car (structure-type structure)) :orphaned))
-      structure
-      #f))
+  (and (structure? structure)
+       (list? (structure-type structure))
+       (eq? (car (structure-type structure)) :orphaned)
+       structure))
 
 ;; REVISIT: structure inheritance
 
@@ -222,9 +217,8 @@
   (map car (cond ((%structure? structure)
                   (second (%structure-layout structure)))
                  ((symbol? structure)
-                  (aif (get-property structure 'structure-meta)
-                       (second (car it))
-                       #f))
+                  (aand (get-property structure 'structure-meta)
+                        (second (car it))))
                  (#t
                   (error "Expected structure or structure type name: ~s" structure)))))
 
@@ -234,11 +228,9 @@
    a symbol naming a structure type. If a structure type is not found,
    throws an error."
   (runtime-check keyword? slot-name)
-  (aif (memq slot-name (aif (structure-slots structure)
-                            it
-                            (error "Unknown structure type: ~s" structure)))
-       slot-name
-       #f))
+  (and (memq slot-name (or (structure-slots structure)
+                           (error "Unknown structure type: ~s" structure)))
+       slot-name))
 
 (define (copy-structure s)
   "Returns a duplicate copy of structure <s>, performing a slot-by-slot shallow
@@ -250,9 +242,8 @@
   *global-structure-dictionary*)
 
 (define (%structure-slot-index structure slot-name)
-  (aif (member-index slot-name (structure-slots structure))
-       it
-       (error "Slot ~s not found in structure ~s." slot-name structure)))
+  (or (member-index slot-name (structure-slots structure))
+      (error "Slot ~s not found in structure ~s." slot-name structure)))
 
 (define (make-structure-by-name type-name . args)
   (aif (get-property type-name 'structure-constructor)
@@ -297,9 +288,8 @@
         `(define (,proc-name s)
            ,#"Returns <s> if it is an instance of structure type ${name},
               #f otherwise."
-           (if (%structure? s ',layout)
-               s
-               #f)))
+           (and (%structure? s ',layout)
+                s)))
       (define (getter-form proc-name slot-name)
         `(define (,proc-name s)
            ,#"Retrieves the value of the ${slot-name} slot of <s>, which must
@@ -317,8 +307,7 @@
            (%structure-set! s ,(second (assoc slot-name (cadr layout))) v)))
 
       (awhen (duplicates? (map car (cadr layout)))
-        (error "Duplicate slots ~s in definition of structure type: ~s."
-               it name))
+        (error "Duplicate slots ~s in definition of structure type: ~s." it name))
       `(eval-when (:compile-toplevel :load-toplevel :execute)
          ,@(map (lambda (proc)
                   (apply (case (car proc)
