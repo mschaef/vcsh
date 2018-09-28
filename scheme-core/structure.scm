@@ -141,20 +141,24 @@
   (runtime-check (or structure? symbol?) structure
          "Expected structure or structure type name.")
   (let ((meta (%structure-meta structure)))
-    (aif (and meta (assoc :documentation meta))
-         (cdr it)
-         #f)))
+    (aand (and meta (assoc :documentation meta))
+          (cdr it))))
+
+(define (mark-structure-layout-orphaned! layout)
+  (set-car! layout (list :orphaned (car layout))))
+
+(define (invalidate-existing-structure-type! structure-type-name)
+  (awhen (get-property structure-type-name 'structure-meta)
+    (info "New structure definition orphaning existing structures of type: ~s" structure-type-name)
+    (mark-structure-layout-orphaned! (car it))
+    (remove-property! structure-type-name 'structure-meta)))
 
 (define (%register-structure-type! structure-type-name meta constructor-name)
   "Registers a new structure type, <name>, with metadata <meta>. This includes
    de-registering any older type of the same name, and orphaning any existing
    objects of that type."
-  (awhen (get-property structure-type-name 'structure-meta)
-    (info "New structure definition orphaning existing structures of type: ~s" structure-type-name)
-    (let ((existing-layout (car it)))
-      (set-car! existing-layout (list :orphaned (car existing-layout))))
-    (remove-property! structure-type-name 'structure-meta))
-  ;; Let the type system know about our new type ; REVISIT: Disabled, because structure.scm was moved ahead of the type graph code in the bootup sequence
+  (invalidate-existing-structure-type! structure-type-name)
+  ;; Let the type system know about our new type
   (make-class< structure-type-name 'structure)
   ;; Register the type itself.
   (set-property! structure-type-name 'structure-meta meta)
@@ -166,10 +170,9 @@
     (error "Expected list for structure layout ~s" new-layout))
   (let* ((structure-type-name (car new-layout))
          (existing-meta (assoc 'scheme::structure-meta (%property-list structure-type-name)))
-         (old-layout (if existing-meta (cadr existing-meta) ()))
-         (obsolete? (not (equal? new-layout old-layout))))
-    (if obsolete?
-        (set-car! new-layout (list :orphaned (car new-layout)))
+         (old-layout (if existing-meta (cadr existing-meta) ())))
+    (if (not (equal? new-layout old-layout))
+        (mark-structure-layout-orphaned! new-layout)
         old-layout)))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
