@@ -118,7 +118,7 @@
                          (slot-procedures))
                   constructor-name))))))
 
-(define *global-structure-dictionary* ())
+(define *global-structure-dictionary* {})
 
 (define (%structure-meta structure)
   "Returns the metadata associated with <structure>, which can be either a
@@ -159,8 +159,7 @@
   ;; Register the type itself.
   (set-property! structure-type-name 'structure-meta meta)
   (set-property! structure-type-name 'structure-constructor constructor-name)
-  (unless (member structure-type-name *global-structure-dictionary*)
-    (push! structure-type-name *global-structure-dictionary*)))
+  (hash-set! *global-structure-dictionary* structure-type-name structure-type-name))
 
 (define (trap-resolve-fasl-struct-layout trapno frp new-layout)
   (unless (pair? new-layout)
@@ -239,7 +238,7 @@
 
 (define (all-structure-types)
   "Returns a list of all structure type names."
-  *global-structure-dictionary*)
+  (hash-keys *global-structure-dictionary*))
 
 (define (%structure-slot-index structure slot-name)
   (or (member-index slot-name (structure-slots structure))
