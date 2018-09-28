@@ -36,6 +36,7 @@ lref_t leof_objectp(lref_t obj)
 lref_t port_gc_mark(lref_t obj)
 {
      gc_mark(PORT_PINFO(obj)->port_name);
+     gc_mark(PORT_PINFO(obj)->user_object);
 
      return PORT_USER_OBJECT(obj);
 }
