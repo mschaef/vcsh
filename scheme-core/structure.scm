@@ -86,6 +86,33 @@
                                  :set #"${prefix}set-${base-name}-${slot-name}!")
                           slot-spec))))))
 
+(define (assign-structure-slot-offsets slots)
+  (let recur ((index 0)
+              (slots slots))
+    (if (null? slots)
+        ()
+        (cons (list (caar slots) index)
+              (recur (+ index 1) (cdr slots))))))
+
+(define (make-structure-layout type-name slots-meta)
+  (list type-name
+        (assign-structure-slot-offsets slots-meta)))
+
+(define (structure-layout-name layout)
+  (car layout))
+
+(define (structure-layout-slots layout)
+  (cadr layout))
+
+(define (structure-layout-slot-names layout)
+  (map car (cadr layout)))
+
+(define (structure-layout-slot-offset layout slot-name)
+  (second (assoc slot-name (cadr layout))))
+
+(define (mark-structure-layout-orphaned! layout)
+  (set-car! layout (list :orphaned (car layout))))
+
 (define (parse-structure-definition structure-spec slots-spec)
   "Parses a structure definition composed of two parts, a
    <structure-spec> and a <slots-spec>, returning three values:
@@ -106,10 +133,10 @@
                       slots-meta))
         (define (slot-defaults)
           (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
-        (let ((name (intern! base-name pkg))
+        (let ((type-name (intern! base-name pkg) )
               (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
-          (values name
-                  (list (list name (slots->layout slots-meta))
+          (values type-name
+                  (list (make-structure-layout type-name slots-meta)
                         (cons :documentation (or doc-string ""))
                         (cons :slots slots-meta))
                   (cons* (list :constructor constructor-name (slot-defaults))
@@ -144,9 +171,6 @@
     (aand (and meta (assoc :documentation meta))
           (cdr it))))
 
-(define (mark-structure-layout-orphaned! layout)
-  (set-car! layout (list :orphaned (car layout))))
-
 (define (invalidate-existing-structure-type! structure-type-name)
   (awhen (get-property structure-type-name 'structure-meta)
     (info "New structure definition orphaning existing structures of type: ~s" structure-type-name)
@@ -179,14 +203,6 @@
   (%set-trap-handler! system::TRAP_RESOLVE_FASL_STRUCT_LAYOUT trap-resolve-fasl-struct-layout))
 
 ;; REVISIT: Do we need a way to 'forget' structure types?
-
-(define (slots->layout slots)
-  (let recur ((index 0)
-              (slots slots))
-    (if (null? slots)
-        ()
-        (cons (list (caar slots) index)
-              (recur (+ index 1) (cdr slots))))))
 
 (define (structure? structure)
   "Returns <structure> if it is a structure, returns #f otherwise."
@@ -284,7 +300,7 @@
            ,#"Copies an instance <s> of structure type ${name}, throwing an error
               if <s> is not the expected type."
            (unless (%structure? s ',layout)
-             (error "Expected a structure of type ~s, but found ~s." ',(car layout) s))
+             (error "Expected a structure of type ~s, but found ~s." ',(structure-layout-name layout) s))
            (%copy-structure s)))
       (define (predicate-form proc-name)
         `(define (,proc-name s)
@@ -298,17 +314,17 @@
               be of structure type ${name}. Throws an error if <s> is not of the
              expected type. ${(slot-docs slot-name)}"
            (unless (%structure? s ',layout)
-             (error "Expected a structure of type ~s, but found ~s." ',(car layout) s))
-           (%structure-ref s ,(second (assoc slot-name (cadr layout))))))
+             (error "Expected a structure of type ~s, but found ~s." ',(structure-layout-name layout) s))
+           (%structure-ref s ,(structure-layout-slot-offset layout slot-name))))
       (define (setter-form proc-name slot-name)
         `(define (,proc-name s v)
            ,#"Updates the ${slot-name} slot of of <s> to <v>. <s> must be of structure
             type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
            (unless (%structure? s ',layout)
-             (error "Expected a structure of type ~s, but found ~s." ',(car layout) s))
-           (%structure-set! s ,(second (assoc slot-name (cadr layout))) v)))
+             (error "Expected a structure of type ~s, but found ~s." ',(structure-layout-name layout) s))
+           (%structure-set! s ,(structure-layout-slot-offset layout slot-name) v)))
 
-      (awhen (duplicates? (map car (cadr layout)))
+      (awhen (duplicates? (structure-layout-slot-names layout))
         (error "Duplicate slots ~s in definition of structure type: ~s." it name))
       `(eval-when (:compile-toplevel :load-toplevel :execute)
          ,@(map (lambda (proc)
