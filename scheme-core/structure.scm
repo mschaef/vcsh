@@ -137,13 +137,13 @@
               (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
           (values type-name
                   (list (make-structure-layout type-name slots-meta)
+                        (cons :constructor-name constructor-name)
                         (cons :documentation (or doc-string ""))
                         (cons :slots slots-meta))
                   (cons* (list :constructor constructor-name (slot-defaults))
                          (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
                          (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
-                         (slot-procedures))
-                  constructor-name))))))
+                         (slot-procedures))))))))
 
 (define *global-structure-dictionary* {})
 
@@ -177,7 +177,7 @@
     (mark-structure-layout-orphaned! (car it))
     (remove-property! structure-type-name 'structure-meta)))
 
-(define (%register-structure-type! structure-type-name meta constructor-name)
+(define (%register-structure-type! structure-type-name meta)
   "Registers a new structure type, <name>, with metadata <meta>. This includes
    de-registering any older type of the same name, and orphaning any existing
    objects of that type."
@@ -186,7 +186,6 @@
   (make-class< structure-type-name 'structure)
   ;; Register the type itself.
   (set-property! structure-type-name 'structure-meta meta)
-  (set-property! structure-type-name 'structure-constructor constructor-name)
   (hash-set! *global-structure-dictionary* structure-type-name structure-type-name))
 
 (define (trap-resolve-fasl-struct-layout trapno frp new-layout)
@@ -264,8 +263,8 @@
       (error "Slot ~s not found in structure ~s." slot-name structure)))
 
 (define (make-structure-by-name type-name . args)
-  (aif (get-property type-name 'structure-constructor)
-       (apply (symbol-value it) args)
+  (aif (assoc :constructor-name (get-property type-name 'structure-meta ()))
+       (apply (symbol-value (cdr it)) args)
        (error "Structure type not found: ~s" type-name)))
 
 (define (structure-slot-by-name structure slot-name)
@@ -279,7 +278,7 @@
                    new-value))
 
 (defmacro (define-structure name . slots)
-  (mvbind (name meta procs constructor-name) (parse-structure-definition name slots)
+  (mvbind (name meta procs) (parse-structure-definition name slots)
     (let ((layout (car meta)))
       (define (structure-docs)
         (cdr (assoc :documentation meta)))
@@ -337,7 +336,7 @@
                            (#t (error "Invalid structure procedure type, ~s" (car proc))))
                          (cdr proc)))
                 procs)
-         (%register-structure-type! ',name ',meta ',constructor-name)
+         (%register-structure-type! ',name ',meta)
          ',name))))
 
 ;;;; Keyed data type support
