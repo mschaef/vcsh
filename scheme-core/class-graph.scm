@@ -151,7 +151,9 @@ type. If there is no valid typecode of that name, returns #f."
    is the name of the prototype symbol closest up the prototype list. For
    structures, returns the structure type name."
   (cond ((structure? obj)
-         (structure-type obj))
+         (if (orphaned-structure? obj)
+             'structure
+              (structure-type obj)))
         ((hash? obj)
          (hash-ref obj 'type-of 'hash))
         (#t
