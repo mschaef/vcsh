@@ -277,6 +277,10 @@
                    (%structure-slot-index structure slot-name)
                    new-value))
 
+(define (%require-structure-type s expected-layout)
+  (unless (%structure? s expected-layout)
+    (error "Expected a structure of type ~s, but found ~s." (structure-layout-name expected-layout) s)))
+
 (defmacro (define-structure name . slots)
   (mvbind (name meta procs) (parse-structure-definition name slots)
     (let ((layout (car meta)))
@@ -298,8 +302,7 @@
         `(define (,proc-name s)
            ,#"Copies an instance <s> of structure type ${name}, throwing an error
               if <s> is not the expected type."
-           (unless (%structure? s ',layout)
-             (error "Expected a structure of type ~s, but found ~s." ',(structure-layout-name layout) s))
+           (%require-structure-type s ',layout)
            (%copy-structure s)))
       (define (predicate-form proc-name)
         `(define (,proc-name s)
@@ -312,15 +315,13 @@
            ,#"Retrieves the value of the ${slot-name} slot of <s>, which must
               be of structure type ${name}. Throws an error if <s> is not of the
              expected type. ${(slot-docs slot-name)}"
-           (unless (%structure? s ',layout)
-             (error "Expected a structure of type ~s, but found ~s." ',(structure-layout-name layout) s))
+           (%require-structure-type s ',layout)           
            (%structure-ref s ,(structure-layout-slot-offset layout slot-name))))
       (define (setter-form proc-name slot-name)
         `(define (,proc-name s v)
            ,#"Updates the ${slot-name} slot of of <s> to <v>. <s> must be of structure
             type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
-           (unless (%structure? s ',layout)
-             (error "Expected a structure of type ~s, but found ~s." ',(structure-layout-name layout) s))
+           (%require-structure-type s ',layout)                      
            (%structure-set! s ,(structure-layout-slot-offset layout slot-name) v)))
 
       (awhen (duplicates? (structure-layout-slot-names layout))
