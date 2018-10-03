@@ -396,9 +396,6 @@
                                       z
                                       duplicate-slot)))))
 
-;; (define-structure ship x y dx dy)
-;; (define-structure empty-structure)
-
 (define-test structure-meta
   (check (equal? (structure-slots 'ship) '(:x :y :dx :dy)))
   (check (equal? (structure-slots 'empty-structure) '()))
