@@ -1239,3 +1239,14 @@
     (check (eq? (second xs) (assoc "including" xs)))
     (check (eq? (third xs) (assoc () xs)))
     (check (eq? (fourth xs) (assoc '(composite keys) xs)))))
+
+(define-test assoc-val/positive
+  (let ((xs '((:test . :data)
+              ("including" . "non-numeric")
+              (() . "including-null")
+              ((composite keys) . "are nice too"))))
+    (check (not (assoc :not-in-xs xs)))
+    (check (eq? (cdr (first xs)) (assoc-val :test xs)))
+    (check (eq? (cdr (second xs)) (assoc-val "including" xs)))
+    (check (eq? (cdr (third xs)) (assoc-val () xs)))
+    (check (eq? (cdr (fourth xs)) (assoc-val '(composite keys) xs)))))

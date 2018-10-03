@@ -854,6 +854,14 @@ equality predicate used to identity instances of <x>."
           (#t
            (error "improper a-list at ~s: ~s" pos a-list)))))
 
+(define (assoc-val key a-list :optional (default #f))
+  "Return either the value associated with <key> in <a-list>, or
+<default>. Similar to assoc, except that assoc returns the association
+and this returns the value."
+  (aif (assoc key a-list)
+       (cdr it)
+       default))
+
 (define (alist . k/vs)
   "Create an alist from an arbitrary (non-zero) number of <key>/<value>
    pairs passed as arguments."

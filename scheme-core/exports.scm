@@ -117,6 +117,7 @@
              asin
              assert
              assoc
+             assoc-val
              at
              atan
              atom?
