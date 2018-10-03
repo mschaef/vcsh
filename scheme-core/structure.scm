@@ -108,10 +108,14 @@
   (map car (cadr layout)))
 
 (define (structure-layout-slot-offset layout slot-name)
-  (second (assoc slot-name (cadr layout))))
+  (aand (assoc slot-name (cadr layout))
+        (second it)))
 
 (define (mark-structure-layout-orphaned! layout)
   (set-car! layout (list :orphaned (car layout))))
+
+(define (structure-meta-layout meta)
+  (car meta))
 
 (define (parse-structure-definition structure-spec slots-spec)
   "Parses a structure definition composed of two parts, a
@@ -147,18 +151,42 @@
 
 (define *global-structure-dictionary* {})
 
+(forward structure-meta)
+
 (define (%structure-meta structure)
-  "Returns the metadata associated with <structure>, which can be either a
-   structure or a structure type name. Returns #f if <structure> is orphaned
-   or an unknown type. Throws an error if <structure> is itself an invalid
-   type name."
-  (runtime-check (or structure? symbol?) structure
-         "Expected structure or structure type name.")
-  (if (structure? structure)
-      (if (orphaned-structure? structure)
-          #f
-          (%structure-meta (structure-type structure)))
-      (get-property structure 'structure-meta)))
+  "Returns the metadata associated with <structure>, which can be
+either a structure or a structure type name. Throws an error if
+<structure> is itself an invalid type name or an orphaned
+structure. If metadata is not available, returns #f."
+  (cond ((structure? structure)
+         (and (not (orphaned-structure? structure))
+              (%structure-meta (structure-type structure))))
+        ((symbol? structure)
+         (get-property structure 'structure-meta))
+        (#t
+         (error "Invalid structure or structure type, cannot retrieve metadata: ~s " structure))))
+
+(define (structure-meta structure)
+  "Returns the metadata associated with <structure>, which can be
+either a structure or a structure type name. Throws an error if
+<structure> is itself an invalid type name or structure metadata is
+not available. Because full metadata is not available for orphaned
+structures, this throws an error if applied to an orphaned structure."
+  (or (%structure-meta structure)
+      (error "No metadata available for structure of type: ~s" structure)))
+
+(define (structure-layout structure)
+  "Returns the metadata associated with <structure>, which can be
+either a structure or a structure type name. Throws an error if
+<structure> is itself an invalid type name or structure metadata is
+not available. Because structures carry layout information directly,
+this can be called on an orphaned structure."
+  (cond ((%structure? structure)
+         (%structure-layout structure))
+         ((symbol? structure)
+          (car (structure-meta structure)))
+         (#t
+          (error "Expected structure or structure type name: ~s" structure))))
 
 (define (structure-documentation structure)
   "Returns the documentation associated with <structure>, which can be either a
@@ -167,14 +195,14 @@
    type name."
   (runtime-check (or structure? symbol?) structure
          "Expected structure or structure type name.")
-  (let ((meta (%structure-meta structure)))
+  (let ((meta (structure-meta structure)))
     (aand (and meta (assoc :documentation meta))
           (cdr it))))
 
 (define (invalidate-existing-structure-type! structure-type-name)
   (awhen (get-property structure-type-name 'structure-meta)
     (info "New structure definition orphaning existing structures of type: ~s" structure-type-name)
-    (mark-structure-layout-orphaned! (car it))
+    (mark-structure-layout-orphaned! (structure-meta-layout it))
     (remove-property! structure-type-name 'structure-meta)))
 
 (define (%register-structure-type! structure-type-name meta)
@@ -189,14 +217,11 @@
   (hash-set! *global-structure-dictionary* structure-type-name structure-type-name))
 
 (define (trap-resolve-fasl-struct-layout trapno frp new-layout)
-  (unless (pair? new-layout)
-    (error "Expected list for structure layout ~s" new-layout))
-  (let* ((structure-type-name (car new-layout))
-         (existing-meta (assoc 'scheme::structure-meta (%property-list structure-type-name)))
-         (old-layout (if existing-meta (cadr existing-meta) ())))
-    (if (not (equal? new-layout old-layout))
-        (mark-structure-layout-orphaned! new-layout)
-        old-layout)))
+  (let* ((existing-meta (%structure-meta (structure-layout-name new-layout)))
+         (old-layout (if existing-meta (structure-meta-layout existing-meta) ())))
+    (if (equal? new-layout old-layout)
+        old-layout
+        (mark-structure-layout-orphaned! new-layout))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RESOLVE_FASL_STRUCT_LAYOUT trap-resolve-fasl-struct-layout))
@@ -213,7 +238,7 @@
    a symbol, but for an instance of a orphaned structure type, the type name is
    returned as a two element list composed of :orphaned and the former type name."
   (runtime-check %structure? structure)
-  (first (%structure-layout structure)))
+  (first (structure-layout structure)))
 
 ;;; TEST: unit tests for orphaned structures
 
@@ -229,15 +254,10 @@
 
 (define (structure-slots structure)
   "Returns a list of the slots in <structure>. <structure> can either
-   be a structure object or a symbol naming a structure type. If a
-   structure type is not found, returns #f."
-  (map car (cond ((%structure? structure)
-                  (second (%structure-layout structure)))
-                 ((symbol? structure)
-                  (aand (get-property structure 'structure-meta)
-                        (second (car it))))
-                 (#t
-                  (error "Expected structure or structure type name: ~s" structure)))))
+be a structure (including orphaned structures) or a symbol naming a
+structure type. Throws an error is <structure> is neither a valid
+structure nor a type name."
+  (structure-layout-slot-names (structure-layout structure)))
 
 (define (structure-has-slot? structure slot-name)
   "Returns <slot-name> if it is the name of a valid slot in <structure>,
@@ -245,8 +265,7 @@
    a symbol naming a structure type. If a structure type is not found,
    throws an error."
   (runtime-check keyword? slot-name)
-  (and (memq slot-name (or (structure-slots structure)
-                           (error "Unknown structure type: ~s" structure)))
+  (and (memq slot-name (structure-slots structure))
        slot-name))
 
 (define (copy-structure s)
@@ -258,14 +277,14 @@
   "Returns a list of all structure type names."
   (hash-keys *global-structure-dictionary*))
 
-(define (%structure-slot-index structure slot-name)
-  (or (member-index slot-name (structure-slots structure))
-      (error "Slot ~s not found in structure ~s." slot-name structure)))
-
 (define (make-structure-by-name type-name . args)
-  (aif (assoc :constructor-name (get-property type-name 'structure-meta ()))
+  (aif (assoc :constructor-name (structure-meta type-name))
        (apply (symbol-value (cdr it)) args)
        (error "Structure type not found: ~s" type-name)))
+
+(define (%structure-slot-index structure slot-name)
+  (or (structure-layout-slot-offset (structure-layout structure) slot-name)
+      (error "Slot ~s not found in structure ~s." slot-name structure)))
 
 (define (structure-slot-by-name structure slot-name)
   "Retrieves the value of the slot named <slot-name> in <structure>."
