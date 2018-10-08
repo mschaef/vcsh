@@ -43,7 +43,7 @@ enum lref_tag_t
 typedef intptr_t fixnum_t;
 typedef uintptr_t unsigned_fixnum_t;
 
-#define FIXNUM_BITS          (sizeof(fixnum_t) * 8)
+#define FIXNUM_BITS          (sizeof(fixnum_t) * 8 - LREF1_TAG_SHIFT)
 #define FIXNUM_MAX           (INTPTR_MAX >> LREF1_TAG_SHIFT)
 #define FIXNUM_MIN           (INTPTR_MIN >> LREF1_TAG_SHIFT)
 #define FIXNUM_UNSIGNED_MAX  (UINTPTR_MAX >> LREF1_TAG_SHIFT)
@@ -404,7 +404,7 @@ INLINE flonum_t FLONM(lref_t x)
 }
 
 
-inline /* full INLINE causes problems with gcc 3.4.4, due to prototype. */ lref_t FLOIM(lref_t x)
+INLINE lref_t FLOIM(lref_t x)
 {
      checked_assert(FLONUMP(x));
 

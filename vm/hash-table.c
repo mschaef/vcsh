@@ -18,6 +18,11 @@ INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
      return (_h1 * 17 + 1) ^ _h2;
 }
 
+INLINE fixnum_t HASH_COMBINE_COMMUTE(fixnum_t _h1, fixnum_t _h2)
+{
+     return _h1 ^ _h2;
+}
+
 INLINE size_t HASH_MASK(lref_t obj)
 {
      checked_assert(HASHP(obj));
@@ -199,8 +204,9 @@ fixnum_t sxhash(lref_t obj)
      case TC_HASH:
           for (ii = 0; ii < HASH_SIZE(obj); ii++)
           {
-               hash = HASH_COMBINE(hash, sxhash(HASH_ENTRY(obj, ii)->key));
-               hash = HASH_COMBINE(hash, sxhash(HASH_ENTRY(obj, ii)->val));
+               hash = HASH_COMBINE_COMMUTE(hash,
+                                           HASH_COMBINE(sxhash(HASH_ENTRY(obj, ii)->key),
+                                                        sxhash(HASH_ENTRY(obj, ii)->val)));
           }
           break;
 
@@ -208,11 +214,7 @@ fixnum_t sxhash(lref_t obj)
           hash = 0;
      }
 
-     /*  REVISIT: still needed? */
-     if (hash < 0)
-          hash = -hash;
-
-     return hash;
+     return hash & FIXNUM_MAX;
 }
 
 lref_t lsxhash(lref_t obj, lref_t hash)       /*  if hash is bound, lsxhash matches its hash function */

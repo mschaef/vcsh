@@ -35,7 +35,7 @@ lref_t fixcons(fixnum_t x)
 
      return vmtrap(TRAP_OVERFLOW_FIXNUM_FIXCONS, VMT_MANDATORY_TRAP,
                    2,
-                   fixcons(ux >> (FIXNUM_BITS - LREF1_TAG_SHIFT)),
+                   fixcons(ux >> FIXNUM_BITS),
                    fixcons(ux >> LREF1_TAG_SHIFT));
 }
 
