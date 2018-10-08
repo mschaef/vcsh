@@ -404,7 +404,7 @@ INLINE flonum_t FLONM(lref_t x)
 }
 
 
-inline /* full INLINE causes problems with gcc 3.4.4, due to prototype. */ lref_t FLOIM(lref_t x)
+INLINE lref_t FLOIM(lref_t x)
 {
      checked_assert(FLONUMP(x));
 
