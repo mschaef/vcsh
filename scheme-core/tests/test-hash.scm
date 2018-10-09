@@ -381,10 +381,16 @@
   ;; hash tables are semantically the same, but because 0 and 8
   ;; hash to the same bucket, they wind up having different internal
   ;; representations. They should both be equal? and have the same sxhash
-  (let ((a {0 'a 8 'b})
-        (b {8 'b 0 'a}))
+  (let ((a (-> (make-hash)
+               (hash-set! 0 'a)
+               (hash-set! 8 'b)))
+        (b  (-> (make-hash)
+                (hash-set! 8 'b)
+                (hash-set! 0 'a))))
+    
     (check (not (equal? (scheme::%hash-binding-vector a)
                         (scheme::%hash-binding-vector b))))
 
     (check (equal? a b))
     (check (equal? (sxhash a) (sxhash b)))))
+
