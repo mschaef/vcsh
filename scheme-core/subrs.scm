@@ -249,6 +249,7 @@
 (%define string? #.(host-scheme::%subr-by-name "string?"))
 (%define substring #.(host-scheme::%subr-by-name "substring"))
 (%define sxhash #.(host-scheme::%subr-by-name "sxhash"))
+(%define sxhash-identity #.(host-scheme::%subr-by-name "sxhash-identity"))
 (%define symbol-name #.(host-scheme::%subr-by-name "symbol-name"))
 (%define symbol-package #.(host-scheme::%subr-by-name "symbol-package"))
 (%define %symbol-vcell #.(host-scheme::%subr-by-name "%symbol-vcell"))

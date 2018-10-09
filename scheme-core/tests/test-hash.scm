@@ -290,14 +290,13 @@
 
     (check (not (equal? h h2)))))
 
-
 (define-test hash-sxhash
-  (let ((h/eq (make-identity-hash))
-        (h/equal (make-hash)))
+  (check (= (sxhash {}) (sxhash {})))
+  (check (not (= (sxhash-identity {}) (sxhash-identity {}))))
 
-    (check (runtime-error? (sxhash 'foo :not-a-hash)))
-    (check (not (= (sxhash "foo" h/eq) (sxhash "foo" h/equal))))))
-    
+  (check (= (sxhash 42) (sxhash 42)))
+  (check (= (sxhash-identity 42) (sxhash-identity 42))))
+
 (define-test hash-subr-keys
   (let ((h (make-hash)))
     (hash-set! h car 'car)

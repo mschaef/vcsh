@@ -814,6 +814,7 @@
              subtract-duration
              subtract-duration!
              sxhash
+             sxhash-identity
              symbol
              symbol-bound?
              symbol-name

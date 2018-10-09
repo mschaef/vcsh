@@ -217,34 +217,14 @@ fixnum_t sxhash(lref_t obj)
      return hash & FIXNUM_MAX;
 }
 
-lref_t lsxhash(lref_t obj, lref_t hash)       /*  if hash is bound, lsxhash matches its hash function */
+lref_t lsxhash(lref_t obj)
 {
-     bool shallow = false;
+     return fixcons(sxhash(obj));
+}
 
-     if (!NULLP(hash))
-     {
-          if (!HASHP(hash))
-               vmerror_wrong_type_n(2, hash);
-
-          shallow = HASH_SHALLOW(hash);
-     }
-
-     fixnum_t hashed;
-
-     if (shallow)
-          hashed = sxhash_eq(obj);
-     else
-          hashed = sxhash(obj);
-
-     if (!NULLP(hash))
-     {
-          assert(HASHP(hash));
-
-          hashed = hashed & HASH_MASK(hash);
-     }
-
-     return fixcons(hashed);
-
+lref_t lsxhash_identity(lref_t obj)
+{
+     return fixcons(sxhash_eq(obj));
 }
 
 static size_t round_up_to_power_of_two(size_t val)

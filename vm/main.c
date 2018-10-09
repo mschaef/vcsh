@@ -488,10 +488,11 @@ static void register_main_subrs()
     register_subr(_T("%subr-type-code"),                  SUBR_1,     (void*)lsubr_type_code                     );
     register_subr(_T("%subr-name"),                       SUBR_1,     (void*)lsubr_name                          );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );
-    register_subr(_T("sxhash"),                           SUBR_2,     (void*)lsxhash                             );
+    register_subr(_T("sxhash"),                           SUBR_1,     (void*)lsxhash                             );
+    register_subr(_T("sxhash-identity"),                  SUBR_1,     (void*)lsxhash_identity                    );
     register_subr(_T("symbol-name"),                      SUBR_1,     (void*)lsymbol_name                        );
     register_subr(_T("symbol-package"),                   SUBR_1,     (void*)lsymbol_package                     );
-    register_subr(_T("%symbol-vcell"),                    SUBR_1,     (void*)lsymbol_vcell                        );
+    register_subr(_T("%symbol-vcell"),                    SUBR_1,     (void*)lsymbol_vcell                       );
     register_subr(_T("symbol?"),                          SUBR_1,     (void*)lsymbolp                            );
     register_subr(_T("system"),                           SUBR_ARGC,  (void*)lsystem                             );
     register_subr(_T("system-info"),                      SUBR_0,     (void*)lsystem_info                        );
