@@ -87,29 +87,35 @@
                           slot-spec))))))
 
 (define (assign-structure-slot-offsets slots)
-  (let recur ((index 0)
-              (slots slots))
-    (if (null? slots)
-        ()
-        (cons (list (caar slots) index)
-              (recur (+ index 1) (cdr slots))))))
+  (let ((indices {}))
+    (let recur ((index 0) (slots slots))
+      (if (null? slots)
+          indices
+          (begin
+            (hash-set! indices (caar slots) index)
+            (recur (+ index 1) (cdr slots)))))))
 
 (define (make-structure-layout type-name slots-meta)
-  (list type-name
+  (cons type-name
         (assign-structure-slot-offsets slots-meta)))
 
 (define (structure-layout-name layout)
   (car layout))
 
-(define (structure-layout-slots layout)
-  (cadr layout))
-
+;;; Conditionals in structure-layout-* accessors due to backward compat. with old
+;;; representation and will need to be removed ASAP.
 (define (structure-layout-slot-names layout)
-  (map car (cadr layout)))
+  (let ((slots (cdr layout)))
+    (if (pair? slots)
+        (map car (car slots))
+        (hash-keys slots))))
 
 (define (structure-layout-slot-offset layout slot-name)
-  (aand (assoc slot-name (cadr layout))
-        (second it)))
+  (let ((slots (cdr layout)))
+    (if (pair? slots)
+        (aand (assoc slot-name (cadr layout))
+              (second it))
+        (hash-ref slots slot-name))))
 
 (define (mark-structure-layout-orphaned! layout)
   (set-car! layout (list :orphaned (car layout))))
