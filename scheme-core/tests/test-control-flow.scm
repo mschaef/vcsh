@@ -294,3 +294,13 @@
    (equal? '(foo bar baz) (macroexpand '(test-macro-1 foo bar baz))))
   (check 
    (equal? '(foo bar baz) (macroexpand '(test-macro-2 foo bar baz)))))
+
+(define-test clojure-threading
+  (let ((s (gensym)))
+    (check (eq? s (-> s))))
+  (check
+   (equal? '(((() . 1) . 2) . 3)
+           (-> ()
+               (cons 1)
+               (cons 2)
+               (cons 3)))))

@@ -383,3 +383,11 @@
 (define (identity x)
   "The identity function. Returns <x>, unchanged."
   x)
+
+;; Clojure style threading
+(defmacro (-> val-form . thread-forms)
+  (if (null? thread-forms)
+      val-form
+      (dbind ((fn . args) . rest) thread-forms
+        `(-> (,fn ,val-form ,@args)
+             ,@rest))))
