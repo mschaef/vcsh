@@ -15,8 +15,8 @@
 
 (define-test structure-slots
   (check (runtime-error? (structure-slots 12)))
-  (check (equal? '(:x :y :dx :dy) (structure-slots 'ship)))
-  (check (equal? '(:x :y :dx :dy) (structure-slots (make-ship)))))
+  (check (set-same? '(:x :y :dx :dy) (structure-slots 'ship)))
+  (check (set-same? '(:x :y :dx :dy) (structure-slots (make-ship)))))
 
 (define-test structure-accessors
   ;; All of these should exist
@@ -397,11 +397,11 @@
                                       duplicate-slot)))))
 
 (define-test structure-meta
-  (check (equal? (structure-slots 'ship) '(:x :y :dx :dy)))
-  (check (equal? (structure-slots 'empty-structure) '()))
+  (check (set-same? (structure-slots 'ship) '(:x :y :dx :dy)))
+  (check (set-same? (structure-slots 'empty-structure) '()))
 
-  (check (equal? (structure-slots (make-ship)) '(:x :y :dx :dy)))
-  (check (equal? (structure-slots (make-empty-structure)) '()))
+  (check (set-same? (structure-slots (make-ship)) '(:x :y :dx :dy)))
+  (check (set-same? (structure-slots (make-empty-structure)) '()))
 
   (check (ship? (make-structure-by-name 'ship)))
   (check (empty-structure? (make-structure-by-name 'empty-structure)))

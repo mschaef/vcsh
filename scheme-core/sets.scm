@@ -58,6 +58,10 @@
   "Compute the difference of sets <xss>, with elements distinguished by eq."
   (%set-diff :eq xss))
 
+(define (set-same? x y)
+  (equal? (set-union x)
+          (set-union y)))
+
 (define (list->hash-set key-type xs)
   (let ((hash-set (make-set-hash key-type)))
     (dolist (x xs) (hash-set! hash-set x #t))

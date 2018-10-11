@@ -86,18 +86,21 @@
                                  :set #"${prefix}set-${base-name}-${slot-name}!")
                           slot-spec))))))
 
-(define (assign-structure-slot-offsets slots)
+(define (assign-structure-slot-offsets type-name slots)
   (let ((indices {}))
     (let recur ((index 0) (slots slots))
-      (if (null? slots)
-          indices
-          (begin
-            (hash-set! indices (caar slots) index)
-            (recur (+ index 1) (cdr slots)))))))
+      (cond ((null? slots)
+             indices)
+            ((hash-has? indices (caar slots))
+             (error "Duplicate slots ~s in definition of structure type: ~s." (caar slots)
+                    type-name))
+            (#t
+             (hash-set! indices (caar slots) index)
+             (recur (+ index 1) (cdr slots)))))))
 
 (define (make-structure-layout type-name slots-meta)
   (cons type-name
-        (assign-structure-slot-offsets slots-meta)))
+        (assign-structure-slot-offsets type-name slots-meta)))
 
 (define (structure-layout-name layout)
   (car layout))
@@ -349,8 +352,6 @@ structure nor a type name."
            (%require-structure-type s ',layout)                      
            (%structure-set! s ,(structure-layout-slot-offset layout slot-name) v)))
 
-      (awhen (duplicates? (structure-layout-slot-names layout))
-        (error "Duplicate slots ~s in definition of structure type: ~s." it name))
       `(eval-when (:compile-toplevel :load-toplevel :execute)
          ,@(map (lambda (proc)
                   (apply (case (car proc)

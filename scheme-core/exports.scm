@@ -731,6 +731,7 @@
              set-port-translate-mode!
              set-property!
              set-random-seed!
+             set-same?
              set-structure-slot-by-name!
              set-symbol-value!
              set-text!
