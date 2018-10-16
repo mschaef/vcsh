@@ -1,4 +1,3 @@
-
 ;;;; match.scm --
 ;;;;
 ;;;; The pattern matcher, and dbind.
@@ -22,7 +21,6 @@
   (and (match-pattern-var? var)
        (equal? (symbol-name var) "??")))
 
-
 (define (match-pattern-variables pat)
   "Returns the list of match variables in match pattern <pat>. See match?
    for more details on matching patterns."
@@ -30,7 +28,6 @@
     (aif (memq var vars)
          vars
          (cons var vars)))
-
   (let recur ((pat pat) (vars ()))
     (cond ((match-pattern-var? pat)
            (maybe-extend-var-list pat vars))
@@ -64,6 +61,7 @@
           (#t
            vars))))
 
+
 (define (match? pat form)
   "Determines if <form> matches pattern <pat>.  A form matches a pattern if
    it can be equal? to the pattern with a consistent set of pattern variable
@@ -75,12 +73,11 @@
    variables are universal and can match anything anywere.  Returns an a-list
    ((<var> . <val>) ... ) if <form> matches, and #f otherwise."
   (define (maybe-extend-env? env var val)
-    (aif (assoc var env)
-         (if (equal? val (cdr it))
-             env
-             #f)
-         (alist-cons var val env)))
-  (let recur ((pat pat) (form form) (env ()))
+    (if (hash-has? env var)
+         (and (equal? val (hash-ref env var))
+              env)
+         (hash-set! env var val)))
+  (let recur ((pat pat) (form form) (env {}))
     (cond ((not env)
            #f)
           ((match-pattern-var? pat)
@@ -133,7 +130,7 @@
      (let ((pat-vars (match-pattern-variables pat)))
        `(let ((,match-var (match? ',pat ,val)))
           (if ,match-var
-              (let (,@(map #L(list _ `(cdr (assoc ',_ ,match-var))) (remove match-universal-pattern-var? pat-vars)))
+              (let (,@(map #L(list _ `(hash-ref ,match-var ',_)) (remove match-universal-pattern-var? pat-vars)))
                 ,if-true-form)
               ,if-false-form)))))
 

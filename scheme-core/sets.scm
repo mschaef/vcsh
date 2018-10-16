@@ -59,8 +59,8 @@
   (%set-diff :eq xss))
 
 (define (set-same? x y)
-  (equal? (set-union x)
-          (set-union y)))
+  "Returns true if the two sets <x> and <y> have the same elements."
+  (equal? (set-union x) (set-union y)))
 
 (define (list->hash-set key-type xs)
   (let ((hash-set (make-set-hash key-type)))
