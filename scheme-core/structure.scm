@@ -105,20 +105,11 @@
 (define (structure-layout-name layout)
   (car layout))
 
-;;; Conditionals in structure-layout-* accessors due to backward compat. with old
-;;; representation and will need to be removed ASAP.
 (define (structure-layout-slot-names layout)
-  (let ((slots (cdr layout)))
-    (if (pair? slots)
-        (map car (car slots))
-        (hash-keys slots))))
+  (hash-keys (cdr layout)))
 
 (define (structure-layout-slot-offset layout slot-name)
-  (let ((slots (cdr layout)))
-    (if (pair? slots)
-        (aand (assoc slot-name (cadr layout))
-              (second it))
-        (hash-ref slots slot-name))))
+  (hash-ref (cdr layout) slot-name))
 
 (define (mark-structure-layout-orphaned! layout)
   (set-car! layout (list :orphaned (car layout))))
