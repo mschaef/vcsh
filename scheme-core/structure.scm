@@ -114,6 +114,11 @@
 (define (mark-structure-layout-orphaned! layout)
   (set-car! layout (list :orphaned (car layout))))
 
+(define (structure-layout-orphaned? layout)
+  (let ((name (structure-layout-name layout)))
+    (and (pair? name)
+         (eq? (car name) :orphaned))))
+
 (define (structure-meta-layout meta)
   (car meta))
 
@@ -238,7 +243,7 @@ this can be called on an orphaned structure."
    a symbol, but for an instance of a orphaned structure type, the type name is
    returned as a two element list composed of :orphaned and the former type name."
   (runtime-check %structure? structure)
-  (first (structure-layout structure)))
+  (structure-layout-name (structure-layout structure)))
 
 ;;; TEST: unit tests for orphaned structures
 
@@ -246,8 +251,7 @@ this can be called on an orphaned structure."
   "Returns <structure> if it is an instance of a orphaned structure type, returns #f
    otherwise."
   (and (structure? structure)
-       (list? (structure-type structure))
-       (eq? (car (structure-type structure)) :orphaned)
+       (structure-layout-orphaned? (structure-layout structure))
        structure))
 
 ;; REVISIT: structure inheritance
