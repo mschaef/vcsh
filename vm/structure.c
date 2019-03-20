@@ -135,3 +135,32 @@ bool structure_equal(lref_t sta, lref_t stb)
      return true;
 }
 
+lref_t lslot_ref(lref_t obj, lref_t slot_name, lref_t default_val) {
+     lref_t val;
+     
+     if (STRUCTUREP(obj) && hash_ref(CDR(STRUCTURE_LAYOUT(obj)), slot_name, &val)) {
+          return STRUCTURE_ELEM(obj, FIXNM(val));
+     } else if (HASHP(obj) && hash_ref(obj, slot_name, &val)) {
+          return val;
+     } else {
+          return default_val;
+     }
+}
+
+lref_t lslot_set(lref_t obj, lref_t slot_name, lref_t new_val) {
+     if (STRUCTUREP(obj)) {
+          lref_t idx;
+
+          if (hash_ref(CDR(STRUCTURE_LAYOUT(obj)), slot_name, &idx)) {
+               SET_STRUCTURE_ELEM(obj, FIXNM(idx), new_val);
+          } else {
+               vmerror_index_out_of_bounds(slot_name, obj);
+          }
+     } else if (HASHP(obj)) {
+          lhash_set(obj, slot_name, new_val);
+     } else {
+          vmerror_wrong_type_n(1, obj);
+     }
+
+     return obj;
+}

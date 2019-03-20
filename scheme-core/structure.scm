@@ -361,29 +361,3 @@ structure nor a type name."
          (%register-structure-type! ',name ',meta)
          ',name))))
 
-;;;; Keyed data type support
-
-(define (slot-ref object key :optional (default-value #f))
-  "Retrieves the value of the slot in <object> named by <key>. <object> can be
-   either a hash, an instance, or a structure. Attempts to retrieve unknown
-   slots from a structure will return <default-value>."
-  (cond ((structure? object)
-         (if (structure-has-slot? object key)
-             (structure-slot-by-name object key default-value)
-             default-value))
-        ((hash? object)
-         (hash-ref object key default-value))
-        (#t
-         (error "Invalid value for slot-ref: ~s"))))
-
-(define (slot-set! object key value)
-  "Updates the value of the slot in <object> named by <key> to <value>. <object>
-   can be either a hash, an instance, or a structure. In the case of a structure,
-   attempts to set a non-existant <key> will throw an error."
-  (cond ((structure? object)
-          (set-structure-slot-by-name! object key value))
-        ((hash? object)
-         (hash-set! object key value))
-        (#t
-         (error "Invalid value for slot-set!: ~s"))))
-

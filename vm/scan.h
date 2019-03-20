@@ -396,6 +396,8 @@ lref_t lsetcar(lref_t cell, lref_t value);
 lref_t lsetcdr(lref_t cell, lref_t value);
 lref_t lsin(lref_t x);
 lref_t lsleep(lref_t ms);
+lref_t lslot_ref(lref_t obj, lref_t slot_name, lref_t default_val);
+lref_t lslot_set(lref_t obj, lref_t slot_name, lref_t new_val);
 lref_t lsqrt(lref_t x);
 lref_t lstress_c_heap(lref_t c, lref_t s);
 lref_t lstress_lisp_heap(lref_t c);

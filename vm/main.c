@@ -463,6 +463,8 @@ static void register_main_subrs()
     register_subr(_T("%set-symbol-vcell!"),               SUBR_2,     (void*)lset_symbol_vcell                   );
     register_subr(_T("sin"),                              SUBR_1,     (void*)lsin                                );
     register_subr(_T("sleep"),                            SUBR_1,     (void*)lsleep                              );
+    register_subr(_T("slot-ref"),                         SUBR_3,     (void*)lslot_ref                           );
+    register_subr(_T("slot-set!"),                        SUBR_3,     (void*)lslot_set                           );    
     register_subr(_T("sqrt"),                             SUBR_1,     (void*)lsqrt                               );
     register_subr(_T("strcmp"),                           SUBR_2,     (void*)lisp_strcmp                         );
     register_subr(_T("stricmp"),                          SUBR_2,     (void*)lisp_stricmp                        );
