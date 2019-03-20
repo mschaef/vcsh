@@ -135,15 +135,38 @@ bool structure_equal(lref_t sta, lref_t stb)
      return true;
 }
 
-lref_t lslot_ref(lref_t obj, lref_t slot_name, lref_t default_val) {
+lref_t lslot_ref(size_t argc, lref_t argv[]) {
+
+     lref_t obj = NIL;
+     lref_t slot_name = NIL;
+     lref_t default_val = boolcons(false);
      lref_t val;
-     
-     if (STRUCTUREP(obj) && hash_ref(CDR(STRUCTURE_LAYOUT(obj)), slot_name, &val)) {
-          return STRUCTURE_ELEM(obj, FIXNM(val));
-     } else if (HASHP(obj) && hash_ref(obj, slot_name, &val)) {
-          return val;
+
+     if (argc > 0)
+          obj = argv[0];
+
+     if (argc > 1)
+          slot_name = argv[1];
+
+     if (argc > 2)
+          default_val = argv[2];
+          
+     if (STRUCTUREP(obj)) {
+          if (hash_ref(CDR(STRUCTURE_LAYOUT(obj)), slot_name, &val)) {
+               return STRUCTURE_ELEM(obj, FIXNM(val));
+          } else if (argc > 2) {
+               return default_val;
+          } else {
+               vmerror_index_out_of_bounds(slot_name, obj);                    
+          }          
+     } else if (HASHP(obj)) {
+          if (hash_ref(obj, slot_name, &val)) {
+               return val;
+          } else {
+               return default_val;
+          }
      } else {
-          return default_val;
+          vmerror_wrong_type_n(1, obj);          
      }
 }
 

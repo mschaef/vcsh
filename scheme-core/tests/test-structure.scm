@@ -469,7 +469,7 @@
     (check (eq? (structure-slot-by-name s1 :dx) 1))
     (check (eq? (structure-slot-by-name s1 :dy) -2))
 
-    (check (eq? #f (slot-ref s1 :bad-slot)))
+    (check (runtime-error? (slot-ref s1 :bad-slot)))
     (check (eq? :xyzzy (slot-ref s1 :bad-slot :xyzzy)))
     (check (runtime-error? (slot-ref s1 23)))
     (check (runtime-error? (slot-ref 'ship :x)))
