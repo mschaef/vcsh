@@ -120,7 +120,7 @@
    :desc (format #f "structure of type ~a" (type-of obj))
    :items (map #L(make-inspect-item
                   :key _
-                  :value (structure-slot-by-name obj _))
+                  :value (slot-ref obj _))
                (structure-slots obj))))
 
 (define-method (object->inspect-ctx (obj vector))

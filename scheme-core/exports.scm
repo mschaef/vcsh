@@ -732,7 +732,6 @@
              set-property!
              set-random-seed!
              set-same?
-             set-structure-slot-by-name!
              set-symbol-value!
              set-text!
              set-union
@@ -807,7 +806,6 @@
              string?
              structure
              structure-has-slot?
-             structure-slot-by-name
              structure-slots
              structure-type
              structure?

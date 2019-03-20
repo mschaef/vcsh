@@ -417,19 +417,13 @@
   (check (not (structure-has-slot? 'ship :foo)))
 
   (let ((s1 (make-ship)))
-    (check (structure-has-slot? s1 :x))
-    (check (structure-has-slot? s1 :y))
-    (check (structure-has-slot? s1 :dx))
-    (check (structure-has-slot? s1 :dy))
-    (check (not (structure-has-slot? s1 :foo)))
+    (slot-set! s1 :x 3)
+    (slot-set! s1 :y 4)
+    (slot-set! s1 :dx 1)
+    (slot-set! s1 :dy -2)
 
-    (set-structure-slot-by-name! s1 :x 3)
-    (set-structure-slot-by-name! s1 :y 4)
-    (set-structure-slot-by-name! s1 :dx 1)
-    (set-structure-slot-by-name! s1 :dy -2)
-
-    (check (runtime-error? (set-structure-slot-by-name! s1 :bad-slot 12)))
-    (check (runtime-error? (set-structure-slot-by-name! s1 23 12)))
+    (check (runtime-error? (slot-set! s1 :bad-slot 12)))
+    (check (runtime-error? (slot-set! s1 23 12)))
 
     (check (eq? (ship-x s1) 3))
     (check (eq? (ship-y s1) 4))
@@ -437,12 +431,7 @@
     (check (eq? (ship-dy s1) -2)))
 
 
-  (let ((s1 (make-ship)))
-    (slot-set! s1 :x 3)
-    (slot-set! s1 :y 4)
-    (slot-set! s1 :dx 1)
-    (slot-set! s1 :dy -2)
-
+  (let ((s1 (make-ship :x 3 :y 4 :dx 1 :dy -2)))
     (check (runtime-error? (slot-set! 'ship :x 12)))
     (check (runtime-error? (slot-set! "ship" :x 12)))
     (check (runtime-error? (slot-set! s1 :bad-slot 12)))
@@ -453,22 +442,7 @@
     (check (eq? (ship-dx s1) 1))
     (check (eq? (ship-dy s1) -2)))
 
-  (let ((s1 (make-ship)))
-    (set-ship-x! s1 3)
-    (set-ship-y! s1 4)
-    (set-ship-dx! s1 1)
-    (set-ship-dy! s1 -2)
-
-    (check (runtime-error? (structure-slot-by-name s1 :bad-slot)))
-    (check (runtime-error? (structure-slot-by-name s1 23)))
-    (check (runtime-error? (structure-slot-by-name 'ship :x)))
-    (check (runtime-error? (structure-slot-by-name "ship" :x)))
-
-    (check (eq? (structure-slot-by-name s1 :x) 3))
-    (check (eq? (structure-slot-by-name s1 :y) 4))
-    (check (eq? (structure-slot-by-name s1 :dx) 1))
-    (check (eq? (structure-slot-by-name s1 :dy) -2))
-
+  (let ((s1 (make-ship :x 3 :y 4 :dx 1 :dy -2)))
     (check (runtime-error? (slot-ref s1 :bad-slot)))
     (check (eq? :xyzzy (slot-ref s1 :bad-slot :xyzzy)))
     (check (runtime-error? (slot-ref s1 23)))

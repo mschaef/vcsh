@@ -59,7 +59,7 @@
                       (push! x to-visit)))
                    ((structure)
                     (dolist (slot-name (structure-slots o))
-                      (push! (structure-slot-by-name o slot-name) to-visit)))
+                      (push! (slot-ref o slot-name) to-visit)))
                    ((hash)
                     (dolist (k/v (hash->a-list o))
                       (push! (car k/v) to-visit)
@@ -275,7 +275,7 @@
       (write-strings port " ")
       (print slot port machine-readable? shared-structure-map)
       (write-strings port " ")
-      (print (structure-slot-by-name obj slot) port machine-readable? shared-structure-map)))
+      (print (slot-ref obj slot) port machine-readable? shared-structure-map)))
   (with-new-print-level port
      (if (orphaned-structure? obj)
          (print-unreadable-object obj port

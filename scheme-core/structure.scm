@@ -290,16 +290,6 @@ structure nor a type name."
   (or (structure-layout-slot-offset (structure-layout structure) slot-name)
       (error "Slot ~s not found in structure ~s." slot-name structure)))
 
-(define (structure-slot-by-name structure slot-name)
-  "Retrieves the value of the slot named <slot-name> in <structure>."
-  (%structure-ref structure (%structure-slot-index structure slot-name)))
-
-(define (set-structure-slot-by-name! structure slot-name new-value)
-  "Updates the slot named <slot-name> in <structure> to have the value <new-value>."
-  (%structure-set! structure
-                   (%structure-slot-index structure slot-name)
-                   new-value))
-
 (define (%require-structure-type s expected-layout)
   (unless (%structure? s expected-layout)
     (error "Expected a structure of type ~s, but found ~s." (structure-layout-name expected-layout) s)))

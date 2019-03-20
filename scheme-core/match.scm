@@ -39,7 +39,7 @@
            (let loop ((slots (structure-slots pat)) (vars vars))
              (if (null? slots)
                  vars
-                 (loop (cdr slots) (recur (structure-slot-by-name pat (car slots)) vars)))))
+                 (loop (cdr slots) (recur (slot-ref pat (car slots)) vars)))))
 
           ((hash? pat) 
            (let ((keys (hash-keys pat)))
@@ -92,9 +92,7 @@
            (let loop ((slots (structure-slots pat)) (nenv env))
              (if (or (not env) (null? slots))
                  nenv
-                 (loop (cdr slots) (recur (structure-slot-by-name pat (car slots))
-                                          (structure-slot-by-name form (car slots))
-                                          nenv)))))
+                 (loop (cdr slots) (recur (slot-ref pat (car slots)) (slot-ref form (car slots)) nenv)))))
           ((and (hash? pat) (hash? form))
            (let ((pat-keys (hash-keys pat)))
              (if (and (eq? (identity-hash? pat)
