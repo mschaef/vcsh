@@ -119,8 +119,11 @@
     (and (pair? name)
          (eq? (car name) :orphaned))))
 
+(define (structure-meta-field meta field)
+  (hash-ref meta field))
+
 (define (structure-meta-layout meta)
-  (car meta))
+  (structure-meta-field meta :layout))
 
 (define (parse-structure-definition structure-spec slots-spec)
   "Parses a structure definition composed of two parts, a
@@ -134,25 +137,24 @@
         (define (slot-procedures)
           (append-map (lambda (slot-defn)
                         `(,@(aif (cdr (assoc :set slot-defn))
-                                 `((:set ,(intern! it pkg) ,(cdr (assoc :name slot-defn))))
-                                 ())
+                                 `((:set ,(intern! it pkg) ,(cdr (assoc :name slot-defn)))))
                           ,@(aif (cdr (assoc :get slot-defn))
-                                 `((:get ,(intern! it pkg) ,(cdr (assoc :name slot-defn))))
-                                 ())))
+                                 `((:get ,(intern! it pkg) ,(cdr (assoc :name slot-defn)))))))
                       slots-meta))
         (define (slot-defaults)
           (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
         (let ((type-name (intern! base-name pkg) )
               (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
-          (values type-name
-                  (list (make-structure-layout type-name slots-meta)
-                        (cons :constructor-name constructor-name)
-                        (cons :documentation (or doc-string ""))
-                        (cons :slots slots-meta))
-                  (cons* (list :constructor constructor-name (slot-defaults))
-                         (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
-                         (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
-                         (slot-procedures))))))))
+          (let ((layout (make-structure-layout type-name slots-meta)))
+            (values {:type-name type-name
+                     :layout layout
+                     :constructor-name constructor-name
+                     :documentation (or doc-string "")
+                     :slots slots-meta}
+                    (cons* (list :constructor constructor-name (slot-defaults))
+                           (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
+                           (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
+                           (slot-procedures)))))))))
 
 (forward structure-meta)
 
@@ -187,7 +189,7 @@ this can be called on an orphaned structure."
   (cond ((%structure? structure)
          (%structure-layout structure))
          ((symbol? structure)
-          (car (structure-meta structure)))
+          (structure-meta-layout (structure-meta structure)))
          (#t
           (error "Expected structure or structure type name: ~s" structure))))
 
@@ -198,9 +200,8 @@ this can be called on an orphaned structure."
    type name."
   (runtime-check (or structure? symbol?) structure
          "Expected structure or structure type name.")
-  (let ((meta (structure-meta structure)))
-    (aand (and meta (assoc :documentation meta))
-          (cdr it))))
+  (aand (structure-meta structure)
+        (structure-meta-field it :documentation)))
 
 (define (invalidate-existing-structure-type! structure-type-name)
   (awhen (get-property structure-type-name 'structure-meta)
@@ -273,8 +274,8 @@ structure nor a type name."
   (%copy-structure s))
 
 (define (make-structure-by-name type-name . args)
-  (aif (assoc :constructor-name (structure-meta type-name))
-       (apply (symbol-value (cdr it)) args)
+  (aif (structure-meta-field (structure-meta type-name) :constructor-name)
+       (apply (symbol-value it) args)
        (error "Structure type not found: ~s" type-name)))
 
 (define (%structure-slot-index structure slot-name)
@@ -286,12 +287,13 @@ structure nor a type name."
     (error "Expected a structure of type ~s, but found ~s." (structure-layout-name expected-layout) s)))
 
 (defmacro (define-structure name . slots)
-  (mvbind (name meta procs) (parse-structure-definition name slots)
-    (let ((layout (car meta)))
+  (mvbind (meta procs) (parse-structure-definition name slots)
+    (let ((name (structure-meta-field meta :type-name))
+          (layout (structure-meta-field meta :layout)))
       (define (structure-docs)
-        (cdr (assoc :documentation meta)))
+        (structure-meta-field meta :documentation))
       (define (slot-docs slot-name)
-        (let* ((slots (cdr (assoc :slots meta)))
+        (let* ((slots (structure-meta-field meta :slots))
                (slot (cdr (assoc slot-name slots))))
           (aif (assoc :documentation slot)
                #"Slot documentation: ${(cdr it)}"
