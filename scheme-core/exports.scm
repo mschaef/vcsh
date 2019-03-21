@@ -98,7 +98,6 @@
              all-iterate-sequence-types
              all-package-symbols
              all-package-variables
-             all-structure-types
              all-symbols
              always
              and

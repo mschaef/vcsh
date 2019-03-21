@@ -154,8 +154,6 @@
                          (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
                          (slot-procedures))))))))
 
-(define *global-structure-dictionary* {})
-
 (forward structure-meta)
 
 (define (%structure-meta structure)
@@ -215,11 +213,8 @@ this can be called on an orphaned structure."
    de-registering any older type of the same name, and orphaning any existing
    objects of that type."
   (invalidate-existing-structure-type! structure-type-name)
-  ;; Let the type system know about our new type
   (make-class< structure-type-name 'structure)
-  ;; Register the type itself.
-  (set-property! structure-type-name 'structure-meta meta)
-  (hash-set! *global-structure-dictionary* structure-type-name structure-type-name))
+  (set-property! structure-type-name 'structure-meta meta))
 
 (define (trap-resolve-fasl-struct-layout trapno frp new-layout)
   (let* ((existing-meta (%structure-meta (structure-layout-name new-layout)))
@@ -276,10 +271,6 @@ structure nor a type name."
   "Returns a duplicate copy of structure <s>, performing a slot-by-slot shallow
    copy."
   (%copy-structure s))
-
-(define (all-structure-types)
-  "Returns a list of all structure type names."
-  (hash-keys *global-structure-dictionary*))
 
 (define (make-structure-by-name type-name . args)
   (aif (assoc :constructor-name (structure-meta type-name))
