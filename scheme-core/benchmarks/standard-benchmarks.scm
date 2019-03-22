@@ -890,6 +890,17 @@
      (type-of 123)
      (type-of 'a))))
 
+(define (structure-bench)
+  (bench '(structure/make-0-args
+           structure/make-1-args
+           structure/make-3-args
+           structure/ref
+           structure/set!
+           structure/read
+           structure/write
+           structure/fasl-write
+           structure/fasl-read)))
+
 (define (fast-bench)
   "Run the benchmark suite on a useful subset of the overall
 suite. Used for cases when a full run is too much."

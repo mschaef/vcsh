@@ -12,9 +12,12 @@
 
 #include "scan-private.h"
 
-lref_t lcopy_structure(lref_t st)
+lref_t lcopy_structure(lref_t st, lref_t expected_layout)
 {
      if (!STRUCTUREP(st))
+          vmerror_wrong_type_n(1, st);
+
+     if (!NULLP(expected_layout) && (expected_layout != STRUCTURE_LAYOUT(st)))
           vmerror_wrong_type_n(1, st);
 
      lref_t new_st = new_cell(TC_STRUCTURE);
@@ -77,11 +80,14 @@ lref_t lstructure_length(lref_t st)
      return fixcons(STRUCTURE_DIM(st));
 }
 
-lref_t lstructure_ref(lref_t st, lref_t index)
+lref_t lstructure_ref(lref_t st, lref_t index, lref_t expected_layout)
 {
      if (!STRUCTUREP(st))
           vmerror_wrong_type_n(1, st);
 
+     if (!NULLP(expected_layout) && (expected_layout != STRUCTURE_LAYOUT(st)))
+          vmerror_wrong_type_n(1, st);
+     
      if (!FIXNUMP(index))
           vmerror_wrong_type_n(2, index);
 
@@ -95,9 +101,12 @@ lref_t lstructure_ref(lref_t st, lref_t index)
      return NIL; // unreached
 }
 
-lref_t lstructure_set(lref_t st, lref_t index, lref_t value)
+lref_t lstructure_set(lref_t st, lref_t index, lref_t value, lref_t expected_layout)
 {
      if (!STRUCTUREP(st))
+          vmerror_wrong_type_n(1, st);
+
+     if (!NULLP(expected_layout) && (expected_layout != STRUCTURE_LAYOUT(st)))
           vmerror_wrong_type_n(1, st);
 
      if (!FIXNUMP(index))

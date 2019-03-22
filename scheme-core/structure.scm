@@ -308,8 +308,7 @@ structure nor a type name."
         `(define (,proc-name s)
            ,#"Copies an instance <s> of structure type ${name}, throwing an error
               if <s> is not the expected type."
-           (%require-structure-type s ',layout)
-           (%copy-structure s)))
+           (%copy-structure s ',layout)))
       (define (predicate-form proc-name)
         `(define (,proc-name s)
            ,#"Returns <s> if it is an instance of structure type ${name},
@@ -321,14 +320,12 @@ structure nor a type name."
            ,#"Retrieves the value of the ${slot-name} slot of <s>, which must
               be of structure type ${name}. Throws an error if <s> is not of the
              expected type. ${(slot-docs slot-name)}"
-           (%require-structure-type s ',layout)           
-           (%structure-ref s ,(structure-layout-slot-offset layout slot-name))))
+           (%structure-ref s ,(structure-layout-slot-offset layout slot-name) ',layout)))
       (define (setter-form proc-name slot-name)
         `(define (,proc-name s v)
            ,#"Updates the ${slot-name} slot of of <s> to <v>. <s> must be of structure
             type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
-           (%require-structure-type s ',layout)                      
-           (%structure-set! s ,(structure-layout-slot-offset layout slot-name) v)))
+           (%structure-set! s ,(structure-layout-slot-offset layout slot-name) v ',layout)))
 
       `(eval-when (:compile-toplevel :load-toplevel :execute)
          ,@(map (lambda (proc)

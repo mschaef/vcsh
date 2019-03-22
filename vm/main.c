@@ -248,7 +248,7 @@ static void register_main_subrs()
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
     register_subr(_T("%control-field"),                   SUBR_1,     (void*)licontrol_field                     );
-    register_subr(_T("%copy-structure"),                  SUBR_1,     (void*)lcopy_structure                     );
+    register_subr(_T("%copy-structure"),                  SUBR_2,     (void*)lcopy_structure                     );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
     register_subr(_T("%define-global"),                   SUBR_2,     (void*)lidefine_global                     );
@@ -294,8 +294,8 @@ static void register_main_subrs()
     register_subr(_T("%structure-layout"),                SUBR_1,     (void*)lstructure_layout                   );
     register_subr(_T("%structure-length"),                SUBR_1,     (void*)lstructure_length                   );
     register_subr(_T("%structure-meta")  ,                SUBR_1,     (void*)lstructure_layout                   );
-    register_subr(_T("%structure-ref"),                   SUBR_2,     (void*)lstructure_ref                      );
-    register_subr(_T("%structure-set!"),                  SUBR_3,     (void*)lstructure_set                      );
+    register_subr(_T("%structure-ref"),                   SUBR_3,     (void*)lstructure_ref                      );
+    register_subr(_T("%structure-set!"),                  SUBR_4,     (void*)lstructure_set                      );
     register_subr(_T("%structure?"),                      SUBR_2,     (void*)lstructurep                         );
     register_subr(_T("%structurecons"),                   SUBR_2,     (void*)lstructurecons                      );
     register_subr(_T("%subr-table"),                      SUBR_0,     (void*)lisubr_table                        );
