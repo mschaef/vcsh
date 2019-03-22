@@ -440,16 +440,4 @@
     (check (eq? (ship-x s1) 3))
     (check (eq? (ship-y s1) 4))
     (check (eq? (ship-dx s1) 1))
-    (check (eq? (ship-dy s1) -2)))
-
-  (let ((s1 (make-ship :x 3 :y 4 :dx 1 :dy -2)))
-    (check (runtime-error? (slot-ref s1 :bad-slot)))
-    (check (eq? :xyzzy (slot-ref s1 :bad-slot :xyzzy)))
-    (check (runtime-error? (slot-ref s1 23)))
-    (check (runtime-error? (slot-ref 'ship :x)))
-    (check (runtime-error? (slot-ref "ship" :x)))
-
-    (check (eq? (slot-ref s1 :x) 3))
-    (check (eq? (slot-ref s1 :y) 4))
-    (check (eq? (slot-ref s1 :dx) 1))
-    (check (eq? (slot-ref s1 :dy) -2))))
+    (check (eq? (ship-dy s1) -2))))
