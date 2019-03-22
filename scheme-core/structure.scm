@@ -227,8 +227,6 @@ this can be called on an orphaned structure."
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RESOLVE_FASL_STRUCT_LAYOUT trap-resolve-fasl-struct-layout))
 
-;; REVISIT: Do we need a way to 'forget' structure types?
-
 (define (structure? structure)
   "Returns <structure> if it is a structure, returns #f otherwise."
   (and (%structure? structure)
@@ -241,16 +239,12 @@ this can be called on an orphaned structure."
   (runtime-check %structure? structure)
   (structure-layout-name (structure-layout structure)))
 
-;;; TEST: unit tests for orphaned structures
-
 (define (orphaned-structure? structure)
   "Returns <structure> if it is an instance of a orphaned structure type, returns #f
    otherwise."
   (and (structure? structure)
        (structure-layout-orphaned? (structure-layout structure))
        structure))
-
-;; REVISIT: structure inheritance
 
 (define (structure-slots structure)
   "Returns a list of the slots in <structure>. <structure> can either
@@ -265,7 +259,7 @@ structure nor a type name."
    a symbol naming a structure type. If a structure type is not found,
    throws an error."
   (runtime-check keyword? slot-name)
-  (and (memq slot-name (structure-slots structure))
+  (and (structure-layout-slot-offset (structure-layout structure) slot-name)
        slot-name))
 
 (define (copy-structure s)
@@ -277,14 +271,6 @@ structure nor a type name."
   (aif (structure-meta-field (structure-meta type-name) :constructor-name)
        (apply (symbol-value it) args)
        (error "Structure type not found: ~s" type-name)))
-
-(define (%structure-slot-index structure slot-name)
-  (or (structure-layout-slot-offset (structure-layout structure) slot-name)
-      (error "Slot ~s not found in structure ~s." slot-name structure)))
-
-(define (%require-structure-type s expected-layout)
-  (unless (%structure? s expected-layout)
-    (error "Expected a structure of type ~s, but found ~s." (structure-layout-name expected-layout) s)))
 
 (defmacro (define-structure name . slots)
   (mvbind (meta procs) (parse-structure-definition name slots)
