@@ -87,9 +87,7 @@
                      slot-spec))))))
 
 (define (slot-meta-field field slot-meta)
-  (if (pair? slot-meta)
-      (assoc-val field slot-meta)
-      (hash-ref slot-meta field)))
+  (hash-ref slot-meta field))
 
 (define (assign-structure-slot-offsets type-name slots)
   (let ((indices {}))
