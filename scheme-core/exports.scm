@@ -411,6 +411,7 @@
              hash-for-each
              hash-has?
              hash-keys
+             hash-merge
              hash-keys/t
              hash-push!
              hash-ref
