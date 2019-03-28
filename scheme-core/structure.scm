@@ -76,27 +76,33 @@
           (slot-spec (if (string? (cadr slot-spec))
                          (cons* :documentation (cadr slot-spec) (cddr slot-spec))
                          (cdr slot-spec))))
-      (cons slot-name
-            (minimal-alist
-             (p-list-fold (lambda (attr val rest)
-                            (alist-cons attr (validate-attr-value attr val) rest))
-                          (alist :name slot-name
-                                 :default ()
-                                 :get #"${prefix}${base-name}-${slot-name}"
-                                 :set #"${prefix}set-${base-name}-${slot-name}!")
-                          slot-spec))))))
+      (a-list->hash
+       (minimal-alist
+        (p-list-fold (lambda (attr val rest)
+                       (alist-cons attr (validate-attr-value attr val) rest))
+                     (alist :slot-name slot-name
+                            :default ()
+                            :get #"${prefix}${base-name}-${slot-name}"
+                            :set #"${prefix}set-${base-name}-${slot-name}!")
+                     slot-spec))))))
+
+(define (slot-meta-field field slot-meta)
+  (if (pair? slot-meta)
+      (assoc-val field slot-meta)
+      (hash-ref slot-meta field)))
 
 (define (assign-structure-slot-offsets type-name slots)
   (let ((indices {}))
     (let recur ((index 0) (slots slots))
-      (cond ((null? slots)
-             indices)
-            ((hash-has? indices (caar slots))
-             (error "Duplicate slots ~s in definition of structure type: ~s." (caar slots)
-                    type-name))
-            (#t
-             (hash-set! indices (caar slots) index)
-             (recur (+ index 1) (cdr slots)))))))
+      (let ((slot (car slots)))
+        (cond ((null? slots)
+               indices)
+              ((hash-has? indices (slot-meta-field :slot-name slot))
+               (error "Duplicate slots ~s in definition of structure type: ~s." (slot-meta-field :slot-name slot)
+                      type-name))
+              (#t
+               (hash-set! indices (slot-meta-field :slot-name slot) index)
+               (recur (+ index 1) (cdr slots))))))))
 
 (define (make-structure-layout type-name slots-meta)
   (cons type-name
@@ -136,13 +142,13 @@
              (slots-meta (map #L(parse-structure-slot _ prefix base-name) slots-spec)))
         (define (slot-procedures)
           (append-map (lambda (slot-defn)
-                        `(,@(aif (cdr (assoc :set slot-defn))
-                                 `((:set ,(intern! it pkg) ,(cdr (assoc :name slot-defn)))))
-                          ,@(aif (cdr (assoc :get slot-defn))
-                                 `((:get ,(intern! it pkg) ,(cdr (assoc :name slot-defn)))))))
+                        `(,@(aif (slot-meta-field :set slot-defn)
+                                 `((:set ,(intern! it pkg) ,(slot-meta-field :slot-name slot-defn))))
+                          ,@(aif (slot-meta-field :get slot-defn)
+                                 `((:get ,(intern! it pkg) ,(slot-meta-field :slot-name slot-defn))))))
                       slots-meta))
         (define (slot-defaults)
-          (map #L(cons (car _) (cdr (assoc :default _))) slots-meta))
+          (map #L(cons (slot-meta-field :slot-name _) (slot-meta-field :default _)) slots-meta))
         (let ((type-name (intern! base-name pkg) )
               (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
           (let ((layout (make-structure-layout type-name slots-meta)))
@@ -279,11 +285,12 @@ structure nor a type name."
       (define (structure-docs)
         (structure-meta-field meta :documentation))
       (define (slot-docs slot-name)
-        (let* ((slots (structure-meta-field meta :slots))
-               (slot (cdr (assoc slot-name slots))))
-          (aif (assoc :documentation slot)
-               #"Slot documentation: ${(cdr it)}"
-               "")))
+        (or ""
+            (let* ((slots (structure-meta-field meta :slots))
+                   (slot (cdr (assoc slot-name slots))))
+              (aif (assoc :documentation slot)
+                   #"Slot documentation: ${(cdr it)}"
+                   ""))))
       (define (constructor-form proc-name defaults)
         (let ((defaults (map #L(list (car _) (gensym _) (cdr _)) defaults)))
           (with-gensyms (initial-values-sym structure-sym)
