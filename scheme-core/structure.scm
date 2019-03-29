@@ -38,21 +38,7 @@
 ;;;      of a structure type definition. It is stored as a list of
 ;;;      layout folowed by an association list of type properties.
 
-(define (parse-structure-name structure-name)
-  "Parses a structure name, returning three value: a target package
-   for the structure, the base name for the structure type, and a
-   flag indicating if the structure type is internal. Internal
-   structure types are those prefixed with a #\\%  character."
-  (runtime-check (and symbol? symbol-package (not keyword?)) structure-name
-         "Bad structure name.")
-  (let* ((name-text (symbol-name structure-name))
-         (impl? (and (char=? #\% (string-ref name-text 0))
-                     (> (length name-text) 1))))
-    (values (symbol-package structure-name)
-            (if impl? (substring name-text 1) name-text)
-            impl?)))
-
-(define (parse-structure-slot slot-spec prefix base-name)
+(define (parse-structure-slot slot-spec base-name)
   "Parses the slot specification <slot-spec>, returning a list whose car
    is the name of the slot and whose cdr is an a-list completely describing
    the properties of the slot. If the slot specification is invalid,
@@ -81,8 +67,8 @@
                       (alist-cons attr (validate-attr-value attr val) rest))
                     (alist :slot-name slot-name
                            :default ()
-                           :get #"${prefix}${base-name}-${slot-name}"
-                           :set #"${prefix}set-${base-name}-${slot-name}!")
+                           :get #"${base-name}-${slot-name}"
+                           :set #"set-${base-name}-${slot-name}!")
                     slot-spec)))))
 
 (define (slot-meta-field field slot-meta)
@@ -122,15 +108,22 @@
     (and (pair? name)
          (eq? (car name) :orphaned))))
 
+(define (parse-structure-name structure-name)
+  "Parses a structure name, returning three value: a target package
+   for the structure and the base name for the structure type."
+  (runtime-check (and symbol? symbol-package (not keyword?)) structure-name
+         "Bad structure name.")
+  (values (symbol-package structure-name)
+          (symbol-name structure-name)))
+
 (define (parse-structure-definition structure-spec slots-spec)
   "Parses a structure definition composed of two parts, a
    <structure-spec> and a <slots-spec>, returning three values:
    the structure name, the structure metadata, and a list of
    procedures the structure definition s requested be created."
   (mvbind (doc-string slots-spec) (accept-documentable-block slots-spec)
-    (mvbind (pkg base-name internal-type?) (parse-structure-name structure-spec)
-      (let* ((prefix (if internal-type? "%" ""))
-             (slots-meta (map #L(parse-structure-slot _ prefix base-name) slots-spec)))
+    (mvbind (pkg base-name) (parse-structure-name structure-spec)
+      (let ((slots-meta (map #L(parse-structure-slot _ base-name) slots-spec)))
         (define (slot-procedures)
           (append-map (lambda (slot-defn)
                         `(,@(aif (slot-meta-field :set slot-defn)
@@ -141,7 +134,7 @@
         (define (slot-defaults)
           (map #L(cons (slot-meta-field :slot-name _) (slot-meta-field :default _)) slots-meta))
         (let ((type-name (intern! base-name pkg) )
-              (constructor-name (intern! #"${prefix}make-${base-name}" pkg)))
+              (constructor-name (intern! #"make-${base-name}" pkg)))
           (let ((layout (make-structure-layout type-name slots-meta)))
             (values {:type-name type-name
                      :layout layout
@@ -149,8 +142,8 @@
                      :documentation (or doc-string "")
                      :slots slots-meta}
                     (cons* (list :constructor constructor-name (slot-defaults))
-                           (list :copier      (intern! #"${prefix}copy-${base-name}" pkg))
-                           (list :predicate   (intern! #"${prefix}${base-name}?" pkg))
+                           (list :copier      (intern! #"copy-${base-name}" pkg))
+                           (list :predicate   (intern! #"${base-name}?" pkg))
                            (slot-procedures)))))))))
 
 (forward structure-meta)

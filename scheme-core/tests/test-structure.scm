@@ -35,11 +35,11 @@
   (check (symbol-bound-to-procedure? 'ship-dy))
 
   ;; test naming of accessors for internal structures
-  (check (symbol-bound-to-procedure? '%make-int-test))
-  (check (symbol-bound-to-procedure? '%copy-int-test))
+  (check (symbol-bound-to-procedure? 'make-%int-test))
+  (check (symbol-bound-to-procedure? 'copy-%int-test))
   (check (symbol-bound-to-procedure? '%int-test?))
 
-  (check (symbol-bound-to-procedure? '%set-int-test-foo!))
+  (check (symbol-bound-to-procedure? 'set-%int-test-foo!))
   (check (symbol-bound-to-procedure? '%int-test-foo))
 
   ;; Type predicates
