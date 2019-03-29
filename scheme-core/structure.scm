@@ -122,12 +122,6 @@
     (and (pair? name)
          (eq? (car name) :orphaned))))
 
-(define (structure-meta-field meta field)
-  (hash-ref meta field))
-
-(define (structure-meta-layout meta)
-  (structure-meta-field meta :layout))
-
 (define (parse-structure-definition structure-spec slots-spec)
   "Parses a structure definition composed of two parts, a
    <structure-spec> and a <slots-spec>, returning three values:
@@ -192,7 +186,7 @@ this can be called on an orphaned structure."
   (cond ((%structure? structure)
          (%structure-layout structure))
          ((symbol? structure)
-          (structure-meta-layout (structure-meta structure)))
+          (:layout (structure-meta structure)))
          (#t
           (error "Expected structure or structure type name: ~s" structure))))
 
@@ -204,12 +198,12 @@ this can be called on an orphaned structure."
   (runtime-check (or structure? symbol?) structure
          "Expected structure or structure type name.")
   (aand (structure-meta structure)
-        (structure-meta-field it :documentation)))
+        (:documentation it)))
 
 (define (invalidate-existing-structure-type! structure-type-name)
   (awhen (get-property structure-type-name 'structure-meta)
     (info "New structure definition orphaning existing structures of type: ~s" structure-type-name)
-    (mark-structure-layout-orphaned! (structure-meta-layout it))
+    (mark-structure-layout-orphaned! (:layout it))
     (remove-property! structure-type-name 'structure-meta)))
 
 (define (%register-structure-type! structure-type-name meta)
@@ -222,7 +216,7 @@ this can be called on an orphaned structure."
 
 (define (trap-resolve-fasl-struct-layout trapno frp new-layout)
   (let* ((existing-meta (%structure-meta (structure-layout-name new-layout)))
-         (old-layout (if existing-meta (structure-meta-layout existing-meta) ())))
+         (old-layout (if existing-meta (:layout existing-meta) ())))
     (if (equal? new-layout old-layout)
         old-layout
         (mark-structure-layout-orphaned! new-layout))))
@@ -271,28 +265,23 @@ structure nor a type name."
   (%copy-structure s))
 
 (define (make-structure-by-name type-name . args)
-  (aif (structure-meta-field (structure-meta type-name) :constructor-name)
+  (aif (:constructor-name (structure-meta type-name))
        (apply (symbol-value it) args)
        (error "Structure type not found: ~s" type-name)))
 
 (defmacro (define-structure name . slots)
   (mvbind (meta procs) (parse-structure-definition name slots)
-    (let ((name (structure-meta-field meta :type-name))
-          (layout (structure-meta-field meta :layout)))
-      (define (structure-docs)
-        (structure-meta-field meta :documentation))
+    (let ((name (:type-name meta))
+          (layout (:layout meta)))
       (define (slot-docs slot-name)
-        (let* ((slots (structure-meta-field meta :slots))
-               (slot (find #L(eq? slot-name (:slot-name _)) slots)))
-          (aif (:documentation slot)
-               #"Slot documentation: ${it}"
-               "")))
+        (aif (:documentation (find #L(eq? slot-name (:slot-name _)) (:slots meta)))
+             #"Slot documentation: ${it}"
+             ""))
       (define (constructor-form proc-name defaults)
         (let ((defaults (map #L(list (car _) (gensym _) (cdr _)) defaults)))
-          (with-gensyms (initial-values-sym structure-sym)
-            `(define (,proc-name :keyword ,@defaults)
-               ,#"Constructs a new instance of structure type ${name}. ${(structure-docs)}"
-               (%structurecons (vector ,@(map cadr defaults)) ',layout)))))
+          `(define (,proc-name :keyword ,@defaults)
+             ,#"Constructs a new instance of structure type ${name}. ${(:documentation meta)}"
+             (%structurecons (vector ,@(map cadr defaults)) ',layout))))
       (define (copier-form proc-name)
         `(define (,proc-name s)
            ,#"Copies an instance <s> of structure type ${name}, throwing an error
