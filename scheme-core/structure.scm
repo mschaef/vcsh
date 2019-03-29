@@ -77,14 +77,13 @@
                          (cons* :documentation (cadr slot-spec) (cddr slot-spec))
                          (cdr slot-spec))))
       (a-list->hash
-       (minimal-alist
-        (p-list-fold (lambda (attr val rest)
-                       (alist-cons attr (validate-attr-value attr val) rest))
-                     (alist :slot-name slot-name
-                            :default ()
-                            :get #"${prefix}${base-name}-${slot-name}"
-                            :set #"${prefix}set-${base-name}-${slot-name}!")
-                     slot-spec))))))
+       (p-list-fold (lambda (attr val rest)
+                      (alist-cons attr (validate-attr-value attr val) rest))
+                    (alist :slot-name slot-name
+                           :default ()
+                           :get #"${prefix}${base-name}-${slot-name}"
+                           :set #"${prefix}set-${base-name}-${slot-name}!")
+                    slot-spec)))))
 
 (define (slot-meta-field field slot-meta)
   (hash-ref slot-meta field))
@@ -283,12 +282,11 @@ structure nor a type name."
       (define (structure-docs)
         (structure-meta-field meta :documentation))
       (define (slot-docs slot-name)
-        (or ""
-            (let* ((slots (structure-meta-field meta :slots))
-                   (slot (cdr (assoc slot-name slots))))
-              (aif (assoc :documentation slot)
-                   #"Slot documentation: ${(cdr it)}"
-                   ""))))
+        (let* ((slots (structure-meta-field meta :slots))
+               (slot (find #L(eq? slot-name (:slot-name _)) slots)))
+          (aif (:documentation slot)
+               #"Slot documentation: ${it}"
+               "")))
       (define (constructor-form proc-name defaults)
         (let ((defaults (map #L(list (car _) (gensym _) (cdr _)) defaults)))
           (with-gensyms (initial-values-sym structure-sym)
