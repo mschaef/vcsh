@@ -31,7 +31,6 @@
    #.system::TC_END_OF_FILE    'end-of-file 
    #.system::TC_VALUES_TUPLE   'values-tuple 
    #.system::TC_UNBOUND_MARKER 'unbound-marker 
-   #.system::TC_GC_TRIP_WIRE   'trip-wire 
    #.system::TC_FAST_OP        'fast-op
    #.system::TC_FASL_READER    'fasl-reader})
 
