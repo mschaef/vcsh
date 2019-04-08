@@ -400,6 +400,7 @@ static void register_main_subrs()
     register_subr(_T("make-identity-hash"),               SUBR_0,     (void*)lmake_identity_hash                 );
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );
+    register_subr(_T("make-structure-layout"),            SUBR_2,     (void*)lmake_structure_layout              );
     register_subr(_T("make-vector"),                      SUBR_2,     (void*)lmake_vector                        );
     register_subr(_T("modulo"),                           SUBR_2,     (void*)lmodulo                             );
     register_subr(_T("nan?"),                             SUBR_1,     (void*)lnanp                               );
@@ -487,6 +488,9 @@ static void register_main_subrs()
     register_subr(_T("string-upcase!"),                   SUBR_1,     (void*)lstring_upcased                     );
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );
+    register_subr(_T("structure-layout?"),                SUBR_1,     (void*)lstructure_layoutp                  );
+    register_subr(_T("structure-layout-name"),            SUBR_1,     (void*)lstructure_layout_name              );
+    register_subr(_T("structure-layout-slots"),           SUBR_1,     (void*)lstructure_layout_slots             );
     register_subr(_T("%subr-type-code"),                  SUBR_1,     (void*)lsubr_type_code                     );
     register_subr(_T("%subr-name"),                       SUBR_1,     (void*)lsubr_name                          );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );

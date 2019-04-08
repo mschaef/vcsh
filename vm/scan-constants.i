@@ -209,7 +209,7 @@ BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)
     VM_CONSTANT(TC_VALUES_TUPLE,              18 )
     VM_CONSTANT(TC_INSTANCE,                  19 )
     VM_CONSTANT(TC_UNBOUND_MARKER,            20 )
-    // 21 unused
+    VM_CONSTANT(TC_STRUCTURE_LAYOUT,          21 )
     VM_CONSTANT(TC_FAST_OP,                   22 )
     VM_CONSTANT(TC_FASL_READER,               23 )
 

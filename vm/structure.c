@@ -33,7 +33,7 @@ lref_t lcopy_structure(lref_t st, lref_t expected_layout)
 
      return new_st;
 }
-
+     
 lref_t lstructurecons(lref_t slots, lref_t layout)
 {
      if (!VECTORP(slots))
@@ -195,4 +195,38 @@ lref_t lslot_set(lref_t obj, lref_t slot_name, lref_t new_val) {
      }
 
      return obj;
+}
+
+lref_t lmake_structure_layout(lref_t name, lref_t slots)
+{
+     lref_t stl = new_cell(TC_STRUCTURE_LAYOUT);
+
+     SET_STRUCTURE_LAYOUT_NAME(stl, name);
+     SET_STRUCTURE_LAYOUT_SLOTS(stl, slots);
+     
+     return stl;
+}
+
+lref_t lstructure_layoutp(lref_t obj)
+{
+     if (STRUCTURE_LAYOUTP(obj))
+          return obj;
+
+     return boolcons(false);
+}
+
+lref_t lstructure_layout_name(lref_t sl)
+{
+     if (!STRUCTURE_LAYOUTP(sl))
+          vmerror_wrong_type_n(1, sl);
+
+     return STRUCTURE_LAYOUT_NAME(sl);
+}
+
+lref_t lstructure_layout_slots(lref_t sl)
+{
+     if (!STRUCTURE_LAYOUTP(sl))
+          vmerror_wrong_type_n(1, sl);
+
+     return STRUCTURE_LAYOUT_SLOTS(sl);
 }
