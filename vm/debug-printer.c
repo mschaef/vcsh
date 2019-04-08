@@ -335,7 +335,11 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 
           WRITE_TEXT_CONSTANT(port, _T(")"));
           break;
-
+          
+     case TC_SLAYOUT:
+          scwritef("~u name:~a slots:~a", port, (lref_t) obj, obj->as.slayout.name, obj->as.slayout.slots);
+          break;
+          
      case TC_STRING:
           debug_print_string(obj, port, machine_readable);
           break;

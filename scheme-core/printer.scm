@@ -262,11 +262,18 @@
   (if (pair? (%closure-code obj))
       (print-unreadable-object obj port
         (print (cons (get-property obj 'name)
-                            (car (%closure-code obj)))
-                      port
-                      machine-readable?
-                      #f))
+                     (car (%closure-code obj)))
+               port
+               machine-readable?
+               #f))
       (print-unreadable-object obj port)))
+
+(define-method (print-object (obj slayout) port machine-readable? shared-structure-map)
+  (print-unreadable-object obj port
+    (write-strings port " name:")
+    (print (slayout-name obj) port machine-readable? #f)
+    (write-strings port " slots:")
+    (print (slayout-slots obj) port machine-readable? #f)))
 
 (define-method (print-object (obj structure) port machine-readable? shared-structure-map)
   (define (print-structure-body)

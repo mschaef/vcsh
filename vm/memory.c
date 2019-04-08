@@ -341,6 +341,11 @@ void gc_mark(lref_t initial_obj)
                obj = STRUCTURE_LAYOUT(obj);
                break;
 
+          case TC_SLAYOUT:
+               gc_mark(SLAYOUT_NAME(obj));
+               obj = SLAYOUT_SLOTS(obj);
+               break;
+
           case TC_VALUES_TUPLE:
                obj = obj->as.values_tuple.values;
                break;

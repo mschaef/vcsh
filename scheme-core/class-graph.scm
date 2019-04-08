@@ -25,7 +25,8 @@
    #.system::TC_MACRO          'macro 
    #.system::TC_STRING         'string 
    #.system::TC_VECTOR         'vector 
-   #.system::TC_STRUCTURE      'structure 
+   #.system::TC_STRUCTURE      'structure
+   #.system::TC_SLAYOUT        'slayout
    #.system::TC_HASH           'hash 
    #.system::TC_PORT           'port 
    #.system::TC_END_OF_FILE    'end-of-file 

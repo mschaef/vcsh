@@ -12,6 +12,59 @@
 
 #include "scan-private.h"
 
+lref_t lmake_slayout(lref_t name, lref_t slots)
+{
+     lref_t stl = new_cell(TC_SLAYOUT);
+
+     SET_SLAYOUT_NAME(stl, name);
+     SET_SLAYOUT_SLOTS(stl, slots);
+     
+     return stl;
+}
+
+lref_t lslayoutp(lref_t obj)
+{
+     if (SLAYOUTP(obj))
+          return obj;
+
+     return boolcons(false);
+}
+
+lref_t lslayout_name(lref_t sl)
+{
+     if (!SLAYOUTP(sl))
+          vmerror_wrong_type_n(1, sl);
+
+     return SLAYOUT_NAME(sl);
+}
+
+lref_t lslayout_slots(lref_t sl)
+{
+     if (!SLAYOUTP(sl))
+          vmerror_wrong_type_n(1, sl);
+
+     return SLAYOUT_SLOTS(sl);
+}
+
+lref_t lstructurecons(lref_t slots, lref_t layout)
+{
+     if (!VECTORP(slots))
+          vmerror_wrong_type_n(1, slots);
+
+     size_t len = slots->as.vector.dim;
+
+     lref_t st = new_cell(TC_STRUCTURE);
+
+     SET_STRUCTURE_DIM(st, len);
+     SET_STRUCTURE_LAYOUT(st, layout);
+     SET_STRUCTURE_DATA(st, (lref_t *) gc_malloc(len * sizeof(lref_t)));
+
+     for (size_t ii = 0; ii < len; ii++)
+          SET_STRUCTURE_ELEM(st, ii, slots->as.vector.data[ii]);
+
+     return st;
+}
+
 lref_t lcopy_structure(lref_t st, lref_t expected_layout)
 {
      if (!STRUCTUREP(st))
@@ -32,25 +85,6 @@ lref_t lcopy_structure(lref_t st, lref_t expected_layout)
           SET_STRUCTURE_ELEM(new_st, ii, STRUCTURE_ELEM(st, ii));
 
      return new_st;
-}
-
-lref_t lstructurecons(lref_t slots, lref_t layout)
-{
-     if (!VECTORP(slots))
-          vmerror_wrong_type_n(1, slots);
-
-     size_t len = slots->as.vector.dim;
-
-     lref_t st = new_cell(TC_STRUCTURE);
-
-     SET_STRUCTURE_DIM(st, len);
-     SET_STRUCTURE_LAYOUT(st, layout);
-     SET_STRUCTURE_DATA(st, (lref_t *) gc_malloc(len * sizeof(lref_t)));
-
-     for (size_t ii = 0; ii < len; ii++)
-          SET_STRUCTURE_ELEM(st, ii, slots->as.vector.data[ii]);
-
-     return st;
 }
 
 lref_t lstructurep(lref_t st, lref_t expected_layout)
@@ -144,6 +178,8 @@ bool structure_equal(lref_t sta, lref_t stb)
      return true;
 }
 
+/// Slots
+
 lref_t lslot_ref(size_t argc, lref_t argv[]) {
 
      lref_t obj = NIL;
@@ -196,3 +232,4 @@ lref_t lslot_set(lref_t obj, lref_t slot_name, lref_t new_val) {
 
      return obj;
 }
+
