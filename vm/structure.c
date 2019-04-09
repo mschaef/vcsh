@@ -170,6 +170,17 @@ lref_t lstructure_set(lref_t st, lref_t index, lref_t value, lref_t expected_lay
      return NIL;
 }
 
+bool slayout_equal(lref_t sla, lref_t slb)
+{
+     assert(SLAYOUTP(sla));
+     assert(SLAYOUTP(slb));
+
+     if (!equalp(SLAYOUT_NAME(sla), SLAYOUT_NAME(slb)))
+          return false;
+
+     return equalp(SLAYOUT_SLOTS(sla), SLAYOUT_SLOTS(slb));
+}
+     
 bool structure_equal(lref_t sta, lref_t stb)
 {
      assert(STRUCTUREP(sta));

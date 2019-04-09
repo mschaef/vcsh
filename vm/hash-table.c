@@ -194,6 +194,11 @@ fixnum_t sxhash(lref_t obj)
                hash = HASH_COMBINE(hash, sxhash(obj->as.vector.data[ii]));
           break;
 
+     case TC_SLAYOUT:
+          hash = HASH_COMBINE(hash, sxhash(SLAYOUT_NAME(obj)));
+          hash = HASH_COMBINE(hash, sxhash(SLAYOUT_SLOTS(obj)));
+          break;
+               
      case TC_STRUCTURE:
           hash = HASH_COMBINE(hash, sxhash(STRUCTURE_LAYOUT(obj)));
 

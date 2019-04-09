@@ -460,7 +460,7 @@ static void register_main_subrs()
     register_subr(_T("set-environment-variable!"),        SUBR_2,     (void*)lset_environment_variable           );
     register_subr(_T("set-port-translate-mode!"),         SUBR_2,     (void*)lport_set_translate_mode            );
     register_subr(_T("set-random-seed!"),                 SUBR_1,     (void*)lset_random_seed                    );
-    register_subr(_T("set-slayout-name!"),                SUBR_1,     (void*)lset_slayout_name                   );
+    register_subr(_T("set-slayout-name!"),                SUBR_2,     (void*)lset_slayout_name                   );
     register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
     register_subr(_T("%set-symbol-vcell!"),               SUBR_2,     (void*)lset_symbol_vcell                   );
     register_subr(_T("sin"),                              SUBR_1,     (void*)lsin                                );

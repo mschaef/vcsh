@@ -106,6 +106,8 @@ bool equalp(lref_t a, lref_t b)
           return a == b;
      case TC_VECTOR:
           return vector_equal(a, b);
+     case TC_SLAYOUT:
+          return slayout_equal(a, b);
      case TC_STRUCTURE:
           return structure_equal(a, b);
      case TC_STRING:

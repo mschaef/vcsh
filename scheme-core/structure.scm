@@ -88,7 +88,7 @@
                (recur (+ index 1) (cdr slots))))))))
 
 (define (make-structure-layout type-name slots-meta)
-  (cons type-name (assign-structure-slot-offsets type-name slots-meta)))
+  (make-slayout type-name (assign-structure-slot-offsets type-name slots-meta)))
 
 (define (structure-layout-name layout)
   (if (slayout? layout)

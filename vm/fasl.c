@@ -423,11 +423,11 @@ static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, l
 
 static void fast_read_structure(lref_t reader, lref_t * st)
 {
-     lref_t st_meta;
-     fast_read(reader, &st_meta, false);
+     lref_t st_layout;
+     fast_read(reader, &st_layout, false);
 
-     if (!CONSP(st_meta))
-          vmerror_fast_read("Expected list for structure metadata", reader, st_meta);
+     if (!CONSP(st_layout) && !SLAYOUTP(st_layout))
+          vmerror_fast_read("Expected list or slayout for structure layout", reader, st_layout);
 
      lref_t st_length;
      fast_read(reader, &st_length, false);
@@ -435,7 +435,7 @@ static void fast_read_structure(lref_t reader, lref_t * st)
      if (!FIXNUMP(st_length))
           vmerror_fast_read("Expected fixnum for structure length", reader, st_length);
 
-     *st = lstructurecons(vectorcons(FIXNM(st_length), NIL), st_meta);
+     *st = lstructurecons(vectorcons(FIXNM(st_length), NIL), st_layout);
 
      for (fixnum_t ii = 0; ii < FIXNM(st_length); ii++)
      {
