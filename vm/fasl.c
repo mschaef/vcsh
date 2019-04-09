@@ -368,6 +368,25 @@ static void fast_read_vector(lref_t reader, lref_t * vec)
      }
 }
 
+static void fast_read_slayout(lref_t reader, lref_t *st_layout)
+{
+     lref_t st_name;
+     fast_read(reader, &st_name, false);
+
+     if (!(SYMBOLP(st_name) || CONSP(st_name)))
+          vmerror_fast_read("Expected symbol or list for slayout name", reader, st_name);
+
+     lref_t st_slots;
+     fast_read(reader, &st_slots, false);
+
+     if (!HASHP(st_slots))
+          vmerror_fast_read("Expected hash for slayout slots", reader, st_slots);
+     
+     lref_t sl = lmake_slayout(st_name, st_slots);
+     
+     *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, sl);
+}
+
 static void fast_read_structure_layout(lref_t reader, lref_t * st_layout)
 {
      lref_t new_st_layout;
@@ -778,6 +797,10 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
                fast_read_structure(reader, retval);
                break;
 
+          case FASL_OP_SLAYOUT:
+               fast_read_slayout(reader, retval);
+               break;
+               
           case FASL_OP_STRUCTURE_LAYOUT:
                fast_read_structure_layout(reader, retval);
                break;

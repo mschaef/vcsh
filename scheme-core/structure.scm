@@ -88,20 +88,27 @@
                (recur (+ index 1) (cdr slots))))))))
 
 (define (make-structure-layout type-name slots-meta)
-  (cons type-name
-        (assign-structure-slot-offsets type-name slots-meta)))
+  (cons type-name (assign-structure-slot-offsets type-name slots-meta)))
 
 (define (structure-layout-name layout)
-  (car layout))
+  (if (slayout? layout)
+      (slayout-name layout) 
+      (car layout)))
 
 (define (structure-layout-slot-names layout)
-  (hash-keys (cdr layout)))
+  (if (slayout? layout)
+      (hash-keys (slayout-slots layout))
+      (hash-keys (cdr layout))))
 
 (define (structure-layout-slot-offset layout slot-name)
-  (hash-ref (cdr layout) slot-name))
+  (if (slayout? layout)
+      (hash-ref (slayout-slots layout) slot-name)
+      (hash-ref (cdr layout) slot-name)))
 
 (define (mark-structure-layout-orphaned! layout)
-  (set-car! layout (list :orphaned (car layout))))
+  (if (slayout? layout)
+      (set-slayout-name! layout (list :orphaned (slayout-name layout)))
+      (set-car! layout (list :orphaned (car layout)))))
 
 (define (structure-layout-orphaned? layout)
   (let ((name (structure-layout-name layout)))

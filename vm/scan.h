@@ -390,6 +390,7 @@ lref_t lset_package_name(lref_t p, lref_t new_name);
 lref_t lset_package_use_list(lref_t p, lref_t use_list);
 lref_t lset_property_list(lref_t exp, lref_t property_list);
 lref_t lset_random_seed(lref_t s);
+lref_t lset_slayout_name(lref_t sl, lref_t name);
 lref_t lset_stack_limit(lref_t);
 lref_t lset_symbol_package(lref_t sym, lref_t package);
 lref_t lset_symbol_vcell(lref_t sym, lref_t val);

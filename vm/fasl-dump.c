@@ -395,16 +395,31 @@ void dump_macro()
 {
      enum fasl_opcode_t op = dump_next_object(_T("transformer"), NULL);
 
-  if (op != FASL_OP_CLOSURE)
-    dump_error("malformed macro, bad transformer");
+     if (op != FASL_OP_CLOSURE)
+          dump_error("malformed macro, bad transformer");
+}
+
+static void dump_slayout()
+{
+     enum fasl_opcode_t op;
+     
+     op = dump_next_object(_T("slayout-name"), NULL);
+
+     if (op != FASL_OP_LIST && op != FASL_OP_SYMBOL)
+          dump_error("malformed slayout, bad name");
+     
+     op = dump_next_object(_T("slayout-slots"), NULL);
+
+     if (op != FASL_OP_HASH)
+          dump_error("malformed slayout, bad slots");
 }
 
 static void dump_structure_layout()
 {
      enum fasl_opcode_t op = dump_next_object(_T("layout-data"), NULL);
-
-  if (op != FASL_OP_LIST)
-    dump_error("Expected list for structure layout");
+     
+     if (op != FASL_OP_LIST)
+          dump_error("Expected list for structure layout");
 }
 
 static void dump_fast_op(int arity, bool has_next)
@@ -454,8 +469,8 @@ static void dump_structure()
 
   enum fasl_opcode_t op = dump_next_object(_T("layout"), NULL);
 
-  if (op != FASL_OP_STRUCTURE_LAYOUT)
-    dump_error("Expected structure layout");
+  if (op != FASL_OP_STRUCTURE_LAYOUT && op != FASL_OP_SLAYOUT)
+    dump_error("Expected structure layout or slayout");
 
   op = dump_next_object(_T("length"), &length);
 
@@ -560,40 +575,32 @@ static enum fasl_opcode_t dump_next_object(const _TCHAR *desc,
     case FASL_OP_TRUE:			                        break;
     case FASL_OP_FALSE:			                        break;
 
-    case FASL_OP_CHARACTER:		dump_character();	break;
-
-    case FASL_OP_LIST:			dump_list(false);	break;
-    case FASL_OP_LISTD:			dump_list(true);	break;
-
-    case FASL_OP_FIX8:			dump_fixnum(1, fixnum_value);  	break;
-    case FASL_OP_FIX16:			dump_fixnum(2, fixnum_value);	break;
-    case FASL_OP_FIX32:			dump_fixnum(4, fixnum_value);	break;
-    case FASL_OP_FIX64:			dump_fixnum(8, fixnum_value);   break;
-
-    case FASL_OP_FLOAT:			dump_flonum(false);	break;
-    case FASL_OP_COMPLEX:		dump_flonum(true);   	break;
-
-    case FASL_OP_STRING:		dump_string();		break;
-    case FASL_OP_PACKAGE:		dump_package();		break;
-    case FASL_OP_VECTOR:		dump_vector();		break;
-
-    case FASL_OP_HASH:			dump_hash();	        break;
-
-    case FASL_OP_CLOSURE:		dump_closure();		break;
-    case FASL_OP_MACRO:			dump_macro();		break;
-    case FASL_OP_SYMBOL:		dump_symbol();		break;
-    case FASL_OP_SUBR:                  dump_subr();            break;
-
-    case FASL_OP_STRUCTURE:             dump_structure();             break;
-    case FASL_OP_STRUCTURE_LAYOUT:      dump_structure_layout();      break;
-
-    case FASL_OP_FAST_OP_0:             dump_fast_op(0, false);       break;
-    case FASL_OP_FAST_OP_1:             dump_fast_op(1, false);       break;
-    case FASL_OP_FAST_OP_2:             dump_fast_op(2, false);       break;
-
-    case FASL_OP_FAST_OP_0N:            dump_fast_op(0, true);        break;
-    case FASL_OP_FAST_OP_1N:            dump_fast_op(1, true);        break;
-    case FASL_OP_FAST_OP_2N:            dump_fast_op(2, true);        break;
+    case FASL_OP_CHARACTER:             dump_character();                    break;
+    case FASL_OP_LIST:                  dump_list(false);                    break;
+    case FASL_OP_LISTD:                 dump_list(true);                     break;
+    case FASL_OP_FIX8:                  dump_fixnum(1, fixnum_value);        break;
+    case FASL_OP_FIX16:                 dump_fixnum(2, fixnum_value);        break;
+    case FASL_OP_FIX32:                 dump_fixnum(4, fixnum_value);        break;
+    case FASL_OP_FIX64:                 dump_fixnum(8, fixnum_value);        break;
+    case FASL_OP_FLOAT:                 dump_flonum(false);                  break;
+    case FASL_OP_COMPLEX:               dump_flonum(true);                   break;
+    case FASL_OP_STRING:                dump_string();                       break;
+    case FASL_OP_PACKAGE:               dump_package();                      break;
+    case FASL_OP_VECTOR:                dump_vector();                       break;
+    case FASL_OP_HASH:                  dump_hash();                         break;
+    case FASL_OP_CLOSURE:               dump_closure();                      break;
+    case FASL_OP_MACRO:                 dump_macro();                        break;
+    case FASL_OP_SYMBOL:                dump_symbol();                       break;
+    case FASL_OP_SUBR:                  dump_subr();                         break;
+    case FASL_OP_STRUCTURE:             dump_structure();                    break;
+    case FASL_OP_SLAYOUT:               dump_slayout();                      break;
+    case FASL_OP_STRUCTURE_LAYOUT:      dump_structure_layout();             break;
+    case FASL_OP_FAST_OP_0:             dump_fast_op(0, false);              break;
+    case FASL_OP_FAST_OP_1:             dump_fast_op(1, false);              break;
+    case FASL_OP_FAST_OP_2:             dump_fast_op(2, false);              break;
+    case FASL_OP_FAST_OP_0N:            dump_fast_op(0, true);               break;
+    case FASL_OP_FAST_OP_1N:            dump_fast_op(1, true);               break;
+    case FASL_OP_FAST_OP_2N:            dump_fast_op(2, true);               break;
 
     case FASL_OP_NOP_1:
     case FASL_OP_NOP_2:

@@ -226,6 +226,7 @@
 (%define set-environment-variable! #.(host-scheme::%subr-by-name "set-environment-variable!"))
 (%define set-port-translate-mode! #.(host-scheme::%subr-by-name "set-port-translate-mode!"))
 (%define set-random-seed! #.(host-scheme::%subr-by-name "set-random-seed!"))
+(%define set-slayout-name! #.(host-scheme::%subr-by-name "set-slayout-name!"))
 (%define set-symbol-package! #.(host-scheme::%subr-by-name "set-symbol-package!"))
 (%define sin #.(host-scheme::%subr-by-name "sin"))
 (%define slayout-name #.(host-scheme::%subr-by-name "slayout-name"))

@@ -14,12 +14,12 @@
 
 lref_t lmake_slayout(lref_t name, lref_t slots)
 {
-     lref_t stl = new_cell(TC_SLAYOUT);
+     lref_t sl = new_cell(TC_SLAYOUT);
 
-     SET_SLAYOUT_NAME(stl, name);
-     SET_SLAYOUT_SLOTS(stl, slots);
+     SET_SLAYOUT_NAME(sl, name);
+     SET_SLAYOUT_SLOTS(sl, slots);
      
-     return stl;
+     return sl;
 }
 
 lref_t lslayoutp(lref_t obj)
@@ -28,6 +28,16 @@ lref_t lslayoutp(lref_t obj)
           return obj;
 
      return boolcons(false);
+}
+
+lref_t lset_slayout_name(lref_t sl, lref_t name)
+{
+     if (!SLAYOUTP(sl))
+          vmerror_wrong_type_n(1, sl);
+
+     SET_SLAYOUT_NAME(sl, name);
+     
+     return sl;
 }
 
 lref_t lslayout_name(lref_t sl)

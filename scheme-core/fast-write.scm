@@ -119,19 +119,25 @@
     (define (do-write)
       (fast-write-opcode system::FASL_OP_STRUCTURE_LAYOUT port)
       (check-sharing-and-write layout))
-    (if smap
-        (let ((layout-table (sharing-map-structure-layouts smap)))
-          (aif (hash-ref layout-table layout)
-               (begin
-                 (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
-                 (fast-write-object it))
-               (begin
-                 (let ((next-index (get-next-index!)))
-                   (hash-set! layout-table layout next-index)
-                   (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
-                   (fast-write-object next-index)
-                   (do-write)))))
-        (do-write)))
+    
+    (cond
+     ((slayout? layout)
+      (check-sharing-and-write layout))
+     
+     (smap
+      (let ((layout-table (sharing-map-structure-layouts smap)))
+        (aif (hash-ref layout-table layout)
+             (begin
+               (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
+               (fast-write-object it))
+             (begin
+               (let ((next-index (get-next-index!)))
+                 (hash-set! layout-table layout next-index)
+                 (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
+                 (fast-write-object next-index)
+                 (do-write))))))
+     (#t
+      (do-write))))
 
   (define (fast-write-object object)
 
@@ -149,7 +155,7 @@
       ((cons)
        (mvbind (len dotted?) (length-excluding-shared object smap)
          (fast-write-opcode (if dotted? system::FASL_OP_LISTD system::FASL_OP_LIST) port)
-         (check-sharing-and-write len)
+         (fast-write-object len)
          (let loop ((i 0) (xs object))
            (cond ((< i len)
                   (check-sharing-and-write (car xs))
@@ -197,7 +203,7 @@
 
       ((vector)
        (fast-write-opcode system::FASL_OP_VECTOR port)
-       (check-sharing-and-write (length object))
+       (fast-write-object (length object))
        (dovec (x object)
          (check-sharing-and-write x)))
 
@@ -220,11 +226,16 @@
        (fast-write-opcode system::FASL_OP_MACRO port)
        (check-sharing-and-write (%macro-transformer object)))
 
+      ((slayout)
+       (fast-write-opcode system::FASL_OP_SLAYOUT port)
+       (check-sharing-and-write (slayout-name object))
+       (check-sharing-and-write (slayout-slots object)))
+      
       ((structure)
        (fast-write-opcode system::FASL_OP_STRUCTURE port)
        (fast-write-structure-layout (%structure-layout object))
        (let ((len (%structure-length object)))
-         (check-sharing-and-write len)
+         (fast-write-object len)
          (dotimes (ii len)
            (check-sharing-and-write (%structure-ref object ii)))))
 
