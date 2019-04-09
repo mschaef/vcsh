@@ -38,13 +38,13 @@
                scheme::macro
                scheme::string
                scheme::vector
+               scheme::slayout
                scheme::structure
                scheme::hash
                scheme::port
                scheme::end-of-file
                scheme::values-tuple
                scheme::unbound-marker
-               scheme::trip-wire
                scheme::fast-op)
              '(scheme::*package-list*
                scheme::*provided-packages*)
