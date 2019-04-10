@@ -547,12 +547,14 @@
 
 (define gensym
   (let ((gensym-count 0))
-    (lambda name
+    (lambda args
       (incr! gensym-count)
-      (let ((name (if (or (not (pair? name))
-                          (not (string? (car name))))
-                      "GS"
-                      (car name))))
+      (let ((name (if (pair? args)
+                      (let ((name (car args)))
+                        (etypecase name
+                          ((string) name)
+                          ((symbol) (symbol-name name))))
+                      "GS")))
         (string->uninterned-symbol
          (string-append name "-" (number->string gensym-count)))))))
 
