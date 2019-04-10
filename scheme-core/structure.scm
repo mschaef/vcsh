@@ -90,28 +90,17 @@
 (define (make-structure-layout type-name slots-meta)
   (make-slayout type-name (assign-structure-slot-offsets type-name slots-meta)))
 
-(define (structure-layout-name layout)
-  (if (slayout? layout)
-      (slayout-name layout) 
-      (car layout)))
+(define (slayout-slot-names layout)
+  (hash-keys (slayout-slots layout)))
 
-(define (structure-layout-slot-names layout)
-  (if (slayout? layout)
-      (hash-keys (slayout-slots layout))
-      (hash-keys (cdr layout))))
+(define (slayout-slot-offset layout slot-name)
+  (hash-ref (slayout-slots layout) slot-name))
 
-(define (structure-layout-slot-offset layout slot-name)
-  (if (slayout? layout)
-      (hash-ref (slayout-slots layout) slot-name)
-      (hash-ref (cdr layout) slot-name)))
+(define (mark-slayout-orphaned! layout)
+  (set-slayout-name! layout (list :orphaned (slayout-name layout))))
 
-(define (mark-structure-layout-orphaned! layout)
-  (if (slayout? layout)
-      (set-slayout-name! layout (list :orphaned (slayout-name layout)))
-      (set-car! layout (list :orphaned (car layout)))))
-
-(define (structure-layout-orphaned? layout)
-  (let ((name (structure-layout-name layout)))
+(define (slayout-orphaned? layout)
+  (let ((name (slayout-name layout)))
     (and (pair? name)
          (eq? (car name) :orphaned))))
 
@@ -203,7 +192,7 @@ this can be called on an orphaned structure."
 (define (invalidate-existing-structure-type! structure-type-name)
   (awhen (get-property structure-type-name 'structure-meta)
     (info "New structure definition orphaning existing structures of type: ~s" structure-type-name)
-    (mark-structure-layout-orphaned! (:layout it))
+    (mark-slayout-orphaned! (:layout it))
     (remove-property! structure-type-name 'structure-meta)))
 
 (define (%register-structure-type! structure-type-name meta)
@@ -215,11 +204,11 @@ this can be called on an orphaned structure."
   (set-property! structure-type-name 'structure-meta meta))
 
 (define (trap-resolve-fasl-struct-layout trapno frp new-layout)
-  (let* ((existing-meta (%structure-meta (structure-layout-name new-layout)))
+  (let* ((existing-meta (%structure-meta (slayout-name new-layout)))
          (old-layout (if existing-meta (:layout existing-meta) ())))
     (if (equal? new-layout old-layout)
         old-layout
-        (mark-structure-layout-orphaned! new-layout))))
+        (mark-slayout-orphaned! new-layout))))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (%set-trap-handler! system::TRAP_RESOLVE_FASL_STRUCT_LAYOUT trap-resolve-fasl-struct-layout))
@@ -234,13 +223,13 @@ this can be called on an orphaned structure."
    a symbol, but for an instance of a orphaned structure type, the type name is
    returned as a two element list composed of :orphaned and the former type name."
   (runtime-check %structure? structure)
-  (structure-layout-name (structure-layout structure)))
+  (slayout-name (structure-layout structure)))
 
 (define (orphaned-structure? structure)
   "Returns <structure> if it is an instance of a orphaned structure type, returns #f
    otherwise."
   (and (structure? structure)
-       (structure-layout-orphaned? (structure-layout structure))
+       (slayout-orphaned? (structure-layout structure))
        structure))
 
 (define (structure-slots structure)
@@ -248,7 +237,7 @@ this can be called on an orphaned structure."
 be a structure (including orphaned structures) or a symbol naming a
 structure type. Throws an error is <structure> is neither a valid
 structure nor a type name."
-  (structure-layout-slot-names (structure-layout structure)))
+  (slayout-slot-names (structure-layout structure)))
 
 (define (structure-has-slot? structure slot-name)
   "Returns <slot-name> if it is the name of a valid slot in <structure>,
@@ -256,7 +245,7 @@ structure nor a type name."
    a symbol naming a structure type. If a structure type is not found,
    throws an error."
   (runtime-check keyword? slot-name)
-  (and (structure-layout-slot-offset (structure-layout structure) slot-name)
+  (and (slayout-slot-offset (structure-layout structure) slot-name)
        slot-name))
 
 (define (copy-structure s)
@@ -298,12 +287,12 @@ structure nor a type name."
            ,#"Retrieves the value of the ${slot-name} slot of <s>, which must
               be of structure type ${name}. Throws an error if <s> is not of the
              expected type. ${(slot-docs slot-name)}"
-           (%structure-ref s ,(structure-layout-slot-offset layout slot-name) ',layout)))
+           (%structure-ref s ,(slayout-slot-offset layout slot-name) ',layout)))
       (define (setter-form proc-name slot-name)
         `(define (,proc-name s v)
            ,#"Updates the ${slot-name} slot of of <s> to <v>. <s> must be of structure
             type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
-           (%structure-set! s ,(structure-layout-slot-offset layout slot-name) v ',layout)))
+           (%structure-set! s ,(slayout-slot-offset layout slot-name) v ',layout)))
 
       `(eval-when (:compile-toplevel :load-toplevel :execute)
          ,@(map (lambda (proc)
