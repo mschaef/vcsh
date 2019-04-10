@@ -94,7 +94,6 @@ BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_SUBR,                 50 )
     VM_CONSTANT(FASL_OP_COMMENT_2,            59 ) /* #\; */
     VM_CONSTANT(FASL_OP_STRUCTURE,            60 )
-    VM_CONSTANT(FASL_OP_STRUCTURE_LAYOUT,     61 )
     VM_CONSTANT(FASL_OP_SLAYOUT,              62 )
      
     VM_CONSTANT(FASL_OP_FAST_OP_0,            64 )

@@ -414,14 +414,6 @@ static void dump_slayout()
           dump_error("malformed slayout, bad slots");
 }
 
-static void dump_structure_layout()
-{
-     enum fasl_opcode_t op = dump_next_object(_T("layout-data"), NULL);
-     
-     if (op != FASL_OP_LIST)
-          dump_error("Expected list for structure layout");
-}
-
 static void dump_fast_op(int arity, bool has_next)
 {
   size_t offset;
@@ -469,8 +461,8 @@ static void dump_structure()
 
   enum fasl_opcode_t op = dump_next_object(_T("layout"), NULL);
 
-  if (op != FASL_OP_STRUCTURE_LAYOUT && op != FASL_OP_SLAYOUT)
-    dump_error("Expected structure layout or slayout");
+  if (op != FASL_OP_SLAYOUT)
+    dump_error("Expected slayout");
 
   op = dump_next_object(_T("length"), &length);
 
@@ -594,7 +586,6 @@ static enum fasl_opcode_t dump_next_object(const _TCHAR *desc,
     case FASL_OP_SUBR:                  dump_subr();                         break;
     case FASL_OP_STRUCTURE:             dump_structure();                    break;
     case FASL_OP_SLAYOUT:               dump_slayout();                      break;
-    case FASL_OP_STRUCTURE_LAYOUT:      dump_structure_layout();             break;
     case FASL_OP_FAST_OP_0:             dump_fast_op(0, false);              break;
     case FASL_OP_FAST_OP_1:             dump_fast_op(1, false);              break;
     case FASL_OP_FAST_OP_2:             dump_fast_op(2, false);              break;

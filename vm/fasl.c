@@ -387,14 +387,6 @@ static void fast_read_slayout(lref_t reader, lref_t *st_layout)
      *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, sl);
 }
 
-static void fast_read_structure_layout(lref_t reader, lref_t * st_layout)
-{
-     lref_t new_st_layout;
-     fast_read(reader, &new_st_layout, false);
-
-     *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, new_st_layout);
-}
-
 static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, lref_t * fop)
 {
      assert((fast_op_arity >= 0) && (fast_op_arity <= 2));
@@ -799,10 +791,6 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
           case FASL_OP_SLAYOUT:
                fast_read_slayout(reader, retval);
-               break;
-               
-          case FASL_OP_STRUCTURE_LAYOUT:
-               fast_read_structure_layout(reader, retval);
                break;
 
           case FASL_OP_FAST_OP_0:

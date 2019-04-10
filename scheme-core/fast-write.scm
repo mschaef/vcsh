@@ -114,31 +114,6 @@
                  (do-write object))))
         (do-write object)))
 
-
-  (define (fast-write-structure-layout layout)
-    (define (do-write)
-      (fast-write-opcode system::FASL_OP_STRUCTURE_LAYOUT port)
-      (check-sharing-and-write layout))
-    
-    (cond
-     ((slayout? layout)
-      (check-sharing-and-write layout))
-     
-     (smap
-      (let ((layout-table (sharing-map-structure-layouts smap)))
-        (aif (hash-ref layout-table layout)
-             (begin
-               (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
-               (fast-write-object it))
-             (begin
-               (let ((next-index (get-next-index!)))
-                 (hash-set! layout-table layout next-index)
-                 (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
-                 (fast-write-object next-index)
-                 (do-write))))))
-     (#t
-      (do-write))))
-
   (define (fast-write-object object)
 
     (case (%representation-of object)
@@ -233,7 +208,7 @@
       
       ((structure)
        (fast-write-opcode system::FASL_OP_STRUCTURE port)
-       (fast-write-structure-layout (%structure-layout object))
+       (check-sharing-and-write (%structure-layout object))
        (let ((len (%structure-length object)))
          (fast-write-object len)
          (dotimes (ii len)
