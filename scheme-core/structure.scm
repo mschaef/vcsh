@@ -267,7 +267,7 @@ structure nor a type name."
              #"Slot documentation: ${it}"
              ""))
       (define (constructor-form proc-name defaults)
-        (let ((defaults (map #L(list (car _) (gensym _) (cdr _)) defaults)))
+        (let ((defaults (map #L(list (car _) (gensym) (cdr _)) defaults)))
           `(define (,proc-name :keyword ,@defaults)
              ,#"Constructs a new instance of structure type ${name}. ${(:documentation meta)}"
              (%structurecons (vector ,@(map cadr defaults)) ',layout))))
