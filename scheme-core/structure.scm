@@ -71,20 +71,17 @@
                            :set #"set-${base-name}-${slot-name}!")
                     slot-spec)))))
 
-(define (slot-meta-field field slot-meta)
-  (hash-ref slot-meta field))
-
 (define (assign-structure-slot-offsets type-name slots)
   (let ((indices {}))
     (let recur ((index 0) (slots slots))
       (let ((slot (car slots)))
         (cond ((null? slots)
                indices)
-              ((hash-has? indices (slot-meta-field :slot-name slot))
-               (error "Duplicate slots ~s in definition of structure type: ~s." (slot-meta-field :slot-name slot)
+              ((hash-has? indices (:slot-name slot))
+               (error "Duplicate slots ~s in definition of structure type: ~s." (:slot-name slot)
                       type-name))
               (#t
-               (hash-set! indices (slot-meta-field :slot-name slot) index)
+               (hash-set! indices (:slot-name slot) index)
                (recur (+ index 1) (cdr slots))))))))
 
 (define (make-structure-layout type-name slots-meta)
@@ -119,30 +116,28 @@
    procedures the structure definition s requested be created."
   (mvbind (doc-string slots-spec) (accept-documentable-block slots-spec)
     (mvbind (pkg base-name) (parse-structure-name structure-spec)
-      (let ((slots-meta (map #L(parse-structure-slot _ base-name) slots-spec)))
-        (define (slot-procedures)
-          (append-map (lambda (slot-defn)
-                        `(,@(aif (slot-meta-field :set slot-defn)
-                                 `((:set ,(intern! it pkg) ,(slot-meta-field :slot-name slot-defn))))
-                          ,@(aif (slot-meta-field :get slot-defn)
-                                 `((:get ,(intern! it pkg) ,(slot-meta-field :slot-name slot-defn))))))
-                      slots-meta))
-        (let ((type-name (intern! base-name pkg) )
-              (constructor-name (intern! #"make-${base-name}" pkg)))
-          (let ((layout (make-structure-layout type-name slots-meta))
-                (copier-name (intern! #"copy-${base-name}" pkg))
-                (predicate-name (intern! #"${base-name}?" pkg)))
-            
-            (values {:type-name type-name
-                     :layout layout
-                     :constructor-name constructor-name
-                     ;; TODO: macro expansion does not happen to macro forms
-                     ;; within hash literals. (Probably vector literals also.)
-                     :copier-name copier-name
-                     :predicate-name predicate-name
-                     :documentation (or doc-string "")
-                     :slots slots-meta}
-                    (slot-procedures))))))))
+      (let ((slots-meta (map #L(parse-structure-slot _ base-name) slots-spec))
+            (type-name (intern! base-name pkg) )
+            (constructor-name (intern! #"make-${base-name}" pkg)))
+        (let ((layout (make-structure-layout type-name slots-meta))
+              (copier-name (intern! #"copy-${base-name}" pkg))
+              (predicate-name (intern! #"${base-name}?" pkg)))
+          
+          (values {:type-name type-name
+                   :layout layout
+                   :constructor-name constructor-name
+                   ;; TODO: macro expansion does not happen to macro forms
+                   ;; within hash literals. (Probably vector literals also.)
+                   :copier-name copier-name
+                   :predicate-name predicate-name
+                   :documentation (or doc-string "")
+                   :slots slots-meta}
+                  (append-map (lambda (slot-defn)
+                                `(,@(aif (:set slot-defn)
+                                         `((:set ,(intern! it pkg) ,(:slot-name slot-defn))))
+                                  ,@(aif (:get slot-defn)
+                                         `((:get ,(intern! it pkg) ,(:slot-name slot-defn))))))
+                              slots-meta)))))))
 
 (forward structure-meta)
 
@@ -260,9 +255,9 @@ structure nor a type name."
        (apply (symbol-value it) args)
        (error "Structure type not found: ~s" type-name)))
 
-(defmacro (define-structure name . slots)
-  (mvbind (meta procs) (parse-structure-definition name slots)
-    (let ((name (:type-name meta))
+(defmacro (define-structure structure-name . slots)
+  (mvbind (meta procs) (parse-structure-definition structure-name slots)
+    (let ((type-name (:type-name meta))
           (layout (:layout meta)))
       (define (slot-docs slot-name)
         (aif (:documentation (find #L(eq? slot-name (:slot-name _)) (:slots meta)))
@@ -272,30 +267,29 @@ structure nor a type name."
       (define (getter-form proc-name slot-name)
         `(define (,proc-name s)
            ,#"Retrieves the value of the ${slot-name} slot of <s>, which must
-              be of structure type ${name}. Throws an error if <s> is not of the
+              be of structure type ${type-name}. Throws an error if <s> is not of the
              expected type. ${(slot-docs slot-name)}"
            (%structure-ref s ,(slayout-slot-offset layout slot-name) ',layout)))
       (define (setter-form proc-name slot-name)
         `(define (,proc-name s v)
            ,#"Updates the ${slot-name} slot of of <s> to <v>. <s> must be of structure
-            type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
+            type ${type-name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
            (%structure-set! s ,(slayout-slot-offset layout slot-name) v ',layout)))
 
 
       (let ((defaults (map #L(list (:slot-name _) (gensym (:slot-name _)) (:default _)) (:slots meta))))
         `(eval-when (:compile-toplevel :load-toplevel :execute)
            (define (,(:constructor-name meta) :keyword ,@defaults)
-             ,#"Constructs a new instance of structure type ${name}. ${(:documentation meta)}"
+             ,#"Constructs a new instance of structure type ${type-name}. ${(:documentation meta)}"
              (%structurecons (vector ,@(map cadr defaults)) ',layout))
            
            (define (,(:copier-name meta) s)
-             ,#"Copies an instance <s> of structure type ${name}, throwing an error
+             ,#"Copies an instance <s> of structure type ${type-name}, throwing an error
               if <s> is not the expected type."
              (%copy-structure s ',layout))
 
            (define (,(:predicate-name meta) s)
-             ,#"Returns <s> if it is an instance of structure type ${name},
-              #f otherwise."
+             ,#"Returns <s> if it is an instance of structure type ${type-name}, #f otherwise."
              (and (%structure? s ',layout)
                   s))
       
@@ -305,6 +299,6 @@ structure nor a type name."
                              ((:set)         setter-form))
                            (cdr proc)))
                   procs)
-           (%register-structure-type! ',name ',meta)
-           ',name)))))
+           (%register-structure-type! ',type-name ',meta)
+           ',type-name)))))
 
