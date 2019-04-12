@@ -129,16 +129,20 @@
                       slots-meta))
         (let ((type-name (intern! base-name pkg) )
               (constructor-name (intern! #"make-${base-name}" pkg)))
-          (let ((layout (make-structure-layout type-name slots-meta)))
+          (let ((layout (make-structure-layout type-name slots-meta))
+                (copier-name (intern! #"copy-${base-name}" pkg))
+                (predicate-name (intern! #"${base-name}?" pkg)))
+            
             (values {:type-name type-name
                      :layout layout
                      :constructor-name constructor-name
+                     ;; TODO: macro expansion does not happen to macro forms
+                     ;; within hash literals. (Probably vector literals also.)
+                     :copier-name copier-name
+                     :predicate-name predicate-name
                      :documentation (or doc-string "")
                      :slots slots-meta}
-                    (cons* (list :constructor constructor-name)
-                           (list :copier      (intern! #"copy-${base-name}" pkg))
-                           (list :predicate   (intern! #"${base-name}?" pkg))
-                           (slot-procedures)))))))))
+                    (slot-procedures))))))))
 
 (forward structure-meta)
 
@@ -264,22 +268,7 @@ structure nor a type name."
         (aif (:documentation (find #L(eq? slot-name (:slot-name _)) (:slots meta)))
              #"Slot documentation: ${it}"
              ""))
-      (define (constructor-form proc-name defaults)
-        (let ((defaults (map #L(list (:slot-name _) (gensym (:slot-name _)) (:default _)) (:slots meta))))
-          `(define (,proc-name :keyword ,@defaults)
-             ,#"Constructs a new instance of structure type ${name}. ${(:documentation meta)}"
-             (%structurecons (vector ,@(map cadr defaults)) ',layout))))
-      (define (copier-form proc-name)
-        `(define (,proc-name s)
-           ,#"Copies an instance <s> of structure type ${name}, throwing an error
-              if <s> is not the expected type."
-           (%copy-structure s ',layout)))
-      (define (predicate-form proc-name)
-        `(define (,proc-name s)
-           ,#"Returns <s> if it is an instance of structure type ${name},
-              #f otherwise."
-           (and (%structure? s ',layout)
-                s)))
+
       (define (getter-form proc-name slot-name)
         `(define (,proc-name s)
            ,#"Retrieves the value of the ${slot-name} slot of <s>, which must
@@ -292,17 +281,30 @@ structure nor a type name."
             type ${name}, an error is thrown otherwise. ${(slot-docs slot-name)}"
            (%structure-set! s ,(slayout-slot-offset layout slot-name) v ',layout)))
 
-      `(eval-when (:compile-toplevel :load-toplevel :execute)
-         ,@(map (lambda (proc)
-                  (apply (case (car proc)
-                           ((:constructor) constructor-form)
-                           ((:copier)      copier-form)
-                           ((:predicate)   predicate-form)
-                           ((:get)         getter-form)
-                           ((:set)         setter-form)
-                           (#t (error "Invalid structure procedure type, ~s" (car proc))))
-                         (cdr proc)))
-                procs)
-         (%register-structure-type! ',name ',meta)
-         ',name))))
+
+      (let ((defaults (map #L(list (:slot-name _) (gensym (:slot-name _)) (:default _)) (:slots meta))))
+        `(eval-when (:compile-toplevel :load-toplevel :execute)
+           (define (,(:constructor-name meta) :keyword ,@defaults)
+             ,#"Constructs a new instance of structure type ${name}. ${(:documentation meta)}"
+             (%structurecons (vector ,@(map cadr defaults)) ',layout))
+           
+           (define (,(:copier-name meta) s)
+             ,#"Copies an instance <s> of structure type ${name}, throwing an error
+              if <s> is not the expected type."
+             (%copy-structure s ',layout))
+
+           (define (,(:predicate-name meta) s)
+             ,#"Returns <s> if it is an instance of structure type ${name},
+              #f otherwise."
+             (and (%structure? s ',layout)
+                  s))
+      
+           ,@(map (lambda (proc)
+                    (apply (case (car proc)
+                             ((:get)         getter-form)
+                             ((:set)         setter-form))
+                           (cdr proc)))
+                  procs)
+           (%register-structure-type! ',name ',meta)
+           ',name)))))
 
