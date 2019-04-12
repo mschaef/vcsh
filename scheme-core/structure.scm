@@ -127,8 +127,6 @@
                           ,@(aif (slot-meta-field :get slot-defn)
                                  `((:get ,(intern! it pkg) ,(slot-meta-field :slot-name slot-defn))))))
                       slots-meta))
-        (define (slot-defaults)
-          (map #L(cons (slot-meta-field :slot-name _) (slot-meta-field :default _)) slots-meta))
         (let ((type-name (intern! base-name pkg) )
               (constructor-name (intern! #"make-${base-name}" pkg)))
           (let ((layout (make-structure-layout type-name slots-meta)))
@@ -137,7 +135,7 @@
                      :constructor-name constructor-name
                      :documentation (or doc-string "")
                      :slots slots-meta}
-                    (cons* (list :constructor constructor-name (slot-defaults))
+                    (cons* (list :constructor constructor-name)
                            (list :copier      (intern! #"copy-${base-name}" pkg))
                            (list :predicate   (intern! #"${base-name}?" pkg))
                            (slot-procedures)))))))))
@@ -267,7 +265,7 @@ structure nor a type name."
              #"Slot documentation: ${it}"
              ""))
       (define (constructor-form proc-name defaults)
-        (let ((defaults (map #L(list (car _) (gensym) (cdr _)) defaults)))
+        (let ((defaults (map #L(list (:slot-name _) (gensym (:slot-name _)) (:default _)) (:slots meta))))
           `(define (,proc-name :keyword ,@defaults)
              ,#"Constructs a new instance of structure type ${name}. ${(:documentation meta)}"
              (%structurecons (vector ,@(map cadr defaults)) ',layout))))
