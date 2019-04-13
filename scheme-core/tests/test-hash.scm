@@ -405,3 +405,23 @@
     (let ((result (hash-merge a b)))
       (check (eq? a result))
       (check (equal? {1 2 3 4} result)))))
+
+
+(define-test vector-literal
+  (define (test-hash) { 1 2 3 4 })
+
+  (check (= 2 (length (test-hash))))
+  
+  (check (equal? (-> (make-hash)
+                     (hash-set! 1 2)
+                     (hash-set! 3 4))
+                 (test-hash)))
+  
+  (check (not (eq? (test-hash) (test-hash))))
+
+  (check (equal? { 1 2 } { (identity 1) 2}))
+  (check (equal? { 1 2 } { 1 (identity 2)}))
+
+  (check (equal? { 1 2 } { (identity-macro 1) 2}))
+  (check (equal? { 1 2 } { 1 (identity-macro 2)})))
+
