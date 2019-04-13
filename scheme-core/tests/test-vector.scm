@@ -228,3 +228,13 @@
     (check (vector? a))
     (check (= 3 (length a)))
     (check (equal? [1 2 3] a))))
+
+(define-test vector-literal
+  (define (test-vec) [1 2 3])
+
+  (check (= 3 (length (test-vec))))
+  (check (equal? (test-vec) (vector 1 2 3)))
+  (check (not (eq? (test-vec) (test-vec))))
+
+  (check (equal? [ 1 ] [ (identity 1)]))
+  (check (equal? [ 1 ] [ (identity-macro 1)])))

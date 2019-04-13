@@ -329,13 +329,29 @@
   (check (can-retrieve-hash-key?  1e19   )))
 
 (define-test hash-literal
+  (define (test-hash) { 1 2 3 4 })
+
   (let ((key :xyzzy)
         (value 42))
     (check (equal? {:xyzzy 42} {key value})))
 
   (let ((create-hash-fn (lambda () {})))
-    (check (not (eq? (create-hash-fn) (create-hash-fn))))))
+    (check (not (eq? (create-hash-fn) (create-hash-fn)))))
 
+  (check (= 2 (length (test-hash))))
+
+  (check (equal? (-> (make-hash)
+                     (hash-set! 1 2)
+                     (hash-set! 3 4))
+                 (test-hash)))
+
+  (check (not (eq? (test-hash) (test-hash))))
+
+  (check (equal? { 1 2 } { (identity 1) 2}))
+  (check (equal? { 1 2 } { 1 (identity 2)}))
+
+  (check (equal? { 1 2 } { (identity-macro 1) 2}))
+  (check (equal? { 1 2 } { 1 (identity-macro 2)})))
 
 (define-test eq-hash-table
 
@@ -405,3 +421,6 @@
     (let ((result (hash-merge a b)))
       (check (eq? a result))
       (check (equal? {1 2 3 4} result)))))
+
+
+
