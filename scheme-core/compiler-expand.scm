@@ -173,10 +173,10 @@
   `(,(car form) ,@(map expand-form (cdr form))))
 
 (define (expand-vector-form form)
-  `(vector ,@(vector->list form)))
+  `(vector ,@(map expand-form (vector->list form))))
 
 (define (expand-hash-form form)
-  `(list->hash (list ,@(hash->list form))))
+  `(list->hash (list ,@(map expand-form (hash->list form)))))
 
 (define (form-expander form)
   (cond ((null? form)
