@@ -117,27 +117,20 @@
   (mvbind (doc-string slots-spec) (accept-documentable-block slots-spec)
     (mvbind (pkg base-name) (parse-structure-name structure-spec)
       (let ((slots-meta (map #L(parse-structure-slot _ base-name) slots-spec))
-            (type-name (intern! base-name pkg) )
-            (constructor-name (intern! #"make-${base-name}" pkg)))
-        (let ((layout (make-structure-layout type-name slots-meta))
-              (copier-name (intern! #"copy-${base-name}" pkg))
-              (predicate-name (intern! #"${base-name}?" pkg)))
-          
-          (values {:type-name type-name
-                   :layout layout
-                   :constructor-name constructor-name
-                   ;; TODO: macro expansion does not happen to macro forms
-                   ;; within hash literals. (Probably vector literals also.)
-                   :copier-name copier-name
-                   :predicate-name predicate-name
-                   :documentation (or doc-string "")
-                   :slots slots-meta}
-                  (append-map (lambda (slot-defn)
-                                `(,@(aif (:set slot-defn)
-                                         `((:set ,(intern! it pkg) ,(:slot-name slot-defn))))
-                                  ,@(aif (:get slot-defn)
-                                         `((:get ,(intern! it pkg) ,(:slot-name slot-defn))))))
-                              slots-meta)))))))
+            (type-name (intern! base-name pkg)))
+        (values {:type-name type-name
+                 :layout (make-structure-layout type-name slots-meta)
+                 :constructor-name (intern! #"make-${base-name}" pkg)
+                 :copier-name (intern! #"copy-${base-name}" pkg)
+                 :predicate-name (intern! #"${base-name}?" pkg)
+                 :documentation (or doc-string "")
+                 :slots slots-meta}
+                (append-map (lambda (slot-defn)
+                              `(,@(aif (:set slot-defn)
+                                       `((:set ,(intern! it pkg) ,(:slot-name slot-defn))))
+                                ,@(aif (:get slot-defn)
+                                       `((:get ,(intern! it pkg) ,(:slot-name slot-defn))))))
+                            slots-meta))))))
 
 (forward structure-meta)
 
