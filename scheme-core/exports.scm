@@ -41,8 +41,6 @@
              *print-readably*
              *print-shared-structure*
              *program-launch-name*
-             *read-syntax*
-             *readsharp-syntax*
              *repl-abbreviations-enabled*
              *repl-post-hook*
              *repl-pre-print-value-hook*
@@ -718,7 +716,6 @@
              set!
              set-car!
              set-cdr!
-             set-char-syntax!
              set-current-debug-port
              set-current-error-port
              set-current-input-port

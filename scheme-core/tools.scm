@@ -450,86 +450,6 @@ recurstively tracing functions used by the tracer itself.")
 
 (define-repl-abbreviation :dp display-packages)
 
-;;;; Short Lambda
-;;
-;; Abbreviated syntax for lambda expressions.
-
-(defmacro (shorter-lambda . form)
-  "Defines a function with an implicit lambda list of (_). This
-   is intended to be used with a readsharp handler that shortens
-   the syntax."
-  `(lambda (_) ,@form))
-
-(defmacro (short-lambda args . form)
-  "Defines a function with an implicit lambda list of
-   (take '(_0 _1 _2 _3 _4 _5) args). This is intended to be
-   used with a readsharp handler that shortens the syntax."
-  (runtime-check (and exact? (>= 0) (< 6)) args)
-  `(lambda ,(if args (take '(_0 _1 _2 _3 _4 _5) args) '(_))
-     ,@form))
-
-(define (read-short-lambda port)
-  (read-char port)
-  (if (char=? (peek-char port) #\()
-      `(shorter-lambda ,(read port))
-      `(short-lambda ,(read port) ,(read port))))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *readsharp-syntax* #\L 'read-short-lambda))
-
-;;; String quasiquote
-;;;
-;;; This is a facility for embedding lisp expressions within
-;;; strings in the style of shell scripting languages. Within
-;;; a quasiquoted string, #\$ signals the beginning of a substitution
-;;; expression, enclosed in #\{ and #\}. These expressions are evaluated
-;;; at runtime, coerced to a string with ->string, and embedded in the
-;;; result string.
-
-(defmacro (string-quasiquote package string)
-  (let ((ip (open-input-string string)))
-    (define (read-string-segment)
-      (begin-1
-       (read-text-until-character ip #\$)
-       (read-char ip)))
-    (define (read-expression-segment)
-      (let ((ch (flush-whitespace ip)))
-        (case ch
-          ((#\{)
-           (begin-2
-            (read-char ip)
-            `(->string
-              ,(with-package package (read-from-string (read-text-until-character ip #\}))))
-            (read-char ip)))
-          ((#\$)
-           (read-char ip)
-           "$")
-          (#t
-           (error "Invalid string-quasiquote syntax: ~s" string)))))
-    (let loop ((reading-text? (if (char=? (peek-char ip) #\$)
-                                  (begin (read-char ip) #f) ; Must skip the #\$...
-                                  #t))
-               (current-segments ()))
-      (if (port-at-end? ip)
-          ;; This check removes the string-append call in the degenerate case where
-          ;; there are no substitution variables. In the case where all there is is
-          ;; a substitution variable, we don't remove the call to string-append
-          ;; in the interest of safety. (If the substitution expression doesn't
-          ;; return a string, this results in more predicable failures.)
-          (if (and (length=1? current-segments) (string? (car current-segments)))
-              (car current-segments)
-              `(string-append ,@(reverse! current-segments)))
-          (loop (not reading-text?)
-                (cons ((if reading-text? read-string-segment read-expression-segment))
-                      current-segments))))))
-
-(define (read-string-quasiquote port)
-  (when (char=? (peek-char port) #\")
-    `(string-quasiquote ,*package* ,(read port))))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *readsharp-syntax* #\" 'read-string-quasiquote))
-
 ;;;; An auto watch facility that evaluates and prints watch expressions after
 ;;;; each interactive form.
 
@@ -646,5 +566,3 @@ recurstively tracing functions used by the tracer itself.")
                              (annotate-type-stats ,initial-ts-sym))))))))
 
 (define-repl-abbreviation :std show-type-delta)
-
-

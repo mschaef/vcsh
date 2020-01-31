@@ -12,82 +12,7 @@
 
 (in-package! "scheme") ;; REVISIT: Is this necessary?
 
-;;;; Syntax table
-
-(define-structure syntax-table
-  "Defines actions taken by the reader upon encountering specific characters."
-
-  (name
-   "The user friendly name of the syntax table."
-   :default (gensym "syntax-table")
-   :set #f)
-
-  (char-mapping
-   "A mapping between characters and the action the reader takes upon encountering
-    those characters. An action can either be a function to be invoked or a nested
-    syntax-table."
-   :default (make-identity-hash)
-
-   ;; The mapping hash can be mutated, but not rebound.
-   :set #f)
-
-  (default-mapping
-    "The default action to be taken if a character is not found in char-mapping."
-
-    :default #f))
-
-
-(define (reader-action? reader-action)
-  "Predicate that determines if <reader-action> is a valid reader action. Valid
-   reader actions include #f, to signal that a character is invalid, a syntax-table
-   to be recursively consulted, a closure to be invoked, or a symbol that will be
-   dereferenced at read time to find a valid reader action."
-  (or (symbol? reader-action)
-      (syntax-table? reader-action)
-      (closure? reader-action)
-      (not reader-action)))
-
-(define (set-char-syntax! syntax-table char reader-action)
-  "Sets the reader action in <syntax-table> for <char> to <reader-action>."
-  (runtime-check syntax-table? syntax-table)
-  (runtime-check char? char)
-  (runtime-check reader-action? reader-action)
-  (hash-set! (syntax-table-char-mapping syntax-table)
-             char
-             reader-action)
-  reader-action)
-
-(define (set-default-syntax! syntax-table reader-action)
-  "Sets the default reader action in <syntax-table> to <reader-action>."
-  (runtime-check syntax-table? syntax-table)
-  (runtime-check reader-action? reader-action)
-  (set-syntax-table-default-mapping! syntax-table reader-action)
-  reader-action)
-
-(define (char-syntax syntax-table char)
-  "Returns the reader action for <char> based on the specified <syntax-table>.
-   If there is no action, returns #f."
-  (runtime-check char? char)
-  (let loop ((syntax-binding (aif (hash-ref (syntax-table-char-mapping syntax-table) char #f)
-                             it
-                             (syntax-table-default-mapping syntax-table))))
-    (cond ((symbol? syntax-binding)
-           ;; REVISIT: possibility of infinite loop...
-           (loop (symbol-value syntax-binding)))
-          ((reader-action? syntax-binding)
-           syntax-binding)
-          (#t
-           (error "Invalid syntax binding ~s for ~s in ~s."
-                  syntax-binding char syntax-table)))))
-
-
 ;;; The default syntax table
-
-(define *read-syntax* (make-syntax-table :name 'read-syntax))
-(define *readsharp-syntax* (make-syntax-table :name 'readsharp-syntax))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *read-syntax* #\# '*readsharp-syntax*))
 
 ;;;; Utility functions
 
@@ -366,26 +291,109 @@ character or #f if not found."
   (read-line port)
   (read port))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *readsharp-syntax* #\\ 'read-character)
-  (set-char-syntax! *readsharp-syntax* #\f 'read-false)
-  (set-char-syntax! *readsharp-syntax* #\t 'read-true)
-  (set-char-syntax! *readsharp-syntax* #\b 'read-fixnum-with-radix-2)
-  (set-char-syntax! *readsharp-syntax* #\o 'read-fixnum-with-radix-8)
-  (set-char-syntax! *readsharp-syntax* #\e 'read-fixnum-with-radix-10)
-  (set-char-syntax! *readsharp-syntax* #\d 'read-fixnum-with-radix-10)
-  (set-char-syntax! *readsharp-syntax* #\x 'read-fixnum-with-radix-16)
-  (set-char-syntax! *readsharp-syntax* #\( 'read-vector)
-  (set-char-syntax! *readsharp-syntax* #\n 'read-with-read-time-eval)
-  (set-char-syntax! *readsharp-syntax* #\i 'read-inexact)
-  (set-char-syntax! *readsharp-syntax* #\; 'read-sexpr-comment)
-  (set-char-syntax! *readsharp-syntax* #\@ 'read-annotated-object)
-  (set-char-syntax! *readsharp-syntax* #\S 'read-structure)
-  (set-char-syntax! *readsharp-syntax* #\. 'read-and-evaluate)
-  (set-char-syntax! *readsharp-syntax* #\! 'read-shebang)
-  (set-char-syntax! *readsharp-syntax* #\L 'read-short-lambda)
-  (set-char-syntax! *readsharp-syntax* #\S 'read-structure))
+(define read-date)
+(define read-time)
 
+;;;; Short Lambda
+;;
+;; Abbreviated syntax for lambda expressions.
+
+(defmacro (shorter-lambda . form)
+  "Defines a function with an implicit lambda list of (_). This
+   is intended to be used with a readsharp handler that shortens
+   the syntax."
+  `(lambda (_) ,@form))
+
+(defmacro (short-lambda args . form)
+  "Defines a function with an implicit lambda list of
+   (take '(_0 _1 _2 _3 _4 _5) args). This is intended to be
+   used with a readsharp handler that shortens the syntax."
+  (runtime-check (and exact? (>= 0) (< 6)) args)
+  `(lambda ,(if args (take '(_0 _1 _2 _3 _4 _5) args) '(_))
+     ,@form))
+
+(define (read-short-lambda port)
+  (read-char port)
+  (if (char=? (peek-char port) #\()
+      `(shorter-lambda ,(read port))
+      `(short-lambda ,(read port) ,(read port))))
+
+
+;;; String quasiquote
+;;;
+;;; This is a facility for embedding lisp expressions within
+;;; strings in the style of shell scripting languages. Within
+;;; a quasiquoted string, #\$ signals the beginning of a substitution
+;;; expression, enclosed in #\{ and #\}. These expressions are evaluated
+;;; at runtime, coerced to a string with ->string, and embedded in the
+;;; result string.
+
+(defmacro (string-quasiquote package string)
+  (let ((ip (open-input-string string)))
+    (define (read-string-segment)
+      (begin-1
+       (read-text-until-character ip #\$)
+       (read-char ip)))
+    (define (read-expression-segment)
+      (let ((ch (flush-whitespace ip)))
+        (case ch
+          ((#\{)
+           (begin-2
+            (read-char ip)
+            `(->string
+              ,(with-package package (read-from-string (read-text-until-character ip #\}))))
+            (read-char ip)))
+          ((#\$)
+           (read-char ip)
+           "$")
+          (#t
+           (error "Invalid string-quasiquote syntax: ~s" string)))))
+    (let loop ((reading-text? (if (char=? (peek-char ip) #\$)
+                                  (begin (read-char ip) #f) ; Must skip the #\$...
+                                  #t))
+               (current-segments ()))
+      (if (port-at-end? ip)
+          ;; This check removes the string-append call in the degenerate case where
+          ;; there are no substitution variables. In the case where all there is is
+          ;; a substitution variable, we don't remove the call to string-append
+          ;; in the interest of safety. (If the substitution expression doesn't
+          ;; return a string, this results in more predicable failures.)
+          (if (and (length=1? current-segments) (string? (car current-segments)))
+              (car current-segments)
+              `(string-append ,@(reverse! current-segments)))
+          (loop (not reading-text?)
+                (cons ((if reading-text? read-string-segment read-expression-segment))
+                      current-segments))))))
+
+(define (read-string-quasiquote port)
+  (when (char=? (peek-char port) #\")
+    `(string-quasiquote ,*package* ,(read port))))
+
+(define (read-readsharp port)
+  (read-expected-char #\# port :reader-bad-readsharp-syntax)
+  (let ((location (port-location port)))
+    (case (peek-char port)
+      ((#\\) (read-character port))
+      ((#\f) (read-false port))
+      ((#\t) (read-true port))
+      ((#\b) (read-fixnum-with-radix-2 port))
+      ((#\o) (read-fixnum-with-radix-8 port))
+      ((#\e) (read-fixnum-with-radix-10 port))
+      ((#\d) (read-fixnum-with-radix-10 port))
+      ((#\x) (read-fixnum-with-radix-16 port))
+      ((#\() (read-vector port))
+      ((#\n) (read-with-read-time-eval port))
+      ((#\i) (read-inexact port))
+      ((#\;) (read-sexpr-comment port))
+      ((#\@) (read-annotated-object port))
+      ((#\S) (read-structure port))
+      ((#\.) (read-and-evaluate port))
+      ((#\!) (read-shebang port))
+      ((#\L) (read-short-lambda port))
+      ((#\D) (read-date port))
+      ((#\T) (read-time port))
+      ((#\") (read-string-quasiquote port))
+      (#t (read-error :reader-bad-readsharp-syntax port location)))))
 
 ;; The list reader
 
@@ -596,39 +604,28 @@ character or #f if not found."
           (#t
            (read-error :reader-bad-slot-reference port location)))))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *read-syntax* #\( 'read-literal-list)
-  (set-char-syntax! *read-syntax* #\) 'read-unexpected-close)
-
-  (set-char-syntax! *read-syntax* #\[ 'read-literal-vector)
-  (set-char-syntax! *read-syntax* #\] 'read-unexpected-close)
-
-  (set-char-syntax! *read-syntax* #\{ 'read-literal-hash)
-  (set-char-syntax! *read-syntax* #\} 'read-unexpected-close)
-
-  (set-char-syntax! *read-syntax* #\" 'read-string)
-
-  (set-char-syntax! *read-syntax* #\' 'read-quote)
-
-  (set-char-syntax! *read-syntax* #\@ 'read-slot-reference)
-
-  (set-default-syntax! *read-syntax* 'read-number-or-symbol))
+(define (read-form port)
+  (case (peek-char port)
+    ((#\() (read-literal-list port))
+    ((#\)) (read-unexpected-close port))
+    ((#\[) (read-literal-vector port))
+    ((#\]) (read-unexpected-close port))
+    ((#\{) (read-literal-hash port))
+    ((#\}) (read-unexpected-close port))
+    ((#\") (read-string port))
+    ((#\#) (read-readsharp port))
+    ((#\`) (read-quasiquote port))
+    ((#\,) (read-unquote port))
+    ((#\') (read-quote port))
+    ((#\@) (read-slot-reference port))
+    (#t (read-number-or-symbol port))))
 
 (define (read :optional (port (current-input-port)) (recursive? #f))
   (runtime-check input-port? port)
   (flush-whitespace port)
-  (let* ((location (port-location port))
-         (obj (let loop ((syntax-table *read-syntax*))
-                (let ((ch (peek-char port)))
-                  (if (eof-object? ch)
-                      ch
-                      (aif (char-syntax syntax-table ch)
-                           (if (syntax-table? it)
-                               (begin
-                                 (read-char port)
-                                 (loop it))
-                               (it port))
-                           (read-error :reader-unknown-syntax port location)))))))
+  (let ((location (port-location port))
+        (obj (or (eof-object? (peek-char port))
+                 (read-form port))))
     (when (and *location-mapping* (not (scheme::%immediate? obj)))
        (hash-set! *location-mapping* obj (cons port location)))
     obj))

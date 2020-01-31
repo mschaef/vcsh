@@ -1604,8 +1604,3 @@
                       :nanosecond 0))
       (#t
        (read-error :reader-bad-time-syntax port location)))))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-char-syntax! *readsharp-syntax* #\D 'read-date)
-  (set-char-syntax! *readsharp-syntax* #\T 'read-time)
-  )

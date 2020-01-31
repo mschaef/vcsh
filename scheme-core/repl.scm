@@ -56,9 +56,9 @@
   (read-char port)
   `(repl-history-value ,(read port)))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (set-property! 'repl-history-value 'pretty-print-syntax "##")
-  (set-char-syntax! *readsharp-syntax* #\# 'read-history-form))
+;; (eval-when (:compile-toplevel :load-toplevel :execute)
+;;   (set-property! 'repl-history-value 'pretty-print-syntax "##")
+;;   (set-char-syntax! *readsharp-syntax* #\# 'read-history-form))
 
 (define (repl-choose choices :optional (prompt "which one?") (simple? #t))
   "Allow a user at the REPL to select from the list of <choices>. <prompt>
