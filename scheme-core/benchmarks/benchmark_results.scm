@@ -4802,4 +4802,12 @@
 #S(benchmark-result :seq 7920 :test-name type-determination :run-time #D"2019-03-22T22:21:08-0400" :timings (34.7081 29.0974) :system ("mikeschaeffer7zhtdg" :linux :release))
 #S(benchmark-result :seq 7921 :test-name write-char-to-string :run-time #D"2019-03-22T22:21:22-0400" :timings (12.9057 12.9057) :system ("mikeschaeffer7zhtdg" :linux :release))
 #S(benchmark-result :seq 7922 :test-name write-strings-to-string :run-time #D"2019-03-22T22:21:37-0400" :timings (3.35010 3.35010) :system ("mikeschaeffer7zhtdg" :linux :release))
+#S(benchmark-result :seq 7923 :test-name read/boolean :run-time #D"2020-01-31T10:49:45-0500" :timings (2008.89 1354.51) :system ("mikeschaefferm0h03y" :linux :debug))
+#S(benchmark-result :seq 7924 :test-name read/character :run-time #D"2020-01-31T10:49:54-0500" :timings (3173.29 2133.31) :system ("mikeschaefferm0h03y" :linux :debug))
+#S(benchmark-result :seq 7925 :test-name read/complex :run-time #D"2020-01-31T10:50:02-0500" :timings (8247.79 5511.09) :system ("mikeschaefferm0h03y" :linux :debug))
+#S(benchmark-result :seq 7926 :test-name read/float :run-time #D"2020-01-31T10:50:11-0500" :timings (9298.00 6224.78) :system ("mikeschaefferm0h03y" :linux :debug))
+#S(benchmark-result :seq 7927 :test-name read/hash :run-time #D"2020-01-31T10:50:21-0500" :timings (2908.76 2092.24) :system ("mikeschaefferm0h03y" :linux :debug))
+#S(benchmark-result :seq 7928 :test-name read/string :run-time #D"2020-01-31T10:50:38-0500" :timings (1098.79 818.356) :system ("mikeschaefferm0h03y" :linux :debug))
+#S(benchmark-result :seq 7929 :test-name read/symbol :run-time #D"2020-01-31T10:50:46-0500" :timings (8453.72 5831.44) :system ("mikeschaefferm0h03y" :linux :debug))
+#S(benchmark-result :seq 7930 :test-name read/vector :run-time #D"2020-01-31T10:50:58-0500" :timings (3984.20 2751.04) :system ("mikeschaefferm0h03y" :linux :debug))
 ; end benchmark results
