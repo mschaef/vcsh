@@ -842,10 +842,17 @@
 
 
 (defbench read/vector
-  (let ((text (string-append "(" (make-string 2000 " #(1) ") ")")))
+  (let ((text (string-append "(" (make-string 2000 " [1] ") ")")))
     (account
      (bench-repeat 64
        (read-from-string text)))))
+
+(defbench read/hash
+  (let ((text (string-append "(" (make-string 2000 " {#t #t} ") ")")))
+    (account
+     (bench-repeat 64
+       (read-from-string text)))))
+
 
 (defbench compile-simple-form
   (account
@@ -916,6 +923,16 @@ suite. Used for cases when a full run is too much."
              fast-queue
              slow-queue
              fibonacci))))
+
+(define (reader-bench)
+  (bench '(read/boolean
+           read/character
+           read/string
+           read/float
+           read/complex
+           read/symbol
+           read/vector
+           read/hash)))
 
 (for-each load (directory "gabriel*.scm"))
 (load "mandelbrot.scm")
