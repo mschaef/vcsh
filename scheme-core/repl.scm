@@ -12,53 +12,15 @@
 
 ;;;; The REPL history facility
 
-(define *repl-history* [])
-
-(define *repl-recent-history-length* 5)
-(define *repl-recent-history-indices* ())
+(define *1)
+(define *2)
+(define *3)
 
 (define (extend-repl-history! value)
-  "Adds <value> to the REPL history, returning the value's history
-   index. If a value is new to the history, it is added to the end
-   of the history, otherwise, the value in the history is reused."
-  (let ((index (aif (vector-index #L(eq? _ value) *repl-history*)
-                    it
-                    (let ((new-index (length *repl-history*)))
-                      (set! *repl-history* (vector-resize *repl-history* (+ new-index 1)))
-                      (vector-set! *repl-history* new-index value)
-                      new-index))))
-    (set! *repl-recent-history-indices*
-          (take-up-to (cons index *repl-recent-history-indices*)
-                       *repl-recent-history-length*))
-    index))
-
-(define (repl-history-value index)
-  "Returns the history value at index <index>."
-  (cond ((not (number? index))
-         (error "Bad REPL history index, expected a number.~s" index))
-        ((>= index (length *repl-history*))
-         (error "History index ~s not available." index))
-        ((> (- index) (length *repl-recent-history-indices*))
-         (error "Recent history index ~s not available." index))
-        ((< index 0)
-         (repl-history-value (nth *repl-recent-history-indices* (- (- index) 1))))
-        (#t
-         (vector-ref *repl-history* index))))
-
-(define (clear-repl-history! . xs)
-  "Clears the REPL history, and returns each of <xs> as a return
-   value."
-  (set! *repl-history* [])
-  (apply values xs))
-
-
-(define (read-history-form port)
-  (read-char port)
-  `(repl-history-value ,(read port)))
-
-;; (eval-when (:compile-toplevel :load-toplevel :execute)
-;;   (set-property! 'repl-history-value 'pretty-print-syntax "##")
-;;   (set-char-syntax! *readsharp-syntax* #\# 'read-history-form))
+  "Adds <value> to the REPL history."
+  (set! *3 *2)
+  (set! *2 *1)
+  (set! *1 value))
 
 (define (repl-choose choices :optional (prompt "which one?") (simple? #t))
   "Allow a user at the REPL to select from the list of <choices>. <prompt>
@@ -258,9 +220,9 @@
                                               (hash-ref error-info :message)
                                               (hash-ref error-info :args))
                                       (throw 'repl-do-not-print))))
-        (let ((history-index (extend-repl-history! value)))
-          (dynamic-let ((*print-readably* #f))
-            (format #t "; ##~a = ~s\n" history-index value)))))))
+        (extend-repl-history! value)
+        (dynamic-let ((*print-readably* #f))
+          (format #t "; *1 = ~s\n" value))))))
 
 (define (exit :optional (retval 0))
   "Forcibly shuts down the interpreter, via a dynamic escape, causing the

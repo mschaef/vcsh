@@ -12,6 +12,9 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (export! '(*
+             *1
+             *2
+             *3
              *allow-rich-writes*
              *arg-values*
              *current-load-file*
