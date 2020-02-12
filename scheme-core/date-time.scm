@@ -28,13 +28,6 @@
 ;;;; INFORMATION HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
 ;;;; MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
 
-(defmacro (receive formals expression . body)
-  `(mvbind ,formals ,expression ,@body))
-
-;;; -- we want receive later on for a couple of small things
-;;
-
-
 ;; example of extension (MZScheme specific)
 (define time-gc 'time-gc) ;; SRFI-19
 
@@ -256,7 +249,7 @@
      )))
 
 (define (tm%realtime->time-utc rt)
-   (receive (seconds nsec) (tm%parse-realtime rt)
+   (mvbind (seconds nsec) (tm%parse-realtime rt)
 	   (make-time :type       :time-utc
                   :nanosecond nsec
                   :second     seconds)))
@@ -265,7 +258,7 @@
   (tm%realtime->time-utc (realtime)))
 
 (define (tm%realtime->time-tai rt) ;; SRFI-19
-  (receive (seconds nsec)  (tm%parse-realtime rt)
+  (mvbind (seconds nsec)  (tm%parse-realtime rt)
 	   (make-time :type       :time-tai
                   :nanosecond nsec
                   :second     (+ seconds (tm%leap-second-delta seconds)))))
@@ -385,7 +378,7 @@
       (begin
 	(set-time-second! result-time 0)
 	(set-time-nanosecond! result-time 0))
-      (receive
+      (mvbind
        (nanos secs)
        (tm%nanoseconds->values (- (tm%time->nanoseconds time1)
                                   (tm%time->nanoseconds time2)))
@@ -641,7 +634,7 @@
 (define (tm%time->date time :optional (tz-offset (tm%local-tz-offset)) (ttype :time-utc)) ;; SRFI-19
   (unless (eq? (time-type time) ttype)
       (tm%time-error 'time->date 'incompatible-time-types  time))
-  (receive (secs date month year)
+  (mvbind (secs date month year)
            (tm%decode-julian-day-number
             (tm%time->julian-day-number (time-second time) tz-offset))
            (let* ( (hours    (quotient secs (* 60 60)))
@@ -662,7 +655,7 @@
   (runtime-check exact? hours)
   (runtime-check exact? minutes)
   (runtime-check real? seconds)
-  (receive (sec nsec) (tm%parse-realtime (+ seconds
+  (mvbind (sec nsec) (tm%parse-realtime (+ seconds
                                             (* 60 (+ minutes
                                                      (* 60 (+ hours
                                                               (* 24 days)))))))
