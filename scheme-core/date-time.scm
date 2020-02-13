@@ -317,7 +317,7 @@
 
 (define (tm%compatible-times? time1 time2) ;; SRFI-19
   (and (time? time1) (time? time2)
-       (eq? (time-type time1) (time-type time2))))
+       (eq? (:type time1) (:type time2))))
 
 (define (tm%time-compare-check time1 time2 caller) ;; SRFI-19
   (unless (tm%compatible-times? time1 time2)
@@ -326,8 +326,8 @@
 
 (define (time=? time1 time2) ;; SRFI-19
   (tm%time-compare-check time1 time2 'time=?)
-  (and (= (time-second time1) (time-second time2))
-       (= (time-nanosecond time1) (time-nanosecond time2))))
+  (and (= (:second time1) (:second time2))
+       (= (:nanosecond time1) (:nanosecond time2))))
 
 (define (time>? time1 time2) ;; SRFI-19
   (tm%time-compare-check time1 time2 'time>?)
@@ -376,14 +376,14 @@
   (set-time-type! result-time :time-duration)
   (if (time=? time1 time2)
       (begin
-	(set-time-second! result-time 0)
-	(set-time-nanosecond! result-time 0))
+        (set-time-second! result-time 0)
+        (set-time-nanosecond! result-time 0))
       (mvbind
-       (nanos secs)
-       (tm%nanoseconds->values (- (tm%time->nanoseconds time1)
-                                  (tm%time->nanoseconds time2)))
-       (set-time-second! result-time secs)
-       (set-time-nanosecond! result-time nanos)))
+          (nanos secs)
+          (tm%nanoseconds->values (- (tm%time->nanoseconds time1)
+                                     (tm%time->nanoseconds time2)))
+        (set-time-second! result-time secs)
+        (set-time-nanosecond! result-time nanos)))
   result-time)
 
 (define (time-difference time1 time2) ;; SRFI-19
@@ -404,11 +404,11 @@
           ; (set-time-type! time3 (time-type time1))
 	  (if (negative? r)
 	      (begin
-		(set-time-second! time3 (+ sec-plus q -1))
-		(set-time-nanosecond! time3 (+ tm%nano r)))
+            (set-time-second! time3 (+ sec-plus q -1))
+            (set-time-nanosecond! time3 (+ tm%nano r)))
 	      (begin
             (set-time-second! time3 (+ sec-plus q))
-		(set-time-nanosecond! time3 r)))
+            (set-time-nanosecond! time3 r)))
 	  time3))))
 
 (define (add-duration time1 duration) ;; SRFI-19

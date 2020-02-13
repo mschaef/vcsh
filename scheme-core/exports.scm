@@ -413,6 +413,7 @@
              hash-has?
              hash-keys
              hash-merge
+             hash-merge!
              hash-keys/t
              hash-push!
              hash-ref

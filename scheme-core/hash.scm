@@ -60,7 +60,7 @@
 (define (hash . kvs)
   (list->hash kvs))
 
-(define (hash-merge into . hashes)
+(define (hash-merge! into . hashes)
   (dolist (hash hashes into)
     (dohash (key value hash)
       (hash-set! into key value))))
