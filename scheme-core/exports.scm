@@ -277,7 +277,6 @@
              define-command-argument
              define-file-argument-handling
              define-generic-function
-             define-iterate-sequence-expander
              define-method
              define-package
              define-proto

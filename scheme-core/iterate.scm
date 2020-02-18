@@ -15,39 +15,6 @@
 ;;
 ;; TESTTHIS: iterate needs a test suite...
 
-(define-structure iterate-sequence-expansion
-  "This is the result of expanding a iterate sequence clause. It contains of a series
-   of sub-forms that are dropped into various spots of a generic loop template."
-  (state-vars
-   "A list of variable binding forms for variables used to maintain sequence
-    state from one iteration to the next. Each of these binding forms is
-    a three element list: (<var> <initial> <step>).  <var> is the name of the
-    state variable, <initial> is a form that is evaluated before entry into the
-    loop to determine the initial value of the variable, and <step> is an expression
-    evaluated at the end of the loop to compute the next value of <var>. <step> forms
-    are guaranteed not to be evaluated after the <terminate?-form> for the sequence
-    has requested termination."
-   :default ())
-  (body-vars
-   "A list of variable binding forms for variables used within the loop body
-    to hold computed values. These binding forms are two element lists: (<var>
-    <form>). <form> is evaluated at the beginning of the loop body, in the scope
-    of the loop's <state-vars> to compute the value to which <var> is bound for
-    the loop's body. Loop variable binding forms are not evaluated after the
-    <terminate?-form> for the sequence has requested termination."
-   :default ())
-  (terminate?-form
-   "A predicate form that returns true if the sequence is requesting termination
-    of the loop."
-   :default #f)
-  (enclosing-form
-   "A optional list that is the beginning of a form that will enclose the body
-    of the loop. The loop body is placed in the final position of a list whose first
-    elements are the elements of <enclosing-form>. If multiple loop sequences request
-    enclosing forms, the first sequence defines the outermost enclosing form and
-    subsequent sequences are nested within."
-   :default #f))
-
 (define (set-iterate-sequence-expander! seq-type expander)
   "Sets the iterate sequence expander for the sequence type <seq-type> to
    the procedure <expander>. <expander> is a procedure that's
@@ -79,13 +46,15 @@
   (unless (symbol? var)
     (error "Count sequence iteration variable must be a symbol: ~s" var))
   (with-gensyms (step-value-sym end-value-sym)
-    (make-iterate-sequence-expansion
+    {'type-of 'iterate-sequence-expansion
      :state-vars       `((,var ,start (+ ,var ,step-value-sym))
                          (,step-value-sym ,step ,step-value-sym)
                          ,@(if end
                                `((,end-value-sym ,end ,end-value-sym))
                                ()))
-     :terminate?-form   (if end `(>= ,var ,end-value-sym) #f))))
+     :body-vars         ()
+     :terminate?-form   (if end `(>= ,var ,end-value-sym) #f)
+     :enclosing-form    #f}))
 
 (define-iterate-sequence-expander (show-progress interval :optional (op (current-output-port)))
   "Displays a progress indicator on <op> for every <interval> iterations
@@ -93,14 +62,16 @@
   (unless (and (number? interval) (> interval 1))
     (error "Progress intervals need to be numbers >1: ~s" interval))
   (with-gensyms (count-sym interval-sym op-sym)
-    (make-iterate-sequence-expansion
+    {'type-of 'iterate-sequence-expansion
      :state-vars       `((,count-sym 0 (+ ,count-sym ,1))
                          (,interval-sym ,interval ,interval-sym)
                          (,op-sym ,op ,op-sym))
+     :body-vars        ()
      :terminate?-form  `(begin
                           (when (= 0 (remainder ,count-sym ,interval-sym))
                             (format ,op-sym "[~a]" ,count-sym))
-                          #f))))
+                          #f)
+     :enclosing-form   #f}))
 
 (define-iterate-sequence-expander (list var xs)
   "Binds <var> to successive elements of list <xs>, ending the loop at
@@ -108,10 +79,11 @@
   (unless (symbol? var)
     (error "List sequence iteration variable must be a symbol: ~s" var))
   (with-gensyms (list-pos-sym)
-    (make-iterate-sequence-expansion
+    {'type-of 'iterate-sequence-expansion
      :state-vars      `((,list-pos-sym ,xs (cdr ,list-pos-sym)))
      :body-vars       `((,var (car ,list-pos-sym)))
-     :terminate?-form `(end-of-list? ,list-pos-sym))))
+     :terminate?-form `(end-of-list? ,list-pos-sym)
+     :enclosing-form  #f}))
 
 (define-iterate-sequence-expander (vector var vec)
   "Binds <var> to successive elements of vector <xs>, ending the loop at
@@ -119,10 +91,11 @@
   (unless (symbol? var)
     (error "Vector sequence iteration variable must be a symbol: ~s" var))
   (with-gensyms (ii-sym vec-sym)
-    (make-iterate-sequence-expansion
+    {'type-of 'iterate-sequence-expansion
      :state-vars        `((,ii-sym 0 (+ ,ii-sym 1)) (,vec-sym ,vec))
      :body-vars         `((,var (vector-ref ,vec-sym ,ii-sym)))
-     :terminate?-form   `(>= ,ii-sym (length ,vec-sym)))))
+     :terminate?-form   `(>= ,ii-sym (length ,vec-sym))
+     :enclosing-form    #f}))
 
 (define-iterate-sequence-expander (file-lines line-var filename)
   "Binds <line-var> to successive lines of the text file named by <filename>,
@@ -130,10 +103,11 @@
   (unless (symbol? line-var)
     (error "File-lines sequence iteration variable must be a symbol: ~s" line-var))
   (with-gensyms (file-lines-port-sym)
-    (make-iterate-sequence-expansion
+    {'type-of 'iterate-sequence-expansion
+     :state-vars        ()
      :body-vars         `((,line-var (read-line ,file-lines-port-sym)))
-     :enclosing-form    `(with-port ,file-lines-port-sym (open-file ,filename))
-     :terminate?-form   `(port-at-end? ,file-lines-port-sym))))
+     :terminate?-form   `(port-at-end? ,file-lines-port-sym)
+     :enclosing-form    `(with-port ,file-lines-port-sym (open-file ,filename))}))
 
 (define-iterate-sequence-expander (file-forms line-var filename)
   "Binds <line-var> to successive Lisp forms of the text file named by <filename>,
@@ -142,10 +116,11 @@
   (unless (symbol? line-var)
     (error "file-forms sequence iteration variable must be a symbol: ~s" line-var))
   (with-gensyms (file-forms-port-sym)
-    (make-iterate-sequence-expansion
+    {'type-of 'iterate-sequence-expansion
+     :state-vars        ()
      :body-vars         `((,line-var (read ,file-forms-port-sym)))
      :enclosing-form    `(with-port ,file-forms-port-sym (open-file ,filename))
-     :terminate?-form   `(port-at-end? ,file-forms-port-sym))))
+     :terminate?-form   `(port-at-end? ,file-forms-port-sym)}))
 
 
 (define (all-iterate-sequence-types)
