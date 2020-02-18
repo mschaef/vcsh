@@ -191,9 +191,9 @@
           (append (car enclosures)
                   (list (apply-enclosures form (cdr enclosures))))))
     (let* ((sequence-expansions (map expand-iterate-sequence-clause seqs))
-           (seq-state-vars (append-map iterate-sequence-expansion-state-vars sequence-expansions))
-           (body-vars (append-map iterate-sequence-expansion-body-vars sequence-expansions))
-           (terminate?-forms (map iterate-sequence-expansion-terminate?-form sequence-expansions)))
+           (seq-state-vars (append-map :state-vars sequence-expansions))
+           (body-vars (append-map :body-vars sequence-expansions))
+           (terminate?-forms (map :terminate?-form sequence-expansions)))
       (apply-enclosures (with-gensyms (loop-internal-name-sym)
                           `(let ,loop-internal-name-sym (,@(map #L(take _ 2) seq-state-vars)
                                                          ,@user-state-vars)
@@ -203,7 +203,7 @@
                                 (if (or ,@terminate?-forms)
                                     ,(final-form)
                                     (let ,body-vars  ,body-form))))
-                        (filter identity (map iterate-sequence-expansion-enclosing-form
+                        (filter identity (map :enclosing-form
                                               sequence-expansions))))))
 
 ;(UNIMPLEMENTED call-with-values)

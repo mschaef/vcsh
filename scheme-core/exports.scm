@@ -531,7 +531,6 @@
              make-hash
              make-identity-hash
              make-instance
-             make-iterate-sequence-expansion
              make-list
              make-package!
              make-polar
