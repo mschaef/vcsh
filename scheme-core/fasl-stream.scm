@@ -10,22 +10,20 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-(define-structure fasl-stream
-  target-port
-  (objects-to-write :default ()))
-
 (define-structure fasl-op
   fasl-opcode
   param-objects)
 
 (define (open-fasl-output-stream port)
   "Open a new FASL output stream targeting <port>."
-  (make-fasl-stream :target-port port))
+  {'type-of 'fasl-output-stream
+   :port port
+   :output-objs ()})
 
 (define (fasl-write stream object)
   "Write <object> to FASL stream <stream>.  Note that the object is not actually writen
    to the stream's target port until the stream itself is closed."
-  (set-fasl-stream-objects-to-write! stream (cons object (fasl-stream-objects-to-write stream)))
+  (hash-set! stream :output-objs (cons object (:output-objs stream)))
   stream)
 
 (define (fasl-write-op stream fasl-opcode . params)
@@ -38,25 +36,25 @@
 (define (abort-fasl-writes stream)
   "Aborts all pending writes to <stream> since the stream was opened
    or last committed."
-  (set-fasl-stream-objects-to-write! stream ())
+  (hash-set! stream :output-objs ())
   ())
 
 (define (commit-fasl-writes stream)
   "Commits FASL stream <stream>. This is the FASL stream operation that actually
    writes the stream's content's to the target port."
-  (let ((shared-structure-table (find-shared-structures (fasl-stream-objects-to-write stream))))
+  (let ((shared-structure-table (find-shared-structures (:output-objs stream))))
 
-    (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (fasl-stream-target-port stream))
+    (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (:port stream))
 
-    (dolist (obj (reverse (fasl-stream-objects-to-write stream)))
+    (dolist (obj (reverse (:output-objs stream)))
       (cond ((fasl-op? obj)
-             (fast-write-opcode (fasl-op-fasl-opcode obj) (fasl-stream-target-port stream))
+             (fast-write-opcode (fasl-op-fasl-opcode obj) (:port stream))
              (dolist (obj (fasl-op-param-objects obj))
                (fast-write-using-shared-structure-table obj
-                                                        (fasl-stream-target-port stream)
+                                                        (:port stream)
                                                         shared-structure-table)))
             (#t
-             (fast-write-using-shared-structure-table obj (fasl-stream-target-port stream)
+             (fast-write-using-shared-structure-table obj (:port stream)
                                                       shared-structure-table))))
     stream))
 
