@@ -18,10 +18,11 @@
   "Writes a type code <code> to <port>."
   `(write-binary-fixnum-u8 ,code ,port))
 
-(define-structure sharing-map
-  (indicies :default (make-identity-hash))
-  (next-index :default 0)
-  (structure-layouts :default (make-identity-hash)))
+(define (make-sharing-map layouts)
+  {'type-of 'fast-write-sharing-map
+   :indices (make-identity-hash)
+   :next-index 0
+   :structure-layouts layouts})
 
 (define (find-shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
   "Returns an identity hash of all objects referenced by <object>
@@ -65,10 +66,10 @@
                  (#t
                   ()))))))
 
-    (let ((smap (make-sharing-map :structure-layouts visited-layouts)))
+    (let ((smap (make-sharing-map visited-layouts)))
       (dohash (object shared? visited-objects)
         (when shared?
-          (hash-set! (sharing-map-indicies smap) object #f)))
+          (hash-set! (:indices smap) object #f)))
       smap)))
 
 (define (fast-write-using-shared-structure-table object port smap)
@@ -80,11 +81,11 @@
 
   (define (is-shared? object)
     (and smap
-         (hash-has? (sharing-map-indicies smap) object)))
+         (hash-has? (:indices smap) object)))
 
   (define (get-next-index!)
-    (let ((next-index (sharing-map-next-index smap)))
-      (set-sharing-map-next-index! smap (+ next-index 1))
+    (let ((next-index (:next-index smap)))
+      (hash-set! smap :next-index (+ next-index 1))
       next-index))
 
   (define (length-excluding-shared xs)
@@ -102,13 +103,13 @@
 
   (define (check-sharing-and-write object :optional (do-write fast-write-object))
     (if (is-shared? object)
-        (aif (hash-ref (sharing-map-indicies smap) object)
+        (aif (hash-ref (:indices smap) object)
              (begin
                (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
                (fast-write-object it))
              (begin
                (let ((next-index (get-next-index!)))
-                 (hash-set! (sharing-map-indicies smap) object next-index)
+                 (hash-set! (:indices smap) object next-index)
                  (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
                  (fast-write-object next-index)
                  (do-write object))))
@@ -120,7 +121,7 @@
       (fast-write-opcode system::FASL_OP_STRUCTURE_LAYOUT port)
       (check-sharing-and-write layout))
     (if smap
-        (let ((layout-table (sharing-map-structure-layouts smap)))
+        (let ((layout-table (:structure-layouts smap)))
           (aif (hash-ref layout-table layout)
                (begin
                  (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
