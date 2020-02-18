@@ -23,7 +23,8 @@
             "load-tests"
             "values-eq?"
             "values-equal?"
-            "dtu-lambda-list"))
+            "dtu-lambda-list"
+            "identity-macro"))
 
 ;;;; Execution order checking.
 
@@ -131,3 +132,4 @@
   (mvbind (real-ll source-ll) (procedure-lambda-list procedure)
     (if source-ll source-ll real-ll)))
 
+(defmacro (identity-macro x) x)
