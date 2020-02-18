@@ -10,9 +10,13 @@
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
-(define-structure fasl-op
-  fasl-opcode
-  param-objects)
+(define (make-fasl-op opcode params)
+  {'type-of 'fasl-op
+   :fasl-opcode opcode
+   :param-objects params})
+
+(define (fasl-op? obj)
+  (eq? (type-of obj) 'fasl-op))
 
 (define (open-fasl-output-stream port)
   "Open a new FASL output stream targeting <port>."
@@ -30,8 +34,7 @@
   "Writes an arbitrary FASL opcode, <fasl-opcode>, to FASL stream <stream>. The paramater
    objects in the list <param-objects>, are written to the FASL stream immediately after
    the opcode."
-  (fasl-write stream (make-fasl-op :fasl-opcode fasl-opcode
-                                   :param-objects params)))
+  (fasl-write stream (make-fasl-op fasl-opcode params)))
 
 (define (abort-fasl-writes stream)
   "Aborts all pending writes to <stream> since the stream was opened
@@ -48,8 +51,8 @@
 
     (dolist (obj (reverse (:output-objs stream)))
       (cond ((fasl-op? obj)
-             (fast-write-opcode (fasl-op-fasl-opcode obj) (:port stream))
-             (dolist (obj (fasl-op-param-objects obj))
+             (fast-write-opcode (:fasl-opcode obj) (:port stream))
+             (dolist (obj (:param-objects obj))
                (fast-write-using-shared-structure-table obj
                                                         (:port stream)
                                                         shared-structure-table)))
