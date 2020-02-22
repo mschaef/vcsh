@@ -88,5 +88,4 @@
 (include "list-statistics.scm")
 (include "repl.scm")
 (include "tools.scm")
-(include "inspect.scm")
 (include "main.scm")

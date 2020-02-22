@@ -27,7 +27,6 @@
              *global-readsharp-table*
              *idle-hook*
              *info*
-             *inspect-print-length*
              *last-error*
              *location-mapping*
              *memoize-results?*
@@ -445,8 +444,6 @@
              info
              input-port?
              insert-ordered
-             inspect
-             inspect-analyze-object
              integer->char
              integer?
              intern!
