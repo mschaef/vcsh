@@ -144,6 +144,7 @@
 (%define hash-set! #.(host-scheme::%subr-by-name "hash-set!"))
 (%define hash-set-multiple! #.(host-scheme::%subr-by-name "hash-set-multiple!"))
 (%define hash? #.(host-scheme::%subr-by-name "hash?"))
+(%define hash-type-of #.(host-scheme::%subr-by-name "hash-type-of"))
 (%define identity-hash? #.(host-scheme::%subr-by-name "identity-hash?"))
 (%define imag-part #.(host-scheme::%subr-by-name "imag-part"))
 (%define inexact->display-string #.(host-scheme::%subr-by-name "inexact->display-string"))

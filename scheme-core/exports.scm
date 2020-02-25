@@ -421,6 +421,7 @@
              hash-set!
              hash-set-multiple!
              hash?
+             hash-type-of
              home-directory
              identity
              identity-hash

@@ -431,12 +431,20 @@ static void fast_read_structure(lref_t reader, lref_t * st)
 }
 
 
-static void fast_read_hash(lref_t reader, lref_t * hash)
+static void fast_read_hash(lref_t reader, bool typed, lref_t * hash)
 {
      lref_t shallow;
      fast_read(reader, &shallow, false);
 
-     *hash = hashcons(TRUEP(shallow));
+     lref_t type_of;
+
+     if (typed) {
+          fast_read(reader, &type_of, false);
+     } else {
+          type_of = boolcons(false);
+     }
+
+     *hash = hashcons(TRUEP(shallow), type_of);
 
      lref_t elements;
      fast_read(reader, &elements, false);
@@ -755,7 +763,11 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
                break;
 
           case FASL_OP_HASH:
-               fast_read_hash(reader, retval);
+               fast_read_hash(reader, false, retval);
+               break;
+
+          case FASL_OP_TYPED_HASH:
+               fast_read_hash(reader, true, retval);
                break;
 
           case FASL_OP_CLOSURE:

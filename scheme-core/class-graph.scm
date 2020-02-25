@@ -154,6 +154,8 @@ type. If there is no valid typecode of that name, returns #f."
              'structure
               (structure-type obj)))
         ((hash? obj)
-         (hash-ref obj 'type-of 'hash))
+         (or (hash-type-of obj)
+             (hash-ref obj 'type-of #f)
+             'hash))
         (#t
          (%representation-of obj))))

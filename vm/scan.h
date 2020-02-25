@@ -98,7 +98,7 @@ int get_c_string(lref_t obj, size_t buflen, _TCHAR *buf);
 
 /**** Hash Tables ****/
 
-lref_t hashcons(bool shallow);
+lref_t hashcons(bool shallow, lref_t type_of);
 
 bool hash_ref(lref_t table, lref_t key, lref_t *result);
 
@@ -259,6 +259,7 @@ lref_t lhash_remove(lref_t table, lref_t key);
 lref_t lhash_set(lref_t table, lref_t key, lref_t value);
 lref_t lhash_set_multiple(lref_t hash, lref_t bindings);
 lref_t lhashp(lref_t obj);
+lref_t lhash_type_of(lref_t hash);
 lref_t lheap_cell_count_by_typecode();
 lref_t licontrol_field(lref_t control_field_id);
 lref_t lidebug_printer(lref_t obj, lref_t port, lref_t machine_readable_p);
@@ -304,8 +305,8 @@ lref_t lmacrop(lref_t obj);
 lref_t lmagnitude(lref_t cmplx);
 lref_t lmake_eof();
 lref_t lmake_fasl_reader(lref_t port);
-lref_t lmake_hash();
-lref_t lmake_identity_hash();
+lref_t lmake_hash(lref_t type_of);
+lref_t lmake_identity_hash(lref_t type_of);
 lref_t lmake_polar(lref_t r, lref_t theta);
 lref_t lmake_rectangular(lref_t re, lref_t im);
 lref_t lmake_structure_layout(lref_t name, lref_t slots);

@@ -261,12 +261,13 @@ static struct hash_table_t *allocate_hash_data(size_t size)
      return table;
 }
 
-lref_t hashcons(bool shallow)
+lref_t hashcons(bool shallow, lref_t type_of)
 {
      lref_t hash = new_cell(TC_HASH);
 
      size_t size = round_up_to_power_of_two(HASH_DEFAULT_INITIAL_SIZE);
 
+     hash->as.hash.type_of = NULLP(type_of) ? boolcons(false) : type_of;
      hash->as.hash.table = allocate_hash_data(size);
 
      SET_HASH_MASK(hash, size - 1);
@@ -287,6 +288,9 @@ bool hash_equal(lref_t a, lref_t b)
      if (HASH_COUNT(a) != HASH_COUNT(b))
           return false;
 
+     if (a->as.hash.type_of != b->as.hash.type_of)
+          return false;
+
      lref_t key, val;
 
      hash_iter_t ii;
@@ -305,14 +309,14 @@ bool hash_equal(lref_t a, lref_t b)
      return true;
 }
 
-lref_t lmake_hash()
+lref_t lmake_hash(lref_t type_of)
 {
-     return hashcons(false);
+     return hashcons(false, type_of);
 }
 
-lref_t lmake_identity_hash()
+lref_t lmake_identity_hash(lref_t type_of)
 {
-     return hashcons(true);
+     return hashcons(true, type_of);
 }
 
 lref_t lhashp(lref_t obj)
@@ -321,6 +325,14 @@ lref_t lhashp(lref_t obj)
           return obj;
      else
           return boolcons(false);
+}
+
+lref_t lhash_type_of(lref_t hash)
+{
+     if (!HASHP(hash))
+          vmerror_wrong_type_n(1, hash);
+
+     return hash->as.hash.type_of;
 }
 
 static fixnum_t href_index(bool shallow_p, size_t mask, lref_t key)
@@ -658,7 +670,7 @@ lref_t lhash_copy(lref_t hash)
      if (!HASHP(hash))
           vmerror_wrong_type_n(1, hash);
 
-     lref_t target_hash = hashcons(HASH_SHALLOW(hash));
+     lref_t target_hash = hashcons(HASH_SHALLOW(hash), hash->as.hash.type_of);
 
      lref_t key, val;
 

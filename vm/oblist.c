@@ -61,7 +61,7 @@ lref_t packagecons(lref_t name)
 {
      assert(STRINGP(name));
 
-     return packagecons0(name, hashcons(false), NIL);
+     return packagecons0(name, hashcons(false, boolcons(false)), NIL);
 }
 
 lref_t lipackagecons(lref_t name)

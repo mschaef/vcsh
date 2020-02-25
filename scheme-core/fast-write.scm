@@ -202,9 +202,15 @@
          (check-sharing-and-write x)))
 
       ((hash)
-       (fast-write-opcode system::FASL_OP_HASH port)
-       (check-sharing-and-write (identity-hash? object))
-       (check-sharing-and-write (hash->a-list object)))
+       (let ((hash-type (hash-type-of object)))
+         (fast-write-opcode (if hash-type
+                                system::FASL_OP_TYPED_HASH
+                                system::FASL_OP_HASH)
+                            port)
+         (check-sharing-and-write (identity-hash? object))
+         (when hash-type
+           (check-sharing-and-write hash-type))
+         (check-sharing-and-write (hash->a-list object))))
 
       ((subr)
        (fast-write-opcode system::FASL_OP_SUBR port)

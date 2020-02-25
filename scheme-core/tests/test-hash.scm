@@ -52,7 +52,7 @@
 
     (check (eq? (type-of h) 'hash))
     (check (hash? h))
-    
+
     (check (not (hash-ref h 'foo)))
 
     (populate-hash! h)
@@ -114,7 +114,7 @@
   (let ((h (make-hash))
 	(k '(h e l l o - w o r l d)))
     (hash-set! h k :test-symbol)
-   
+
     (let ((k/v (hash-ref* h '(h e l l o - w o r l d))))
       (check (pair? k/v))
       (check (eq? (car k/v) k))
@@ -125,7 +125,7 @@
         (h/equal (make-hash)))
     (check (= 0 (length h/eq)))
     (check (= 0 (length h/equal)))
-    
+
     (hash-set! h/eq    'x 1)
     (hash-set! h/equal 'x 1)
 
@@ -185,7 +185,7 @@
   (let ((h (list->hash '(a b c d))))
     (check (hash-has? h 'a))
     (check (eq? (hash-ref h 'a) 'b))
-    
+
     (check (hash-has? h 'c))
     (check (eq? (hash-ref h 'c) 'd)))
 
@@ -363,19 +363,19 @@
     (hash-set! h1 a 1)
     (hash-set! h1 b 2)
     (hash-set! h1 c 3)
-    
+
     (hash-set! h2 a 1)
     (hash-set! h2 b 2)
     (hash-set! h2 c 3)
-    
+
     (check (eq? (hash-ref h1 a) 1))
     (check (eq? (hash-ref h1 b) 2))
     (check (eq? (hash-ref h1 c) 3))
-    
+
     (check (eq? (hash-ref h2 a) 3))
     (check (eq? (hash-ref h2 b) 3))
     (check (eq? (hash-ref h2 c) 3))
-    
+
 
     (hash-remove! h1 a)
     (check (eq? (hash-ref h1 a) #f))
@@ -403,7 +403,7 @@
         (b  (-> (make-hash)
                 (hash-set! 8 'b)
                 (hash-set! 0 'a))))
-    
+
     (check (not (equal? (scheme::%hash-binding-vector a)
                         (scheme::%hash-binding-vector b))))
 
@@ -422,5 +422,16 @@
       (check (eq? a result))
       (check (equal? {1 2 3 4} result)))))
 
+(define-test hash-fast-io
+  (check (can-fast-io-round-trip? {}))
+  (check (can-fast-io-round-trip? {1 2}))
+  (check (can-fast-io-round-trip? {1 {2 3}}))
 
+  (check (can-fast-io-round-trip? (make-hash 'foo))))
 
+(define-test hash-type-of
+  (let ((foo-1 (make-hash 'foo))
+        (foo-2 (make-hash 'foo))
+        (bar-1 (make-hash 'bar)))
+    (check (equal? foo-1 foo-2))
+    (check (not (equal? foo-1 bar-1)))))

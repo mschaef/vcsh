@@ -212,6 +212,7 @@ struct lobject_t
           } fast_op;
           struct
           {
+               lref_t type_of;
                struct hash_table_t *table;
           } hash;
           struct

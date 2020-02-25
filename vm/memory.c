@@ -315,6 +315,7 @@ void gc_mark(lref_t initial_obj)
                break;
 
           case TC_HASH:
+               gc_mark(obj->as.hash.type_of);
                for (size_t jj = 0; jj < obj->as.hash.table->mask + 1; jj++) {
                     gc_mark(obj->as.hash.table->data[jj].key);
                     gc_mark(obj->as.hash.table->data[jj].val);

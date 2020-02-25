@@ -348,17 +348,21 @@ static void dump_vector()
     }
 }
 
-static void dump_hash()
+static void dump_hash(bool typed)
 {
      enum fasl_opcode_t op = dump_next_object(_T("shallow?"), NULL);
 
-  if ((op != FASL_OP_TRUE) && (op != FASL_OP_FALSE))
-    dump_error("expected boolean for hash table shallow");
+     if ((op != FASL_OP_TRUE) && (op != FASL_OP_FALSE))
+          dump_error("expected boolean for hash table shallow");
 
-  op = dump_next_object(_T("key/values"), NULL);
+     if (typed) {
+          dump_next_object(_T("type-of"), NULL);
+     }
 
-  if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST) && (op != FASL_OP_LISTD))
-    dump_error("malformed key/value list for hash table");
+     op = dump_next_object(_T("key/values"), NULL);
+
+     if ((op != FASL_OP_NIL) && (op != FASL_OP_LIST) && (op != FASL_OP_LISTD))
+          dump_error("malformed key/value list for hash table");
 }
 
 static void dump_closure()
@@ -577,7 +581,8 @@ static enum fasl_opcode_t dump_next_object(const _TCHAR *desc,
     case FASL_OP_PACKAGE:		dump_package();		break;
     case FASL_OP_VECTOR:		dump_vector();		break;
 
-    case FASL_OP_HASH:			dump_hash();	        break;
+    case FASL_OP_HASH:			dump_hash(false);	        break;
+    case FASL_OP_TYPED_HASH:	dump_hash(true);	        break;
 
     case FASL_OP_CLOSURE:		dump_closure();		break;
     case FASL_OP_MACRO:			dump_macro();		break;
