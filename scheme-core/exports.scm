@@ -245,7 +245,6 @@
              cond-match
              cons
              cons*
-             copy-structure
              cos
              count
              current-date
@@ -280,7 +279,6 @@
              define-package
              define-proto
              define-repl-abbreviation
-             define-structure
              define-text
              defmacro
              define-message
@@ -533,7 +531,6 @@
              make-queue
              make-rectangular
              make-string
-             make-structure-by-name
              make-tree
              make-vector
              map
@@ -589,7 +586,6 @@
              open-text-output-port
              or
              or*
-             orphaned-structure?
              output-port?
              p-list->a-list
              p-list-fold
@@ -800,11 +796,6 @@
              string>=
              string>=-ci
              string?
-             structure
-             structure-has-slot?
-             structure-slots
-             structure-type
-             structure?
              subr
              substring
              subtract-duration

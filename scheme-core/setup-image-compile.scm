@@ -38,7 +38,6 @@
                scheme::macro
                scheme::string
                scheme::vector
-               scheme::structure
                scheme::hash
                scheme::port
                scheme::end-of-file

@@ -64,7 +64,6 @@
 (include "package.scm")
 (include "hooks.scm")
 (include "class-graph.scm")
-(include "structure.scm")
 (include "iterate.scm")
 (include "error-handling.scm")
 (include "io.scm")

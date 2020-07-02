@@ -52,10 +52,6 @@
                  ((vector)
                   (dolist (x o)
                     (visit x)))
-                 ((structure)
-                  (hash-set! visited-layouts (%structure-layout o) #f)
-                  (dotimes (ii (%structure-length o))
-                    (visit (%structure-ref o ii))))
                  ((hash)
                   (dolist (k/v (hash->a-list o))
                     (visit (car k/v))
@@ -115,24 +111,6 @@
                  (do-write object))))
         (do-write object)))
 
-
-  (define (fast-write-structure-layout layout)
-    (define (do-write)
-      (fast-write-opcode system::FASL_OP_STRUCTURE_LAYOUT port)
-      (check-sharing-and-write layout))
-    (if smap
-        (let ((layout-table (:structure-layouts smap)))
-          (aif (hash-ref layout-table layout)
-               (begin
-                 (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
-                 (fast-write-object it))
-               (begin
-                 (let ((next-index (get-next-index!)))
-                   (hash-set! layout-table layout next-index)
-                   (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
-                   (fast-write-object next-index)
-                   (do-write)))))
-        (do-write)))
 
   (define (fast-write-object object)
 
@@ -221,13 +199,6 @@
        (fast-write-opcode system::FASL_OP_MACRO port)
        (check-sharing-and-write (%macro-transformer object)))
 
-      ((structure)
-       (fast-write-opcode system::FASL_OP_STRUCTURE port)
-       (fast-write-structure-layout (%structure-layout object))
-       (let ((len (%structure-length object)))
-         (check-sharing-and-write len)
-         (dotimes (ii len)
-           (check-sharing-and-write (%structure-ref object ii)))))
 
       ((fast-op)
        (mvbind (fop-opcode fop-name args next-op) (compiler::parse-fast-op object #f)

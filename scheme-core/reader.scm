@@ -169,10 +169,6 @@ character or #f if not found."
                           (read-error :reader-bad-character-code port char-location))
                   (string-ref char-text 0)))))))
 
-(define (read-structure port)
-  (read-char port)
-  (apply make-structure-by-name (read port)))
-
 (define (read-true port)
   (read-char port)
   #t)
@@ -279,10 +275,6 @@ character or #f if not found."
     (read-char port)
     (read port #t)))
 
-(define (read-structure port)
-  (read-char port)
-  (apply make-structure-by-name (read port)))
-
 (define (read-and-evaluate port)
   (read-char port)
   (eval (read port)))
@@ -386,7 +378,6 @@ character or #f if not found."
       ((#\i) (read-inexact port))
       ((#\;) (read-sexpr-comment port))
       ((#\@) (read-annotated-object port))
-      ((#\S) (read-structure port))
       ((#\.) (read-and-evaluate port))
       ((#\!) (read-shebang port))
       ((#\L) (read-short-lambda port))

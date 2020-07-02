@@ -35,12 +35,6 @@
           ((pair? pat)
            (recur (cdr pat) (recur (car pat) vars)))
 
-          ((structure? pat)
-           (let loop ((slots (structure-slots pat)) (vars vars))
-             (if (null? slots)
-                 vars
-                 (loop (cdr slots) (recur (slot-ref pat (car slots)) vars)))))
-
           ((hash? pat) 
            (let ((keys (hash-keys pat)))
              (let loop ((keys keys) (vars vars))
@@ -84,15 +78,11 @@
            (if (match-universal-pattern-var? pat)
                env
                (maybe-extend-env? env pat form)))
+
           ((and (pair? pat) (pair? form))
            (let ((nenv (recur (car pat) (car form) env)))
              (recur (cdr pat) (cdr form) nenv)))
-          ((and (structure? pat) (structure? form)
-                (eq? (structure-type pat) (structure-type form)))
-           (let loop ((slots (structure-slots pat)) (nenv env))
-             (if (or (not env) (null? slots))
-                 nenv
-                 (loop (cdr slots) (recur (slot-ref pat (car slots)) (slot-ref form (car slots)) nenv)))))
+
           ((and (hash? pat) (hash? form))
            (let ((pat-keys (hash-keys pat)))
              (if (and (eq? (identity-hash? pat)
@@ -111,6 +101,7 @@
                          (#t
                           #f)))
                  #f)))
+
           ((and (vector? pat) (vector? form)
                 (= (length pat) (length form)))
            (let loop ((ii 0) (nenv env))

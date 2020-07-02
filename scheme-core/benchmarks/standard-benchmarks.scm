@@ -683,81 +683,6 @@
   (account
    (fib 21)))
 
-(define-structure benchmark-structure
-  f1 f2 f3)
-
-(defbench structure/make-0-args
-  (account
-   (bench-repeat 100000
-                 (make-benchmark-structure))))
-
-(defbench structure/make-1-args
-  (account
-   (bench-repeat 100000
-                 (make-benchmark-structure :f1 1))))
-
-(defbench structure/make-3-args
-  (account
-   (bench-repeat 100000
-                 (make-benchmark-structure :f1 1 :f2 2 :f3 3))))
-
-
-(defbench structure/ref
-  (let ((structures (map #L(make-benchmark-structure) (iseq 1 100000))))
-    (account
-     (dolist (structure structures)
-       (benchmark-structure-f1 structure)
-       (benchmark-structure-f2 structure)
-       (benchmark-structure-f3 structure)))))
-
-(defbench structure/set!
-  (let ((structures (map #L(make-benchmark-structure) (iseq 1 100000))))
-    (account
-     (dolist (structure structures)
-       (set-benchmark-structure-f1! structure :foo)
-       (set-benchmark-structure-f2! structure :bar)
-       (set-benchmark-structure-f3! structure :baz)))))
-
-(defbench structure/read
-  (with-package "bench"
-    (account
-     (bench-repeat 10000
-       (read-from-string "#S(benchmark-structure :f1 1 :f2 2 :f3 3)")))))
-
-(defbench structure/write
-  (let ((op (open-null-output-port)))
-    (account
-     (bench-repeat 100000
-                   (write #S(benchmark-structure :f1 1 :f2 2 :f3 3) op)))))
-
-(defbench structure/fasl-write
-  (let ((test-filename (temporary-file-name "sct")))
-    (with-fasl-file os test-filename
-      (account
-       (bench-repeat 65536
-                     (fasl-write os (make-benchmark-structure :f1 1 :f2 2 :f3 3)))))
-    (delete-file test-filename)))
-
-(defbench structure/fasl-read
-  (let ((test-filename (temporary-file-name "sct")))
-    (with-fasl-file os test-filename
-      (bench-repeat 65536
-                    (fasl-write os (make-benchmark-structure :f1 1 :f2 2 :f3 3))))
-    (account (fasl-load test-filename))
-    (delete-file test-filename)))
-
-(define (make-complex-structure-vector size)
-  (let ((db (make-vector size)))
-    (dotimes (ii size)
-      (vector-set! db ii (make-benchmark-structure)))
-    (dotimes (ii size)
-      (set-benchmark-structure-f1! (vector-ref db ii) (vector-ref db (random size)))
-      (set-benchmark-structure-f2! (vector-ref db ii) (vector-ref db (random size)))
-      (set-benchmark-structure-f3! (vector-ref db ii) (vector-ref db (random size))))
-    db))
-
-
-
 (defbench formatted-io/simple
   (let ((np (open-null-output-port)))
     (account
@@ -896,17 +821,6 @@
      (type-of "string")
      (type-of 123)
      (type-of 'a))))
-
-(define (structure-bench)
-  (bench '(structure/make-0-args
-           structure/make-1-args
-           structure/make-3-args
-           structure/ref
-           structure/set!
-           structure/read
-           structure/write
-           structure/fasl-write
-           structure/fasl-read)))
 
 (define (fast-bench)
   "Run the benchmark suite on a useful subset of the overall
