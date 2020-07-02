@@ -231,8 +231,8 @@ it's running on."
         (dolist (result (qsort results string< #L(symbol-name (:test-name _))))
           (display-benchmark-result (:test-name result)
                                     (benchmark-result-cpu-time result)
-                                    (benchmark-result-cpu-time (find-test-result (:test-name result)
-                                                                                 reference)))))))
+                                    (aand (find-test-result (:test-name result) reference)
+                                          (benchmark-result-cpu-time it)))))))
 
 ;;;; The benchmark runner
 
