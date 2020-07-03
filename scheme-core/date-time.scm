@@ -199,6 +199,8 @@
   (78796800 . 11)
   (63072000 . 10)))
 
+(define (copy-time t)
+  (hash-copy t))
 
 (define (tm%leap-second-delta utc-seconds) ;; SRFI-19
   (letrec ((lsd (lambda (table)
@@ -410,7 +412,7 @@
 
 (define (add-duration time1 duration) ;; SRFI-19
   (tm%add-duration time1 duration
-                   (make-time {:type (time-type time1)})))
+                   (make-time {:type (:type time1)})))
 
 (define (add-duration! time1 duration) ;; SRFI-19
   (tm%add-duration time1 duration time1))
@@ -497,7 +499,7 @@
     ntime))
 
 (define (time-monotonic->time-tai! time-in) ;; SRFI-19
-  (unless (eq? (time-type time-in) :time-monotonic)
+  (unless (eq? (:type time-in) :time-monotonic)
     (tm%time-error 'time-monotonic->time-tai! 'incompatible-time-types time-in))
   (hash-set! time-in :type :time-tai)
   time-in)
@@ -670,7 +672,7 @@
                                  (- offset))}))))
 
 (define (date->time-tai d) ;; SRFI-19
-  (if (= (date-second d) 60)
+  (if (= (:second d) 60)
       (subtract-duration! (time-utc->time-tai! (date->time-utc d))
                           (make-time {:type       :time-duration
                                       :nanosecond 0
