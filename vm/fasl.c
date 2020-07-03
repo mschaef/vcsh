@@ -368,14 +368,6 @@ static void fast_read_vector(lref_t reader, lref_t * vec)
      }
 }
 
-static void fast_read_structure_layout(lref_t reader, lref_t * st_layout)
-{
-     lref_t new_st_layout;
-     fast_read(reader, &new_st_layout, false);
-
-     *st_layout = vmtrap(TRAP_RESOLVE_FASL_STRUCT_LAYOUT, VMT_MANDATORY_TRAP, 1, new_st_layout);
-}
-
 static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, lref_t * fop)
 {
      assert((fast_op_arity >= 0) && (fast_op_arity <= 2));
@@ -400,34 +392,6 @@ static void fast_read_fast_op(int fast_op_arity, bool has_next, lref_t reader, l
           fast_read(reader, &next, false);
 
      *fop = fast_op((int) FIXNM(opcode_obj), op_arg1, op_arg2, next);
-}
-
-static void fast_read_structure(lref_t reader, lref_t * st)
-{
-     lref_t st_meta;
-     fast_read(reader, &st_meta, false);
-
-     if (!CONSP(st_meta))
-          vmerror_fast_read("Expected list for structure metadata", reader, st_meta);
-
-     lref_t st_length;
-     fast_read(reader, &st_length, false);
-
-     if (!FIXNUMP(st_length))
-          vmerror_fast_read("Expected fixnum for structure length", reader, st_length);
-
-     *st = lstructurecons(vectorcons(FIXNM(st_length), NIL), st_meta);
-
-     for (fixnum_t ii = 0; ii < FIXNM(st_length); ii++)
-     {
-          lref_t object;
-          fast_read(reader, &object, false);
-
-          if (EOFP(object))
-               vmerror_fast_read("incomplete structure definition", reader, *st);
-
-          SET_STRUCTURE_ELEM(*st, ii, object);
-     }
 }
 
 
@@ -772,14 +736,6 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
           case FASL_OP_SUBR:
                fast_read_subr(reader, retval);
-               break;
-
-          case FASL_OP_STRUCTURE:
-               fast_read_structure(reader, retval);
-               break;
-
-          case FASL_OP_STRUCTURE_LAYOUT:
-               fast_read_structure_layout(reader, retval);
                break;
 
           case FASL_OP_FAST_OP_0:

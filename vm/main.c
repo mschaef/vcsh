@@ -248,7 +248,6 @@ static void register_main_subrs()
     register_subr(_T("%closure-code"),                    SUBR_1,     (void*)lclosure_code                       );
     register_subr(_T("%closure-env"),                     SUBR_1,     (void*)lclosure_env                        );
     register_subr(_T("%control-field"),                   SUBR_1,     (void*)licontrol_field                     );
-    register_subr(_T("%copy-structure"),                  SUBR_2,     (void*)lcopy_structure                     );
     register_subr(_T("%debug-flags"),                     SUBR_0,     (void*)ldebug_flags                        );
     register_subr(_T("%debug-printer"),                   SUBR_3,     (void*)lidebug_printer                     );
     register_subr(_T("%define-global"),                   SUBR_2,     (void*)lidefine_global                     );
@@ -291,13 +290,6 @@ static void register_main_subrs()
     register_subr(_T("%startup-args"),                    SUBR_0,     (void*)listartup_args                      );
     register_subr(_T("%stress-c-heap"),                   SUBR_2,     (void*)lstress_c_heap                      );
     register_subr(_T("%stress-lisp-heap"),                SUBR_1,     (void*)lstress_lisp_heap                   );
-    register_subr(_T("%structure-layout"),                SUBR_1,     (void*)lstructure_layout                   );
-    register_subr(_T("%structure-length"),                SUBR_1,     (void*)lstructure_length                   );
-    register_subr(_T("%structure-meta")  ,                SUBR_1,     (void*)lstructure_layout                   );
-    register_subr(_T("%structure-ref"),                   SUBR_3,     (void*)lstructure_ref                      );
-    register_subr(_T("%structure-set!"),                  SUBR_4,     (void*)lstructure_set                      );
-    register_subr(_T("%structure?"),                      SUBR_2,     (void*)lstructurep                         );
-    register_subr(_T("%structurecons"),                   SUBR_2,     (void*)lstructurecons                      );
     register_subr(_T("%subr-table"),                      SUBR_0,     (void*)lisubr_table                        );
     register_subr(_T("%symbol-index"),                    SUBR_1,     (void*)lisymbol_index                      );
     register_subr(_T("%symbol-globally-bound?"),          SUBR_1,     (void*)lisymbol_globally_boundp            );
@@ -400,7 +392,6 @@ static void register_main_subrs()
     register_subr(_T("make-identity-hash"),               SUBR_0,     (void*)lmake_identity_hash                 );
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );
-    register_subr(_T("make-structure-layout"),            SUBR_2,     (void*)lmake_structure_layout              );
     register_subr(_T("make-vector"),                      SUBR_2,     (void*)lmake_vector                        );
     register_subr(_T("modulo"),                           SUBR_2,     (void*)lmodulo                             );
     register_subr(_T("nan?"),                             SUBR_1,     (void*)lnanp                               );
@@ -488,9 +479,6 @@ static void register_main_subrs()
     register_subr(_T("string-upcase!"),                   SUBR_1,     (void*)lstring_upcased                     );
     register_subr(_T("string-upcase"),                    SUBR_1,     (void*)lstring_upcase                      );
     register_subr(_T("string?"),                          SUBR_1,     (void*)lstringp                            );
-    register_subr(_T("structure-layout?"),                SUBR_1,     (void*)lstructure_layoutp                  );
-    register_subr(_T("structure-layout-name"),            SUBR_1,     (void*)lstructure_layout_name              );
-    register_subr(_T("structure-layout-slots"),           SUBR_1,     (void*)lstructure_layout_slots             );
     register_subr(_T("%subr-type-code"),                  SUBR_1,     (void*)lsubr_type_code                     );
     register_subr(_T("%subr-name"),                       SUBR_1,     (void*)lsubr_name                          );
     register_subr(_T("substring"),                        SUBR_3,     (void*)lsubstring                          );

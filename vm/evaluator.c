@@ -381,7 +381,7 @@ EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t *en
 
      if (SUBRP(function)) {
           return subr_apply(function, argc, argv, env, retval);
-          
+
      } else if (CLOSUREP(function))  {
           lref_t c_code = CLOSURE_CODE(function);
 
@@ -390,28 +390,28 @@ EVAL_INLINE lref_t apply(lref_t function, size_t argc, lref_t argv[], lref_t *en
                             CLOSURE_ENV(function));
 
           return CDR(c_code);   /*  tail call */
-          
+
      } else if (argc > 0) {
-          if (HASHP(function) || STRUCTUREP(function)) {
+          if (HASHP(function)) {
                args[0] = function;
                args[1] = argv[0];
                args[2] = (argc > 1) ? argv[1] : NIL;
 
                *retval = lslot_ref(MAX2(argc + 1, 2), args);
                return NIL;
-               
+
           } else if (SYMBOLP(function)) {
-               if (HASHP(argv[0]) || STRUCTUREP(argv[0])) {
+               if (HASHP(argv[0])) {
                     args[0] = argv[0];
                     args[1] = function;
                     args[2] = (argc > 1) ? argv[1] : NIL;
-               
+
                     *retval = lslot_ref(MAX2(argc + 1, 2), args);
                     return NIL;
                }
           }
      }
-     
+
      vmerror_wrong_type(function);
      return NIL;
 }

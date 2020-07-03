@@ -186,13 +186,7 @@ struct lobject_t
           {
                size_t dim;
                lref_t *data;
-               lref_t layout;
           } vector;
-          struct
-          {
-               lref_t name;
-               lref_t slots;
-          } structure_layout;
           struct
           {
                struct port_class_t *klass;
@@ -318,8 +312,6 @@ INLINE bool STRINGP(lref_t x)            { return REFTYPEP(x, TC_STRING);       
 INLINE bool PACKAGEP(lref_t x)           { return REFTYPEP(x, TC_PACKAGE);                                              }
 INLINE bool PORTP(lref_t x)              { return REFTYPEP(x, TC_PORT);                                                 }
 INLINE bool VECTORP(lref_t x)            { return REFTYPEP(x, TC_VECTOR);                                               }
-INLINE bool STRUCTUREP(lref_t x)         { return REFTYPEP(x, TC_STRUCTURE);                                            }
-INLINE bool STRUCTURE_LAYOUTP(lref_t x)  { return REFTYPEP(x, TC_STRUCTURE_LAYOUT);                                     }
 INLINE bool HASHP(lref_t x)              { return REFTYPEP(x, TC_HASH);                                                 }
 INLINE bool CLOSUREP(lref_t x)           { return REFTYPEP(x, TC_CLOSURE);                                              }
 INLINE bool SUBRP(lref_t x)              { return REFTYPEP(x, TC_SUBR);                                                 }
@@ -332,7 +324,6 @@ INLINE bool TRUEP(lref_t x)              { return (x) != MAKE_LREF2(LREF2_BOOL, 
 INLINE bool FALSEP(lref_t x)             { return !TRUEP(x);                                                            }
 
 /*** Boxed data accessors ***/
-
 
 /*** boolean ***/
 INLINE lref_t boolcons(bool val)
@@ -428,82 +419,6 @@ INLINE _TCHAR CHARV(lref_t x)
      checked_assert(CHARP(x));
 
      return (_TCHAR) LREF2_VAL(x);
-}
-
-/*** structure ***/
-
-INLINE size_t STRUCTURE_DIM(lref_t obj)
-{
-     checked_assert(STRUCTUREP(obj));
-     return obj->as.vector.dim;
-}
-
-INLINE void SET_STRUCTURE_DIM(lref_t obj, size_t len)
-{
-     checked_assert(STRUCTUREP(obj));
-     obj->as.vector.dim = len;
-}
-
-INLINE lref_t *STRUCTURE_DATA(lref_t obj)
-{
-     checked_assert(STRUCTUREP(obj));
-     return obj->as.vector.data;
-}
-
-INLINE void SET_STRUCTURE_DATA(lref_t obj, lref_t * data)
-{
-     checked_assert(STRUCTUREP(obj));
-     obj->as.vector.data = data;
-}
-
-INLINE lref_t STRUCTURE_LAYOUT(lref_t obj)
-{
-     checked_assert(STRUCTUREP(obj));
-     return obj->as.vector.layout;
-}
-
-INLINE void SET_STRUCTURE_LAYOUT(lref_t obj, lref_t new_layout)
-{
-     checked_assert(STRUCTUREP(obj));
-     obj->as.vector.layout = new_layout;
-}
-
-INLINE lref_t STRUCTURE_ELEM(lref_t obj, fixnum_t index)
-{
-     checked_assert(STRUCTUREP(obj));
-     return obj->as.vector.data[index];
-}
-
-INLINE void SET_STRUCTURE_ELEM(lref_t obj, fixnum_t index, lref_t new_value)
-{
-     checked_assert(STRUCTUREP(obj));
-     obj->as.vector.data[index] = new_value;
-}
-
-/*** structure layout ***/
-
-INLINE lref_t STRUCTURE_LAYOUT_NAME(lref_t obj)
-{
-     checked_assert(STRUCTURE_LAYOUTP(obj));
-     return obj->as.structure_layout.name;
-}
-
-INLINE void SET_STRUCTURE_LAYOUT_NAME(lref_t obj, lref_t new_name)
-{
-     checked_assert(STRUCTURE_LAYOUTP(obj));     
-     obj->as.structure_layout.name = new_name;
-}
-
-INLINE lref_t STRUCTURE_LAYOUT_SLOTS(lref_t obj)
-{
-     checked_assert(STRUCTURE_LAYOUTP(obj));
-     return obj->as.structure_layout.slots;
-}
-
-INLINE void SET_STRUCTURE_LAYOUT_SLOTS(lref_t obj, lref_t new_slots)
-{
-     checked_assert(STRUCTURE_LAYOUTP(obj));     
-     obj->as.structure_layout.slots = new_slots;
 }
 
 /*** symbol ***/
