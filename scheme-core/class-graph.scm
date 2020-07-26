@@ -148,7 +148,9 @@ type. If there is no valid typecode of that name, returns #f."
   "Returns the type of <obj> as a symbol. For instances, the name of the type
    is the name of the prototype symbol closest up the prototype list. For
    structures, returns the structure type name."
-  (cond ((hash? obj)
-         (hash-ref obj 'type-of 'hash))
-        (#t
-         (%representation-of obj))))
+  (cond
+   ((hash? obj)
+    (or (hash-type-of obj)
+        (hash-ref obj 'type-of 'hash)))
+   (#t
+    (%representation-of obj))))

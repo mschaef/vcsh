@@ -148,7 +148,7 @@ lref_t ldelete_file(lref_t filename)
 
 lref_t file_details_object(_TCHAR * filename, struct sys_stat_t * info)
 {
-     lref_t obj = hashcons(false);
+     lref_t obj = hashcons(false, boolcons(false));
 
      lref_t file_type = NULL;
 
@@ -344,7 +344,7 @@ lref_t lrealtime_time_zone_offset()
 
 lref_t lsystem_info()
 {
-     lref_t obj = hashcons(false);
+     lref_t obj = hashcons(false, boolcons(false));
 
      lref_t eoln = boolcons(false);
 

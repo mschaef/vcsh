@@ -420,6 +420,7 @@
              hash-set-multiple!
              hash-type-of
              hash?
+             hash-type-of
              home-directory
              identity
              identity-hash

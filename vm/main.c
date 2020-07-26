@@ -236,7 +236,7 @@ static void init_base_scheme_objects(void)
 
      gc_protect(_T("internal-files"), &interp.internal_files, 1);
 
-     interp.subr_table = hashcons(false);
+     interp.subr_table = hashcons(false, boolcons(false));
      gc_protect(_T("subr-table"), &interp.subr_table, 1);
 }
 
@@ -373,6 +373,7 @@ static void register_main_subrs()
     register_subr(_T("hash-set!"),                        SUBR_3,     (void*)lhash_set                           );
     register_subr(_T("hash-set-multiple!"),               SUBR_2,     (void*)lhash_set_multiple                  );
     register_subr(_T("hash?"),                            SUBR_1,     (void*)lhashp                              );
+    register_subr(_T("hash-type-of"),                     SUBR_1,     (void*)lhash_type_of                       );
     register_subr(_T("imag-part"),                        SUBR_1,     (void*)limag_part                          );
     register_subr(_T("inexact->display-string"),          SUBR_4,     (void*)linexact2display_string             );
     register_subr(_T("inexact->exact"),                   SUBR_1,     (void*)linexact2exact                      );
@@ -388,8 +389,8 @@ static void register_main_subrs()
     register_subr(_T("macro?"),                           SUBR_1,     (void*)lmacrop                             );
     register_subr(_T("magnitude"),                        SUBR_1,     (void*)lmagnitude                          );
     register_subr(_T("make-fasl-reader"),                 SUBR_1,     (void*)lmake_fasl_reader                   );
-    register_subr(_T("make-hash"),                        SUBR_0,     (void*)lmake_hash                          );
-    register_subr(_T("make-identity-hash"),               SUBR_0,     (void*)lmake_identity_hash                 );
+    register_subr(_T("make-hash"),                        SUBR_1,     (void*)lmake_hash                          );
+    register_subr(_T("make-identity-hash"),               SUBR_1,     (void*)lmake_identity_hash                 );
     register_subr(_T("make-polar"),                       SUBR_2,     (void*)lmake_polar                         );
     register_subr(_T("make-rectangular"),                 SUBR_2,     (void*)lmake_rectangular                   );
     register_subr(_T("make-vector"),                      SUBR_2,     (void*)lmake_vector                        );
