@@ -255,6 +255,7 @@
              current-modified-julian-day
              current-output-port
              current-time
+             date
              date->julian-day
              date->modified-julian-day
              date->string
@@ -317,7 +318,7 @@
              eof-object?
              eq?
              equal?
-             eqv?             
+             eqv?
              error
              error-escape
              etypecase
@@ -417,6 +418,7 @@
              hash-remove!
              hash-set!
              hash-set-multiple!
+             hash-type-of
              hash?
              home-directory
              identity
