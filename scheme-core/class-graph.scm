@@ -150,6 +150,7 @@ type. If there is no valid typecode of that name, returns #f."
    structures, returns the structure type name."
   (cond
    ((hash? obj)
-    (hash-ref obj 'type-of 'hash))
+    (or (hash-type-of obj)
+        (hash-ref obj 'type-of 'hash)))
    (#t
     (%representation-of obj))))
