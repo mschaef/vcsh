@@ -57,9 +57,6 @@
                    ((vector)
                     (dolist (x o)
                       (push! x to-visit)))
-                   ((structure)
-                    (dolist (slot-name (structure-slots o))
-                      (push! (slot-ref o slot-name) to-visit)))
                    ((hash)
                     (dolist (k/v (hash->a-list o))
                       (push! (car k/v) to-visit)
@@ -267,24 +264,6 @@
                       machine-readable?
                       #f))
       (print-unreadable-object obj port)))
-
-(define-method (print-object (obj structure) port machine-readable? shared-structure-map)
-  (define (print-structure-body)
-    (print (structure-type obj) port machine-readable? shared-structure-map)
-    (dolist (slot (structure-slots obj))
-      (write-strings port " ")
-      (print slot port machine-readable? shared-structure-map)
-      (write-strings port " ")
-      (print (slot-ref obj slot) port machine-readable? shared-structure-map)))
-  (with-new-print-level port
-     (if (orphaned-structure? obj)
-         (print-unreadable-object obj port
-            (write-strings port " ")                                  
-            (print-structure-body))
-         (begin
-           (write-strings port "#S(")
-           (print-structure-body)
-           (write-strings port ")")))))
 
 (define-method (print-object (obj nil) port machine-readable? shared-structure-map)
   (write-strings port "()"))

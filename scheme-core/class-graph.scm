@@ -11,26 +11,25 @@
 ;;;; WARRANTIES.
 
 (define *typecode-map*
-  {#.system::TC_FREE_CELL      'free-cell  
-   #.system::TC_NIL            'nil  
-   #.system::TC_BOOLEAN        'boolean  
-   #.system::TC_CONS           'cons  
-   #.system::TC_FIXNUM         'fixnum  
-   #.system::TC_FLONUM         'flonum  
-   #.system::TC_CHARACTER      'character  
-   #.system::TC_SYMBOL         'symbol  
-   #.system::TC_PACKAGE        'package  
-   #.system::TC_SUBR           'subr  
-   #.system::TC_CLOSURE        'closure 
-   #.system::TC_MACRO          'macro 
-   #.system::TC_STRING         'string 
-   #.system::TC_VECTOR         'vector 
-   #.system::TC_STRUCTURE      'structure 
-   #.system::TC_HASH           'hash 
-   #.system::TC_PORT           'port 
-   #.system::TC_END_OF_FILE    'end-of-file 
-   #.system::TC_VALUES_TUPLE   'values-tuple 
-   #.system::TC_UNBOUND_MARKER 'unbound-marker 
+  {#.system::TC_FREE_CELL      'free-cell
+   #.system::TC_NIL            'nil
+   #.system::TC_BOOLEAN        'boolean
+   #.system::TC_CONS           'cons
+   #.system::TC_FIXNUM         'fixnum
+   #.system::TC_FLONUM         'flonum
+   #.system::TC_CHARACTER      'character
+   #.system::TC_SYMBOL         'symbol
+   #.system::TC_PACKAGE        'package
+   #.system::TC_SUBR           'subr
+   #.system::TC_CLOSURE        'closure
+   #.system::TC_MACRO          'macro
+   #.system::TC_STRING         'string
+   #.system::TC_VECTOR         'vector
+   #.system::TC_HASH           'hash
+   #.system::TC_PORT           'port
+   #.system::TC_END_OF_FILE    'end-of-file
+   #.system::TC_VALUES_TUPLE   'values-tuple
+   #.system::TC_UNBOUND_MARKER 'unbound-marker
    #.system::TC_FAST_OP        'fast-op
    #.system::TC_FASL_READER    'fasl-reader})
 
@@ -149,13 +148,8 @@ type. If there is no valid typecode of that name, returns #f."
   "Returns the type of <obj> as a symbol. For instances, the name of the type
    is the name of the prototype symbol closest up the prototype list. For
    structures, returns the structure type name."
-  (cond ((structure? obj)
-         (if (orphaned-structure? obj)
-             'structure
-              (structure-type obj)))
-        ((hash? obj)
-         (or (hash-type-of obj)
-             (hash-ref obj 'type-of #f)
-             'hash))
-        (#t
-         (%representation-of obj))))
+  (cond
+   ((hash? obj)
+    (hash-ref obj 'type-of 'hash))
+   (#t
+    (%representation-of obj))))

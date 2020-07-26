@@ -78,18 +78,9 @@
                       ;; There are four criteria for hash tables to be EQUAL:
                       (and (hash? y)                ; 1. They're both hash tables
                            (eq? (identity-hash? x)  ; 2. They're of the same type
-                                (identity-hash? y)) 
+                                (identity-hash? y))
                            (hash-maps-onto? x y)    ; 3. y has all of x's key/value pairs
                            (hash-maps-onto? y x)))  ; 4. x has all of y's key/value pairs
-                     ((structure)
-                      (and (= (%structure-length x) (%structure-length y))
-                           (eq? (%structure-layout x) (%structure-layout y))
-                           (let loop ((ii 0))
-                             (cond ((>= ii (%structure-length x))
-                                    #t)
-                                   ((check-next (%structure-ref x ii) (%structure-ref y ii))
-                                    (loop (+ ii 1)))
-                                   (#t
-                                    #f)))))
+
                      (#t
                       (equal? x y))))))))))

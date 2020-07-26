@@ -229,7 +229,6 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
 
      lref_t tmp;
      size_t ii;
-     lref_t slots;
      const _TCHAR *fast_op_name;
 
      switch (TYPE(obj))
@@ -319,26 +318,10 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           write_char(port, _T(']'));
           break;
 
-     case TC_STRUCTURE:
-          WRITE_TEXT_CONSTANT(port, _T("#S("));
-
-          debug_print_object(CAR(STRUCTURE_LAYOUT(obj)), port, true);
-
-          for (ii = 0, slots = CAR(CDR(STRUCTURE_LAYOUT(obj)));
-               ii < STRUCTURE_DIM(obj); ii++, slots = CDR(slots))
-          {
-               WRITE_TEXT_CONSTANT(port, _T(" "));
-               debug_print_object(CAR(CAR(slots)), port, true);
-               WRITE_TEXT_CONSTANT(port, _T(" "));
-               debug_print_object(STRUCTURE_ELEM(obj, ii), port, true);
-          }
-
-          WRITE_TEXT_CONSTANT(port, _T(")"));
-          break;
-
      case TC_STRING:
           debug_print_string(obj, port, machine_readable);
           break;
+
      case TC_HASH:
           debug_print_hash(obj, port, machine_readable);
           break;

@@ -194,13 +194,6 @@ fixnum_t sxhash(lref_t obj)
                hash = HASH_COMBINE(hash, sxhash(obj->as.vector.data[ii]));
           break;
 
-     case TC_STRUCTURE:
-          hash = HASH_COMBINE(hash, sxhash(STRUCTURE_LAYOUT(obj)));
-
-          for (ii = 0; ii < STRUCTURE_DIM(obj); ii++)
-               hash = HASH_COMBINE(hash, sxhash(STRUCTURE_ELEM(obj, ii)));
-          break;
-
      case TC_HASH:
           for (ii = 0; ii < HASH_SIZE(obj); ii++)
           {

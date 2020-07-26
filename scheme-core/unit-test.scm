@@ -70,19 +70,14 @@
 (define *check-escape* (gensym "check-escape"))
 (define *test-escape* (gensym "test-escape"))
 
-(define-structure test-case
-  name
-  source-location
-  runner)
-
 (define (add-test! test-name source-location runner)
   "Extend the unit test dictionary to include a test named
    <test-name> implemented by the function <test-fn>."
   (when (hash-has? *test-cases* test-name)
     (warning "Redefining test case ~s" test-name))
-  (hash-set! *test-cases* test-name (make-test-case :name            test-name
-                                                    :source-location source-location
-                                                    :runner          runner))
+  (hash-set! *test-cases* test-name {:name test-name
+                                     :source-location source-location
+                                     :runner runner})
   (values))
 
 (define (all-tests)
@@ -95,39 +90,35 @@
 
 ;;;; Test result reporting
 
-(define-structure test-result
-  (test-case :default *running-test-case*)
-  (condition-form :default #f)
-  (source-location :default #f)
-  outcome
-  (cause :default #f))
-
 (define (failure-result? test-result)
-  (not (eq? :check-succeeded (test-result-outcome test-result))))
+  (not (eq? :check-succeeded (:outcome test-result))))
 
 (define (report-test-result! test-result)
   (push! test-result *check-results*))
 
 (define (test-failed cause)
-  (report-test-result!
-   (make-test-result :outcome :toplevel-test-failure
-                     :cause   cause)))
+  (report-test-result! {:test-case *running-test-case*
+                        :condition-form #f
+                        :source-location #f
+                        :outcome :toplevel-test-failure
+                        :cause cause}))
 
 ;;;; Condition checking
 
 (define (check-condition condition-passed? condition-form source-location)
   (define (condition-passed)
-    (report-test-result!
-     (make-test-result :source-location source-location
-                       :condition-form  condition-form
-                       :outcome         :check-succeeded)))
+    (report-test-result! {:test-case *running-test-case*
+                          :condition-form  condition-form
+                          :source-location source-location
+                          :outcome         :check-succeeded
+                          :cause #f}))
 
   (define (condition-failed failure-type . cause)
-    (report-test-result!
-     (make-test-result :source-location source-location
-                       :condition-form  condition-form
-                       :outcome         failure-type
-                       :cause           (car cause)))
+    (report-test-result! {:test-case *running-test-case*
+                          :source-location source-location
+                          :condition-form  condition-form
+                          :outcome         failure-type
+                          :cause           (car cause)})
     (throw *check-escape* #f))
   (when *show-check-conditions*
     (message "Checking Condition: ~s\n" condition-form))
@@ -152,13 +143,13 @@
       (with-unexpected-escape-handler (lambda args
                                         (test-failed args)
                                         (throw *test-escape* *check-results*))
-        ((test-case-runner test-case)))
+        ((:runner test-case)))
       *check-results*)))
 
 (define (execute-test test-case)
   (dynamic-let ((*error* *show-test-errors*)
                 (*info* *show-test-errors*))
-    (message "; ~a..." (test-case-name test-case))
+    (message "; ~a..." (:name test-case))
     (let* ((check-results (run-test test-case))
            (result-count (length check-results))
            (failure-count (length (filter failure-result? check-results))))
@@ -189,9 +180,9 @@
 (define (test-result-location-string result)
   (define (location-string location)
     (format #f "~a:~a:~a" (car location) (cadr location) (cddr location)))
-  (aif (test-result-source-location result)
+  (aif (:source-location result)
        (location-string it)
-       (aif (test-case-source-location (test-result-test-case result))
+       (aif (:source-location (:test-case result))
             (location-string it)
             "?:?:?")))
 
@@ -201,17 +192,17 @@
       (message "--------------------------------\n")
       (dolist (failure-result (reverse failure-results))
         (message "~a: FAIL (~a) in ~s\n"
-                 (test-result-location-string failure-result)
-                 (test-result-outcome failure-result)
-                 (test-case-name (test-result-test-case failure-result)))
+                 (:location-string failure-result)
+                 (:outcome failure-result)
+                 (:name (:test-case failure-result)))
         (when *show-failed-test-forms*
-          (message " form >  ~s\n" (test-result-condition-form failure-result)))
+          (message " form >  ~s\n" (:condition-form failure-result)))
         (when *show-failed-test-causes*
-          (message " cause >  ~s\n" (test-result-cause failure-result)))
-        (when (eq? (test-result-outcome failure-result) :runtime-error)
+          (message " cause >  ~s\n" (:cause failure-result)))
+        (when (eq? (:outcome failure-result) :runtime-error)
           (message " >  caused by: ~I\n"
-                  (hash-ref (test-result-cause failure-result) :message)
-                  (hash-ref (test-result-cause failure-result) :args))))
+                  (hash-ref (:cause failure-result) :message)
+                  (hash-ref (:cause failure-result) :args))))
       (message "\n\n~a Failure(s)!\n" (length failure-results))
       (message "--------------------------------\n"))))
 

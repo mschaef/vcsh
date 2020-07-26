@@ -254,7 +254,6 @@ bool equalp(lref_t, lref_t);
 bool string_equal(lref_t a, lref_t b);
 bool hash_equal(lref_t a, lref_t b);
 bool vector_equal(lref_t a, lref_t b);
-bool structure_equal(lref_t sta, lref_t stb);
 bool fast_op_equal(lref_t a, lref_t b);
 
 /**** Time ****/

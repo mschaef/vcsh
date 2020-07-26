@@ -35,25 +35,23 @@ it's running on."
   (incr! *current-benchmark-sequence*)
   *current-benchmark-sequence*)
 
-(define-structure benchmark-result
-  (seq :default (next-benchmark-sequence))
-  (system :default (benchmark-system-info))
-  test-name
-  timings
-  (run-time :default (current-date)))
+(define (make-benchmark-result test-name timings)
+  {:seq (next-benchmark-sequence)
+   :system (benchmark-system-info)
+   :test-name test-name
+   :timings timings
+   :run-time (current-date)})
 
 (define *benchmark-time-mode* :net)
 
 (define (benchmark-result-cpu-time benchmark-result)
-  (if (not (benchmark-result? benchmark-result))
-      #f
-      (let ((cpu-time (car (benchmark-result-timings benchmark-result)))
-            (net-time (cadr (benchmark-result-timings benchmark-result))))
-        (case *benchmark-time-mode*
-          ((:cpu) cpu-time)
-          ((:net) net-time)
-          ((:gc) (- cpu-time net-time))
-          (#t (error "Invalid *benchmark-time-mode*:~a " *benchmark-time-mode*))))))
+  (let ((cpu-time (car (:timings benchmark-result)))
+        (net-time (cadr (:timings benchmark-result))))
+    (case *benchmark-time-mode*
+      ((:cpu) cpu-time)
+      ((:net) net-time)
+      ((:gc) (- cpu-time net-time))
+      (#t (error "Invalid *benchmark-time-mode*:~a " *benchmark-time-mode*)))))
 
 (define (set-benchmark-time-mode! :optional (mode #f))
   (if mode
@@ -80,7 +78,7 @@ it's running on."
       (let ((results (qsort (append-map #L(hash-ref *reference-benchmark-result-sets* _ ())
                                         (hash-keys *reference-benchmark-result-sets*))
                             <
-                            benchmark-result-seq)))
+                            :seq)))
         (dolist (result results)
           (write result of)
           (newline of)))
@@ -98,13 +96,11 @@ it's running on."
           (cond ((eof-object? result)
                  (set! *current-benchmark-sequence* max-seq)
                  max-seq)
-                ((benchmark-result? result)
-                 (hash-push! *reference-benchmark-result-sets*
-                             (benchmark-result-system result)
-                             result)
-                 (loop (max max-seq (benchmark-result-seq result))))
                 (#t
-                 (error "Bad benchmark result: ~s" result)))))))))
+                 (hash-push! *reference-benchmark-result-sets*
+                             (:system result)
+                             result)
+                 (loop (max max-seq (:seq result)))))))))))
 
 
 (define (promote-benchmark-results)
@@ -170,7 +166,7 @@ it's running on."
 ;;;; Benchmark result reporting
 
 (define (benchmark-result-named? result name)
-  (eq? (benchmark-result-test-name result) name))
+  (eq? (:test-name result) name))
 
 (define (find-test-result test-name results)
   (find #L(benchmark-result-named? _ test-name) results))
@@ -179,7 +175,7 @@ it's running on."
   "Given a list of benchmark results <results>, return a list composed
    only of the most current results for each test."
   (map #L(find-test-result _ results)
-       (list->set (map benchmark-result-test-name results))))
+       (list->set (map :test-name results))))
 
 (define (reference-result-set :optional (system *benchmark-system-info*))
   "Returns the best reference results for <system>. <system> defaults to
@@ -229,13 +225,14 @@ it's running on."
   (if (null? reference)
       (format #t "\n\nNo Reference results for system: ~a " *benchmark-system-info*)
       (dynamic-let ((*info* #f))
-        (format #t "\n\nBenchmark results (shorter bar is better, compared to ~a):" (benchmark-result-system (car reference)))
+        (format #t "\n\nBenchmark results (shorter bar is better, compared to ~a):"
+                (:system (car reference)))
         (format #t "\nBenchmark time mode = ~a\n" *benchmark-time-mode*)
-        (dolist (result (qsort results string< #L(symbol-name (benchmark-result-test-name _))))
-          (display-benchmark-result (benchmark-result-test-name result)
+        (dolist (result (qsort results string< #L(symbol-name (:test-name _))))
+          (display-benchmark-result (:test-name result)
                                     (benchmark-result-cpu-time result)
-                                    (benchmark-result-cpu-time (find-test-result (benchmark-result-test-name result)
-                                                                                 reference)))))))
+                                    (aand (find-test-result (:test-name result) reference)
+                                          (benchmark-result-cpu-time it)))))))
 
 ;;;; The benchmark runner
 
@@ -254,11 +251,10 @@ it's running on."
     (define (run-named-benchmark bench-name)
       (incr! count)
       (format #t "\n[~a/~a] ~a: " count (length tests) bench-name)
-      (make-benchmark-result :test-name bench-name
-                             :timings ((benchmark-function bench-name))))
+      (make-benchmark-result bench-name ((benchmark-function bench-name))))
 
     (set! *last-benchmark-result-set* (map run-named-benchmark (qsort tests string< symbol-name)))
-    
+
     (display-benchmark-results *last-benchmark-result-set*)
     (format #t "\nEvaluate (promote-benchmark-results) to make these results the standard for ~s" *benchmark-system-info*)
     (format #t "\nEvaluate (compare-benchmark-results) to benchmark results\n\n")

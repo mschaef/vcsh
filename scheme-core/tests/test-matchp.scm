@@ -3,9 +3,6 @@
          "unit-test"
          "unit-test-utils"))
 
-(define-structure match-test-structure x y)
-(define-structure match-test-structure-3 x y z)
-
 (define-test match?
   (check (equal? {} (match? () ())))
   (check (equal? {} (match? 'symbol 'symbol)))
@@ -85,41 +82,6 @@
   (check (equal? '{?a a} (match? '(?a ??) '(a b))))
   (check (equal? '{?a a} (match? '(?a ?? ?a) '(a b a))))
   (check (not (match? '(?a ?a ??) '(a b a))))
-  
-  (check (equal? {} (match? (make-match-test-structure)
-                            (make-match-test-structure))))
-
-  (check (equal? {} (match? (make-match-test-structure :x 2)
-                            (make-match-test-structure :x 2))))
-
-  (check (equal? {} (match? (make-match-test-structure :x 2 :y 3)
-                            (make-match-test-structure :x 2 :y 3))))
-
-  (check (equal? '{?a 2}
-                 (match? (make-match-test-structure :x '?a :y 3)
-                         (make-match-test-structure :x 2 :y 3))))
-
-  (check (equal? '{?a 2 ?b 3}
-                 (match? (make-match-test-structure :x '?a :y '?b)
-                         (make-match-test-structure :x 2 :y 3))))
-
-  (check (equal? '{?a 2 ?b 3}
-                 (match? (make-match-test-structure :x '(?a) :y '(?b))
-                         (make-match-test-structure :x '(2) :y '(3)))))
-
-  (check (equal? '{?a 2 ?b 3}
-                 (match? (make-match-test-structure :x '(?a . ?b) :y '(?b . ?a))
-                         (make-match-test-structure :x '(2 . 3) :y '(3 . 2)))))
-  
-  (check (not (match? (make-match-test-structure :x '?a :y '?a)
-                      (make-match-test-structure :x 2 :y 3))))
-
-  (check (not (match? (make-match-test-structure)
-                      (make-match-test-structure-3))))
-
-  (check (not (match? (make-match-test-structure) 12)))
-
-  (check (not (match? 12 (make-match-test-structure))))
 
   (check (equal? {} (match? {} {})))
 

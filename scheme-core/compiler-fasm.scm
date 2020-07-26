@@ -12,12 +12,6 @@
 
 ;;;; Fast op stuff
 
-(define-structure fop-defn
-  opcode
-  name
-  arity
-  formals)
-
 (define *fop-name->fop-defn* (make-identity-hash))
 (define *fop-opcode->fop-defn* (make-identity-hash))
 
@@ -37,10 +31,11 @@
     (error "Fast opcode for ~s already defined: ~s" op-name op-code))
   (unless (valid-fop-formals? formals)
     (error "Invalid formal argument list for fast op: ~s" formals))
-  (let ((defn (make-fop-defn :name op-name
-                             :opcode op-code
-                             :arity arity
-                             :formals formals)))
+  (let ((defn {'type-of 'fop-defn
+               :name op-name
+               :opcode op-code
+               :arity arity
+               :formals formals}))
     (hash-set! *fop-name->fop-defn* op-name defn)
     (hash-set! *fop-opcode->fop-defn* op-code defn)))
 
@@ -94,16 +89,16 @@
     (let ((defn (hash-ref *fop-opcode->fop-defn* opcode #f)))
       (values opcode
               (if defn
-                  (fop-defn-name defn)
+                  (:name defn)
                   #f)
               (if defn
-                  (take args (fop-defn-arity defn))
+                  (take args (:arity defn))
                   args)
               (scheme::%fast-op-next fast-op)))))
 
 (define (fop-name->formals fop-name)
   (aif (hash-ref *fop-name->fop-defn* fop-name #f)
-       (fop-defn-formals it)
+       (:formals it)
        #f))
 
 (define (fast-op-args fast-op)
@@ -117,8 +112,8 @@
     (let ((defn (hash-ref *fop-name->fop-defn* op #f)))
       (unless defn
         (error "Invalid fast-op: ~s." op))
-      (values (fop-defn-opcode defn)
-              (fop-defn-formals defn))))
+      (values (:opcode defn)
+              (:formals defn))))
 
 (forward fasm)
 

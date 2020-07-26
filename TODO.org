@@ -2,20 +2,6 @@
 ** 0.7 - Fix Instances, Structures, and Generic Functions
 *** type-of does not allow instances to return anything other than instance
 *** scheme-core allows for default values from slot-ref, although lislot_ref doesn't support them.
-*** Add support for setting slots via @(inst slot-name) syntax
-*** Remove uses of structure
-**** compiler-fasm.scm:15:(define-structure fop-defn
-**** date-time.scm:233:(define-structure time
-**** date-time.scm:551:(define-structure date
-**** fasl-stream.scm:13:(define-structure fasl-stream
-**** fasl-stream.scm:17:(define-structure fasl-op
-**** fast-write.scm:21:(define-structure sharing-map
-**** inspect.scm:19:(define-structure inspect-ctx
-**** inspect.scm:25:(define-structure inspect-item
-**** iterate.scm:18:(define-structure iterate-sequence-expansion
-**** reader.scm:17:(define-structure syntax-table
-**** unit-test.scm:60:(define-structure test-case
-*** unit-test.scm:77:(define-structure test-failure
 ** Backlog
 *** Clean up calling conventions in fasl-write
 *** Switch Lisp stack to lref_t's

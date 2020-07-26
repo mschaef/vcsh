@@ -335,18 +335,6 @@ void gc_mark(lref_t initial_obj)
                obj = NIL;
                break;
 
-          case TC_STRUCTURE:
-               for (size_t jj = 0; jj < STRUCTURE_DIM(obj); jj++)
-                    gc_mark(STRUCTURE_ELEM(obj, jj));
-
-               obj = STRUCTURE_LAYOUT(obj);
-               break;
-
-          case TC_STRUCTURE_LAYOUT:
-               gc_mark(STRUCTURE_LAYOUT_NAME(obj));
-               obj = STRUCTURE_LAYOUT_SLOTS(obj);
-               break;
-
           case TC_VALUES_TUPLE:
                obj = obj->as.values_tuple.values;
                break;
@@ -409,10 +397,6 @@ static void gc_clear_cell(lref_t obj)
      {
      case TC_STRING:
           gc_free(obj->as.string.data);
-          break;
-
-     case TC_STRUCTURE:
-          gc_free(STRUCTURE_DATA(obj));;
           break;
 
      case TC_VECTOR:

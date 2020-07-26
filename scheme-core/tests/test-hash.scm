@@ -411,14 +411,14 @@
     (check (equal? (sxhash a) (sxhash b)))))
 
 
-(define-test hash-merge
+(define-test hash-merge!
   (let ((a {1 2})
         (b {3 4}))
-    (let ((result (hash-merge a)))
+    (let ((result (hash-merge! a)))
       (check (eq? a result))
       (check (equal? {1 2} result)))
 
-    (let ((result (hash-merge a b)))
+    (let ((result (hash-merge! a b)))
       (check (eq? a result))
       (check (equal? {1 2 3 4} result)))))
 

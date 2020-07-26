@@ -27,7 +27,6 @@
              *global-readsharp-table*
              *idle-hook*
              *info*
-             *inspect-print-length*
              *last-error*
              *location-mapping*
              *memoize-results?*
@@ -246,7 +245,6 @@
              cond-match
              cons
              cons*
-             copy-structure
              cos
              count
              current-date
@@ -277,12 +275,10 @@
              define-command-argument
              define-file-argument-handling
              define-generic-function
-             define-iterate-sequence-expander
              define-method
              define-package
              define-proto
              define-repl-abbreviation
-             define-structure
              define-text
              defmacro
              define-message
@@ -413,6 +409,7 @@
              hash-has?
              hash-keys
              hash-merge
+             hash-merge!
              hash-keys/t
              hash-push!
              hash-ref
@@ -446,8 +443,6 @@
              info
              input-port?
              insert-ordered
-             inspect
-             inspect-analyze-object
              integer->char
              integer?
              intern!
@@ -531,14 +526,12 @@
              make-hash
              make-identity-hash
              make-instance
-             make-iterate-sequence-expansion
              make-list
              make-package!
              make-polar
              make-queue
              make-rectangular
              make-string
-             make-structure-by-name
              make-tree
              make-vector
              map
@@ -594,7 +587,6 @@
              open-text-output-port
              or
              or*
-             orphaned-structure?
              output-port?
              p-list->a-list
              p-list-fold
@@ -805,11 +797,6 @@
              string>=
              string>=-ci
              string?
-             structure
-             structure-has-slot?
-             structure-slots
-             structure-type
-             structure?
              subr
              substring
              subtract-duration
