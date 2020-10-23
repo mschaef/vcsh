@@ -118,7 +118,6 @@
              assert
              assoc
              assoc-val
-             at
              atan
              atom?
              awhen
@@ -431,7 +430,6 @@
              imag-part
              import!
              import-package!
-             in
              in-package!
              in-trace-level
              include

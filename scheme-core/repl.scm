@@ -268,6 +268,3 @@ escape used to return to the toplevel REPL."
   "Exits all read-eval-print-loops, and invokes a new toplevel loop."
   (throw 'repl-toplevel)
   (values))
-
-
-(add-hook-function! '*repl-post-hook* 'do-idle-processing)

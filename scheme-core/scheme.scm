@@ -83,7 +83,6 @@
 (include "compiler.scm")
 (include "eval.scm")
 
-(include "deferred-execution.scm")
 (include "repl.scm")
 (include "tools.scm")
 (include "main.scm")
