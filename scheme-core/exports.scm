@@ -481,7 +481,6 @@
              let*
              letrec
              list
-             list-2d?
              list->filename
              list->hash
              list->hash-set
@@ -492,18 +491,10 @@
              list-all-packages
              list-combinations
              list-copy
-             list-corr
-             list-cov
              list-index
              list-let
-             list-lr
-             list-mean
-             list-mean-center
              list-ref
-             list-sdev
              list-set!
-             list-stat-sums
-             list-sum
              list?
              load
              load-file
@@ -750,7 +741,6 @@
              split-string-once
              split-string-once-from-right
              sqrt
-             stats-list?
              string
              string!=
              string!=-ci

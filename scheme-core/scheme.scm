@@ -84,7 +84,6 @@
 (include "eval.scm")
 
 (include "deferred-execution.scm")
-(include "list-statistics.scm")
 (include "repl.scm")
 (include "tools.scm")
 (include "main.scm")
