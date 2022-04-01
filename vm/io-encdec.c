@@ -3,9 +3,9 @@
  *
  * Binary I/O encoding.
  *
- * (C) Copyright 2014 East Coast Toolworks Inc.
+ * (C) Copyright 2022 East Coast Toolworks Inc.
  *
- * See the file "license.terms" for information on usage and redistribution
+ * See the file "LICENSE" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 

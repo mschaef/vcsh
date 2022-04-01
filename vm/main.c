@@ -4,10 +4,10 @@
  *  The main entry point to the VM library and environment setup
  *  functions.
  *
- * (C) Copyright 2001-2014 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2022 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
- * See the file "license.terms" for information on usage and redistribution
+ * See the file "LICENSE" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 

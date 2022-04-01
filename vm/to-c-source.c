@@ -4,10 +4,10 @@
  * A utility for dumping the contents of a file into source text that
  * can be read as a variable declaration by a c compiler.
  *
- * (C) Copyright 2001-2014 East Coast Toolworks Inc.
+ * (C) Copyright 2001-2022 East Coast Toolworks Inc.
  * (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
  *
- * See the file "license.terms" for information on usage and redistribution
+ * See the file "LICENSE" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 

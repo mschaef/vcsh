@@ -3,7 +3,7 @@
 ;;;;
 ;;;; SRFI-19: Time Data Types and Procedures.
 ;;;;
-;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Copyright 2001-2022 East Coast Toolworks Inc.
 ;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
 ;;;; (C) Portions Copyright I/NET, Inc. (2000, 2002, 2003). All Rights Reserved.
 ;;;;

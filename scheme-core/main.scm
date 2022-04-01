@@ -4,10 +4,10 @@
 ;;;; The interpreter's default entry point and command line
 ;;;; argument processing.
 ;;;;
-;;;; (C) Copyright 2001-2011 East Coast Toolworks Inc.
+;;;; (C) Copyright 2001-2022 East Coast Toolworks Inc.
 ;;;; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
 ;;;;
-;;;; See the file "license.terms" for information on usage and
+;;;; See the file "LICENSE" for information on usage and
 ;;;; redistribution of this file, and for a DISCLAIMER OF ALL
 ;;;; WARRANTIES.
 
@@ -383,7 +383,7 @@
   (format port ";    VM Build ID     : ~a (~a)\n" (system-info :vm-build-id) (system-info :build-type))
   (format port ";    Scheme Build ID : ~a\n" (system-info :scheme-build-id))
   (format port ";\n")
-  (format port "; (C) Copyright 2001-2011 East Coast Toolworks Inc.\n")
+  (format port "; (C) Copyright 2001-2022 East Coast Toolworks Inc.\n")
   (format port "; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.\n")
   (format port "\n"))
 
