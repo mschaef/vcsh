@@ -109,7 +109,6 @@
 *** Better source for special-form-symbols and *shared-target-symbols* (compiler-meaning.scm:84, setup-image-compile.scm:25)
 
 ** Tests
-*** Test suite for iterate (iterate.scm:16)
 *** Tests for lrandom (number.c:1014) and substring with null end (test-string.scm:865)
 *** Case-sensitivity tests for string comparison (test-string.scm:154)
 *** unit-test: check-for and expected/actual value reporting (unit-test.scm:21)

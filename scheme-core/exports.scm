@@ -95,7 +95,6 @@
              alist-copy
              alist-delete
              all-classes
-             all-iterate-sequence-types
              all-package-symbols
              all-package-variables
              all-symbols
@@ -295,7 +294,6 @@
              do
              documentation
              dohash
-             doiterate
              dolist
              dotimes
              dotted-list?
@@ -344,7 +342,6 @@
              fifth
              file-details
              file-exists?
-             file-forms
              file-lines
              filename->list
              filename-append-delimiter
@@ -458,8 +455,6 @@
              is-filename-exact?
              iseq
              it
-             iterate
-             iterate/r
              julian-day->time-monotonic
              julian-day->time-tai
              julian-day->time-utc
@@ -721,7 +716,6 @@
              set-union
              set-union/eq
              shadow-symbol!
-             show-progress
              show-runtime-error
              show-type-delta
              show-type-stats

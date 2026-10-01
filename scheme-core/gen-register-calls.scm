@@ -18,12 +18,15 @@
   (push! arg *files-to-scan*))
 
 (define (internal-file-variables source-filename)
-  (let ((variables ()))
-    (doiterate ((file-lines line source-filename))
-      (when (string-search "DECL_INTERNAL_FILE" line)
-        (push! (second (split-string line " "))
-               variables)))
-    variables))
+  (with-port ip (open-file source-filename)
+    (let loop ((variables ()))
+      (let ((line (read-line ip)))
+        (cond ((eof-object? line)
+               variables)
+              ((string-search "DECL_INTERNAL_FILE" line)
+               (loop (cons (second (split-string line " ")) variables)))
+              (#t
+               (loop variables)))))))
 
 (define (write-registration-source variables)
   (format #t "\n")

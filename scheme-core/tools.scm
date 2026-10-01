@@ -173,18 +173,22 @@
 
 (define (dump-frame frame frame-no)
   "Display the specified environment <frame> to standard
-   output. It is displayed with the frame number <frame-no>."
-  (doiterate ((count var-no 0)
-              (list var (car frame))
-              (list val (cdr frame)))
-    (dformat "; F[~a,~a]: ~s = ~s\n" frame-no var-no var val)))
+   output. It is displayed with the frame number <frame-no>.
+   A rest argument is shown bound to the list of remaining values."
+  (let loop ((var-no 0) (vars (car frame)) (vals (cdr frame)))
+    (cond ((symbol? vars)
+           (dformat "; F[~a,~a]: ~s = ~s\n" frame-no var-no vars vals))
+          ((and (pair? vars) (pair? vals))
+           (dformat "; F[~a,~a]: ~s = ~s\n" frame-no var-no (car vars) (car vals))
+           (loop (+ var-no 1) (cdr vars) (cdr vals))))))
 
 (define (dump-environment env)
   "Display the specified environment <env> to standard output."
   (dformat "; Environment:\n")
-  (doiterate ((count frame-no 0)
-              (list frame env))
-    (dump-frame frame frame-no)))
+  (let loop ((frame-no 0) (frames env))
+    (unless (end-of-list? frames)
+      (dump-frame (car frames) frame-no)
+      (loop (+ frame-no 1) (cdr frames)))))
 
 (defmacro (watch-locals)
   "Establish a watch on the topmost environment frame. The frame
@@ -392,16 +396,19 @@ recurstively tracing functions used by the tracer itself.")
                    (trace-message "~s" opname)
                    (trace-message "(~s" opname))
                (in-trace-level
-                (doiterate ((list formal formals)
-                            (list actual actuals))
-                  (case formal
-                    ((:fast-ops)
-                     (dolist (op actual)
-                       (disassemble-fop op)))
-                    ((:fast-op)
-                     (disassemble-fop actual))
-                    (#t
-                     (trace-message " ~s" actual))))
+                (let loop ((formals formals) (actuals actuals))
+                  (unless (or (end-of-list? formals) (end-of-list? actuals))
+                    (let ((formal (car formals))
+                          (actual (car actuals)))
+                      (case formal
+                        ((:fast-ops)
+                         (dolist (op actual)
+                           (disassemble-fop op)))
+                        ((:fast-op)
+                         (disassemble-fop actual))
+                        (#t
+                         (trace-message " ~s" actual))))
+                    (loop (cdr formals) (cdr actuals))))
                 (unless (null? formals)
                   (dformat ")")))))) 
       (unless (null? next-op)

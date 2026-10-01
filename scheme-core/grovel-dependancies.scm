@@ -18,13 +18,16 @@
    sophisticated at all.  Also, note that the file is scanned in the
    current *package*, so if scheme:include is not available in that
    package, this may not return the expected list."
-  (iterate/r ((file-forms form source-filename))
-             ((dep-filenames ()))
-             (if (and (list? form)
-                      (eq? (car form) 'scheme:include))
-                 (cons (cadr form) dep-filenames)
-                 dep-filenames)
-             dep-filenames))
+  (with-port ip (open-file source-filename)
+    (let loop ((dep-filenames ()))
+      (let ((form (read ip)))
+        (cond ((eof-object? form)
+               (reverse! dep-filenames))
+              ((and (list? form)
+                    (eq? (car form) 'scheme:include))
+               (loop (cons (cadr form) dep-filenames)))
+              (#t
+               (loop dep-filenames)))))))
 
 (define *files-to-grovel* ())
 
