@@ -145,9 +145,10 @@ type. If there is no valid typecode of that name, returns #f."
 (make-class< 'nil 'cons)
 
 (define (type-of obj)
-  "Returns the type of <obj> as a symbol. For instances, the name of the type
-   is the name of the prototype symbol closest up the prototype list. For
-   structures, returns the structure type name."
+  "Returns the type of <obj> as a symbol. For hashes, this is the hash's
+   bound type name (see hash-type-of) if it has one, otherwise the value of
+   its 'type-of slot, otherwise hash. For everything else, it is the name of
+   the object's primitive representation."
   (cond
    ((hash? obj)
     (or (hash-type-of obj)

@@ -84,8 +84,8 @@ BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_PACKAGE,              28 )
     /* Former RSYMBOL at 29. */
     VM_CONSTANT(FASL_OP_VECTOR,               30 )
-    VM_CONSTANT(FASL_OP_BASE_INSTANCE,        32 )
-    VM_CONSTANT(FASL_OP_INSTANCE,             33 )
+    /* Former BASE_INSTANCE at 32. */
+    /* Former INSTANCE at 33. */
     VM_CONSTANT(FASL_OP_HASH,                 34 )
     VM_CONSTANT(FASL_OP_COMMENT_1,            35 ) /* #\# */
     VM_CONSTANT(FASL_OP_CLOSURE,              36 )
@@ -93,8 +93,8 @@ BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_SYMBOL,               48 )
     VM_CONSTANT(FASL_OP_SUBR,                 50 )
     VM_CONSTANT(FASL_OP_COMMENT_2,            59 ) /* #\; */
-    VM_CONSTANT(FASL_OP_STRUCTURE,            60 )
-    VM_CONSTANT(FASL_OP_STRUCTURE_LAYOUT,     61 )
+    /* Former STRUCTURE at 60. */
+    /* Former STRUCTURE_LAYOUT at 61. */
     VM_CONSTANT(FASL_OP_TYPED_HASH,           62 )
 
     VM_CONSTANT(FASL_OP_FAST_OP_0,            64 )
@@ -104,7 +104,7 @@ BEGIN_VM_CONSTANT_TABLE(fasl_opcode_t, fasl_opcode_name)
     VM_CONSTANT(FASL_OP_FAST_OP_1N,           68 )
     VM_CONSTANT(FASL_OP_FAST_OP_2N,           69 )
 
-    VM_CONSTANT(FASL_OP_INSTANCE_MAP,         96 )
+    /* Former INSTANCE_MAP at 96. */
     VM_CONSTANT(FASL_OP_RESET_READER_DEFS,    192)
     VM_CONSTANT(FASL_OP_READER_DEFINITION,    193)
     VM_CONSTANT(FASL_OP_READER_REFERENCE,     194)
@@ -158,12 +158,12 @@ END_VM_CONSTANT_TABLE(fast_op_opcode_t, fast_op_opcode_name)
 BEGIN_VM_CONSTANT_TABLE(trap_type_t, trap_type_name)
     VM_CONSTANT(TRAP_BAD_APPLY                  , 0 )
     VM_CONSTANT(TRAP_DEFINE                     , 1 )
-    VM_CONSTANT(TRAP_RESOLVE_FASL_STRUCT_LAYOUT , 2 )
+    /* Former RESOLVE_FASL_STRUCT_LAYOUT at 2. */
     VM_CONSTANT(TRAP_SIGNAL                     , 3 )
     VM_CONSTANT(TRAP_TIMER_EVENT                , 4 )
     VM_CONSTANT(TRAP_USER_BREAK                 , 5 )
     VM_CONSTANT(TRAP_MSG_NOT_UNDERSTOOD         , 6 )
-    VM_CONSTANT(TRAP_PRIMITIVE_INSTANCE         , 7 )
+    /* Former PRIMITIVE_INSTANCE at 7. */
     VM_CONSTANT(TRAP_UNCAUGHT_THROW             , 8 )
     VM_CONSTANT(TRAP_WRONG_TYPE                 , 9 )
     VM_CONSTANT(TRAP_INDEX_OUT_OF_BOUNDS        , 10)
@@ -203,14 +203,14 @@ BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)
     VM_CONSTANT(TC_MACRO,                     11 )
     VM_CONSTANT(TC_STRING,                    12 )
     VM_CONSTANT(TC_VECTOR,                    13 )
-    VM_CONSTANT(TC_STRUCTURE,                 14 )
+    /* Former STRUCTURE at 14. */
     VM_CONSTANT(TC_HASH,                      15 )
     VM_CONSTANT(TC_PORT,                      16 )
     VM_CONSTANT(TC_END_OF_FILE,               17 )
     VM_CONSTANT(TC_VALUES_TUPLE,              18 )
-    VM_CONSTANT(TC_INSTANCE,                  19 )
+    /* Former INSTANCE at 19. */
     VM_CONSTANT(TC_UNBOUND_MARKER,            20 )
-    VM_CONSTANT(TC_STRUCTURE_LAYOUT,          21 )
+    /* Former STRUCTURE_LAYOUT at 21. */
     VM_CONSTANT(TC_FAST_OP,                   22 )
     VM_CONSTANT(TC_FASL_READER,               23 )
 

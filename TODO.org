@@ -24,11 +24,6 @@
 *** README: benchmark steps (../csv.scm no longer needed, ~/ectworks paths); document bootstrap, platforms, running tests; heading style
 *** Verify directory tools on both *nix and Windows
 
-** Structure removal cleanup
-*** Remove unused TC_STRUCTURE, TC_INSTANCE, TC_STRUCTURE_LAYOUT, TRAP_RESOLVE_FASL_STRUCT_LAYOUT, TRAP_PRIMITIVE_INSTANCE
-*** Rename vm/structure.c (only lslot_ref remains)
-*** Update comments that still mention structures (list.scm:234, printer.scm:30)
-
 ** Bootstrap (see notes/bootstrap-2026.org)
 *** scheme.scf has no prerequisites; add real dependencies on scheme-core sources, scan-constants, scansh0, scc0
 *** FASL header with format version and VM ABI hash (scan-constants.i + subr table); reject mismatches clearly
@@ -121,6 +116,7 @@
 *** Split character codecs out of I/O (io-encdec.c)
 *** slot-ref default values in lslot_ref
 *** Structures and instances removed; 0.7 milestone and structure TODOs obsolete
+*** Structure/instance leftovers removed: type codes, traps, FASL opcodes (numbers left as gaps), structure.c folded into hash-table.c
 
 * vcalc
 ** Deferred rendering of clipboard contents (set-clipboard-data takes a closure...)

@@ -51,7 +51,6 @@ VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
        number-format${OBJ_EXT} \
        oblist${OBJ_EXT} \
        string${OBJ_EXT} \
-       structure${OBJ_EXT} \
        system${OBJ_EXT} \
        vector${OBJ_EXT}
 

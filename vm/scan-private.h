@@ -220,7 +220,7 @@ void create_initial_packages();
 
 void init_stdio_ports();
 
-/**** Structure/Instance ****/
+/**** Port and FASL reader GC support ****/
 
 void port_gc_free(lref_t port);
 lref_t port_gc_mark(lref_t obj);

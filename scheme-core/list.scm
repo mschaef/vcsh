@@ -231,7 +231,7 @@
 
 ;;;; Slow Queues
 
-(define (make-queue) ;; REVISIT: This should use a structure
+(define (make-queue) ;; REVISIT: Could be a typed hash rather than a tagged cons
   "Constructs a queue object."
   (cons :queue (%make-q)))
 

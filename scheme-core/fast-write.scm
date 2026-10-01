@@ -18,18 +18,16 @@
   "Writes a type code <code> to <port>."
   `(write-binary-fixnum-u8 ,code ,port))
 
-(define (make-sharing-map layouts)
+(define (make-sharing-map)
   {'type-of 'fast-write-sharing-map
    :indices (make-identity-hash)
-   :next-index 0
-   :structure-layouts layouts})
+   :next-index 0})
 
 (define (find-shared-structures object) ; REVISIT: Switch to tail recursive algorithm (and the writer itself)
   "Returns an identity hash of all objects referenced by <object>
    more than once. This includes both circular and shared structure. The
    value associated with each hash is #f."
-  (let ((visited-objects (make-identity-hash))
-        (visited-layouts (make-identity-hash)))
+  (let ((visited-objects (make-identity-hash)))
     (let visit ((o object))
       (unless (%immediate? o) ; Ignore immediates, they're shared by definition
         (cond ((hash-has? visited-objects o)
@@ -62,7 +60,7 @@
                  (#t
                   ()))))))
 
-    (let ((smap (make-sharing-map visited-layouts)))
+    (let ((smap (make-sharing-map)))
       (dohash (object shared? visited-objects)
         (when shared?
           (hash-set! (:indices smap) object #f)))

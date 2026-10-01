@@ -27,7 +27,7 @@
 (set-property! 'unquote 'pretty-print-syntax ",")
 (set-property! 'unquote-splicing 'pretty-print-syntax ",@")
 
-(define *printer-index-key* (gensym "printer-index-key")) ;; REVISIT: better suited as structure field?
+(define *printer-index-key* (gensym "printer-index-key"))
 
 (define (printer-shared-structures object) ; REVISIT: should this be made a gf?
   "Returns an identity hash of all printable objects referenced by <object>

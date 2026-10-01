@@ -682,3 +682,50 @@ size_t hash_length(lref_t hash)
      return HASH_COUNT(hash);
 }
 
+/*** Slot access ***
+ *
+ * slot-ref and slot-set! treat a hash as an object with named
+ * slots. These used to live in structure.c, back when structures
+ * existed as a separate type. */
+
+lref_t lslot_ref(size_t argc, lref_t argv[])
+{
+     lref_t obj = NIL;
+     lref_t slot_name = NIL;
+     lref_t default_val = boolcons(false);
+     lref_t val;
+
+     if (argc > 0)
+          obj = argv[0];
+
+     if (argc > 1)
+          slot_name = argv[1];
+
+     if (argc > 2)
+          default_val = argv[2];
+
+     if (!HASHP(obj))
+     {
+          vmerror_wrong_type_n(1, obj);
+          return NIL;
+     }
+
+     if (hash_ref(obj, slot_name, &val))
+          return val;
+     else
+          return default_val;
+}
+
+lref_t lslot_set(lref_t obj, lref_t slot_name, lref_t new_val)
+{
+     if (!HASHP(obj))
+     {
+          vmerror_wrong_type_n(1, obj);
+          return NIL;
+     }
+
+     lhash_set(obj, slot_name, new_val);
+
+     return obj;
+}
+
