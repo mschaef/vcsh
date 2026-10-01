@@ -1,10 +1,10 @@
 # vcsh
 
 `vcsh` is a simple interpreter I once derived from [George
-Carette's](http://people.delphiforums.com/gjc/)
+Carrette's](http://people.delphiforums.com/gjc/)
 [SIOD](http://people.delphiforums.com/gjc/siod.html) Scheme
-implemenation. The language is a small subset of an old (pre-R4RS)
-version of Scheme, and the interpeter is mainly useful as a toy to
+implementation. The language is a small subset of an old (pre-R4RS)
+version of Scheme, and the interpreter is mainly useful as a toy to
 play around with.
 
 ## Build instructions
@@ -12,8 +12,8 @@ play around with.
 1. Ensure the settings in build-settings are accurate for your target
    platform. If there is no build-settings file, create one by copying
    typical-build-settings and making the appropriate edits.
-2. Run 'make'. This will recursively build the modules in the project
-   in the order they are listed in the module summary below.
+2. Run 'make'. This will recursively build `vm/` and then
+   `scheme-core/` (see the module summary below).
 3. The final scheme interpreter will be located in scheme-core/vcsh.
 4. The 'make tested' target will run a series of unit tests.
 
@@ -26,10 +26,10 @@ REPL (Read-Eval-Print-Loop):
 
 ```
 ; Welcome to VCSH
-;    VM Build ID     : Feb 24 2011-SCAN 0.50 (:debug)
-;    Scheme Build ID : Feb 24 2011 16:34:03 - Scheme 0.50
+;    VM Build ID     : Oct  1 2026-SCAN 0.70 (:debug)
+;    Scheme Build ID : Oct 01 2026 14:17:27 - Scheme 0.70
 ;
-; (C) Copyright 2001-2009 East Coast Toolworks Inc.
+; (C) Copyright 2001-2022 East Coast Toolworks Inc.
 ; (C) Portions Copyright 1988-1994 Paradigm Associates Inc.
 
 user>
@@ -48,7 +48,7 @@ Scheme expressions may be evaluated by entering them at the prompt:
 user> (+ 2 2)
 
 ; time = 1.10912 ms (0.00000 gc), 12061 cons work
-; ##0 = 4
+; *1 = 4
 ```
 
 When the expression has been evaluated, the REPL will print a line
@@ -56,44 +56,34 @@ that describes the duration of the evaluation, the amount of time
 spent garbage collecting during the evaluation, and the number of
 memory cells that were allocated during the evaluation. Following this
 line, the REPL will print out a line for each value returned by the
-evaluation (zero or more). These lines take the form `##x = <value>`.
-The '##x' is a shortcut expression that can be used to refer to that
-value later during the session:
+evaluation (zero or more). These lines take the form `*1 = <value>`.
+
+The REPL keeps a short history of recently printed values in the
+variables `*1`, `*2`, and `*3`. `*1` is the most recent value, `*2`
+the one before that, and `*3` the one before that. (When an evaluation
+returns multiple values, each is added to the history in turn.) These
+variables can be used to refer to earlier values later during the
+session:
 
 ```
-user> ##0
+user> (* *1 10)
 
 ; time = 0.76699 ms (0.00000 gc), 10988 cons work
-; ##0 = 4
-```
-
-The REPL only assigns new shortcut numbers when is sees an object that
-is not `eq?` to an object it's previously seen. If an object is
-returned more than once in the REPL, it will be given the same
-shortcut number each time it is printed. This can be useful to make
-quick identity checks:
-
-```
-user> (define a '(1 2 3))
-
-; time = 1.28603 ms (0.00000 gc), 14294 cons work
-; ##1 = (1 2 3)
-user> (set-car! a 10)
-
-; time = 1.04499 ms (0.00000 gc), 12102 cons work
-; ##2 = 10
-user> a
+; *1 = 40
+user> (list *1 *2)
 
 ; time = 0.78011 ms (0.00000 gc), 8321 cons work
-; ##1 = (10 2 3)   <======== Same shortcut number as above
+; *1 = (40 4)
 ```
+
+The history can be cleared with `:crh` (`clear-repl-history!`).
 
 In addition to standard Scheme expressions, the REPL also provides
 abbreviated forms for common interactive tasks. The exit command
 (`:X`) listed above is an example of one of these abbreviated
 forms. Abbreviated forms are composed of a keyword symbol followed by
 zero or more arguments. A list of available abbreviated forms can be
-found be entering an invalid abbreviation:
+found by entering an invalid abbreviation:
 
 ```
 user> :h
@@ -106,7 +96,6 @@ Current REPL Abbreviations:
  :crh    clear-repl-history!
  :dis    disassemble
  :dp     display-packages
- :i      inspect
  :ip     in-package!'
  :ip1    scheme::in-package-for-one-form!'
  :l      load'
@@ -116,7 +105,6 @@ Current REPL Abbreviations:
  :rau    scheme::repl-auto-unwatch
  :raua   scheme::repl-auto-unwatch-all
  :raw    scheme::repl-auto-watch'
- :rsg    referred-symbol-grep'
  :std    show-type-delta
  :sts    show-type-stats
  :t      trace
@@ -158,26 +146,28 @@ arguments:
 
 'Xheap-segment-size' controls the size of a heap segment. The VM will
 start out with one heap segment and can enlarge the number of heaps up
-to the number specfied in 'Xmax-heap-segments'. Here's how these
+to the number specified in 'Xmax-heap-segments'. Here's how these
 options could be used to guarantee a heap that doesn't grow beyond 4MB.
 
 ```
 ./vcsh -Xheap-segment-size=4M -Xmax-heap-segments=1
 ```
 
-The current heap enlargement strategy will only allocate new heap
-segments when all existing segments are full after a GC cycle. In
-cases where a heap is mostly full, this can negatively impact
-performance by requiring too many GC cycles for the progress being
-made in the computation. This can be addressed by manually enlarging
-the heap from scheme code. The 'enlarge-heap' function takes a target
-number of heap segments and enlarges the heap to that size.
+The heap enlargement strategy is implemented in Scheme (see
+`scheme-core/memory.scm`) as a handler for the VM's after-GC trap. After
+each GC cycle, if fewer than 90% of the heap's cells were freed (the
+fraction is controlled by `*gc-target-free-cell-factor*`), new heap
+segments are allocated to bring the free cell count back up to that
+target, up to the limit set by 'Xmax-heap-segments'. The heap can also
+be enlarged manually from scheme code with the low-level (and
+unexported) 'scheme::%request-heap-size' function, which takes a target number of heap
+segments and enlarges the heap to that size.
 
 ```
-user> (enlarge-heap 20)
+user> (scheme::%request-heap-size 20)
 
 ; time = 171.349 ms (0.00000 gc), 10985 cons work
-; ##0 = 20
+; *1 = 20
 ```
 
 
@@ -211,7 +201,7 @@ them is currently this:
     user> :ip bench
 
     ; time = 1.28388 ms (0.00000 gc), 11149 cons work
-    ; ##0 = #<package bench>
+    ; *1 = #<package bench>
     bench>
     ```
 4. Run the benchmarks by evaluating '(bench)'. The benchmark library
@@ -238,17 +228,15 @@ them is currently this:
 
 # Module summary
 
-* `util/` - This directory contains base header files for standard
-   things like types, asserts. etc. There are a couple executable
-   targets built in this directory.
+* `vm/` - This is the virtual machine. It runs a scheme image, and
+   most of the interesting low-level code is here. (Including the
+   garbage collector, evaluator, and I/O code.) There are also a
+   couple of supporting executable targets built in this directory.
    * `to-c-source` - This reads a binary file and emits C source code that
       will statically initialize a variable to the contents of that file. Later
       phases of the build process use this program to take scheme image files
       and link them into a single executable.
    * `show-retval` - This executes a program and shows the return value.
-* `vm/` - This is the virtual machine. It runs a scheme image, and
-   most of the interesting low-level code is here. (Including the
-   garbage collector, evaluator, and I/O code.)
 * `scheme-core/` - This is the scheme source to a scheme image. Starting at
    `scheme.scm`, this module defines all of the components of the environment
    that are written in scheme. This includes the reader, printer, compiler,
@@ -258,12 +246,12 @@ them is currently this:
    directory contains that image.  It can be updated from the image in
    scheme-core/ by running 'make update' in scc0.
 * `javac/` - This is work in progress to port a Java compiler I wrote
-   in in Common Lisp over to to vcsh.
+   in Common Lisp over to vcsh.
 
 # Licensing and Copyright
 
 This software is copyrighted by Michael Schaeffer, East Coast
-Toolworks, Paradigm Associates, Makoto Matsumotom and Takuji
+Toolworks, Paradigm Associates, Makoto Matsumoto and Takuji
 Nishimura. The following terms apply to all files associated with the
 software unless explicitly disclaimed in individual files.
 

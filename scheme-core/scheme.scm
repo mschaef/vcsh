@@ -20,7 +20,7 @@
 
 (define *scheme-build-image* #.(system-info :scheme-build-id))
 
-(define *scheme-build-version* "Scheme 0.50")
+(define *scheme-build-version* "Scheme 0.70")
 
 ;;; Load definitions for subrs and VM-specific constants
 

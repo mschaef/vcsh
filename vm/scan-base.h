@@ -221,7 +221,7 @@ typedef char _TCHAR;
 
 /**** Configuration Constants ****/
 
-#define SCAN_VM_VERSION _T("SCAN 0.70.0")
+#define SCAN_VM_VERSION _T("SCAN 0.70")
 
 enum
 {
