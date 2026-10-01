@@ -21,7 +21,6 @@
 *** TAGS is in vm TARGETS, so the build fails without etags
 *** Replace deprecated _BSD_SOURCE/_SVID_SOURCE with _DEFAULT_SOURCE
 *** Unify the common parts of config.unix/config.windows
-*** Gitignore generated scheme-core/{autoload,csv,unit-test,unit-test-utils}.c
 *** scc0/scc0 and scc0-good reference fasl-compiler-run.scf and ../scheme, which don't exist
 *** README: benchmark steps (../csv.scm no longer needed, ~/ectworks paths); document bootstrap, platforms, running tests; heading style
 *** Verify directory tools on both *nix and Windows

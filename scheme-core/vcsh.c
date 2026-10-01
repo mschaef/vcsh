@@ -26,7 +26,7 @@ void sigint_handler(int i)
 };
 
 #if !defined(NO_VCSH_STANDARD_LIBRARY)
-#  include "vcsh-standard-lib-registration.i"
+#  include "build/vcsh-standard-lib-registration.i" /* GEN_DIR in Makefile */
 #endif
 
 int _tmain(int argc, _TCHAR * argv[])

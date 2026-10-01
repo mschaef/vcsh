@@ -15,14 +15,8 @@
 *~
 TAGS
 build-settings
-scheme-core/autoload.cpp
+scheme-core/build/
 scheme-core/compiler-debug.scm
-scheme-core/compiler-run.cpp
-scheme-core/csv.cpp
-scheme-core/fasl-compiler-run.cpp
-scheme-core/fasl-compiler.cpp
-scheme-core/scheme.cpp
-scheme-core/unit-test.cpp
 scheme-core/vcsh
 scheme-core/vcsh0
 vm/fasl-dump
