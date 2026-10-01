@@ -31,6 +31,14 @@
 *** Rename vm/structure.c (only lslot_ref remains)
 *** Update comments that still mention structures (list.scm:234, printer.scm:30)
 
+** Performance (see notes/performance-2026.org for measurements and details)
+*** Inline trivial operands in apply arg loops; prototyped, ~20% faster, patch in notes
+*** Fixnum fast-ops for + - < = with subr fallback
+*** Vector environment frames instead of consed arg lists
+*** Cut GC cost: larger default heap segment, growth based on survival
+*** Parse :optional/:keyword in the VM; :keyword calls cost ~1 us
+*** Faster generic-function dispatch; one-method gf calls cost ~1.3 us
+
 ** VM and evaluator
 *** Move argument buffers onto the Lisp stack
 *** Cache lexical frames on the Lisp stack
