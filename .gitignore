@@ -29,5 +29,4 @@ vm/fasl-dump
 vm/scan-constants.scm
 vm/scan-constants.scm
 vm/scansh0
-vm/show-retval
 vm/to-c-source

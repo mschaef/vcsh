@@ -230,13 +230,12 @@ them is currently this:
 
 * `vm/` - This is the virtual machine. It runs a scheme image, and
    most of the interesting low-level code is here. (Including the
-   garbage collector, evaluator, and I/O code.) There are also a
-   couple of supporting executable targets built in this directory.
+   garbage collector, evaluator, and I/O code.) There is also a
+   supporting executable target built in this directory.
    * `to-c-source` - This reads a binary file and emits C source code that
       will statically initialize a variable to the contents of that file. Later
       phases of the build process use this program to take scheme image files
       and link them into a single executable.
-   * `show-retval` - This executes a program and shows the return value.
 * `scheme-core/` - This is the scheme source to a scheme image. Starting at
    `scheme.scm`, this module defines all of the components of the environment
    that are written in scheme. This includes the reader, printer, compiler,
