@@ -1,37 +1,109 @@
 * vcsh
-** 0.7 - Fix Instances, Structures, and Generic Functions
-*** type-of does not allow instances to return anything other than instance
-*** scheme-core allows for default values from slot-ref, although lislot_ref doesn't support them.
-** Backlog
-*** Clean up calling conventions in fasl-write
-*** Switch Lisp stack to lref_t's
-*** Move argument buffers onto Lisp stack
-*** Add FOP's for looping, etc. Switch loop forms to FOPs
-*** Switch to numeric-coordinate based lexical binding lookup
-*** Add support for caching lexical frames on the lisp stack.
-*** Split out character codec's from I/O in the io package.
-*** Add SHA-1 hash logic, preferably inside the VM, rather than in an outside library
-*** Add test case coverage
-*** Verify correct operation of directory tools on both *nix and Windows.
-*** There's a lot of commonality in the config.unix/config.windows files. Unify that into something simpler.
-*** Add a compiler option that emits a cross reference file describing global references.
-*** Remove boxed fixnums
-*** Add bignums
-*** Swich to a memory-size based heap sizing model rather than a segment-count based model.
+  Backlog refreshed 2026-10-01: TODO.org merged with the TODO/REVISIT/XXX/TESTTHIS
+  comments in vm/ and scheme-core/. File:line references are as of commit c7a22fa.
+
+** Bugs and correctness
+*** FASL table pointers can dangle when the table resizes during load (vm/fasl.c:108, :484)
+*** Fast-IO round trip of nested circular lists asserts; test disabled (tests/test-fast-io.scm:199)
+*** (directory "file-that-exists.scm") does something weird (system.scm:463)
+*** delete-duplicates assumes delete returns an eq? list when nothing is removed; it doesn't (list.scm:1042)
+*** with-*-file style definitions fail: compiler tries to serialize the close-port subr (io.scm:70)
+*** "-3.0-2.0-2.0i" reads as a symbol (tests/test-reader.scm:219)
+*** Check the overflow return value in hash-table.c:232
+*** vmerror_fast_read doesn't always show valid port locations (vm/error.c:128)
+*** file-sha1-digest is behind #ifdef OSX, which no build config defines; it's unbound on every platform
+    Also depends on CommonCrypto. Implement SHA-1 in the VM (vm/system.c, main.c:354).
+*** Date printing doesn't show full resolution, so unequal dates can print identically (date-time.scm:1499)
+
+** Build and portability
+*** config.unix hard-codes -m64, which aarch64 gcc rejects
+*** sys_debug_break uses x86 int3 asm (unix-sys.c:417, windows-sys.c:414); use __builtin_trap()
+*** TAGS is in vm TARGETS, so the build fails without etags
+*** Replace deprecated _BSD_SOURCE/_SVID_SOURCE with _DEFAULT_SOURCE
+*** Unify the common parts of config.unix/config.windows
+*** Gitignore generated scheme-core/{autoload,csv,unit-test,unit-test-utils}.c
+*** scc0/scc0 and scc0-good reference fasl-compiler-run.scf and ../scheme, which don't exist
+*** README drift: describes util/ (now vm/), REPL shows *1 rather than ##0
+*** Verify directory tools on both *nix and Windows
+
+** Structure removal cleanup
+*** Remove unused TC_STRUCTURE, TC_INSTANCE, TC_STRUCTURE_LAYOUT, TRAP_RESOLVE_FASL_STRUCT_LAYOUT, TRAP_PRIMITIVE_INSTANCE
+*** Rename vm/structure.c (only lslot_ref remains)
+*** Update comments that still mention structures (list.scm:234, printer.scm:30)
+
+** VM and evaluator
+*** Move argument buffers onto the Lisp stack
+*** Cache lexical frames on the Lisp stack
+*** Add more FOPs for looping (FOP_WHILE_TRUE exists)
 *** Linear bytecode compiler
-*** Complete complex arithmetic
+*** Clean up FASL write; consider the restructuring noted at vm/fasl.c:20
+*** Move macros entirely to Lisp (vm/macro.c:16)
+*** Memory-size based heap sizing instead of segment counts
+*** Convert %with-disabled-interrupts to functional form
+*** Emacs-style subr metadata bundled with the subr itself
+
+** Numbers
+*** Bignums
+*** Complete complex arithmetic (flonums carry an imaginary part, but it isn't finished)
+*** Scheme versions of gcd and lcm (number.scm:121)
+*** Statistics that pass statistical reference data sets
+
+** Language and library
+*** Generic functions: define instead of define-method trashes the whole gf
+*** Generic functions: invalidate caches on define/set! of class-graph globals (class-graph hook exists)
+*** ecase (control-flow.scm:216)
+*** with-input-file, with-output-file, with-input-from-string (io.scm:60, :68, :274)
+*** delete! is UNIMPLEMENTED (list.scm:781)
+*** List functions: split-at, split-at!, n-ary fold, reduce, take-until, take-until!, insert-ordered! (list.scm:23, :692)
+*** Circular list detection in list comparison (list.scm:1011)
+*** :optional in dbind and defmacro (match.scm:197, macro.scm:13)
+*** Matcher: unify, configurable equality, ?? key/value pattern vars (match.scm:12)
+*** dbind/match expansion makes repeated cdr calls (match.scm:168, :204)
+*** handler-bind with implicit lambdas (error-handling.scm:32)
+*** Char comparison predicates with >2 args (character.scm:126)
+*** char-ci=? still conses ~3x as much as char=?
+*** Hex escapes in strings and characters (reader.scm:98, :138)
+*** Reader mode that reads without interning symbols (reader.scm:468)
+*** split-string: multiple delimiters, fewer allocations, naming (string.scm:146)
+*** Regex library
+*** Unicode characters and stream translation modes
+*** Multi-argument command-line options (main.scm:104)
+*** Documentation for variables (procedure.scm:193); make documentation a gf (tools.scm:72)
+*** Trace anonymous functions (tools.scm:341)
+*** Memoize caches should drop finalized functions; needs weak refs (memoize.scm:14)
+*** Streaming read-csv (csv.scm:131)
+*** eval with non-null lexical environments (eval.scm:14)
+*** Rename list-all-packages to all-packages?
 *** FFI (SIOD-FFI?)
-*** Statisics that pass statistical reference data sets
-*** char-ci=?, etc. has _terrible_ memory characteristics (70-80 conses per call)
-*** Incorporate some kind of regex library
-*** convert %with-disabled-interrupts to functional form
-*** should list-all-packages really be all-packages ?
-*** define instead of define-method trashes the entire generic fn. Not too user-friendly. (define rollback history)
-*** add define/global set! hook to invalidate generic fn caches on class graph changes
-*** Ensure structures use vectors as storage for auto slots
-*** Replace class graph with above network of symbol refs
-*** Switch to Unicode character encoding
-*** Add Unicode translation modes to character streams
+
+** Packages
+*** Load order of scheme-core is poorly defined (package.scm:16)
+*** define-package interns can pick up symbols from the use list (package.scm:349, :356)
+*** export! should check for package conflicts first (package.scm:469)
+*** shadow-symbol! should reject a symbol that isn't the one being shadowed (package.scm:533)
+
+** Compiler
+*** Store metadata with compiled code: VM/image version, compile date (compiler.scm:13)
+*** Option to emit a global cross-reference file
+*** Share define-toplevel-form with define-special-form (compiler-file.scm:75)
+*** Restore *package* after compiling a file like call-as-loader does (compiler-file.scm:235)
+*** Better source for special-form-symbols and *shared-target-symbols* (compiler-meaning.scm:84, setup-image-compile.scm:25)
+
+** Tests
+*** Test suite for iterate (iterate.scm:16)
+*** Tests for lrandom (number.c:1014) and substring with null end (test-string.scm:865)
+*** Case-sensitivity tests for string comparison (test-string.scm:154)
+*** unit-test: check-for and expected/actual value reporting (unit-test.scm:21)
+*** Coverage
+
+** Done since the 2020 list
+*** Remove boxed fixnums (immediate tagged fixnums)
+*** Numeric-coordinate lexical binding lookup (FOP_LOCAL_*_BY_INDEX)
+*** Switch Lisp stack to lref_t's
+*** Split character codecs out of I/O (io-encdec.c)
+*** slot-ref default values in lslot_ref
+*** Structures and instances removed; 0.7 milestone and structure TODOs obsolete
+
 * vcalc
 ** Deferred rendering of clipboard contents (set-clipboard-data takes a closure...)
 ** Load global state command
