@@ -29,6 +29,18 @@
 *** Rename vm/structure.c (only lslot_ref remains)
 *** Update comments that still mention structures (list.scm:234, printer.scm:30)
 
+** Bootstrap (see notes/bootstrap-2026.org)
+*** scheme.scf has no prerequisites; add real dependencies on scheme-core sources, scan-constants, scansh0, scc0
+*** FASL header with format version and VM ABI hash (scan-constants.i + subr table); reject mismatches clearly
+*** Automate stage 2 (ship image compiled by vcsh0), add bootstrap-check fixpoint, make 'make update' copy only checked images
+*** Make builds reproducible: injectable build date instead of #.(current-date)
+*** Trim *shared-target-symbols*; host compiler currently calls the target's member
+*** Don't install trap handlers at compile time during image compiles
+*** Host FASL writer shouldn't read system:: constants at runtime
+*** Pin scc0 to its own VM (git revision + worktree build) so VM changes are one step
+*** Evaluate fewer definitions at compile time (CL-style compile-file semantics)
+*** scansh0 treats arguments starting with "/" as options; absolute input paths are rejected
+
 ** Performance (see notes/performance-2026.org for measurements and details)
 *** Inline trivial operands in apply arg loops; prototyped, ~20% faster, patch in notes
 *** Fixnum fast-ops for + - < = with subr fallback

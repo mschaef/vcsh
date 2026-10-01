@@ -1,0 +1,136 @@
+#+TITLE: vcsh bootstrap (scc0) analysis (2026-10-01)
+
+Analysis of how the self-hosting build works, where it is brittle, and
+what could make it more predictable. Tracked in TODO.org under
+"Bootstrap".
+
+* How the bootstrap works today
+1. vm/scansh0 (the *new* VM) loads scc0/scheme.scf and
+   scc0/compiler-run.scf (the *old* image and compiler).
+2. setup-image-compile.scm renames every package except system and
+   keyword to host-*, creates empty target packages, re-homes the host
+   symbols into the target packages, copies host global values into new
+   target symbols, and imports a hand-picked list
+   (*shared-target-symbols*) into the target.
+3. The old compiler compiles scheme.scm into scheme.scf, which is linked
+   into vcsh0. vcsh0 compiles the library modules; vcsh is built from that.
+
+Consequence: the shipped image is always compiled by scc0's compiler,
+never by the compiler in the current source. Compiler changes only reach
+the image after 'make update' in scc0/ and a rebuild. 343 of 1,948
+commits touch scc0/scheme.scf.
+
+* Assessment 1: VM changes must be made in steps (confirmed)
+scc0 runs on the new VM, so everything the old image depends on is an
+interface the VM can't break until scc0 is refreshed:
+- Fast-op opcodes and semantics. Baked into scc0's compiled code, which
+  the new VM must run. The old compiler also bakes its own opcode numbers
+  into its output (#.system::FOP_* in compiler-fasm.scm was evaluated
+  when scc0 was built), so the new image is written with the *old*
+  opcode numbers.
+- FASL format. No version header, so a mismatch fails partway through a
+  load.
+- Subr (built-in C function) names. FASL stores them by name and the
+  loader looks them up, so removing or renaming one breaks loading scc0.
+- Trap numbers, typecodes, VM control fields. Baked in with #. reads.
+
+Adding a fast-op is two steps: change VM and compiler, build, 'make
+update', build again. Renumbering or removing one needs the VM to support
+both versions in between. Performance items 2 and 3
+(notes/performance-2026.org) hit this directly.
+
+* Assessment 2: the compiler overwrites itself (confirmed)
+1. Every definition is executed in the compiling process.
+   compile-toplevel-definition (compiler-file.scm) calls %define-global
+   on each value it compiles. Needed so target macros can call target
+   functions, but it means the image is loaded into the compiler as it is
+   compiled.
+2. *shared-target-symbols* includes ordinary functions: member, not, <,
+   <=, >, >=, =, eq?, equal?. list.scm defines member, so from then on the
+   host compiler uses the target's member. Verified: a file that defines
+   member (via %define/%lambda) to call an unbound function, followed by
+   an eval-when, fails inside that function, because the host's eval-when
+   handler calls member. The others are rebound to subrs, which is
+   harmless unless those subrs change.
+3. The whole system package is shared. scan-constants.scm redefines
+   system::FASL_OP_*, TRAP_*, etc. at compile time. Host code that reads
+   them at runtime (fast-write.scm's FASL writer, compiler-file.scm's
+   FASL_OP_LOADER_DEFINEA0, ...) switches to the new values mid-compile.
+   FASL output written before the include uses old numbers, everything
+   after uses new ones. Fast-op numbers stay old (see above).
+   system::LOAD-TIME-GET-PACKAGE / SET-PACKAGE! are also redefined.
+4. VM-global state has no namespace. error-handling.scm, number.scm,
+   memory.scm and main.scm install trap handlers in
+   eval-when (:compile-toplevel ...), so partway through the build the
+   host's handlers for errors, fixnum overflow, GC growth and RUN0 are
+   replaced by the target's. Handler frames (FOP_GET/SET_HFRAMES),
+   *package-list* and *provided-packages* are shared too. Changing the
+   handler-frame representation in error-handling.scm means the old
+   compiler's handler-bind runs through the new signal code.
+
+Debugging trap: because host symbols are re-homed, they print with
+target package names.
+
+* Other predictability issues
+- scheme.scf has no prerequisites, and no .depend is checked in, so
+  editing a scheme-core source doesn't rebuild the image until
+  'make clean-scheme'. compiler-run.scf only depends on compiler-run.scm.
+- 'make update' in scc0/ copies a new 500 KB image without checking it.
+- Builds aren't reproducible: #.(current-date) in scheme.scm means two
+  builds of the same source differ, which rules out a fixpoint check.
+- scc0/scc0 and scc0-good wrapper scripts are stale (already in TODO).
+- Note: scansh0 treats arguments starting with "/" as options (Windows
+  style), so absolute input paths are rejected.
+
+* Improvements, roughly in order
+** Predictability (cheap)
+1. Real dependencies for scheme.scf: all scheme-core/*.scm,
+   vm/scan-constants.scm, scansh0 and the scc0 images. A wildcard is
+   fine to start with.
+2. FASL header with a format version and a hash of scan-constants.i plus
+   the subr table (names and arity). The loader rejects a mismatch with a
+   clear message.
+3. Automate the second stage. Stage 1: scc0 compiles the image. Stage 2:
+   vcsh0 compiles it again, and that is shipped, so compiler changes take
+   effect in one build. 'make bootstrap-check' confirms stage 3 is
+   byte-identical to stage 2, and 'make update' copies only a checked
+   image. Needs the build date injectable (e.g. from the environment)
+   for reproducible output.
+** Less crosstalk (moderate)
+4. Trim *shared-target-symbols* to syntax keywords and type names. member
+   and the comparison functions are probably there for macro expansions
+   that compare symbols; needs checking, but sharing the symbol shouldn't
+   be the fix.
+5. Stop installing trap handlers at compile time: make those eval-whens
+   :load-toplevel only, or have %set-trap-handler! refuse while an image
+   compile is running.
+6. Make the host compiler independent of system:: values at runtime: the
+   FASL writer should use constants fixed when it was built (as the
+   fast-op table does), so redefinitions can't switch its output midway.
+** Structural (larger)
+7. Pin scc0 to its own VM: treat scc0 as a git revision (old VM + old
+   image) and build that VM in a worktree during bootstrap. The new VM
+   then only has to read the old compiler's output, not run old code.
+   Combined with 6, and taking opcode numbers from the target's
+   scan-constants, VM changes become one-step edits.
+8. Evaluate fewer definitions at compile time, Common Lisp style: only
+   eval-when and macro definitions run in the compiler, with helpers that
+   macros need wrapped explicitly. Removes crosstalk route 1 almost
+   entirely, but touches a lot of scheme-core.
+
+Suggested order: 1-3 first (they make every later change safer to test),
+then 4-5. Do 6-7 before performance work that adds fast-ops.
+
+* Reproducing the member crosstalk test
+From scheme-core/ after a build (input path must be relative):
+#+begin_src scheme
+;; xtalk.scm
+(%define member (%lambda () args (system::%panic "TARGET member called by host compiler")))
+(eval-when (:load-toplevel) 1)
+#+end_src
+#+begin_src sh
+../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-run.scf \
+    --load-file:setup-image-compile.scm --output:xtalk.scf xtalk.scm
+#+end_src
+Fails with "unbound global: system::%panic", raised from inside the
+target's member when the host compiler's eval-when handler calls it.
