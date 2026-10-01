@@ -16,37 +16,18 @@
 #ifndef __SCAN_INTERNAL_FILE_H
 #define __SCAN_INTERNAL_FILE_H
 
-/* Microsoft C and gcc appear to have differing opinions on how to
- * initialize a structure with an indefinate sized array at the end. */
-
-#if defined(_MSC_VER)
-
-typedef uint8_t internal_file_data_t[];
-#  define INTERNAL_FILE_DATA_CAST
-
-#else
-
-typedef uint8_t *internal_file_data_t;
-#  define INTERNAL_FILE_DATA_CAST (uint8_t [])
-
-#endif
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (push)
-#  pragma warning (disable: 4200)
-#endif
+/* An internal file is a block of read-only data linked into the
+ * executable, usually a compiled scheme image. to-c-source generates
+ * one as a separate const byte array plus an internal_file_t that
+ * points at it, which compiles the same way on MSVC and gcc/clang. */
 
 struct internal_file_t
 {
-     _TCHAR *_name;
+     const _TCHAR *_name;
      size_t _length;
-     internal_file_data_t _bytes;
+     const uint8_t *_bytes;
 };
 
 #define DECL_INTERNAL_FILE struct internal_file_t
-
-#ifdef SCAN_WINDOWS
-#  pragma warning (pop)
-#endif
 
 #endif

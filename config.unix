@@ -110,7 +110,13 @@ clean: clean-cov clean-local
 	${RM_F} *.o *.obj *.scf TAGS *~ *.ii *.exe *.s *.suo ${TARGETS}
 	${RM_F} scheme/*~ gmon${OBJ_EXT}ut *.gcno
 
+# etags isn't always installed (macOS no longer ships it), so TAGS
+# is skipped rather than failing the build when it's missing.
 TAGS:
-	etags *.[ch] *.cpp
+	@if command -v etags >/dev/null 2>&1; then \
+	     etags *.[ch] *.cpp; \
+	else \
+	     echo "etags not found; skipping TAGS"; \
+	fi
 
 

@@ -44,42 +44,18 @@ void write_bytes_as_c_source(const void *buf, size_t bytes, struct write_state *
      }
 }
 
-size_t file_length(FILE * in)
-{
-     uint8_t buf[BLOCK_SIZE];
-
-     size_t total = 0;
-
-     for (;;)
-     {
-          size_t bytes = fread(buf, 1, BLOCK_SIZE, in);
-
-          if (bytes == 0)
-               break;
-
-          total += bytes;
-     }
-
-     rewind(in);
-
-     return total;
-}
-
 void write_file_as_c_source(FILE * in, _TCHAR * blockname, _TCHAR * varname)
 {
      struct write_state s;
 
      s._bytes_transferred = 0;
 
-     printf("DECL_INTERNAL_FILE %s =\n", varname);
-     printf("{\n");
-
-     printf("     ((_TCHAR *)_T(\"%s\")), %" SCAN_PRIdSIZET ",\n", blockname, file_length(in));
-     printf("     INTERNAL_FILE_DATA_CAST {");
+     /* The data is emitted as its own const array, and the
+      * internal_file_t refers to it by pointer. */
+     printf("static const uint8_t %s_data[] =\n", varname);
+     printf("{");
 
      uint8_t buf[BLOCK_SIZE];
-
-     size_t total = 0;
 
      for (;;)
      {
@@ -89,12 +65,20 @@ void write_file_as_c_source(FILE * in, _TCHAR * blockname, _TCHAR * varname)
                break;
 
           write_bytes_as_c_source(buf, bytes, &s);
-
-          total += bytes;
      }
 
-     printf("\n     }\n");
+     /* C does not allow empty arrays, so pad an empty file with a
+      * single byte. The recorded length is still zero. */
+     if (s._bytes_transferred == 0)
+          printf("\n          0x00");
 
+     printf("\n};\n");
+     printf("\n");
+
+     printf("DECL_INTERNAL_FILE %s =\n", varname);
+     printf("{\n");
+     printf("     _T(\"%s\"), %" SCAN_PRIdSIZET ", %s_data\n",
+            blockname, s._bytes_transferred, varname);
      printf("};\n");
      printf("\n");
 }

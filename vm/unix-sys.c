@@ -414,7 +414,13 @@ void sys_abnormally_terminate_vm(int rc)
 
 void sys_debug_break()
 {
+#if defined(__x86_64__) || defined(__i386__)
      __asm__ __volatile__("int3");
+#elif defined(__clang__)
+     __builtin_debugtrap();
+#else
+     __builtin_trap();
+#endif
 }
 
 void *sys_get_stack_start()

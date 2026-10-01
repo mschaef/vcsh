@@ -16,7 +16,7 @@
 
 struct c_data_port_state
 {
-     unsigned char *buf;
+     const uint8_t *buf;
      size_t buf_size;
 
      size_t buf_pos;
