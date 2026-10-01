@@ -52,8 +52,6 @@ DEFINES+=${DEFFL}SCAN_WINDOWS
 
 LDFLAGS+=${DEBUGFL}
 
-#### Options for 32/64 bit pointer sizes
-
 #### Specific options for debug and checked modes
 
 ifeq (${BUILD_TYPE}, CHECKED)

@@ -127,7 +127,6 @@ struct hash_table_t
 
 /*** The core boxed data type ***/
 
-#pragma pack(push, 4)
 struct lobject_t
 {
      union
@@ -233,7 +232,6 @@ struct lobject_t
 
      } as;
 };
-#pragma pack(pop)
 
 /*** NIL and primitive equality checks ***/
 

@@ -10,15 +10,14 @@
 *** with-*-file style definitions fail: compiler tries to serialize the close-port subr (io.scm:70)
 *** "-3.0-2.0-2.0i" reads as a symbol (tests/test-reader.scm:219)
 *** Check the overflow return value in hash-table.c:232
+*** (string->number "4611686018427387903") signals fixnum overflow; values between FIXNUM_MAX and INT64_MAX should become flonums (number-format.c)
 *** vmerror_fast_read doesn't always show valid port locations (vm/error.c:128)
 *** file-sha1-digest is behind #ifdef OSX, which no build config defines; it's unbound on every platform
     Also depends on CommonCrypto. Implement SHA-1 in the VM (vm/system.c, main.c:354).
 *** Date printing doesn't show full resolution, so unequal dates can print identically (date-time.scm:1499)
 
 ** Build and portability
-*** config.unix hard-codes -m64, which aarch64 gcc rejects
-*** sys_debug_break uses x86 int3 asm (unix-sys.c:417, windows-sys.c:414); use __builtin_trap()
-*** TAGS is in vm TARGETS, so the build fails without etags
+*** windows-sys.c sys_debug_break uses x86 int3 asm under __GNUC__ (unix-sys.c fixed)
 *** Replace deprecated _BSD_SOURCE/_SVID_SOURCE with _DEFAULT_SOURCE
 *** Unify the common parts of config.unix/config.windows
 *** scc0/scc0 and scc0-good reference fasl-compiler-run.scf and ../scheme, which don't exist
@@ -81,6 +80,7 @@
 *** Streaming read-csv (csv.scm:131)
 *** eval with non-null lexical environments (eval.scm:14)
 *** Rename list-all-packages to all-packages?
+*** system-info reports platform "linux" on macOS (unix-sys.c)
 *** FFI (SIOD-FFI?)
 
 ** Packages

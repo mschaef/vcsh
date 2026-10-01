@@ -25,17 +25,10 @@ bool parse_string_as_fixnum(_TCHAR * string, int radix, fixnum_t *result)
      assert((radix >= 2) && (radix <= 36));
 
 
-#ifdef SCAN_64BIT
      *result = strtoll(string, &endobj, radix);
 
      if (((*result == INT64_MIN) || (*result == INT64_MAX)) && (errno == ERANGE))
           overflow = true;
-#else
-     *result = strtol(string, &endobj, radix);
-
-     if (((*result == LONG_MIN) || (*result == LONG_MAX)) && (errno == ERANGE))
-          overflow = true;
-#endif
 
      if (overflow || (endobj == NULL) || (endobj == string) || (*endobj != _T('\0')))
           return false;

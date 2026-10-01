@@ -52,16 +52,6 @@ DEFINES+=${DEFFL}SCAN_UNIX
 
 LDFLAGS+=${DEBUGFL}
 
-#### Options for 32/64 bit pointer sizes
-
-ifeq (${POINTER_SIZE}, 64)
-  CCFLAGS+=-m64
-  LDFLAGS+=-m64
-else
-  CCFLAGS+=-m32
-  LDFLAGS+=-m32
-endif
-
 #### Specific options for debug and checked modes
 
 ifeq (${BUILD_TYPE}, CHECKED)

@@ -22,9 +22,6 @@ BUILD_TYPE=DEBUG
 # unix (gcc), windows (msvc)
 PLATFORM=unix
 
-# 32 or 64
-POINTER_SIZE=64
-
 # on or off
 COVERAGE_TEST=off
 

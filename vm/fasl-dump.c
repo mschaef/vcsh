@@ -133,11 +133,10 @@ static bool fdread_binary_fixnum(fixnum_t length, fixnum_t *result, size_t *ofs)
        *result = io_decode_uint32(bytes);
        break;
 
-#ifdef SCAN_64BIT
   case 8:
        *result = io_decode_uint64(bytes);
        break;
-#endif
+
   default:
        assert(!"Bad length to fdread_binary_fixnum");
   }

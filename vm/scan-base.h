@@ -30,15 +30,11 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-#if defined(_MSC_VER) && defined(SCAN_WINDOWS)
-#    include "chemeris-stdint.h"
-#else
-#    include <inttypes.h>
-#endif
+#include <inttypes.h>
 
-#if (defined(__GNUC__) && defined(__LP64__)) || (defined(_MSC_VER) && defined(_M_X64))
-#   define SCAN_64BIT
-#endif
+/* vcsh only supports 64-bit targets. This fails to compile (negative
+ * array size) on anything else. */
+typedef char scan_requires_64bit_target[(sizeof(void *) == 8) ? 1 : -1];
 
 
 /*** A macro that allow a variable to be denoted as unreferenced. ***/
@@ -85,32 +81,17 @@ enum {
 #endif
 };
 
-/*** 64-bit integer support ***/
+/*** printf formats for fixnums (intptr_t) and size_t ***/
 
-#if defined(__GNUC__)
+#define SCAN_PRIdFIXNUM PRIdPTR
+#define SCAN_PRIiFIXNUM PRIiPTR
+#define SCAN_PRIoFIXNUM PRIoPTR
+#define SCAN_PRIuFIXNUM PRIuPTR
+#define SCAN_PRIxFIXNUM PRIxPTR
+#define SCAN_PRIXFIXNUM PRIXPTR
 
-#   define SCAN_PRIdFIXNUM PRIdPTR
-#   define SCAN_PRIiFIXNUM PRIiPTR
-#   define SCAN_PRIoFIXNUM PRIoPTR
-#   define SCAN_PRIuFIXNUM PRIuPTR
-#   define SCAN_PRIxFIXNUM PRIxPTR
-#   define SCAN_PRIXFIXNUM PRIXPTR
-
-#   define SCAN_PRIdSIZET "zd"
-#   define SCAN_PRIxSIZET "zx"
-
-#elif defined(_MSC_VER)
-
-#   define SCAN_PRIdFIXNUM "I64d"
-#   define SCAN_PRIiFIXNUM "I64i"
-#   define SCAN_PRIoFIXNUM "I64o"
-#   define SCAN_PRIuFIXNUM "I64u"
-#   define SCAN_PRIxFIXNUM "I64x"
-#   define SCAN_PRIXFIXNUM "I64X"
-
-#   define SCAN_PRIxSIZET "Id"
-#   define SCAN_PRIxSIZET "Ix"
-#endif
+#define SCAN_PRIdSIZET "zd"
+#define SCAN_PRIxSIZET "zx"
 
 INLINE int64_t make_int64_t(int64_t high, int64_t low)
 {
@@ -121,10 +102,6 @@ INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
 {
      return ((uint64_t) high << 32) + (uint64_t) low;
 }
-
-#if !defined(__GNUC__)
-#   define strtoll _strtoi64
-#endif
 
 /*** Minimum and Maximum ***/
 
