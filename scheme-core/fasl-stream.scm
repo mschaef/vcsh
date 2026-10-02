@@ -47,7 +47,7 @@
    writes the stream's content's to the target port."
   (let ((shared-structure-table (find-shared-structures (:output-objs stream))))
 
-    (fast-write-opcode system::FASL_OP_RESET_READER_DEFS (:port stream))
+    (fast-write-opcode #.system::FASL_OP_RESET_READER_DEFS (:port stream))
 
     (dolist (obj (reverse (:output-objs stream)))
       (cond ((fasl-op? obj)

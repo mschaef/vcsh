@@ -649,3 +649,20 @@
     (check (equal? "testcase12345" (get-output-string os)))))
 
 
+
+(define-test current-ports-use-built-in-control-fields
+  ;; The current-port accessors use VM control field numbers fixed when
+  ;; they were compiled, not the current values of the system::VMCTRL_*
+  ;; variables, which an image compile redefines partway through.
+  (let ((input-field system::VMCTRL_CURRENT_INPUT_PORT)
+        (output-field system::VMCTRL_CURRENT_OUTPUT_PORT))
+    (unwind-protect
+     (lambda ()
+       (set-symbol-value! 'system::VMCTRL_CURRENT_INPUT_PORT output-field)
+       (set-symbol-value! 'system::VMCTRL_CURRENT_OUTPUT_PORT input-field)
+       (check (input-port? (current-input-port)))
+       (check (output-port? (current-output-port)))
+       (check (equal? "out" (with-output-to-string (display "out")))))
+     (lambda ()
+       (set-symbol-value! 'system::VMCTRL_CURRENT_INPUT_PORT input-field)
+       (set-symbol-value! 'system::VMCTRL_CURRENT_OUTPUT_PORT output-field)))))

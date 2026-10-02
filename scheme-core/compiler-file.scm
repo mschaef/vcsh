@@ -108,7 +108,7 @@
     ;; error checking here???
     (scheme::%define-global symbol value)
 
-    (fasl-write-op output-fasl-stream system::FASL_OP_LOADER_DEFINEA0
+    (fasl-write-op output-fasl-stream #.system::FASL_OP_LOADER_DEFINEA0
                    symbol value-thunk)))
 
 (define begin-load-unit-boundaries)
@@ -144,7 +144,7 @@
 
 (define (emit-action form output-fasl-stream)
   (compiler-trace *show-actions* "==> EMIT-ACTION: ~s\n" form)
-  (fasl-write-op output-fasl-stream system::FASL_OP_LOADER_APPLY0 (compile form)))
+  (fasl-write-op output-fasl-stream #.system::FASL_OP_LOADER_APPLY0 (compile form)))
 
 (define (process-toplevel-form form load-time-eval? compile-time-eval? output-fasl-stream)
   (compiler-trace *show-actions* "* PROCESS-TOPLEVEL-FORM~a~a: ~s\n"
@@ -213,14 +213,14 @@
 
 (define (begin-load-unit filename output-fasl-stream)
   (unless  *disable-load-unit-boundaries*
-    (fasl-write-op output-fasl-stream system::FASL_OP_BEGIN_LOAD_UNIT filename)
-    (fasl-write-op output-fasl-stream system::FASL_OP_LOADER_APPLY0 system::LOAD-TIME-GET-PACKAGE)
-    (fasl-write-op output-fasl-stream system::FASL_OP_LOADER_PUSH)))
+    (fasl-write-op output-fasl-stream #.system::FASL_OP_BEGIN_LOAD_UNIT filename)
+    (fasl-write-op output-fasl-stream #.system::FASL_OP_LOADER_APPLY0 system::LOAD-TIME-GET-PACKAGE)
+    (fasl-write-op output-fasl-stream #.system::FASL_OP_LOADER_PUSH)))
 
 (define (end-load-unit filename output-fasl-stream)
   (unless *disable-load-unit-boundaries*
-    (fasl-write-op output-fasl-stream system::FASL_OP_LOADER_APPLYN system::LOAD-TIME-SET-PACKAGE! 1)
-    (fasl-write-op output-fasl-stream system::FASL_OP_END_LOAD_UNIT filename)))
+    (fasl-write-op output-fasl-stream #.system::FASL_OP_LOADER_APPLYN system::LOAD-TIME-SET-PACKAGE! 1)
+    (fasl-write-op output-fasl-stream #.system::FASL_OP_END_LOAD_UNIT filename)))
 
 (define (begin-load-unit-boundaries filename output-fasl-stream)
   (unless *disable-load-unit-boundaries*

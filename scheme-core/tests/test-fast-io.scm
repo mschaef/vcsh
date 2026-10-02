@@ -248,3 +248,18 @@
         (check (eq? (first bs) (second bs)))))
     
     (check (can-fast-io-round-trip? :keyword-symbol)))
+
+(define-test fast-write-uses-built-in-opcodes
+  ;; The FASL writer uses the opcode numbers fixed when it was compiled,
+  ;; not the current values of the system::FASL_OP_* variables. An image
+  ;; compile redefines those variables partway through (when it includes
+  ;; vm/scan-constants.scm), and the compiler's own writer must not switch
+  ;; numbering mid-file.
+  (let ((original system::FASL_OP_STRING))
+    (unwind-protect
+     (lambda ()
+       (set-symbol-value! 'system::FASL_OP_STRING 99)
+       (check (can-fast-io-round-trip? "a string"))
+       (check (can-fast-io-round-trip? '("strings" "in" "a" "list"))))
+     (lambda ()
+       (set-symbol-value! 'system::FASL_OP_STRING original)))))

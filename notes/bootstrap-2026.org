@@ -152,9 +152,38 @@ target package names.
 5. Stop installing trap handlers at compile time: make those eval-whens
    :load-toplevel only, or have %set-trap-handler! refuse while an image
    compile is running.
-6. Make the host compiler independent of system:: values at runtime: the
-   FASL writer should use constants fixed when it was built (as the
-   fast-op table does), so redefinitions can't switch its output midway.
+6. [done] Make the host compiler independent of system:: values at
+   runtime: the FASL writer should use constants fixed when it was built
+   (as the fast-op table does), so redefinitions can't switch its output
+   midway.
+   As built: every FASL_OP_* reference in fast-write.scm, fasl-stream.scm
+   and compiler-file.scm is now #.system::FASL_OP_*, read when that code
+   is compiled. Each stage's writer uses the numbering current when it
+   was compiled, which during an image compile is the target's (the
+   include of scan-constants.scm comes before those files). A test in
+   test-fast-io redefines system::FASL_OP_STRING and checks that FASL
+   output still round-trips; it fails on the old writer.
+   Extended to the rest of scheme-core: every value reference to a
+   system::TRAP_*, VMCTRL_* or FOFS_* constant (50 of them, in
+   error-handling.scm, io.scm, main.scm, memory.scm, number.scm,
+   scheme.scm and tools.scm) is now #.-read as well, so no scheme-core
+   code reads a system:: constant at run time. (Quoted symbols such as
+   'system::FRAME_SUBR, used as frame-type tags, are unchanged.) A test
+   in test-io swaps the VMCTRL input and output port variables and
+   checks the current-port accessors are unaffected; it fails on the old
+   io.scm.
+   Trade-off: an image now always uses the numbering it was compiled
+   with. That's right for every image running on the VM it was built
+   for. For scc0 on a newer VM with renumbered constants, it is
+   consistently wrong rather than wrong until the include switches it
+   (which only worked by accident, via crosstalk). Fixing that properly
+   is item 7, and the FASL header warning now flags a stale scc0.
+   Left as is on purpose: the LOAD-TIME-GET-PACKAGE / SET-PACKAGE!
+   closures that compiler-file.scm writes into each load unit. The host
+   writes the target's versions once the target redefines them, but
+   that's the right code for the image being built. They live in
+   system:: because the system package exists before any image is
+   loaded, and the closures appear at the start of scheme.scf.
 ** Structural (larger)
 7. Pin scc0 to its own VM: treat scc0 as a git revision (old VM + old
    image) and build that VM in a worktree during bootstrap. The new VM

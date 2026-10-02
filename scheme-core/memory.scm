@@ -25,4 +25,4 @@
   (maybe-enlarge-heap cells-freed))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_AFTER_GC trap-after-gc))
+  (%set-trap-handler! #.system::TRAP_AFTER_GC trap-after-gc))

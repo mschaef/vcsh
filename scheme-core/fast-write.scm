@@ -99,12 +99,12 @@
     (if (is-shared? object)
         (aif (hash-ref (:indices smap) object)
              (begin
-               (fast-write-opcode system::FASL_OP_READER_REFERENCE port)
+               (fast-write-opcode #.system::FASL_OP_READER_REFERENCE port)
                (fast-write-object it))
              (begin
                (let ((next-index (get-next-index!)))
                  (hash-set! (:indices smap) object next-index)
-                 (fast-write-opcode system::FASL_OP_READER_DEFINITION port)
+                 (fast-write-opcode #.system::FASL_OP_READER_DEFINITION port)
                  (fast-write-object next-index)
                  (do-write object))))
         (do-write object)))
@@ -114,18 +114,18 @@
 
     (case (%representation-of object)
       ((nil)
-       (fast-write-opcode system::FASL_OP_NIL port))
+       (fast-write-opcode #.system::FASL_OP_NIL port))
 
       ((boolean)
-       (fast-write-opcode (if object system::FASL_OP_TRUE system::FASL_OP_FALSE) port))
+       (fast-write-opcode (if object #.system::FASL_OP_TRUE #.system::FASL_OP_FALSE) port))
 
       ((character)
-       (fast-write-opcode system::FASL_OP_CHARACTER port)
+       (fast-write-opcode #.system::FASL_OP_CHARACTER port)
        (write-binary-fixnum-u8 (char->integer object) port))
 
       ((cons)
        (mvbind (len dotted?) (length-excluding-shared object smap)
-         (fast-write-opcode (if dotted? system::FASL_OP_LISTD system::FASL_OP_LIST) port)
+         (fast-write-opcode (if dotted? #.system::FASL_OP_LISTD #.system::FASL_OP_LIST) port)
          (check-sharing-and-write len)
          (let loop ((i 0) (xs object))
            (cond ((< i len)
@@ -137,43 +137,43 @@
       ((fixnum)
        (cond
         ((and (>= object -128) (<= object 127))
-         (fast-write-opcode system::FASL_OP_FIX8 port)
+         (fast-write-opcode #.system::FASL_OP_FIX8 port)
          (write-binary-fixnum-s8 object port))
         ((and (>= object -32768) (<= object 32767))
-         (fast-write-opcode system::FASL_OP_FIX16 port)
+         (fast-write-opcode #.system::FASL_OP_FIX16 port)
          (write-binary-fixnum-s16 object port))
         ((and (>= object -2147483648) (<= object 2147483647))
-         (fast-write-opcode system::FASL_OP_FIX32 port)
+         (fast-write-opcode #.system::FASL_OP_FIX32 port)
          (write-binary-fixnum-s32 object port))
         (#t
-         (fast-write-opcode system::FASL_OP_FIX64 port)
+         (fast-write-opcode #.system::FASL_OP_FIX64 port)
          (write-binary-fixnum-s64 object port))))
 
       ((flonum)
-       (fast-write-opcode system::FASL_OP_FLOAT port)
+       (fast-write-opcode #.system::FASL_OP_FLOAT port)
        (write-binary-flonum object port))
 
       ((complex)
-       (fast-write-opcode system::FASL_OP_COMPLEX port)
+       (fast-write-opcode #.system::FASL_OP_COMPLEX port)
        (write-binary-flonum (real-part object) port)
        (write-binary-flonum (imag-part object) port))
 
       ((string)
-       (fast-write-opcode system::FASL_OP_STRING port)
+       (fast-write-opcode #.system::FASL_OP_STRING port)
        (check-sharing-and-write (length object))
        (write-binary-string object port))
 
       ((package)
-       (fast-write-opcode system::FASL_OP_PACKAGE port)
+       (fast-write-opcode #.system::FASL_OP_PACKAGE port)
        (check-sharing-and-write (package-name object)))
 
       ((symbol)
-       (fast-write-opcode system::FASL_OP_SYMBOL port)
+       (fast-write-opcode #.system::FASL_OP_SYMBOL port)
        (check-sharing-and-write (symbol-name object))
        (check-sharing-and-write (symbol-package object)))
 
       ((vector)
-       (fast-write-opcode system::FASL_OP_VECTOR port)
+       (fast-write-opcode #.system::FASL_OP_VECTOR port)
        (check-sharing-and-write (length object))
        (dovec (x object)
          (check-sharing-and-write x)))
@@ -181,8 +181,8 @@
       ((hash)
        (let ((hash-type (hash-type-of object)))
          (fast-write-opcode (if hash-type
-                                system::FASL_OP_TYPED_HASH
-                                system::FASL_OP_HASH)
+                                #.system::FASL_OP_TYPED_HASH
+                                #.system::FASL_OP_HASH)
                             port)
          (check-sharing-and-write (identity-hash? object))
          (when hash-type
@@ -190,26 +190,26 @@
          (check-sharing-and-write (hash->a-list object))))
 
       ((subr)
-       (fast-write-opcode system::FASL_OP_SUBR port)
+       (fast-write-opcode #.system::FASL_OP_SUBR port)
        (check-sharing-and-write (procedure-name object)))
 
       ((closure)
-       (fast-write-opcode system::FASL_OP_CLOSURE port)
+       (fast-write-opcode #.system::FASL_OP_CLOSURE port)
        (check-sharing-and-write (%closure-env object))
        (check-sharing-and-write (%closure-code object))
        (check-sharing-and-write (%property-list object)))
 
       ((macro)
-       (fast-write-opcode system::FASL_OP_MACRO port)
+       (fast-write-opcode #.system::FASL_OP_MACRO port)
        (check-sharing-and-write (%macro-transformer object)))
 
 
       ((fast-op)
        (mvbind (fop-opcode fop-name args next-op) (compiler::parse-fast-op object #f)
          (fast-write-opcode (case (length args)
-                              ((0) (if (null? next-op) system::FASL_OP_FAST_OP_0 system::FASL_OP_FAST_OP_0N))
-                              ((1) (if (null? next-op) system::FASL_OP_FAST_OP_1 system::FASL_OP_FAST_OP_1N))
-                              ((2) (if (null? next-op) system::FASL_OP_FAST_OP_2 system::FASL_OP_FAST_OP_2N))
+                              ((0) (if (null? next-op) #.system::FASL_OP_FAST_OP_0 #.system::FASL_OP_FAST_OP_0N))
+                              ((1) (if (null? next-op) #.system::FASL_OP_FAST_OP_1 #.system::FASL_OP_FAST_OP_1N))
+                              ((2) (if (null? next-op) #.system::FASL_OP_FAST_OP_2 #.system::FASL_OP_FAST_OP_2N))
                               (#t (error "Unsupported fast-op arity: ~s" object)))
                             port)
          (check-sharing-and-write fop-opcode)

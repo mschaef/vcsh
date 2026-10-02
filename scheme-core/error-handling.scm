@@ -102,31 +102,31 @@
       (#t (error "Bad ref-type in frame-ref: ~s" ref-type)))))
 
 (define (frame-link frp)
-  (let ((next-frp (frame-ref frp system::FOFS_LINK :raw)))
+  (let ((next-frp (frame-ref frp #.system::FOFS_LINK :raw)))
     (if (= next-frp 0)
         #f
       next-frp)))
 
 
 (define (frame-decode frp)
-  (case (frame-ref frp system::FOFS_FTYPE :raw)
+  (case (frame-ref frp #.system::FOFS_FTYPE :raw)
     ((#.system::FRAME_SUBR)
      {:frame-type 'system::FRAME_SUBR
-      :subr        (frame-ref frp system::FOFS_SUBR_SUBR :lref)})
+      :subr        (frame-ref frp #.system::FOFS_SUBR_SUBR :lref)})
     ((#.system::FRAME_EVAL)
      {:frame-type   'system::FRAME_EVAL
-      :environment  (frame-ref frp system::FOFS_EVAL_ENV :lref)
-      :initial-form (frame-ref frp system::FOFS_EVAL_IFORM :lref)
-      :current-form (frame-ref frp system::FOFS_EVAL_FORM_PTR :lref-ptr)})
+      :environment  (frame-ref frp #.system::FOFS_EVAL_ENV :lref)
+      :initial-form (frame-ref frp #.system::FOFS_EVAL_IFORM :lref)
+      :current-form (frame-ref frp #.system::FOFS_EVAL_FORM_PTR :lref-ptr)})
     ((#.system::FRAME_STACK_BOUNDARY)
      {:frame-type 'system::FRAME_STACK_BOUNDARY
-      :tag        (frame-ref frp system::FOFS_BOUNDARY_TAG :lref)})
+      :tag        (frame-ref frp #.system::FOFS_BOUNDARY_TAG :lref)})
     ((#.system::FRAME_UNWIND)
      {:frame-type 'system::FRAME_UNWIND
-     :after-thunk (frame-ref frp system::FOFS_UNWIND_AFTER :lref)})
+     :after-thunk (frame-ref frp #.system::FOFS_UNWIND_AFTER :lref)})
     ((#.system::FRAME_ESCAPE)
      {:frame-type 'system::FRAME_ESCAPE
-      :tag        (frame-ref frp system::FOFS_ESCAPE_TAG :lref)})))
+      :tag        (frame-ref frp #.system::FOFS_ESCAPE_TAG :lref)})))
 
 ;;;; Stack Trace Capture and Display
 
@@ -277,19 +277,19 @@
   (error-with-stack (capture-stack frp) "Error Reading FASL File: ~s @ ~s:~s" desc port location))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_WRONG_TYPE trap-wrong-type)
-  (%set-trap-handler! system::TRAP_INDEX_OUT_OF_BOUNDS trap-index-out-of-bounds)
-  (%set-trap-handler! system::TRAP_ARG_OUT_OF_RANGE trap-arg-out-of-range)
-  (%set-trap-handler! system::TRAP_UNSUPPORTED trap-unsupported)
-  (%set-trap-handler! system::TRAP_UNIMPLEMENTED trap-unimplemented)
-  (%set-trap-handler! system::TRAP_DIVIDE_BY_ZERO trap-divide-by-zero)
-  (%set-trap-handler! system::TRAP_IO_ERROR trap-io-error)
-  (%set-trap-handler! system::TRAP_UNBOUND_GLOBAL trap-unbound-global)
-  (%set-trap-handler! system::TRAP_FAST_READ_ERROR trap-fast-read-error)
+  (%set-trap-handler! #.system::TRAP_WRONG_TYPE trap-wrong-type)
+  (%set-trap-handler! #.system::TRAP_INDEX_OUT_OF_BOUNDS trap-index-out-of-bounds)
+  (%set-trap-handler! #.system::TRAP_ARG_OUT_OF_RANGE trap-arg-out-of-range)
+  (%set-trap-handler! #.system::TRAP_UNSUPPORTED trap-unsupported)
+  (%set-trap-handler! #.system::TRAP_UNIMPLEMENTED trap-unimplemented)
+  (%set-trap-handler! #.system::TRAP_DIVIDE_BY_ZERO trap-divide-by-zero)
+  (%set-trap-handler! #.system::TRAP_IO_ERROR trap-io-error)
+  (%set-trap-handler! #.system::TRAP_UNBOUND_GLOBAL trap-unbound-global)
+  (%set-trap-handler! #.system::TRAP_FAST_READ_ERROR trap-fast-read-error)
 
-  (%set-trap-handler! system::TRAP_SIGNAL trap-signal)
-  (%set-trap-handler! system::TRAP_USER_BREAK trap-user-break)
-  (%set-trap-handler! system::TRAP_UNCAUGHT_THROW trap-uncaught-throw))
+  (%set-trap-handler! #.system::TRAP_SIGNAL trap-signal)
+  (%set-trap-handler! #.system::TRAP_USER_BREAK trap-user-break)
+  (%set-trap-handler! #.system::TRAP_UNCAUGHT_THROW trap-uncaught-throw))
 
 ;;;; Predicate checking
 

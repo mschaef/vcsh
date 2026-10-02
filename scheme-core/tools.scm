@@ -229,7 +229,7 @@
   (invoke-hook '*global-define-hook* symbol new-definition))
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (%set-trap-handler! system::TRAP_DEFINE trap-global-define-handler))
+  (%set-trap-handler! #.system::TRAP_DEFINE trap-global-define-handler))
 
 ;;;; The function tracer
 

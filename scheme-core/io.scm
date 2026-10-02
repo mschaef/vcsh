@@ -115,16 +115,16 @@ a port, an error will be signaled."
 ;;; I/O utilities
 
 (define (current-input-port)
-   (%control-field system::VMCTRL_CURRENT_INPUT_PORT))
+   (%control-field #.system::VMCTRL_CURRENT_INPUT_PORT))
 
 (define (current-output-port)
-   (%control-field system::VMCTRL_CURRENT_OUTPUT_PORT))
+   (%control-field #.system::VMCTRL_CURRENT_OUTPUT_PORT))
 
 (define (current-error-port)
-  (%control-field system::VMCTRL_CURRENT_ERROR_PORT))
+  (%control-field #.system::VMCTRL_CURRENT_ERROR_PORT))
 
 (define (current-debug-port)
-  (%control-field system::VMCTRL_CURRENT_DEBUG_PORT))
+  (%control-field #.system::VMCTRL_CURRENT_DEBUG_PORT))
 
 (define (check-for-text-mode-input-port port)
   (runtime-check (and input-port? (not binary-port?)) port))
@@ -137,32 +137,32 @@ a port, an error will be signaled."
    value. Throws an error if <port> is not a text mode input port."
   (check-for-text-mode-input-port port)
   (begin-1
-   (%control-field system::VMCTRL_CURRENT_INPUT_PORT)
-   (%set-control-field system::VMCTRL_CURRENT_INPUT_PORT port)))
+   (%control-field #.system::VMCTRL_CURRENT_INPUT_PORT)
+   (%set-control-field #.system::VMCTRL_CURRENT_INPUT_PORT port)))
 
 (define (set-current-output-port port)
   "Sets the current standard output port to <port>, returning the previous
    value. Throws an error if <port> is not a text mode output port."
   (check-for-text-mode-output-port port)
   (begin-1
-   (%control-field system::VMCTRL_CURRENT_OUTPUT_PORT)
-   (%set-control-field system::VMCTRL_CURRENT_OUTPUT_PORT port)))
+   (%control-field #.system::VMCTRL_CURRENT_OUTPUT_PORT)
+   (%set-control-field #.system::VMCTRL_CURRENT_OUTPUT_PORT port)))
 
 (define (set-current-error-port port)
   "Sets the current standard error port to <port>, returning the previous
    value. Throws an error if <port> is not a text mode output port."
   (check-for-text-mode-output-port port)
   (begin-1
-   (%control-field system::VMCTRL_CURRENT_ERROR_PORT)
-   (%set-control-field system::VMCTRL_CURRENT_ERROR_PORT port)))
+   (%control-field #.system::VMCTRL_CURRENT_ERROR_PORT)
+   (%set-control-field #.system::VMCTRL_CURRENT_ERROR_PORT port)))
 
 (define (set-current-debug-port port)
   "Sets the current standard debug port to <port>, returning the previous
    value. Throws an error if <port> is not a text mode output port."
   (check-for-text-mode-output-port port)
   (begin-1
-   (%control-field system::VMCTRL_CURRENT_DEBUG_PORT)
-   (%set-control-field system::VMCTRL_CURRENT_DEBUG_PORT port)))
+   (%control-field #.system::VMCTRL_CURRENT_DEBUG_PORT)
+   (%set-control-field #.system::VMCTRL_CURRENT_DEBUG_PORT port)))
 
 (define (port-location port)
   "Returns the location of <port> as a cons cell, with the row in the
