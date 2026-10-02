@@ -27,6 +27,7 @@ enum lref_tag_t
      LREF1_TAG_SHIFT = 2,
      LREF1_REF = 0x0,
      LREF1_FIXNUM = 0x1,
+     LREF1_FLONUM = 0x2,        /*  immediate flonum, see FLONUM_IMMEDIATE */
      LREF1_SPECIAL = 0x3,       /*  signals second stage tagging */
 
      /* Second tagging stage, least sig five bits. */
@@ -99,6 +100,74 @@ INLINE intptr_t LREF2_VAL(lref_t ref)
 INLINE bool LREF_IMMEDIATE_P(lref_t ref)
 {
      return LREF1_TAG(ref) != LREF1_REF;
+}
+
+/*** Immediate flonums ***
+ *
+ * Most doubles are stored directly in the lref_t, using the same
+ * encoding as Ruby's "flonum". A double whose top three exponent bits
+ * (bits 62..60) are 011 or 100 has a magnitude in [2^-255, 2^257),
+ * roughly 1.7e-77 to 2.3e77. Rotating it left by three bits moves the sign and the top
+ * two exponent bits into bits 2..0. Bits 1..0 are then replaced by the
+ * LREF1_FLONUM tag. That loses the top two exponent bits, but they can
+ * be recovered from the third (now bit 63): 011 if it is set, 100 if
+ * it is clear. The encoding is lossless.
+ *
+ * +0.0 has its own encoding. The one in-range double that would encode
+ * to the same value (+2^-255, bit pattern 0x3000000000000000) is boxed
+ * instead. Everything else out of range (-0.0, very small or
+ * large magnitudes, infinities and NaNs) is boxed as a TC_FLONUM cell.
+ */
+
+#define FLONUM_IMMEDIATE_ZERO ((uint64_t)0x8000000000000002ULL)
+
+INLINE uint64_t FLONUM_TO_BITS(double d)
+{
+     union { double d; uint64_t u; } c;
+     c.d = d;
+     return c.u;
+}
+
+INLINE double BITS_TO_FLONUM(uint64_t u)
+{
+     union { double d; uint64_t u; } c;
+     c.u = u;
+     return c.d;
+}
+
+INLINE bool FLONUM_IMMEDIATE(double d, lref_t *result)
+{
+     uint64_t bits = FLONUM_TO_BITS(d);
+     unsigned int top = (unsigned int)((bits >> 60) & 0x7);
+
+     if ((bits != (uint64_t)0x3000000000000000ULL) && (((top - 3) & ~1u) == 0))
+     {
+          uint64_t rotated = (bits << 3) | (bits >> 61);
+
+          *result = (lref_t)(uintptr_t)((rotated & ~(uint64_t)0x3) | LREF1_FLONUM);
+          return true;
+     }
+
+     if (bits == 0)
+     {
+          *result = (lref_t)(uintptr_t)FLONUM_IMMEDIATE_ZERO;
+          return true;
+     }
+
+     return false;
+}
+
+INLINE double FLONUM_IMMEDIATE_VALUE(lref_t ref)
+{
+     uint64_t v = (uint64_t)(uintptr_t)ref;
+
+     if (v == FLONUM_IMMEDIATE_ZERO)
+          return 0.0;
+
+     uint64_t b63 = v >> 63;
+     uint64_t u = (2 - b63) | (v & ~(uint64_t)0x3);
+
+     return BITS_TO_FLONUM((u >> 3) | (u << 61));
 }
 
 /*** Procedure data types ***/
@@ -280,6 +349,8 @@ INLINE enum typecode_t TYPE(lref_t object)
           return NULLP(object) ? TC_NIL : object->header.type;
      else if (LREF1_TAG(object) == LREF1_FIXNUM)
           return TC_FIXNUM;
+     else if (LREF1_TAG(object) == LREF1_FLONUM)
+          return TC_FLONUM;
      else
      {
           if (LREF2_TAG(object) == LREF2_BOOL)
@@ -304,7 +375,7 @@ INLINE bool UNBOUND_MARKER_P(lref_t x)   { return EQ(x, UNBOUND_MARKER);        
 INLINE bool FREE_CELL_P(lref_t x)        { return REFTYPEP(x, TC_FREE_CELL);                                            }
 INLINE bool CONSP(lref_t x)              { return REFTYPEP(x, TC_CONS);                                                 }
 INLINE bool SYMBOLP(lref_t x)            { return REFTYPEP(x, TC_SYMBOL);                                               }
-INLINE bool FLONUMP(lref_t x)            { return REFTYPEP(x, TC_FLONUM);                                               }
+INLINE bool FLONUMP(lref_t x)            { return (LREF1_TAG(x) == LREF1_FLONUM) || REFTYPEP(x, TC_FLONUM);             }
 INLINE bool COMPLEXP(lref_t x)           { return REFTYPEP(x, TC_COMPLEX);                                              }
 INLINE bool REALP(lref_t x)              { return (FIXNUMP(x) || FLONUMP(x));                                           }
 INLINE bool INEXACTP(lref_t x)           { return (FLONUMP(x) || COMPLEXP(x));                                          }
@@ -398,6 +469,10 @@ INLINE fixnum_t FIXNM(lref_t x)
 INLINE flonum_t FLONM(lref_t x)
 {
      checked_assert(FLONUMP(x));
+
+     if (LREF1_TAG(x) == LREF1_FLONUM)
+          return FLONUM_IMMEDIATE_VALUE(x);
+
      return x->as.flonum.data;
 }
 

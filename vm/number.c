@@ -41,7 +41,12 @@ lref_t fixcons(fixnum_t x)
 
 lref_t flocons(flonum_t re)
 {
-     lref_t val = new_cell(TC_FLONUM);
+     lref_t val;
+
+     if (FLONUM_IMMEDIATE(re, &val))
+          return val;
+
+     val = new_cell(TC_FLONUM);
 
      val->as.flonum.data = re;
 
@@ -317,8 +322,22 @@ MAKE_NUMBER_COMPARISON_FN(lnum_lt, <, "<");
 
 /* The basic four operations **********************************/
 
+/* Each of the binary operations below checks for two fixnums first, so
+ * that fixnum arithmetic doesn't pay for the flonum and complex type
+ * checks. Past that point, at least one argument is inexact. */
+
 lref_t ladd(lref_t x, lref_t y)
 {
+     if (FIXNUMP(x) && FIXNUMP(y)) {
+          fixnum_t xf = FIXNM(x);
+          fixnum_t yf = FIXNM(y);
+
+          if (((yf > 0) && (xf > (FIXNUM_MAX-yf))) || ((yf < 0) && (xf < (FIXNUM_MIN-yf))))
+               return vmtrap(TRAP_OVERFLOW_FIXNUM_ADD, VMT_MANDATORY_TRAP, 2, x, y);
+
+          return fixcons(xf + yf);
+     }
+
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
 
@@ -328,31 +347,29 @@ lref_t ladd(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (INEXACTP(x) || INEXACTP(y)) {
-          flonum_t xre, xim;
-          flonum_t yre, yim;
+     flonum_t xre, xim;
+     flonum_t yre, yim;
 
-          bool x_complex = get_c_complex(x, &xre, &xim);
-          bool y_complex = get_c_complex(y, &yre, &yim);
+     bool x_complex = get_c_complex(x, &xre, &xim);
+     bool y_complex = get_c_complex(y, &yre, &yim);
 
-          if (x_complex || y_complex) {
-               return cmplxcons(xre + yre, xim + yim);
-          } else {
-               return flocons(xre + yre);
-          }
-     }
-
-     fixnum_t xf = FIXNM(x);
-     fixnum_t yf = FIXNM(y);
-
-     if (((yf > 0) && (xf > (FIXNUM_MAX-yf))) || ((yf < 0) && (xf < (FIXNUM_MIN-yf))))
-          return vmtrap(TRAP_OVERFLOW_FIXNUM_ADD, VMT_MANDATORY_TRAP, 2, x, y);
-
-     return fixcons(xf + yf);
+     if (x_complex || y_complex)
+          return cmplxcons(xre + yre, xim + yim);
+     else
+          return flocons(xre + yre);
 }
 
 lref_t lsubtract(lref_t x, lref_t y)
 {
+     if (FIXNUMP(x) && FIXNUMP(y)) {
+          fixnum_t xf = FIXNM(x);
+          fixnum_t yf = FIXNM(y);
+
+          if ((yf > 0 && xf < FIXNUM_MIN + yf) || (yf < 0 && xf > FIXNUM_MAX + yf))
+               return vmtrap(TRAP_OVERFLOW_FIXNUM_SUBTRACT, VMT_MANDATORY_TRAP, 2, x, y);
+
+          return fixcons(xf - yf);
+     }
 
      flonum_t xre, xim;
      flonum_t yre, yim;
@@ -384,27 +401,45 @@ lref_t lsubtract(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (INEXACTP(x) || INEXACTP(y)) {
-          x_complex = get_c_complex(x, &xre, &xim);
-          y_complex = get_c_complex(y, &yre, &yim);
+     x_complex = get_c_complex(x, &xre, &xim);
+     y_complex = get_c_complex(y, &yre, &yim);
 
-          if (x_complex || y_complex)
-               return cmplxcons(xre - yre, xim - yim);
-          else
-               return flocons(xre - yre);
-     }
-
-     fixnum_t xf = FIXNM(x);
-     fixnum_t yf = FIXNM(y);
-
-     if ((yf > 0 && xf < FIXNUM_MIN + yf) || (yf < 0 && xf > FIXNUM_MAX + yf))
-          return vmtrap(TRAP_OVERFLOW_FIXNUM_SUBTRACT, VMT_MANDATORY_TRAP, 2, x, y);
-
-     return fixcons(xf - yf);
+     if (x_complex || y_complex)
+          return cmplxcons(xre - yre, xim - yim);
+     else
+          return flocons(xre - yre);
 }
 
 lref_t lmultiply(lref_t x, lref_t y)
 {
+     if (FIXNUMP(x) && FIXNUMP(y)) {
+          fixnum_t xf = FIXNM(x);
+          fixnum_t yf = FIXNM(y);
+
+          if (xf > 0) {
+               if (yf > 0) {
+                    if (xf > (FIXNUM_MAX / yf)) {
+                         return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
+                    }
+               } else {
+                    if (yf < (FIXNUM_MIN / xf)) {
+                         return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
+                    }
+               }
+          } else {
+               if (yf > 0) {
+                    if (xf < (FIXNUM_MIN / yf)) {
+                         return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
+                    }
+               } else {
+                    if ( (xf != 0) && (yf < (FIXNUM_MAX / xf))) {
+                         return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
+                    }
+               }
+          }
+
+          return fixcons(xf * yf);
+     }
 
      if (!NUMBERP(x))
           vmerror_wrong_type_n(1, x);
@@ -415,46 +450,16 @@ lref_t lmultiply(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (INEXACTP(x) || INEXACTP(y)) {
-          flonum_t xre, xim;
-          flonum_t yre, yim;
-          bool x_complex, y_complex;
+     flonum_t xre, xim;
+     flonum_t yre, yim;
 
-          x_complex = get_c_complex(x, &xre, &xim);
-          y_complex = get_c_complex(y, &yre, &yim);
+     bool x_complex = get_c_complex(x, &xre, &xim);
+     bool y_complex = get_c_complex(y, &yre, &yim);
 
-          if (x_complex || y_complex)
-               return cmplxcons(xre * yre - xim * yim, xre * yim + xim * yre);
-          else
-               return flocons(xre * yre);
-     }
-
-     fixnum_t xf = FIXNM(x);
-     fixnum_t yf = FIXNM(y);
-
-     if (xf > 0) {
-          if (yf > 0) {
-               if (xf > (FIXNUM_MAX / yf)) {
-                    return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
-               }
-          } else {
-               if (yf < (FIXNUM_MIN / xf)) {
-                    return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
-               }
-          }
-     } else {
-          if (yf > 0) {
-               if (xf < (FIXNUM_MIN / yf)) {
-                    return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
-               }
-          } else {
-               if ( (xf != 0) && (yf < (FIXNUM_MAX / xf))) {
-                    return vmtrap(TRAP_OVERFLOW_FIXNUM_MULTIPLY, VMT_MANDATORY_TRAP, 2, x, y);
-               }
-          }
-     }
-
-     return fixcons(xf * yf);
+     if (x_complex || y_complex)
+          return cmplxcons(xre * yre - xim * yim, xre * yim + xim * yre);
+     else
+          return flocons(xre * yre);
 }
 
 

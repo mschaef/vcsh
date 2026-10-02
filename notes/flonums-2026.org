@@ -59,13 +59,14 @@ the representation before or alongside that work, and before any Rust
 port.
 
 * Options
-** A. Immediate flonums in the unused 10 tag (recommended)
+** A. Immediate flonums in the unused 10 tag (prototyped)
 Ruby's "flonum" encoding (since 1.9/2.0) fits vcsh's tag layout:
 fixnum = 01, flonum = 10, same 2-bit mask.
-- Encode: if bits 62..60 of the double are 011 or 100 (exponent
-  roughly 2^-255 .. 2^256, about 1.7e-77 to 1.2e77), rotate the 64 bits
-  left by 3, clear bit 0, set bit 1. +0.0 gets a reserved encoding.
-  Everything else (-0.0, tiny, huge, inf, NaN) stays boxed as today.
+- Encode: if bits 62..60 of the double are 011 or 100 (magnitude in
+  [2^-255, 2^257), about 1.7e-77 to 2.3e77), rotate the 64 bits left
+  by 3, clear bit 0, set bit 1. +0.0 gets a reserved encoding, so +2^-255
+  (which would collide with it) is boxed. Everything else (-0.0, tiny,
+  huge, inf, NaN) stays boxed as today.
 - Decode: rotate right by 3 after restoring the dropped exponent bit
   from bit 63. A handful of ALU ops, lossless, full double precision.
 - Nearly all values in real workloads are immediate: no allocation, no
@@ -82,8 +83,9 @@ fixnum = 01, flonum = 10, same 2-bit mask.
 - Semantics: eq? becomes true for some equal floats and not others.
   R5RS leaves eq? on numbers unspecified, but check that scheme-core
   doesn't rely on flonums being distinct objects.
-- Needs B first, since an immediate has no room for im_part. B is
-  prototyped on branch complex-type (see below).
+- Needs B first, since an immediate has no room for im_part.
+- Prototyped on branch immediate-flonums, which builds on complex-type;
+  see "Prototype of option A" below.
 
 ** B. Give complex numbers their own type (prototyped)
 New TC_COMPLEX cell holding two inline doubles; TC_FLONUM holds only a
@@ -170,9 +172,81 @@ NaN payloads.
 arithmetic now costs the same as real flonum arithmetic; real flonum
 code is unchanged, as expected.
 
+* Prototype of option A (branch immediate-flonums, 2026-10-02)
+** What changed
+- Smaller than estimated: everything goes through FLONUMP, FLONM and
+  flocons, so only those and TYPE() needed to change.
+  - scan-types.h: LREF1_FLONUM = 0x2; FLONUM_IMMEDIATE (encode, returns
+    false when the value must be boxed) and FLONUM_IMMEDIATE_VALUE
+    (decode); TYPE() maps the tag to TC_FLONUM; FLONUMP accepts either
+    form; FLONM decodes immediates.
+  - number.c: flocons returns an immediate when it can. ladd,
+    lsubtract and lmultiply check for two fixnums first, before any
+    other type tests (see Measurements).
+  - vm-tests.c: bit-exact round-trip tests through flocons/FLONM for
+    boundary values (both ends of the range, the +2^-255 collision,
+    -0.0, denormals, DBL_MAX, infinities, NaN payloads), every exponent
+    with several mantissas, and 2M pseudo-random bit patterns.
+- Nothing else needed changing: the GC skips immediates, sxhash goes
+  through FLONM, %typecode goes through TYPE(), and FASL writes values.
+  Builds with the existing scc0 image.
+- Tests: 7399 Scheme checks and the VM tests pass, DEBUG and CHECKED.
+
+** Behavior changes
+- eq? is now #t for equal immediate flonums, e.g. (eq? 1.5 (+ 1.0
+  0.5)), and still #f for equal boxed ones (-0.0, 1e300, NaN). eqv?,
+  equal? and = are unchanged. An identity hash table now finds an
+  immediate flonum key by value. No test or library code relied on the
+  old behavior.
+- %immediate? is #t for immediate flonums, so the printer and
+  fast-write treat them as unshared, as they do fixnums.
+- %obaddr of an immediate flonum returns a meaningless number (the
+  encoding doesn't fit in a fixnum). Only the printer uses %obaddr, for
+  unprintable objects, so this doesn't show up.
+
+** Measurements
+RELEASE build (-O3), before = complex-type, after = immediate-flonums
+with the fixnum-first check. Best of 6 interleaved runs (the VM is
+noisy; medians agree except where noted):
+| Benchmark            | before  | after   | change |
+|----------------------+---------+---------+--------|
+| fixnum (+ acc 1)     | 0.282 s | 0.282 s | 0%     |
+| flonum (+ acc 1.0)   | 0.301 s | 0.292 s | -3%    |
+| fixnum *+ loop       | 0.331 s | 0.328 s | -1% (a) |
+| flonum *+ loop       | 0.368 s | 0.345 s | -6%    |
+| mandelbrot 200x200   | 0.409 s | 0.368 s | -10%   |
+(a) Medians were 0.334 vs 0.351 s (+5%), but runs on both sides ranged
+    from about 0.33 to 0.37 s, so this one needs a quieter machine to
+    settle.
+
+DEBUG build, cells allocated:
+| Benchmark                  | before | after |
+|----------------------------+--------+-------|
+| flonum (+ acc 1.0), 2M     | 10.0M  | 8.0M  |
+| flonum *+ loop, 2M         | 12.0M  | 8.0M  |
+| mandelbrot 200x200         | 11.4M  | 4.1M  |
+| sum a 1000-float vector 1K | 1.0M   | 16K   |
+| fill 600K-float vector     | 600K   | 13    |
+- Float loops now allocate exactly as much as the fixnum versions (all
+  remaining allocation is the evaluator's argument lists and frames),
+  and run within 2-4% of them. Mandelbrot GC time halved.
+- Filling a 600K-element vector with floats no longer grows the heap
+  (1 segment instead of 2).
+- Without the fixnum-first check, fixnum loops were 1-2% slower (0.287
+  -> 0.290 s and 0.334 -> 0.340 s, median of 3), because the arithmetic
+  subrs tested INEXACTP before the fixnum path and FLONUMP now checks
+  the tag before the cell type. With the check, fixnum loops are back
+  to where they were. The comparison functions (=, <, ...) still go
+  through common_number_type; the planned fixnum fast-ops would cover
+  them.
+- As the evaluator gets faster (performance-2026.org items 1-3), boxing
+  would have become a larger share of float code, so the relative
+  benefit of A grows.
+
 * Future work and open decisions
 ** Decisions
-- Merge complex-type to master, or revise first.
+- Merge complex-type to master, or revise first. Then
+  immediate-flonums, which builds on it.
 - Where fixnum sits in the class graph. It is directly under number, so
   a method on complex doesn't apply to fixnums even though every fixnum
   is a complex number. Options: put fixnum under complex, or add a
@@ -184,9 +258,12 @@ code is unchanged, as expected.
   <=, >= should probably raise wrong-type for a non-real argument.
 - Whether get_c_flonum should raise on a complex argument instead of
   returning the real part (see the REVISIT list below).
-- Option A: whether -0.0 gets a reserved immediate encoding like +0.0
-  or stays boxed, and whether the eq? change (some equal floats become
-  eq?) is acceptable.
+- Option A:
+  - Whether the eq? change is acceptable: equal immediate flonums are
+    eq?, equal boxed ones (-0.0, out-of-range, NaN) are not.
+  - Whether -0.0 should get a reserved immediate encoding like +0.0, so
+    that all common values avoid allocation.
+  - %obaddr on immediates: leave, return #f, or return the raw bits.
 - Which of options C, D and E to pursue, and when (see "Suggested
   order").
 
@@ -212,7 +289,8 @@ code is unchanged, as expected.
 
 * Suggested order
 1. B (complex as its own type): prototyped; merge once reviewed.
-2. A (immediate flonums): removes most of the allocation and memory cost.
+2. A (immediate flonums): prototyped; removes nearly all flonum
+   allocation. Merge after B.
 3. C, together with the fixnum fast-ops / bytecode work.
 4. D if bulk numeric data becomes a real use case. E as filler.
 
@@ -220,8 +298,9 @@ code is unchanged, as expected.
 sxhash hashed a flonum as get_c_fixnum(obj), i.e. its truncated integer
 value, so every flonum in [0, 1) hashed to 0. It now hashes the mixed
 bit pattern, with -0.0/0.0 and all NaNs normalized to match equal?
-(sxhash_flonum in vm/hash-table.c). Note for option A: immediate
-flonums must keep using sxhash_flonum, not sxhash_eq-style bits.
+(sxhash_flonum in vm/hash-table.c). With option A, immediate flonums
+still hash through sxhash_flonum, so equal? keys hash the same whether
+boxed or immediate.
 
 * Benchmark source
 Run with: echo ':X' | scheme-core/vcsh flonum-bench.scm

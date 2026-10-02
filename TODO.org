@@ -55,7 +55,7 @@
 *** Cache lexical frames on the Lisp stack
 *** Add more FOPs for looping (FOP_WHILE_TRUE exists)
 *** Linear bytecode compiler
-*** Unbox flonums: complex as own type, then immediate flonums in tag 10 (notes/flonums-2026.org)
+*** Unbox flonums: complex as own type (branch complex-type), then immediate flonums in tag 10 (branch immediate-flonums); see notes/flonums-2026.org
 *** Possible long-term: port the VM to Rust (macros for subr definitions); see notes/history-and-direction.org
 *** Clean up FASL write; consider the restructuring noted at vm/fasl.c:20
 *** Move macros entirely to Lisp (vm/macro.c:16)
