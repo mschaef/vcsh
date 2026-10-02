@@ -367,6 +367,7 @@ lref_t lsystem_info()
      lhash_set(obj, keyword_intern(_T("build-type")), build_keyword);
 
      lhash_set(obj, keyword_intern(_T("vm-build-id")), strconsbuf(scan_vm_build_id_string()));
+     lhash_set(obj, keyword_intern(_T("vm-abi-hash")), lvm_abi_hash());
 
      lhash_set(obj, keyword_intern(_T("platform-name")),
                keyword_intern(sys_get_platform_name()));

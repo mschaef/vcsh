@@ -461,13 +461,108 @@ static void fast_read_closure(lref_t reader, lref_t * retval)
      *retval = lclosurecons(env, code, props);
 }
 
-static void fast_read_to_newline(lref_t reader)
+/*** FASL file header
+ *
+ * Compiled files start with a comment line:
+ *
+ *   #vcsh-fasl <format-version> <vm-abi-hash>
+ *
+ * '#' is a comment opcode, so readers that predate the header skip it.
+ * A file in a different format version is rejected. A file compiled for
+ * a different VM interface (vm_abi_hash, core.c) only gets a warning:
+ * most interface changes are additions, and the bootstrap compiler in
+ * scc0/ has to keep loading on newer VMs until it's refreshed.
+ */
+
+#define FASL_FORMAT_VERSION 1
+#define FASL_HEADER_TAG "vcsh-fasl "
+
+static void format_vm_abi_hash(_TCHAR *buf, size_t len)
 {
+     _sntprintf(buf, len, _T("%016" PRIx64), vm_abi_hash());
+}
+
+lref_t lfasl_header()
+{
+     _TCHAR hash[32];
+     _TCHAR buf[STACK_STRBUF_LEN];
+
+     format_vm_abi_hash(hash, sizeof(hash) / sizeof(_TCHAR));
+
+     _sntprintf(buf, STACK_STRBUF_LEN, _T("#") _T(FASL_HEADER_TAG) _T("%d %s\n"),
+                FASL_FORMAT_VERSION, hash);
+
+     return strconsbuf(buf);
+}
+
+lref_t lvm_abi_hash()
+{
+     _TCHAR hash[32];
+
+     format_vm_abi_hash(hash, sizeof(hash) / sizeof(_TCHAR));
+
+     return strconsbuf(hash);
+}
+
+static void check_fasl_header(lref_t reader, const _TCHAR *line)
+{
+     size_t tag_len = _tcslen(_T(FASL_HEADER_TAG));
+
+     if (strncmp(line, FASL_HEADER_TAG, tag_len) != 0)
+          return;
+
+     int version = 0;
+     _TCHAR file_hash[32];
+
+     if (sscanf(line + tag_len, "%d %31s", &version, file_hash) != 2)
+          vmerror_fast_read(_T("malformed FASL header"), reader, strconsbuf(line));
+
+     if (version != FASL_FORMAT_VERSION) {
+          _TCHAR msg[STACK_STRBUF_LEN];
+
+          _sntprintf(msg, STACK_STRBUF_LEN,
+                     _T("FASL format version %d is not supported (this VM reads version %d)"),
+                     version, FASL_FORMAT_VERSION);
+
+          /* Also reported directly: images loaded at startup (-Xinit-load)
+           * are read before any error handler is installed. */
+          dscwritef(DF_ALWAYS, (_T("; Error: ~a: ~cs\n"),
+                                lport_name(FASL_READER_PORT(reader)), msg));
+
+          vmerror_fast_read(msg, reader, fixcons(version));
+     }
+
+     _TCHAR vm_hash[32];
+
+     format_vm_abi_hash(vm_hash, sizeof(vm_hash) / sizeof(_TCHAR));
+
+     if (_tcscmp(file_hash, vm_hash) != 0)
+          dscwritef(DF_ALWAYS,
+                    (_T("; Warning: ~a was compiled for a different VM interface ")
+                     _T("(~cs; this VM is ~cs). Recompile it; for scc0, run 'make update' in scc0/.\n"),
+                     lport_name(FASL_READER_PORT(reader)), file_hash, vm_hash));
+}
+
+static void fast_read_comment(lref_t reader)
+{
+     _TCHAR line[128];
+     size_t len = 0;
      _TCHAR ch = _T('\0');
 
-     while ((ch != _T('\n')) && (ch != _T('\r')))
+     for (;;) {
           if (read_bytes(FASL_READER_PORT(reader), &ch, sizeof(_TCHAR)) == 0)
                break;
+
+          if ((ch == _T('\n')) || (ch == _T('\r')))
+               break;
+
+          if (len < (sizeof(line) / sizeof(_TCHAR)) - 1)
+               line[len++] = ch;
+     }
+
+     line[len] = _T('\0');
+
+     check_fasl_header(reader, line);
 }
 
 static void fast_read_macro(lref_t reader, lref_t * retval)
@@ -782,7 +877,7 @@ static void fast_read(lref_t reader, lref_t * retval, bool allow_loader_ops /* =
 
           case FASL_OP_COMMENT_1:
           case FASL_OP_COMMENT_2:
-               fast_read_to_newline(reader);
+               fast_read_comment(reader);
                current_read_complete = false;
                break;
 

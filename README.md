@@ -36,6 +36,14 @@ Switching settings rebuilds what's needed; there's no need for
 prints an `llvm-cov` summary (on macOS, add
 `LLVM_PROFDATA='xcrun llvm-profdata' LLVM_COV='xcrun llvm-cov'`).
 
+The Scheme image is compiled twice: first by the bootstrap compiler in
+`scc0/`, then by the result, which is what gets linked. `make
+bootstrap-check` compiles it a third time and checks that the output is
+byte-identical. `make update` in `scc0/` runs that check before
+refreshing the bootstrap images. The build date recorded in the image
+comes from `SOURCE_DATE_EPOCH`, which defaults to the last commit's
+time.
+
 The `checked` and sanitizer builds use more C stack per Scheme call,
 and can hit vcsh's stack limit in the test suite. Running the tests
 with `(scheme::%set-stack-limit #f)` gets around that.

@@ -15,7 +15,7 @@
 
 include config.mk
 
-.PHONY: tested vcsh-tested vm-tested vcsh vm indented coverage
+.PHONY: tested vcsh-tested vm-tested vcsh vm indented coverage bootstrap-check
 
 all: vcsh
 
@@ -32,6 +32,10 @@ vcsh: vm
 
 vm:
 	$(MAKE) -r -C vm --jobs=2
+
+# Checks that the image reproduces itself; see scheme-core/Makefile.
+bootstrap-check: vcsh
+	$(MAKE) -r -C scheme-core bootstrap-check
 
 indented:
 	$(MAKE) -r -C vm indented

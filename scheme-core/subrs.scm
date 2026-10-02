@@ -271,5 +271,6 @@
 (%define write-binary-fixnum-s64 #.(host-scheme::%subr-by-name "write-binary-fixnum-s64"))
 (%define write-binary-flonum #.(host-scheme::%subr-by-name "write-binary-flonum"))
 (%define write-binary-string #.(host-scheme::%subr-by-name "write-binary-string"))
+(%define %fasl-header #.(host-scheme::%subr-by-name "%fasl-header"))
 (%define write-char #.(host-scheme::%subr-by-name "write-char"))
 (%define write-strings #.(host-scheme::%subr-by-name "write-strings"))

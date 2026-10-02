@@ -1,20 +1,18 @@
 # Makefile for scc0, the bootstrap compiler.  This assumes a
 # working non-bootstrap version
 
-.PHONY: all clean install revert
+.PHONY: all update clean revert
 
 SCHEME_PATH=../scheme-core
 
-SCC=${SCHEME_PATH}/vcsh --compile --initial-package:scheme
-
 all: update
 
+# Copies the current images, after checking that they reproduce
+# themselves (stage 2 = stage 3; see scheme-core/Makefile).
 update:
+	$(MAKE) -C .. bootstrap-check
 	cp ${SCHEME_PATH}/scheme.scf .
 	cp ${SCHEME_PATH}/compiler-run.scf .
-
-%.scf: %.scm Makefile
-	$(SCC) --cross-compile --output:$@ $<
 
 clean: 
 	rm -f *.scf *~

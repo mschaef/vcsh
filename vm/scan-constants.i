@@ -35,6 +35,15 @@
 #  define END_VM_CONSTANT_TABLE(table_name, name_fn_name) default: return NULL; } }
 #endif
 
+/* Defined when included inside vm_constants_abi_hash() (constants.c) to
+ * hash every table, constant name and value into h. */
+#ifdef CONST_C_HASH
+#  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name) h = abi_hash_string(h, #table_name);
+#  define VM_CONSTANT(name, value) h = abi_hash_string(h, #name); h = abi_hash_int(h, (int64_t)(value));
+#  define VM_ANON_CONSTANT(name, value) VM_CONSTANT(name, value)
+#  define END_VM_CONSTANT_TABLE(table_name, name_fn_name)
+#endif
+
 /* Defined to scheme source included by the scheme-core compile. */
 #ifdef CONST_SCHEME
 #  define BEGIN_VM_CONSTANT_TABLE(table_name, name_fn_name)

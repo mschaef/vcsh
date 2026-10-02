@@ -14,7 +14,16 @@
 
 ;; Capture some relevent attriutes of the image build.
 
-(define *scheme-build-date* #.(date->string (current-date) "~b ~d ~Y ~H:~M:~S"))
+;; SOURCE_DATE_EPOCH (seconds since 1970, the reproducible-builds.org
+;; convention) overrides the build date, so that compiling the same
+;; sources twice gives byte-identical images. The makefile sets it to the
+;; time of the last commit.
+(define *scheme-build-date*
+  #.(let ((epoch (environment-variable "SOURCE_DATE_EPOCH")))
+      (date->string (if epoch
+                        (tm%realtime->date (string->number epoch))
+                        (current-date))
+                    "~b ~d ~Y ~H:~M:~S")))
 
 (define *scheme-build-vm* #.(system-info :vm-build-id))
 

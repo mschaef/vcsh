@@ -28,6 +28,14 @@
 
 void sys_abnormally_terminate_vm(int rc);
 
+/* VM interface hashing (constants.c). */
+#define ABI_HASH_INIT UINT64_C(0xcbf29ce484222325)
+
+uint64_t abi_hash_bytes(uint64_t h, const void *data, size_t len);
+uint64_t abi_hash_string(uint64_t h, const char *str);
+uint64_t abi_hash_int(uint64_t h, int64_t value);
+uint64_t vm_constants_abi_hash(uint64_t h);
+
 #ifdef CHECKED
 #	define checked_assert(exp) assert(exp)
 #else

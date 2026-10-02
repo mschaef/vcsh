@@ -210,6 +210,40 @@ lref_t lisubr_table()
      return interp.subr_table;
 }
 
+/* A hash of the interface that compiled images depend on: every constant
+ * table in scan-constants.i (opcodes, type codes, traps, ...) and the
+ * name and arity of every subr. Written into FASL file headers, so that
+ * loading a file compiled for a different VM can be detected. Subrs are
+ * combined order-independently, since registration order doesn't matter
+ * to images. */
+uint64_t vm_abi_hash()
+{
+     static uint64_t hash = 0;
+     static bool computed = false;
+
+     if (computed)
+          return hash;
+
+     uint64_t h = vm_constants_abi_hash(ABI_HASH_INIT);
+     uint64_t subrs = 0;
+
+     hash_iter_t ii;
+     lref_t name, subr;
+
+     hash_iter_begin(interp.subr_table, &ii);
+     while (hash_iter_next(interp.subr_table, &ii, &name, &subr)) {
+          uint64_t sh = abi_hash_bytes(ABI_HASH_INIT, name->as.string.data,
+                                       name->as.string.dim * sizeof(_TCHAR));
+
+          subrs += abi_hash_int(sh, (int64_t)SUBR_TYPE(subr));
+     }
+
+     hash = abi_hash_int(h, (int64_t)subrs);
+     computed = true;
+
+     return hash;
+}
+
 /***** closures *****/
 
 lref_t lclosurecons(lref_t env, lref_t code, lref_t property_list)

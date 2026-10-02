@@ -20,6 +20,12 @@ never by the compiler in the current source. Compiler changes only reach
 the image after 'make update' in scc0/ and a rebuild. 343 of 1,948
 commits touch scc0/scheme.scf.
 
+Update (2026-10-02, branch bootstrap-predictability): improvements 1-3
+below are done. The image is now compiled twice: stage 1 by scc0 (into
+scheme-core/build/stage1/), stage 2 by the stage 1 image (scheme.scf and
+compiler-run.scf), and stage 2 is what's linked, so the shipped image is
+compiled by the current compiler.
+
 * Assessment 1: VM changes must be made in steps (confirmed)
 scc0 runs on the new VM, so everything the old image depends on is an
 interface the VM can't break until scc0 is refreshed:
@@ -80,31 +86,60 @@ Debugging trap: because host symbols are re-homed, they print with
 target package names.
 
 * Other predictability issues
-- scheme.scf has no prerequisites, and no .depend is checked in, so
-  editing a scheme-core source doesn't rebuild the image until
-  'make clean-scheme'. compiler-run.scf only depends on compiler-run.scm.
-- 'make update' in scc0/ copies a new 500 KB image without checking it.
-- Builds aren't reproducible: #.(current-date) in scheme.scm means two
-  builds of the same source differ, which rules out a fixpoint check.
+- [fixed] scheme.scf had no prerequisites, so editing a scheme-core source
+  didn't rebuild the image until 'make clean-scheme'.
+- [fixed] 'make update' in scc0/ copied a new 500 KB image without
+  checking it.
+- [fixed] Builds weren't reproducible: #.(current-date) in scheme.scm meant
+  two builds of the same source differed. Apart from the date, compiles
+  were already deterministic (checked byte for byte).
 - scc0/scc0 and scc0-good wrapper scripts are stale (already in TODO).
-- Note: scansh0 treats arguments starting with "/" as options (Windows
-  style), so absolute input paths are rejected. Fixed in main.scm
-  (2026-10-02); scansh0 picks it up when scc0 is next refreshed.
+- [fixed] scansh0 treated arguments starting with "/" as options (Windows
+  style). Fixed in main.scm, and the refreshed scc0 (9c6fff1) has it.
+- [fixed] The scheme-core Makefile passed --initial-package:scheme to the
+  compiler, an option removed long ago; every build printed "Unknown
+  command line argument: initial-package". Dropped (it was ignored).
 
 * Improvements, roughly in order
 ** Predictability (cheap)
-1. Real dependencies for scheme.scf: all scheme-core/*.scm,
+1. [done] Real dependencies for scheme.scf: all scheme-core/*.scm,
    vm/scan-constants.scm, scansh0 and the scc0 images. A wildcard is
    fine to start with.
-2. FASL header with a format version and a hash of scan-constants.i plus
-   the subr table (names and arity). The loader rejects a mismatch with a
-   clear message.
-3. Automate the second stage. Stage 1: scc0 compiles the image. Stage 2:
-   vcsh0 compiles it again, and that is shipped, so compiler changes take
-   effect in one build. 'make bootstrap-check' confirms stage 3 is
-   byte-identical to stage 2, and 'make update' copies only a checked
-   image. Needs the build date injectable (e.g. from the environment)
-   for reproducible output.
+   As built: each stage depends on scheme.scm, setup-image-compile.scm,
+   the files scheme.scm includes (taken from its include forms, so test
+   files don't trigger a rebuild), scansh0 and the previous stage's
+   images. compiler-run.scf depends on compiler-run.scm, scansh0 and the
+   previous stage's images.
+2. [done, with a change] FASL header with a format version and a hash of
+   scan-constants.i plus the subr table (names and arity). The loader
+   rejects a mismatch with a clear message.
+   As built: compiled files start with "#vcsh-fasl <version> <hash>". '#'
+   is a FASL comment opcode, so older readers skip the line. The hash
+   (vm_abi_hash, core.c) covers every scan-constants.i table, name and
+   value, plus every subr's name and arity; system-info :vm-abi-hash
+   shows it. A different format version is an error. A different hash is
+   only a warning naming the file: scc0 has to keep loading on newer VMs
+   until it's refreshed (Assessment 1), and most interface changes are
+   additions it can live with, so rejecting it would break the
+   bootstrap. Once scc0 carries a header (after the next 'make update'),
+   every build after a VM interface change warns that scc0 is stale.
+   scc0 images made before this change have no header and aren't
+   checked.
+3. [done] Automate the second stage. Stage 1: scc0 compiles the image.
+   Stage 2: vcsh0 compiles it again, and that is shipped, so compiler
+   changes take effect in one build. 'make bootstrap-check' confirms
+   stage 3 is byte-identical to stage 2, and 'make update' copies only a
+   checked image. Needs the build date injectable (e.g. from the
+   environment) for reproducible output.
+   As built: stage 2 runs scansh0 with the stage 1 .scf files rather than
+   vcsh0 (same thing, without linking). 'make bootstrap-check' (top level
+   or scheme-core/) builds stage 3 in build/stage3/ and compares with
+   cmp; 'make update' in scc0/ runs it first. The build date comes from
+   SOURCE_DATE_EPOCH (the reproducible-builds.org convention), which the
+   makefile sets to the last commit's time; outside a git checkout it
+   falls back to the current time, so bootstrap-check then needs
+   SOURCE_DATE_EPOCH set explicitly. Cost: about 6 s more per image
+   rebuild (debug build), for the second compile.
 ** Less crosstalk (moderate)
 4. Trim *shared-target-symbols* to syntax keywords and type names. member
    and the comparison functions are probably there for macro expansions

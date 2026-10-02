@@ -67,8 +67,14 @@
       (lambda () ,@code)
       (lambda () (commit-fasl-writes ,s)))))
 
+(define (write-fasl-header port)
+  "Writes the header line that starts a FASL file: a comment naming the
+   FASL format version and the interface hash of the VM it targets."
+  (write-binary-string (%fasl-header) port))
+
 (defmacro (with-fasl-file s filename . code)
   (with-gensyms (port-sym)
     `(with-port ,port-sym (open-file ,filename :mode :write :encoding :binary)
+       (write-fasl-header ,port-sym)
        (with-fasl-stream ,s ,port-sym
            ,@code))))

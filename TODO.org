@@ -32,16 +32,12 @@
 *** Verify directory tools on macOS and Linux
 
 ** Bootstrap (see notes/bootstrap-2026.org)
-*** scheme.scf has no prerequisites; add real dependencies on scheme-core sources, scan-constants, scansh0, scc0
-*** FASL header with format version and VM ABI hash (scan-constants.i + subr table); reject mismatches clearly
-*** Automate stage 2 (ship image compiled by vcsh0), add bootstrap-check fixpoint, make 'make update' copy only checked images
-*** Make builds reproducible: injectable build date instead of #.(current-date)
+*** Refresh scc0 ('make update' in scc0/) so it carries a FASL header; until then, stale-scc0 warnings can't fire
 *** Trim *shared-target-symbols*; host compiler currently calls the target's member
 *** Don't install trap handlers at compile time during image compiles
 *** Host FASL writer shouldn't read system:: constants at runtime
 *** Pin scc0 to its own VM (git revision + worktree build) so VM changes are one step
 *** Evaluate fewer definitions at compile time (CL-style compile-file semantics)
-*** scc0's image still treats arguments starting with "/" as options (fixed in main.scm; takes effect in scansh0 after the next scc0 refresh)
 
 ** Traps (see notes/traps-2026.org)
 *** Decide on trap rework: remove dead traps (0 BAD_APPLY, 3 SIGNAL, 4 TIMER_EVENT, 6 MSG_NOT_UNDERSTOOD), installation timing, central table
@@ -136,6 +132,7 @@
 *** CR+LF translation on text ports removed: line endings pass through; read-line and read-csv accept CR+LF; CR counts as an ordinary column everywhere; fixed peek-char double-counting CR columns on file ports
 *** port-translate-mode and set-port-translate-mode! subrs removed from the VM (after the scc0 refresh)
 *** Undefined behavior found by SANITIZE=undefined fixed (fixnum tagging, int32/int64 decoding, hashing, mt19937_int64), with VM tests for extreme encode/decode and fixnum values; sanitizer builds now stop at the first finding
+*** Bootstrap predictability: real image dependencies; two-stage image build (stage 2 is linked); 'make bootstrap-check' (stage 3 = stage 2); scc0 'make update' checks first; reproducible build date (SOURCE_DATE_EPOCH); FASL header with format version and VM interface hash
 
 * vcalc
   Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).

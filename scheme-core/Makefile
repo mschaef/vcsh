@@ -9,13 +9,11 @@
 # See the file "LICENSE" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-.PHONY: indented tested tested-aot
+.PHONY: indented tested tested-aot bootstrap-check
 
 TARGETS=scanlib.a vcsh
 
 include ../config.mk
-
-SCC0=../vm/scansh0 -Xinit-load=../scc0/scheme.scf -Xinit-load=../scc0/compiler-run.scf
 
 # Generated C sources (images converted by to-c-source), their objects,
 # and the standard library registration file all go here. Removed by
@@ -56,15 +54,71 @@ ${GEN_DIR}/scheme.c: scheme.scf ../vm/to-c-source | ${GEN_DIR}
 	echo \#include \"../../vm/scan-internal-file.h\" > $@
 	../vm/to-c-source scheme.scf >> $@
 
-scheme.scf:
-	$(SCC0) --load-file:setup-image-compile.scm scheme.scm
 
 ${GEN_DIR}/compiler-run.c: compiler-run.scf ../vm/to-c-source | ${GEN_DIR}
 	echo \#include \"../../vm/scan-internal-file.h\" > $@
 	../vm/to-c-source compiler-run.scf >> $@
 
-compiler-run.scf: compiler-run.scm
-	$(SCC0)  --initial-package:scheme compiler-run.scm
+#### Image bootstrap
+#
+# The image is compiled in two stages, and stage 2 is what gets linked
+# into vcsh0 and vcsh:
+#
+#   Stage 1: scc0 (an older image and compiler, run on the current VM)
+#            compiles the current sources.
+#   Stage 2: the stage 1 image compiles them again, so changes to the
+#            compiler take effect in a single build.
+#
+# 'make bootstrap-check' compiles a stage 3 with the stage 2 image and
+# checks that it is byte-identical to stage 2. 'make update' in scc0/
+# runs it before copying the images.
+#
+# SOURCE_DATE_EPOCH fixes the build date recorded in the image (see
+# scheme.scm), so that compiles of the same sources are identical. It
+# defaults to the time of the last commit.
+
+SOURCE_DATE_EPOCH ?= $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
+export SOURCE_DATE_EPOCH
+
+# The image is built from scheme.scm and the files it includes.
+IMAGE_SOURCES := scheme.scm setup-image-compile.scm \
+                 $(shell sed -n 's/^(include "\(.*\)")/\1/p' scheme.scm)
+
+STAGE1_DIR=${GEN_DIR}/stage1
+STAGE3_DIR=${GEN_DIR}/stage3
+
+SCC0_IMAGES=../scc0/scheme.scf ../scc0/compiler-run.scf
+STAGE1_IMAGES=${STAGE1_DIR}/scheme.scf ${STAGE1_DIR}/compiler-run.scf
+STAGE2_IMAGES=scheme.scf compiler-run.scf
+
+# Runs the compiler from the given scheme.scf and compiler-run.scf.
+COMPILE_WITH=../vm/scansh0 -Xinit-load=$(1)/scheme.scf -Xinit-load=$(1)/compiler-run.scf
+
+${STAGE1_DIR}/scheme.scf: ${IMAGE_SOURCES} ../vm/scansh0 ${SCC0_IMAGES} | ${STAGE1_DIR}
+	$(call COMPILE_WITH,../scc0) --load-file:setup-image-compile.scm --output:$@ scheme.scm
+
+${STAGE1_DIR}/compiler-run.scf: compiler-run.scm ../vm/scansh0 ${SCC0_IMAGES} | ${STAGE1_DIR}
+	$(call COMPILE_WITH,../scc0) --output:$@ compiler-run.scm
+
+scheme.scf: ${IMAGE_SOURCES} ../vm/scansh0 ${STAGE1_IMAGES}
+	$(call COMPILE_WITH,${STAGE1_DIR}) --load-file:setup-image-compile.scm --output:$@ scheme.scm
+
+compiler-run.scf: compiler-run.scm ../vm/scansh0 ${STAGE1_IMAGES}
+	$(call COMPILE_WITH,${STAGE1_DIR}) --output:$@ compiler-run.scm
+
+${STAGE3_DIR}/scheme.scf: ${IMAGE_SOURCES} ../vm/scansh0 ${STAGE2_IMAGES} | ${STAGE3_DIR}
+	$(call COMPILE_WITH,.) --load-file:setup-image-compile.scm --output:$@ scheme.scm
+
+${STAGE3_DIR}/compiler-run.scf: compiler-run.scm ../vm/scansh0 ${STAGE2_IMAGES} | ${STAGE3_DIR}
+	$(call COMPILE_WITH,.) --output:$@ compiler-run.scm
+
+bootstrap-check: ${STAGE3_DIR}/scheme.scf ${STAGE3_DIR}/compiler-run.scf
+	cmp scheme.scf ${STAGE3_DIR}/scheme.scf
+	cmp compiler-run.scf ${STAGE3_DIR}/compiler-run.scf
+	@echo "bootstrap-check: stage 2 and stage 3 images are identical."
+
+${STAGE1_DIR} ${STAGE3_DIR}:
+	mkdir -p $@
 
 ${GEN_DIR}:
 	mkdir -p ${GEN_DIR}
