@@ -312,9 +312,13 @@
            `(,predicate ,value))
           ((not (list? predicate))
            (error "Invalid predicate form in check: ~a" predicate))
-          ((member (car predicate) '(and or not))
+          ((not (symbol? (car predicate)))
+           (error "Invalid predicate clause, bad initial symbol: ~a" predicate))
+          ;; Operators are matched by name, so that this works on forms
+          ;; read into another package (an image compile's target).
+          ((member (symbol-name (car predicate)) '("and" "or" "not"))
            `(,(car predicate) ,@(map #L(expand-predicate _ value) (cdr predicate))))
-          ((member (car predicate) '(> >= < <= = eq? equal? member))
+          ((member (symbol-name (car predicate)) '(">" ">=" "<" "<=" "=" "eq?" "equal?" "member"))
            (unless (length=2? predicate)
              (error "Invalid conditional predicate: ~a" predicate))
            `(,(car predicate) ,value ,(cadr predicate)))
