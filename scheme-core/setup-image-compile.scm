@@ -22,45 +22,29 @@
 
 (compiler::compiler-trace #t ";;;; Configuring for cross compile of Scheme image.\n")
 
-(define *shared-target-symbols* ;; REVISIT: Better way to build this list? Please?
+;; Symbols the host and target share. Everything else in the target
+;; packages is a fresh symbol, so target definitions don't replace host
+;; ones. Each group is here because host code compares or binds it by
+;; identity while compiling target code:
+;;
+;; - The host compiler finds special-form and top-level form handlers by
+;;   symbol.
+;; - Type names: until class-graph.scm is compiled, target code run at
+;;   compile time uses the host's type-of, which returns host symbols.
+;;   Taken from the host's typecode map, so the list tracks the VM.
+;; - The package registry, so host and target agree on what exists.
+;; - it and _: host macros such as awhen and #L bind these around target
+;;   code that refers to them.
+(define *shared-target-symbols*
   (set-union (compiler::toplevel-file-form-symbols)
-             '(scheme::free-cell
-               scheme::nil
-               scheme::boolean
-               scheme::cons
-               scheme::fixnum
-               scheme::flonum
-               scheme::character
-               scheme::symbol
-               scheme::package
-               scheme::subr
-               scheme::closure
-               scheme::macro
-               scheme::string
-               scheme::vector
-               scheme::hash
-               scheme::port
-               scheme::end-of-file
-               scheme::values-tuple
-               scheme::unbound-marker
-               scheme::trip-wire
-               scheme::fast-op)
+             (compiler::special-form-symbols)
+             (let ((names ()))
+               (dohash (typecode name scheme::*typecode-map* names)
+                 (push! name names)))
              '(scheme::*package-list*
                scheme::*provided-packages*)
              '(scheme::it
-               scheme::_)
-             '(scheme::and
-               scheme::or
-               scheme::not
-               scheme::>
-               scheme::>=
-               scheme::<
-               scheme::<=
-               scheme::= 
-               scheme::eq?
-               scheme::equal?
-               scheme::member)
-             (compiler::special-form-symbols)))
+               scheme::_)))
 
 ;; Exclude packages that are in common between the host and the target.
 (define *excluded-packages*  (map find-package '("system" "keyword")))

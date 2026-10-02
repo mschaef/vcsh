@@ -66,6 +66,7 @@ both versions in between. Performance items 2 and 3
    an eval-when, fails inside that function, because the host's eval-when
    handler calls member. The others are rebound to subrs, which is
    harmless unless those subrs change.
+   [fixed: item 4 below no longer shares these symbols]
 3. The whole system package is shared. scan-constants.scm redefines
    system::FASL_OP_*, TRAP_*, etc. at compile time. Host code that reads
    them at runtime (fast-write.scm's FASL writer, compiler-file.scm's
@@ -145,10 +146,35 @@ target package names.
    the old date while stage 3 got the new one. Cost: about 6 s more per image
    rebuild (debug build), for the second compile.
 ** Less crosstalk (moderate)
-4. Trim *shared-target-symbols* to syntax keywords and type names. member
+4. [done] Trim *shared-target-symbols* to syntax keywords and type names. member
    and the comparison functions are probably there for macro expansions
    that compare symbols; needs checking, but sharing the symbol shouldn't
    be the fix.
+   As built: each group was tested by removing it and rebuilding.
+   - Special-form and top-level form keys: needed. The host compiler finds
+     handlers by symbol; without them stage 1 or stage 2 fails.
+   - it and _: needed. Host macros (awhen, #L) bind the host symbols
+     around target code that refers to the target ones ("Global variable
+     unbound: scheme::_", then a compile failure).
+   - Type names: needed. Until class-graph.scm is compiled, target code
+     run at compile time (an etypecase in character.scm) uses the host's
+     type-of, which returns host symbols. Now taken from the host's
+     *typecode-map* instead of a hand-kept list, which drops the stale
+     trip-wire and picks up complex and fasl-reader. Images unchanged.
+   - *package-list* and *provided-packages*: removing them leaves the
+     images byte-identical, but they are kept so host and target share
+     one package registry (the host reader has to find packages the
+     target creates).
+   - and, or, not, comparisons, eq?, equal?, member: only there because
+     runtime-check's expander matched its operators with
+     (member (car predicate) '(...)), i.e. by identity; without them
+     (runtime-check (>= 0) x) failed in list.scm. runtime-check now
+     matches by symbol-name (like CL's loop keywords), scc0 was refreshed
+     with that, and the group was removed. and and or are special forms,
+     so they stay shared through that group anyway.
+   Result: the image differs by 31 bytes (one more identical string
+   shared in the FASL), tests and bootstrap-check pass, and the member
+   reproduction in Assessment 2.2 now compiles cleanly.
 5. [done] Stop installing trap handlers at compile time: make those
    eval-whens :load-toplevel only, or have %set-trap-handler! refuse
    while an image compile is running.

@@ -32,8 +32,7 @@
 *** Verify directory tools on macOS and Linux
 
 ** Bootstrap (see notes/bootstrap-2026.org)
-*** Trim *shared-target-symbols*; host compiler currently calls the target's member
-*** Calling the target's format at compile time near the end of an image compile hangs or crashes the VM (notes/bootstrap-2026.org, item 5); look at with items 4 and 8
+*** Calling the target's format at compile time near the end of an image compile hangs or crashes the VM (notes/bootstrap-2026.org, item 5); look at with item 8
 *** Pin scc0 to its own VM (git revision + worktree build) so VM changes are one step
 *** Evaluate fewer definitions at compile time (CL-style compile-file semantics)
 
@@ -106,7 +105,7 @@
 *** Option to emit a global cross-reference file
 *** Share define-toplevel-form with define-special-form (compiler-file.scm:75)
 *** Restore *package* after compiling a file like call-as-loader does (compiler-file.scm:235)
-*** Better source for special-form-symbols and *shared-target-symbols* (compiler-meaning.scm:84, setup-image-compile.scm:25)
+*** Better source for special-form-symbols (compiler-meaning.scm:84)
 
 ** Tests
 *** CHECKED build overflows the stack in test-symbols; passes with (%set-stack-limit #f)
