@@ -65,7 +65,7 @@
 
 ** Numbers
 *** Bignums
-*** Complete complex arithmetic (flonums carry an imaginary part, but it isn't finished)
+*** Complete complex arithmetic and settle the number class graph; see notes/flonums-2026.org ("Future work and open decisions")
 *** Scheme versions of gcd and lcm (number.scm:121)
 *** Statistics that pass statistical reference data sets
 
@@ -112,6 +112,7 @@
 *** Better source for special-form-symbols and *shared-target-symbols* (compiler-meaning.scm:84, setup-image-compile.scm:25)
 
 ** Tests
+*** CHECKED build overflows the stack in test-symbols; passes with (%set-stack-limit #f)
 *** Tests for lrandom (number.c:1014) and substring with null end (test-string.scm:865)
 *** Case-sensitivity tests for string comparison (test-string.scm:154)
 *** unit-test: check-for and expected/actual value reporting (unit-test.scm:21)

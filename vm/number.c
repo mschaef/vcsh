@@ -44,17 +44,16 @@ lref_t flocons(flonum_t re)
      lref_t val = new_cell(TC_FLONUM);
 
      val->as.flonum.data = re;
-     val->as.flonum.im_part = NIL;
 
      return val;
 }
 
 lref_t cmplxcons(flonum_t re, flonum_t im)
 {
-     lref_t val = new_cell(TC_FLONUM);
+     lref_t val = new_cell(TC_COMPLEX);
 
-     val->as.flonum.data = re;
-     val->as.flonum.im_part = flocons(im);
+     val->as.complex.re = re;
+     val->as.complex.im = im;
 
      return val;
 }
@@ -69,7 +68,7 @@ fixnum_t get_c_fixnum(lref_t x)
      if (FIXNUMP(x))
           return FIXNM(x);
      else
-          return (fixnum_t)FLONM(x);
+          return (fixnum_t)get_c_flonum(x);
 }
 
 long get_c_long(lref_t x)
@@ -84,6 +83,8 @@ flonum_t get_c_flonum(lref_t x)
 
      if (FLONUMP(x))
           return FLONM(x);
+     else if (COMPLEXP(x))
+          return CMPLXRE(x); /* REVISIT: Silently drops the imaginary part. */
      else
           return (double)FIXNM(x);
 }
@@ -98,14 +99,14 @@ bool get_c_complex(lref_t x, flonum_t *re, flonum_t *im)
 
      if (FLONUMP(x)) {
           *re = FLONM(x);
+          *im = 0.0;
+          return false;
+     }
 
-          if (COMPLEXP(x)) {
-               *im = CMPLXIM(x);
-               return true;
-          } else {
-               *im = 0.0;
-               return false;
-          }
+     if (COMPLEXP(x)) {
+          *re = CMPLXRE(x);
+          *im = CMPLXIM(x);
+          return true;
      }
 
      vmerror_wrong_type(x);
@@ -167,7 +168,7 @@ lref_t lexactp(lref_t x)
 
 lref_t linexactp(lref_t x)
 {
-     if (FLONUMP(x))
+     if (INEXACTP(x))
           return x;
      else
           return boolcons(false);
@@ -176,12 +177,10 @@ lref_t linexactp(lref_t x)
 lref_t lnanp(lref_t x)
 {
      if (FLONUMP(x))
-     {
-          if (COMPLEXP(x))
-               return (isnan(FLONM(x)) || isnan(FLONM(FLOIM(x)))) ? x : boolcons(false);
-          else
-               return isnan(FLONM(x)) ? x : boolcons(false);
-     }
+          return isnan(FLONM(x)) ? x : boolcons(false);
+
+     if (COMPLEXP(x))
+          return (isnan(CMPLXRE(x)) || isnan(CMPLXIM(x))) ? x : boolcons(false);
 
      return boolcons(false);
 }
@@ -189,12 +188,10 @@ lref_t lnanp(lref_t x)
 lref_t linfinitep(lref_t x)
 {
      if (FLONUMP(x))
-     {
-          if (COMPLEXP(x))
-               return (!isfinite(FLONM(x)) || !isfinite(FLONM(FLOIM(x)))) ? x : boolcons(false);
-          else
-               return !isfinite(FLONM(x)) ? x : boolcons(false);
-     }
+          return !isfinite(FLONM(x)) ? x : boolcons(false);
+
+     if (COMPLEXP(x))
+          return (!isfinite(CMPLXRE(x)) || !isfinite(CMPLXIM(x))) ? x : boolcons(false);
 
      return boolcons(false);
 }
@@ -217,8 +214,12 @@ lref_t linexact2exact(lref_t x)
 
      if (FIXNUMP(x))
           return x;
-     else if ((FLONM(x) >= FIXNUM_MIN) && (FLONM(x) <= FIXNUM_MAX))
-          return FLONUMP(x) ? fixcons((fixnum_t) FLONM(x)) : x;
+
+     /* REVISIT: Complex numbers convert via their real part. */
+     flonum_t re = get_c_flonum(x);
+
+     if ((re >= FIXNUM_MIN) && (re <= FIXNUM_MAX))
+          return fixcons((fixnum_t) re);
      else
           return boolcons(false);
 }
@@ -242,7 +243,7 @@ static enum typecode_t common_number_type(size_t argc, lref_t argv[])
                if ((type == TC_NIL) || (type == TC_CHARACTER))
                     type = TC_FIXNUM;
                
-          } else if (FLONUMP(arg)) {
+          } else if (INEXACTP(arg)) { /* REVISIT: Complex compares by real part. */
                if ((type == TC_NIL) || (type == TC_CHARACTER) || (type == TC_FIXNUM))
                     type = TC_FLONUM;
                
@@ -327,7 +328,7 @@ lref_t ladd(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (FLONUMP(x) || FLONUMP(y)) {
+     if (INEXACTP(x) || INEXACTP(y)) {
           flonum_t xre, xim;
           flonum_t yre, yim;
 
@@ -369,7 +370,7 @@ lref_t lsubtract(lref_t x, lref_t y)
 
                return fixcons(-xf);
           } else {
-               assert(FLONUMP(x));
+               assert(INEXACTP(x));
 
                x_complex = get_c_complex(x, &xre, &xim);
 
@@ -383,12 +384,12 @@ lref_t lsubtract(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (FLONUMP(x) || FLONUMP(y)) {
+     if (INEXACTP(x) || INEXACTP(y)) {
           x_complex = get_c_complex(x, &xre, &xim);
           y_complex = get_c_complex(y, &yre, &yim);
 
           if (x_complex || y_complex)
-               cmplxcons(xre - yre, xim - yim);
+               return cmplxcons(xre - yre, xim - yim);
           else
                return flocons(xre - yre);
      }
@@ -414,7 +415,7 @@ lref_t lmultiply(lref_t x, lref_t y)
      if (!NUMBERP(y))
           vmerror_wrong_type_n(2, y);
 
-     if (FLONUMP(x) || FLONUMP(y)) {
+     if (INEXACTP(x) || INEXACTP(y)) {
           flonum_t xre, xim;
           flonum_t yre, yim;
           bool x_complex, y_complex;
@@ -595,7 +596,7 @@ lref_t lfloor(lref_t x)
      if (FIXNUMP(x))
           return x;
      else
-          return flocons(floor(FLONM(x)));
+          return flocons(floor(get_c_flonum(x)));
 }
 
 lref_t lceiling(lref_t x)
@@ -606,7 +607,7 @@ lref_t lceiling(lref_t x)
      if (FIXNUMP(x))
           return x;
      else
-          return flocons(ceil(FLONM(x)));
+          return flocons(ceil(get_c_flonum(x)));
 }
 
 double round(double n)
@@ -625,7 +626,7 @@ lref_t lroundnum(lref_t x)
      if (FIXNUMP(x))
           return x;
      else
-          return flocons(round(FLONM(x)));
+          return flocons(round(get_c_flonum(x)));
 }
 
 lref_t ltruncate(lref_t x)
@@ -636,7 +637,7 @@ lref_t ltruncate(lref_t x)
      if (FIXNUMP(x))
           return x;
      else
-          return flocons(truncate(FLONM(x)));
+          return flocons(truncate(get_c_flonum(x)));
 }
 
 /* Bitwise operations *****************************************/
@@ -766,12 +767,10 @@ lref_t lexp(lref_t x)
 
      complex_x = get_c_complex(x, &xre, &xim);
 
-     if (complex_x) {
-          /*  e^(y+xi) =  e^y (cos x + i sin x) */
-          return cmplxcons(xre * cos(xim), xre * sin(xim));
-     } else {
-          return flocons(exp(xre));
-     }
+     if (complex_x)
+          vmerror_unimplemented(_T("unimplemented for complex numbers"));
+
+     return flocons(exp(xre));
 }
 
 lref_t llog(lref_t x)

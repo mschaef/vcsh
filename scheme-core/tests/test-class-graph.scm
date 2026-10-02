@@ -83,3 +83,22 @@
     (check (not (classes<=? (list tc-4 tc-1 tc-1) (list tc-1 tc-1 tc-1))))
     (check (not (classes<=? (list tc-1 tc-4 tc-1) (list tc-1 tc-1 tc-1))))
     (check (not (classes<=? (list tc-1 tc-1 tc-4) (list tc-1 tc-1 tc-1))))))
+
+(define-test class-graph-numbers
+  ;; Every real is a complex, so flonum sits under complex.
+  (check (class<=? 'flonum 'complex))
+  (check (class<=? 'complex 'number))
+  (check (class<=? 'flonum 'number))
+  (check (not (class<=? 'complex 'flonum)))
+  (check (class<=? 'fixnum 'number)))
+
+(define-generic-function (tcg-complex-only x)
+  :default-handling)
+
+(define-method (tcg-complex-only (x complex)) :complex)
+
+(define-test class-graph-complex-dispatch
+  ;; A method on complex applies to flonums, but not the reverse.
+  (check (eq? (tcg-complex-only 3i) :complex))
+  (check (eq? (tcg-complex-only 3.0) :complex))
+  (check (eq? (tcg-complex-only 3) :default-handling)))

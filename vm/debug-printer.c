@@ -21,20 +21,19 @@
 
 #define WRITE_TEXT_CONSTANT(port, buf) write_text(port, buf, (sizeof(buf) / sizeof(_TCHAR)) - 1)
 
-static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable)
+static void debug_print_flonum(flonum_t x, lref_t port, bool machine_readable)
 {
      _TCHAR buf[STACK_STRBUF_LEN];
 
      UNREFERENCED(machine_readable);
-     assert(FLONUMP(object));
 
-     if (isnan(FLONM(object)))
+     if (isnan(x))
      {
           _sntprintf(buf, STACK_STRBUF_LEN, _T("#inan"));
      }
-     else if (!isfinite(FLONM(object)))
+     else if (!isfinite(x))
      {
-          if (FLONM(object) > 0)
+          if (x > 0)
                _sntprintf(buf, STACK_STRBUF_LEN, _T("#iposinf"));
           else
                _sntprintf(buf, STACK_STRBUF_LEN, _T("#ineginf"));
@@ -55,11 +54,11 @@ static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable
            */
           double scale = 0.0;
 
-          if (FLONM(object) != 0.0)
-               scale = log10(fabs(FLONM(object)));
+          if (x != 0.0)
+               scale = log10(fabs(x));
 
           if (fabs(scale) >= digits)
-               _sntprintf(buf, STACK_STRBUF_LEN, _T("%.*e"), digits, FLONM(object));
+               _sntprintf(buf, STACK_STRBUF_LEN, _T("%.*e"), digits, x);
           else
           {
                /* Prevent numbers on the left of the decimal point from
@@ -67,21 +66,26 @@ static void debug_print_flonum(lref_t object, lref_t port, bool machine_readable
                if ((scale > 0) && (scale <= digits))
                     digits -= (int) scale;
 
-               _sntprintf(buf, STACK_STRBUF_LEN, _T("%.*f"), digits, FLONM(object));
+               _sntprintf(buf, STACK_STRBUF_LEN, _T("%.*f"), digits, x);
           }
      }
 
      write_text(port, buf, _tcslen(buf));
+}
 
-     if (COMPLEXP(object))
-     {
-          if (CMPLXIM(object) >= 0.0)
-               write_text(port, _T("+"), 1);
 
-          debug_print_flonum(FLOIM(object), port, machine_readable);
+static void debug_print_complex(lref_t object, lref_t port, bool machine_readable)
+{
+     assert(COMPLEXP(object));
 
-          write_text(port, _T("i"), 1);
-     }
+     debug_print_flonum(CMPLXRE(object), port, machine_readable);
+
+     if (CMPLXIM(object) >= 0.0)
+          write_text(port, _T("+"), 1);
+
+     debug_print_flonum(CMPLXIM(object), port, machine_readable);
+
+     write_text(port, _T("i"), 1);
 }
 
 
@@ -269,7 +273,11 @@ lref_t debug_print_object(lref_t obj, lref_t port, bool machine_readable)
           break;
 
      case TC_FLONUM:
-          debug_print_flonum(obj, port, machine_readable);
+          debug_print_flonum(FLONM(obj), port, machine_readable);
+          break;
+
+     case TC_COMPLEX:
+          debug_print_complex(obj, port, machine_readable);
           break;
 
      case TC_CHARACTER:

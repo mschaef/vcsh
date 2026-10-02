@@ -152,8 +152,12 @@ struct lobject_t
           struct
           {
                flonum_t data;
-               lref_t im_part;
           } flonum;
+          struct
+          {
+               flonum_t re;
+               flonum_t im;
+          } complex;
           struct
           {
                lref_t props;
@@ -292,9 +296,6 @@ INLINE enum typecode_t TYPE(lref_t object)
 
 /*** Type predicates ***/
 
-/* full INLINE causes problems with gcc 3.4.4, due to prototype. */
-inline  lref_t FLOIM(lref_t x);
-
 INLINE bool FIXNUMP(lref_t x)            { return LREF1_TAG(x) == LREF1_FIXNUM;                                         }
 INLINE bool CHARP(lref_t x)              { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_CHARACTER); }
 INLINE bool BOOLP(lref_t x)              { return (LREF1_TAG(x) == LREF1_SPECIAL) && (LREF2_TAG(x) == LREF2_BOOL);      }
@@ -304,9 +305,10 @@ INLINE bool FREE_CELL_P(lref_t x)        { return REFTYPEP(x, TC_FREE_CELL);    
 INLINE bool CONSP(lref_t x)              { return REFTYPEP(x, TC_CONS);                                                 }
 INLINE bool SYMBOLP(lref_t x)            { return REFTYPEP(x, TC_SYMBOL);                                               }
 INLINE bool FLONUMP(lref_t x)            { return REFTYPEP(x, TC_FLONUM);                                               }
-INLINE bool REALP(lref_t x)              { return (FIXNUMP(x) || (FLONUMP(x) && NULLP(FLOIM(x))));                      }
-INLINE bool COMPLEXP(lref_t x)           { return (FLONUMP(x) && !NULLP(FLOIM(x)));                                     }
-INLINE bool NUMBERP(lref_t x)            { return (FIXNUMP(x) || FLONUMP(x));                                           }
+INLINE bool COMPLEXP(lref_t x)           { return REFTYPEP(x, TC_COMPLEX);                                              }
+INLINE bool REALP(lref_t x)              { return (FIXNUMP(x) || FLONUMP(x));                                           }
+INLINE bool INEXACTP(lref_t x)           { return (FLONUMP(x) || COMPLEXP(x));                                          }
+INLINE bool NUMBERP(lref_t x)            { return (FIXNUMP(x) || FLONUMP(x) || COMPLEXP(x));                            }
 INLINE bool STRINGP(lref_t x)            { return REFTYPEP(x, TC_STRING);                                               }
 INLINE bool PACKAGEP(lref_t x)           { return REFTYPEP(x, TC_PACKAGE);                                              }
 INLINE bool PORTP(lref_t x)              { return REFTYPEP(x, TC_PORT);                                                 }
@@ -399,17 +401,16 @@ INLINE flonum_t FLONM(lref_t x)
      return x->as.flonum.data;
 }
 
-
-INLINE lref_t FLOIM(lref_t x)
+INLINE flonum_t CMPLXRE(lref_t x)
 {
-     checked_assert(FLONUMP(x));
-
-     return x->as.flonum.im_part;
+     checked_assert(COMPLEXP(x));
+     return x->as.complex.re;
 }
 
 INLINE flonum_t CMPLXIM(lref_t x)
 {
-     return FLONM(FLOIM(x));
+     checked_assert(COMPLEXP(x));
+     return x->as.complex.im;
 }
 
 /*** character ***/

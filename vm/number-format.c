@@ -113,8 +113,11 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
                vmerror_arg_out_of_range(p, _T("[0,16]"));
      }
 
-     if (FLONUMP(x))
+     if (INEXACTP(x))
      {
+          /* REVISIT: Complex numbers print only their real part. */
+          flonum_t xf = get_c_flonum(x);
+
           if (radix != 10)
                vmerror_arg_out_of_range(r, _T("=10 (with inexact arg)"));
 
@@ -128,11 +131,11 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
            */
           double scale = 0.0;
 
-          if (FLONM(x) != 0.0)
-               scale = log10(fabs(FLONM(x)));
+          if (xf != 0.0)
+               scale = log10(fabs(xf));
 
           if (fabs(scale) >= digits)
-               _sntprintf(buffer, STACK_STRBUF_LEN, _T("%.*e"), digits, FLONM(x));
+               _sntprintf(buffer, STACK_STRBUF_LEN, _T("%.*e"), digits, xf);
           else
           {
                /* Prevent numbers on the left of the decimal point from
@@ -140,7 +143,7 @@ lref_t lnumber2string(lref_t x, lref_t r, lref_t s, lref_t p)
                if ((scale > 0) && (scale <= digits))
                     digits -= (int) scale;
 
-               _sntprintf(buffer, STACK_STRBUF_LEN, _T("%.*f"), digits, FLONM(x));
+               _sntprintf(buffer, STACK_STRBUF_LEN, _T("%.*f"), digits, xf);
           }
      }
      else if (FIXNUMP(x))

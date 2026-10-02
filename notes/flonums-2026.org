@@ -75,23 +75,21 @@ fixnum = 01, flonum = 10, same 2-bit mask.
   - The conservative GC rejects tag-10 words already (not cell-aligned),
     and LREF_IMMEDIATE_P is true, so gc_mark skips them.
 - Work: FLONUMP becomes "immediate or boxed"; FLONM decodes; flocons
-  encodes or falls back; TYPE() learns the new tag. About 50 FLONM/
-  FLONUMP/FLOIM sites in vm/, plus sxhash, equalp, the FASL writer,
-  debug-printer and the type-of path in class-graph.scm.
+  encodes or falls back; TYPE() learns the new tag. About 40 FLONM/
+  FLONUMP sites in vm/, plus sxhash, equalp, the FASL writer,
+  debug-printer and %typecode (class-graph.scm maps typecodes to class
+  names, so immediates need a typecode that maps to 'flonum).
 - Semantics: eq? becomes true for some equal floats and not others.
   R5RS leaves eq? on numbers unspecified, but check that scheme-core
   doesn't rely on flonums being distinct objects.
-- Needs B first, since an immediate has no room for im_part.
+- Needs B first, since an immediate has no room for im_part. B is
+  prototyped on branch complex-type (see below).
 
-** B. Give complex numbers their own type (do first)
+** B. Give complex numbers their own type (prototyped)
 New TC_COMPLEX cell holding two inline doubles; TC_FLONUM holds only a
-double.
-- Complex drops from 2 cells to 1, and real arithmetic no longer
-  checks im_part.
-- Useful on its own and a prerequisite for A. The type code gap left by
-  structures can be reused.
-- Touches the 15 FLOIM/COMPLEXP/CMPLXIM sites, fast-write.scm, the
-  printer, and class-graph (complex is currently a subclass of flonum).
+double. Complex drops from 2 cells to 1, and real arithmetic no longer
+checks im_part. Useful on its own and a prerequisite for A. Done on
+branch complex-type; details under "Prototype of option B" below.
 
 ** C. Fused float fast-ops in the compiler
 Have the compiler recognise nested arithmetic, e.g.
@@ -114,8 +112,8 @@ block, like strings.
 
 ** E. Cheap mitigations
 - Inline the flocons allocation fast path (pop the freelist directly).
-- Add a FLONUMP && !complex fast path at the top of ladd/lsubtract/
-  lmultiply before get_c_complex.
+- Add a FLONUMP fast path at the top of ladd/lsubtract/lmultiply
+  before get_c_complex (with B, FLONUMP already excludes complex).
 - Grow the heap based on survival rate (performance item 4).
 - Together these might recover a third of the per-box cost. They don't
   change memory use.
@@ -134,8 +132,86 @@ NaN payloads.
 - A large rewrite for little gain over A. Worth considering only for a
   from-scratch Rust VM.
 
+* Prototype of option B (branch complex-type, 2026-10-01)
+** What changed
+- New typecode TC_COMPLEX (24; numbers 14/19/21 left as gaps because
+  scc0 may still map them). Cell holds two inline doubles; TC_FLONUM
+  holds only a double, and GC no longer traces flonums.
+- Predicates: FLONUMP is a real flonum only; COMPLEXP is TC_COMPLEX;
+  REALP = fixnum or flonum; new INEXACTP = flonum or complex;
+  NUMBERP includes complex. FLOIM is gone; CMPLXRE/CMPLXIM read the
+  cell directly.
+- class-graph.scm maps TC_COMPLEX to 'complex directly, so
+  %representation-of no longer special-cases flonums.
+- Class graph flipped: flonum < complex < number (was complex < flonum
+  < number). Methods on complex now apply to flonums, and flonum methods
+  no longer apply to complex numbers. The generic-function dispatch
+  tests were updated to match, and test-class-graph checks the new
+  relationships.
+- Behavior changes, all deliberate:
+  - (- c d) on complex numbers was missing a return and fell into the
+    fixnum path, returning garbage. Fixed.
+  - exp of a complex used to return re*(cos im + i sin im), which is
+    wrong. It now raises "unimplemented", like sin, cos and sqrt.
+  - Class-graph dispatch, as above.
+  Otherwise, a 40-case probe of complex operations gave identical output
+  before and after.
+- Builds with the existing scc0 image; no 'make update' needed.
+- Tests: 7399 checks pass, including new complex-arithmetic and
+  class-graph tests.
+
+** Measurements (same harness as above, 2M iterations)
+| Loop                 | before            | after             |
+|----------------------+-------------------+-------------------|
+| (+ acc 0+1i)         | 0.378 s, 6 c/iter | 0.358 s, 5 c/iter |
+| (+ (* acc 0.5) 0+1i) | 0.477 s, 8 c/iter | 0.439 s, 6 c/iter |
+| real flonum loops    | 0.362 / 0.442 s   | 0.360 / 0.438 s   |
+100K live complex numbers: 200K cells before, 100K after. Complex
+arithmetic now costs the same as real flonum arithmetic; real flonum
+code is unchanged, as expected.
+
+* Future work and open decisions
+** Decisions
+- Merge complex-type to master, or revise first.
+- Where fixnum sits in the class graph. It is directly under number, so
+  a method on complex doesn't apply to fixnums even though every fixnum
+  is a complex number. Options: put fixnum under complex, or add a
+  'real class (fixnum, flonum < real < complex < number).
+- What complex? should mean. It returns #f for reals and fixnums
+  (complex? 1.5 => #f); R5RS says every number is complex. Tied to the
+  class-graph question above.
+- How to compare complex numbers. = should compare both parts; <, >,
+  <=, >= should probably raise wrong-type for a non-real argument.
+- Whether get_c_flonum should raise on a complex argument instead of
+  returning the real part (see the REVISIT list below).
+- Option A: whether -0.0 gets a reserved immediate encoding like +0.0
+  or stays boxed, and whether the eq? change (some equal floats become
+  eq?) is acceptable.
+- Which of options C, D and E to pursue, and when (see "Suggested
+  order").
+
+** Complex arithmetic still to finish (some marked REVISIT in vm/)
+- = and < compare only real parts: (= 1+2i 1+5i) is #t, and < accepts
+  complex arguments (common_number_type).
+- get_c_flonum silently returns the real part of a complex, so floor,
+  ceiling, round, truncate, inexact->exact and number->string drop the
+  imaginary part.
+- exp, sin, cos, tan, asin, acos, atan, sqrt and expt raise
+  "unimplemented" for complex arguments. lsqrt already contains
+  unreachable code for the complex case.
+- string->number doesn't parse "1+2i", though the reader does.
+- langle has an unused complex_x variable (compiler warning).
+
+** Housekeeping
+- Refresh scc0 ('make update') after merging. Until then the host image
+  maps complex values to type #f, which only matters if the build ever
+  compiles a complex literal into the image.
+- The CHECKED build overflows the stack in test-symbols, on master too.
+  The suite passes with (%set-stack-limit #f). Not flonum-related;
+  also in TODO.org.
+
 * Suggested order
-1. B (complex as its own type): small, cleans up the number tower.
+1. B (complex as its own type): prototyped; merge once reviewed.
 2. A (immediate flonums): removes most of the allocation and memory cost.
 3. C, together with the fixnum fast-ops / bytecode work.
 4. D if bulk numeric data becomes a real use case. E as filler.

@@ -938,6 +938,28 @@
   (check (equal? 3.0 (real-part (make-rectangular 3.0 4.0))))
   (check (equal? 4.0 (imag-part (make-rectangular 3.0 4.0)))))
 
+(define-test complex-arithmetic
+  (let ((c (make-rectangular 1.0 2.0))
+        (d (make-rectangular 3.0 -4.0)))
+    (check (equal? (make-rectangular 4.0 -2.0) (+ c d)))
+    (check (equal? (make-rectangular 2.0 2.0) (+ c 1)))
+    (check (equal? (make-rectangular 2.5 2.0) (+ 1.5 c)))
+    ;; Subtraction of two complex numbers used to fall through to the
+    ;; fixnum path and return garbage.
+    (check (equal? (make-rectangular -2.0 6.0) (- c d)))
+    (check (equal? (make-rectangular 0.0 2.0) (- c 1.0)))
+    (check (equal? (make-rectangular -1.0 -2.0) (- c)))
+    (check (equal? (make-rectangular 11.0 2.0) (* c d)))
+    (check (equal? (make-rectangular -0.2 0.4) (/ c d)))
+    (check (complex? (+ c d)))
+    (check (inexact? c))
+    (check (number? c))
+    (check (not (real? c)))
+    (check (eq? 'complex (type-of c)))
+    ;; exp used to return re*(cos im + i sin im), which is wrong.
+    (check (runtime-error? (exp c)))
+    (check (equal? 1.0 (exp 0.0)))))
+
 (define-test random
   (check (runtime-error? (random #t)))
   (check (runtime-error? (random :non-numeric)))

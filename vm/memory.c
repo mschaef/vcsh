@@ -306,10 +306,6 @@ void gc_mark(lref_t initial_obj)
                obj = obj->as.macro.transformer;
                break;
 
-          case TC_FLONUM:
-               obj = FLOIM(obj);
-               break;
-
           case TC_SUBR:
                obj = SUBR_NAME(obj);
                break;

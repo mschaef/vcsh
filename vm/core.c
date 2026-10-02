@@ -52,10 +52,23 @@ lref_t leql(lref_t x, lref_t y)
           rc = false;
      else if (FLONUMP(x) && FLONUMP(y))
           rc = (FLONM(x) == FLONM(y));
+     else if (COMPLEXP(x) && COMPLEXP(y))
+          rc = (CMPLXRE(x) == CMPLXRE(y)) && (CMPLXIM(x) == CMPLXIM(y));
      else if (FIXNUMP(x) && FIXNUMP(y))
           rc = (FIXNM(x) == FIXNM(y));
 
      return boolcons(rc);
+}
+
+/*  equal? considers NaN to be equal to itself. This is different
+ *  from =, which uses the more mathematical approach that NaN
+ *  is equal to nothing. */
+static bool flonum_equalp(flonum_t a, flonum_t b)
+{
+     if (isnan(a) && isnan(b))
+          return true;
+
+     return a == b;
 }
 
 bool equalp(lref_t a, lref_t b)
@@ -94,13 +107,11 @@ bool equalp(lref_t a, lref_t b)
           return (FIXNM(a) == FIXNM(b));
 
      case TC_FLONUM:
-          /*  equal? considers NaN to be equal to itself. This is different
-           *  from =, which uses the more mathematical approach that NaN
-           *  is equal to nothing. */
-          if (isnan(FLONM(a)) && isnan(FLONM(b)))
-               return equalp(FLOIM(a), FLOIM(b));
-          else
-               return (FLONM(a) == FLONM(b)) && equalp(FLOIM(a), FLOIM(b));
+          return flonum_equalp(FLONM(a), FLONM(b));
+
+     case TC_COMPLEX:
+          return flonum_equalp(CMPLXRE(a), CMPLXRE(b))
+               && flonum_equalp(CMPLXIM(a), CMPLXIM(b));
 
      case TC_SYMBOL:
           return a == b;

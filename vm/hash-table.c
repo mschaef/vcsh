@@ -204,9 +204,10 @@ fixnum_t sxhash(lref_t obj)
 
      case TC_FLONUM:
           hash = sxhash_flonum(FLONM(obj));
+          break;
 
-          if (COMPLEXP(obj))
-               hash = HASH_COMBINE(hash, sxhash_flonum(CMPLXIM(obj)));
+     case TC_COMPLEX:
+          hash = HASH_COMBINE(sxhash_flonum(CMPLXRE(obj)), sxhash_flonum(CMPLXIM(obj)));
           break;
 
      case TC_SYMBOL:

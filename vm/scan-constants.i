@@ -213,8 +213,9 @@ BEGIN_VM_CONSTANT_TABLE(typecode_t, typecode_name)
     /* Former STRUCTURE_LAYOUT at 21. */
     VM_CONSTANT(TC_FAST_OP,                   22 )
     VM_CONSTANT(TC_FASL_READER,               23 )
+    VM_CONSTANT(TC_COMPLEX,                   24 )
 
-    VM_ANON_CONSTANT(LAST_INTERNAL_TYPEC,     23 )
+    VM_ANON_CONSTANT(LAST_INTERNAL_TYPEC,     24 )
 END_VM_CONSTANT_TABLE(typecode_t, typecode_name)
 
 BEGIN_VM_CONSTANT_TABLE(subr_arity_t, subr_arity_name)

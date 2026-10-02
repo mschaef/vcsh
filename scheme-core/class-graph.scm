@@ -31,7 +31,8 @@
    #.system::TC_VALUES_TUPLE   'values-tuple
    #.system::TC_UNBOUND_MARKER 'unbound-marker
    #.system::TC_FAST_OP        'fast-op
-   #.system::TC_FASL_READER    'fasl-reader})
+   #.system::TC_FASL_READER    'fasl-reader
+   #.system::TC_COMPLEX        'complex})
 
 (define (typecode->name tc)
   "Given a numeric typecode <tc>, return the symbolic name for the
@@ -39,12 +40,7 @@ type. If there is no valid typecode of that name, returns #f."
   (hash-ref *typecode-map* tc #f))
 
 (define (%representation-of obj)
-  (let ((tc (%typecode obj)))
-    (if (= tc system::TC_FLONUM)
-        (if (complex? obj)
-            'complex
-            'flonum)
-        (hash-ref *typecode-map* tc #f))))
+  (hash-ref *typecode-map* (%typecode obj) #f))
 
 (define *class-graph* (make-hash))
 
@@ -138,8 +134,8 @@ type. If there is no valid typecode of that name, returns #f."
             (hash-set! classes super #t))))
 
 (make-class< 'fixnum 'number)
-(make-class< 'flonum 'number)
-(make-class< 'complex 'flonum)
+(make-class< 'complex 'number)
+(make-class< 'flonum 'complex)
 (make-class< 'subr 'procedure)
 (make-class< 'closure 'procedure)
 (make-class< 'nil 'cons)

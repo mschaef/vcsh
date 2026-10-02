@@ -124,7 +124,9 @@
   (check (eq? (tgf-4 1 2 3 4.0) :number))
 
   (check (eq? (tgf-4 1.0 2.0 3.0 4.0) :flonum))
-  (check (eq? (tgf-4 1i 2i 3i 4i) :flonum)))
+  ;; complex is above flonum in the class graph, so the flonum method
+  ;; doesn't apply.
+  (check (eq? (tgf-4 1i 2i 3i 4i) :number)))
 
 ;;; Arity 1 Inheritance
 
@@ -168,20 +170,20 @@
 
   (check
    (equal? '(:pre-flonum 
+             :pre-complex
              :pre-number 
              :base-handling 
              :post-number 
+             :post-complex
              :post-flonum)
            (checkpoint-order-of
             (tgfi-1 1.0))))
 
   (check
    (equal? '(:pre-complex
-             :pre-flonum 
              :pre-number 
              :base-handling 
              :post-number 
-             :post-flonum
              :post-complex)
            (checkpoint-order-of
             (tgfi-1 1i)))))
@@ -274,40 +276,42 @@
            (checkpoint-order-of
             (tgfi-2 1.0 1))))
 
+  ;; flonum is below complex, so mixed flonum/complex arguments only
+  ;; match the complex and number methods.
   (check
-   (equal? '(:pre-flonum 
-             :pre-number 
-             :base-handling 
-             :post-number 
+   (equal? '(:pre-flonum
+             :pre-complex
+             :pre-number
+             :base-handling
+             :post-number
+             :post-complex
              :post-flonum)
            (checkpoint-order-of
             (tgfi-2 1.0 1.0))))
 
   (check
-   (equal? '(:pre-flonum 
-             :pre-number 
-             :base-handling 
-             :post-number 
-             :post-flonum)
+   (equal? '(:pre-complex
+             :pre-number
+             :base-handling
+             :post-number
+             :post-complex)
            (checkpoint-order-of
             (tgfi-2 1.0 1i))))
 
   (check
-   (equal? '(:pre-flonum 
-             :pre-number 
-             :base-handling 
-             :post-number 
-             :post-flonum)
+   (equal? '(:pre-complex
+             :pre-number
+             :base-handling
+             :post-number
+             :post-complex)
            (checkpoint-order-of
             (tgfi-2 1i 1.0))))
 
   (check
    (equal? '(:pre-complex
-             :pre-flonum 
-             :pre-number 
-             :base-handling 
-             :post-number 
-             :post-flonum
+             :pre-number
+             :base-handling
+             :post-number
              :post-complex)
            (checkpoint-order-of
             (tgfi-2 1i 1i))))
@@ -339,32 +343,32 @@
 
   (check
    (equal? '(:pre-flonum-number
+             :pre-complex-number
              :base-handling
+             :post-complex-number
              :post-flonum-number)
            (checkpoint-order-of
             (tgfi-2a 1.0 1))))
-  
+
   (check
    (equal? '(:pre-number-flonum
+             :pre-number-complex
              :base-handling
+             :post-number-complex
              :post-number-flonum)
            (checkpoint-order-of
             (tgfi-2a 1 1.0))))
 
   (check
    (equal? '(:pre-complex-number
-             :pre-flonum-number
              :base-handling
-             :post-flonum-number
              :post-complex-number)
            (checkpoint-order-of
             (tgfi-2a 1i 1))))
 
   (check
    (equal? '(:pre-number-complex
-             :pre-number-flonum
              :base-handling
-             :post-number-flonum
              :post-number-complex)
            (checkpoint-order-of
             (tgfi-2a 1 1i)))))
@@ -389,6 +393,6 @@
 (define-test generic-function-return-value
   (check (= (tgf-rv #\f) 1))
   (check (= (tgf-rv 1) 9))
-  (check (= (tgf-rv 1.0) 11))
-  (check (= (tgf-rv 1i) 24)))
+  (check (= (tgf-rv 1.0) 24))
+  (check (= (tgf-rv 1i) 17)))
 
