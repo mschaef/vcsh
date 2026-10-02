@@ -229,10 +229,138 @@ target package names.
    then only has to read the old compiler's output, not run old code.
    Combined with 6, and taking opcode numbers from the target's
    scan-constants, VM changes become one-step edits.
+   Design (2026-10-02, not started):
+   Today the current VM runs scc0 and also the stage 1 image (compiled by
+   scc0's compiler), so it must keep old fast-op numbers and semantics,
+   the old FASL format, subr names, trap numbers and typecodes working.
+
+   Pinning only stage 1 doesn't help: the current VM would still run the
+   stage 1 image. The useful version runs stages 1 and 2 on the pinned
+   VM:
+   - Stage 0: build scc0's VM from the pinned revision
+     (git archive <rev> vm config.mk into build/scc0-vm/), rebuilt only
+     when the pin changes. A full VM build took under a second here
+     (-j4, debug), so cost is negligible.
+   - Stage 1: pinned VM + scc0 compiles the current sources. Its code is
+     old-format, but it only runs on the old VM.
+   - Stage 2 (linked): pinned VM + stage 1. Written with the current
+     compiler's tables, so fully new-format.
+   - Stage 3 (bootstrap-check): current VM + stage 2, compared with
+     stage 2. Now also a check that a cross-built image is correct.
+   The current VM then only ever loads new-format code.
+
+   Build details:
+   - 'make update' also writes scc0/VM-REVISION, and refuses if vm/ or
+     config.mk has uncommitted changes (the pin must be archivable).
+   - The pinned VM is always a plain debug build; SANITIZE, COVERAGE and
+     BUILD apply only to the current VM.
+   - 'make clean' keeps build/scc0-vm; a distclean removes it.
+   - Outside a git checkout (or with SCC0_VM=current), fall back to
+     today's arrangement.
+   - The first pin must be after the clang-only build change (older
+     revisions won't build with current tooling): one 'make update' once
+     this lands.
+   - Remove the stale scc0/scc0, scc0-good and vcsh0 wrappers.
+
+   Prerequisites (all because stage 2 is compiled on the old VM):
+   1. Subr references. subrs.scm gets its 263 subrs with
+      #.(host-scheme::%subr-by-name "..."), asking the compiling VM. On the
+      old VM a new subr comes back as nothing and stage 2 would store #f.
+      FASL already refers to subrs by name, so add a compile-time
+      placeholder that writes a by-name reference without the subr
+      existing. A removed subr then fails at load on the new VM, which is
+      correct.
+   2. VM identity read at compile time: *scheme-build-vm*
+      (#.(system-info :vm-build-id) in scheme.scm) and the FASL header's
+      ABI hash ((%fasl-header)) would describe the old VM. Have the
+      Makefile pass the current VM's ID and hash in (e.g. a scansh0
+      option that prints them).
+   3. Opcode and FASL numbers must come from the new constants. Thanks to
+      item 6 they are #.system:: reads, and they pick up new values
+      because scan-constants.scm is included early and its definitions
+      run at compile time. Item 8 would stop that, so scan-constants.scm
+      needs an explicit eval-when; items 7 and 8 must agree.
+   4. Compile-time code (macros, #. reads like charset-vector) runs on
+      the old VM, so a new subr used at compile time still needs the
+      two-step process. A new subr used only at run time is fine. The
+      two-step constraint moves from every VM change to occasional
+      library changes.
+   5. Stage 2 (old VM) and stage 3 (current VM) must be byte-identical.
+      A VM change that alters hash iteration order, float printing or
+      similar breaks that; it's a real signal, but then a stage 3 vs
+      stage 4 comparison confirms the build settled.
+
+   Workflow: day to day nothing changes. Changing a fast-op, FASL
+   opcode, trap number or typecode becomes: edit the VM and
+   scan-constants.i, build. 'make update' becomes occasional maintenance
+   (compiler features needed by the bootstrap, or a new subr used at
+   compile time). 3 of the 346 scc0 refreshes are since September; most
+   of the history is lockstep refreshes this would remove. Also helps a
+   possible Rust VM, which would only ever load new-format images.
+
+   Size: Makefile work small; the subr placeholder and passing VM
+   identity moderate each. Order: prerequisites 1-2 (useful alone), then
+   the pin and stage 0, then move stages 1-2 to the pinned VM.
 8. Evaluate fewer definitions at compile time, Common Lisp style: only
    eval-when and macro definitions run in the compiler, with helpers that
    macros need wrapped explicitly. Removes crosstalk route 1 almost
    entirely, but touches a lot of scheme-core.
+   Design (2026-10-02, not started):
+   Today (compile-toplevel-definition, compiler-file.scm): every
+   top-level %define (so define, defmacro, and whatever expands to
+   %define) is compiled, run, %define-global'd in the compiler, and
+   written to the FASL. Other top-level forms are only written, unless
+   inside eval-when (:compile-toplevel). So (define *class-graph*
+   (make-hash)) runs at compile time but the make-class< calls that fill
+   it don't. In an image compile, target symbols start bound to copies of
+   the host values (setup-image-compile.scm step b), and target
+   definitions replace them as the compile goes, so compile-time code is
+   a host/target mix by the end (the likely cause of the format hang).
+
+   Experiment (throwaway): %define-global only when the value is a
+   macro. Stage 1 still uses scc0's compiler, so this affected stage 2.
+   1,461 definitions were skipped and nearly all of scheme.scm still
+   compiled, because the host copies stand in; that hides most real
+   compile-time dependencies. Two failures:
+   - compiler-fasm.scm: define-fast-op expands to an eval-when
+     (:compile-toplevel) that calls extend-fast-op-names!, defined in the
+     same file without eval-when. The usual CL case.
+   - define-package "compiler" calls in-package! at compile time; with
+     the target definition skipped, the host copy ran and set the host's
+     *package*, so compiler-tools.scm was read into scheme ("Global
+     variable unbound: scheme::compiler-trace" etc.).
+
+   Plan:
+   1. Definitions don't run at compile time; macros do (defmacro gets
+      compile-time evaluation via eval-when or a marker the compiler
+      checks).
+   2. A way to mark compile-time helpers (functions and tables used by
+      macros or #. reads): plain eval-when, or a short form such as
+      define-for-syntax.
+   3. The compiler records names defined in the current compile. The
+      "Global variable unbound" warning checks symbol-bound? at compile
+      time, so without this every forward reference would warn.
+   4. Make package switching (in-package!, ensure-package!, ...) work
+      through *package-var* rather than depending on host copies.
+   5. scc0 ordering: the new rule runs less than the old one, so scc0
+      can keep compiling stage 1 the old way and stage 2 uses the new
+      rule. Refresh scc0 afterwards. Add a compiler switch
+      (*evaluate-definitions*, default #t) and work through failures with
+      it off before flipping the default.
+   6. Payoff: narrow setup-image-compile.scm step b to copying the host's
+      macros only. Target packages then start with the bootstrap macros;
+      target macros replace them as they are defined, and anything else
+      needed at compile time must be marked or fails as unbound, instead
+      of silently mixing host and target code. Could be a follow-up.
+
+   Gains: an image compile no longer loads the image into the compiler;
+   compiling any file (vcsh -c, compile-file from the REPL) no longer
+   runs its definitions in the compiling process; the
+   definition/action asymmetry goes away; slightly faster compiles.
+   Costs: finding every compile-time dependency (the true count only
+   shows with step 6); the vcsh -c modules (csv, unit-test, autoload,
+   tests) need the same check; #. reads calling same-file functions need
+   marking. Moderate to large. Independent of item 7.
 
 Relevance to a possible Rust VM (notes/history-and-direction.org): a
 port has to read the same images and honour the same opcode, trap and
@@ -256,3 +384,4 @@ From scheme-core/ after a build (input path must be relative):
 #+end_src
 Fails with "unbound global: system::%panic", raised from inside the
 target's member when the host compiler's eval-when handler calls it.
+Since item 4 (member no longer shared), this compiles cleanly.
