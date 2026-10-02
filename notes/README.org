@@ -9,6 +9,7 @@ Start with history-and-direction.org for context.
 | performance-2026.org     | Interpreter performance measurements and candidate fixes  |
 | bootstrap-2026.org       | How the scc0 self-hosting build works and its weak points |
 | traps-2026.org           | Inventory of VM traps and installed handlers              |
+| flonums-2026.org         | Cost of boxed flonums and options to unbox them           |
 
 * Historical
 | File                  | What it covers                                                    |

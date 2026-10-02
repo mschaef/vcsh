@@ -297,6 +297,30 @@
   (check (= (sxhash 42) (sxhash 42)))
   (check (= (sxhash-identity 42) (sxhash-identity 42))))
 
+(define-test hash-sxhash-flonum
+  ;; Flonums used to hash to their truncated integer value, so every
+  ;; value in [0, 1) collided.
+  (check (= (sxhash 0.5) (sxhash 0.5)))
+  (check (not (= (sxhash 0.1) (sxhash 0.5))))
+  (check (not (= (sxhash 0.5) (sxhash 0.9))))
+  (check (not (= (sxhash 1.25) (sxhash 1.75))))
+
+  ;; Values that are equal? must hash the same.
+  (check (equal? 0.0 -0.0))
+  (check (= (sxhash 0.0) (sxhash -0.0)))
+  (let ((nan (/ 0.0 0.0)))
+    (check (equal? nan nan))
+    (check (= (sxhash nan) (sxhash (- nan)))))
+
+  ;; Values that hashed badly before are now usable as keys.
+  (let ((h (make-hash)))
+    (dotimes (ii 100)
+      (hash-set! h (/ ii 100.0) ii))
+    (check (= 100 (length (hash-keys h))))
+    (check (= 37 (hash-ref h 0.37)))
+    (check (= 99 (hash-ref h 0.99)))
+    (check (= 0 (hash-ref h -0.0)))))
+
 (define-test hash-subr-keys
   (let ((h (make-hash)))
     (hash-set! h car 'car)

@@ -11,6 +11,9 @@
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  */
 
+#include <math.h>
+#include <string.h>
+
 #include "scan-private.h"
 
 INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
@@ -145,6 +148,33 @@ fixnum_t sxhash_eq(lref_t obj)
           return ((uintptr_t) obj) >> LREF1_TAG_SHIFT;
 }
 
+/* Hash a double consistently with equalp: 0.0 and -0.0 compare equal,
+ * as do all NaNs, so each group is normalized to one bit pattern before
+ * hashing. The bits are then mixed (MurmurHash3 fmix64) so that the low
+ * bits used for bucket selection depend on the whole value. Common
+ * values like 0.5 and 1.5 differ only in high-order bits. */
+static fixnum_t sxhash_flonum(flonum_t x)
+{
+     uint64_t bits;
+
+     if (isnan(x))
+          bits = UINT64_C(0x7ff8000000000000);
+     else {
+          if (x == 0.0)
+               x = 0.0;
+
+          memcpy(&bits, &x, sizeof(bits));
+     }
+
+     bits ^= bits >> 33;
+     bits *= UINT64_C(0xff51afd7ed558ccd);
+     bits ^= bits >> 33;
+     bits *= UINT64_C(0xc4ceb9fe1a85ec53);
+     bits ^= bits >> 33;
+
+     return (fixnum_t) bits;
+}
+
 fixnum_t sxhash(lref_t obj)
 {
      STACK_CHECK(&obj);
@@ -173,7 +203,10 @@ fixnum_t sxhash(lref_t obj)
           break;
 
      case TC_FLONUM:
-          hash = get_c_fixnum(obj);
+          hash = sxhash_flonum(FLONM(obj));
+
+          if (COMPLEXP(obj))
+               hash = HASH_COMBINE(hash, sxhash_flonum(CMPLXIM(obj)));
           break;
 
      case TC_SYMBOL:

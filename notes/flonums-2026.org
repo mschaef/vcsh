@@ -1,0 +1,170 @@
+#+TITLE: Boxed flonums: impact and options (2026-10-01)
+
+Assessment of vcsh's boxed flonum representation, with options to
+remove or reduce the cost. Companion to notes/performance-2026.org.
+No code changed yet.
+
+* Current representation
+- An lref_t is a pointer or an immediate with a 2-bit low tag:
+  00 = heap ref, 01 = fixnum (62 bits), 11 = special (second-stage tag
+  for bool/char/eof/unbound). Tag 10 is unused.
+- Every flonum is a heap cell (TC_FLONUM): 8-byte header,
+  double data, lref_t im_part. All cells are sizeof(lobject_t) = 32
+  bytes, so a double costs 32 bytes, 4x its payload.
+- A complex number is a flonum whose im_part points at a second flonum:
+  2 cells, 64 bytes, and every real flonum op checks im_part.
+- A vector of N doubles is N lref_t slots plus N cells: 40 bytes per
+  element vs 8 unboxed.
+- Every arithmetic result is a fresh cell (flocons -> new_cell). There
+  is no flonum fast path: +, -, *, / are SUBR_2N calls that test
+  FLONUMP, call get_c_complex on both args, then allocate.
+- The GC is conservative (scans the C stack and registers) and
+  non-moving, mark-and-sweep over fixed 1M-cell segments. Copying or
+  generational schemes are therefore hard; options below avoid them.
+
+* Measurements
+arm64 Linux VM, gcc 11, DEBUG build, commit de2aad6. Times from
+%time-apply0 (total, GC, cells allocated). Fixnum versions of the same
+loops stand in for "unboxed floats": same evaluator work, no allocation.
+
+| Benchmark (2M iterations)    | Total   | GC      | Cells/iter |
+|------------------------------+---------+---------+------------|
+| fixnum (+ acc 1)             | 0.338 s | 0.044 s |          4 |
+| flonum (+ acc 1.0)           | 0.366 s | 0.055 s |          5 |
+| fixnum (+ (* acc 0) 1)       | 0.392 s | 0.044 s |          4 |
+| flonum (+ (* acc 0.5) 1.5)   | 0.447 s | 0.066 s |          6 |
+
+| Benchmark (1M elements)      | Total   | GC      | Cells     |
+|------------------------------+---------+---------+-----------|
+| sum fixnum vector            | 0.238 s | 0.000 s | 16K       |
+| sum flonum vector            | 0.258 s | 0.006 s | 1.0M      |
+
+- Each boxed result costs about 14-20 ns (about 5.5 ns of that is GC,
+  the rest is allocation and type dispatch).
+- Today that is only 8-14% of a float-heavy loop, because the evaluator
+  itself allocates ~4 cells per closure call (arg list + env frame) and
+  costs ~170 ns per iteration. Boxing is hidden behind evaluator
+  overhead.
+- Memory is the more visible cost now: filling a 600K-element vector
+  with flonums grew the heap by a full segment (+32 MB); the same
+  vector of fixnums needed no growth.
+
+** Why this gets worse
+The planned evaluator work (performance-2026.org items 1-3: inline
+operands, fixnum fast-ops, vector frames) roughly halves per-call
+allocation and per-call time, and fast-ops will only help fixnums.
+After that, boxing is plausibly 25-35% of a float loop, and float code
+falls further behind equivalent fixnum code. It makes sense to settle
+the representation before or alongside that work, and before any Rust
+port.
+
+* Options
+** A. Immediate flonums in the unused 10 tag (recommended)
+Ruby's "flonum" encoding (since 1.9/2.0) fits vcsh's tag layout:
+fixnum = 01, flonum = 10, same 2-bit mask.
+- Encode: if bits 62..60 of the double are 011 or 100 (exponent
+  roughly 2^-255 .. 2^256, about 1.7e-77 to 1.2e77), rotate the 64 bits
+  left by 3, clear bit 0, set bit 1. +0.0 gets a reserved encoding.
+  Everything else (-0.0, tiny, huge, inf, NaN) stays boxed as today.
+- Decode: rotate right by 3 after restoring the dropped exponent bit
+  from bit 63. A handful of ALU ops, lossless, full double precision.
+- Nearly all values in real workloads are immediate: no allocation, no
+  GC, 8 bytes in a vector slot.
+- Fits the existing VM:
+  - NIL stays 0, fixnums stay 62 bits, lref_t stays a pointer type.
+  - The conservative GC rejects tag-10 words already (not cell-aligned),
+    and LREF_IMMEDIATE_P is true, so gc_mark skips them.
+- Work: FLONUMP becomes "immediate or boxed"; FLONM decodes; flocons
+  encodes or falls back; TYPE() learns the new tag. About 50 FLONM/
+  FLONUMP/FLOIM sites in vm/, plus sxhash, equalp, the FASL writer,
+  debug-printer and the type-of path in class-graph.scm.
+- Semantics: eq? becomes true for some equal floats and not others.
+  R5RS leaves eq? on numbers unspecified, but check that scheme-core
+  doesn't rely on flonums being distinct objects.
+- Needs B first, since an immediate has no room for im_part.
+
+** B. Give complex numbers their own type (do first)
+New TC_COMPLEX cell holding two inline doubles; TC_FLONUM holds only a
+double.
+- Complex drops from 2 cells to 1, and real arithmetic no longer
+  checks im_part.
+- Useful on its own and a prerequisite for A. The type code gap left by
+  structures can be reused.
+- Touches the 15 FLOIM/COMPLEXP/CMPLXIM sites, fast-write.scm, the
+  printer, and class-graph (complex is currently a subclass of flonum).
+
+** C. Fused float fast-ops in the compiler
+Have the compiler recognise nested arithmetic, e.g.
+(+ (* zr zr) (* zi zi)), and emit one fast-op that evaluates the tree in
+C doubles, boxing only the result. It falls back to the generic subrs
+when an argument isn't a flonum.
+- Removes intermediate allocations and, more importantly, most of the
+  evaluator round trips. It pays off with or without A.
+- Natural extension of performance item 2 (FOP_ADD2 etc.); needs new
+  opcodes and an scc0 refresh.
+
+** D. Homogeneous float vectors
+An f64vector type (SRFI-4 style) storing raw doubles in a gc_malloc'd
+block, like strings.
+- Bulk float data drops from 40 to 8 bytes per element, and the GC no
+  longer marks per-element cells.
+- Reads still produce a flonum (immediate under A). Worth doing if
+  numeric arrays matter, e.g. for a future vCalc.
+- Additive and low risk.
+
+** E. Cheap mitigations
+- Inline the flocons allocation fast path (pop the freelist directly).
+- Add a FLONUMP && !complex fast path at the top of ladd/lsubtract/
+  lmultiply before get_c_complex.
+- Grow the heap based on survival rate (performance item 4).
+- Together these might recover a third of the per-box cost. They don't
+  change memory use.
+
+** F. NaN-boxing (not recommended here)
+Store every value as a double and put pointers, fixnums and specials in
+NaN payloads.
+- Floats are fully unboxed.
+- Costs:
+  - NIL == 0 is +0.0, so NIL has to move, and NULLP/zero-initialisation
+    assumptions run through the VM.
+  - Fixnums shrink to at most 51 bits.
+  - lref_t stops being a dereferenceable pointer, which changes every
+    x->as.* access.
+  - The conservative stack scan has to decode every word.
+- A large rewrite for little gain over A. Worth considering only for a
+  from-scratch Rust VM.
+
+* Suggested order
+1. B (complex as its own type): small, cleans up the number tower.
+2. A (immediate flonums): removes most of the allocation and memory cost.
+3. C, together with the fixnum fast-ops / bytecode work.
+4. D if bulk numeric data becomes a real use case. E as filler.
+
+* Side finding (fixed)
+sxhash hashed a flonum as get_c_fixnum(obj), i.e. its truncated integer
+value, so every flonum in [0, 1) hashed to 0. It now hashes the mixed
+bit pattern, with -0.0/0.0 and all NaNs normalized to match equal?
+(sxhash_flonum in vm/hash-table.c). Note for option A: immediate
+flonums must keep using sxhash_flonum, not sxhash_eq-style bits.
+
+* Benchmark source
+Run with: echo ':X' | scheme-core/vcsh flonum-bench.scm
+#+begin_src scheme
+(define (bench name thunk)
+  (gc)
+  (let ((r (scheme::%time-apply0 thunk)))
+    (format #t "~a: total ~a s, gc ~a s, cells ~a\n"
+            name (vector-ref r 1) (vector-ref r 2) (vector-ref r 3))))
+(define (fixloop n acc) (if (= n 0) acc (fixloop (- n 1) (+ acc 1))))
+(define (floloop n acc) (if (= n 0) acc (floloop (- n 1) (+ acc 1.0))))
+(define (fixmul n acc) (if (= n 0) acc (fixmul (- n 1) (+ (* acc 0) 1))))
+(define (flomul n acc) (if (= n 0) acc (flomul (- n 1) (+ (* acc 0.5) 1.5))))
+(bench "fix + loop 2M " (lambda () (fixloop 2000000 0)))
+(bench "flo + loop 2M " (lambda () (floloop 2000000 0.0)))
+(bench "fix *+ loop 2M" (lambda () (fixmul 2000000 0)))
+(bench "flo *+ loop 2M" (lambda () (flomul 2000000 0.0)))
+(define v (make-vector 1000 1.5))
+(bench "flo vsum 1M" (lambda () (dotimes (j 1000) (let ((s 0.0)) (dotimes (i 1000) (set! s (+ s (vector-ref v i))))))))
+(define vi (make-vector 1000 1))
+(bench "fix vsum 1M" (lambda () (dotimes (j 1000) (let ((s 0)) (dotimes (i 1000) (set! s (+ s (vector-ref vi i))))))))
+#+end_src

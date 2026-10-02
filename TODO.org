@@ -55,6 +55,7 @@
 *** Cache lexical frames on the Lisp stack
 *** Add more FOPs for looping (FOP_WHILE_TRUE exists)
 *** Linear bytecode compiler
+*** Unbox flonums: complex as own type, then immediate flonums in tag 10 (notes/flonums-2026.org)
 *** Possible long-term: port the VM to Rust (macros for subr definitions); see notes/history-and-direction.org
 *** Clean up FASL write; consider the restructuring noted at vm/fasl.c:20
 *** Move macros entirely to Lisp (vm/macro.c:16)
@@ -124,6 +125,7 @@
 *** slot-ref default values in lslot_ref
 *** Structures and instances removed; 0.7 milestone and structure TODOs obsolete
 *** Structure/instance leftovers removed: type codes, traps, FASL opcodes (numbers left as gaps), structure.c folded into hash-table.c
+*** sxhash on flonums hashes the bit pattern (was truncated to an integer, so all of [0,1) collided); -0.0/0.0 and NaNs normalized to match equal?
 
 * vcalc
   Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).
