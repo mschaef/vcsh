@@ -14,10 +14,6 @@
 #ifndef __SCAN_BASE_H
 #define __SCAN_BASE_H
 
-#if !defined(SCAN_UNIX) && !defined(SCAN_WINDOWS)
-#  error Either SCAN_WINDOWS or SCAN_UNIX must be defined to pick a platform.
-#endif
-
 //#define WITH_FOPLOG_SUPPORT
 
 
@@ -43,11 +39,15 @@ typedef char scan_requires_64bit_target[(sizeof(void *) == 8) ? 1 : -1];
 
 /*** Definitions for inlining ***/
 
-#if defined(__GNUC__)
-#  define INLINE inline __attribute__((always_inline))
-#elif defined(_MSC_VER)
-#  define INLINE __forceinline
-#endif
+/* vcsh is built with clang (or gcc), on 64-bit macOS and Linux. */
+#define INLINE inline __attribute__((always_inline))
+
+/*** Sanitizer support ***/
+
+/* For code that deliberately reads memory AddressSanitizer would
+ * flag, such as the garbage collector's conservative scan of the
+ * whole C stack, including ASan's redzones. */
+#define NO_SANITIZE_ADDRESS __attribute__((no_sanitize_address))
 
 /*** TRUE and FALSE ***/
 
@@ -60,12 +60,6 @@ typedef char scan_requires_64bit_target[(sizeof(void *) == 8) ? 1 : -1];
 #endif
 
 /*** Build type flags ***/
-
-#ifdef _MSC_VER
-#  pragma warning (disable : 4127)      /* ...warning about the constants used to configure the build. */
-#  pragma warning (disable : 4820)      /* ...warning about structure padding */
-#  pragma warning (disable : 4061)      /* ...warning about enumerations unhandled by explicit case */
-#endif
 
 enum {
 #ifdef _DEBUG
@@ -113,88 +107,43 @@ INLINE uint64_t make_uint64_t(uint64_t high, uint64_t low)
 #   define MAX2(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
-/*** Floating point aliases needed in MSVC ***/
-
-#if defined(_MSC_VER)
-#  include <float.h>
-
-#  define finite _finite
-#  define isnan _isnan
-#  define ecvt _ecvt
-#endif
-
 /*** strncasecmp ***/
 
-#if defined(_MSC_VER)
-#  define strncasecmp _strnicmp
-#endif
+#include <strings.h>
 
 
-#ifdef SCAN_UNIX
-#  include <strings.h>
-#endif
+/*** TCHAR ***
+ *
+ * A leftover from the Windows port, where _TCHAR could be a wide
+ * character. It is always char now. */
 
-
-/*** TCHAR ***/
-
-/* Couldn't find a better definition for these in the standard header
- * files... */
-#ifdef _UNICODE
-#   define _TCHAR_MIN WCHAR_MIN
-#   define _TCHAR_MAX WCHAR_MAX
-#else
-#   define _TCHAR_MIN CHAR_MIN
-#   define _TCHAR_MAX CHAR_MAX
-#endif
-
-
-#ifdef SCAN_UNIX
-
-#  ifdef _UNICODE
-#    error Unicode unsupported on GNU C
-#  endif
+#define _TCHAR_MIN CHAR_MIN
+#define _TCHAR_MAX CHAR_MAX
 
 typedef char _TCHAR;
 
-#  define _T(x)     x
+#define _T(x)     x
 
-#  define _vsntprintf  vsnprintf
-#  define _sntprintf   snprintf
+#define _vsntprintf  vsnprintf
+#define _sntprintf   snprintf
 
-#  define _tcslen strlen
-#  define _tcscmp strcmp
-#  define _tcsncpy strncpy
-#  define _tcsncat strncat
+#define _tcslen strlen
+#define _tcscmp strcmp
+#define _tcsncpy strncpy
+#define _tcsncat strncat
 
-#  define _istupper isupper
-#  define _istlower islower
-#  define _istdigit isdigit
-#  define _totlower tolower
-#  define _istspace isspace
-#  define _istalpha isalpha
-#  define _istpunct ispunct
-#  define _totupper toupper
-#  define _stprintf sprintf
-#  define _tprintf  printf
+#define _istupper isupper
+#define _istlower islower
+#define _istdigit isdigit
+#define _totlower tolower
+#define _istspace isspace
+#define _istalpha isalpha
+#define _istpunct ispunct
+#define _totupper toupper
+#define _stprintf sprintf
+#define _tprintf  printf
 
-#  define _tmain main
-#endif                          /* SCAN_UNIX */
-
-#ifdef SCAN_WINDOWS
-#  if defined(_MSC_VER)
-#    include <tchar.h>
-#  if defined(__GNUC__)
-#  endif
-#    include "tchar.h"
-#    if !defined( __TEXT)
-#      if defined(_UNICODE)
-#        define __TEXT(string) L##string
-#      else
-#        define __TEXT(string) string
-#      endif
-#    endif
-#  endif
-#endif                          /* SCAN_WINDOWS */
+#define _tmain main
 
 /**** Configuration Constants ****/
 

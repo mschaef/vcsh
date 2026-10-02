@@ -10,6 +10,7 @@ Start with history-and-direction.org for context.
 | bootstrap-2026.org       | How the scc0 self-hosting build works and its weak points |
 | traps-2026.org           | Inventory of VM traps and installed handlers              |
 | flonums-2026.org         | Cost of boxed flonums and options to unbox them           |
+| build-2026.org           | clang-only build, config.mk settings, sanitizer findings  |
 
 * Historical
 | File                  | What it covers                                                    |

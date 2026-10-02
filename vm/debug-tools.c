@@ -230,7 +230,7 @@ static void show_debug_flags()
           dscwritef(DF_ALWAYS, ("* ~cs\n", debug_flag_env_names[ii].df_env_name));
 }
 
-const _TCHAR *strchrnul(const _TCHAR * string, int c)
+const _TCHAR *scan_strchrnul(const _TCHAR * string, int c)
 {
      for (; *string; string++)
           if (*string == c)
@@ -250,7 +250,7 @@ enum debug_flag_t debug_flags_from_string(enum debug_flag_t initial,
           if (*str == _T('\0'))
                break;
 
-          const char *envtokend = strchrnul(str, ',');
+          const char *envtokend = scan_strchrnul(str, ',');
 
           bool found = false;
           bool remove = false;

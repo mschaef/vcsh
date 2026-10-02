@@ -9,13 +9,34 @@ play around with.
 
 ## Build instructions
 
-1. Ensure the settings in build-settings are accurate for your target
-   platform. If there is no build-settings file, create one by copying
-   typical-build-settings and making the appropriate edits.
-2. Run 'make'. This will recursively build `vm/` and then
+vcsh builds with clang on 64-bit macOS and Linux, on arm64 or x86-64.
+gcc also works. Windows isn't supported.
+
+1. Run 'make'. This will recursively build `vm/` and then
    `scheme-core/` (see the module summary below).
-3. The final scheme interpreter will be located in scheme-core/vcsh.
-4. The 'make tested' target will run a series of unit tests.
+2. The final scheme interpreter will be located in scheme-core/vcsh.
+3. The 'make tested' target will run a series of unit tests.
+
+Build settings are make variables, described in `config.mk`. Set them
+on the command line, or put them in an untracked `local.mk` next to
+`config.mk` to make them stick:
+
+| Setting    | Values                       | Default |
+|------------|------------------------------|---------|
+| `BUILD`    | `debug`, `release`, `checked` | `debug` |
+| `CC`       | `clang`, `gcc`, ...          | `clang` |
+| `SANITIZE` | clang/gcc sanitizers, e.g. `address,undefined` | none |
+| `COVERAGE` | `yes`, `no`                  | `no`    |
+
+For example, `make BUILD=release` or `make SANITIZE=address tested`.
+Switching settings rebuilds what's needed; there's no need for
+`make clean`. `make coverage` runs the tests in a coverage build and
+prints an `llvm-cov` summary (on macOS, add
+`LLVM_PROFDATA='xcrun llvm-profdata' LLVM_COV='xcrun llvm-cov'`).
+
+The `checked` and sanitizer builds use more C stack per Scheme call,
+and can hit vcsh's stack limit in the test suite. Running the tests
+with `(scheme::%set-stack-limit #f)` gets around that.
 
 
 ## Using vcsh

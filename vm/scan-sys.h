@@ -16,31 +16,15 @@
 
 #include <assert.h>
 
-#ifdef SCAN_UNIX
-#  include <sys/time.h>
-#  include <limits.h>
-#endif
-
-#ifdef SCAN_WINDOWS
-#  include <time.h>
-#  include <windows.h>
-#endif
-
+#include <sys/time.h>
 #include <limits.h>
 
 #include "scan-base.h"
 
 #include "scan-constants.h"
 
-#ifdef SCAN_UNIX
-#  define SYS_PATH_MAX PATH_MAX
-#  define SYS_NAME_MAX NAME_MAX
-#endif
-
-#ifdef SCAN_WINDOWS
-#  define SYS_PATH_MAX MAX_PATH
-#  define SYS_NAME_MAX MAX_PATH
-#endif
+#define SYS_PATH_MAX PATH_MAX
+#define SYS_NAME_MAX NAME_MAX
 
 void sys_abnormally_terminate_vm(int rc);
 
@@ -164,7 +148,7 @@ void *sys_set_stack_limit(size_t new_size_limit);
 void sys_sleep(uintptr_t duration_ms);
 
 /*** String Utilities ***/
-const _TCHAR *strchrnul(const _TCHAR * s, int c);
+const _TCHAR *scan_strchrnul(const _TCHAR * s, int c);
 
 extern char **environ;
 

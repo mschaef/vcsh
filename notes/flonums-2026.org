@@ -302,9 +302,9 @@ Smaller points and decisions:
 - langle has an unused complex_x variable (compiler warning).
 
 ** Complex number remediation plan
-Status (2026-10-02): recorded for future implementation. Scheduled to
-start immediately after the config.windows / multi-target build system
-work, which settles D9 (whether <complex.h> can be used everywhere).
+Status (2026-10-02): recorded for future implementation. Next after the
+build-system work, which settled D9: <complex.h> can be used
+everywhere, since Windows/MSVC is no longer a target.
 
 Plan for fixing everything in the list above. Each phase is a separate
 branch and commit with its own tests. The decisions come first because
@@ -339,9 +339,8 @@ they change what the tests expect.
   clog, csqrt, cpow, csin, ccos, ctan, casin, cacos, catan) rather than
   by hand. It gets branch cuts, signed zeros and infinities right, and
   gcc and clang both have it. MSVC has only a partial, differently
-  named API, so this depends on whether config.windows still matters.
-  [Use <complex.h>; the Windows question is settled by the build
-  system work that precedes this plan]
+  named API. [Settled 2026-10-02: Windows/MSVC support was dropped
+  (notes/build-2026.org), so use <complex.h> directly.]
 - D10. Syntax: support +i, -i and polar r@theta in both the reader and
   string->number, through one parser. Keep #e on complex a read error,
   with a clearer message. [Yes]
@@ -433,8 +432,7 @@ they change what the tests expect.
 1. B (complex as its own type): done (cdd5013).
 2. A (immediate flonums): done (c0c15f9); removes nearly all flonum
    allocation.
-   Next for numbers: the complex number remediation plan, after the
-   config.windows / multi-target build work.
+   Next for numbers: the complex number remediation plan.
 3. C, together with the fixnum fast-ops / bytecode work.
 4. D if bulk numeric data becomes a real use case. E as filler.
 

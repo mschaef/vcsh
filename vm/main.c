@@ -178,7 +178,7 @@ static void process_vm_arguments(int argc, _TCHAR * argv[])
           _TCHAR arg_name_buf[STACK_STRBUF_LEN];
           memset(arg_name_buf, 0, STACK_STRBUF_LEN);
 
-          _TCHAR *arg_value_loc = (_TCHAR *) strchrnul(arg_text, '=');
+          _TCHAR *arg_value_loc = (_TCHAR *) scan_strchrnul(arg_text, '=');
 
           _tcsncpy(arg_name_buf, arg_text, MIN2(arg_value_loc - arg_text, STACK_STRBUF_LEN - 1));
 

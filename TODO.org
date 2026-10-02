@@ -5,6 +5,7 @@
   See notes/history-and-direction.org for background and longer-term plans.
 
 ** Bugs and correctness
+*** inexact->exact: (re <= FIXNUM_MAX) compares against FIXNUM_MAX rounded up to 2^61, so 2^61 overflows instead of returning #f (number.c:226)
 *** FASL table pointers can dangle when the table resizes during load (vm/fasl.c:108, :484)
 *** Fast-IO round trip of nested circular lists asserts; test disabled (tests/test-fast-io.scm:199)
 *** (directory "file-that-exists.scm") does something weird (system.scm:463)
@@ -19,13 +20,17 @@
 *** Date printing doesn't show full resolution, so unequal dates can print identically (date-time.scm:1499)
 
 ** Build and portability
-*** NEXT: decide the state of config.windows and the multi-target build system in general. Blocks the complex number remediation plan (its D9: <complex.h> availability).
-*** windows-sys.c sys_debug_break uses x86 int3 asm under __GNUC__ (unix-sys.c fixed)
-*** Replace deprecated _BSD_SOURCE/_SVID_SOURCE with _DEFAULT_SOURCE
-*** Unify the common parts of config.unix/config.windows
+   clang (or gcc) on 64-bit macOS and Linux only; Windows/MSVC dropped 2026-10-02 (notes/build-2026.org).
+*** Fix signed-shift and signed-overflow UB found by SANITIZE=undefined: MAKE_LREF1 shifts negative fixnums (scan-types.h:72), io-encdec.c:100 and :148, string hash and HASH_COMBINE (hash-table.c:223, :21), mt19937.c:166
+*** Stack limit too small for checked and sanitizer builds; test suite needs (%set-stack-limit #f)
+*** Replace tempnam (unix-sys.c) with mkstemp
+*** Verify 'make coverage' on macOS and on Linux with clang's runtime libraries installed (untested so far)
+*** Consider CI (GitHub Actions) for macOS and Linux, arm64 and x86-64
+*** Follow-ups to dropping Windows: Scheme-level :win32 platform-case branches and platform-windows? (system.scm); the _TCHAR layer (about 900 uses)
+*** system-info reports platform "linux" on macOS (unix-sys.c)
 *** scc0/scc0 and scc0-good reference fasl-compiler-run.scf and ../scheme, which don't exist
-*** README: benchmark steps (../csv.scm no longer needed, ~/ectworks paths); document bootstrap, platforms, running tests; heading style
-*** Verify directory tools on both *nix and Windows
+*** README: benchmark steps (../csv.scm no longer needed, ~/ectworks paths); document bootstrap; heading style
+*** Verify directory tools on macOS and Linux
 
 ** Bootstrap (see notes/bootstrap-2026.org)
 *** scheme.scf has no prerequisites; add real dependencies on scheme-core sources, scan-constants, scansh0, scc0
@@ -65,7 +70,7 @@
 
 ** Numbers
 *** Bignums
-*** Complex number remediation: notes/flonums-2026.org, "Complex number remediation plan" (phases 0-5). Starts right after the config.windows / multi-target build work.
+*** Complex number remediation: notes/flonums-2026.org, "Complex number remediation plan" (phases 0-5). Next up, now that the build work has settled D9.
 *** Scheme versions of gcd and lcm (number.scm:121)
 *** Statistics that pass statistical reference data sets
 
@@ -95,7 +100,6 @@
 *** Streaming read-csv (csv.scm:131)
 *** eval with non-null lexical environments (eval.scm:14)
 *** Rename list-all-packages to all-packages?
-*** system-info reports platform "linux" on macOS (unix-sys.c)
 *** FFI (SIOD-FFI?); keep C/Lisp interop judicious (notes/history-and-direction.org)
 
 ** Packages
@@ -128,6 +132,7 @@
 *** Structure/instance leftovers removed: type codes, traps, FASL opcodes (numbers left as gaps), structure.c folded into hash-table.c
 *** sxhash on flonums hashes the bit pattern (was truncated to an integer, so all of [0,1) collided); -0.0/0.0 and NaNs normalized to match equal?
 *** Flonums unboxed: complex numbers have their own type (cdd5013), and most flonums are immediates in tag 10 (c0c15f9); see notes/flonums-2026.org
+*** Windows/MSVC support dropped; build simplified to one config.mk (BUILD, CC, SANITIZE, COVERAGE) with clang as the default compiler; strchrnul conflict with glibc 2.39 fixed
 
 * vcalc
   Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).

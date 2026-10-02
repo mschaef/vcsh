@@ -355,6 +355,9 @@ void gc_mark(lref_t initial_obj)
 }
 
 
+/* Reads every word in the range, which for the C stack includes
+ * padding and ASan redzones, so it is exempt from ASan checks. */
+NO_SANITIZE_ADDRESS
 static void gc_mark_range_array(lref_t * base, size_t n)
 {
      for (size_t jj = 0; jj < n; ++jj)

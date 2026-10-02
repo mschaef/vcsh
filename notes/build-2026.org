@@ -1,0 +1,187 @@
+#+TITLE: vcsh build: status and simplification (2026-10-02)
+
+State of the build for its two intended toolchain families, gcc/clang
+(Linux, macOS) and MSVC (Windows), at commit c0c15f9. Written ahead of
+the build-system work, which comes before the complex number
+remediation plan in notes/flonums-2026.org (its decision D9 depends on
+whether MSVC matters). Tracked in TODO.org under "Build and
+portability".
+
+* Decision and changes (2026-10-02, branch clang-build)
+Windows and MSVC are no longer targets. vcsh builds with clang (gcc
+also works) on 64-bit macOS and Linux, arm64 or x86-64. If Windows
+comes back, it would be through clang-cl, which accepts the same
+flags as cl.exe; that seems unlikely.
+
+** What changed
+- One config.mk replaces build-settings, typical-build-settings,
+  config.unix and config.windows. Settings are make variables with
+  defaults, set on the command line or in an untracked local.mk:
+  BUILD (debug, release, checked), CC (default clang), SANITIZE,
+  COVERAGE. A fresh checkout builds with plain 'make'.
+- The cl.exe indirection (OBJ_EXT, EXE_EXT, LIB_EXT, NAMOBJFL, DEFFL,
+  COMPILEFL, AR_RCS, ...) is gone; the makefiles use .o, .a, -o, -c and
+  the standard CPPFLAGS/CFLAGS/LDFLAGS/LDLIBS.
+- All objects depend on .build-flags, a stamp of the compiler flags
+  rewritten only when they change, so switching BUILD, CC, SANITIZE or
+  COVERAGE rebuilds what's needed without 'make clean'.
+- PROFILE (gprof) and COVERAGE_TEST (gcov) are replaced by SANITIZE
+  (-fsanitize=..., e.g. address,undefined) and COVERAGE=yes (clang
+  source-based coverage), plus a top-level 'make coverage' that runs
+  the tests and prints an llvm-cov summary.
+- ASan: the GC's conservative stack scan reads ASan redzones, so
+  gc_mark_range_array is marked NO_SANITIZE_ADDRESS, and ASan's fake
+  stack for use-after-return is turned off (it moves locals where the
+  scan can't see them).
+- scan-constants.scm is preprocessed with $(CC) -E instead of cpp;
+  the output is identical.
+- -std=c11 (was c1x); _DEFAULT_SOURCE (was the deprecated
+  _BSD_SOURCE/_SVID_SOURCE); the scheme-core 'ifdef ${RANLIB}' bug is
+  gone with ranlib itself ('ar rcs' indexes).
+- vcsh's strchrnul is renamed scan_strchrnul, fixing the build against
+  glibc 2.39.
+- Removed: windows-sys.c, config.windows, scc0/*.bat, and the
+  SCAN_WINDOWS, SCAN_UNIX and _MSC_VER branches in scan-base.h and
+  scan-sys.h. Not removed yet (TODO.org): the Scheme-level :win32
+  platform-case branches and the _TCHAR layer.
+
+** Verified
+| Toolchain | Platform                  | Builds                        | Tests |
+|-----------+---------------------------+-------------------------------+-------|
+| gcc 11    | Linux arm64 (glibc 2.35)  | debug, release, checked       | pass  |
+| gcc 11    | Linux arm64               | SANITIZE=address              | pass, no ASan reports |
+| gcc 11    | Linux arm64               | SANITIZE=undefined            | pass, UB reports below |
+| clang 18  | Linux x86-64 (glibc 2.39) | debug (default CC)            | pass  |
+Not verified: macOS (no Mac here), clang sanitizers and 'make coverage'
+(the Linux sandbox's clang has no runtime libraries installed).
+
+** Findings from SANITIZE=undefined
+All signed-shift or signed-overflow undefined behavior; harmless with
+current compilers in practice, but worth fixing with unsigned
+arithmetic (in TODO.org):
+- MAKE_LREF1 shifts negative fixnums left (scan-types.h:72).
+- io-encdec.c:100 and :148 shift bytes into the sign bit.
+- The string hash and HASH_COMBINE overflow signed fixnums
+  (hash-table.c:223, :21).
+- mt19937.c:166.
+
+** Stack limit
+checked and sanitizer builds use more C stack per Scheme call and hit
+vcsh's stack limit in test-symbols or test-reader; the tests pass with
+(scheme::%set-stack-limit #f). In TODO.org.
+
+* Analysis before the decision (2026-10-02)
+** Summary
+- No build-system work has been done yet beyond the 2026-10-01
+  portability fixes (no -m64, ARM build, __builtin_trap instead of int3
+  in unix-sys.c, optional etags, generated C in scheme-core/build/).
+- gcc/clang: works on the configurations tried, except that it no longer
+  compiles against current glibc (2.39) with either compiler.
+- MSVC: last worked on around 2013-2014 ("Continue port", 1ba7a63).
+  The makefiles can't link with cl as written, and several C-level
+  problems are visible by inspection. Not verified by building: no MSVC
+  here, and no cross toolchain could be installed (package registries
+  are blocked in both the VM and the cloud sandbox).
+
+** gcc/clang
+*** Tried
+| Toolchain        | Platform              | Result                         |
+|------------------+-----------------------+--------------------------------|
+| gcc 11           | Linux arm64 (glibc 2.35) | Builds, 7399 checks pass    |
+| Apple clang      | macOS arm64           | Builds (Mike's machine)        |
+| gcc 13, clang 18 | Linux x86-64 (glibc 2.39) | Fails to compile, see below |
+| clang 18         | Linux x86-64, with the strchrnul workaround | Builds, 7399 checks pass |
+
+*** Problems
+- Doesn't compile against glibc 2.39: vcsh defines its own strchrnul
+  (debug-tools.c:233, declared in scan-sys.h:167) with a const return
+  type, which conflicts with glibc's declaration. Renaming it (e.g.
+  scan_strchrnul) fixes it; that's the workaround used above.
+- config.unix hardcodes CC=gcc. That works on macOS only because gcc is
+  an alias for clang there. CC ?= cc (and letting make CC=clang
+  override it) is the usual approach.
+- -D _BSD_SOURCE -D _SVID_SOURCE are deprecated; every file warns.
+  Replace with -D _DEFAULT_SOURCE (already in TODO.org).
+- -std=c1x is the pre-standard spelling of -std=c11.
+- scheme-core/Makefile has 'ifdef ${RANLIB}' instead of 'ifdef RANLIB',
+  so ranlib never runs on scanlib.a. Harmless with 'ar rs', but a bug.
+- Warnings worth fixing while there: tempnam (unix-sys.c), unused
+  variables in debug-printer.c:181 and number.c (langle), and
+  number.c:226, where (re <= FIXNUM_MAX) compares against FIXNUM_MAX
+  rounded up to 2^61, so inexact->exact of 2^61 overflows instead of
+  returning #f.
+- PROFILE and COVERAGE_TEST are gcc-specific (-pg, gcov). Fine, but
+  undocumented.
+
+** MSVC
+*** Makefiles
+- Assumes GNU make and a POSIX shell: rm -f, cp, mkdir -p,
+  echo \#include, ./program, and cpp for scan-constants.scm. On
+  Windows that means MSYS2 or Git Bash alongside cl.
+- Link lines are ${CC} ${NAMOBJFL}program${EXE_EXT} .... For cl,
+  NAMOBJFL is /Fo, which names object files, not executables (/Fe or
+  link /out:). config.windows defines LINK and LDNAMEXEFL=/out: but
+  nothing uses them.
+- scan-constants.scm is made with 'cpp -P'; with MSVC that's
+  'cl /EP' (or /P).
+- windows-sys.c includes shlwapi.h, so links need shlwapi.lib.
+  config.windows has a LIBS variable, but no makefile uses it.
+- No /std:c11 flag. MSVC's C11 mode needs VS 2019 16.8 or later.
+- config.unix and config.windows duplicate the build-type, phony
+  target and clean logic (already in TODO.org).
+
+*** C code
+- scan-base.h: the SCAN_WINDOWS TCHAR block has an empty, misnested
+  '#if defined(__GNUC__)' inside the _MSC_VER branch, so a MinGW
+  (gcc on Windows) build gets no _TCHAR definitions at all.
+- scan-base.h: '#define isnan _isnan' and 'finite' for MSVC predate
+  C99 support in MSVC (2013+), where isnan is a math.h macro. Likely to
+  conflict or warn now; the code uses isfinite elsewhere.
+- LLP64: long is 32 bits on 64-bit Windows. get_c_long returns long and
+  is used for addresses in debug-tools.c:130 and :170 and for the stack
+  limit (evaluator.c:30), so those truncate. Use intptr_t or size_t.
+- windows-sys.c sys_debug_break uses x86 int3 asm under __GNUC__ (in
+  TODO.org); it should match unix-sys.c.
+- struct hash_table_t ends in data[0] (scan-types.h:194). MSVC accepts
+  this with warning C4200; a flexible array member (data[]) is
+  standard C99.
+- <complex.h>: MSVC has only a partial version (_Dcomplex, _Cbuild,
+  no arithmetic operators). This is what D9 in the complex plan depends
+  on.
+- Encouraging: the system layer API (scan-sys.h) hasn't changed since
+  2014 apart from one include, and windows-sys.c implements all of it,
+  so the Windows port should mostly need updating rather than
+  rewriting.
+- Needs checking on a real build: the conservative GC captures
+  registers with setjmp and scans from the address of a local in
+  sys_init; both should work on x64 MSVC, but nothing has run there
+  since 64-bit became the only target.
+
+** Options for the build system
+*** 1. Keep GNU make, fix config.windows
+Use LINK/LDNAMEXEFL for links, cl /EP for constants, LIBS for
+shlwapi.lib, /std:c11. Require MSYS2 or Git Bash on Windows. Smallest
+change; keeps one build description.
+
+*** 2. CMake
+Generates Visual Studio or Ninja builds natively on Windows and
+Makefiles elsewhere, and knows each compiler's flags. The bootstrap
+steps (scc0 image compile, to-c-source, generated C, vcsh0 then vcsh)
+become add_custom_command rules. More work, and a new dependency, but
+it's what Windows developers expect.
+
+*** 3. Separate native builds
+A Visual Studio project or nmake file alongside the makefiles. Two
+build descriptions to keep in sync; not recommended.
+
+*** Verification, whichever option is chosen
+Continuous integration is the only practical way to keep MSVC working:
+GitHub Actions has windows-latest (MSVC), ubuntu-latest (gcc and
+clang) and macos-latest (clang) runners. A matrix that builds and runs
+'make tested' on each would have caught the glibc break above.
+
+** Decisions (resolved)
+- Windows/MSVC: dropped. clang-cl if Windows ever returns.
+- Build system: GNU make with a single config.mk.
+- MinGW: not supported.
+- CI: not yet (in TODO.org).

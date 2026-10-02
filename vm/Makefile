@@ -9,89 +9,81 @@
 # See the file "LICENSE" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-.PHONY: all indented coverage tested
+.PHONY: indented tested
 
-TARGETS=to-c-source${EXE_EXT} scan-vm${LIB_EXT} scansh0${EXE_EXT} \
-        fasl-dump${EXE_EXT} scan-constants.scm TAGS
+TARGETS=to-c-source scan-vm.a scansh0 fasl-dump scan-constants.scm TAGS
 
 SCAN_HEADERS=scan-base.h scan-constants.h scan-internal-file.h scan-private.h \
              scan-sys.h scan-types.h scan.h scan-constants.i
 
-include ../build-settings
-include ../config.${PLATFORM}
+include ../config.mk
 
-tested: all ./scansh0${EXE_EXT}
-	./scansh0${EXE_EXT} -Xdebug-flags=test-vm
+tested: all ./scansh0
+	./scansh0 -Xdebug-flags=test-vm
 
 SCC0=scc0/scc0
 
-VM_OBJS=$(PLATFORM)-sys${OBJ_EXT} \
-       character${OBJ_EXT} \
-       constants${OBJ_EXT} \
-       core${OBJ_EXT} \
-       debug-printer${OBJ_EXT} \
-       debug-tools${OBJ_EXT} \
-       error${OBJ_EXT} \
-       evaluator${OBJ_EXT} \
-       fasl${OBJ_EXT} \
-       global-env${OBJ_EXT} \
-       hash-table${OBJ_EXT} \
-       io${OBJ_EXT} \
-       io-encdec${OBJ_EXT} \
-       io-external-file${OBJ_EXT} \
-       io-internal-file${OBJ_EXT} \
-       io-string${OBJ_EXT} \
-       io-text${OBJ_EXT} \
-       list${OBJ_EXT} \
-       macro${OBJ_EXT} \
-       main${OBJ_EXT} \
-       memory${OBJ_EXT} \
-       mt19937${OBJ_EXT} \
-       number${OBJ_EXT} \
-       number-format${OBJ_EXT} \
-       oblist${OBJ_EXT} \
-       string${OBJ_EXT} \
-       system${OBJ_EXT} \
-       vector${OBJ_EXT}
+VM_OBJS=unix-sys.o \
+       character.o \
+       constants.o \
+       core.o \
+       debug-printer.o \
+       debug-tools.o \
+       error.o \
+       evaluator.o \
+       fasl.o \
+       global-env.o \
+       hash-table.o \
+       io.o \
+       io-encdec.o \
+       io-external-file.o \
+       io-internal-file.o \
+       io-string.o \
+       io-text.o \
+       list.o \
+       macro.o \
+       main.o \
+       memory.o \
+       mt19937.o \
+       number.o \
+       number-format.o \
+       oblist.o \
+       string.o \
+       system.o \
+       vector.o
 
-VM_SRCS:= $(VM_OBJS:${OBJ_EXT}=.c)
+VM_SRCS:= $(VM_OBJS:.o=.c)
 
-VM_GCOV:= $(VM_OBJS:${OBJ_EXT}=.gcov)
+FASL_DUMP_OBJS=fasl-dump.o \
+               io-encdec.o \
+               constants.o
 
-FASL_DUMP_OBJS=fasl-dump${OBJ_EXT} \
-               io-encdec${OBJ_EXT} \
-               constants${OBJ_EXT}
+FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:.o=.c)
 
-FASL_DUMP_SRCS:= $(FASL_DUMP_OBJS:${OBJ_EXT}=.c)
+fasl-dump: $(FASL_DUMP_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(FASL_DUMP_OBJS) $(LDLIBS)
 
-coverage: $(VM_GCOV)
+scan-vm.a: $(VM_OBJS)
+	rm -f $@
+	$(AR) rcs $@ $(VM_OBJS)
 
-fasl-dump${EXE_EXT}: $(FASL_DUMP_OBJS)
-	${CC} ${LDFLAGS} ${NAMOBJFL}fasl-dump${EXE_EXT}  $(FASL_DUMP_OBJS)
+SH0_OBJS=scansh0.o \
+         vm-tests.o
 
-scan-vm${LIB_EXT}: $(VM_OBJS)
-	${AR_RCS} ${AROUTFL}scan-vm${LIB_EXT} $(VM_OBJS)
-ifdef RANLIB
-	${RANLIB} scan-vm${LIB_EXT}
-endif
+SH0_SRCS:= $(SH0_OBJS:.o=.c)
 
-SH0_OBJS=scansh0${OBJ_EXT} \
-         vm-tests${OBJ_EXT}
+scansh0: scan-vm.a $(SH0_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(SH0_OBJS) scan-vm.a $(LDLIBS)
 
-SH0_SRCS:= $(SH0_OBJS:${OBJ_EXT}=.c)
+TO_C_SOURCE_OBJS=to-c-source.o
 
-scansh0${EXE_EXT}: scan-vm${LIB_EXT} ${SH0_OBJS}
-	${CC} ${NAMOBJFL}scansh0${EXE_EXT} ${SH0_OBJS} scan-vm${LIB_EXT} ${LDFLAGS} 
+TO_C_SOURCE_SRCS:=$(TO_C_SOURCE_OBJS:.o=.c)
 
-TO_C_SOURCE_OBJS=to-c-source${OBJ_EXT}
-
-TO_C_SOURCE_SRCS:=$(TO_C_SOURCE_OBJS:${OBJ_EXT}=.c)
-
-to-c-source${EXE_EXT}: $(TO_C_SOURCE_OBJS)
-	${CC} ${NAMOBJFL}to-c-source${EXE_EXT} $(TO_C_SOURCE_OBJS) ${LDFLAGS} 
+to-c-source: $(TO_C_SOURCE_OBJS)
+	$(CC) $(LDFLAGS) -o $@ $(TO_C_SOURCE_OBJS) $(LDLIBS)
 
 scan-constants.scm: scan-constants.i
-	cpp -DCONST_SCHEME -P $< $@
+	$(CC) -E -P -x c -DCONST_SCHEME $< -o $@
 
 depend:
 	vcsh grovel-dependancies.scm scheme.scm 1> .depend
@@ -102,11 +94,8 @@ indented:
 clean-local:
 	rm -f scan-constants.scm
 
-%.gcov: %.c %.gcda %.gcno scansh0${EXE_EXT}
-	gcov $<
-
-%${OBJ_EXT}: %.c $(SCAN_HEADERS) Makefile
-	$(CC) $(CCFLAGS) $(DEFINES) ${COMPILEFL} ${NAMOBJFL}$@ $<
+%.o: %.c $(SCAN_HEADERS) Makefile $(BUILD_FLAGS_STAMP)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 ifneq ($(wildcard .depend),)
 include .depend
