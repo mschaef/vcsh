@@ -308,19 +308,15 @@ enum sys_retcode_t sys_gethostname(_TCHAR * buf, size_t len)
      return SYS_OK;
 }
 
-enum sys_eoln_convention_t sys_get_eoln_convention()
-{
-     return SYS_EOLN_LF;
-}
-
-bool sys_get_fs_names_case_sensitive()
-{
-     return true;
-}
-
 const _TCHAR *sys_get_platform_name()
 {
+#if defined(__APPLE__)
+     return _T("macos");
+#elif defined(__linux__)
      return _T("linux");
+#else
+#     error Unsupported platform: vcsh builds on macOS and Linux.
+#endif
 }
 
 

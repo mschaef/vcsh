@@ -19,7 +19,7 @@
 /* An internal file is a block of read-only data linked into the
  * executable, usually a compiled scheme image. to-c-source generates
  * one as a separate const byte array plus an internal_file_t that
- * points at it, which compiles the same way on MSVC and gcc/clang. */
+ * points at it. */
 
 struct internal_file_t
 {

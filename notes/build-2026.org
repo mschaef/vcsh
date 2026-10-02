@@ -42,8 +42,22 @@ flags as cl.exe; that seems unlikely.
   glibc 2.39.
 - Removed: windows-sys.c, config.windows, scc0/*.bat, and the
   SCAN_WINDOWS, SCAN_UNIX and _MSC_VER branches in scan-base.h and
-  scan-sys.h. Not removed yet (TODO.org): the Scheme-level :win32
-  platform-case branches and the _TCHAR layer.
+  scan-sys.h.
+- Follow-up (branch remove-windows-leftovers): removed vm/scan.rc,
+  scheme-core/update-scc0.bat, platform-case and all its :win32
+  branches (filename handling, home directory), the unused
+  platform-linux?/platform-windows? exports, and "/" as a command-line
+  option prefix, so absolute paths work as file arguments.
+  system-info :platform-name now reports :macos or :linux; it used to
+  say :linux on macOS, which platform-case depended on.
+- Also removed: sys_get_eoln_convention (always LF) and
+  sys_get_fs_names_case_sensitive (always true, which is wrong for a
+  default macOS volume; case sensitivity is per volume anyway), and
+  the system-info :eoln-convention and :fs-case-sensitive? keys, which
+  nothing used. Text ports now start with CRLF translation off
+  unconditionally, as they already did on macOS and Linux.
+- Still to decide (TODO.org): the _TCHAR layer, and whether to keep
+  CRLF translation on text ports.
 
 ** Verified
 | Toolchain | Platform                  | Builds                        | Tests |

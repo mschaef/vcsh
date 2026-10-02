@@ -80,7 +80,8 @@ target package names.
   builds of the same source differ, which rules out a fixpoint check.
 - scc0/scc0 and scc0-good wrapper scripts are stale (already in TODO).
 - Note: scansh0 treats arguments starting with "/" as options (Windows
-  style), so absolute input paths are rejected.
+  style), so absolute input paths are rejected. Fixed in main.scm
+  (2026-10-02); scansh0 picks it up when scc0 is next refreshed.
 
 * Improvements, roughly in order
 ** Predictability (cheap)

@@ -346,27 +346,6 @@ lref_t lsystem_info()
 {
      lref_t obj = hashcons(false, boolcons(false));
 
-     lref_t eoln = boolcons(false);
-
-     switch (sys_get_eoln_convention())
-     {
-     case SYS_EOLN_CRLF:
-          eoln = keyword_intern(_T("crlf"));
-          break;
-     case SYS_EOLN_CR:
-          eoln = keyword_intern(_T("cr"));
-          break;
-     case SYS_EOLN_LF:
-          eoln = keyword_intern(_T("lf"));
-          break;
-     }
-
-     lhash_set(obj, keyword_intern(_T("eoln-convention")), eoln);
-
-     lhash_set(obj, keyword_intern(_T("fs-case-sensitive?")),
-               boolcons(sys_get_fs_names_case_sensitive()));
-
-
      _TCHAR system_name[STACK_STRBUF_LEN];
 
      lref_t name = boolcons(false);

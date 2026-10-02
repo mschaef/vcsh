@@ -124,16 +124,6 @@ enum sys_retcode_t sys_opendir(const char *path, struct sys_dir_t ** dir);
 enum sys_retcode_t sys_readdir(struct sys_dir_t * dir, struct sys_dirent_t * ent, bool * done_p);
 enum sys_retcode_t sys_closedir(struct sys_dir_t * dir);
 
-enum sys_eoln_convention_t
-{
-     SYS_EOLN_CRLF = 0,         /* dos/windows */
-     SYS_EOLN_CR = 1,           /* macintosh */
-     SYS_EOLN_LF = 2            /* unix */
-};
-
-enum sys_eoln_convention_t sys_get_eoln_convention();
-
-bool sys_get_fs_names_case_sensitive();
 
 const _TCHAR *sys_get_platform_name();
 

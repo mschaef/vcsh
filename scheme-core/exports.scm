@@ -590,9 +590,6 @@
              path-string->list
              peek-char
              perf-report
-             platform-case
-             platform-linux?
-             platform-windows?
              pop!
              population-count
              port

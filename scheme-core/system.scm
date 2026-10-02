@@ -29,23 +29,6 @@
           (#t
            (hash-ref all attribute)))))
 
-(define *cached-platform* #f)
-
-(define (current-platform-name)
-  (unless *cached-platform*
-    (set! *cached-platform* (system-info :platform-name)))
-  *cached-platform*)
-
-(defmacro (platform-case . case-clauses)
-  "A variant of case used to pick between branches of code based on the
-   currently running platform.  The car of each case clause specifies
-   the platform(s) on which the body of that case clause will run.  The
-   car can either be one platform name or a list of platform names. The
-   platform name is the second item of the list returned by (system-info)."
-  `(case (current-platform-name)
-     ,@case-clauses
-     (#t (error "Unsupported platform: ~s" *cached-platform*))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; The Runtime Environment
 
@@ -80,23 +63,19 @@
   "Returns <ch> if it is a quoting character in pathnames on the
   current platform, #f otherwise. Quoting characters are those that
   cause any special interpretation of the subsequent character to be
-  ignored. On Linux, #\\\\ is a quoting character. There is no such
-  character on Windows."
-  (platform-case ((:win32) #f)
-                 ((:linux) (char=? ch #\\))))
+  ignored. #\\\\ is the only quoting character."
+  (char=? ch #\\))
 
 (define (char-path-delimiter? ch)
   "Returns <ch> if it is a path delimiting character in pathnames on the
   current platform, #f otherwise."
-  (platform-case ((:win32) (or (char=? ch #\\)
-                               (char=? ch #\/)))
-                 ((:linux) (char=? ch #\/))))
+  (char=? ch #\/))
 
 (define (path-string->list str)
   "Parse a directory path string, returning a list of each directory in the path
    in the order in which it appears. Each directory in the path is seperated by
    either a #\\: or #\\;. These may appear in a directory name itself if quoted
-   with a #\\\\ (except on Windows). Empty directory names are eliminated from
+   with a #\\\\. Empty directory names are eliminated from
    the resultant list."
   (let ((ip (open-input-string str)))
     (let loop ((dirs ())
@@ -113,8 +92,6 @@
              (read-char ip)
              (loop (cons (current-dir) dirs) (open-output-string)))
             (#t
-             ;; The windows directory seperator can't be used to quote things, since
-             ;; it has higher callings on Windows.
              (when (char-path-quote? (peek-char ip))
                (read-char ip))
              (write-char (read-char ip) op)
@@ -125,46 +102,25 @@
 (define (home-directory)
   "Returns the path to the current user's home directory. Returns #f if
    the home directory cannot be determined."
-  (aif (platform-case
-        ((:win32)
-         (let ((d (environment-variable "HOMEDRIVE"))
-               (p (environment-variable "HOMEPATH")))
-           (acond ((and d p)
-                   (string-append d p))
-                  ((environment-variable "USERPROFILE")
-                   it)
-                  (#t
-                   #f))))
-        ((:linux)
-         (aif (environment-variable "HOME")
-              it
-              #f)))
+  (aif (environment-variable "HOME")
        (filename-append-delimiter it)
        it))
 
 
 (define (filename-string=? x y)
   "Compare two filenames <x> and <y>, using system-specific conventions
-   for filename comparison. On Unix, this means case-sensitive comparison
-   on Win32, this means case-insensitive."
+   for filename comparison, which is case-sensitive."
   (or (eq? x y)
       (and (string? x)
            (string? y)
-           (platform-case ((:win32) (string=-ci x y))
-                          ((:linux) (string= x y))))))
+           (string= x y))))
 
 (define (filename-path-delimiter-pos filename)
-  (platform-case
-   ((:win32) (or (string-search #\/ filename)
-                 (string-search #\\ filename)))
-   ((:linux) (string-search #\/ filename))))
+  (string-search #\/ filename))
 
 
 (define (filename-last-path-delimiter-pos filename)
-  (platform-case
-   ((:win32) (or (string-search-from-right #\/ filename)
-                 (string-search-from-right #\\ filename)))
-   ((:linux) (string-search-from-right #\/ filename))))
+  (string-search-from-right #\/ filename))
 
 (define (filename-first/rest filename) ; REVISIT: possibly better as filename-fold
   "Splits <filename> at the first directory delimiter. The first value
@@ -314,8 +270,7 @@
 
 (define (filename-maybe-add-relative-prefix filename)
   (if (and (> (string-length filename) 0)
-           (member (string-ref filename 0) (platform-case ((:win32) '(#\. #\/ #\\))
-                                                          ((:linux)  '(#\. #\/)))))
+           (member (string-ref filename 0) '(#\. #\/)))
       filename
       (string-append "./" filename)))
 
@@ -454,11 +409,7 @@
        (filter include? (%directory exact-directory-name mode))))
 
 (define (not-dot-directory? filename)
-  (not (platform-case
-        ((:win32)
-         (member filename '("./" "../" ".\\" "..\\")))
-        ((:linux)
-         (member filename '("./" "../"))))))
+  (not (member filename '("./" "../"))))
 
 (define (directory filename) ;; XXX (directory "file-that-exists.scm") does something wierd
   (let ((filename (if (string? filename)

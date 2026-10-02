@@ -26,8 +26,7 @@
 *** Replace tempnam (unix-sys.c) with mkstemp
 *** Verify 'make coverage' on macOS and on Linux with clang's runtime libraries installed (untested so far)
 *** Consider CI (GitHub Actions) for macOS and Linux, arm64 and x86-64
-*** Follow-ups to dropping Windows: Scheme-level :win32 platform-case branches and platform-windows? (system.scm); the _TCHAR layer (about 900 uses)
-*** system-info reports platform "linux" on macOS (unix-sys.c)
+*** Follow-ups to dropping Windows: the _TCHAR layer (about 900 uses); CRLF translation on text ports (port-translate-mode): keep or drop
 *** scc0/scc0 and scc0-good reference fasl-compiler-run.scf and ../scheme, which don't exist
 *** README: benchmark steps (../csv.scm no longer needed, ~/ectworks paths); document bootstrap; heading style
 *** Verify directory tools on macOS and Linux
@@ -42,7 +41,7 @@
 *** Host FASL writer shouldn't read system:: constants at runtime
 *** Pin scc0 to its own VM (git revision + worktree build) so VM changes are one step
 *** Evaluate fewer definitions at compile time (CL-style compile-file semantics)
-*** scansh0 treats arguments starting with "/" as options; absolute input paths are rejected
+*** scc0's image still treats arguments starting with "/" as options (fixed in main.scm; takes effect in scansh0 after the next scc0 refresh)
 
 ** Traps (see notes/traps-2026.org)
 *** Decide on trap rework: remove dead traps (0 BAD_APPLY, 3 SIGNAL, 4 TIMER_EVENT, 6 MSG_NOT_UNDERSTOOD), installation timing, central table
@@ -133,6 +132,7 @@
 *** sxhash on flonums hashes the bit pattern (was truncated to an integer, so all of [0,1) collided); -0.0/0.0 and NaNs normalized to match equal?
 *** Flonums unboxed: complex numbers have their own type (cdd5013), and most flonums are immediates in tag 10 (c0c15f9); see notes/flonums-2026.org
 *** Windows/MSVC support dropped; build simplified to one config.mk (BUILD, CC, SANITIZE, COVERAGE) with clang as the default compiler; strchrnul conflict with glibc 2.39 fixed
+*** Scheme-level Windows code removed (platform-case and its :win32 branches, "/" option prefix, scan.rc, update-scc0.bat); system-info :platform-name reports :macos or :linux; eoln-convention and fs-case-sensitive? queries removed
 
 * vcalc
   Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).

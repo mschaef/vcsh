@@ -40,7 +40,7 @@
            (cond ((equal? arg "--") #f)
                  ((string-begins-with? arg "--")
                   (split-option-arg (substring arg 2)))
-                 ((string-begins-with? arg "-" "/")
+                 ((string-begins-with? arg "-")
                   (split-option-arg (substring arg 1)))
                  (#t
                   (cons :filename arg))))

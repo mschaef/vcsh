@@ -376,7 +376,9 @@ struct port_text_info_t *allocate_text_info()
      tinfo->pbuf = 0;
      tinfo->pbuf_valid = false;
 
-     tinfo->translate = (sys_get_eoln_convention() == SYS_EOLN_CRLF);
+     /* CRLF translation is off by default: macOS and Linux both use LF
+      * line endings. set-port-translate-mode! turns it on. */
+     tinfo->translate = false;
      tinfo->needs_lf = FALSE;
      tinfo->col = 0;
      tinfo->row = 1;

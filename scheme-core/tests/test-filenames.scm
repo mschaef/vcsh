@@ -320,13 +320,9 @@
   (check (equal? (path-string->list "..;.") '(".." ".")))
   (check (equal? (path-string->list ".:..") '("." "..")))
   (check (equal? (path-string->list ".;..") '("." "..")))
-  (platform-case
-   ((:linux)
-    ;; Quoting doesn't work on *nix platforms
-    (check (equal? (path-string->list ".\\:..") '(".:..")))
-    (check (equal? (path-string->list ".\\;..") '(".;.."))))
-   ((:win32)
-    #t))
+  ;; #\\ quotes a following separator.
+  (check (equal? (path-string->list ".\\:..") '(".:..")))
+  (check (equal? (path-string->list ".\\;..") '(".;..")))
   (check (equal? (path-string->list "1;2;3;4") '("1" "2" "3" "4")))
   (check (equal? (path-string->list "1;.;..;4") '("1" "." ".." "4")))
   (check (equal? (path-string->list "./;..;~;/usr/lib/windmill") '("./" ".." "~" "/usr/lib/windmill")))
