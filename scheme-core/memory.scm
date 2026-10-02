@@ -24,5 +24,7 @@
 (define (trap-after-gc trapno frp cells-freed)
   (maybe-enlarge-heap cells-freed))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+;; Not at compile time: during an image compile, the compiler must keep
+;; its own trap handlers rather than switch to the image's.
+(eval-when (:load-toplevel :execute)
   (%set-trap-handler! #.system::TRAP_AFTER_GC trap-after-gc))

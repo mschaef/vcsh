@@ -149,9 +149,22 @@ target package names.
    and the comparison functions are probably there for macro expansions
    that compare symbols; needs checking, but sharing the symbol shouldn't
    be the fix.
-5. Stop installing trap handlers at compile time: make those eval-whens
-   :load-toplevel only, or have %set-trap-handler! refuse while an image
-   compile is running.
+5. [done] Stop installing trap handlers at compile time: make those
+   eval-whens :load-toplevel only, or have %set-trap-handler! refuse
+   while an image compile is running.
+   As built: the five trap-handler eval-whens (error-handling.scm,
+   number.scm, memory.scm, main.scm, tools.scm; 23 handlers) are now
+   (:load-toplevel :execute). Checked with a compile-time probe at the
+   end of scheme.scm comparing %trap-handler against host-scheme:: and
+   scheme:: functions: before, all of wrong-type, after-gc, define,
+   fixnum-add and run0 were the target's by the end of the compile;
+   after, all are still the host's. A loaded image still installs its
+   own handlers (checked in vcsh).
+   Found while probing, not fixed: calling the target's format at
+   compile time at the end of scheme.scm hangs or crashes the VM (with
+   or without this change), while host-scheme::format works. Probably
+   the target's printer and port code running against host state, i.e.
+   crosstalk routes 1-2; worth checking when doing items 4 and 8.
 6. [done] Make the host compiler independent of system:: values at
    runtime: the FASL writer should use constants fixed when it was built
    (as the fast-op table does), so redefinitions can't switch its output

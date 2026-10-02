@@ -374,7 +374,9 @@
     (invoke-hook '*shutdown-hook* retval)
     retval))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+;; Not at compile time: during an image compile, the compiler must keep
+;; its own trap handlers rather than switch to the image's.
+(eval-when (:load-toplevel :execute)
   (%set-trap-handler! #.system::TRAP_RUN0 %run0))
 
 (define (display-vcsh-banner :optional (port (current-output-port)))

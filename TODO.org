@@ -33,7 +33,7 @@
 
 ** Bootstrap (see notes/bootstrap-2026.org)
 *** Trim *shared-target-symbols*; host compiler currently calls the target's member
-*** Don't install trap handlers at compile time during image compiles
+*** Calling the target's format at compile time near the end of an image compile hangs or crashes the VM (notes/bootstrap-2026.org, item 5); look at with items 4 and 8
 *** Pin scc0 to its own VM (git revision + worktree build) so VM changes are one step
 *** Evaluate fewer definitions at compile time (CL-style compile-file semantics)
 
@@ -132,6 +132,7 @@
 *** Undefined behavior found by SANITIZE=undefined fixed (fixnum tagging, int32/int64 decoding, hashing, mt19937_int64), with VM tests for extreme encode/decode and fixnum values; sanitizer builds now stop at the first finding
 *** Bootstrap predictability: real image dependencies; two-stage image build (stage 2 is linked); 'make bootstrap-check' (stage 3 = stage 2); scc0 'make update' checks first; reproducible build date (SOURCE_DATE_EPOCH); FASL header with format version and VM interface hash
 *** No scheme-core code reads system:: constants at run time any more (FASL_OP_*, TRAP_*, VMCTRL_*, FOFS_* are #.-read), so an image compile can't switch the host's numbering mid-file
+*** Trap handlers are no longer installed at compile time during image compiles (eval-when :load-toplevel :execute only)
 
 * vcalc
   Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).

@@ -13,7 +13,9 @@
 (define (trap-fixnum-overflow trapno frp arg-0 arg-1)
   (error "Fixnum overflow (trapno=~a, arg-0=~a, arg-1=~a)" trapno arg-0 arg-1))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+;; Not at compile time: during an image compile, the compiler must keep
+;; its own trap handlers rather than switch to the image's.
+(eval-when (:load-toplevel :execute)
   (%set-trap-handler! #.system::TRAP_OVERFLOW_FIXNUM_ADD trap-fixnum-overflow)
   (%set-trap-handler! #.system::TRAP_OVERFLOW_FIXNUM_MULTIPLY trap-fixnum-overflow)
   (%set-trap-handler! #.system::TRAP_OVERFLOW_FIXNUM_NEGATE trap-fixnum-overflow)

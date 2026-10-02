@@ -276,7 +276,9 @@
 (define (trap-fast-read-error trapno frp subr desc port location details)
   (error-with-stack (capture-stack frp) "Error Reading FASL File: ~s @ ~s:~s" desc port location))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+;; Not at compile time: during an image compile, the compiler must keep
+;; its own trap handlers rather than switch to the image's.
+(eval-when (:load-toplevel :execute)
   (%set-trap-handler! #.system::TRAP_WRONG_TYPE trap-wrong-type)
   (%set-trap-handler! #.system::TRAP_INDEX_OUT_OF_BOUNDS trap-index-out-of-bounds)
   (%set-trap-handler! #.system::TRAP_ARG_OUT_OF_RANGE trap-arg-out-of-range)

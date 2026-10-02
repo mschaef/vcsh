@@ -228,7 +228,9 @@
 (define (trap-global-define-handler trapno frp symbol new-definition)
   (invoke-hook '*global-define-hook* symbol new-definition))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+;; Not at compile time: during an image compile, the compiler must keep
+;; its own trap handlers rather than switch to the image's.
+(eval-when (:load-toplevel :execute)
   (%set-trap-handler! #.system::TRAP_DEFINE trap-global-define-handler))
 
 ;;;; The function tracer
