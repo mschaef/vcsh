@@ -19,6 +19,7 @@
 *** Date printing doesn't show full resolution, so unequal dates can print identically (date-time.scm:1499)
 
 ** Build and portability
+*** NEXT: decide the state of config.windows and the multi-target build system in general. Blocks the complex number remediation plan (its D9: <complex.h> availability).
 *** windows-sys.c sys_debug_break uses x86 int3 asm under __GNUC__ (unix-sys.c fixed)
 *** Replace deprecated _BSD_SOURCE/_SVID_SOURCE with _DEFAULT_SOURCE
 *** Unify the common parts of config.unix/config.windows
@@ -55,7 +56,6 @@
 *** Cache lexical frames on the Lisp stack
 *** Add more FOPs for looping (FOP_WHILE_TRUE exists)
 *** Linear bytecode compiler
-*** Unbox flonums: complex as own type (branch complex-type), then immediate flonums in tag 10 (branch immediate-flonums); see notes/flonums-2026.org
 *** Possible long-term: port the VM to Rust (macros for subr definitions); see notes/history-and-direction.org
 *** Clean up FASL write; consider the restructuring noted at vm/fasl.c:20
 *** Move macros entirely to Lisp (vm/macro.c:16)
@@ -65,7 +65,7 @@
 
 ** Numbers
 *** Bignums
-*** Complete complex arithmetic and settle the number class graph; see notes/flonums-2026.org ("Future work and open decisions")
+*** Complex number remediation: notes/flonums-2026.org, "Complex number remediation plan" (phases 0-5). Starts right after the config.windows / multi-target build work.
 *** Scheme versions of gcd and lcm (number.scm:121)
 *** Statistics that pass statistical reference data sets
 
@@ -127,6 +127,7 @@
 *** Structures and instances removed; 0.7 milestone and structure TODOs obsolete
 *** Structure/instance leftovers removed: type codes, traps, FASL opcodes (numbers left as gaps), structure.c folded into hash-table.c
 *** sxhash on flonums hashes the bit pattern (was truncated to an integer, so all of [0,1) collided); -0.0/0.0 and NaNs normalized to match equal?
+*** Flonums unboxed: complex numbers have their own type (cdd5013), and most flonums are immediates in tag 10 (c0c15f9); see notes/flonums-2026.org
 
 * vcalc
   Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).

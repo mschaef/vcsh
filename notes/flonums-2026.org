@@ -59,7 +59,7 @@ the representation before or alongside that work, and before any Rust
 port.
 
 * Options
-** A. Immediate flonums in the unused 10 tag (prototyped)
+** A. Immediate flonums in the unused 10 tag (done)
 Ruby's "flonum" encoding (since 1.9/2.0) fits vcsh's tag layout:
 fixnum = 01, flonum = 10, same 2-bit mask.
 - Encode: if bits 62..60 of the double are 011 or 100 (magnitude in
@@ -84,14 +84,14 @@ fixnum = 01, flonum = 10, same 2-bit mask.
   R5RS leaves eq? on numbers unspecified, but check that scheme-core
   doesn't rely on flonums being distinct objects.
 - Needs B first, since an immediate has no room for im_part.
-- Prototyped on branch immediate-flonums, which builds on complex-type;
-  see "Prototype of option A" below.
+- Done: merged to master as c0c15f9; see "Prototype of option A"
+  below.
 
-** B. Give complex numbers their own type (prototyped)
+** B. Give complex numbers their own type (done)
 New TC_COMPLEX cell holding two inline doubles; TC_FLONUM holds only a
 double. Complex drops from 2 cells to 1, and real arithmetic no longer
-checks im_part. Useful on its own and a prerequisite for A. Done on
-branch complex-type; details under "Prototype of option B" below.
+checks im_part. Useful on its own and a prerequisite for A. Merged to
+master as cdd5013; details under "Prototype of option B" below.
 
 ** C. Fused float fast-ops in the compiler
 Have the compiler recognise nested arithmetic, e.g.
@@ -134,7 +134,7 @@ NaN payloads.
 - A large rewrite for little gain over A. Worth considering only for a
   from-scratch Rust VM.
 
-* Prototype of option B (branch complex-type, 2026-10-01)
+* Prototype of option B (branch complex-type, 2026-10-01; merged as cdd5013)
 ** What changed
 - New typecode TC_COMPLEX (24; numbers 14/19/21 left as gaps because
   scc0 may still map them). Cell holds two inline doubles; TC_FLONUM
@@ -172,7 +172,7 @@ NaN payloads.
 arithmetic now costs the same as real flonum arithmetic; real flonum
 code is unchanged, as expected.
 
-* Prototype of option A (branch immediate-flonums, 2026-10-02)
+* Prototype of option A (branch immediate-flonums, 2026-10-02; merged as c0c15f9)
 ** What changed
 - Smaller than estimated: everything goes through FLONUMP, FLONM and
   flocons, so only those and TYPE() needed to change.
@@ -245,19 +245,9 @@ DEBUG build, cells allocated:
 
 * Future work and open decisions
 ** Decisions
-- Merge complex-type to master, or revise first. Then
-  immediate-flonums, which builds on it.
-- Where fixnum sits in the class graph. It is directly under number, so
-  a method on complex doesn't apply to fixnums even though every fixnum
-  is a complex number. Options: put fixnum under complex, or add a
-  'real class (fixnum, flonum < real < complex < number).
-- What complex? should mean. It returns #f for reals and fixnums
-  (complex? 1.5 => #f); R5RS says every number is complex. Tied to the
-  class-graph question above.
-- How to compare complex numbers. = should compare both parts; <, >,
-  <=, >= should probably raise wrong-type for a non-real argument.
-- Whether get_c_flonum should raise on a complex argument instead of
-  returning the real part (see the REVISIT list below).
+- Complex-number semantics (complex?, real?, the class graph,
+  comparisons, get_c_flonum, and more): see Phase 0 of the remediation
+  plan below, which lists each decision with a recommendation.
 - Option A:
   - Whether the eq? change is acceptable: equal immediate flonums are
     eq?, equal boxed ones (-0.0, out-of-range, NaN) are not.
@@ -268,19 +258,171 @@ DEBUG build, cells allocated:
   order").
 
 ** Complex arithmetic still to finish (some marked REVISIT in vm/)
-- = and < compare only real parts: (= 1+2i 1+5i) is #t, and < accepts
-  complex arguments (common_number_type).
-- get_c_flonum silently returns the real part of a complex, so floor,
-  ceiling, round, truncate, inexact->exact and number->string drop the
-  imaginary part.
-- exp, sin, cos, tan, asin, acos, atan, sqrt and expt raise
-  "unimplemented" for complex arguments. lsqrt already contains
-  unreachable code for the complex case.
-- string->number doesn't parse "1+2i", though the reader does.
+Surveyed 2026-10-02 on branch immediate-flonums, by calling every
+numeric subr and number.scm function with complex arguments.
+
+Wrong answers, silently:
+- =, <, >, <=, >= compare only real parts (common_number_type):
+  (= 3+4i 3+9i) and (= 3+4i 3) are #t, and (< 0+1i 3+4i) is #t instead
+  of an error. Everything built on them inherits this: zero? (zero? 0+1i
+  is #t), positive?, negative?, min, max, within?.
+- floor, ceiling, round, truncate and inexact->exact return a result
+  from the real part alone (get_c_flonum); (inexact->exact 3+4i) is 3.
+- number->string drops the imaginary part ("3.00000000"). write and
+  display are fine, because print-object handles complex separately.
+
+Real arguments that should give a complex result but give NaN:
+- (expt -1 0.5) and (expt -8.0 1/3) return NaN; R5RS returns the
+  principal complex value. sqrt and log already do this for negative
+  reals.
+- asin and acos of reals outside [-1, 1] return NaN.
+
+Not implemented (raise "unimplemented" for complex arguments):
+- exp, sin, cos, tan, asin, acos, atan (one and two argument), sqrt and
+  expt (complex base or exponent). lsqrt already contains code for the
+  complex case that can't be reached.
+- Working with complex arguments: +, -, *, /, magnitude, angle,
+  real-part, imag-part, make-rectangular, make-polar, log (and log10),
+  nan?, infinite?, exact->inexact, abs (returns magnitude), random,
+  equal?/eqv?/sxhash, printing and FASL.
+
+Parsing:
+- string->number parses no complex syntax at all: "3+4i", "+i" and
+  "1@2" all give #f.
+- The reader parses "3+4i" and "-2.5i", but reads "+i", "-i" and polar
+  "1@2" as symbols. Exact complex syntax ("#e1+2i") is a read error;
+  there are no exact complex numbers.
+
+Smaller points and decisions:
+- make-rectangular with a zero imaginary part returns a complex
+  (real? is #f); decide whether to normalize to a flonum.
+- Dividing a complex by zero gives NaN+NaNi; C99 Annex G would give an
+  infinity.
+- complex? is #f for reals (see Decisions above).
 - langle has an unused complex_x variable (compiler warning).
 
+** Complex number remediation plan
+Status (2026-10-02): recorded for future implementation. Scheduled to
+start immediately after the config.windows / multi-target build system
+work, which settles D9 (whether <complex.h> can be used everywhere).
+
+Plan for fixing everything in the list above. Each phase is a separate
+branch and commit with its own tests. The decisions come first because
+they change what the tests expect.
+
+*** Phase 0: decisions (recommendations in brackets)
+- D1. complex?: true for every number, as R5RS requires. [Yes]
+- D2. real?: by representation (a TC_COMPLEX is never real), as R6RS
+  does for inexact complex numbers, or true when the imaginary part is
+  zero, as R5RS does. [By representation; it's what vcsh does now,
+  it's cheap, and D3 removes most zero-imaginary complex values.]
+- D3. make-rectangular with an exact-zero imaginary part returns the
+  real part, so (make-rectangular 1.5 0) is 1.5. An inexact 0.0
+  imaginary part still gives a complex. [Yes, R6RS rule]
+- D4. Class graph: add an abstract 'real class:
+  fixnum, flonum < real < complex < number. Then a method on complex
+  applies to every number and a method on real to fixnums and flonums.
+  [Yes. Only print-object has number methods today, and it has methods
+  for fixnum, flonum and complex, so dispatch doesn't change.]
+- D5. Ordering (<, >, <=, >=) with a complex argument raises
+  wrong-type. = compares both parts. [Yes]
+- D6. floor, ceiling, round, truncate, quotient, remainder, modulo and
+  inexact->exact raise wrong-type for complex arguments. There are no
+  exact complex numbers, so inexact->exact can't do better. [Yes]
+- D7. get_c_flonum (and get_c_fixnum) raise wrong-type for complex
+  arguments instead of returning the real part. Code that wants the
+  real part asks for it explicitly. [Yes]
+- D8. Real arguments outside a function's real domain return the
+  complex principal value, as sqrt and log already do:
+  (expt -1 0.5) => 0+1i, (asin 2.0) => complex. [Yes, R5RS]
+- D9. Implement the complex functions with C99 <complex.h> (cexp,
+  clog, csqrt, cpow, csin, ccos, ctan, casin, cacos, catan) rather than
+  by hand. It gets branch cuts, signed zeros and infinities right, and
+  gcc and clang both have it. MSVC has only a partial, differently
+  named API, so this depends on whether config.windows still matters.
+  [Use <complex.h>; the Windows question is settled by the build
+  system work that precedes this plan]
+- D10. Syntax: support +i, -i and polar r@theta in both the reader and
+  string->number, through one parser. Keep #e on complex a read error,
+  with a clearer message. [Yes]
+
+*** Phase 1: number tower and predicates (D1-D4)
+- lcomplexp returns its argument for any number.
+- lmake_rectangular returns the real part when im is the fixnum 0.
+- class-graph.scm: add (make-class< 'real 'complex), move fixnum and
+  flonum under 'real, keep complex under 'number.
+- Tests: update test-numeric's complex? checks (they currently assert
+  (complex? 1.0) is #f), test-class-graph, and the dispatch tests that
+  depend on where fixnum sits.
+- Size: small.
+
+*** Phase 2: fail loudly instead of returning wrong answers (D5-D7)
+- common_number_type: return TC_COMPLEX for complex arguments. lnum_eq
+  compares real and imaginary parts; the ordering functions raise
+  wrong-type. zero?, positive?, negative?, min, max and within? follow
+  automatically.
+- lfloor, lceiling, lroundnum, ltruncate, linexact2exact: check REALP
+  first.
+- get_c_flonum/get_c_fixnum: raise on complex. Before changing them,
+  audit their callers (about 40; most are index or size arguments,
+  where an error is the right answer anyway).
+- number->string (number-format.c): format complex numbers as
+  re+imi using the same digits logic, so it round-trips through
+  string->number (phase 3). print-object for complex can then call it.
+- Remove the REVISIT markers added on the complex-type branch.
+- Bootstrap: = and < are shared with the host compiler during the
+  build, but only see reals there, so this is safe without an scc0
+  refresh.
+- Size: small to medium; most of the work is the caller audit.
+
+*** Phase 3: parsing (D10)
+- Teach lstring2number (number-format.c) the complex forms: a+bi,
+  a-bi, bi, +i, -i, and r@theta. Keep the subr's name: scc0 finds subrs
+  by name, so renaming it would break the bootstrap.
+- Have reader.scm's accept-number hand the whole token to
+  string->number instead of parsing the a+bi form itself, so there is
+  one parser. Check that +i and -i are tried as numbers before
+  symbols.
+- Tests: string->number on every form, and read/print and
+  number->string/string->number round trips.
+- Size: medium.
+
+*** Phase 4: transcendental functions (D8, D9)
+- exp, log, sqrt, sin, cos, tan, asin, acos, atan (one argument) and
+  expt: convert to double complex and call the <complex.h> function
+  when an argument is complex. Keep the existing real code for real
+  arguments, so real performance doesn't change.
+- Two-argument atan stays real-only and raises wrong-type for complex
+  arguments, as R5RS specifies.
+- Real arguments outside the real domain (D8): expt with a negative
+  base and a non-integer exponent, asin and acos outside [-1, 1]. Detect
+  the case and use the complex path.
+- Remove lsqrt's unreachable complex code, and the exp "unimplemented"
+  stub from the complex-type branch.
+- Tests: known values and identities with a tolerance (inexact-=):
+  (exp (* pi i)) = -1, (sqrt -4) = 2i, (log -1) = pi i,
+  (sin (asin z)) = z, (expt i i) = e^(-pi/2), and principal-value
+  branch cuts on the negative real axis. tests/math-ref-data.csv
+  (real sin/cos/tan reference values) isn't used by any test yet;
+  complex reference values could go alongside it.
+- Size: medium.
+
+*** Phase 5: loose ends
+- Complex division by zero: with <complex.h> available, use C's complex
+  division, which follows Annex G (infinities rather than NaN+NaNi).
+- langle: remove the unused complex_x variable.
+- Update the number section of notes/vcsh-lang.txi (the language
+  manual draft) for the new semantics.
+- Size: small.
+
+*** Related, but out of scope
+- expt always returns a flonum, even for exact arguments: (expt 2 3) is
+  8.0, not 8. R5RS wants an exact result for an exact base and a
+  non-negative exact integer exponent. This belongs with fixnum work,
+  not complex work.
+
 ** Housekeeping
-- Refresh scc0 ('make update') after merging. Until then the host image
+- Refresh scc0 ('make update') now that B and A are merged. Until then the host image
   maps complex values to type #f, which only matters if the build ever
   compiles a complex literal into the image.
 - The CHECKED build overflows the stack in test-symbols, on master too.
@@ -288,9 +430,11 @@ DEBUG build, cells allocated:
   also in TODO.org.
 
 * Suggested order
-1. B (complex as its own type): prototyped; merge once reviewed.
-2. A (immediate flonums): prototyped; removes nearly all flonum
-   allocation. Merge after B.
+1. B (complex as its own type): done (cdd5013).
+2. A (immediate flonums): done (c0c15f9); removes nearly all flonum
+   allocation.
+   Next for numbers: the complex number remediation plan, after the
+   config.windows / multi-target build work.
 3. C, together with the fixnum fast-ops / bytecode work.
 4. D if bulk numeric data becomes a real use case. E as filler.
 
