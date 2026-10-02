@@ -202,7 +202,6 @@
 
 (define (make-all-byte-string)
   (let ((p (open-output-string)))
-   (set-port-translate-mode! p #f)
    (let loop ((i 0))
      (cond ((> i 255) (get-output-string p))
            (#t 
@@ -211,7 +210,6 @@
       
 (define (make-all-byte-combo-string)
   (let ((p (open-output-string)))
-   (set-port-translate-mode! p #f)
    (let loop ((i 0) (j 0))
        (cond ((> i 255) (loop 0 (+ j 1)))
              ((> j 255) (get-output-string p))

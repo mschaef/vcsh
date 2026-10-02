@@ -56,8 +56,20 @@ flags as cl.exe; that seems unlikely.
   the system-info :eoln-convention and :fs-case-sensitive? keys, which
   nothing used. Text ports now start with CRLF translation off
   unconditionally, as they already did on macOS and Linux.
-- Still to decide (TODO.org): the _TCHAR layer, and whether to keep
-  CRLF translation on text ports.
+- CR+LF translation on text ports removed (branch
+  drop-crlf-translation), following Go, Rust and Java: ports pass line
+  endings through, and line-oriented readers accept CR+LF. read-line
+  strips a CR before LF; read-csv drops a CR before the line
+  delimiter. For port locations, LF is the only line break and every
+  other character, CR included, counts as one column, on input and
+  output and for string and file ports alike. (Before, output file
+  ports reset the column on CR, string output ports ignored CR, and
+  peek-char on a file port counted a CR's column twice.) The
+  port-translate-mode subrs remain as stubs until scc0 is refreshed,
+  since the scc0 image still calls set-port-translate-mode! with #f.
+  Character encodings and any line-ending conversion belong in a
+  separate transcoding layer later.
+- Still to decide (TODO.org): the _TCHAR layer.
 
 ** Verified
 | Toolchain | Platform                  | Builds                        | Tests |

@@ -725,11 +725,8 @@ struct port_text_info_t
      int pbuf;
      bool pbuf_valid;
 
-     /* CR+LF translation */
-     bool translate;
-     bool needs_lf;
-
-     /* Textual position within I/O stream. */
+     /* Textual position within I/O stream. LF is the only line break;
+      * every other character, CR included, counts as one column. */
      fixnum_t col;
      fixnum_t row;
      fixnum_t pline_mcol; /* Ending col of previous row. */

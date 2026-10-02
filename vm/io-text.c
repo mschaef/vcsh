@@ -109,12 +109,18 @@ lref_t lport_row(lref_t port)
      return fixcons(PORT_TEXT_INFO(port)->row);
 }
 
+/* CR+LF translation has been removed: text ports pass line endings
+ * through unchanged, and line-oriented readers such as read-line accept
+ * both LF and CR+LF. These two subrs remain only because the scc0 image
+ * still calls set-port-translate-mode! with #f. Remove them once scc0 has
+ * been refreshed from an image that no longer does. */
+
 lref_t lport_translate_mode(lref_t port)
 {
      if (!TEXT_PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-     return boolcons(PORT_TEXT_INFO(port)->translate);
+     return boolcons(false);
 }
 
 lref_t lport_set_translate_mode(lref_t port, lref_t mode)
@@ -125,13 +131,10 @@ lref_t lport_set_translate_mode(lref_t port, lref_t mode)
      if (!BOOLP(mode))
           vmerror_wrong_type_n(2, mode);
 
-     lflush_port(port);
+     if (TRUEP(mode))
+          vmerror_unsupported(_T("CR+LF translation is no longer supported"));
 
-     bool old_translate_mode = PORT_TEXT_INFO(port)->translate;
-
-     PORT_TEXT_INFO(port)->translate = TRUEP(mode);
-
-     return boolcons(old_translate_mode);
+     return boolcons(false);
 }
 
 /*** Text Input ***/
@@ -318,11 +321,25 @@ lref_t lread_line(lref_t port)
 
      bool read_anything = false;
 
+     /* A line ends at LF or CR+LF, and the terminator isn't returned. A CR
+      * is held back until the next character shows whether it's part
+      * of a CR+LF; any other CR is an ordinary character. */
+     bool pending_cr = false;
+
      for (ch = read_char(port); (ch != EOF) && (ch != _T('\n')); ch = read_char(port)) {
           read_anything = true;
 
-          write_char(op, ch);
+          if (pending_cr)
+               write_char(op, _T('\r'));
+
+          pending_cr = (ch == _T('\r'));
+
+          if (!pending_cr)
+               write_char(op, ch);
      }
+
+     if (pending_cr && (ch == EOF))
+          write_char(op, _T('\r'));
 
      if (!read_anything && (ch == EOF))
           return lmake_eof();
@@ -357,7 +374,7 @@ lref_t lfresh_line(lref_t port)
      if (PORT_INPUTP(port))
           vmerror_unsupported(_T("cannot fresh-line to input ports"));
 
-     if ((PORT_TEXT_INFO(port)->col != 0) && !PORT_TEXT_INFO(port)->needs_lf) {
+     if (PORT_TEXT_INFO(port)->col != 0) {
           lnewline(port);
           return boolcons(true);
      }
@@ -376,10 +393,6 @@ struct port_text_info_t *allocate_text_info()
      tinfo->pbuf = 0;
      tinfo->pbuf_valid = false;
 
-     /* CRLF translation is off by default: macOS and Linux both use LF
-      * line endings. set-port-translate-mode! turns it on. */
-     tinfo->translate = false;
-     tinfo->needs_lf = FALSE;
      tinfo->col = 0;
      tinfo->row = 1;
      tinfo->pline_mcol = 0;
@@ -403,20 +416,13 @@ int text_port_peek_char(lref_t port)
 
      assert(!PORT_TEXT_INFO(port)->pbuf_valid);
 
-     /* Update position. */
-     switch (ch) {
-     case '\n':
+     /* Undo read_char's position update; the character will be
+      * counted again when it is actually read. */
+     if (ch == '\n') {
           PORT_TEXT_INFO(port)->col = PORT_TEXT_INFO(port)->pline_mcol;
           PORT_TEXT_INFO(port)->row--;
-          break;
-
-     case '\r':
-          break;
-
-     default:
+     } else
           PORT_TEXT_INFO(port)->col--;
-          break;
-     }
 
      /* Update unread buffer. */
      PORT_TEXT_INFO(port)->pbuf = ch;
@@ -435,22 +441,6 @@ size_t text_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
           if (read_bytes(PORT_UNDERLYING(port), &ch, sizeof(_TCHAR)) == 0)
                break;
 
-          /* translation mode forces all input newlines (CR, LF,
-           * CR+LF) into LF's.
-           */
-          if (PORT_TEXT_INFO(port)->translate) {
-               if (ch == '\r') {
-                    ch = '\n';
-                    PORT_TEXT_INFO(port)->needs_lf = TRUE;
-               } else if (PORT_TEXT_INFO(port)->needs_lf) {
-                    PORT_TEXT_INFO(port)->needs_lf = FALSE;
-
-                    /*  Avoid double counting newline. */
-                    if (ch == '\n')
-                         continue;
-               }
-          }
-
           buf[chars_read++] = ch;
      }
 
@@ -459,67 +449,18 @@ size_t text_port_read_chars(lref_t port, _TCHAR *buf, size_t size)
 
 size_t text_port_write_chars(lref_t port, const _TCHAR *buf, size_t count)
 {
-     /* This code divides the text to be written into blocks seperated
-      * by line seperators. write_bytes is called for each block to
-      * actually do the write, and line seperators are correctly
-      * translated to CR+LF pairs. */
-     for (size_t pos = 0; pos < count;) {
-          unsigned int c = _T('\0');
-          /* Emit a needed LF, if necessary. */
-          if (PORT_TEXT_INFO(port)->needs_lf) {
-               if (buf[pos] == _T('\n'))
-                    pos++;
-
-               write_bytes(PORT_UNDERLYING(port), _T("\n"), sizeof(_TCHAR));
-
-               PORT_TEXT_INFO(port)->needs_lf = false;
+     /* Line endings are written as given. LF is the only line break for
+      * position tracking; every other character, CR included, counts as
+      * one column. */
+     for (size_t pos = 0; pos < count; pos++) {
+          if (buf[pos] == _T('\n')) {
+               PORT_TEXT_INFO(port)->col = 0;
                PORT_TEXT_INFO(port)->row++;
-
-               continue;
-          }
-
-          /* Scan for the next eoln character, it ends the block... */
-          size_t eoln_pos;
-
-          for (eoln_pos = pos; (eoln_pos < count); eoln_pos++) {
-               c = buf[eoln_pos];
-
-               if ((c == '\n') || (c == '\r'))
-                    break;
-          }
-
-          size_t seg_len = eoln_pos - pos;
-
-          if (seg_len  == 0) {
-               switch (c) {
-               case _T('\n'):
-                    if (PORT_TEXT_INFO(port)->translate)
-                         write_bytes(PORT_UNDERLYING(port), _T("\r\n"), 2 * sizeof(_TCHAR));
-                    else
-                         write_bytes(PORT_UNDERLYING(port), _T("\n"), sizeof(_TCHAR));
-                    PORT_TEXT_INFO(port)->col = 0;
-                    PORT_TEXT_INFO(port)->row++;
-                    break;
-
-               case _T('\r'):
-                    write_bytes(PORT_UNDERLYING(port), _T("\r"), sizeof(_TCHAR));
-                    PORT_TEXT_INFO(port)->col = 0;
-                    PORT_TEXT_INFO(port)->needs_lf = PORT_TEXT_INFO(port)->translate;
-                    break;
-
-               default:
-                    panic("Invalid case in write_text");
-               }
-
-               eoln_pos++;
-          } else {
-               PORT_TEXT_INFO(port)->col += seg_len;
-
-               write_bytes(PORT_UNDERLYING(port), &(buf[pos]), seg_len * sizeof(_TCHAR));
-          }
-
-          pos = eoln_pos;
+          } else
+               PORT_TEXT_INFO(port)->col++;
      }
+
+     write_bytes(PORT_UNDERLYING(port), buf, count * sizeof(_TCHAR));
 
      return count;
 }

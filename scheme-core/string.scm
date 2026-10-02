@@ -45,7 +45,6 @@
   "Create a string consisting of the display represntation of <obj>
    repeated <count> times."
   (let ((op (open-output-string)))
-    (set-port-translate-mode! op #f)
     (if (or (char? obj) (string? obj))
         (repeat count (write-strings op obj))
         (repeat count (display obj op)))

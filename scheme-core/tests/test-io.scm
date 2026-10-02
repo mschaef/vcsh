@@ -347,9 +347,8 @@
 
 (define (port-chars port peek-count)
   "Read characters from <port> into a list.  Prior to each read-char,
-   peek-char is called <peek-count> times. The port's translation mode
-   is set to <translate-mode>. If peek-char returns a different value
-   from read-char, a message to that effect is encoded in the return
+   peek-char is called <peek-count> times. If peek-char returns a different
+   value from read-char, a message to that effect is encoded in the return
    list."
   (define (loop chars)
     (let ((peek-char-value #f))
@@ -370,8 +369,8 @@
   (port-chars (open-input-string string) peek-count))
 
 
-(define-test input-port-translate-mode
-  ;; Translate-mode=#f
+(define-test input-port-line-endings
+  ;; Ports pass line endings through unchanged; CR is an ordinary character.
   ;; peek-count=0
   (check
    (equal? (string->input-port-chars "\n\n\n\n" 0)
@@ -453,15 +452,22 @@
    (equal? (string->input-port-chars "*\n\r*\n\r*\n\r*\n\r*" 2)
            '(#\* #\newline #\cr #\* #\newline #\cr #\* #\newline #\cr #\* #\newline #\cr #\*))))
 
-(define (port-char-locations port char peek-count translate-mode)
+;;; Port locations
+;;;
+;;; LF is the only line break. Every other character, CR included,
+;;; counts as one column, so a CR+LF line ends with the same location as
+;;; an LF line, plus one column for the CR. The location after reading a
+;;; character is that character's (row . column), with columns counted
+;;; from 1.
+
+(define (port-char-locations port char peek-count)
   "Read characters from <port>, marking the location of instances of the
    character <char>  into a list.  Prior to each read-char, peek-char is
-   called <peek-count> times. The port's translation mode is set to <translate-mode>.
-   If peek-char returns a different value from read-char, a message to that effect
-   is encoded in the return string."
+   called <peek-count> times. If peek-char returns a different value from
+   read-char, a message to that effect is encoded in the return string."
   (define (loop char-locs)
     (let ((peek-char-value #f))
-      (repeat peek-count 
+      (repeat peek-count
 	      (set! peek-char-value (peek-char port)))
       (let ((ch (read-char port)))
 	(cond ((eof-object? ch)
@@ -473,50 +479,44 @@
 	       (loop (if (eq? ch char)
 			 (cons (port-location port) char-locs)
 			 char-locs)))))))
-  (set-port-translate-mode! port translate-mode)
   (loop '()))
 
-(define (string->input-port-char-locations string char peek-count translate-mode)
-  "Invoke port-chars on an input string port created for <string>."
-  (port-char-locations (open-input-string string) char peek-count translate-mode))
+(define (string->input-port-char-locations string char peek-count)
+  "Invoke port-char-locations on an input string port created for <string>."
+  (port-char-locations (open-input-string string) char peek-count))
+
+(define (file->input-port-char-locations string char peek-count)
+  "Invoke port-char-locations on a text file port reading <string> back
+   from a temporary file. File ports are text ports over a binary port,
+   so this covers different code than string ports."
+  (with-temporary-file filename "loc"
+    (with-port op (open-file filename :mode :write)
+      (write-strings op string))
+    (with-port ip (open-file filename :mode :read)
+      (port-char-locations ip char peek-count))))
+
+(define *lf-location-text* "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *")
+(define *crlf-location-text* "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *")
+(define *line-ending-locations*
+  '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8)
+    (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5)))
 
 (define-test input-port-port-locations
-  ;; Translate-mode=#t
-  ;; peek-count=0
-  (check
-   (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 0 #t)
-           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
-
-
-  (check
-   (equal? (string->input-port-char-locations "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *" #\* 0 #t)
-           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
-
-  ;; Translate-mode=#t
-  ;; peek-count=1
-  (check
-   (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 1 #t)
-           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
-
-
-  (check
-   (equal? (string->input-port-char-locations "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *" #\* 1 #t)
-           '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-             (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
-
-
-  ;; Translate-mode=#t
-  ;; peek-count=2
-  (check (equal? (string->input-port-char-locations "  *  *   *\n*  *  ****\n*  *\n\n\n*   \n\n*   *" #\* 2 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5))))
-
-  (check (equal? (string->input-port-char-locations "  *  *   *\r\n*  *  ****\r\n*  *\r\n\r\n\r\n*   \r\n\r\n*   *" #\* 2 #t)
-                 '((1 . 3) (1 . 6) (1 . 10) (2 . 1) (2 . 4) (2 . 7) (2 . 8) 
-                   (2 . 9) (2 . 10) (3 . 1) (3 . 4) (6 . 1) (8 . 1) (8 . 5)))))
+  (dolist (char-locations (list string->input-port-char-locations
+                                file->input-port-char-locations))
+    (dolist (peek-count '(0 1 2))
+      (check (equal? (char-locations *lf-location-text* #\* peek-count)
+                     *line-ending-locations*))
+      (check (equal? (char-locations *crlf-location-text* #\* peek-count)
+                     *line-ending-locations*))
+      ;; A CR+LF counts the CR as a column before the line break.
+      (check (equal? (char-locations "*\r\n*\r\n" #\cr peek-count)
+                     '((1 . 2) (2 . 2))))
+      (check (equal? (char-locations "*\r\n*\r\n" #\newline peek-count)
+                     '((2 . 0) (3 . 0))))
+      ;; A lone CR is not a line break.
+      (check (equal? (char-locations "*\r*\r*\n*" #\* peek-count)
+                     '((1 . 1) (1 . 3) (1 . 5) (2 . 1)))))))
 
 (define (->output-port-locations objs port)
   "Returns a list of the port-locations of port at the end of display'ing each
@@ -526,25 +526,39 @@
            (port-location port))
        objs))
 
-;; These tests use a string output port as a proxy for all output
-;; ports. This is currently the best facsimile of a generic output
-;; port, since null ports do not manage port-locations.
+(define (file->output-port-locations objs)
+  "Like ->output-port-locations, for a text file port. Also returns the
+   text written, as a second value."
+  (with-temporary-file filename "loc"
+    (let ((locations (with-port op (open-file filename :mode :write)
+                       (->output-port-locations objs op))))
+      (values locations
+              (with-port ip (open-file filename :mode :read)
+                (read-text-until-character ip (always #f)))))))
 
 (define-test output-port-port-locations
   (let ((port (open-output-string)))
-    (set-port-translate-mode! port #f)
     (check (equal? (->output-port-locations '("" "foo" "bar" "\n" "foobar" "\ntest1\n") port)
-                       '((1 . 0) (1 . 3) (1 . 6) (2 . 0) (2 . 6) (4 . 0)))))
+                   '((1 . 0) (1 . 3) (1 . 6) (2 . 0) (2 . 6) (4 . 0)))))
 
+  ;; CR is written as given, and is an ordinary character for locations.
   (let ((port (open-output-string)))
-    (set-port-translate-mode! port #t)
-    (check (equal? (->output-port-locations '("" "foo" "bar" "\n" "foobar" "\ntest1\n") port)
-                       '((1 . 0) (1 . 3) (1 . 6) (2 . 0) (2 . 6) (4 . 0))))))
+    (check (equal? (->output-port-locations '("foo" "\r\n" "bar\r" "baz") port)
+                   '((1 . 3) (2 . 0) (2 . 4) (2 . 7))))
+    (check (equal? (get-output-string port) "foo\r\nbar\rbaz")))
+
+  (mvbind (locations text)
+      (file->output-port-locations '("" "foo" "bar" "\n" "foobar" "\ntest1\n"))
+    (check (equal? locations '((1 . 0) (1 . 3) (1 . 6) (2 . 0) (2 . 6) (4 . 0))))
+    (check (equal? text "foobar\nfoobar\ntest1\n")))
+
+  (mvbind (locations text)
+      (file->output-port-locations '("foo" "\r\n" "bar\r" "baz"))
+    (check (equal? locations '((1 . 3) (2 . 0) (2 . 4) (2 . 7))))
+    (check (equal? text "foo\r\nbar\rbaz"))))
 
 (define-test fresh-line
   (let ((raw-port (open-output-string)))
-    (set-port-translate-mode! raw-port #f)
-
     (check (equal? (port-row raw-port) 1))
     (check (equal? (port-column raw-port) 0))
 
@@ -562,29 +576,15 @@
     (fresh-line raw-port)
 
     (check (equal? (port-row raw-port) 2))
-    (check (equal? (port-column raw-port) 0)))
+    (check (equal? (port-column raw-port) 0))
 
-  (let ((translate-port (open-output-string)))
-    (set-port-translate-mode! translate-port #t)
+    ;; A trailing CR doesn't end the line.
+    (display "bar\r" raw-port)
+    (fresh-line raw-port)
 
-    (check (equal? (port-row translate-port) 1))
-    (check (equal? (port-column translate-port) 0))
-
-    (fresh-line translate-port)
-
-    (check (equal? (port-row translate-port) 1))
-    (check (equal? (port-column translate-port) 0))
-
-    (fresh-line translate-port)
-
-    (check (equal? (port-row translate-port) 1))
-    (check (equal? (port-column translate-port) 0))
-
-    (display "foo" translate-port)
-    (fresh-line translate-port)
-
-    (check (equal? (port-row translate-port) 2))
-    (check (equal? (port-column translate-port) 0))))
+    (check (equal? (port-row raw-port) 3))
+    (check (equal? (port-column raw-port) 0))
+    (check (equal? (get-output-string raw-port) "foo\nbar\r\n"))))
 
 (define-test multiple-read-from-string
   (let ((s "[1 2 3]"))
@@ -617,6 +617,19 @@
     (check (equal? "789" (read-line ip)))
     (check (equal? "012" (read-line ip)))
     (check (equal? "345" (read-line ip)))
+    (check (eof-object? (read-line ip))))
+
+  ;; CR+LF also ends a line; a lone CR doesn't.
+  (let ((ip (open-input-string "123\r\n456\n\r\n7\r8\r\n\r")))
+    (check (equal? "123" (read-line ip)))
+    (check (equal? "456" (read-line ip)))
+    (check (equal? "" (read-line ip)))
+    (check (equal? "7\r8" (read-line ip)))
+    (check (equal? "\r" (read-line ip)))
+    (check (eof-object? (read-line ip))))
+
+  (let ((ip (open-input-string "\r\r\n")))
+    (check (equal? "\r" (read-line ip)))
     (check (eof-object? (read-line ip)))))
 
 (define-test write-strings

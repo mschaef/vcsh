@@ -216,13 +216,6 @@ lref_t lflush_port(lref_t port)
      if (!PORTP(port))
           vmerror_wrong_type_n(1, port);
 
-     if (TEXT_PORTP(port)
-         && PORT_TEXT_INFO(port)->translate
-         && PORT_TEXT_INFO(port)->needs_lf)
-     {
-          write_char(port, _T('\n'));
-     }
-
      if (PORT_CLASS(port)->flush)
           PORT_CLASS(port)->flush(port);
 

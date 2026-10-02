@@ -603,7 +603,6 @@
              port-mode
              port-name
              port-open?
-             port-translate-mode
              positive?
              primitive?
              print-date
@@ -704,7 +703,6 @@
              set-environment-variable!
              set-isect
              set-isect/eq
-             set-port-translate-mode!
              set-property!
              set-random-seed!
              set-same?

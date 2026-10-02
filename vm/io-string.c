@@ -108,9 +108,6 @@ size_t output_string_port_write_chars(lref_t port, const _TCHAR *buf, size_t siz
                PORT_TEXT_INFO(port)->row ++;
                break;
 
-          case _T('\r'):
-               break;
-
           default:
                PORT_TEXT_INFO(port)->col++;
           }

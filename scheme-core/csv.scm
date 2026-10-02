@@ -108,11 +108,23 @@
                     (display (read-char port) read-buffer)
                     (read-next-char (not (eq? in-literal?
                                               (eq? ch literal-delimiter))))))))))
+      (define (strip-cr-before-line-delimiter text delimiter)
+        "Lines may end in CR+LF as well as <line-delimiter>, so a CR
+         just before the line delimiter belongs to the delimiter."
+        (if (and (eq? delimiter line-delimiter)
+                 (eq? line-delimiter #\newline)
+                 (> (length text) 0)
+                 (eq? (string-ref text (- (length text) 1)) #\cr))
+            (substring text 0 (- (length text) 1))
+            text))
       (let read-next ((tokens ()))
         (if (port-at-end? port)
             tokens
-            (let ((token (parse-delimited-item (read-token))))
-              (read-next (cons (cons token (read-char port)) tokens))))))
+            (let* ((text (read-token))
+                   (delimiter (read-char port))
+                   (token (parse-delimited-item
+                           (strip-cr-before-line-delimiter text delimiter))))
+              (read-next (cons (cons token delimiter) tokens))))))
 
     (define (split-tokens tokens)
       (let  next-token ((remaining tokens) (current-line ()) (lines ()))

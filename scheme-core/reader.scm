@@ -76,9 +76,7 @@ character or #f if not found."
 (define *location-mapping* (make-identity-hash))
 
 (define (open-output-buffer)
-  (let ((buf (open-output-string)))
-    (set-port-translate-mode! buf #f)
-    buf))
+  (open-output-string))
 
 (define (read-string port)
 

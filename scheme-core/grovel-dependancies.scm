@@ -43,6 +43,5 @@
     (newline)))
 
 (define (run)
-  (set-port-translate-mode! (current-output-port) #f)
   (dolist (source-filename *files-to-grovel*)
     (grovel-file source-filename)))

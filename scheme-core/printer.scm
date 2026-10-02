@@ -308,7 +308,6 @@
   (define (print-machine-string string port)
     (write-strings port "\"")
     (let ((is (open-input-string string)))
-      (set-port-translate-mode! is #f)
       (let loop ()
         (let ((ch (read-char is)))
           (unless (eof-object? ch)
@@ -561,7 +560,6 @@
               (#t
                (formatter/string (read-text-until-character ip #\~)
                                  (next-segment)))))
-      (set-port-translate-mode! ip #f)
       (next-segment))))
 
 (define (format port format-string . args)
