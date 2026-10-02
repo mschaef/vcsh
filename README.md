@@ -41,8 +41,8 @@ The Scheme image is compiled twice: first by the bootstrap compiler in
 bootstrap-check` compiles it a third time and checks that the output is
 byte-identical. `make update` in `scc0/` runs that check before
 refreshing the bootstrap images. The build date recorded in the image
-comes from `SOURCE_DATE_EPOCH`, which defaults to the last commit's
-time.
+comes from `SOURCE_DATE_EPOCH`, which defaults to the time of the last
+commit that touched the image sources.
 
 The `checked` and sanitizer builds use more C stack per Scheme call,
 and can hit vcsh's stack limit in the test suite. Running the tests

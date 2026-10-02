@@ -136,9 +136,13 @@ target package names.
    or scheme-core/) builds stage 3 in build/stage3/ and compares with
    cmp; 'make update' in scc0/ runs it first. The build date comes from
    SOURCE_DATE_EPOCH (the reproducible-builds.org convention), which the
-   makefile sets to the last commit's time; outside a git checkout it
-   falls back to the current time, so bootstrap-check then needs
-   SOURCE_DATE_EPOCH set explicitly. Cost: about 6 s more per image
+   makefile sets to the time of the last commit touching the image
+   sources; outside a git checkout it falls back to the current time, so
+   bootstrap-check then needs SOURCE_DATE_EPOCH set explicitly. The
+   images depend on the value through a stamp file
+   (build/source-date-epoch). Without that, the first version failed
+   bootstrap-check after a commit: stage 2, built before the commit, kept
+   the old date while stage 3 got the new one. Cost: about 6 s more per image
    rebuild (debug build), for the second compile.
 ** Less crosstalk (moderate)
 4. Trim *shared-target-symbols* to syntax keywords and type names. member

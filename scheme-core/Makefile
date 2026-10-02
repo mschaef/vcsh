@@ -75,14 +75,24 @@ ${GEN_DIR}/compiler-run.c: compiler-run.scf ../vm/to-c-source | ${GEN_DIR}
 #
 # SOURCE_DATE_EPOCH fixes the build date recorded in the image (see
 # scheme.scm), so that compiles of the same sources are identical. It
-# defaults to the time of the last commit.
-
-SOURCE_DATE_EPOCH ?= $(shell git log -1 --format=%ct 2>/dev/null || date +%s)
-export SOURCE_DATE_EPOCH
+# defaults to the time of the last commit that touched the image
+# sources, so commits elsewhere (notes, the VM, tests) don't change it.
 
 # The image is built from scheme.scm and the files it includes.
 IMAGE_SOURCES := scheme.scm setup-image-compile.scm \
                  $(shell sed -n 's/^(include "\(.*\)")/\1/p' scheme.scm)
+
+SOURCE_DATE_EPOCH ?= $(or $(shell git log -1 --format=%ct -- ${IMAGE_SOURCES} 2>/dev/null),$(shell date +%s))
+export SOURCE_DATE_EPOCH
+
+# The images depend on SOURCE_DATE_EPOCH through this stamp, rewritten
+# only when the value changes. Without it, an image built before a
+# commit would keep the old date while a later compile used the new one,
+# and bootstrap-check would fail.
+EPOCH_STAMP=${GEN_DIR}/source-date-epoch
+$(shell mkdir -p ${GEN_DIR}; \
+        echo ${SOURCE_DATE_EPOCH} | cmp -s - ${EPOCH_STAMP} || \
+        echo ${SOURCE_DATE_EPOCH} > ${EPOCH_STAMP})
 
 STAGE1_DIR=${GEN_DIR}/stage1
 STAGE3_DIR=${GEN_DIR}/stage3
@@ -94,19 +104,19 @@ STAGE2_IMAGES=scheme.scf compiler-run.scf
 # Runs the compiler from the given scheme.scf and compiler-run.scf.
 COMPILE_WITH=../vm/scansh0 -Xinit-load=$(1)/scheme.scf -Xinit-load=$(1)/compiler-run.scf
 
-${STAGE1_DIR}/scheme.scf: ${IMAGE_SOURCES} ../vm/scansh0 ${SCC0_IMAGES} | ${STAGE1_DIR}
+${STAGE1_DIR}/scheme.scf: ${IMAGE_SOURCES} ${EPOCH_STAMP} ../vm/scansh0 ${SCC0_IMAGES} | ${STAGE1_DIR}
 	$(call COMPILE_WITH,../scc0) --load-file:setup-image-compile.scm --output:$@ scheme.scm
 
 ${STAGE1_DIR}/compiler-run.scf: compiler-run.scm ../vm/scansh0 ${SCC0_IMAGES} | ${STAGE1_DIR}
 	$(call COMPILE_WITH,../scc0) --output:$@ compiler-run.scm
 
-scheme.scf: ${IMAGE_SOURCES} ../vm/scansh0 ${STAGE1_IMAGES}
+scheme.scf: ${IMAGE_SOURCES} ${EPOCH_STAMP} ../vm/scansh0 ${STAGE1_IMAGES}
 	$(call COMPILE_WITH,${STAGE1_DIR}) --load-file:setup-image-compile.scm --output:$@ scheme.scm
 
 compiler-run.scf: compiler-run.scm ../vm/scansh0 ${STAGE1_IMAGES}
 	$(call COMPILE_WITH,${STAGE1_DIR}) --output:$@ compiler-run.scm
 
-${STAGE3_DIR}/scheme.scf: ${IMAGE_SOURCES} ../vm/scansh0 ${STAGE2_IMAGES} | ${STAGE3_DIR}
+${STAGE3_DIR}/scheme.scf: ${IMAGE_SOURCES} ${EPOCH_STAMP} ../vm/scansh0 ${STAGE2_IMAGES} | ${STAGE3_DIR}
 	$(call COMPILE_WITH,.) --load-file:setup-image-compile.scm --output:$@ scheme.scm
 
 ${STAGE3_DIR}/compiler-run.scf: compiler-run.scm ../vm/scansh0 ${STAGE2_IMAGES} | ${STAGE3_DIR}
