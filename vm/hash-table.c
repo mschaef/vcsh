@@ -16,12 +16,16 @@
 
 #include "scan-private.h"
 
-INLINE fixnum_t HASH_COMBINE(fixnum_t _h1, fixnum_t _h2)
+/* Hash arithmetic is unsigned, so that overflow wraps rather than being
+ * undefined behavior. sxhash masks the result back to a non-negative
+ * fixnum. */
+
+INLINE unsigned_fixnum_t HASH_COMBINE(unsigned_fixnum_t _h1, unsigned_fixnum_t _h2)
 {
      return (_h1 * 17 + 1) ^ _h2;
 }
 
-INLINE fixnum_t HASH_COMBINE_COMMUTE(fixnum_t _h1, fixnum_t _h2)
+INLINE unsigned_fixnum_t HASH_COMBINE_COMMUTE(unsigned_fixnum_t _h1, unsigned_fixnum_t _h2)
 {
      return _h1 ^ _h2;
 }
@@ -153,7 +157,7 @@ fixnum_t sxhash_eq(lref_t obj)
  * hashing. The bits are then mixed (MurmurHash3 fmix64) so that the low
  * bits used for bucket selection depend on the whole value. Common
  * values like 0.5 and 1.5 differ only in high-order bits. */
-static fixnum_t sxhash_flonum(flonum_t x)
+static unsigned_fixnum_t sxhash_flonum(flonum_t x)
 {
      uint64_t bits;
 
@@ -172,14 +176,14 @@ static fixnum_t sxhash_flonum(flonum_t x)
      bits *= UINT64_C(0xc4ceb9fe1a85ec53);
      bits ^= bits >> 33;
 
-     return (fixnum_t) bits;
+     return (unsigned_fixnum_t) bits;
 }
 
 fixnum_t sxhash(lref_t obj)
 {
      STACK_CHECK(&obj);
 
-     fixnum_t hash = 0;
+     unsigned_fixnum_t hash = 0;
 
      if (NULLP(obj))
           return 0;
@@ -199,7 +203,7 @@ fixnum_t sxhash(lref_t obj)
           break;
 
      case TC_FIXNUM:
-          hash = get_c_fixnum(obj);
+          hash = (unsigned_fixnum_t)get_c_fixnum(obj);
           break;
 
      case TC_FLONUM:
@@ -215,7 +219,7 @@ fixnum_t sxhash(lref_t obj)
           break;
 
      case TC_SUBR:
-          hash = (fixnum_t)SUBR_CODE(obj);
+          hash = (unsigned_fixnum_t)SUBR_CODE(obj);
           break;
 
      case TC_STRING:
@@ -241,7 +245,7 @@ fixnum_t sxhash(lref_t obj)
           hash = 0;
      }
 
-     return hash & FIXNUM_MAX;
+     return (fixnum_t)(hash & FIXNUM_MAX);
 }
 
 lref_t lsxhash(lref_t obj)

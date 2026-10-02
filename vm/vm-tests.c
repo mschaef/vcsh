@@ -93,6 +93,88 @@ static void test_encdec_uint32() { test_encode_decode_uint(io_encode_uint32, io_
 static void test_encdec_int64() { test_encode_decode_int(io_encode_int64, io_decode_int64); }
 static void test_encdec_uint64() { test_encode_decode_uint(io_encode_uint64, io_decode_uint64); }
 
+/* Extreme values, which exercise the sign bit of each width. */
+
+static void check_int_round_trip(void (* encode)(uint8_t *buf, fixnum_t num),
+                                 fixnum_t (* decode)(uint8_t *buf),
+                                 fixnum_t value)
+{
+     uint8_t buf[8];
+
+     encode(buf, value);
+
+     fixnum_t decoded = decode(buf);
+
+     if (TEST_ASSERT(decoded == value))
+          fprintf(stderr, "%" SCAN_PRIiFIXNUM " decodes as %" SCAN_PRIiFIXNUM "\n", value, decoded);
+}
+
+static void check_uint_round_trip(void (* encode)(uint8_t *buf, unsigned_fixnum_t num),
+                                  unsigned_fixnum_t (* decode)(uint8_t *buf),
+                                  unsigned_fixnum_t value)
+{
+     uint8_t buf[8];
+
+     encode(buf, value);
+
+     unsigned_fixnum_t decoded = decode(buf);
+
+     if (TEST_ASSERT(decoded == value))
+          fprintf(stderr, "%" SCAN_PRIuFIXNUM " decodes as %" SCAN_PRIuFIXNUM "\n", value, decoded);
+}
+
+static void test_encdec_extremes()
+{
+     const fixnum_t int8s[] = { INT8_MIN, INT8_MIN + 1, -1, 0, 1, INT8_MAX };
+     const fixnum_t int16s[] = { INT16_MIN, INT16_MIN + 1, INT8_MIN - 1, -1, 0, INT8_MAX + 1, INT16_MAX };
+     const fixnum_t int32s[] = { INT32_MIN, INT32_MIN + 1, INT16_MIN - 1, -1, 0, INT16_MAX + 1, INT32_MAX };
+     const fixnum_t int64s[] = { INT64_MIN, INT64_MIN + 1, (fixnum_t)INT32_MIN - 1, -1, 0,
+                                 (fixnum_t)INT32_MAX + 1, INT64_MAX };
+
+     for (size_t ii = 0; ii < sizeof(int8s) / sizeof(int8s[0]); ii++)
+          check_int_round_trip(io_encode_int8, io_decode_int8, int8s[ii]);
+     for (size_t ii = 0; ii < sizeof(int16s) / sizeof(int16s[0]); ii++)
+          check_int_round_trip(io_encode_int16, io_decode_int16, int16s[ii]);
+     for (size_t ii = 0; ii < sizeof(int32s) / sizeof(int32s[0]); ii++)
+          check_int_round_trip(io_encode_int32, io_decode_int32, int32s[ii]);
+     for (size_t ii = 0; ii < sizeof(int64s) / sizeof(int64s[0]); ii++)
+          check_int_round_trip(io_encode_int64, io_decode_int64, int64s[ii]);
+
+     check_uint_round_trip(io_encode_uint8, io_decode_uint8, UINT8_MAX);
+     check_uint_round_trip(io_encode_uint8, io_decode_uint8, (unsigned_fixnum_t)INT8_MAX + 1);
+     check_uint_round_trip(io_encode_uint16, io_decode_uint16, UINT16_MAX);
+     check_uint_round_trip(io_encode_uint16, io_decode_uint16, (unsigned_fixnum_t)INT16_MAX + 1);
+     check_uint_round_trip(io_encode_uint32, io_decode_uint32, UINT32_MAX);
+     check_uint_round_trip(io_encode_uint32, io_decode_uint32, (unsigned_fixnum_t)INT32_MAX + 1);
+     check_uint_round_trip(io_encode_uint64, io_decode_uint64, UINT64_MAX);
+     check_uint_round_trip(io_encode_uint64, io_decode_uint64, (unsigned_fixnum_t)INT64_MAX + 1);
+
+     /* The encodings are big-endian two's complement. */
+     uint8_t buf[8];
+
+     io_encode_int32(buf, -2);
+     TEST_ASSERT((buf[0] == 0xff) && (buf[1] == 0xff) && (buf[2] == 0xff) && (buf[3] == 0xfe));
+
+     io_encode_int64(buf, INT64_MIN);
+     TEST_ASSERT((buf[0] == 0x80) && (buf[1] == 0) && (buf[7] == 0));
+}
+
+/* Fixnum tagging, including negative values. */
+
+static void test_fixnum_tagging()
+{
+     const fixnum_t values[] = { FIXNUM_MIN, FIXNUM_MIN + 1, -2, -1, 0, 1, FIXNUM_MAX - 1, FIXNUM_MAX };
+
+     for (size_t ii = 0; ii < sizeof(values) / sizeof(values[0]); ii++) {
+          lref_t x = fixcons(values[ii]);
+
+          TEST_ASSERT(FIXNUMP(x));
+
+          if (TEST_ASSERT(FIXNM(x) == values[ii]))
+               fprintf(stderr, "%" SCAN_PRIiFIXNUM " tags as %" SCAN_PRIiFIXNUM "\n", values[ii], FIXNM(x));
+     }
+}
+
 /* Immediate flonums */
 
 static bool flonum_bits_equal(double a, double b)
@@ -202,6 +284,8 @@ size_t execute_vm_tests()
      INVOKE_TEST(test_encdec_uint32);
      INVOKE_TEST(test_encdec_int64 );
      INVOKE_TEST(test_encdec_uint64);
+     INVOKE_TEST(test_encdec_extremes);
+     INVOKE_TEST(test_fixnum_tagging);
      INVOKE_TEST(test_flonum_immediate_values);
      INVOKE_TEST(test_flonum_immediate_sweep);
 

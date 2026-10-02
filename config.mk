@@ -69,7 +69,10 @@ else
 endif
 
 ifneq ($(SANITIZE),)
-  SANITIZE_FLAGS := -fsanitize=$(SANITIZE) -fno-omit-frame-pointer
+  # Stop at the first problem, rather than reporting it and continuing,
+  # so that 'make SANITIZE=... tested' fails on any finding.
+  SANITIZE_FLAGS := -fsanitize=$(SANITIZE) -fno-sanitize-recover=all \
+                    -fno-omit-frame-pointer
   # The garbage collector scans the C stack conservatively. ASan's
   # 'fake stack' for detecting use-after-return moves locals off the
   # real stack, where the scan can't see them.

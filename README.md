@@ -29,6 +29,8 @@ on the command line, or put them in an untracked `local.mk` next to
 | `COVERAGE` | `yes`, `no`                  | `no`    |
 
 For example, `make BUILD=release` or `make SANITIZE=address tested`.
+Sanitizer builds stop at the first problem found, so `make SANITIZE=...
+tested` fails if there is any.
 Switching settings rebuilds what's needed; there's no need for
 `make clean`. `make coverage` runs the tests in a coverage build and
 prints an `llvm-cov` summary (on macOS, add

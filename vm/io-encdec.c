@@ -97,10 +97,9 @@ void io_encode_int32(uint8_t *buf, fixnum_t num)
 
 fixnum_t io_decode_int32(uint8_t *buf)
 {
-     return (((int32_t)(buf[0] << 24)) +
-             ((int32_t)(buf[1] << 16)) +
-             ((int32_t)(buf[2] <<  8)) +
-             ((int32_t)buf[3]));
+     /* Decode unsigned, then reinterpret: shifting bytes into the sign bit
+      * of a signed int is undefined behavior. */
+     return (int32_t)(uint32_t)io_decode_uint32(buf);
 }
 
 /***** Unsigned 64 bit *****/
@@ -145,14 +144,8 @@ void io_encode_int64(uint8_t *buf, fixnum_t num)
 
 fixnum_t io_decode_int64(uint8_t *buf)
 {
-     return (((fixnum_t)buf[0] << 56) +
-             ((fixnum_t)buf[1] << 48) +
-             ((fixnum_t)buf[2] << 40) +
-             ((fixnum_t)buf[3] << 32) +
-             ((fixnum_t)buf[4] << 24) +
-             ((fixnum_t)buf[5] << 16) +
-             ((fixnum_t)buf[6] <<  8) +
-             ((fixnum_t)buf[7]));
+     /* As for io_decode_int32. */
+     return (int64_t)io_decode_uint64(buf);
 }
 
 /***** Flonum *****/

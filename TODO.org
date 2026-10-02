@@ -21,7 +21,6 @@
 
 ** Build and portability
    clang (or gcc) on 64-bit macOS and Linux only; Windows/MSVC dropped 2026-10-02 (notes/build-2026.org).
-*** Fix signed-shift and signed-overflow UB found by SANITIZE=undefined: MAKE_LREF1 shifts negative fixnums (scan-types.h:72), io-encdec.c:100 and :148, string hash and HASH_COMBINE (hash-table.c:223, :21), mt19937.c:166
 *** Stack limit too small for checked and sanitizer builds; test suite needs (%set-stack-limit #f)
 *** Replace tempnam (unix-sys.c) with mkstemp
 *** Verify 'make coverage' on macOS and on Linux with clang's runtime libraries installed (untested so far)
@@ -136,6 +135,7 @@
 *** Scheme-level Windows code removed (platform-case and its :win32 branches, "/" option prefix, scan.rc, update-scc0.bat); system-info :platform-name reports :macos or :linux; eoln-convention and fs-case-sensitive? queries removed
 *** CR+LF translation on text ports removed: line endings pass through; read-line and read-csv accept CR+LF; CR counts as an ordinary column everywhere; fixed peek-char double-counting CR columns on file ports
 *** port-translate-mode and set-port-translate-mode! subrs removed from the VM (after the scc0 refresh)
+*** Undefined behavior found by SANITIZE=undefined fixed (fixnum tagging, int32/int64 decoding, hashing, mt19937_int64), with VM tests for extreme encode/decode and fixnum values; sanitizer builds now stop at the first finding
 
 * vcalc
   Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).

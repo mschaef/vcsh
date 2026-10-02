@@ -81,10 +81,12 @@ flags as cl.exe; that seems unlikely.
 Not verified: macOS (no Mac here), clang sanitizers and 'make coverage'
 (the Linux sandbox's clang has no runtime libraries installed).
 
-** Findings from SANITIZE=undefined
-All signed-shift or signed-overflow undefined behavior; harmless with
-current compilers in practice, but worth fixing with unsigned
-arithmetic (in TODO.org):
+** Findings from SANITIZE=undefined (fixed, branch fix-ub)
+All signed-shift or signed-overflow undefined behavior, fixed by doing
+the arithmetic unsigned and converting at the end, so results are
+bit-for-bit unchanged (sxhash values included). Sanitizer builds now
+use -fno-sanitize-recover=all, so 'make SANITIZE=undefined tested'
+fails on any finding; it passes now. Sites:
 - MAKE_LREF1 shifts negative fixnums left (scan-types.h:72).
 - io-encdec.c:100 and :148 shift bytes into the sign bit.
 - The string hash and HASH_COMBINE overflow signed fixnums

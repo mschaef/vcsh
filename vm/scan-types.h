@@ -67,14 +67,17 @@ struct fasl_stream_t;
 
 #define UNBOUND_MARKER ((lref_t)LREF2_UNBOUND)
 
+/* The shifts are done unsigned: left-shifting a negative value (any
+ * negative fixnum) is undefined behavior in C. */
+
 INLINE lref_t MAKE_LREF1(enum lref_tag_t tag, intptr_t val)
 {
-     return (lref_t) ((val << LREF1_TAG_SHIFT) | tag);
+     return (lref_t) (((uintptr_t) val << LREF1_TAG_SHIFT) | tag);
 }
 
 INLINE lref_t MAKE_LREF2(enum lref_tag_t tag, intptr_t val)
 {
-     return (lref_t) ((val << LREF2_TAG_SHIFT) | tag);
+     return (lref_t) (((uintptr_t) val << LREF2_TAG_SHIFT) | tag);
 }
 
 INLINE enum lref_tag_t LREF1_TAG(lref_t ref)
@@ -86,6 +89,10 @@ INLINE enum lref_tag_t LREF2_TAG(lref_t ref)
 {
      return (enum lref_tag_t) ((intptr_t) ref & LREF2_TAG_MASK);
 }
+
+/* These rely on >> of a negative value being an arithmetic shift. C
+ * leaves that implementation-defined (not undefined), and gcc and clang
+ * both define it that way. */
 
 INLINE intptr_t LREF1_VAL(lref_t ref)
 {
