@@ -1,0 +1,29 @@
+#+TITLE: Notes index
+
+Start with history-and-direction.org for context.
+
+* Current (2026)
+| File                     | What it covers                                            |
+|--------------------------+-----------------------------------------------------------|
+| history-and-direction.org | Where vcsh came from (SIOD, vCalc) and where it's headed |
+| performance-2026.org     | Interpreter performance measurements and candidate fixes  |
+| bootstrap-2026.org       | How the scc0 self-hosting build works and its weak points |
+| traps-2026.org           | Inventory of VM traps and installed handlers              |
+
+* Historical
+| File                  | What it covers                                                    |
+|-----------------------+-------------------------------------------------------------------|
+| design_notes.txt      | vCalc (Windows MFC calculator) design notes, 2009                 |
+| oop-notes.txt         | Instance/prototype object notes; instances have since been removed |
+| compiler-approach.txt | Early plan for a bytecode compiler (2011)                         |
+| notes-on-case.txt     | Implementation notes on case (2011)                               |
+| InputOutput.txt       | Early design thoughts on I/O and character encodings              |
+| performance.txt       | Benchmark results from 2005                                       |
+
+* Reference material
+| File                  | What it is                                                  |
+|-----------------------+-------------------------------------------------------------|
+| vcsh-lang.txi         | Language manual draft, adapted from R5RS (build: make here) |
+| r5rs/                 | R5RS texinfo source                                         |
+| cltl2-quasiquote.lisp | Quasiquote implementation from CLtL2, for reference         |
+| corncob_lowercase.zip | Word list used by benchmarks                                |

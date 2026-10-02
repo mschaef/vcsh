@@ -1,0 +1,110 @@
+#+TITLE: vcsh trap handlers (2026-10-01)
+
+Inventory of VM traps and the handlers installed for them, as of the
+structure cleanup (traps 2 and 7 removed). Written up ahead of reworking
+traps; no decisions made yet. Tracked in TODO.org under "Traps".
+
+* Mechanism
+- The VM raises a trap with vmtrap(trap, options, argc, ...)
+  (vm/evaluator.c). The handler is a Scheme procedure stored in
+  interp.trap_handlers[] (sized TRAP_LAST + 1).
+- Handlers are called as (handler trapno frame . trap-specific-args).
+- Options:
+  - VMT_MANDATORY_TRAP: no handler installed means a VM panic.
+  - VMT_OPTIONAL_TRAP: no handler means the trap is skipped.
+  - VMT_HANDLER_MUST_ESCAPE: the handler must leave via throw/catch;
+    returning normally panics.
+- The VM installs no handlers itself. scheme-core installs them all
+  with %set-trap-handler!, inside
+  (eval-when (:compile-toplevel :load-toplevel :execute) ...).
+- %trap-handler reads a handler back. To list them all:
+  #+begin_src scheme
+  (dotimes (i 28)
+    (format #t "~a ~a\n" i (scheme::%trap-handler i)))
+  #+end_src
+
+* Installed handlers (23 of 26 defined traps)
+** Errors (error-handling.scm)
+Raised from vm/error.c, all MANDATORY | MUST_ESCAPE. Each turns the VM
+error into a Scheme error with a captured stack.
+| #  | Trap                | Handler                  |
+|----+---------------------+--------------------------|
+|  9 | WRONG_TYPE          | trap-wrong-type          |
+| 10 | INDEX_OUT_OF_BOUNDS | trap-index-out-of-bounds |
+| 11 | ARG_OUT_OF_RANGE    | trap-arg-out-of-range    |
+| 12 | UNSUPPORTED         | trap-unsupported         |
+| 13 | UNIMPLEMENTED       | trap-unimplemented       |
+| 14 | DIVIDE_BY_ZERO      | trap-divide-by-zero      |
+| 15 | IO_ERROR            | trap-io-error            |
+| 16 | UNBOUND_GLOBAL      | trap-unbound-global      |
+| 17 | FAST_READ_ERROR     | trap-fast-read-error     |
+
+** Control flow and runtime
+| #  | Trap           | Handler                    | File               | Raised                                    | Options             |
+|----+----------------+----------------------------+--------------------+-------------------------------------------+---------------------|
+|  1 | DEFINE         | trap-global-define-handler | tools.scm          | every global define (global-env.c)        | optional            |
+|  3 | SIGNAL         | trap-signal                | error-handling.scm | never (see below)                         | -                   |
+|  5 | USER_BREAK     | trap-user-break            | error-handling.scm | Ctrl-C: SIGINT sets VMINTR_BREAK, polled  | mandatory           |
+|  8 | UNCAUGHT_THROW | trap-uncaught-throw        | error-handling.scm | throw with no matching catch (evaluator.c)| mandatory, escape   |
+| 18 | RUN0           | %run0                      | main.scm           | VM startup, hands control to the image    | mandatory           |
+| 19 | AFTER_GC       | trap-after-gc              | memory.scm         | after each GC; heap growth policy         | optional            |
+
+- trap-global-define-handler runs *global-define-hook*.
+- trap-user-break signals 'user-break (catchable via 'ignore-user-break).
+- trap-uncaught-throw aborts with 'scheme::uncaught-throw.
+- trap-signal just does (abort tag retval).
+
+** Fixnum overflow (number.scm)
+All raised from vm/number.c, mandatory, all handled by
+trap-fixnum-overflow, which signals a generic "Fixnum overflow" error.
+| #  | Trap                    |
+|----+-------------------------|
+| 20 | OVERFLOW_FIXNUM_ADD      |
+| 21 | OVERFLOW_FIXNUM_MULTIPLY |
+| 22 | OVERFLOW_FIXNUM_NEGATE   |
+| 23 | OVERFLOW_FIXNUM_SUBTRACT |
+| 24 | OVERFLOW_FIXNUM_DIVIDE   |
+| 25 | OVERFLOW_FIXNUM_MODULO   |
+| 26 | OVERFLOW_FIXNUM_SHL      |
+| 27 | OVERFLOW_FIXNUM_FIXCONS  |
+FIXCONS is behind the string->number overflow bug in TODO.org.
+
+* Not installed
+| # | Trap               | Status                                                              |
+|---+--------------------+---------------------------------------------------------------------|
+| 0 | BAD_APPLY          | Never raised; a bad apply goes through WRONG_TYPE instead.          |
+| 4 | TIMER_EVENT        | Polled in _process_interrupts, but nothing sets VMINTR_TIMER.        |
+| 6 | MSG_NOT_UNDERSTOOD | Never raised; probably an instance (message passing) leftover.      |
+Removed earlier: 2 (RESOLVE_FASL_STRUCT_LAYOUT), 7 (PRIMITIVE_INSTANCE).
+
+* Observations
+- History: some of these traps and handlers came about for vCalc, the
+  Windows calculator that hosted an earlier vcsh (see
+  notes/history-and-direction.org). Which ones isn't recorded; interrupt
+  handling (USER_BREAK, TIMER_EVENT) is a likely candidate. Worth
+  considering when deciding what to keep for a future macOS host.
+- Dead traps: 0, 4, 6, plus 3 (SIGNAL has a handler but the VM never
+  raises it, so trap-signal is unreachable this way). These could be
+  removed like the structure traps, leaving numbered gaps.
+- Trap 4 is a latent hazard: interrupts are raised as mandatory traps, so
+  if anything ever set VMINTR_TIMER the VM would panic for lack of a
+  handler.
+- Bootstrap crosstalk: every %set-trap-handler! call is inside
+  eval-when (:compile-toplevel ...), so during an image build the
+  target's handlers replace the compiler's own mid-compile. See
+  notes/bootstrap-2026.org, crosstalk route 4.
+- Handlers are spread across four files (error-handling.scm, number.scm,
+  memory.scm, main.scm) plus tools.scm, with no single place that shows
+  the full table.
+- The eight fixnum overflow traps share one handler and one generic
+  message; whether they need separate trap numbers is an open question,
+  as is promoting to flonum (or bignums) instead of erroring.
+- vm/main.c init_base_scheme_objects clears handlers with
+  "ii < TRAP_LAST", so the last slot isn't explicitly reset (harmless,
+  since interp is zero-initialized, but off by one).
+
+* Open questions (undecided)
+- Which dead traps to remove, and whether to keep 3/4 for planned use.
+- Whether trap installation should move out of :compile-toplevel.
+- Whether to centralize the handler table in one file.
+- Whether overflow should error or promote.

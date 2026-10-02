@@ -1,6 +1,8 @@
 * vcsh
   Backlog refreshed 2026-10-01: TODO.org merged with the TODO/REVISIT/XXX/TESTTHIS
   comments in vm/ and scheme-core/. File:line references are as of commit c7a22fa.
+  Current goal: make vcsh coherent, with fewer loose ends and a consistent design.
+  See notes/history-and-direction.org for background and longer-term plans.
 
 ** Bugs and correctness
 *** FASL table pointers can dangle when the table resizes during load (vm/fasl.c:108, :484)
@@ -36,6 +38,10 @@
 *** Evaluate fewer definitions at compile time (CL-style compile-file semantics)
 *** scansh0 treats arguments starting with "/" as options; absolute input paths are rejected
 
+** Traps (see notes/traps-2026.org)
+*** Decide on trap rework: remove dead traps (0 BAD_APPLY, 3 SIGNAL, 4 TIMER_EVENT, 6 MSG_NOT_UNDERSTOOD), installation timing, central table
+*** init_base_scheme_objects clears trap handlers with ii < TRAP_LAST (off by one)
+
 ** Performance (see notes/performance-2026.org for measurements and details)
 *** Inline trivial operands in apply arg loops; prototyped, ~20% faster, patch in notes
 *** Fixnum fast-ops for + - < = with subr fallback
@@ -49,6 +55,7 @@
 *** Cache lexical frames on the Lisp stack
 *** Add more FOPs for looping (FOP_WHILE_TRUE exists)
 *** Linear bytecode compiler
+*** Possible long-term: port the VM to Rust (macros for subr definitions); see notes/history-and-direction.org
 *** Clean up FASL write; consider the restructuring noted at vm/fasl.c:20
 *** Move macros entirely to Lisp (vm/macro.c:16)
 *** Memory-size based heap sizing instead of segment counts
@@ -88,7 +95,7 @@
 *** eval with non-null lexical environments (eval.scm:14)
 *** Rename list-all-packages to all-packages?
 *** system-info reports platform "linux" on macOS (unix-sys.c)
-*** FFI (SIOD-FFI?)
+*** FFI (SIOD-FFI?); keep C/Lisp interop judicious (notes/history-and-direction.org)
 
 ** Packages
 *** Load order of scheme-core is poorly defined (package.scm:16)
@@ -119,6 +126,8 @@
 *** Structure/instance leftovers removed: type codes, traps, FASL opcodes (numbers left as gaps), structure.c folded into hash-table.c
 
 * vcalc
+  Backlog from the original Windows MFC vCalc (see notes/history-and-direction.org).
+  Kept as a source of ideas for a future native macOS calculator, not as a plan.
 ** Deferred rendering of clipboard contents (set-clipboard-data takes a closure...)
 ** Load global state command
 ** List ops (nth, length,  map, for-each, every?, any?, sum, group-by, product, member, cons)

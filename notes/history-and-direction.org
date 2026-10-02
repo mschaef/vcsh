@@ -1,0 +1,60 @@
+#+TITLE: vcsh history and direction
+
+Background on where this codebase came from and where it is meant to
+go, as described by Mike (2026-10-01). The other notes in this directory
+should be read in this light. See notes/README.org for an index.
+
+* History
+- vcsh began as an interpreter derived from George Carrette's SIOD
+  Scheme, extended over time with features borrowed from Common Lisp
+  (packages, keyword/optional arguments, multiple values, handler-bind,
+  generic functions, and so on). The language is largely pre-R5RS.
+- An earlier version of vcsh was embedded in vCalc, a Windows MFC
+  application: an interactive calculator in the spirit of Emacs Calc or
+  an HP-28/48, drawn with Windows graphics. Its math capabilities never
+  approached those models. The "* vcalc" section of TODO.org and
+  notes/design_notes.txt are its backlog and design notes.
+- Some VM features exist because of vCalc, including some of the trap
+  handlers (see notes/traps-2026.org).
+- vCalc was meant to grow, but it didn't sell, priorities changed, Mike
+  moved from Windows to the Mac, and he learned Clojure (and a good deal
+  more about software engineering in general). Development tapered off;
+  the repository's last substantial work was around 2020-2022.
+- An original design goal was close interop between C and Lisp.
+  Structures, for example, were accessible from either language in a
+  semi-native way. In hindsight this was overcomplicated and a poor use
+  of the performance/complexity budget; structures and instances have
+  since been removed (2020-2026).
+
+* Direction
+** Near term: make vcsh coherent
+Fewer loose ends and a more consistent design. In practice this has
+meant (2026-10-01): removing dead features (structures, iterate,
+show-retval, 32-bit support), fixing portability, tidying the build, and
+writing down analyses before changing anything larger:
+- notes/performance-2026.org: interpreter performance
+- notes/bootstrap-2026.org: the scc0 self-hosting build
+- notes/traps-2026.org: VM trap handlers
+TODO.org is the working backlog.
+
+** C/Lisp interop
+Good interop between C and Lisp is still wanted, but applied
+judiciously: worth it where it pays for itself, not as a general
+property of every data type. This is the lens for the FFI item in
+TODO.org and for any future VM-level types.
+
+** Later: a new vCalc, native on macOS
+Revisit the calculator theme as a native macOS application, most likely
+never sold. The old vCalc backlog in TODO.org is a source of ideas, not
+a plan.
+
+** Possibly: port the VM to Rust
+Considered, not decided. The attraction is Rust's syntactic
+transformations (macros) for things like subr definitions, which today
+are hand-maintained registration tables in vm/main.c plus matching
+%define lines in scheme-core/subrs.scm. Notes that bear on this:
+- The FASL format, fast-op opcodes, trap numbers and type codes are the
+  contract between image and VM. A port is far easier if that contract is
+  explicit and versioned first (bootstrap note, improvements 2 and 7).
+- The performance note's evaluator ideas (inline operands, vector frames,
+  fixnum fast-ops) apply to a C or a Rust VM alike.

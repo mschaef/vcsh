@@ -118,6 +118,12 @@ target package names.
    macros need wrapped explicitly. Removes crosstalk route 1 almost
    entirely, but touches a lot of scheme-core.
 
+Relevance to a possible Rust VM (notes/history-and-direction.org): a
+port has to read the same images and honour the same opcode, trap and
+type-code numbering. Making that contract explicit and versioned (2) and
+decoupling scc0 from the current VM (7) are what would let a second VM be
+built and tested against existing images.
+
 Suggested order: 1-3 first (they make every later change safer to test),
 then 4-5. Do 6-7 before performance work that adds fast-ops.
 

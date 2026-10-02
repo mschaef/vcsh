@@ -80,6 +80,10 @@ fib30 + loop10M: ~48M lcons calls, 51 GCs, heap 1M cells x 32 bytes.
    Removes the recursion in (1) and node pointer-chasing altogether.
    (1)-(3) pay off either way and are prerequisites in spirit.
 
+   These ideas are about the evaluator design rather than C itself, so
+   they carry over if the VM is ever ported to Rust
+   (notes/history-and-direction.org).
+
 * Patch: inline trivial operands (item 1)
   Apply with: git apply (save the block below as a .patch file)
 #+begin_src diff
