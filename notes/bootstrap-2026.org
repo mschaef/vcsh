@@ -33,6 +33,14 @@ interface the VM can't break until scc0 is refreshed:
 - Subr (built-in C function) names. FASL stores them by name and the
   loader looks them up, so removing or renaming one breaks loading scc0.
 - Trap numbers, typecodes, VM control fields. Baked in with #. reads.
+- Values the old image's code checks at run time. Example (2026-10-02):
+  system-info :platform-name changed from :linux to :macos on macOS in
+  the same commit that removed platform-case from scheme-core. The old
+  scc0 image still ran its own platform-case on the host side, which
+  errors on any platform but :win32 and :linux, so the build broke on
+  macOS. It passed on Linux, where the value didn't change. Fixed by
+  refreshing scc0 (branch refresh-scc0). Test VM changes that alter
+  observable values on every platform, or simulate the other one.
 
 Adding a fast-op is two steps: change VM and compiler, build, 'make
 update', build again. Renumbering or removing one needs the VM to support
