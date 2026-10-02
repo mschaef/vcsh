@@ -109,34 +109,6 @@ lref_t lport_row(lref_t port)
      return fixcons(PORT_TEXT_INFO(port)->row);
 }
 
-/* CR+LF translation has been removed: text ports pass line endings
- * through unchanged, and line-oriented readers such as read-line accept
- * both LF and CR+LF. These two subrs remain only because the scc0 image
- * still calls set-port-translate-mode! with #f. Remove them once scc0 has
- * been refreshed from an image that no longer does. */
-
-lref_t lport_translate_mode(lref_t port)
-{
-     if (!TEXT_PORTP(port))
-          vmerror_wrong_type_n(1, port);
-
-     return boolcons(false);
-}
-
-lref_t lport_set_translate_mode(lref_t port, lref_t mode)
-{
-     if (!TEXT_PORTP(port))
-          vmerror_wrong_type_n(1, port);
-
-     if (!BOOLP(mode))
-          vmerror_wrong_type_n(2, mode);
-
-     if (TRUEP(mode))
-          vmerror_unsupported(_T("CR+LF translation is no longer supported"));
-
-     return boolcons(false);
-}
-
 /*** Text Input ***/
 
 lref_t lread_char(lref_t port)

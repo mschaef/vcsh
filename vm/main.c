@@ -421,7 +421,6 @@ static void register_main_subrs()
     register_subr(_T("port-row"),                         SUBR_1,     (void*)lport_row                           );
     register_subr(_T("port-name"),                        SUBR_1,     (void*)lport_name                          );
     register_subr(_T("port-open?"),                       SUBR_1,     (void*)lport_openp                         );
-    register_subr(_T("port-translate-mode"),              SUBR_1,     (void*)lport_translate_mode                );
     register_subr(_T("primitive?"),                       SUBR_1,     (void*)lprimitivep                         );
     register_subr(_T("procedure?"),                       SUBR_1,     (void*)lprocedurep                         );
     register_subr(_T("quotient"),                         SUBR_2,     (void*)lquotient                           );
@@ -450,7 +449,6 @@ static void register_main_subrs()
     register_subr(_T("set-car!"),                         SUBR_2,     (void*)lsetcar                             );
     register_subr(_T("set-cdr!"),                         SUBR_2,     (void*)lsetcdr                             );
     register_subr(_T("set-environment-variable!"),        SUBR_2,     (void*)lset_environment_variable           );
-    register_subr(_T("set-port-translate-mode!"),         SUBR_2,     (void*)lport_set_translate_mode            );
     register_subr(_T("set-random-seed!"),                 SUBR_1,     (void*)lset_random_seed                    );
     register_subr(_T("set-symbol-package!"),              SUBR_2,     (void*)lset_symbol_package                 );
     register_subr(_T("%set-symbol-vcell!"),               SUBR_2,     (void*)lset_symbol_vcell                   );

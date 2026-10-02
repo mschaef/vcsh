@@ -65,8 +65,8 @@ flags as cl.exe; that seems unlikely.
   output and for string and file ports alike. (Before, output file
   ports reset the column on CR, string output ports ignored CR, and
   peek-char on a file port counted a CR's column twice.) The
-  port-translate-mode subrs remain as stubs until scc0 is refreshed,
-  since the scc0 image still calls set-port-translate-mode! with #f.
+  port-translate-mode subrs stayed as stubs until scc0 was refreshed
+  (it called set-port-translate-mode! with #f), and were then removed.
   Character encodings and any line-ending conversion belong in a
   separate transcoding layer later.
 - Still to decide (TODO.org): the _TCHAR layer.
